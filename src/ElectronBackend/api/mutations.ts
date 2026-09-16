@@ -14,6 +14,7 @@ import type { Attributions } from '../../shared/shared-types';
 import { packageInfoFromAttributionRow } from '../db/attributionData';
 import { getDb } from '../db/db';
 import type { DB } from '../db/generated/databaseTypes';
+import { jsonArraySelection } from '../db/json-array-selection';
 import { resolveAttributionSelection } from './attributions/attribution-selection-queries';
 import {
   addManualOrExternalCaaToResources,
@@ -34,7 +35,7 @@ import {
   replaceAttributions,
   unlinkAttributions,
   updateAttribution,
-  withBatching,
+  withSqlBatching,
 } from './utils';
 
 type AttributionSelectionWithFocus = {
@@ -72,7 +73,7 @@ function getFocusedAttributionRemovalOutcome(
 
 async function getAttributionsByUuid(trx: Kysely<DB>, uuids: Array<string>) {
   return (
-    await withBatching(uuids, async (batch) => {
+    await withSqlBatching(uuids, async (batch) => {
       return trx
         .selectFrom('attribution')
         .selectAll()
@@ -197,7 +198,7 @@ export const mutations = {
         await ensureAttributionsAreNotExternal(trx, writableAttributionUuids);
         const impactedResources = new Set(
           (
-            await withBatching(writableAttributionUuids, async (batch) => {
+            await withSqlBatching(writableAttributionUuids, async (batch) => {
               return trx
                 .selectFrom('resource_to_attribution')
                 .select('resource_id')
@@ -213,7 +214,7 @@ export const mutations = {
           attributionUuids: writableAttributionUuids,
         });
 
-        await withBatching(writableAttributionUuids, async (batch) => {
+        await withSqlBatching(writableAttributionUuids, async (batch) => {
           await trx
             .deleteFrom('attribution')
             .where('uuid', 'in', batch)
@@ -333,7 +334,7 @@ export const mutations = {
             : params.property === 'followUp'
               ? { follow_up: Number(params.value) }
               : { exclude_from_notice: Number(params.value) };
-        await withBatching(writableAttributionUuids, async (batch) => {
+        await withSqlBatching(writableAttributionUuids, async (batch) => {
           await trx
             .updateTable('attribution')
             .set(update)
@@ -385,7 +386,7 @@ export const mutations = {
         ensureResourceIsWritable(resource);
         await removeManualOrExternalCaaFromResources(trx, 'manual', {
           attributionUuids,
-          resourceIds: [resource.id],
+          resourceIds: jsonArraySelection([resource.id]),
         });
 
         await ensureAttributionsAreNotExternal(trx, attributionUuids);
@@ -600,7 +601,7 @@ async function setAttributionsResolvedStatus(
         params.selection,
       );
       await ensureAttributionsAreNotReadonly(trx, attributionUuids);
-      await withBatching(
+      await withSqlBatching(
         attributionUuids,
         async (batch) => {
           if (resolvedStatus) {
@@ -632,8 +633,7 @@ async function setAttributionsResolvedStatus(
             .where('uuid', 'in', batch)
             .execute();
         },
-        // The main problem is updating the caa table, which can only take 15_000 attributionUuids
-        { batchSize: 15_000 },
+        { parametersPerItem: 2 },
       );
     });
   return {

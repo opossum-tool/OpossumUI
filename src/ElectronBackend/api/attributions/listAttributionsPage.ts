@@ -17,6 +17,7 @@ import type {
 import { packageInfoFromAttributionRow } from '../../db/attributionData';
 import { getDb } from '../../db/db';
 import type { Attribution, DB } from '../../db/generated/databaseTypes';
+import { jsonArraySelection } from '../../db/json-array-selection';
 import { AttributionResourceAccess } from '../../types/types';
 import {
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
@@ -30,7 +31,6 @@ import {
   getAttributionResultSetContext,
   getFilteredQuery,
   type PageQueryRow,
-  uuidSelection,
 } from './attribution-list-query-utils';
 
 const DEFAULT_PAGE_SIZE = 200;
@@ -98,7 +98,7 @@ async function hydrateAttributionRows(
   const details = await trx
     .selectFrom('attribution')
     .selectAll()
-    .where('uuid', 'in', uuidSelection(uuids))
+    .where('uuid', 'in', jsonArraySelection(uuids))
     .execute();
   const detailsByUuid = new Map(details.map((detail) => [detail.uuid, detail]));
   const resourceCounts = await getResourceCounts(trx, uuids, resource);
@@ -138,7 +138,7 @@ async function getExplicitAttributionRows(
     .selectFrom('attribution')
     .select('uuid')
     .select(relationship.as('relationship'))
-    .where('uuid', 'in', uuidSelection(uuids))
+    .where('uuid', 'in', jsonArraySelection(uuids))
     .execute();
   const rowsByUuid = new Map(rows.map((row) => [row.uuid, row]));
   return uuids.flatMap((uuid) => {
@@ -156,7 +156,7 @@ export async function hydrateAttributionsByUuid(
     const details = await trx
       .selectFrom('attribution')
       .selectAll()
-      .where('uuid', 'in', uuidSelection(uuids))
+      .where('uuid', 'in', jsonArraySelection(uuids))
       .execute();
     const detailsByUuid = new Map(
       details.map((detail) => [detail.uuid, detail]),
@@ -210,7 +210,7 @@ async function getResourceCounts(
         ),
       ),
     )
-    .where('attribution_uuid', 'in', uuidSelection(uuids))
+    .where('attribution_uuid', 'in', jsonArraySelection(uuids))
     .groupBy('attribution_uuid')
     .execute();
 

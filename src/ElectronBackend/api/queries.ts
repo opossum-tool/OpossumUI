@@ -17,6 +17,7 @@ import type {
 } from '../../shared/shared-types';
 import { packageInfoFromAttributionRow } from '../db/attributionData';
 import { getDb } from '../db/db';
+import { jsonArraySelection } from '../db/json-array-selection';
 import { isProjectSplit } from '../db/split-info';
 import {
   AttributionResourceAccess,
@@ -615,7 +616,7 @@ export const queries = {
           .whereRef('rta.attribution_uuid', '=', 'a.uuid')
           .as('resource_count'),
       )
-      .where('a.uuid', 'in', props.attributionUuids)
+      .where('a.uuid', 'in', jsonArraySelection(props.attributionUuids))
       .execute();
 
     return {

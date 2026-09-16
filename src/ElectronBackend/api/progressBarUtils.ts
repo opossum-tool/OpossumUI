@@ -2,18 +2,18 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  type ComparisonOperatorExpression,
-  type ExpressionBuilder,
-  type Kysely,
-  type OperandExpression,
-  type SelectQueryBuilder,
-  sql,
-  type Transaction,
+import type {
+  ComparisonOperatorExpression,
+  ExpressionBuilder,
+  Kysely,
+  OperandExpression,
+  SelectQueryBuilder,
+  Transaction,
 } from 'kysely';
 
 import type { Criticality } from '../../shared/shared-types';
 import type { DB } from '../db/generated/databaseTypes';
+import { jsonArraySelection } from '../db/json-array-selection';
 
 export function getOnlyExternalFilesQuery(
   eb: ExpressionBuilder<DB, 'closest_attributed_ancestors'>,
@@ -198,11 +198,11 @@ export async function removeManualOrExternalCaaFromResources(
     resourceIds,
   }: {
     attributionUuids?: Array<string>;
-    resourceIds?: Array<number> | OperandExpression<number>;
+    resourceIds?: OperandExpression<number>;
   },
 ) {
   const attributionUuidSelection = attributionUuids
-    ? sql<string>`(select value from json_each(${JSON.stringify(attributionUuids)}))`
+    ? jsonArraySelection(attributionUuids)
     : undefined;
   // Run multiple times, since the parent might have different manual/external attributions after the update
   let finished = false;
@@ -315,7 +315,7 @@ export async function addManualOrExternalCaaToResources(
     resourceIds,
   }: { attributionUuids: Array<string>; resourceIds?: Array<number> },
 ) {
-  const attributionUuidSelection = sql<string>`(select value from json_each(${JSON.stringify(attributionUuids)}))`;
+  const attributionUuidSelection = jsonArraySelection(attributionUuids);
   return (
     trxOrDB
       .with('newly_attributed_resources', (db) =>
@@ -335,7 +335,7 @@ export async function addManualOrExternalCaaToResources(
           ])
           .where('rta.attribution_uuid', 'in', attributionUuidSelection)
           .$if(resourceIds !== undefined, (eb) =>
-            eb.where('rta.resource_id', 'in', resourceIds as Array<number>),
+            eb.where('rta.resource_id', 'in', jsonArraySelection(resourceIds!)),
           )
           .where('rta.resource_id', 'not in', (eb) =>
             eb

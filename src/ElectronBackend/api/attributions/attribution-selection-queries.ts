@@ -7,6 +7,7 @@ import { type Kysely, sql } from 'kysely';
 import type { AttributionSelection } from '../../../shared/attribution-selection';
 import { getDb } from '../../db/db';
 import type { DB } from '../../db/generated/databaseTypes';
+import { jsonArraySelection } from '../../db/json-array-selection';
 import {
   AttributionResourceAccess,
   EDITABLE_ATTRIBUTION_RESOURCE_ACCESS,
@@ -15,7 +16,6 @@ import {
   applyExcludedAttributionUuids,
   getAttributionResultSetContext,
   getFilteredQuery,
-  uuidSelection,
 } from './attribution-list-query-utils';
 
 export type AttributionSelectionSummary = {
@@ -94,7 +94,7 @@ function getSelectionMembershipQuery(
     .selectFrom('attribution')
     .select('uuid')
     .where('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS)
-    .where('uuid', 'in', uuidSelection(selection.attributionUuids))
+    .where('uuid', 'in', jsonArraySelection(selection.attributionUuids))
     .select((eb) =>
       eb.val('same').as('relationship'),
     ) as AttributionMembershipQuery;
