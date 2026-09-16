@@ -11,8 +11,24 @@ import { toast } from '../Components/Toaster';
 import PackageSearchApi from './package-search-api';
 import { tryit } from './tryit';
 
+type PackageSearchInput = Pick<
+  PackageInfo,
+  | 'id'
+  | 'criticality'
+  | 'packageName'
+  | 'packageNamespace'
+  | 'packageType'
+  | 'packageVersion'
+>;
+
 function usePackageNames(
-  { id, criticality, packageName, packageNamespace, packageType }: PackageInfo,
+  {
+    id,
+    criticality,
+    packageName,
+    packageNamespace,
+    packageType,
+  }: PackageSearchInput,
   { disabled }: Partial<{ disabled: boolean }> = {},
 ) {
   const { data, error, isLoading } = useQuery({
@@ -42,7 +58,13 @@ function usePackageNames(
 }
 
 function usePackageNamespaces(
-  { id, criticality, packageName, packageNamespace, packageType }: PackageInfo,
+  {
+    id,
+    criticality,
+    packageName,
+    packageNamespace,
+    packageType,
+  }: PackageSearchInput,
   { disabled }: Partial<{ disabled: boolean }> = {},
 ) {
   const { data, error, isLoading } = useQuery({
@@ -79,7 +101,7 @@ function usePackageVersions(
     packageNamespace,
     packageType,
     packageVersion,
-  }: PackageInfo,
+  }: PackageSearchInput,
   { disabled }: Partial<{ disabled: boolean }> = {},
 ) {
   const { data, error, isLoading } = useQuery({

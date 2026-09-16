@@ -55,7 +55,11 @@ export function useLinkedAttributionActionData({
     { enabled: open && isQueryWideSelection },
   );
 
-  const { data: linkedResourcesTreeState } = useLinkedResourcesTree({
+  const {
+    data: linkedResourcesTreeState,
+    isError: hasLinkedResourcesTreeError,
+    isLoading: isLinkedResourcesTreeLoading,
+  } = useLinkedResourcesTree({
     onAttributionUuids: attributionIds,
     enabled:
       open &&
@@ -75,7 +79,10 @@ export function useLinkedAttributionActionData({
         attributionIds,
         attributions,
         linkedResourceCount: linkedResourcesTreeState?.count,
-        isResourceInfoReady: areAttributionsReady,
+        isResourceInfoReady:
+          areAttributionsReady &&
+          !isLinkedResourcesTreeLoading &&
+          !hasLinkedResourcesTreeError,
         isSelectedResourceReadonly,
       });
 

@@ -2,6 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { expect } from '@playwright/test';
+
+import { parseOpossumFile } from '../../ElectronBackend/input/parseFile';
 import { faker, test } from '../utils';
 
 const [resourceName1, resourceName2] = faker.opossum.resourceNames({
@@ -74,15 +77,12 @@ test('lets the user pick a compare target on another resource via compare-select
 
   await attributionDetails.compareSelectionConfirmButton.click();
   await diffPopup.assert.isVisible();
-  await diffPopup.originalAttributionForm.assert.nameIs(
+  await diffPopup.assert.leftPackageNameIs(
     manualPackageInfo1.packageName || '',
   );
-  await diffPopup.currentAttributionForm.assert.nameIs(
+  await diffPopup.assert.rightPackageNameIs(
     manualPackageInfo2.packageName || '',
   );
-  await diffPopup.assert.applyButtonIsHidden();
-  await diffPopup.assert.revertAllButtonIsHidden();
-  await diffPopup.assert.noDiffArrowsAreVisible();
 
   await diffPopup.cancelButton.click();
   await diffPopup.assert.isHidden();
@@ -94,4 +94,132 @@ test('lets the user pick a compare target on another resource via compare-select
   await attributionDetails.attributionForm.assert.nameIs(
     manualPackageInfo2.packageName || '',
   );
+});
+
+test('saves edits made to both sides of a comparison', async ({
+  attributionDetails,
+  attributionsPanel,
+  confirmSavePopup,
+  diffPopup,
+  resourcesTree,
+}) => {
+  const preexistingLeftPackageName = 'preexisting-left-edit';
+  const editedLeftPackageName = faker.lorem.word();
+  const editedRightPackageName = 'final-right-edit';
+
+  await resourcesTree.goto(resourceName1);
+  await attributionDetails.attributionForm.name.fill(
+    preexistingLeftPackageName,
+  );
+  await attributionDetails.saveChanges();
+  await attributionDetails.compareWithButton.click();
+  await resourcesTree.goto(resourceName2);
+  await attributionsPanel.packageCard.click(manualPackageInfo2);
+  await attributionDetails.compareSelectionConfirmButton.click();
+  await diffPopup.assert.isVisible();
+  await diffPopup.assert.leftPackageNameIs(preexistingLeftPackageName);
+
+  await diffPopup.addAuditingOption('left', 'followUp');
+  await diffPopup.addAuditingOption('right', 'needsReview');
+  await diffPopup.assert.auditingOptionIsVisible('left', 'follow-up');
+  await diffPopup.assert.auditingOptionIsVisible('right', 'needs-review');
+
+  await diffPopup.leftPackageName.fill(editedLeftPackageName);
+  await diffPopup.rightPackageName.fill(editedRightPackageName);
+  await diffPopup.saveButton.click();
+  await confirmSavePopup.assert.isVisible();
+  await confirmSavePopup.saveGloballyButton.click();
+  await confirmSavePopup.assert.isHidden();
+  await diffPopup.assert.isHidden();
+
+  await attributionDetails.attributionForm.assert.nameIs(
+    editedRightPackageName,
+  );
+  await attributionDetails.attributionForm.assert.auditingLabelIsVisible(
+    'needsReviewLabel',
+  );
+
+  await resourcesTree.goto(resourceName1);
+  const editedLeftPackageInfo = {
+    ...manualPackageInfo1,
+    packageName: editedLeftPackageName,
+  };
+  await attributionsPanel.packageCard.assert.isVisible(editedLeftPackageInfo);
+  await attributionsPanel.packageCard.click(editedLeftPackageInfo);
+  await attributionDetails.attributionForm.assert.nameIs(editedLeftPackageName);
+  await attributionDetails.attributionForm.assert.auditingLabelIsVisible(
+    'followUpLabel',
+  );
+});
+
+test('keeps both drafts when save confirmation is cancelled and persists the reopened save', async ({
+  attributionDetails,
+  attributionsPanel,
+  confirmSavePopup,
+  diffPopup,
+  filePaths,
+  menuBar,
+  resourcesTree,
+}) => {
+  const firstLeftPackageName = 'cancelled-left-edit';
+  const firstRightPackageName = 'cancelled-right-edit';
+  const finalLeftPackageName = 'reopened-left-edit';
+  const finalRightPackageName = 'reopened-right-edit';
+
+  await resourcesTree.goto(resourceName1);
+  await attributionDetails.compareWithButton.click();
+  await resourcesTree.goto(resourceName2);
+  await attributionsPanel.packageCard.click(manualPackageInfo2);
+  await attributionDetails.compareSelectionConfirmButton.click();
+  await diffPopup.assert.isVisible();
+
+  await diffPopup.leftPackageName.fill(firstLeftPackageName);
+  await diffPopup.rightPackageName.fill(firstRightPackageName);
+  await diffPopup.saveButton.click();
+  await confirmSavePopup.assert.isVisible();
+  await confirmSavePopup.cancelButton.click();
+  await confirmSavePopup.assert.isHidden();
+  await diffPopup.assert.isVisible();
+  await diffPopup.assert.leftPackageNameIs(firstLeftPackageName);
+  await diffPopup.assert.rightPackageNameIs(firstRightPackageName);
+
+  await diffPopup.leftPackageName.fill(finalLeftPackageName);
+  await diffPopup.rightPackageName.fill(finalRightPackageName);
+  await diffPopup.saveButton.click();
+  await confirmSavePopup.assert.isVisible();
+  await confirmSavePopup.saveGloballyButton.click();
+  await confirmSavePopup.assert.isHidden();
+  await diffPopup.assert.isHidden();
+
+  await menuBar.saveChanges();
+  await expect
+    .poll(async () => {
+      const parsed = await parseOpossumFile(filePaths!.opossum);
+      return 'input' in parsed ? parsed.output : null;
+    })
+    .toEqual(
+      expect.objectContaining({
+        manualAttributions: expect.objectContaining({
+          [attributionId1]: expect.objectContaining({
+            packageName: finalLeftPackageName,
+          }),
+          [attributionId2]: expect.objectContaining({
+            packageName: finalRightPackageName,
+          }),
+        }),
+      }),
+    );
+
+  await resourcesTree.goto(resourceName1);
+  await attributionsPanel.packageCard.click({
+    ...manualPackageInfo1,
+    packageName: finalLeftPackageName,
+  });
+  await attributionDetails.attributionForm.assert.nameIs(finalLeftPackageName);
+  await resourcesTree.goto(resourceName2);
+  await attributionsPanel.packageCard.click({
+    ...manualPackageInfo2,
+    packageName: finalRightPackageName,
+  });
+  await attributionDetails.attributionForm.assert.nameIs(finalRightPackageName);
 });
