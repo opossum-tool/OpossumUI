@@ -18,6 +18,7 @@ jobs:
     # Skip if the last commit was made by this workflow
     if: "!contains(github.event.head_commit.message, 'chore(sync-node-version)')"
     permissions:
+      actions: write
       contents: write
     env:
       CI: true
@@ -36,6 +37,7 @@ jobs:
       - run: yarn sync-node-version
 
       - name: Commit changes
+        id: commit
         uses: planetscale/ghcommit-action@a6b150b81dca5dd027baa898604418eec9e11465 # v0.2.22
         with:
           commit_message: 'chore(sync-node-version): sync Node.js version with Electron'
@@ -43,3 +45,14 @@ jobs:
           branch: ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Dispatch required checks
+        if: steps.commit.outputs.commit-hash != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          gh workflow run build-and-e2e-test.yml --repo "$REPOSITORY" --ref "$BRANCH"
+          gh workflow run check-code-quality.yml --repo "$REPOSITORY" --ref "$BRANCH"
+          gh workflow run check-license-compliance.yml --repo "$REPOSITORY" --ref "$BRANCH"
