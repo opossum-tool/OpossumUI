@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { useIsMutating } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 
 import type { MutationResult } from '../../../ElectronBackend/api/mutations';
@@ -61,8 +60,6 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     });
   const isSaving =
     updateOrMatch.isPending || modifyOrMatchOnlyOnOneResource.isPending;
-  const isMutating = useIsMutating() > 0;
-  const isBusy = isSaving || isMutating;
   const {
     selectedResourceId,
     attributions: attributionsToSave,
@@ -98,7 +95,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     (action === undefined && actionSummary.areAllAttributionsPreselected);
 
   const handleSaveGlobally = async () => {
-    if (isBusy) {
+    if (isSaving) {
       return;
     }
     try {
@@ -118,7 +115,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
   };
 
   const handleSaveOnResource = async () => {
-    if (isBusy) {
+    if (isSaving) {
       return;
     }
     try {
@@ -149,7 +146,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
         allowLocalSave
           ? {
               isPending: modifyOrMatchOnlyOnOneResource.isPending,
-              disabled: isBusy,
+              disabled: isSaving,
               onClick: handleSaveOnResource,
               buttonText: isConfirmAction
                 ? text.saveAttributionsPopup.confirmLocally
@@ -159,7 +156,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
       }
       globalAction={{
         isPending: updateOrMatch.isPending,
-        disabled: isBusy,
+        disabled: isSaving,
         onClick: handleSaveGlobally,
         color: 'error',
         buttonText:
@@ -195,7 +192,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
       isLocalActionAvailable={
         allowLocalSave && actionSummary.isLocalActionAvailable
       }
-      isCloseDisabled={isBusy}
+      isCloseDisabled={isSaving}
       selection={selection}
       attributionCount={actionSummary.selectedAttributionCount}
       open={open}
