@@ -29,10 +29,10 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 
 ### App
 
-| File                                      | Line | Property       | Value   | Converted to |
-| ----------------------------------------- | ---- | -------------- | ------- | ------------ |
-| `src/Frontend/Components/App/style.ts:14` | 14   | `marginBottom` | `200px` | *            |
-| `src/Frontend/Components/App/style.ts:83` | 83   | `padding`      | `5px`   | *            |
+| File                                          | Line | Property       | Value   | Converted to          |
+| --------------------------------------------- | ---- | -------------- | ------- | --------------------- |
+| `src/Frontend/Components/App/App.style.ts:14` | 14   | `marginBottom` | `200px` | `theme.spacing(50)`   |
+| `src/Frontend/Components/App/App.style.ts:83` | 83   | `padding`      | `5px`   | `theme.spacing(1.25)` |
 
 ### Autocomplete
 
@@ -72,10 +72,10 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 
 | File                                                                                     | Line | Property  | Value | Converted to |
 | ---------------------------------------------------------------------------------------- | ---- | --------- | ----- | ------------ |
-| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:39` | 39   | `padding` | `0px` | *            |
-| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:40` | 40   | `margin`  | `0px` | *            |
-| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:53` | 53   | `padding` | `0px` | *            |
-| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:54` | 54   | `margin`  | `0px` | *            |
+| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:39` | 39   | `padding` | `0px` | `sx p: 0`    |
+| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:40` | 40   | `margin`  | `0px` | `sx m: 0`    |
+| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:53` | 53   | `padding` | `0px` | `sx p: 0`    |
+| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:54` | 54   | `margin`  | `0px` | `sx m: 0`    |
 
 ### ErrorFallback
 
@@ -85,19 +85,19 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 
 ### FilePathInput
 
-| File                                                         | Line | Property       | Value  | Converted to |
-| ------------------------------------------------------------ | ---- | -------------- | ------ | ------------ |
-| `src/Frontend/Components/FilePathInput/FilePathInput.tsx:55` | 55   | `sx.marginTop` | `20px` | *            |
+| File                                                         | Line | Property       | Value  | Converted to     |
+| ------------------------------------------------------------ | ---- | -------------- | ------ | ---------------- |
+| `src/Frontend/Components/FilePathInput/FilePathInput.tsx:55` | 55   | `sx.marginTop` | `20px` | `sx={{ mt: 5 }}` |
 
 ### MergeOpossumFilesDialog
 
-| File                                                                              | Line | Property                    | Value  | Converted to |
-| --------------------------------------------------------------------------------- | ---- | --------------------------- | ------ | ------------ |
-| `src/Frontend/Components/MergeOpossumFilesDialog/MergeOpossumFilesDialog.tsx:179` | 179  | `sx.marginBottom`           | `10px` | *            |
-| `src/Frontend/Components/MergeOpossumFilesDialog/MergeOpossumFilesDialog.tsx:188` | 188  | `marginTop` (MuiAlert)      | `20px` | *            |
-| `src/Frontend/Components/MergeOpossumFilesDialog/MergeOpossumFilesDialog.tsx:192` | 192  | `marginTop` (MuiTypography) | `20px` | *            |
-| `src/Frontend/Components/MergeOpossumFilesDialog/MergeOpossumFilesDialog.tsx:196` | 196  | `marginTop` (MuiPaper)      | `10px` | *            |
-| `src/Frontend/Components/MergeOpossumFilesDialog/MergeOpossumFilesDialog.tsx:250` | 250  | `marginTop`                 | `20px` | *            |
+| File                                                                              | Line | Property                    | Value  | Converted to       |
+| --------------------------------------------------------------------------------- | ---- | --------------------------- | ------ | ------------------ |
+| `src/Frontend/Components/MergeOpossumFilesDialog/MergeOpossumFilesDialog.tsx:179` | 179  | `sx.marginBottom`           | `10px` | `sx={{ mb: 2.5 }}` |
+| `src/Frontend/Components/MergeOpossumFilesDialog/MergeOpossumFilesDialog.tsx:188` | 188  | `marginTop` (MuiAlert)      | `20px` | `sx={{ mt: 5 }}`   |
+| `src/Frontend/Components/MergeOpossumFilesDialog/MergeOpossumFilesDialog.tsx:192` | 192  | `marginTop` (MuiTypography) | `20px` | `sx={{ mt: 5 }}`   |
+| `src/Frontend/Components/MergeOpossumFilesDialog/MergeOpossumFilesDialog.tsx:196` | 196  | `marginTop` (MuiPaper)      | `10px` | `sx={{ mt: 2.5 }}` |
+| `src/Frontend/Components/MergeOpossumFilesDialog/MergeOpossumFilesDialog.tsx:250` | 250  | `marginTop`                 | `20px` | `sx={{ mt: 5 }}`   |
 
 ### TopBar
 
