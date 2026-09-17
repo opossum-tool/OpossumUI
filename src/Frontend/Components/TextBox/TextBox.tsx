@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import type { InputBaseComponentsPropsOverrides, SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiInputAdornment from '@mui/material/InputAdornment';
@@ -26,11 +27,12 @@ const classes = {
     },
     '& label[data-shrink=true]': {
       backgroundColor: OpossumColors.white,
-      sx: { py: 0.25, px: 0.75 },
+      py: 0.25,
+      px: 0.75,
       fontSize: '13px',
     },
     '& span': {
-      sx: { p: 0 },
+      p: 0,
     },
     '& legend': {
       '& span': {
@@ -55,19 +57,20 @@ const classes = {
     },
     '& label[data-shrink=true]': {
       backgroundColor: OpossumColors.lightOrange,
-      sx: { py: 0.25, px: 0.75 },
+      py: 0.25,
+      px: 0.75,
     },
   },
   startAdornmentRoot: {
     position: 'absolute',
     left: 0,
-    sx: { ml: 2 },
+    ml: 2,
     height: 0,
   },
   endAdornmentRoot: {
     position: 'absolute',
     right: 0,
-    marginRight: '8px',
+    mr: 2,
     height: 0,
   },
   multilineEndAdornmentRoot: {
@@ -173,7 +176,7 @@ export function TextBox(props: TextBoxProps) {
             inputLabel: {
               shrink: !!props.placeholder || !!props.text,
               sx: {
-                marginLeft: `calc(${ensureArray(props.startIcon).length} * 20px)`,
+                ml: ensureArray(props.startIcon).length * 5,
               },
             },
             input: {

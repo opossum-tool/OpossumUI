@@ -68,10 +68,8 @@ export const StyledMenu = styled(
       {...props}
     />
   ),
-)(({ anchorArrow }) => ({
-  sx: {
-    marginTop: anchorArrow ? 2 : 1,
-  },
+)(({ theme, anchorArrow }) => ({
+  marginTop: theme.spacing(anchorArrow ? 2 : 1),
 }));
 
 export const StyledMenuItem = styled(MuiMenuItem, {
@@ -96,14 +94,12 @@ export const StyledCheckIcon = styled(CheckIcon, {
   visibility: visible ? 'visible' : 'hidden',
 }));
 
-export const MenuItemContainer = styled(MuiBox)({
+export const MenuItemContainer = styled(MuiBox)(({ theme }) => ({
   display: 'flex',
-  sx: {
-    gap: 2,
-  },
+  gap: theme.spacing(2),
   alignItems: 'center',
   paddingRight: '17px',
   paddingLeft: '12px',
   height: '38px',
   width: '100%',
-});
+}));

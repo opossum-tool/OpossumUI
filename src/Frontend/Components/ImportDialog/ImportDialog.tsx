@@ -157,7 +157,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
           />
         )}
         {importIntoCurrentProject && (
-        <MuiTypography sx={{ mb: 2.5 }}>
+          <MuiTypography sx={{ mb: 2.5 }}>
             {text.importDialog.currentProjectWarning}
           </MuiTypography>
         )}

@@ -26,21 +26,17 @@ export const ActionBarContainer = styled(MuiBox)({
     '0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12)',
 });
 
-export const ActionBar = styled(MuiBox)({
+export const ActionBar = styled(MuiBox)(({ theme }) => ({
   display: 'grid',
   gridTemplateColumns: 'auto 1fr auto',
-  sx: {
-    gap: 1,
-  },
-  p: 1,
-});
+  gap: theme.spacing(1),
+  padding: theme.spacing(1),
+}));
 
-export const ButtonGroup = styled(MuiBox)({
+export const ButtonGroup = styled(MuiBox)(({ theme }) => ({
   display: 'flex',
-  sx: {
-    gap: 1,
-  },
-});
+  gap: theme.spacing(1),
+}));
 
 export const AlertContainer = styled(MuiBox, {
   shouldForwardProp: (name: string) => !['color', 'height'].includes(name),
@@ -65,10 +61,8 @@ export const Tabs = styled(MuiTabs)({
   },
 });
 
-export const Tab = styled(MuiTab)({
+export const Tab = styled(MuiTab)(({ theme }) => ({
   whiteSpace: 'nowrap',
   minHeight: 'unset',
-  sx: {
-    p: 2,
-  },
-});
+  padding: theme.spacing(2),
+}));

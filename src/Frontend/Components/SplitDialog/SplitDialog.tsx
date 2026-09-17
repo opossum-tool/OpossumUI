@@ -3,10 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiAlert from '@mui/material/Alert';
+import MuiBox from '@mui/material/Box';
 import MuiCollapse from '@mui/material/Collapse';
 import MuiLinearProgress from '@mui/material/LinearProgress';
 import MuiTypography from '@mui/material/Typography';
-import MuiBox from '@mui/material/Box';
 import { useEffect, useState } from 'react';
 
 import { text } from '../../../shared/text';
@@ -148,7 +148,7 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
             ) : errorMessage ? (
               <MuiAlert severity={'error'}>{errorMessage}</MuiAlert>
             ) : null}
-          </div>
+          </MuiBox>
         </MuiCollapse>
       </div>
     </NotificationPopup>
