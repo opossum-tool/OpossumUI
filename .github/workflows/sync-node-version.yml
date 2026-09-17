@@ -18,8 +18,7 @@ jobs:
     # Skip if the last commit was made by this workflow
     if: "!contains(github.event.head_commit.message, 'chore(sync-node-version)')"
     permissions:
-      actions: write
-      contents: write
+      contents: read
     env:
       CI: true
     steps:
@@ -36,23 +35,21 @@ jobs:
 
       - run: yarn sync-node-version
 
+      - name: Create automation app token
+        id: automation-app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.AUTOMATION_APP_CLIENT_ID }}
+          private-key: ${{ secrets.AUTOMATION_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+
       - name: Commit changes
-        id: commit
         uses: planetscale/ghcommit-action@a6b150b81dca5dd027baa898604418eec9e11465 # v0.2.22
         with:
           commit_message: 'chore(sync-node-version): sync Node.js version with Electron'
           repo: ${{ github.repository }}
           branch: ${{ github.ref_name }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Dispatch required checks
-        if: steps.commit.outputs.commit-hash != ''
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPOSITORY: ${{ github.repository }}
-          BRANCH: ${{ github.ref_name }}
-        run: |
-          gh workflow run build-and-e2e-test.yml --repo "$REPOSITORY" --ref "$BRANCH"
-          gh workflow run check-code-quality.yml --repo "$REPOSITORY" --ref "$BRANCH"
-          gh workflow run check-license-compliance.yml --repo "$REPOSITORY" --ref "$BRANCH"
+          GITHUB_TOKEN: ${{ steps.automation-app-token.outputs.token }}
