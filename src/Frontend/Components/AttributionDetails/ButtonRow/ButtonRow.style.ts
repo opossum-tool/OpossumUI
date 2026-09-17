@@ -7,8 +7,10 @@ import MuiBox from '@mui/system/Box';
 
 export const Container = styled(MuiBox)({
   display: 'flex',
-  gap: '16px',
+  sx: {
+    gap: 4,
+  },
   justifyContent: 'flex-end',
   flexWrap: 'wrap',
-  padding: '12px',
+  p: 3,
 });

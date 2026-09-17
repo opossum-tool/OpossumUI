@@ -34,11 +34,13 @@ import { IconButton } from '../IconButton/IconButton';
 const classes = {
   root: {
     zIndex: 4,
-    padding: '8px',
+    sx: {
+      p: 2,
+      gap: 2,
+    },
     display: 'flex',
     alignItems: 'center',
     minHeight: '24px',
-    gap: '8px',
     background: OpossumColors.white,
   },
 };

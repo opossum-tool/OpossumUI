@@ -69,7 +69,9 @@ export const StyledMenu = styled(
     />
   ),
 )(({ anchorArrow }) => ({
-  marginTop: anchorArrow ? '8px' : '4px',
+  sx: {
+    marginTop: anchorArrow ? 2 : 1,
+  },
 }));
 
 export const StyledMenuItem = styled(MuiMenuItem, {
@@ -96,7 +98,9 @@ export const StyledCheckIcon = styled(CheckIcon, {
 
 export const MenuItemContainer = styled(MuiBox)({
   display: 'flex',
-  gap: '8px',
+  sx: {
+    gap: 2,
+  },
   alignItems: 'center',
   paddingRight: '17px',
   paddingLeft: '12px',

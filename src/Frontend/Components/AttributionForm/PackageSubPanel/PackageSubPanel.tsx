@@ -68,7 +68,9 @@ const COMMON_PACKAGE_TYPES = [
 
 const DisplayRow = styled('div')({
   display: 'flex',
-  gap: '8px',
+  sx: {
+    gap: 2,
+  },
 });
 
 interface PackageSubPanelProps {

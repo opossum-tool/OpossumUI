@@ -111,7 +111,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
         <MuiTabs
           value={selectedTab}
           onChange={(_, tab) => setSelectedTab(tab)}
-          sx={{ marginBottom: '12px', borderBottom: 1, borderColor: 'divider' }}
+          sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
         >
           <MuiTab label={text.projectStatisticsPopup.tabs.overview} />
           <MuiTab label={text.projectStatisticsPopup.tabs.details} />
@@ -271,13 +271,15 @@ const ChartGrid: React.FC<PropsWithChildren> = (props) => {
         container
         columns={{ sm: 1, md: 2, lg: 3 }}
         spacing={3}
-        sx={{
-          height: '100%',
-          minHeight: 'fit-content',
-          padding: '12px',
-          paddingTop: '0px',
-          alignContent: 'flex-start',
-        }}
+          sx={{
+           height: '100%',
+           minHeight: 'fit-content',
+           sx: {
+             p: 3,
+             pt: 0,
+           },
+           alignContent: 'flex-start',
+         }}
       >
         {props.children}
       </MuiGrid>

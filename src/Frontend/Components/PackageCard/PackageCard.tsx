@@ -34,8 +34,10 @@ const classes = {
     display: 'flex',
     alignItems: 'center',
     height: PACKAGE_CARD_HEIGHT,
-    padding: '0 4px',
-    gap: '4px',
+    sx: {
+      px: 1,
+    },
+    gap: 1,
     '&:focus': {
       background: hoveredBackgroundColor,
       outline: 'none',
@@ -47,7 +49,9 @@ const classes = {
     alignItems: 'center',
     height: PACKAGE_CARD_HEIGHT,
     overflow: 'hidden',
-    gap: '8px',
+    sx: {
+      gap: 2,
+    },
   },
   selectionControl: {
     alignSelf: 'stretch',

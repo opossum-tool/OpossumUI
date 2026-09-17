@@ -16,7 +16,7 @@ import { SelectMenu } from '../../SelectMenu/SelectMenu';
 import { useAuditingOptions } from './AuditingOptions.util';
 
 const classes = {
-  container: { display: 'flex', gap: '8px', flexWrap: 'wrap' },
+  container: { display: 'flex', sx: { gap: 2 }, flexWrap: 'wrap' },
 } satisfies SxProps;
 
 interface Props {
