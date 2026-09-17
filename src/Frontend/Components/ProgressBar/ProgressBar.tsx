@@ -29,9 +29,7 @@ const classes = {
   bar: {
     flex: 1,
     border: `2px solid ${OpossumColors.white}`,
-    sx: {
-      mt: 0.5,
-    },
+    mt: 0.5,
     height: '20px',
     '&:hover': { cursor: 'pointer', opacity: 0.75 },
   },
@@ -196,9 +194,7 @@ const ProgressBarTooltipTitle: React.FC<{
             sx={{
               display: 'flex',
               alignItems: 'center',
-              sx: {
-                gap: 1.25,
-              },
+              gap: 1.25,
               whiteSpace: 'nowrap',
             }}
             key={entry.description}

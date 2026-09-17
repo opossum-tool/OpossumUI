@@ -274,10 +274,8 @@ const ChartGrid: React.FC<PropsWithChildren> = (props) => {
         sx={{
           height: '100%',
           minHeight: 'fit-content',
-          sx: {
-            p: 3,
-            pt: 0,
-          },
+          p: 3,
+          pt: 0,
           alignContent: 'flex-start',
         }}
       >

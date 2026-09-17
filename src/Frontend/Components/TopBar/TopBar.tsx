@@ -30,10 +30,8 @@ const classes = {
     display: 'flex',
   },
   openFileIcon: {
-    sx: {
-      mt: 2,
-      p: 0.5,
-    },
+    mt: 2,
+    p: 0.5,
     width: '18px',
     height: '18px',
     color: OpossumColors.white,
@@ -56,12 +54,10 @@ const classes = {
     },
   },
   versionInfo: {
-    sx: {
-      mt: 2,
-      mr: 3,
-      mb: 2,
-      ml: 3,
-    },
+    mt: 2,
+    mr: 3,
+    mb: 2,
+    ml: 3,
     color: OpossumColors.white,
     background: OpossumColors.darkBlue,
     float: 'right',

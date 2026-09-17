@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { useTheme } from '@mui/material/styles';
 import {
   Cell as RcCell,
   Legend as RcLegend,
@@ -33,13 +34,16 @@ const legendTextStyle: React.CSSProperties = {
   width: '95%',
 };
 
-function getLegendIconStyle(backgroundColor: string): React.CSSProperties {
+function getLegendIconStyle(
+  backgroundColor: string,
+  marginRight: React.CSSProperties['marginRight'],
+): React.CSSProperties {
   return {
     backgroundColor,
     borderRadius: '6px',
     height: '12px',
     width: '12px',
-    marginRight: '4px',
+    marginRight,
   };
 }
 
@@ -49,6 +53,7 @@ interface PieChartProps {
 }
 
 export const PieChart: React.FC<PieChartProps> = (props) => {
+  const theme = useTheme();
   const pieChartColors = props.segments.map(
     ({ name }, i) =>
       props.colorMap?.[name] ??
@@ -92,7 +97,12 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
                 )
                 .map((entry, index) => (
                   <div style={{ display: 'flex' }} key={`item-${index}`}>
-                    <div style={getLegendIconStyle(entry.color ?? '')} />
+                    <div
+                      style={getLegendIconStyle(
+                        entry.color ?? '',
+                        theme.spacing(1),
+                      )}
+                    />
                     <div style={legendTextStyle}>{entry.value}</div>
                   </div>
                 ))}
