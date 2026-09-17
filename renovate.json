@@ -38,6 +38,10 @@
       "description": "The @types/node version is driven by Electron - synced via sync-node-version workflow",
       "matchPackageNames": ["@types/node"],
       "enabled": false
+    },
+    {
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "minimumReleaseAgeBehaviour": "timestamp-optional"
     }
   ],
   "gitIgnoredAuthors": ["41898282+github-actions[bot]@users.noreply.github.com"]
