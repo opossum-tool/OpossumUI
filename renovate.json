@@ -41,5 +41,7 @@
       "minimumReleaseAgeBehaviour": "timestamp-optional"
     }
   ],
-  "gitIgnoredAuthors": ["41898282+github-actions[bot]@users.noreply.github.com"]
+  "gitIgnoredAuthors": [
+    "330387752+opossum-tool-automation[bot]@users.noreply.github.com"
+  ]
 }
