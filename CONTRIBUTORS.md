@@ -21,6 +21,7 @@ SPDX-License-Identifier: CC0-1.0
 - **[Indira Bhatt](https://github.com/indirabhatt)** (<indira.bhatt@gmail.com>)
 - **[Jakob Schubert](https://github.com/JakobSchubert)**
 - **[Jonas Tai](https://github.com/jonas-tai)**
+- **[Klara Krämer](https://github.com/KramerKlara)** (<klara.kraemer@tngtech.com>)
 - **[Lennart Holstein](https://github.com/lennartclaas)** (<lennart.holstein@tngtech.com>)
 - **[Leon May](https://github.com/LMayTNG)** (<leon.may@tngtech.com>)
 - **[Leslie Lazzarino](https://github.com/leslielazzarino)** (<leslie.lazzarino@tngtech.com>)
@@ -31,6 +32,7 @@ SPDX-License-Identifier: CC0-1.0
 - **[Meret Behrens](https://github.com/meretp)**
 - **[Michael Cheng](https://github.com/syotfs)** (<m@priorart.io>)
 - **[Nico Carl](https://github.com/nicarl)**
+- **[Philipp Karcher](https://github.com/philipp-karcher)** (<philipp.karcher@tngtech.com>)
 - **[Philipp Martens](https://github.com/PhilippMa)**
 - **[Ruiyun Xie](https://github.com/mayayunx)**
 - **[Sebastian Thomas](https://github.com/sebathomas)** (<sebastian.thomas@tngtech.com>)
