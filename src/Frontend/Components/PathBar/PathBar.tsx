@@ -34,10 +34,8 @@ import { IconButton } from '../IconButton/IconButton';
 const classes = {
   root: {
     zIndex: 4,
-    sx: {
-      p: 2,
-      gap: 2,
-    },
+    p: 2,
+    gap: 2,
     display: 'flex',
     alignItems: 'center',
     minHeight: '24px',

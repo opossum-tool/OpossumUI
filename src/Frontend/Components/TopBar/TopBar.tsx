@@ -61,12 +61,10 @@ const classes = {
     },
   },
   versionInfo: {
-    sx: {
-      mt: 2,
-      mr: 3,
-      mb: 2,
-      ml: 3,
-    },
+    mt: 2,
+    mr: 3,
+    mb: 2,
+    ml: 3,
     color: OpossumColors.white,
     background: OpossumColors.darkBlue,
     float: 'right',

@@ -166,7 +166,7 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 | `src/Frontend/Components/AttributionDetails/ButtonRow/ButtonRow.style.ts:10`                 | 10   | `gap`       | `16px`                 | `theme.spacing(4)`     |
 | `src/Frontend/Components/AttributionDetails/ButtonRow/ButtonRow.style.ts:13`                 | 13   | `padding`   | `12px`                 | `theme.spacing(3)`     |
 | `src/Frontend/Components/AttributionPanels/SignalsPanel/SignalsList/SignalsList.style.ts:13` | 13   | `marginTop` | `1px`                  | `theme.spacing(0.25)`  |
-| `src/Frontend/Components/AttributionForm/PackageSubPanel/PackageSubPanel.tsx:71`             | 71   | `gap`       | `8px`                  | `sx={{ gap: 2 }}`      |
+| `src/Frontend/Components/AttributionForm/PackageSubPanel/PackageSubPanel.tsx:71`             | 71   | `gap`       | `8px`                  | `theme.spacing(2)`     |
 | `src/Frontend/Components/AttributionForm/AuditingOptions/AuditingOptions.tsx:19`             | 19   | `gap`       | `8px` (flexWrap: wrap) | `sx={{ gap: 2 }}`      |
 | `src/Frontend/Components/AttributionForm/AttributionForm.tsx:31`                             | 31   | `gap`       | `12px`                 | `sx={{ gap: 3 }}`      |
 | `src/Frontend/Components/AttributionForm/AttributionForm.tsx:33`                             | 33   | `padding`   | `20px 20px 0 20px`     | `sx={{ p: 5, pt: 0 }}` |
@@ -240,9 +240,9 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 
 ### PieChart
 
-| File                                               | Line | Property      | Value | Converted to |
-| -------------------------------------------------- | ---- | ------------- | ----- | ------------ |
-| `src/Frontend/Components/PieChart/PieChart.tsx:42` | 42   | `marginRight` | `4px` | *            |
+| File                                               | Line | Property      | Value | Converted to                          |
+| -------------------------------------------------- | ---- | ------------- | ----- | ------------------------------------- |
+| `src/Frontend/Components/PieChart/PieChart.tsx:42` | 42   | `marginRight` | `4px` | `theme.spacing(1)` (via `useTheme()`) |
 
 ### Additional Files with Hardcoded Spacing
 
@@ -252,6 +252,26 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 | `src/Frontend/Components/AttributionForm/AttributionForm.tsx:33`                | 33   | `padding`    | `20px 20px 0 20px`                                       | `sx={{ p: 5, pt: 0 }}`                           |
 | `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.tsx:747` | 747  | `sx.padding` | `2px 0`                                                  | `sx={{ py: 0.5, px: 0 }}`                        |
 | `src/Frontend/Components/TextBox/TextBox.tsx:77`                                | 77   | `boxShadow`  | `inset 4px 0 0 ${OpossumColors.green}`                   | *                                                |
+
+### Note: Pitfalls Found and Fixed During Migration
+
+Two MUI v9 pitfalls caused earlier conversions to silently not apply. Both were found by verifying the runtime behavior of the installed `@mui/system`/`@mui/styled-engine` source and have been fixed across the codebase:
+
+1. **`styled()` style objects are not processed through the sx system.** Shorthand keys (`p`, `px`, `py`, `pl`, `gap`, …) inside `styled()` objects are serialized as literal CSS: invalid property names are dropped by the browser, and `gap: N` applies as `Npx` instead of `N × 4px`. All affected `*.style.ts(x)` files now use the `({ theme }) => ({ ... theme.spacing(...) })` pattern instead (see ButtonRow, PackagesPanel, SignalsList, MultiResourcePicker, SelectMenu, GroupedList, ProjectStatisticsPopup, ErrorFallback, ResizePanels, TextBox, PackageSubPanel).
+
+2. **Nested `sx: { … }` keys are dead code.** A nested `sx` key inside an `sx` prop or inside an sx-consumed style object (e.g. a `classes` entry passed via `sx={classes.x}`) is emitted as a CSS selector matching nonexistent `<sx>` elements — its values never apply. 12 such instances (previously listed as converted but never applied) were fixed by hoisting the values to the object root, where sx resolves them correctly:
+
+   - `TopBar.tsx` (`openFileIcon`, `versionInfo`)
+   - `PathBar.tsx` (`root`)
+   - `PackageCard.tsx` (`root`, `innerRoot`)
+   - `ProgressBar.tsx` (`bar`, inline entry `sx`)
+   - `SwitchableProgressBar.tsx` (`container`)
+   - `Icons.tsx` (`resourceIcon`)
+   - `AttributionForm/AuditingOptions/AuditingOptions.tsx` (`container`)
+   - `ProjectStatisticsPopup.tsx` (chart grid `sx`)
+   - `AttributionForm/PackageSubPanel/PackageSubPanel.tsx` (`DisplayRow`, converted to `theme.spacing(2)`)
+
+   The "Converted to" values in the tables above now describe styles that are genuinely applied at runtime.
 
 ## Impact Analysis
 

@@ -18,13 +18,11 @@ const classes = {
   container: {
     flex: 1,
     display: 'flex',
-    sx: {
-      ml: 3,
-      mr: 3,
-      gap: 1,
-      mb: 1,
-      mt: 1,
-    },
+    ml: 3,
+    mr: 3,
+    gap: 1,
+    mb: 1,
+    mt: 1,
   },
   select: {
     width: '150px',
