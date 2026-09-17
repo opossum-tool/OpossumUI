@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { styled } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiIconButton from '@mui/material/IconButton';
@@ -11,34 +12,28 @@ import MuiTypography from '@mui/material/Typography';
 const INDENT_PER_LEVEL = '24px';
 const INCLUDED_RESOURCE_OPACITY = 0.7;
 
-export const PickerContainer = styled(MuiBox)({
+export const PickerContainer = styled(MuiBox)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  sx: {
-    gap: 3,
-  },
-});
+  gap: theme.spacing(3),
+}));
 
-export const ResourceTreeContainer = styled(MuiBox)({
+export const ResourceTreeContainer = styled(MuiBox)(({ theme }) => ({
   border: '1px solid',
   borderColor: 'divider',
   borderRadius: '4px',
   height: '360px',
   overflowY: 'auto',
-  sx: {
-    p: 2,
-  },
+  padding: theme.spacing(2),
   position: 'relative',
-});
+}));
 
-export const SelectedPathsContainer = styled(MuiBox)({
+export const SelectedPathsContainer = styled(MuiBox)(({ theme }) => ({
   display: 'flex',
   flexWrap: 'wrap',
-  sx: {
-    gap: 2,
-  },
+  gap: theme.spacing(2),
   minHeight: '24px',
-});
+}));
 
 export const LoadingIndicator = styled(MuiLinearProgress)({
   left: 0,
@@ -73,8 +68,6 @@ export const SelectionControl = styled(MuiBox)({
   flexShrink: 0,
 });
 
-export const ResourceLabel = styled(MuiTypography)({
-  sx: {
-    ml: 2,
-  },
-});
+export const ResourceLabel = styled(MuiTypography)(({ theme }) => ({
+  marginLeft: theme.spacing(2),
+}));

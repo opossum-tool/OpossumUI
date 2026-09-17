@@ -79,9 +79,9 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 
 ### ErrorFallback
 
-| File                                                              | Line | Property | Value  | Converted to     |
-| ----------------------------------------------------------------- | ---- | -------- | ------ | ---------------- |
-| `src/Frontend/Components/ErrorFallback/ErrorFallback.style.ts:19` | 19   | `gap`    | `20px` | `sx={{ mt: 5 }}` |
+| File                                                              | Line | Property | Value  | Converted to       |
+| ----------------------------------------------------------------- | ---- | -------- | ------ | ------------------ |
+| `src/Frontend/Components/ErrorFallback/ErrorFallback.style.ts:19` | 19   | `gap`    | `20px` | `theme.spacing(5)` |
 
 ### FilePathInput
 
@@ -101,138 +101,138 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 
 ### TopBar
 
-| File                                           | Line | Property  | Value               | Converted to |
-| ---------------------------------------------- | ---- | --------- | ------------------- | ------------ |
-| `src/Frontend/Components/TopBar/TopBar.tsx:33` | 33   | `margin`  | `8px`               | `sx={{ mt: 2 }}` |
-| `src/Frontend/Components/TopBar/TopBar.tsx:36` | 36   | `padding` | `2px`               | `sx={{ p: 0.5 }}` |
+| File                                           | Line | Property  | Value               | Converted to                          |
+| ---------------------------------------------- | ---- | --------- | ------------------- | ------------------------------------- |
+| `src/Frontend/Components/TopBar/TopBar.tsx:33` | 33   | `margin`  | `8px`               | `sx={{ mt: 2 }}`                      |
+| `src/Frontend/Components/TopBar/TopBar.tsx:36` | 36   | `padding` | `2px`               | `sx={{ p: 0.5 }}`                     |
 | `src/Frontend/Components/TopBar/TopBar.tsx:57` | 57   | `margin`  | `8px 12px 8px 12px` | `sx={{ mt: 2, mr: 3, mb: 2, ml: 3 }}` |
 
 ### PathBar
 
-| File                                             | Line | Property  | Value | Converted to |
-| ------------------------------------------------ | ---- | --------- | ----- | ------------ |
-| `src/Frontend/Components/PathBar/PathBar.tsx:37` | 37   | `padding` | `8px` | `sx={{ p: 2 }}` |
+| File                                             | Line | Property  | Value | Converted to      |
+| ------------------------------------------------ | ---- | --------- | ----- | ----------------- |
+| `src/Frontend/Components/PathBar/PathBar.tsx:37` | 37   | `padding` | `8px` | `sx={{ p: 2 }}`   |
 | `src/Frontend/Components/PathBar/PathBar.tsx:41` | 41   | `gap`     | `8px` | `sx={{ gap: 2 }}` |
 
 ### PackageCard
 
-| File                                                     | Line | Property  | Value   | Converted to |
-| -------------------------------------------------------- | ---- | --------- | ------- | ------------ |
-| `src/Frontend/Components/PackageCard/PackageCard.tsx:37` | 37   | `padding` | `0 4px` | `sx={{ px: 1 }}` |
+| File                                                     | Line | Property  | Value   | Converted to      |
+| -------------------------------------------------------- | ---- | --------- | ------- | ----------------- |
+| `src/Frontend/Components/PackageCard/PackageCard.tsx:37` | 37   | `padding` | `0 4px` | `sx={{ px: 1 }}`  |
 | `src/Frontend/Components/PackageCard/PackageCard.tsx:38` | 38   | `gap`     | `4px`   | `sx={{ gap: 1 }}` |
 | `src/Frontend/Components/PackageCard/PackageCard.tsx:50` | 50   | `gap`     | `8px`   | `sx={{ gap: 2 }}` |
 
 ### TextBox
 
-| File                                              | Line | Property       | Value                     | Converted to                                      |
-| ------------------------------------------------- | ---- | -------------- | ------------------------- | ------------------------------------------------- |
-| `src/Frontend/Components/TextBox/TextBox.tsx:24`  | 24   | `padding`      | `1px 3px`                 | `sx={{ py: 0.25, px: 0.75 }}`                    |
-| `src/Frontend/Components/TextBox/TextBox.tsx:28`  | 28   | `padding`      | `0px`                     | `sx={{ p: 0 }}`                                   |
-| `src/Frontend/Components/TextBox/TextBox.tsx:53`  | 53   | `padding`      | `1px 3px`                 | `sx={{ py: 0.25, px: 0.75 }}`                    |
-| `src/Frontend/Components/TextBox/TextBox.tsx:59`  | 59   | `marginLeft`   | `8px`                     | `sx={{ ml: 2 }}`                                  |
-| `src/Frontend/Components/TextBox/TextBox.tsx:65`  | 65   | `marginRight`  | `8px`                     | `sx={{ mr: 2 }}`                                  |
-| `src/Frontend/Components/TextBox/TextBox.tsx:142` | 142  | `paddingY`     | `8.5px`                   | *                                                 |
-| `src/Frontend/Components/TextBox/TextBox.tsx:127` | 127  | `marginLeft`   | `calc(... * 20px)`        | *                                                 |
-| `src/Frontend/Components/TextBox/TextBox.tsx:128` | 128  | `paddingLeft`  | `calc(14px + ... * 20px)` | *                                                 |
-| `src/Frontend/Components/TextBox/TextBox.tsx:144` | 144  | `paddingRight` | `calc(14px + ... * 20px)` | *                                                 |
+| File                                              | Line | Property       | Value                     | Converted to                  |
+| ------------------------------------------------- | ---- | -------------- | ------------------------- | ----------------------------- |
+| `src/Frontend/Components/TextBox/TextBox.tsx:24`  | 24   | `padding`      | `1px 3px`                 | `sx={{ py: 0.25, px: 0.75 }}` |
+| `src/Frontend/Components/TextBox/TextBox.tsx:28`  | 28   | `padding`      | `0px`                     | `sx={{ p: 0 }}`               |
+| `src/Frontend/Components/TextBox/TextBox.tsx:53`  | 53   | `padding`      | `1px 3px`                 | `sx={{ py: 0.25, px: 0.75 }}` |
+| `src/Frontend/Components/TextBox/TextBox.tsx:59`  | 59   | `marginLeft`   | `8px`                     | `sx={{ ml: 2 }}`              |
+| `src/Frontend/Components/TextBox/TextBox.tsx:65`  | 65   | `marginRight`  | `8px`                     | `sx={{ mr: 2 }}`              |
+| `src/Frontend/Components/TextBox/TextBox.tsx:142` | 142  | `paddingY`     | `8.5px`                   | `py: 2.125`                   |
+| `src/Frontend/Components/TextBox/TextBox.tsx:127` | 127  | `marginLeft`   | `calc(... * 20px)`        | `sx={{ ml: n * 5 }}`          |
+| `src/Frontend/Components/TextBox/TextBox.tsx:128` | 128  | `paddingLeft`  | `calc(14px + ... * 20px)` | `sx={{ pl: 3.5 + n * 5 }}`    |
+| `src/Frontend/Components/TextBox/TextBox.tsx:144` | 144  | `paddingRight` | `calc(14px + ... * 20px)` | `sx={{ pr: 3.5 + n * 5 }}`    |
 
 ### ResizePanels
 
-| File                                                             | Line | Property       | Value          | Converted to |
-| ---------------------------------------------------------------- | ---- | -------------- | -------------- | ------------ |
-| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:38`  | 38   | `gap`          | `4px`          | *            |
-| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:39`  | 39   | `padding`      | `0 4px 0 12px` | *            |
-| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:47`  | 47   | `marginTop`    | `2px`          | *            |
-| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:73`  | 73   | `padding`      | `0px 5px`      | *            |
-| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:82`  | 82   | `padding`      | `0px 4px`      | *            |
-| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:91`  | 91   | `padding`      | `2px`          | *            |
-| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:108` | 108  | `paddingRight` | `24px`         | *            |
-| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:109` | 109  | `paddingLeft`  | `24px`         | *            |
+| File                                                             | Line | Property       | Value          | Converted to                                      |
+| ---------------------------------------------------------------- | ---- | -------------- | -------------- | ------------------------------------------------- |
+| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:38`  | 38   | `gap`          | `4px`          | `theme.spacing(1)`                                |
+| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:39`  | 39   | `padding`      | `0 4px 0 12px` | `theme.spacing(0, 1, 0, 3)`                       |
+| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:47`  | 47   | `marginTop`    | `2px`          | `theme.spacing(0.5)`                              |
+| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:73`  | 73   | `padding`      | `0px 5px`      | `theme.spacing(0, 1.25)`                          |
+| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:82`  | 82   | `padding`      | `0px 4px`      | `theme.spacing(0, 1)`                             |
+| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:91`  | 91   | `padding`      | `2px`          | `theme.spacing(0.5)`                              |
+| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:108` | 108  | `paddingRight` | `24px`         | `theme.spacing(6)` (conditional: `value ? 6 : 0`) |
+| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:109` | 109  | `paddingLeft`  | `24px`         | `theme.spacing(6)`                                |
 
 ### SwitchableProgressBar
 
-| File                                                                         | Line | Property       | Value  | Converted to |
-| ---------------------------------------------------------------------------- | ---- | -------------- | ------ | ------------ |
-| `src/Frontend/Components/SwitchableProgressBar/SwitchableProgressBar.tsx:21` | 21   | `marginLeft`   | `12px` | `sx={{ ml: 3 }}` |
-| `src/Frontend/Components/SwitchableProgressBar/SwitchableProgressBar.tsx:22` | 22   | `marginRight`  | `12px` | `sx={{ mr: 3 }}` |
+| File                                                                         | Line | Property       | Value  | Converted to      |
+| ---------------------------------------------------------------------------- | ---- | -------------- | ------ | ----------------- |
+| `src/Frontend/Components/SwitchableProgressBar/SwitchableProgressBar.tsx:21` | 21   | `marginLeft`   | `12px` | `sx={{ ml: 3 }}`  |
+| `src/Frontend/Components/SwitchableProgressBar/SwitchableProgressBar.tsx:22` | 22   | `marginRight`  | `12px` | `sx={{ mr: 3 }}`  |
 | `src/Frontend/Components/SwitchableProgressBar/SwitchableProgressBar.tsx:23` | 23   | `gap`          | `4px`  | `sx={{ gap: 1 }}` |
-| `src/Frontend/Components/SwitchableProgressBar/SwitchableProgressBar.tsx:24` | 24   | `marginBottom` | `4px`  | `sx={{ mb: 1 }}` |
-| `src/Frontend/Components/SwitchableProgressBar/SwitchableProgressBar.tsx:25` | 25   | `marginTop`    | `4px`  | `sx={{ mt: 1 }}` |
+| `src/Frontend/Components/SwitchableProgressBar/SwitchableProgressBar.tsx:24` | 24   | `marginBottom` | `4px`  | `sx={{ mb: 1 }}`  |
+| `src/Frontend/Components/SwitchableProgressBar/SwitchableProgressBar.tsx:25` | 25   | `marginTop`    | `4px`  | `sx={{ mt: 1 }}`  |
 
 ### Attribution Components
 
-| File                                                                                         | Line | Property    | Value                  | Converted to |
-| -------------------------------------------------------------------------------------------- | ---- | ----------- | ---------------------- | ------------ |
-| `src/Frontend/Components/AttributionDetails/ButtonRow/ButtonRow.style.ts:10` | 10   | `gap`       | `16px` | `sx={{ gap: 4 }}` |
-| `src/Frontend/Components/AttributionDetails/ButtonRow/ButtonRow.style.ts:13` | 13   | `padding`   | `12px` | `sx={{ p: 3 }}` |
-| `src/Frontend/Components/AttributionPanels/SignalsPanel/SignalsList/SignalsList.style.ts:13` | 13   | `marginTop` | `1px`  | `sx={{ mt: 0.25 }}` |
-| `src/Frontend/Components/AttributionForm/PackageSubPanel/PackageSubPanel.tsx:71` | 71   | `gap`       | `8px`                  | `sx={{ gap: 2 }}` |
-| `src/Frontend/Components/AttributionForm/AuditingOptions/AuditingOptions.tsx:19` | 19   | `gap`       | `8px` (flexWrap: wrap) | `sx={{ gap: 2 }}` |
-| `src/Frontend/Components/AttributionForm/AttributionForm.tsx:31`                             | 31   | `gap`       | `12px`                 | `sx={{ gap: 3 }}` |
-| `src/Frontend/Components/AttributionForm/AttributionForm.tsx:33`                             | 33   | `padding`   | `20px 20px 0 20px`   | `sx={{ p: 5 }}` |
-| `src/Frontend/Components/AttributionForm/AttributionForm.style.ts:10` | 10   | `gap`       | `12px`                 | `sx={{ gap: 3 }}` |
+| File                                                                                         | Line | Property    | Value                  | Converted to           |
+| -------------------------------------------------------------------------------------------- | ---- | ----------- | ---------------------- | ---------------------- |
+| `src/Frontend/Components/AttributionDetails/ButtonRow/ButtonRow.style.ts:10`                 | 10   | `gap`       | `16px`                 | `theme.spacing(4)`     |
+| `src/Frontend/Components/AttributionDetails/ButtonRow/ButtonRow.style.ts:13`                 | 13   | `padding`   | `12px`                 | `theme.spacing(3)`     |
+| `src/Frontend/Components/AttributionPanels/SignalsPanel/SignalsList/SignalsList.style.ts:13` | 13   | `marginTop` | `1px`                  | `theme.spacing(0.25)`  |
+| `src/Frontend/Components/AttributionForm/PackageSubPanel/PackageSubPanel.tsx:71`             | 71   | `gap`       | `8px`                  | `sx={{ gap: 2 }}`      |
+| `src/Frontend/Components/AttributionForm/AuditingOptions/AuditingOptions.tsx:19`             | 19   | `gap`       | `8px` (flexWrap: wrap) | `sx={{ gap: 2 }}`      |
+| `src/Frontend/Components/AttributionForm/AttributionForm.tsx:31`                             | 31   | `gap`       | `12px`                 | `sx={{ gap: 3 }}`      |
+| `src/Frontend/Components/AttributionForm/AttributionForm.tsx:33`                             | 33   | `padding`   | `20px 20px 0 20px`     | `sx={{ p: 5, pt: 0 }}` |
+| `src/Frontend/Components/AttributionForm/AttributionForm.style.ts:10`                        | 10   | `gap`       | `12px`                 | `sx={{ gap: 3 }}`      |
 
 ### SelectMenu
 
-| File                                                         | Line | Property    | Value         | Converted to |
-| ------------------------------------------------------------ | ---- | ----------- | ------------- | ------------ |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:72` | 72   | `marginTop` | `8px` / `4px` | `sx={{ marginTop: anchorArrow ? 2 : 1 }}` |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:99` | 99   | `gap`       | `8px`         | `sx={{ gap: 2 }}` |     |
+| File                                                         | Line | Property    | Value         | Converted to                         |
+| ------------------------------------------------------------ | ---- | ----------- | ------------- | ------------------------------------ |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:72` | 72   | `marginTop` | `8px` / `4px` | `theme.spacing(anchorArrow ? 2 : 1)` |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:99` | 99   | `gap`       | `8px`         | `theme.spacing(2)`                   |     |
 
 ### SplitDialog
 
-| File                                                                  | Line | Property                        | Value                 | Converted to |
-| --------------------------------------------------------------------- | ---- | ------------------------------- | --------------------- | ------------ |
-| `src/Frontend/Components/SplitDialog/SplitDialog.tsx:137` | 137  | `marginTop`                     | `20px`                | `sx={{ mt: 5 }}` |
-| `src/Frontend/Components/SplitDialog/SplitDialog.tsx:141` | 141  | `marginTop` (MuiLinearProgress) | `8px`                 | `sx={{ mt: 2 }}` |
-| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:17` | 17   | `gap`                           | `12px`                | `sx={{ gap: 3 }}` |
-| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:26` | 26   | `padding`                       | `8px`                 | `sx={{ p: 2 }}` |
-| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:33` | 33   | `gap`                           | `8px`                 | `sx={{ gap: 2 }}` |
-| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:70` | 70   | `marginLeft`                    | `8px`                 | `sx={{ ml: 2 }}` |
+| File                                                                  | Line | Property                        | Value  | Converted to       |
+| --------------------------------------------------------------------- | ---- | ------------------------------- | ------ | ------------------ |
+| `src/Frontend/Components/SplitDialog/SplitDialog.tsx:137`             | 137  | `marginTop`                     | `20px` | `sx={{ mt: 5 }}`   |
+| `src/Frontend/Components/SplitDialog/SplitDialog.tsx:141`             | 141  | `marginTop` (MuiLinearProgress) | `8px`  | `sx={{ mt: 2 }}`   |
+| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:17` | 17   | `gap`                           | `12px` | `theme.spacing(3)` |
+| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:26` | 26   | `padding`                       | `8px`  | `theme.spacing(2)` |
+| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:33` | 33   | `gap`                           | `8px`  | `theme.spacing(2)` |
+| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:70` | 70   | `marginLeft`                    | `8px`  | `theme.spacing(2)` |
 
 ### ProgressBar
 
-| File                                                      | Line | Property    | Value | Converted to |
-| --------------------------------------------------------- | ---- | ----------- | ----- | ------------ |
-| `src/Frontend/Components/ProgressBar/ProgressBar.tsx:32` | 32   | `marginTop` | `2px` | `sx={{ mt: 0.5 }}` |
-| `src/Frontend/Components/ProgressBar/ProgressBar.tsx:197` | 197  | `gap`       | `5px`   | `sx={{ gap: 1.25 }}` |
+| File                                                      | Line | Property    | Value | Converted to         |
+| --------------------------------------------------------- | ---- | ----------- | ----- | -------------------- |
+| `src/Frontend/Components/ProgressBar/ProgressBar.tsx:32`  | 32   | `marginTop` | `2px` | `sx={{ mt: 0.5 }}`   |
+| `src/Frontend/Components/ProgressBar/ProgressBar.tsx:197` | 197  | `gap`       | `5px` | `sx={{ gap: 1.25 }}` |
 
 ### AttributionPanels > PackagesPanel
 
-| File                                                                                | Line | Property  | Value | Converted to |
-| ----------------------------------------------------------------------------------- | ---- | --------- | ----- | ------------ |
-| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:32` | 32   | `gap`     | `4px` | `sx={{ gap: 1 }}` |
-| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:33` | 33   | `padding` | `4px` | `sx={{ p: 1 }}` |
-| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:38` | 38   | `gap`     | `4px` | `sx={{ gap: 1 }}` |
-| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:67` | 67   | `padding` | `8px` | `sx={{ p: 2 }}` |
+| File                                                                                | Line | Property  | Value | Converted to       |
+| ----------------------------------------------------------------------------------- | ---- | --------- | ----- | ------------------ |
+| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:32` | 32   | `gap`     | `4px` | `theme.spacing(1)` |
+| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:33` | 33   | `padding` | `4px` | `theme.spacing(1)` |
+| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:38` | 38   | `gap`     | `4px` | `theme.spacing(1)` |
+| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:67` | 67   | `padding` | `8px` | `theme.spacing(2)` |
 
 ### ProjectStatisticsPopup
 
-| File                                                                                | Line | Property       | Value  | Converted to |
-| ----------------------------------------------------------------------------------- | ---- | -------------- | ------ | ------------ |
-| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:114`     | 114  | `marginBottom` | `12px` | `sx={{ mb: 3 }}` |
-| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:277`     | 277  | `padding`      | `12px` | `sx={{ p: 3 }}` |
-| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:278`     | 278  | `paddingTop`   | `0px`  | `sx={{ pt: 0 }}` |
-| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.style.ts:13` | 13   | `padding`      | `12px` | `sx={{ p: 3 }}` |
+| File                                                                                | Line | Property       | Value  | Converted to       |
+| ----------------------------------------------------------------------------------- | ---- | -------------- | ------ | ------------------ |
+| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:114`     | 114  | `marginBottom` | `12px` | `sx={{ mb: 3 }}`   |
+| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:277`     | 277  | `padding`      | `12px` | `sx={{ p: 3 }}`    |
+| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:278`     | 278  | `paddingTop`   | `0px`  | `sx={{ pt: 0 }}`   |
+| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.style.ts:13` | 13   | `padding`      | `12px` | `theme.spacing(3)` |
 
 ### Icons
 
-| File                                         | Line | Property       | Value | Converted to |
-| -------------------------------------------- | ---- | -------------- | ----- | ------------ |
+| File                                         | Line | Property       | Value | Converted to       |
+| -------------------------------------------- | ---- | -------------- | ----- | ------------------ |
 | `src/Frontend/Components/Icons/Icons.tsx:34` | 34   | `paddingLeft`  | `2px` | `sx={{ px: 0.5 }}` |
 | `src/Frontend/Components/Icons/Icons.tsx:35` | 35   | `paddingRight` | `2px` | `sx={{ px: 0.5 }}` |
 
 ### GroupedList
 
-| File                                                          | Line | Property  | Value      | Converted to |
-| ------------------------------------------------------------- | ---- | --------- | ---------- | ------------ |
-| `src/Frontend/Components/GroupedList/GroupedList.style.ts:12` | 12   | `gap`     | `8px` | `sx={{ gap: 2 }}` |
-| `src/Frontend/Components/GroupedList/GroupedList.style.ts:13` | 13   | `padding` | `4px 10px` | `sx={{ p: 1, pb: 2.5 }}` |
+| File                                                          | Line | Property  | Value      | Converted to            |
+| ------------------------------------------------------------- | ---- | --------- | ---------- | ----------------------- |
+| `src/Frontend/Components/GroupedList/GroupedList.style.ts:12` | 12   | `gap`     | `8px`      | `theme.spacing(2)`      |
+| `src/Frontend/Components/GroupedList/GroupedList.style.ts:13` | 13   | `padding` | `4px 10px` | `theme.spacing(1, 2.5)` |
 
 ### ImportDialog
 
-| File                                                        | Line | Property                       | Value  | Converted to |
-| ----------------------------------------------------------- | ---- | ------------------------------ | ------ | ------------ |
+| File                                                        | Line | Property                       | Value  | Converted to       |
+| ----------------------------------------------------------- | ---- | ------------------------------ | ------ | ------------------ |
 | `src/Frontend/Components/ImportDialog/ImportDialog.tsx:125` | 125  | `sx.marginLeft`                | `10px` | `sx={{ ml: 2.5 }}` |
 | `src/Frontend/Components/ImportDialog/ImportDialog.tsx:144` | 144  | `marginBottom` (MuiTypography) | `10px` | `sx={{ mb: 2.5 }}` |
 | `src/Frontend/Components/ImportDialog/ImportDialog.tsx:156` | 156  | `marginBottom` (MuiTypography) | `10px` | `sx={{ mb: 2.5 }}` |
@@ -242,17 +242,16 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 
 | File                                               | Line | Property      | Value | Converted to |
 | -------------------------------------------------- | ---- | ------------- | ----- | ------------ |
-| `src/Frontend/Components/PieChart/PieChart.tsx:42` | 42   | `marginRight` | `4px` | * |
+| `src/Frontend/Components/PieChart/PieChart.tsx:42` | 42   | `marginRight` | `4px` | *            |
 
 ### Additional Files with Hardcoded Spacing
 
-| File                                                                            | Line | Property     | Value                                                    | Converted to |
-| ------------------------------------------------------------------------------- | ---- | ------------ | -------------------------------------------------------- | ------------ |
-| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:55`                | 55   | `padding`    | `${PADDING}px 7px` (template literal with runtime value) | *            |
-| `src/Frontend/Components/ReportTableHeader/ReportTableHeader.tsx:17`            | 17   | `boxShadow`  | `0px 2px 1px -1px ...` (contains pixel values)           | *            |
-| `src/Frontend/Components/AttributionForm/AttributionForm.tsx:33`                | 33   | `padding`    | `20px 20px 0 20px`                                       | *            |
-| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.tsx:747` | 747  | `sx.padding` | `2px 0`                                                  | *            |
-| `src/Frontend/Components/TextBox/TextBox.tsx:77`                                | 77   | `boxShadow`  | `inset 4px 0 0 ${OpossumColors.green}`                   | *            |
+| File                                                                            | Line | Property     | Value                                                    | Converted to                                     |
+| ------------------------------------------------------------------------------- | ---- | ------------ | -------------------------------------------------------- | ------------------------------------------------ |
+| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:55`                | 55   | `padding`    | `${PADDING}px 7px` (template literal with runtime value) | `py: PADDING, px: 1.75` (PADDING in theme units) |
+| `src/Frontend/Components/AttributionForm/AttributionForm.tsx:33`                | 33   | `padding`    | `20px 20px 0 20px`                                       | `sx={{ p: 5, pt: 0 }}`                           |
+| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.tsx:747` | 747  | `sx.padding` | `2px 0`                                                  | `sx={{ py: 0.5, px: 0 }}`                        |
+| `src/Frontend/Components/TextBox/TextBox.tsx:77`                                | 77   | `boxShadow`  | `inset 4px 0 0 ${OpossumColors.green}`                   | *                                                |
 
 ## Impact Analysis
 

@@ -28,10 +28,9 @@ const classes = {
     display: 'flex',
     flexDirection: 'column',
     flex: 1,
-    sx: {
-      gap: 3,
-      p: 5,
-    },
+    gap: 3,
+    p: 5,
+    pt: 0,
     overflow: 'hidden auto',
     transition: 'opacity 150ms ease',
   },

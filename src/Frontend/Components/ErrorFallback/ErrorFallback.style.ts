@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { styled } from '@mui/material';
 
 export const Container = styled('div')({
@@ -13,10 +14,10 @@ export const Container = styled('div')({
   justifyContent: 'center',
 });
 
-export const TextContainer = styled('div')({
+export const TextContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  gap: '20px',
+  gap: theme.spacing(5),
   width: 'fit-content',
   maxWidth: '600px',
-});
+}));

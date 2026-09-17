@@ -39,21 +39,24 @@ import { type TableConfig, tableConfigs } from '../ReportView/TableConfig';
 import { getFormattedCellData } from './ReportTableItem.util';
 
 export const REPORT_VIEW_ROW_HEIGHT = 150;
-const PADDING = 10;
+const PADDING = 2.5;
+// eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 4px theme spacing baseline
+const PADDING_PX = 4 * PADDING;
 
 const classes = {
   tableData: {
     overflow: 'auto',
     whiteSpace: 'pre-line',
-    padding: `${PADDING}px`,
-    height: `${REPORT_VIEW_ROW_HEIGHT - 2 * PADDING}px`,
+    padding: PADDING,
+    height: `${REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX}px`,
   },
   bold: {
     fontWeight: 'bold',
   },
   iconTableData: {
-    padding: `${PADDING}px 7px`,
-    height: `${REPORT_VIEW_ROW_HEIGHT - 2 * PADDING}px`,
+    py: PADDING,
+    px: 1.75,
+    height: `${REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX}px`,
     display: 'flex',
     flexDirection: 'column',
     gap: '4px',
