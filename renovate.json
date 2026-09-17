@@ -5,10 +5,11 @@
     ":automergeTypes",
     ":automergeLinters",
     ":automergeTesters",
+    ":automergeMinor",
+    ":automergeBranch",
     "monorepo:yarn"
   ],
   "addLabels": ["dependencies"],
-  "automergeType": "branch",
   "prConcurrentLimit": 5,
   "prCreation": "not-pending",
   "rangeStrategy": "bump",
@@ -19,10 +20,6 @@
   "osvVulnerabilityAlerts": true,
   "postUpdateOptions": ["yarnDedupeHighest"],
   "packageRules": [
-    {
-      "matchUpdateTypes": ["minor", "patch"],
-      "automerge": true
-    },
     {
       "description": "The .nvmrc node version is driven by Electron - synced via sync-node-version workflow",
       "matchManagers": ["nvm"],
