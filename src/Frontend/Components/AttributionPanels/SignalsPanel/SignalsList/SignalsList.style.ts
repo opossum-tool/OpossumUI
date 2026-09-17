@@ -10,6 +10,8 @@ export const GroupName = styled(MuiTypography)({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
-  marginTop: '1px',
+  sx: {
+    mt: 0.25,
+  },
   userSelect: 'none',
 });

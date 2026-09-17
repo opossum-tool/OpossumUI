@@ -26,9 +26,11 @@ const classes = {
     display: 'flex',
     flexDirection: 'column',
     flex: 1,
-    gap: '12px',
+    sx: {
+      gap: 3,
+      p: 5,
+    },
     overflow: 'hidden auto',
-    padding: '20px 20px 0 20px',
     transition: 'opacity 150ms ease',
   },
   attributionTypeContainer: {

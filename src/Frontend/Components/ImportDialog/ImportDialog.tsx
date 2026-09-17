@@ -122,7 +122,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
             isInProgress={processing}
             showDate={false}
             useEllipsis={true}
-            sx={{ marginLeft: '10px' }}
+            sx={{ ml: 2.5 }}
           />
         ) : undefined
       }
@@ -141,7 +141,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
     >
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <MuiTypography>{text.importDialog.explanationText[0]}</MuiTypography>
-        <MuiTypography sx={{ marginBottom: '10px' }}>
+        <MuiTypography sx={{ mb: 2.5 }}>
           {text.importDialog.explanationText[1]}
         </MuiTypography>
         {canImportIntoCurrentProject && (
@@ -153,11 +153,11 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
               />
             }
             label={text.importDialog.importIntoCurrentProject}
-            sx={{ marginBottom: '10px' }}
+            sx={{ mb: 2.5 }}
           />
         )}
         {importIntoCurrentProject && (
-          <MuiTypography sx={{ marginBottom: '10px' }}>
+        <MuiTypography sx={{ mb: 2.5 }}>
             {text.importDialog.currentProjectWarning}
           </MuiTypography>
         )}

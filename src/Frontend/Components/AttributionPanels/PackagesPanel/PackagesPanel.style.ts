@@ -29,13 +29,17 @@ export const ActionBarContainer = styled(MuiBox)({
 export const ActionBar = styled(MuiBox)({
   display: 'grid',
   gridTemplateColumns: 'auto 1fr auto',
-  gap: '4px',
-  padding: '4px',
+  sx: {
+    gap: 1,
+  },
+  p: 1,
 });
 
 export const ButtonGroup = styled(MuiBox)({
   display: 'flex',
-  gap: '4px',
+  sx: {
+    gap: 1,
+  },
 });
 
 export const AlertContainer = styled(MuiBox, {
@@ -64,5 +68,7 @@ export const Tabs = styled(MuiTabs)({
 export const Tab = styled(MuiTab)({
   whiteSpace: 'nowrap',
   minHeight: 'unset',
-  padding: '8px',
+  sx: {
+    p: 2,
+  },
 });

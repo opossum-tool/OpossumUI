@@ -26,11 +26,11 @@ const classes = {
     },
     '& label[data-shrink=true]': {
       backgroundColor: OpossumColors.white,
-      padding: '1px 3px',
+      sx: { py: 0.25, px: 0.75 },
       fontSize: '13px',
     },
     '& span': {
-      padding: '0px',
+      sx: { p: 0 },
     },
     '& legend': {
       '& span': {
@@ -55,13 +55,13 @@ const classes = {
     },
     '& label[data-shrink=true]': {
       backgroundColor: OpossumColors.lightOrange,
-      padding: '1px 3px',
+      sx: { py: 0.25, px: 0.75 },
     },
   },
   startAdornmentRoot: {
     position: 'absolute',
     left: 0,
-    marginLeft: '8px',
+    sx: { ml: 2 },
     height: 0,
   },
   endAdornmentRoot: {

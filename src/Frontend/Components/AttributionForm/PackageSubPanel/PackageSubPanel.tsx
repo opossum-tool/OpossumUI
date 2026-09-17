@@ -22,7 +22,12 @@ import {
   useUrlEnrichmentAction,
 } from './PackageFields';
 
-const DisplayRow = styled('div')({ display: 'flex', gap: '8px' });
+const DisplayRow = styled('div')({
+  display: 'flex',
+  sx: {
+    gap: 2,
+  },
+});
 
 interface PackageSubPanelProps {
   packageInfo: PackageInfo;

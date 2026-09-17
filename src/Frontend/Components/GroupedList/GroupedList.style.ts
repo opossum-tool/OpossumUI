@@ -9,8 +9,11 @@ export const GroupContainer = styled('div')({
   display: 'flex',
   height: '20px',
   alignItems: 'center',
-  gap: '8px',
-  padding: '4px 10px',
+  sx: {
+    gap: 2,
+    p: 1,
+    pb: 2.5,
+  },
   backgroundColor: '#cacfdb',
 });
 

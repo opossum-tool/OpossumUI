@@ -14,7 +14,9 @@ const INCLUDED_RESOURCE_OPACITY = 0.7;
 export const PickerContainer = styled(MuiBox)({
   display: 'flex',
   flexDirection: 'column',
-  gap: '12px',
+  sx: {
+    gap: 3,
+  },
 });
 
 export const ResourceTreeContainer = styled(MuiBox)({
@@ -23,14 +25,18 @@ export const ResourceTreeContainer = styled(MuiBox)({
   borderRadius: '4px',
   height: '360px',
   overflowY: 'auto',
-  padding: '8px',
+  sx: {
+    p: 2,
+  },
   position: 'relative',
 });
 
 export const SelectedPathsContainer = styled(MuiBox)({
   display: 'flex',
   flexWrap: 'wrap',
-  gap: '8px',
+  sx: {
+    gap: 2,
+  },
   minHeight: '24px',
 });
 
@@ -67,4 +73,8 @@ export const SelectionControl = styled(MuiBox)({
   flexShrink: 0,
 });
 
-export const ResourceLabel = styled(MuiTypography)({ marginLeft: '8px' });
+export const ResourceLabel = styled(MuiTypography)({
+  sx: {
+    ml: 2,
+  },
+});

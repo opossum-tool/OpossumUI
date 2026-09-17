@@ -61,7 +61,12 @@ const classes = {
     },
   },
   versionInfo: {
-    margin: '8px 12px 8px 12px',
+    sx: {
+      mt: 2,
+      mr: 3,
+      mb: 2,
+      ml: 3,
+    },
     color: OpossumColors.white,
     background: OpossumColors.darkBlue,
     float: 'right',
