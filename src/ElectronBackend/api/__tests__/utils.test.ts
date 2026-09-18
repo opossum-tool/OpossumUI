@@ -78,6 +78,30 @@ describe('removeRedundantAttributions', () => {
     expect(affectedAttributionUuids).toEqual(['uuid1']);
   });
 
+  it('keeps a child attribution set that only partially matches its ancestor when triggered via multiple resourceIds', async () => {
+    await setupDb({
+      resourcePathsToAttributionUuids: {
+        '/parent': ['uuid1', 'uuid2'],
+        '/parent/child': ['uuid1'],
+        '/other': ['uuid2'],
+      },
+    });
+
+    const resourceIds = await Promise.all(
+      ['/parent', '/other'].map((path) => getResourceId(path)),
+    );
+    await getDb()
+      .transaction()
+      .execute((trx) => removeRedundantAttributions(trx, { resourceIds }));
+
+    await expectDbContent({
+      '/parent': ['uuid1', 'uuid2'],
+      '/parent/child': ['uuid1'],
+      '/other': ['uuid2'],
+    });
+    await expectCaaConsistency();
+  });
+
   it.each([
     {
       name: 'upward: deletes resource attributions that match its closest ancestor',

@@ -119,20 +119,33 @@ export async function removeRedundantAttributions(
         .where(additional_selection)
         .where(
           sql<boolean>`
-            (
-              select attribution_uuid
+            not exists (
+              select 1
               from resource_to_attribution rta
-              where 
+              where
                 rta.resource_id = resource.id
-                and attribution_is_external = 0
+                and rta.attribution_is_external = 0
+                and rta.attribution_uuid not in (
+                  select attribution_uuid
+                  from resource_to_attribution rta2
+                  where
+                    rta2.resource_id = closest_attributed_ancestors.manual
+                    and rta2.attribution_is_external = 0
+                )
             )
-            = 
-            (
-              select attribution_uuid
+            and not exists (
+              select 1
               from resource_to_attribution rta
-              where 
+              where
                 rta.resource_id = closest_attributed_ancestors.manual
-                and attribution_is_external = 0
+                and rta.attribution_is_external = 0
+                and rta.attribution_uuid not in (
+                  select attribution_uuid
+                  from resource_to_attribution rta2
+                  where
+                    rta2.resource_id = resource.id
+                    and rta2.attribution_is_external = 0
+                )
             )`,
         ),
     )
