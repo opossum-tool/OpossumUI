@@ -10,7 +10,12 @@ import {
 import { getDb } from '../../db/db';
 import { AttributionResourceAccess } from '../../types/types';
 import { listAttributionsPage } from '../attributions/listAttributionsPage';
-import { mutations } from '../mutations';
+import {
+  decorateMutationRegistry,
+  type MutationResponse,
+  mutations,
+} from '../mutations';
+import { queries } from '../queries';
 
 async function resourceAccessOf(attributionUuid: string) {
   return (
@@ -288,6 +293,123 @@ describe('attribution resource access', () => {
     expect(await resourceAccessOf('shared')).toBe(
       AttributionResourceAccess.Readonly,
     );
+  });
+});
+
+describe('filtered-resource cache invalidation', () => {
+  it('refreshes resources linked to an attribution after linking it elsewhere', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/first/file.ts', '/second/file.ts']),
+      manualAttributions: {
+        attributions: {
+          shared: { id: 'shared', criticality: Criticality.None },
+        },
+        resourcesToAttributions: { '/first/file.ts': ['shared'] },
+        attributionsToResources: {},
+      },
+    });
+
+    const queryLinkedResources = () =>
+      queries.getResourceTree({
+        expandedNodes: 'expandAll',
+        onAttributionUuids: ['shared'],
+      });
+
+    expect(
+      (await queryLinkedResources()).result.treeNodes.map((node) => node.id),
+    ).toContain('/first/file.ts');
+    expect(
+      (await queryLinkedResources()).result.treeNodes.map((node) => node.id),
+    ).not.toContain('/second/file.ts');
+
+    await mutations.createOrMatchAttributions({
+      resourcePath: '/second/file.ts',
+      selection: { mode: 'explicit', attributionUuids: ['shared'] },
+    });
+
+    expect(
+      (await queryLinkedResources()).result.treeNodes.map((node) => node.id),
+    ).toContain('/second/file.ts');
+  });
+
+  it('does not invalidate the filtered-resource cache for an unrelated mutation', async () => {
+    await initializeDbWithTestData({ resources: {} });
+    const invalidateFilteredResourcesCache = vi.spyOn(
+      await import('../resource-tree-cache'),
+      'invalidateFilteredResourcesCache',
+    );
+
+    await mutations.updateRootBaseURL({ baseURL: 'https://example.com' });
+
+    expect(invalidateFilteredResourcesCache).not.toHaveBeenCalled();
+  });
+
+  it('does not invalidate the filtered-resource cache for a rejected mutation', async () => {
+    await initializeDbWithTestData({ resources: {} });
+    const invalidateFilteredResourcesCache = vi.spyOn(
+      await import('../resource-tree-cache'),
+      'invalidateFilteredResourcesCache',
+    );
+
+    await expect(
+      mutations.createOrMatchAttributions({
+        resourcePath: '/missing/file.ts',
+        attributions: { new: { id: 'new', criticality: Criticality.None } },
+      }),
+    ).rejects.toThrow();
+
+    expect(invalidateFilteredResourcesCache).not.toHaveBeenCalled();
+  });
+});
+
+describe('mutation registry decoration', () => {
+  it('preserves handler types, arguments, responses, and invalidation timing', async () => {
+    const invalidateBackendQueryCaches = vi.spyOn(
+      await import('../queryInvalidations'),
+      'invalidateBackendQueryCaches',
+    );
+    let resolveFirst: (response: typeof firstResponse) => void;
+    const firstResponse = {
+      invalidates: [{ queryName: 'getBaseUrlForSource' }],
+      result: { value: 'first' },
+    } as const satisfies MutationResponse;
+    const first = vi.fn(
+      (_params: { value: string }) =>
+        new Promise<typeof firstResponse>((resolve) => {
+          resolveFirst = resolve;
+        }),
+    );
+    const secondResponse = { result: { value: 2 } } as const;
+    const second = vi.fn((_params: { value: number }) =>
+      Promise.resolve(secondResponse),
+    );
+    const registry = decorateMutationRegistry({ first, second });
+
+    expectTypeOf(registry.first)
+      .parameter(0)
+      .toEqualTypeOf<{ value: string }>();
+    expectTypeOf(registry.second)
+      .parameter(0)
+      .toEqualTypeOf<{ value: number }>();
+    expectTypeOf(registry.first).returns.toEqualTypeOf<
+      Promise<typeof firstResponse>
+    >();
+    expectTypeOf(registry.second).returns.toEqualTypeOf<
+      Promise<typeof secondResponse>
+    >();
+
+    const firstResult = registry.first({ value: 'first' });
+    expect(invalidateBackendQueryCaches).not.toHaveBeenCalled();
+    resolveFirst!(firstResponse);
+    expect(await firstResult).toBe(firstResponse);
+    expect(await registry.second({ value: 2 })).toBe(secondResponse);
+    expect(first).toHaveBeenCalledWith({ value: 'first' });
+    expect(second).toHaveBeenCalledWith({ value: 2 });
+    expect(invalidateBackendQueryCaches).toHaveBeenNthCalledWith(
+      1,
+      firstResponse.invalidates,
+    );
+    expect(invalidateBackendQueryCaches).toHaveBeenNthCalledWith(2, []);
   });
 });
 

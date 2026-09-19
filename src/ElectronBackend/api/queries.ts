@@ -51,6 +51,7 @@ import {
   getResourceTree,
   getResourceTreeUnreviewedCount,
 } from './resourceTree';
+import { getNodePathsToExpand } from './resourceTreeExpansion';
 import {
   externalAttributionStatistics,
   licenseTable,
@@ -58,7 +59,6 @@ import {
 } from './statistics';
 import {
   attributionToResourceRelationship,
-  GET_LEGACY_RESOURCE_PATH,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
   getResourceOrThrow,
   removeParentFromPath,
@@ -370,32 +370,7 @@ export const queries = {
     return { result: new Set(result.map((r) => r.uuid)) };
   },
 
-  async getNodePathsToExpand({ fromNodePath }: { fromNodePath: string }) {
-    const nodesToExpand = await getDb()
-      .withRecursive('nodes', (eb) =>
-        eb
-          .selectFrom('resource')
-          .select(['id', GET_LEGACY_RESOURCE_PATH])
-          .where('path', '=', removeTrailingSlash(fromNodePath))
-          .unionAll(
-            eb
-              .selectFrom('resource')
-              .innerJoin('nodes', 'resource.parent_id', 'nodes.id')
-              .select(['resource.id', GET_LEGACY_RESOURCE_PATH])
-              .where('resource.can_have_children', '=', 1)
-              .where(
-                sql<number>`(select count(*) from resource where parent_id = nodes.id)`,
-                '=',
-                1,
-              ),
-          ),
-      )
-      .selectFrom('nodes')
-      .select('path')
-      .execute();
-
-    return { result: nodesToExpand.map((n) => n.path) };
-  },
+  getNodePathsToExpand,
 
   /**
    * If prioritizeResourcePath is given, it will always be included in the list

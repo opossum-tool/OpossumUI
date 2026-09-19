@@ -7,6 +7,7 @@ import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../testing/global-test-helpers';
+import { getRawDb } from '../../db/db';
 import { queries } from '../queries';
 
 describe('filterProperties', () => {
@@ -243,6 +244,226 @@ describe('getNodePathsToExpand', () => {
     });
 
     expect(result).toEqual(['/a/', '/a/b/']);
+  });
+
+  it('uses filtering to select the only visible directory', async () => {
+    await initializeDbWithTestData({
+      resources: {
+        a: {
+          directory: { 'match.ts': 1 },
+          otherDirectory: { 'other.ts': 1 },
+        },
+      },
+    });
+
+    const unfiltered = await queries.getNodePathsToExpand({
+      fromNodePath: '/a/',
+    });
+    const filtered = await queries.getNodePathsToExpand({
+      fromNodePath: '/a/',
+      search: 'match',
+    });
+
+    expect(unfiltered.result).toEqual(['/a/']);
+    expect(filtered.result).toEqual(['/a/', '/a/directory/']);
+  });
+
+  it('inherits a search match from an ancestor', async () => {
+    await initializeDbWithTestData({
+      resources: { a: { matched: { child: { 'file.ts': 1 } } } },
+    });
+
+    const { result } = await queries.getNodePathsToExpand({
+      fromNodePath: '/a/matched/child/',
+      search: 'matched',
+    });
+
+    expect(result).toEqual(['/a/matched/child/']);
+  });
+
+  it('does not inherit a search match from an unrelated sibling', async () => {
+    await initializeDbWithTestData({
+      resources: {
+        a: {
+          matched: { 'file.ts': 1 },
+          other: { child: { 'file.ts': 1 } },
+        },
+      },
+    });
+
+    const { result } = await queries.getNodePathsToExpand({
+      fromNodePath: '/a/other/',
+      search: 'matched',
+    });
+
+    expect(result).toEqual(['/a/other/']);
+  });
+
+  it('returns no paths for a missing filtered starting path', async () => {
+    await initializeDbWithTestData({ resources: { a: { 'file.ts': 1 } } });
+
+    const { result } = await queries.getNodePathsToExpand({
+      fromNodePath: '/missing/',
+      search: 'file',
+    });
+
+    expect(result).toEqual([]);
+  });
+
+  it('uses indexed starting-path and parent lookups for filtered expansion', async () => {
+    await initializeDbWithTestData({
+      resources: { a: { matched: { child: { 'file.ts': 1 } } } },
+    });
+    const prepare = vi.spyOn(getRawDb(), 'prepare');
+
+    await queries.getNodePathsToExpand({
+      fromNodePath: '/a/matched/child/',
+      search: 'matched',
+    });
+
+    const expansionQuery = prepare.mock.calls
+      .map(([query]) => query)
+      .find((query) => query.includes('with recursive "ancestors"'));
+    expect(expansionQuery).toBeDefined();
+    const parameterCount = (expansionQuery!.match(/\?/g) ?? []).length;
+    const queryPlan = getRawDb()
+      .prepare(`EXPLAIN QUERY PLAN ${expansionQuery}`)
+      .all(...Array<string>(parameterCount).fill('')) as Array<{
+      detail: string;
+    }>;
+
+    expect(queryPlan.map((row) => row.detail)).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/SEARCH r USING.*path/),
+        expect.stringMatching(/SEARCH parent USING INTEGER PRIMARY KEY/),
+      ]),
+    );
+  });
+
+  it.each([
+    [
+      'two visible directories',
+      { a: { first: { 'match.ts': 1 }, second: { 'match.ts': 1 } } },
+    ],
+    [
+      'a visible directory and file',
+      { a: { directory: { 'match.ts': 1 }, 'match.ts': 1 } },
+    ],
+  ] as const)('stops at %s', async (_description, resources) => {
+    await initializeDbWithTestData({ resources });
+
+    const { result } = await queries.getNodePathsToExpand({
+      fromNodePath: '/a/',
+      search: 'match',
+    });
+
+    expect(result).toEqual(['/a/']);
+  });
+
+  it.each([
+    [
+      '/a/',
+      [
+        '/a/',
+        '/a/matched/',
+        '/a/matched/child/',
+        '/a/matched/child/grandchild/',
+      ],
+    ],
+    [
+      '/a/matched/',
+      ['/a/matched/', '/a/matched/child/', '/a/matched/child/grandchild/'],
+    ],
+    [
+      '/a/matched/child/',
+      ['/a/matched/child/', '/a/matched/child/grandchild/'],
+    ],
+  ])(
+    'inherits an attribution match when starting at %s',
+    async (fromNodePath, expected) => {
+      await initializeDbWithTestData({
+        resources: {
+          a: { matched: { child: { grandchild: { 'file.ts': 1 } } } },
+        },
+        externalAttributions: {
+          attributions: { uuid1: { id: 'uuid1', criticality: 0 } },
+          resourcesToAttributions: { '/a/matched': ['uuid1'] },
+          attributionsToResources: { uuid1: ['/a/matched'] },
+        },
+      });
+
+      const { result } = await queries.getNodePathsToExpand({
+        fromNodePath,
+        onAttributionUuids: ['uuid1'],
+      });
+
+      expect(result).toEqual(expected);
+    },
+  );
+
+  it('does not treat the root as a matching ancestor', async () => {
+    await initializeDbWithTestData({
+      resources: { a: { b: { 'file.ts': 1 } } },
+      externalAttributions: {
+        attributions: { uuid1: { id: 'uuid1', criticality: 0 } },
+        resourcesToAttributions: { '/': ['uuid1'] },
+        attributionsToResources: { uuid1: ['/'] },
+      },
+    });
+
+    const { result } = await queries.getNodePathsToExpand({
+      fromNodePath: '/',
+      onAttributionUuids: ['uuid1'],
+    });
+
+    expect(result).toEqual(['/']);
+  });
+
+  it('omits readonly children after inheriting a match when only writable is active', async () => {
+    await initializeDbWithTestData({
+      resources: {
+        match: {
+          readonly: { 'file.ts': 1 },
+          writable: { child: { 'file.ts': 1 } },
+        },
+      },
+      readonlyRules: [
+        { path: '/', readonly: true },
+        { path: '/match', readonly: false },
+        { path: '/match/readonly', readonly: true },
+        { path: '/match/writable', readonly: false },
+      ],
+    });
+
+    const { result } = await queries.getNodePathsToExpand({
+      fromNodePath: '/match/',
+      onlyWritable: true,
+    });
+
+    expect(result).toEqual([
+      '/match/',
+      '/match/writable/',
+      '/match/writable/child/',
+    ]);
+  });
+
+  it('follows a readonly parent that contains a writable descendant', async () => {
+    await initializeDbWithTestData({
+      resources: { match: { readonly: { 'file.ts': 1 } } },
+      readonlyRules: [
+        { path: '/', readonly: true },
+        { path: '/match', readonly: false },
+        { path: '/match/readonly', readonly: true },
+        { path: '/match/readonly/file.ts', readonly: false },
+      ],
+    });
+
+    const { result } = await queries.getNodePathsToExpand({
+      fromNodePath: '/match/',
+      onlyWritable: true,
+    });
+
+    expect(result).toEqual(['/match/', '/match/readonly/']);
   });
 });
 

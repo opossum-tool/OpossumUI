@@ -10,6 +10,7 @@ import { remove } from 'lodash-es';
 import { type MouseEvent, useCallback, useEffect, useState } from 'react';
 
 import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
+import type { ResourceTreeFilters } from '../../../../ElectronBackend/api/resourceTreeFilters';
 import { text } from '../../../../shared/text';
 import { ROOT_PATH } from '../../../shared-constants';
 import {
@@ -32,9 +33,10 @@ import { ResourcesTreeNode } from './ResourcesTreeNode/ResourcesTreeNode';
 interface Props {
   resources: Array<ResourceTreeNodeData>;
   sx?: SxProps;
+  expansionFilters?: ResourceTreeFilters;
 }
 
-export const ResourcesTree = ({ resources, sx }: Props) => {
+export const ResourcesTree = ({ resources, sx, expansionFilters }: Props) => {
   const dispatch = useAppDispatch();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const expandedIds = useAppSelector(getExpandedIds);
@@ -108,6 +110,7 @@ export const ResourcesTree = ({ resources, sx }: Props) => {
         contextMenuNodeId={contextMenu?.resource.id}
         sx={sx}
         testId={'resources-tree'}
+        expansionFilters={expansionFilters}
       />
       <MuiMenu
         anchorReference={'anchorPosition'}
