@@ -7,6 +7,7 @@ import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTooltip from '@mui/material/Tooltip';
 import Box from '@mui/system/Box';
+import { useIsMutating } from '@tanstack/react-query';
 import { useRef } from 'react';
 
 import { text } from '../../../shared/text';
@@ -32,6 +33,12 @@ const classes = {
     marginTop: '2px',
     height: '20px',
     '&:hover': { cursor: 'pointer', opacity: 0.75 },
+  },
+  fetching: {
+    filter: 'opacity(0.5)',
+    pointerEvents: 'none',
+    // Add a timer to prevent the progress bar from flashing when the data is fetched
+    transition: 'filter 0s linear 0.2s',
   },
 };
 
@@ -159,21 +166,33 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const { ariaLabel, steps, onClickHandler, Title } =
     progressBarConfigurations[props.selectedProgressBar];
 
+  const isFetching =
+    useIsMutating() > 0 ||
+    attributionsProgressBarData.isFetching ||
+    criticalityProgressBarData.isFetching ||
+    classificationProgressBarData.isFetching;
+
   if (!steps) {
     return <MuiBox sx={{ flex: 1 }} />;
   }
 
   return (
     <MuiBox sx={props.sx}>
-      <MuiTooltip title={<Title steps={steps} />} followCursor>
+      <MuiTooltip
+        title={<Title steps={steps} />}
+        followCursor
+        disableHoverListener={!!isFetching}
+      >
         <MuiBox
           aria-label={ariaLabel}
+          aria-disabled={!!isFetching}
           data-testid={'progress-bar'}
           sx={{
             ...classes.bar,
             background: createBackgroundFromProgressBarSteps(steps),
+            ...(isFetching ? classes.fetching : {}),
           }}
-          onClick={onClickHandler}
+          onClick={isFetching ? undefined : onClickHandler}
         />
       </MuiTooltip>
     </MuiBox>
