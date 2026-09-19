@@ -6764,7 +6764,7 @@ __metadata:
     react: "npm:19.3.0"
     react-dom: "npm:19.3.0"
     react-error-boundary: "npm:6.1.5"
-    react-hot-toast: "npm:2.6.0"
+    react-hot-toast: "npm:2.6.1"
     react-hotkeys-hook: "npm:5.3.3"
     react-is: "npm:19.3.0"
     react-redux: "npm:9.3.0"
@@ -7415,16 +7415,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-hot-toast@npm:2.6.0":
-  version: 2.6.0
-  resolution: "react-hot-toast@npm:2.6.0"
+"react-hot-toast@npm:2.6.1":
+  version: 2.6.1
+  resolution: "react-hot-toast@npm:2.6.1"
   dependencies:
     csstype: "npm:^3.1.3"
     goober: "npm:^2.1.16"
   peerDependencies:
+    "@types/react": "*"
+    "@types/react-dom": "*"
     react: ">=16"
     react-dom: ">=16"
-  checksum: 10/825ebbaa03c63dc2f22795ac8d535b40f1066c3ace5b792d0de740070693f195b910c98f46a00f7f6195f804ecf41b03201f6ff6950a540098dd2b7a0069df5b
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: 10/75170b1576bccb4f90a886c9d3858278c56ae39f2ee6fea9caad04c9a7bb73240d3eec9c0d0c1813595f0a8922b742981c4ee2b05296fabc7c699a63ba82923d
   languageName: node
   linkType: hard
 
