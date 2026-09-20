@@ -4250,10 +4250,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:17.4.2, dotenv@npm:^17.2.4":
-  version: 17.4.2
-  resolution: "dotenv@npm:17.4.2"
-  checksum: 10/ca1b6f54d58e39914901e1518958e86083aca8deb5aa2e7f2a51acd53291d97852479b0ab26ed949b6a45a0e9adcc7b0d1c3c72375e8ea670f7005e341c6daba
+"dotenv@npm:18.0.0":
+  version: 18.0.0
+  resolution: "dotenv@npm:18.0.0"
+  bin:
+    dotenv: dist/index.cjs
+  checksum: 10/9092cef80bf6b2d2a76e06a21d9f6368307df6da0273bebfe54e2bf6753bfe69be9c994347c6004e8194997aff6f087a5ee043a3be8c420c4955e0a3d03821b5
   languageName: node
   linkType: hard
 
@@ -4261,6 +4263,13 @@ __metadata:
   version: 16.6.1
   resolution: "dotenv@npm:16.6.1"
   checksum: 10/1d1897144344447ffe62aa1a6d664f4cd2e0784e0aff787eeeec1940ded32f8e4b5b506d665134fc87157baa086fce07ec6383970a2b6d2e7985beaed6a4cc14
+  languageName: node
+  linkType: hard
+
+"dotenv@npm:^17.2.4":
+  version: 17.4.2
+  resolution: "dotenv@npm:17.4.2"
+  checksum: 10/ca1b6f54d58e39914901e1518958e86083aca8deb5aa2e7f2a51acd53291d97852479b0ab26ed949b6a45a0e9adcc7b0d1c3c72375e8ea670f7005e341c6daba
   languageName: node
   linkType: hard
 
@@ -6729,7 +6738,7 @@ __metadata:
     compare-versions: "npm:6.1.1"
     cross-env: "npm:10.1.0"
     dayjs: "npm:1.11.23"
-    dotenv: "npm:17.4.2"
+    dotenv: "npm:18.0.0"
     dpdm: "npm:4.3.0"
     electron: "npm:44.4.1"
     electron-builder: "npm:26.15.3"
