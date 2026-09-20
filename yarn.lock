@@ -6772,7 +6772,7 @@ __metadata:
     recharts: "npm:3.10.1"
     rolldown: "npm:1.2.9"
     run-script-os: "npm:1.1.6"
-    spdx-license-ids: "npm:3.0.23"
+    spdx-license-ids: "npm:3.0.24"
     stream-json: "npm:3.6.0"
     tsx: "npm:4.23.13"
     typescript: "npm:6.0.3"
@@ -7983,10 +7983,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"spdx-license-ids@npm:3.0.23":
-  version: 3.0.23
-  resolution: "spdx-license-ids@npm:3.0.23"
-  checksum: 10/fead6be44478e4dd73a0721ae569f4a04f358846d8d82e8d92efae64aca928592e380cf17e8b84c25c948f3a7d8a0b4fc781a1830f3911ca87d52733265176b5
+"spdx-license-ids@npm:3.0.24":
+  version: 3.0.24
+  resolution: "spdx-license-ids@npm:3.0.24"
+  checksum: 10/f8aaa5e869c9b4ad1bb4b3c1f1ef234bb10fda65e53879d918f3126710af1bd2df89cc4fe6400da90b3281317d909fd035e54e1c2bd4d1b10fb7ac1d30a420e7
   languageName: node
   linkType: hard
 
