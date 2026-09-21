@@ -71,6 +71,22 @@ describe('getResourceTree', () => {
       expect(labels).toEqual(['/', 'docs', 'src', 'utils', 'App.tsx']);
     });
 
+    it.each(['/src/', '/src'])(
+      'expands src consistently for expansion path %s',
+      async (path) => {
+        const { result } = await getResourceTree({
+          expandedNodes: ['/', path],
+        });
+
+        expect(result.treeNodes.map((node) => node.id)).toContain(
+          '/src/App.tsx',
+        );
+        expect(
+          result.treeNodes.find((node) => node.id === '/src/')?.isExpanded,
+        ).toBe(true);
+      },
+    );
+
     it('returns full tree when expandAll is used', async () => {
       const { result } = await getResourceTree({
         expandedNodes: 'expandAll',

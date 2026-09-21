@@ -7,6 +7,7 @@ import type { MouseEvent } from 'react';
 
 import type { QueryResult } from '../../../ElectronBackend/api/queries';
 import type { ResourceTreeNodeData } from '../../../ElectronBackend/api/resourceTree';
+import type { ResourceTreeFilters } from '../../../ElectronBackend/api/resourceTreeFilters';
 import { List } from '../List/List';
 import { SearchList } from '../SearchList/SearchList';
 import {
@@ -24,6 +25,7 @@ interface VirtualizedTreeProps {
   ) => void;
   onToggle: (nodeIdsToExpand: Array<string>) => void;
   contextMenuNodeId?: string;
+  expansionFilters?: ResourceTreeFilters;
   readOnly?: boolean;
   selectedNodeId?: string;
   sx?: SxProps;
@@ -36,6 +38,7 @@ export function VirtualizedTree({
   onContextMenu,
   onToggle,
   contextMenuNodeId,
+  expansionFilters,
   readOnly,
   resources,
   selectedNodeId,
@@ -57,6 +60,7 @@ export function VirtualizedTree({
           highlighted={selected || resource.id === contextMenuNodeId}
           focused={focused}
           resource={resource}
+          expansionFilters={expansionFilters}
         />
       )}
       selectedId={selectedNodeId}

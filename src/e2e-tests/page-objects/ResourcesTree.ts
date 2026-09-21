@@ -74,6 +74,11 @@ export class ResourcesTree {
     resourceAtPathIsVisible: async (resourcePath: string): Promise<void> => {
       await expect(this.getResourceByPath(resourcePath)).toBeVisible();
     },
+    resourceCountIs: async (count: number): Promise<void> => {
+      await expect(this.header).toContainText(
+        `Resources (${count} / ${count})`,
+      );
+    },
     resourceAtPathIsEditable: async (resourcePath: string): Promise<void> => {
       const resource = this.getResourceByPath(resourcePath);
       await expect(resource).toBeVisible();
@@ -147,6 +152,16 @@ export class ResourcesTree {
       }
     }
     await expect(this.getResourceByPath(resourcePath)).toBeVisible();
+  }
+
+  async expandResourceAtPath(resourcePath: string): Promise<void> {
+    const resource = this.getResourceByPath(resourcePath);
+    await expect(resource).toBeVisible();
+    const normalizedPath = resourcePath.replace(/\/$/, '');
+    await resource
+      .getByLabel(`expand ${resourcePath}`)
+      .or(resource.getByLabel(`expand ${normalizedPath}`))
+      .click();
   }
 
   async selectRevealedResource(resourcePath: string): Promise<void> {

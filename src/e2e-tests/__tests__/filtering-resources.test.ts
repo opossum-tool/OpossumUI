@@ -9,7 +9,12 @@ const [
   preselectedResourceName,
   reviewedMitResourceName,
   reviewedApacheResourceName,
-] = faker.opossum.resourceNames({ count: 4 });
+  autoExpansionRootName,
+  matchingDirectoryName,
+  matchingLeafName,
+  unrelatedDirectoryName,
+  unrelatedLeafName,
+] = faker.opossum.resourceNames({ count: 9 });
 const [externalAttributionId, externalPackageInfo] =
   faker.opossum.rawAttribution({ licenseName: 'MIT' });
 const [preselectedAttributionId, preselectedPackageInfo] =
@@ -27,6 +32,10 @@ test.use({
         [preselectedResourceName]: 1,
         [reviewedMitResourceName]: 1,
         [reviewedApacheResourceName]: 1,
+        [autoExpansionRootName]: {
+          [matchingDirectoryName]: { [matchingLeafName]: 1 },
+          [unrelatedDirectoryName]: { [unrelatedLeafName]: 1 },
+        },
       }),
       externalAttributions: faker.opossum.rawAttributions({
         [externalAttributionId]: externalPackageInfo,
@@ -83,4 +92,20 @@ test('combines unreviewed and external attribution license filters in the resour
   await resourcesTree.assert.resourceIsHidden(preselectedResourceName);
   await resourcesTree.assert.resourceIsHidden(reviewedMitResourceName);
   await resourcesTree.assert.resourceIsHidden(reviewedApacheResourceName);
+});
+
+test('expands the complete visible chain after filtering', async ({
+  resourcesTree,
+}) => {
+  await resourcesTree.searchField.fill(matchingLeafName);
+  await resourcesTree.assert.resourceCountIs(1);
+
+  await resourcesTree.expandResourceAtPath(`/${autoExpansionRootName}/`);
+
+  await resourcesTree.assert.resourceAtPathIsVisible(
+    `/${autoExpansionRootName}/${matchingDirectoryName}/`,
+  );
+  await resourcesTree.assert.resourceAtPathIsVisible(
+    `/${autoExpansionRootName}/${matchingDirectoryName}/${matchingLeafName}`,
+  );
 });

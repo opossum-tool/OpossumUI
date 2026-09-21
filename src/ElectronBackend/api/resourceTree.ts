@@ -2,40 +2,29 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  type Expression,
-  expressionBuilder,
-  type ExpressionBuilder,
-  type ReferenceExpression,
-  sql,
-  type Transaction,
-} from 'kysely';
+import { type ExpressionBuilder, sql, type Transaction } from 'kysely';
 
 import { getDb } from '../db/db';
 import type { DB, Resource } from '../db/generated/databaseTypes';
 import { jsonArraySelection } from '../db/json-array-selection';
+import { withFilteredResourcesTable } from './resource-tree-cache';
 import {
-  getOnlyExternalFilesQuery,
-  getOnlyPreSelectedManualFilesQuery,
-} from './progressBarUtils';
-import {
-  getResourceOrThrow,
-  removeTrailingSlash,
-  toCanonicalLicenseName,
-} from './utils';
+  type FilteredTable,
+  getFilteredResourcesQuery,
+  getMatchesFiltersExpression,
+  getSearchMatchExpression,
+  getVisibleWithFiltersExpression,
+  hasActiveFilters,
+  type LicenseFilter,
+  type ResourceTreeFilters,
+} from './resourceTreeFilters';
+import { getResourceOrThrow, removeTrailingSlash } from './utils';
 
 export type ResourceTreeNodeData = Awaited<
   ReturnType<typeof getResourceTree>
 >['result']['treeNodes'][number];
 
-const FILTERED_RESOURCE_TEMP_TABLE = 'filtered_resources';
-type FilteredTable = { filtered_resources: { id: number } };
-type LicenseFilter = {
-  licenseName: string;
-  external: boolean;
-};
-
-export function getResourceTree({
+export async function getResourceTree({
   search,
   expandedNodes,
   onlyUnreviewedFiles,
@@ -43,325 +32,249 @@ export function getResourceTree({
   onAttributionUuids,
   selectedResourcePath,
   onlyWritable,
-}: {
-  search?: string;
+}: ResourceTreeFilters & {
   expandedNodes: Array<string> | 'expandAll';
-  onlyUnreviewedFiles?: boolean;
-  licenseFilter?: LicenseFilter;
-  onAttributionUuids?: Array<string>;
   selectedResourcePath?: string;
-  onlyWritable?: boolean;
 }) {
-  return getDb()
-    .transaction()
-    .execute(async (trx) => {
-      const hasActiveNonSearchFilters = Boolean(
-        licenseFilter ||
-        onAttributionUuids ||
-        onlyUnreviewedFiles ||
-        onlyWritable,
+  const expandedNodeSet =
+    expandedNodes === 'expandAll'
+      ? 'expandAll'
+      : new Set(expandedNodes.map((path) => removeTrailingSlash(path)));
+  const db = getDb();
+  const filters = {
+    licenseFilter,
+    onlyUnreviewedFiles,
+    onAttributionUuids,
+    search,
+    onlyWritable,
+  };
+  const filtersAreActive = hasActiveFilters(filters);
+  const runQuery = async (trx: Transaction<DB>, cacheId?: number) => {
+    /*
+     * filtered_resources contains the resources included by the active filters.
+     * Without active filters, counts read from `resource` directly.
+     */
+
+    const resourceIdsTable = filtersAreActive
+      ? 'filtered_resources'
+      : 'resource';
+    const total = (
+      await trx
+        .$extendTables<FilteredTable>()
+        .selectFrom(resourceIdsTable)
+        .select((eb) => eb.fn.countAll<number>().as('count'))
+        .$if(filtersAreActive, (query) =>
+          query.where('cache_id', '=', cacheId!),
+        )
+        .executeTakeFirstOrThrow()
+    ).count;
+
+    let belowSelectedResourceTotal = undefined;
+    if (selectedResourcePath) {
+      const selectedResource = await getResourceOrThrow(
+        trx,
+        selectedResourcePath,
       );
 
-      const hasActiveFilters = Boolean(search || hasActiveNonSearchFilters);
-
-      /*
-       * FILTERED_RESOURCE_TEMP_TABLE contains the resources included by the active filters.
-       * Without active filters, it is a view on `resource` with no runtime overhead.
-       */
-
-      let dropTempTable;
-      if (hasActiveFilters) {
-        const filterQuery = getFilteredResourcesQuery(trx, {
-          licenseFilter,
-          onlyUnreviewedFiles,
-          onAttributionUuids,
-          search,
-          onlyWritable,
-        });
-
-        await trx.schema
-          .createTable(FILTERED_RESOURCE_TEMP_TABLE)
-          .temporary()
-          .as(filterQuery)
-          .execute();
-
-        await trx.schema
-          .createIndex('temp.filtered_resources_id_idx')
-          .on(FILTERED_RESOURCE_TEMP_TABLE)
-          .column('id')
-          .execute();
-
-        dropTempTable = () =>
-          trx.schema.dropTable(FILTERED_RESOURCE_TEMP_TABLE).execute();
-      } else {
-        await trx.schema
-          .createView(FILTERED_RESOURCE_TEMP_TABLE)
-          .temporary()
-          .as(trx.selectFrom('resource').select('id'))
-          .execute();
-
-        dropTempTable = () =>
-          trx.schema.dropView(FILTERED_RESOURCE_TEMP_TABLE).execute();
-      }
-
-      function filteredResourcesContainIdBetween(
-        a: Expression<number>,
-        b: Expression<number>,
-      ) {
-        const eb = expressionBuilder<DB & FilteredTable>();
-
-        return eb.exists((eb) =>
-          eb
-            .selectFrom(FILTERED_RESOURCE_TEMP_TABLE)
-            .selectAll()
-            .where((eb) => eb.between('id', a, b)),
-        );
-      }
-
-      const total = (
+      belowSelectedResourceTotal = (
         await trx
           .$extendTables<FilteredTable>()
-          .selectFrom(FILTERED_RESOURCE_TEMP_TABLE)
+          .selectFrom(resourceIdsTable)
           .select((eb) => eb.fn.countAll<number>().as('count'))
+          .$if(filtersAreActive, (query) =>
+            query.where('cache_id', '=', cacheId!),
+          )
+          .where((eb) =>
+            eb.between(
+              'id',
+              selectedResource.id,
+              selectedResource.max_descendant_id,
+            ),
+          )
           .executeTakeFirstOrThrow()
       ).count;
+    }
 
-      let belowSelectedResourceTotal = undefined;
-      if (selectedResourcePath) {
-        const selectedResource = await getResourceOrThrow(
-          trx,
-          selectedResourcePath,
-        );
+    if (total === 0) {
+      return { result: { treeNodes: [], count: 0 } };
+    }
 
-        belowSelectedResourceTotal = (
-          await trx
-            .$extendTables<FilteredTable>()
-            .selectFrom(FILTERED_RESOURCE_TEMP_TABLE)
-            .select((eb) => eb.fn.countAll<number>().as('count'))
-            .where((eb) =>
-              eb.between(
-                'id',
-                selectedResource.id,
-                selectedResource.max_descendant_id,
-              ),
-            )
-            .executeTakeFirstOrThrow()
-        ).count;
-      }
+    let query = trx
+      .withRecursive('shown_resources', (eb) =>
+        eb
+          // Base case: Include /
+          .selectFrom('resource as r')
+          .select((sb) => [
+            'id',
+            'path',
+            'max_descendant_id',
+            'is_attribution_breakpoint',
+            'is_file',
+            'is_readonly',
+            'parent_id',
+            sb.val(0).as('level'),
+            sb.val(0).as('has_parent_with_manual_attribution'),
+          ])
+          .select((eb) => getTreeNodeProps(eb))
+          .select([
+            sql`FALSE`.as('matches_filters'),
+            sql`FALSE`.as('ancestor_matches_filters'),
+          ])
+          .where('path', '=', '')
 
-      if (total === 0) {
-        await dropTempTable();
-        return { result: { treeNodes: [], count: 0 } };
-      }
-
-      let query = trx
-        .withRecursive('shown_resources', (eb) =>
-          eb
-            // Base case: Include /
-            .selectFrom('resource as r')
-            .select((sb) => [
-              'id',
-              'path',
-              'max_descendant_id',
-              'is_attribution_breakpoint',
-              'is_file',
-              'is_readonly',
-              'parent_id',
-              sb.val(0).as('level'),
-              sb.val(0).as('has_parent_with_manual_attribution'),
-            ])
-            .select((eb) => getTreeNodeProps(eb))
-            .select([
-              sql`FALSE`.as('matches_filters'),
-              sql`FALSE`.as('ancestor_matches_filters'),
-            ])
-            .where('path', '=', '')
-
-            // Recursion: If parent is in shown resource, then include its children
-            .unionAll((eb) => {
-              let query = eb
-                .selectFrom('resource as r')
-                .innerJoin(
-                  'shown_resources as parent',
-                  'parent.id',
-                  'r.parent_id',
-                )
-                .select([
-                  'r.id',
-                  'r.path',
-                  'r.max_descendant_id',
-                  'r.is_attribution_breakpoint',
-                  'r.is_file',
-                  'r.is_readonly',
-                  'r.parent_id',
-                  sql<number>`parent.level + 1`.as('level'),
-                  sql<number>`r.is_attribution_breakpoint = 0 AND (parent.has_manual_attribution OR parent.has_parent_with_manual_attribution)`.as(
-                    'has_parent_with_manual_attribution',
-                  ),
-                ])
-                .select((eb) => getTreeNodeProps(eb))
-                .select((eb) => {
-                  if (!hasActiveFilters) {
-                    return sql`FALSE`.as('matches_filters');
-                  }
-
-                  if (hasActiveNonSearchFilters) {
-                    return filteredResourcesContainIdBetween(
-                      eb.ref('r.id'),
-                      eb.ref('r.id'),
-                    ).as('matches_filters');
-                  }
-
-                  // Search only: Only highlight where the file matches, not the entire subtree
-                  return getSearchMatchExpression(
-                    eb,
-                    'r.path',
-                    'r.name',
-                    search,
-                  ).as('matches_filters');
-                })
-                .select((eb) =>
-                  eb
-                    .or([
-                      eb.ref('parent.matches_filters'),
-                      eb.ref('parent.ancestor_matches_filters'),
-                    ])
-                    .as('ancestor_matches_filters'),
-                );
-
-              if (expandedNodes !== 'expandAll') {
-                query = query.where(
-                  'parent.path',
-                  'in',
-                  jsonArraySelection(
-                    expandedNodes.map((e) => removeTrailingSlash(e)),
-                  ),
-                );
-              }
-
-              if (hasActiveFilters) {
-                query = query.where((eb) =>
-                  eb.or([
-                    filteredResourcesContainIdBetween(
-                      eb.ref('r.id'),
-                      eb.ref('r.max_descendant_id'),
-                    ),
-                    onlyWritable
-                      ? eb.and([
-                          eb('r.is_readonly', '=', 0),
-                          eb.or([
-                            eb.ref('parent.matches_filters'),
-                            eb.ref('parent.ancestor_matches_filters'),
-                          ]),
-                        ])
-                      : eb.or([
-                          eb.ref('parent.matches_filters'),
-                          eb.ref('parent.ancestor_matches_filters'),
-                        ]),
-                  ]),
-                );
-              }
-
-              return query;
-            }),
-        )
-        .selectFrom('shown_resources')
-        .selectAll()
-        .select((eb) =>
-          eb
-            .exists((eb) =>
-              eb
-                .selectFrom('resource as child')
-                .selectAll()
-                .whereRef('child.parent_id', '=', 'shown_resources.id')
-                .$if(Boolean(onlyWritable), (query) =>
-                  query.where((eb) => {
-                    const childContainsFilteredResource =
-                      filteredResourcesContainIdBetween(
-                        eb.ref('child.id'),
-                        eb.ref('child.max_descendant_id'),
-                      );
-                    const writableChildInMatchingBranch = eb.and([
-                      eb('child.is_readonly', '=', 0),
-                      eb.or([
-                        eb('shown_resources.matches_filters', '=', 1),
-                        eb('shown_resources.ancestor_matches_filters', '=', 1),
-                      ]),
-                    ]);
-
-                    return eb.or([
-                      childContainsFilteredResource,
-                      writableChildInMatchingBranch,
-                    ]);
-                  }),
+          // Recursion: If parent is in shown resource, then include its children
+          .unionAll((eb) => {
+            let query = eb
+              .selectFrom('resource as r')
+              .innerJoin(
+                'shown_resources as parent',
+                'parent.id',
+                'r.parent_id',
+              )
+              .select([
+                'r.id',
+                'r.path',
+                'r.max_descendant_id',
+                'r.is_attribution_breakpoint',
+                'r.is_file',
+                'r.is_readonly',
+                'r.parent_id',
+                sql<number>`parent.level + 1`.as('level'),
+                sql<number>`r.is_attribution_breakpoint = 0 AND (parent.has_manual_attribution OR parent.has_parent_with_manual_attribution)`.as(
+                  'has_parent_with_manual_attribution',
                 ),
-            )
-            .as('is_expandable'),
-        )
-        .select((eb) =>
-          getSearchMatchExpression(
-            eb,
-            'shown_resources.path',
-            'shown_resources.name',
-            search,
-          ).as('highlight_matches'),
-        );
+              ])
+              .select((eb) => getTreeNodeProps(eb))
+              .select((eb) => {
+                if (!filtersAreActive) {
+                  return sql`FALSE`.as('matches_filters');
+                }
 
-      query = query.orderBy('id');
+                return getMatchesFiltersExpression({
+                  id: eb.ref('r.id'),
+                  path: eb.ref('r.path'),
+                  name: eb.ref('r.name'),
+                  filters,
+                  cacheId: cacheId!,
+                }).as('matches_filters');
+              })
+              .select((eb) =>
+                eb
+                  .or([
+                    eb.ref('parent.matches_filters'),
+                    eb.ref('parent.ancestor_matches_filters'),
+                  ])
+                  .as('ancestor_matches_filters'),
+              );
 
-      const treeNodes = (await query.execute()).map((node) => ({
-        id: node.path + (node.can_have_children ? '/' : ''), // For compatibility with legacy code
-        labelText: node.name || '/',
-        level: node.level,
-        isExpandable: Boolean(node.is_expandable),
-        isExpanded:
-          expandedNodes === 'expandAll' ||
-          expandedNodes.includes(
-            node.path + (node.can_have_children ? '/' : ''),
-          ),
-        hasManualAttribution: Boolean(node.has_manual_attribution),
-        hasExternalAttribution: Boolean(node.has_external_attribution),
-        hasUnresolvedExternalAttribution: Boolean(
-          node.has_unresolved_external_attribution,
-        ),
-        hasParentWithManualAttribution: Boolean(
-          node.has_parent_with_manual_attribution,
-        ),
-        containsExternalAttribution: Boolean(
-          node.contains_external_attribution,
-        ),
-        containsManualAttribution: Boolean(node.contains_manual_attribution),
-        containsResourcesWithOnlyExternalAttribution: Boolean(
-          node.contains_resource_with_only_external_attribution,
-        ),
-        canHaveChildren: Boolean(node.can_have_children),
-        isAttributionBreakpoint: Boolean(node.is_attribution_breakpoint),
-        isFile: Boolean(node.is_file),
-        isReadonly: Boolean(node.is_readonly),
-        criticality: node.max_criticality_on_unresolved_external_attribution,
-        classification:
-          node.max_classification_on_unresolved_external_attribution,
-        /*
-         * For attribution-filtered queries (linked resources tree), the
-         * highlight comes from the search term only, mirroring the main
-         * tree's search-only behavior (getSearchMatchExpression). Without
-         * a search, no node is highlighted.
-         */
-        matchesFilters: onAttributionUuids
-          ? Boolean(search && node.highlight_matches)
-          : Boolean(node.matches_filters),
-      }));
+            if (expandedNodeSet !== 'expandAll') {
+              query = query.where(
+                'parent.path',
+                'in',
+                jsonArraySelection([...expandedNodeSet]),
+              );
+            }
 
-      await dropTempTable();
+            if (filtersAreActive) {
+              query = query.where((eb) =>
+                getVisibleWithFiltersExpression({
+                  id: eb.ref('r.id'),
+                  maxDescendantId: eb.ref('r.max_descendant_id'),
+                  isReadonly: eb.ref('r.is_readonly'),
+                  inheritedMatch: eb.or([
+                    eb.ref('parent.matches_filters'),
+                    eb.ref('parent.ancestor_matches_filters'),
+                  ]),
+                  filters,
+                  cacheId: cacheId!,
+                }),
+              );
+            }
 
-      return {
-        result: {
-          treeNodes,
-          count: total,
-          belowSelectedResource: belowSelectedResourceTotal,
-        },
-      };
-    });
+            return query;
+          }),
+      )
+      .selectFrom('shown_resources')
+      .selectAll()
+      .select((eb) =>
+        eb
+          .exists((eb) =>
+            eb
+              .selectFrom('resource as child')
+              .selectAll()
+              .whereRef('child.parent_id', '=', 'shown_resources.id')
+              .$if(Boolean(onlyWritable), (query) =>
+                query.where((eb) => {
+                  return getVisibleWithFiltersExpression({
+                    id: eb.ref('child.id'),
+                    maxDescendantId: eb.ref('child.max_descendant_id'),
+                    isReadonly: eb.ref('child.is_readonly'),
+                    inheritedMatch: eb.or([
+                      eb('shown_resources.matches_filters', '=', 1),
+                      eb('shown_resources.ancestor_matches_filters', '=', 1),
+                    ]),
+                    filters,
+                    cacheId: cacheId!,
+                  });
+                }),
+              ),
+          )
+          .as('is_expandable'),
+      )
+      .select((eb) =>
+        getSearchMatchExpression(
+          eb,
+          eb.ref('shown_resources.path'),
+          eb.ref('shown_resources.name'),
+          search,
+        ).as('highlight_matches'),
+      );
+
+    query = query.orderBy('id');
+
+    const treeNodes = (await query.execute()).map((node) => ({
+      id: node.path + (node.can_have_children ? '/' : ''), // For compatibility with legacy code
+      labelText: node.name || '/',
+      level: node.level,
+      isExpandable: Boolean(node.is_expandable),
+      isExpanded:
+        expandedNodeSet === 'expandAll' || expandedNodeSet.has(node.path),
+      hasManualAttribution: Boolean(node.has_manual_attribution),
+      hasExternalAttribution: Boolean(node.has_external_attribution),
+      hasUnresolvedExternalAttribution: Boolean(
+        node.has_unresolved_external_attribution,
+      ),
+      hasParentWithManualAttribution: Boolean(
+        node.has_parent_with_manual_attribution,
+      ),
+      containsExternalAttribution: Boolean(node.contains_external_attribution),
+      containsManualAttribution: Boolean(node.contains_manual_attribution),
+      containsResourcesWithOnlyExternalAttribution: Boolean(
+        node.contains_resource_with_only_external_attribution,
+      ),
+      canHaveChildren: Boolean(node.can_have_children),
+      isAttributionBreakpoint: Boolean(node.is_attribution_breakpoint),
+      isFile: Boolean(node.is_file),
+      isReadonly: Boolean(node.is_readonly),
+      criticality: node.max_criticality_on_unresolved_external_attribution,
+      classification:
+        node.max_classification_on_unresolved_external_attribution,
+      matchesFilters: onAttributionUuids
+        ? Boolean(search && node.highlight_matches)
+        : Boolean(node.matches_filters),
+    }));
+
+    return {
+      result: {
+        treeNodes,
+        count: total,
+        belowSelectedResource: belowSelectedResourceTotal,
+      },
+    };
+  };
+  return filtersAreActive
+    ? withFilteredResourcesTable(filters, runQuery)
+    : db.transaction().execute(runQuery);
 }
 
 export async function getResourceTreeUnreviewedCount({
@@ -392,108 +305,9 @@ export async function getResourceTreeUnreviewedCount({
     });
 }
 
-function getFilteredResourcesQuery(
-  trx: Transaction<DB>,
-  {
-    licenseFilter,
-    onlyUnreviewedFiles,
-    onAttributionUuids,
-    search,
-    onlyWritable,
-  }: {
-    licenseFilter?: LicenseFilter;
-    onlyUnreviewedFiles?: boolean;
-    onAttributionUuids?: Array<string>;
-    search?: string;
-    onlyWritable?: boolean;
-  },
-) {
-  let query = trx.selectFrom('resource as r').select('r.id as id');
-
-  if (search) {
-    query = query.where('r.path', 'like', `%${removeTrailingSlash(search)}%`);
-  }
-
-  if (licenseFilter) {
-    query = query.where('r.id', 'in', (eb) =>
-      eb
-        .selectFrom('attribution as a')
-        .innerJoin(
-          'resource_to_attribution as rta',
-          'rta.attribution_uuid',
-          'a.uuid',
-        )
-        .select('rta.resource_id')
-        .where('a.is_external', '=', Number(licenseFilter.external))
-        .where(
-          'a.canonical_license_name',
-          '=',
-          toCanonicalLicenseName(licenseFilter.licenseName),
-        ),
-    );
-  }
-
-  if (onAttributionUuids) {
-    query = query.where((eb) =>
-      eb.exists((eb) =>
-        eb
-          .selectFrom('resource_to_attribution as rta')
-          .select('rta.resource_id')
-          .whereRef('rta.resource_id', '=', 'r.id')
-          .where(
-            'rta.attribution_uuid',
-            'in',
-            jsonArraySelection(onAttributionUuids),
-          ),
-      ),
-    );
-  }
-
-  if (onlyUnreviewedFiles) {
-    const filterExpressionBuilder = expressionBuilder<
-      DB,
-      'closest_attributed_ancestors'
-    >();
-    query = query
-      .where((eb) =>
-        eb.or([
-          eb('r.id', 'in', getOnlyExternalFilesQuery(filterExpressionBuilder)),
-          eb(
-            'r.id',
-            'in',
-            getOnlyPreSelectedManualFilesQuery(filterExpressionBuilder),
-          ),
-        ]),
-      )
-      .where('r.is_file', '=', 1);
-    query = query.where('r.is_readonly', '=', 0);
-  }
-
-  if (onlyWritable) {
-    query = query.where('r.is_readonly', '=', 0);
-  }
-
-  return query;
-}
-
 type TreeNodeQueryType = DB & {
   r: Resource;
 };
-
-function getSearchMatchExpression<TDB, TB extends keyof TDB & string>(
-  eb: ExpressionBuilder<TDB, TB>,
-  pathColumn: ReferenceExpression<TDB, TB>,
-  nameColumn: ReferenceExpression<TDB, TB>,
-  search: string | undefined,
-) {
-  const searchPath = removeTrailingSlash(search ?? '');
-  const searchLastPart = searchPath.split('/').at(-1);
-
-  return eb.and([
-    eb(pathColumn, 'like', `%${searchPath}%`),
-    eb(nameColumn, 'like', `%${searchLastPart}%`),
-  ]);
-}
 
 function getTreeNodeProps(eb: ExpressionBuilder<TreeNodeQueryType, 'r'>) {
   return [
