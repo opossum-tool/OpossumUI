@@ -2,7 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, renderHook } from '@testing-library/react';
+import { render } from '@testing-library/react';
+import { type Ref, useImperativeHandle } from 'react';
 import type { VirtuosoHandle } from 'react-virtuoso';
 
 import { useVirtuosoRefs } from '../use-virtuoso-refs';
@@ -14,6 +15,11 @@ interface Item {
 interface HookProps {
   data: ReadonlyArray<Item> | null;
   selectedId: string | undefined;
+}
+
+interface VirtuosoHarnessProps {
+  handle: VirtuosoHandle;
+  ref: Ref<VirtuosoHandle>;
 }
 
 const item = (id: string): Item => ({ id });
@@ -28,138 +34,189 @@ const virtuosoHandle = (scrollIntoView: VirtuosoHandle['scrollIntoView']) =>
     scrollToIndex: vi.fn(),
   }) satisfies VirtuosoHandle;
 
+function VirtuosoHarness({ handle, ref }: VirtuosoHarnessProps) {
+  useImperativeHandle(ref, () => handle, [handle]);
+  return null;
+}
+
+function SelectionScrollHarness({
+  data,
+  handle,
+  selectedId,
+}: HookProps & Pick<VirtuosoHarnessProps, 'handle'>) {
+  const { ref } = useVirtuosoRefs({ data, selectedId });
+
+  return <VirtuosoHarness ref={ref} handle={handle} />;
+}
+
+const renderHarness = (
+  props: HookProps,
+  scrollIntoView: VirtuosoHandle['scrollIntoView'],
+) =>
+  render(
+    <SelectionScrollHarness
+      {...props}
+      handle={virtuosoHandle(scrollIntoView)}
+    />,
+  );
+
 describe('useVirtuosoRefs', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it('does not scroll when rows move around an unchanged selection', async () => {
+  it('scrolls an initially available selection to its index', () => {
     const scrollIntoView = vi.fn();
-    const { result, rerender } = renderHook<
-      ReturnType<typeof useVirtuosoRefs>,
-      HookProps
-    >(({ data, selectedId }) => useVirtuosoRefs({ data, selectedId }), {
-      initialProps: {
-        data: [item('before'), item('selected')],
+
+    renderHarness(
+      {
+        data: [item('first'), item('selected')],
         selectedId: 'selected',
       },
-    });
-    result.current.ref.current = virtuosoHandle(scrollIntoView);
-    await act(() => vi.runAllTimers());
-    scrollIntoView.mockClear();
+      scrollIntoView,
+    );
 
-    rerender({
-      data: [item('inserted'), item('before'), item('selected')],
-      selectedId: 'selected',
-    });
-    await act(() => vi.runAllTimers());
-
-    expect(scrollIntoView).not.toHaveBeenCalled();
-
-    rerender({ data: [item('selected')], selectedId: 'selected' });
-    await act(() => vi.runAllTimers());
-
-    expect(scrollIntoView).not.toHaveBeenCalled();
-  });
-
-  it('scrolls when the selected ID changes even at the same index', async () => {
-    const scrollIntoView = vi.fn();
-    const { result, rerender } = renderHook<
-      ReturnType<typeof useVirtuosoRefs>,
-      HookProps
-    >(({ data, selectedId }) => useVirtuosoRefs({ data, selectedId }), {
-      initialProps: {
-        data: [item('first'), item('second')],
-        selectedId: 'first',
-      },
-    });
-    result.current.ref.current = virtuosoHandle(scrollIntoView);
-    await act(() => vi.runAllTimers());
-    scrollIntoView.mockClear();
-
-    rerender({
-      data: [item('replacement'), item('second')],
-      selectedId: 'replacement',
-    });
-    await act(() => vi.runAllTimers());
-
-    expect(scrollIntoView).toHaveBeenCalledWith({ index: 0, align: 'center' });
-  });
-
-  it('scrolls initial and newly available selections into view', async () => {
-    const scrollIntoView = vi.fn();
-    const { result, rerender } = renderHook<
-      ReturnType<typeof useVirtuosoRefs>,
-      HookProps
-    >(({ data, selectedId }) => useVirtuosoRefs({ data, selectedId }), {
-      initialProps: {
-        data: null,
-        selectedId: 'loaded',
-      },
-    });
-    result.current.ref.current = virtuosoHandle(scrollIntoView);
-    await act(() => vi.runAllTimers());
-    expect(scrollIntoView).not.toHaveBeenCalled();
-
-    rerender({ data: [item('other'), item('loaded')], selectedId: 'loaded' });
-    await act(() => vi.runAllTimers());
-
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
     expect(scrollIntoView).toHaveBeenCalledWith({ index: 1, align: 'center' });
   });
 
-  it('does not scroll missing or cleared selections', async () => {
+  it('scrolls when the selected ID changes even at the same index', () => {
     const scrollIntoView = vi.fn();
-    const { result, rerender } = renderHook<
-      ReturnType<typeof useVirtuosoRefs>,
-      HookProps
-    >(({ data, selectedId }) => useVirtuosoRefs({ data, selectedId }), {
-      initialProps: {
-        data: [item('available')],
-        selectedId: 'missing',
+    const { rerender } = renderHarness(
+      {
+        data: [item('first'), item('second')],
+        selectedId: 'first',
       },
-    });
-    result.current.ref.current = virtuosoHandle(scrollIntoView);
-    await act(() => vi.runAllTimers());
+      scrollIntoView,
+    );
+    scrollIntoView.mockClear();
 
-    rerender({ data: [item('available')], selectedId: undefined });
-    await act(() => vi.runAllTimers());
-
-    expect(scrollIntoView).not.toHaveBeenCalled();
-  });
-
-  it('cancels a deferred scroll when its dependencies change', async () => {
-    const scrollIntoView = vi.fn();
-    const { result, rerender } = renderHook<
-      ReturnType<typeof useVirtuosoRefs>,
-      HookProps
-    >(({ data, selectedId }) => useVirtuosoRefs({ data, selectedId }), {
-      initialProps: { data: [item('first')], selectedId: 'first' },
-    });
-    result.current.ref.current = virtuosoHandle(scrollIntoView);
-
-    rerender({ data: [item('second')], selectedId: 'second' });
-    await act(() => vi.runAllTimers());
+    rerender(
+      <SelectionScrollHarness
+        data={[item('replacement'), item('second')]}
+        selectedId="replacement"
+        handle={virtuosoHandle(scrollIntoView)}
+      />,
+    );
 
     expect(scrollIntoView).toHaveBeenCalledTimes(1);
     expect(scrollIntoView).toHaveBeenCalledWith({ index: 0, align: 'center' });
   });
 
-  it('cancels a deferred scroll when the hook unmounts', async () => {
+  it('does not scroll when rows are inserted or removed before an unchanged selection', () => {
     const scrollIntoView = vi.fn();
-    const { result, unmount } = renderHook<
-      ReturnType<typeof useVirtuosoRefs>,
-      HookProps
-    >(({ data, selectedId }) => useVirtuosoRefs({ data, selectedId }), {
-      initialProps: { data: [item('selected')], selectedId: 'selected' },
-    });
-    result.current.ref.current = virtuosoHandle(scrollIntoView);
+    const { rerender } = renderHarness(
+      {
+        data: [item('before'), item('selected')],
+        selectedId: 'selected',
+      },
+      scrollIntoView,
+    );
+    scrollIntoView.mockClear();
 
-    unmount();
-    await act(() => vi.runAllTimers());
+    rerender(
+      <SelectionScrollHarness
+        data={[item('inserted'), item('before'), item('selected')]}
+        selectedId="selected"
+        handle={virtuosoHandle(scrollIntoView)}
+      />,
+    );
+    rerender(
+      <SelectionScrollHarness
+        data={[item('selected')]}
+        selectedId="selected"
+        handle={virtuosoHandle(scrollIntoView)}
+      />,
+    );
+
+    expect(scrollIntoView).not.toHaveBeenCalled();
+  });
+
+  it('scrolls when a selection becomes available after loading', () => {
+    const scrollIntoView = vi.fn();
+    const { rerender } = renderHarness(
+      { data: null, selectedId: 'loaded' },
+      scrollIntoView,
+    );
+    expect(scrollIntoView).not.toHaveBeenCalled();
+
+    rerender(
+      <SelectionScrollHarness
+        data={[item('other'), item('loaded')]}
+        selectedId="loaded"
+        handle={virtuosoHandle(scrollIntoView)}
+      />,
+    );
+
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(scrollIntoView).toHaveBeenCalledWith({ index: 1, align: 'center' });
+  });
+
+  it('scrolls when a selection reappears after removal', () => {
+    const scrollIntoView = vi.fn();
+    const { rerender } = renderHarness(
+      { data: [item('selected')], selectedId: 'selected' },
+      scrollIntoView,
+    );
+    scrollIntoView.mockClear();
+
+    rerender(
+      <SelectionScrollHarness
+        data={[]}
+        selectedId="selected"
+        handle={virtuosoHandle(scrollIntoView)}
+      />,
+    );
+    expect(scrollIntoView).not.toHaveBeenCalled();
+
+    rerender(
+      <SelectionScrollHarness
+        data={[item('other'), item('selected')]}
+        selectedId="selected"
+        handle={virtuosoHandle(scrollIntoView)}
+      />,
+    );
+
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(scrollIntoView).toHaveBeenCalledWith({ index: 1, align: 'center' });
+  });
+
+  it('does not scroll for missing data, an absent resource, or an undefined selection', () => {
+    const scrollIntoView = vi.fn();
+    const { rerender } = renderHarness(
+      { data: null, selectedId: 'missing' },
+      scrollIntoView,
+    );
+
+    rerender(
+      <SelectionScrollHarness
+        data={[item('available')]}
+        selectedId="missing"
+        handle={virtuosoHandle(scrollIntoView)}
+      />,
+    );
+    rerender(
+      <SelectionScrollHarness
+        data={[item('available')]}
+        selectedId={undefined}
+        handle={virtuosoHandle(scrollIntoView)}
+      />,
+    );
+
+    expect(scrollIntoView).not.toHaveBeenCalled();
+  });
+
+  it('does not scroll when a previously valid selection is cleared', () => {
+    const scrollIntoView = vi.fn();
+    const { rerender } = renderHarness(
+      { data: [item('selected')], selectedId: 'selected' },
+      scrollIntoView,
+    );
+    scrollIntoView.mockClear();
+
+    rerender(
+      <SelectionScrollHarness
+        data={[item('selected')]}
+        selectedId={undefined}
+        handle={virtuosoHandle(scrollIntoView)}
+      />,
+    );
 
     expect(scrollIntoView).not.toHaveBeenCalled();
   });

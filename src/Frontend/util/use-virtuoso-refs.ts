@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { defer } from 'lodash-es';
 import {
   useCallback,
   useEffect,
   useEffectEvent,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -65,13 +65,10 @@ export function useVirtuosoRefs<
     }
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (selectedId !== undefined && selectedIsAvailable) {
-      const deferredScroll = defer(() => scrollToSelection());
-      return () => clearTimeout(deferredScroll);
+      scrollToSelection();
     }
-
-    return undefined;
   }, [selectedId, selectedIsAvailable]);
 
   const handleKeyDown = useCallback(
