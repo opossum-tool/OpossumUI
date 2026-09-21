@@ -80,6 +80,64 @@ describe('removeRedundantAttributions', () => {
 
   it.each([
     {
+      name: 'child is a subset of the ancestor',
+      ancestorAttributions: ['a', 'b'],
+      childAttributions: ['a'],
+      expectedAffectedAttributions: [],
+    },
+    {
+      name: 'child is a superset of the ancestor',
+      ancestorAttributions: ['a'],
+      childAttributions: ['a', 'b'],
+      expectedAffectedAttributions: [],
+    },
+    {
+      name: 'child and ancestor partially overlap',
+      ancestorAttributions: ['a', 'b'],
+      childAttributions: ['a', 'c'],
+      expectedAffectedAttributions: [],
+    },
+    {
+      name: 'child and ancestor have equal sets',
+      ancestorAttributions: ['a', 'b'],
+      childAttributions: ['a', 'b'],
+      expectedAffectedAttributions: ['a', 'b'],
+    },
+  ])(
+    'handles multiple resources when $name',
+    async ({
+      ancestorAttributions,
+      childAttributions,
+      expectedAffectedAttributions,
+    }) => {
+      await setupDb({
+        resourcePathsToAttributionUuids: {
+          '/parent': ancestorAttributions,
+          '/parent/child': childAttributions,
+        },
+      });
+
+      const resourceIds = await Promise.all(
+        ['/parent', '/parent/child'].map((path) => getResourceId(path)),
+      );
+      const affectedAttributionUuids = await getDb()
+        .transaction()
+        .execute((trx) => removeRedundantAttributions(trx, { resourceIds }));
+
+      await expectDbContent({
+        '/parent': ancestorAttributions,
+        '/parent/child':
+          expectedAffectedAttributions.length === 0 ? childAttributions : [],
+      });
+      expect(affectedAttributionUuids.toSorted()).toEqual(
+        expectedAffectedAttributions.toSorted(),
+      );
+      await expectCaaConsistency();
+    },
+  );
+
+  it.each([
+    {
       name: 'upward: deletes resource attributions that match its closest ancestor',
       resourcesToAttributions: {
         '/first': ['uuid1'],
