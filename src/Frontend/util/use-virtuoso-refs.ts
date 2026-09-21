@@ -3,7 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { defer } from 'lodash-es';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { VirtuosoHandle } from 'react-virtuoso';
 
 export function useVirtuosoRefs<
@@ -37,6 +44,8 @@ export function useVirtuosoRefs<
     return data.findIndex((datum) => datum.id === focusedId);
   }, [data, focusedId]);
 
+  const selectedIsAvailable = selectedIndex !== undefined && selectedIndex >= 0;
+
   useEffect(() => {
     if (isVirtuosoFocused) {
       setFocusedId(selectedId);
@@ -47,16 +56,23 @@ export function useVirtuosoRefs<
     };
   }, [isVirtuosoFocused, selectedId]);
 
-  useEffect(() => {
+  const scrollToSelection = useEffectEvent(() => {
     if (selectedIndex !== undefined && selectedIndex >= 0) {
-      defer(() =>
-        ref.current?.scrollIntoView({
-          index: selectedIndex,
-          align: 'center',
-        }),
-      );
+      ref.current?.scrollIntoView({
+        index: selectedIndex,
+        align: 'center',
+      });
     }
-  }, [selectedIndex, ref]);
+  });
+
+  useEffect(() => {
+    if (selectedId !== undefined && selectedIsAvailable) {
+      const deferredScroll = defer(() => scrollToSelection());
+      return () => clearTimeout(deferredScroll);
+    }
+
+    return undefined;
+  }, [selectedId, selectedIsAvailable]);
 
   const handleKeyDown = useCallback(
     (event: Event) => {

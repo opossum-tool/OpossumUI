@@ -84,14 +84,21 @@ export class ResourcesTree {
         this.getResourceByPath(resourcePath).getByTestId('readonly-indicator'),
       ).toBeVisible();
     },
+    resourceAtPathIsInViewport: async (resourcePath: string): Promise<void> => {
+      await expect(this.getResourceByPath(resourcePath)).toBeInViewport();
+    },
+    resourceAtPathIsNotInViewport: async (
+      resourcePath: string,
+    ): Promise<void> => {
+      await expect(this.getResourceByPath(resourcePath)).not.toBeInViewport();
+    },
+    resourceAtPathIsSelected: async (resourcePath: string): Promise<void> => {
+      await expect(
+        this.node.locator('[data-virtuoso-scroller="true"]'),
+      ).toHaveAttribute('data-selected-id', resourcePath);
+    },
     searchIsFocused: async (): Promise<void> => {
       await expect(this.searchField).toBeFocused();
-    },
-    unreviewedFilterIsSelected: async (selected: boolean): Promise<void> => {
-      await expect(this.filters.unreviewed).toHaveAttribute(
-        'aria-selected',
-        selected.toString(),
-      );
     },
     splitHereIsDisabled: async (resourceName: string): Promise<void> => {
       await this.openContextMenu(resourceName);
@@ -151,6 +158,26 @@ export class ResourcesTree {
       await this.clearSearchButton.click();
     }
     await expect(this.searchField).toHaveValue('');
+  }
+
+  async scrollToTop(): Promise<void> {
+    await this.node
+      .locator('[data-virtuoso-scroller="true"]')
+      .evaluate((scroller) => scroller.scrollTo({ top: 0 }));
+  }
+
+  async scrollToBottom(): Promise<void> {
+    await this.node
+      .locator('[data-virtuoso-scroller="true"]')
+      .evaluate((scroller) =>
+        scroller.scrollTo({ top: scroller.scrollHeight }),
+      );
+  }
+
+  async expandResource(resourcePath: string): Promise<void> {
+    const resource = this.getResourceByPath(resourcePath);
+    await resource.getByLabel(`expand ${resourcePath}`).click();
+    await expect(resource.getByLabel(`collapse ${resourcePath}`)).toBeVisible();
   }
 
   async getElementHandle(): Promise<ElementHandle | undefined> {
