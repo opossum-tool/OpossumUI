@@ -53,6 +53,19 @@ export async function removeRedundantAttributions(
   { resourceIds }: { resourceIds?: Array<number> },
 ) {
   let additional_selection: Expression<SqlBool> = sql<SqlBool>`TRUE`;
+  const eb = expressionBuilder<
+    DB,
+    'resource' | 'closest_attributed_ancestors'
+  >();
+  type ResourceReference =
+    'resource.id' | 'closest_attributed_ancestors.manual';
+  const manualAttributions = (resourceRef: ResourceReference) =>
+    trx
+      .selectFrom('resource_to_attribution')
+      .select('attribution_uuid')
+      .whereRef('resource_id', '=', eb.ref(resourceRef))
+      .where('attribution_is_external', '=', 0);
+
   if (resourceIds?.length === 1) {
     // Simplest case: Only one resource was changed,
     // we only look at resources that have the same attributions as the changed one (or its parent, if it's empty)
@@ -75,8 +88,6 @@ export async function removeRedundantAttributions(
       // No attributions to deduplicate
       return [];
     }
-
-    const eb = expressionBuilder<DB, 'resource'>();
 
     additional_selection = eb(
       'resource.id',
@@ -117,23 +128,24 @@ export async function removeRedundantAttributions(
         .where('resource.is_readonly', '=', 0)
         .where('is_attribution_breakpoint', '=', 0)
         .where(additional_selection)
-        .where(
-          sql<boolean>`
-            (
-              select attribution_uuid
-              from resource_to_attribution rta
-              where 
-                rta.resource_id = resource.id
-                and attribution_is_external = 0
-            )
-            = 
-            (
-              select attribution_uuid
-              from resource_to_attribution rta
-              where 
-                rta.resource_id = closest_attributed_ancestors.manual
-                and attribution_is_external = 0
-            )`,
+        .where((predicateEb) =>
+          predicateEb.and([
+            predicateEb.exists(manualAttributions('resource.id')),
+            predicateEb.not(
+              predicateEb.exists(
+                manualAttributions('resource.id').except(
+                  manualAttributions('closest_attributed_ancestors.manual'),
+                ),
+              ),
+            ),
+            predicateEb.not(
+              predicateEb.exists(
+                manualAttributions(
+                  'closest_attributed_ancestors.manual',
+                ).except(manualAttributions('resource.id')),
+              ),
+            ),
+          ]),
         ),
     )
     .execute();
