@@ -36,6 +36,10 @@ export async function getResourceTree({
   expandedNodes: Array<string> | 'expandAll';
   selectedResourcePath?: string;
 }) {
+  const expandedNodeSet =
+    expandedNodes === 'expandAll'
+      ? 'expandAll'
+      : new Set(expandedNodes.map((path) => removeTrailingSlash(path)));
   const db = getDb();
   const filters = {
     licenseFilter,
@@ -163,13 +167,11 @@ export async function getResourceTree({
                   .as('ancestor_matches_filters'),
               );
 
-            if (expandedNodes !== 'expandAll') {
+            if (expandedNodeSet !== 'expandAll') {
               query = query.where(
                 'parent.path',
                 'in',
-                jsonArraySelection(
-                  expandedNodes.map((e) => removeTrailingSlash(e)),
-                ),
+                jsonArraySelection([...expandedNodeSet]),
               );
             }
 
@@ -236,8 +238,7 @@ export async function getResourceTree({
       level: node.level,
       isExpandable: Boolean(node.is_expandable),
       isExpanded:
-        expandedNodes === 'expandAll' ||
-        expandedNodes.includes(node.path + (node.can_have_children ? '/' : '')),
+        expandedNodeSet === 'expandAll' || expandedNodeSet.has(node.path),
       hasManualAttribution: Boolean(node.has_manual_attribution),
       hasExternalAttribution: Boolean(node.has_external_attribution),
       hasUnresolvedExternalAttribution: Boolean(
