@@ -2,8 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { defer } from 'lodash-es';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { VirtuosoHandle } from 'react-virtuoso';
 
 export function useVirtuosoRefs<
@@ -37,6 +44,8 @@ export function useVirtuosoRefs<
     return data.findIndex((datum) => datum.id === focusedId);
   }, [data, focusedId]);
 
+  const selectedIsAvailable = selectedIndex !== undefined && selectedIndex >= 0;
+
   useEffect(() => {
     if (isVirtuosoFocused) {
       setFocusedId(selectedId);
@@ -47,16 +56,20 @@ export function useVirtuosoRefs<
     };
   }, [isVirtuosoFocused, selectedId]);
 
-  useEffect(() => {
+  const scrollToSelection = useEffectEvent(() => {
     if (selectedIndex !== undefined && selectedIndex >= 0) {
-      defer(() =>
-        ref.current?.scrollIntoView({
-          index: selectedIndex,
-          align: 'center',
-        }),
-      );
+      ref.current?.scrollIntoView({
+        index: selectedIndex,
+        align: 'center',
+      });
     }
-  }, [selectedIndex, ref]);
+  });
+
+  useLayoutEffect(() => {
+    if (selectedId !== undefined && selectedIsAvailable) {
+      scrollToSelection();
+    }
+  }, [selectedId, selectedIsAvailable]);
 
   const handleKeyDown = useCallback(
     (event: Event) => {

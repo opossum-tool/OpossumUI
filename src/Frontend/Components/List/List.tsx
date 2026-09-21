@@ -163,6 +163,7 @@ export function List<ItemType extends BaseItem>({
             <Virtuoso
               {...props}
               ref={ref}
+              data-selected-id={selectedId}
               onFocus={() => setIsVirtuosoFocused(true)}
               onBlur={() => setIsVirtuosoFocused(false)}
               tabIndex={-1}
