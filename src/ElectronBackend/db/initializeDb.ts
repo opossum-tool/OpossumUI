@@ -192,11 +192,7 @@ async function initializeFilteredResourcesTable(trx: Transaction<DB>) {
     .createTable('filtered_resources')
     .addColumn('cache_id', 'integer', (column) => column.notNull())
     .addColumn('id', 'integer', (column) => column.notNull())
-    .execute();
-  await trx.schema
-    .createIndex('filtered_resources_cache_id_id_idx')
-    .on('filtered_resources')
-    .columns(['cache_id', 'id'])
+    .addPrimaryKeyConstraint('filtered_resources_pk', ['cache_id', 'id'])
     .execute();
 }
 
