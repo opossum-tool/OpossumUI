@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
 import MuiChip from '@mui/material/Chip';
+import type { Theme } from '@mui/material/styles';
 import MuiTooltip from '@mui/material/Tooltip';
 import MuiTypography from '@mui/material/Typography';
 import type { SxProps } from '@mui/system';
@@ -74,7 +75,8 @@ const classes = {
   },
   pickerSource: {
     background: pickerSourceBackgroundColor,
-    boxShadow: `inset 4px 0 0 ${OpossumColors.green}`,
+    boxShadow: (theme: Theme) =>
+      `inset ${theme.spacing(1)} 0 0 ${OpossumColors.green}`,
     '&:hover': {
       background: hoveredPickerSourceBackgroundColor,
     },
@@ -103,7 +105,7 @@ const classes = {
     overflow: 'hidden',
     whiteSpace: 'nowrap',
   },
-} satisfies SxProps;
+} satisfies SxProps<Theme>;
 
 export interface PackageCardConfig {
   criticality: Criticality;
