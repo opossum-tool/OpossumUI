@@ -30,14 +30,21 @@ const classes = {
     display: 'flex',
   },
   openFileIcon: {
-    margin: '8px',
     width: '18px',
     height: '18px',
-    padding: '2px',
     color: OpossumColors.white,
+  },
+  openFileButton: {
+    aspectRatio: '1 / 1',
+    height: '100%',
+    display: 'flex',
     '&:hover': {
       background: OpossumColors.middleBlue,
     },
+  },
+  openFileButtonWrapper: {
+    height: '100%',
+    display: 'flex',
   },
   viewButtons: {
     width: '80px',
@@ -84,6 +91,8 @@ export const TopBar: React.FC = () => {
     <MuiBox aria-label={'top bar'} sx={classes.root}>
       <BackendCommunication />
       <IconButton
+        sx={classes.openFileButton}
+        wrapperSx={classes.openFileButtonWrapper}
         tooltipTitle={text.topBar.openFile.toolTipTitle}
         tooltipPlacement="right"
         onClick={(): void => {
