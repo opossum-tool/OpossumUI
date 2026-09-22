@@ -36,6 +36,9 @@ interface ResizePanel {
   };
   hidden?: boolean;
   headerTestId?: string;
+  headerDataAttributes?: {
+    [attributeName: `data-${string}`]: string | undefined;
+  };
 }
 
 type Main = 'upper' | 'lower';
@@ -210,9 +213,14 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
     searchRef,
     showSearch,
     headerTestId,
+    headerDataAttributes,
   }: Pick<
     ResizePanel,
-    'title' | 'search' | 'headerActions' | 'headerTestId'
+    | 'title'
+    | 'search'
+    | 'headerActions'
+    | 'headerTestId'
+    | 'headerDataAttributes'
   > & {
     title: string;
     showResizeButtons?: boolean;
@@ -220,7 +228,7 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
     searchRef: React.RefObject<HTMLInputElement | null>;
   }) {
     return (
-      <Header data-testid={headerTestId} square>
+      <Header data-testid={headerTestId} {...headerDataAttributes} square>
         <HeaderText>{title}</HeaderText>
         {showSearch && renderSearchButton({ search, searchRef })}
         {showSearch && headerActions}

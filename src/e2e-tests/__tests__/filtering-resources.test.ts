@@ -97,7 +97,7 @@ test('combines unreviewed and external attribution license filters in the resour
 test('expands the complete visible chain after filtering', async ({
   resourcesTree,
 }) => {
-  await resourcesTree.searchField.fill(matchingLeafName);
+  await resourcesTree.search(matchingLeafName);
   await resourcesTree.assert.resourceCountIs(1);
 
   await resourcesTree.expandResourceAtPath(`/${autoExpansionRootName}/`);
