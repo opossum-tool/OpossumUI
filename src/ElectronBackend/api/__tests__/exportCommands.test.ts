@@ -70,11 +70,15 @@ describe('export tests', () => {
     });
   });
 
-  it('resolves follow-up paths via closest attributed ancestors ordered by resource id', async () => {
+  it('exports follow-up attributions with the resources of their closest attributed ancestors', async () => {
     const csvPath = '/some/follow_up_ancestors.csv';
 
     await initializeDbWithTestData({
-      resources: pathsToResources(['/folder/a-file', '/folder/b-file']),
+      resources: pathsToResources([
+        '/folder/zeta-file',
+        '/folder/alpha-file',
+        '/folder/sub/inner-file',
+      ]),
       manualAttributions: {
         attributions: {
           uuid1: {
@@ -83,12 +87,20 @@ describe('export tests', () => {
             followUp: true,
             packageName: 'ancestor-pkg',
           },
+          uuid2: {
+            id: 'uuid2',
+            criticality: Criticality.None,
+            followUp: true,
+            packageName: 'sub-pkg',
+          },
         },
         resourcesToAttributions: {
           '/folder/': ['uuid1'],
+          '/folder/sub/': ['uuid2'],
         },
         attributionsToResources: {
           uuid1: ['/folder/'],
+          uuid2: ['/folder/sub/'],
         },
       },
     });
@@ -100,7 +112,11 @@ describe('export tests', () => {
       attributions: {
         uuid1: expect.objectContaining({
           packageName: 'ancestor-pkg',
-          resources: ['/folder/a-file', '/folder/b-file'],
+          resources: ['/folder/alpha-file', '/folder/zeta-file'],
+        }),
+        uuid2: expect.objectContaining({
+          packageName: 'sub-pkg',
+          resources: ['/folder/sub/inner-file'],
         }),
       },
       columns: [
