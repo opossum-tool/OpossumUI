@@ -270,7 +270,7 @@ const ChartGrid: React.FC<PropsWithChildren> = (props) => {
       <MuiGrid
         container
         columns={{ sm: 1, md: 2, lg: 3 }}
-        spacing={3}
+        spacing={6}
         sx={{
           height: '100%',
           minHeight: 'fit-content',

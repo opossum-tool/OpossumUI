@@ -30,7 +30,7 @@ const projectMetadataTableClasses = {
   },
   container: {
     width: 'max-content',
-    marginBottom: 3,
+    marginBottom: 6,
   },
 };
 

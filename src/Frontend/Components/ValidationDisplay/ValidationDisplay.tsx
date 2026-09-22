@@ -35,10 +35,10 @@ export const ValidationDisplay: React.FC<ValidationErrorDisplayProps> = ({
         data-testid="validation-display"
         sx={{
           minHeight: 24,
-          mt: 0.75,
-          pl: 1,
+          mt: 1.5,
+          pl: 2,
           display: 'flex',
-          gap: 0.75,
+          gap: 1.5,
           color,
         }}
       >
@@ -48,8 +48,8 @@ export const ValidationDisplay: React.FC<ValidationErrorDisplayProps> = ({
             flexShrink: 0,
           }}
         />
-        <MuiBox sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-          <MuiBox sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+        <MuiBox sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <MuiBox sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <MuiTypography variant="body2">{firstMessage}</MuiTypography>
             {remainingMessages.length > 0 && (
               <ExpandMore
@@ -66,7 +66,7 @@ export const ValidationDisplay: React.FC<ValidationErrorDisplayProps> = ({
             )}
           </MuiBox>
           <MuiCollapse in={expanded}>
-            <MuiBox sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+            <MuiBox sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               {remainingMessages.map((message, index) => (
                 <MuiTypography variant="body2" key={index}>
                   {message}
