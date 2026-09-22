@@ -21,7 +21,7 @@ const classes = {
     borderBottom: 'none',
   },
   headerText: {
-    padding: '10px',
+    p: 2.5,
     fontWeight: 'bold',
   },
   iconsCell: {

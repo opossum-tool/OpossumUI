@@ -45,7 +45,7 @@ export const StyledMenu = styled(
             ...(anchorArrow && {
               overflow: 'visible',
               filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-              marginTop: '4px',
+              mt: 1,
               '&:before': {
                 content: '""',
                 display: 'block',
@@ -98,8 +98,8 @@ export const MenuItemContainer = styled(MuiBox)(({ theme }) => ({
   display: 'flex',
   gap: theme.spacing(2),
   alignItems: 'center',
-  paddingRight: '17px',
-  paddingLeft: '12px',
+  paddingRight: theme.spacing(4.25),
+  paddingLeft: theme.spacing(3),
   height: '38px',
   width: '100%',
 }));

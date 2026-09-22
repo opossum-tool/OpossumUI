@@ -80,7 +80,7 @@ const classes = {
     height: 'auto',
     marginTop: 0,
     marginLeft: 0,
-    marginRight: '8px',
+    mr: 2,
   },
 } satisfies SxProps;
 
@@ -100,7 +100,7 @@ function MultilineInput({
         boxSizing: 'content-box',
         width: '100%',
         overflow: 'auto',
-        paddingBlock: INPUT_VERTICAL_PADDING,
+        paddingBlock: 2.125,
         scrollPaddingBlock: INPUT_VERTICAL_PADDING,
         maxBlockSize: maxRows ? `${maxRows}lh` : 'none',
       }}
@@ -200,11 +200,11 @@ export function TextBox(props: TextBoxProps) {
                     ...(props.multiline ? { boxSizing: 'border-box' } : {}),
                     overflowX: 'hidden',
                     textOverflow: 'ellipsis',
-                    paddingY: props.multiline ? 0 : INPUT_VERTICAL_PADDING,
-                    paddingLeft: `calc(14px + ${ensureArray(props.startIcon).length} * 20px)`,
+                    paddingY: props.multiline ? 0 : 2.125,
+                    paddingLeft: 3.5 + ensureArray(props.startIcon).length * 5,
                     paddingRight: props.multiline
-                      ? '14px'
-                      : `calc(14px + ${ensureArray(props.endIcon).length} * 20px)`,
+                      ? 3.5
+                      : 3.5 + ensureArray(props.endIcon).length * 5,
                   },
                 },
               },

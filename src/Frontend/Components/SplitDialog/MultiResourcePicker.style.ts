@@ -9,7 +9,7 @@ import MuiIconButton from '@mui/material/IconButton';
 import MuiLinearProgress from '@mui/material/LinearProgress';
 import MuiTypography from '@mui/material/Typography';
 
-const INDENT_PER_LEVEL = '24px';
+const INDENT_PER_LEVEL = 6;
 const INCLUDED_RESOURCE_OPACITY = 0.7;
 
 export const PickerContainer = styled(MuiBox)(({ theme }) => ({
@@ -46,16 +46,18 @@ export const ResourceRow = styled(MuiBox, {
   shouldForwardProp: (name: string) =>
     !['resourceLevel', 'selectedByAncestor'].includes(name),
 })<{ resourceLevel: number; selectedByAncestor: boolean }>(
-  ({ resourceLevel, selectedByAncestor }) => ({
+  ({ theme, resourceLevel, selectedByAncestor }) => ({
     alignItems: 'center',
     display: 'flex',
-    marginLeft: `calc(${INDENT_PER_LEVEL} * ${resourceLevel - 1})`,
+    marginLeft: `calc(${theme.spacing(INDENT_PER_LEVEL)} * ${resourceLevel - 1})`,
     minHeight: '32px',
     opacity: selectedByAncestor ? INCLUDED_RESOURCE_OPACITY : 1,
   }),
 );
 
-export const ExpandButton = styled(MuiIconButton)({ padding: '4px' });
+export const ExpandButton = styled(MuiIconButton)(({ theme }) => ({
+  padding: theme.spacing(1),
+}));
 
 export const TreeNodeSpacer = styled(MuiBox)({ width: '28px' });
 

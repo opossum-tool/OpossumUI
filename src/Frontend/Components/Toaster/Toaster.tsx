@@ -21,12 +21,12 @@ const icons: Record<ToastType, React.ReactNode> = {
   custom: null,
 };
 
-const ToastContainer = styled('div')({
+const ToastContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  gap: '8px',
+  gap: theme.spacing(2),
   width: '340px',
-});
+}));
 
 export function Toaster() {
   return (

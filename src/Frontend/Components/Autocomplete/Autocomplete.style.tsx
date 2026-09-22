@@ -53,7 +53,7 @@ export const Input = styled(MuiTextField, {
       paddingTop: theme.spacing(1.5),
       paddingBottom: theme.spacing(1.5),
       paddingLeft: theme.spacing(1.5),
-      paddingRight: `calc(12px + ${numberOfEndAdornments} * 28px)`,
+      paddingRight: `calc(${theme.spacing(3)} + ${numberOfEndAdornments} * ${theme.spacing(7)})`,
     },
     '& .MuiInputBase-root.Mui-disabled': {
       backgroundColor: background || errorBackground,

@@ -12,7 +12,7 @@ export const Container = styled(MuiBox)(({ theme }) => ({
   gap: theme.spacing(4),
   justifyContent: 'flex-end',
   flexWrap: 'wrap',
-  p: 3,
+  padding: theme.spacing(3),
 }));
 
 export const Fab = styled(MuiFab)({

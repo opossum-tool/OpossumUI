@@ -26,7 +26,7 @@ import { AttributionCountPerSourcePerLicenseTableRow } from './AttributionCountP
 
 const classes = {
   container: {
-    marginBottom: '3px',
+    mb: 0.75,
   },
 };
 

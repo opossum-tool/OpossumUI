@@ -6,11 +6,11 @@ import { styled } from '@mui/system';
 
 import { LogDisplay } from '../LogDisplay/LogDisplay';
 
-export const DialogLogDisplay = styled(LogDisplay)({
+export const DialogLogDisplay = styled(LogDisplay)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  columnGap: '4px',
+  columnGap: theme.spacing(1),
   flexGrow: 1,
   flexBasis: 0,
   minWidth: 0,
-});
+}));

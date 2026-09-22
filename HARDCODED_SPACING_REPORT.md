@@ -9,13 +9,13 @@ SPDX-License-Identifier: CC0-1.0
 
 ## Executive Summary
 
-This report documents the widespread use of hardcoded pixel values for spacing (margin, padding, gap) across the OpossumUI codebase. A total of **95+ instances** of hardcoded pixel spacing values were found across 45+ component files, representing significant technical debt that hinders maintainability, theming, and responsive design.
+This report documents the widespread use of hardcoded pixel values for spacing (margin, padding, gap) across the OpossumUI codebase. A total of **100+ instances** of hardcoded pixel spacing values were found across 40+ component files, representing significant technical debt that hinders maintainability, theming, and responsive design.
 
 The issue is pervasive because the codebase lacks a centralized spacing scale or design tokens, with spacing values scattered as string literals throughout component files.
 
 ## Scope of the Issue
 
-**Total hardcoded spacing instances:** 95+ across 45+ files
+**Total hardcoded spacing instances:** 100+ across 40+ files
 
 **Affected properties:**
 
@@ -31,24 +31,24 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 
 | File                                          | Line | Property       | Value   | Converted to          |
 | --------------------------------------------- | ---- | -------------- | ------- | --------------------- |
-| `src/Frontend/Components/App/App.style.ts:14` | 14   | `marginBottom` | `200px` | `theme.spacing(50)`   |
-| `src/Frontend/Components/App/App.style.ts:83` | 83   | `padding`      | `5px`   | `theme.spacing(1.25)` |
+| `src/Frontend/Components/App/App.style.ts:15` | 15   | `marginBottom` | `200px` | `theme.spacing(50)`   |
+| `src/Frontend/Components/App/App.style.ts:82` | 82   | `padding`      | `5px`   | `theme.spacing(1.25)` |
 
 ### Autocomplete
 
-| File                                                               | Line | Property        | Value      | Converted to             |
-| ------------------------------------------------------------------ | ---- | --------------- | ---------- | ------------------------ |
-| `src/Frontend/Components/Autocomplete/Listbox/Listbox.tsx:139`     | 139  | `paddingTop`    | `2px`      | `sx={{ p: 0.5 }}`        |
-| `src/Frontend/Components/Autocomplete/Listbox/Listbox.tsx:185`     | 185  | `gap`           | `12px`     | `sx={{ gap: 3 }}`        |
-| `src/Frontend/Components/Autocomplete/Listbox/Listbox.style.ts:14` | 14   | `gap`           | `8px`      | `theme.spacing(2)`       |
-| `src/Frontend/Components/Autocomplete/Listbox/Listbox.style.ts:15` | 15   | `padding`       | `4px 10px` | `theme.spacing(1, 2.5)`  |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:40`   | 40   | `padding`       | `0px 3px`  | `theme.spacing(0, 0.75)` |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:50`   | 50   | `gap`           | `8px`      | `theme.spacing(1)`       |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:52`   | 52   | `paddingTop`    | `6px`      | `theme.spacing(1.5)`     |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:53`   | 53   | `paddingBottom` | `6px`      | `theme.spacing(1.5)`     |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:54`   | 54   | `paddingLeft`   | `12px`     | `theme.spacing(3)`       |
-| `src/Frontend/Components/Autocomplete/Autocomplete.tsx:295`        | 295  | `padding`       | `4px`      | `sx={{ p: 1 }}`          |
-| `src/Frontend/Components/Autocomplete/Autocomplete.tsx:304`        | 304  | `padding`       | `2px`      | `sx={{ p: 0.5 }}`        |
+| File                                                               | Line | Property        | Value                                                                                                                                    | Converted to                                                                                                                  |
+| ------------------------------------------------------------------ | ---- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/Autocomplete/Listbox/Listbox.tsx:139`     | 139  | `paddingTop`    | `2px`                                                                                                                                    | `sx={{ p: 0.5 }}`                                                                                                             |
+| `src/Frontend/Components/Autocomplete/Listbox/Listbox.tsx:185`     | 185  | `gap`           | `12px`                                                                                                                                   | `sx={{ gap: 3 }}`                                                                                                             |
+| `src/Frontend/Components/Autocomplete/Listbox/Listbox.style.ts:15` | 15   | `gap`           | `8px`                                                                                                                                    | `theme.spacing(2)`                                                                                                            |
+| `src/Frontend/Components/Autocomplete/Listbox/Listbox.style.ts:16` | 16   | `padding`       | `4px 10px`                                                                                                                               | `theme.spacing(1, 2.5)`                                                                                                       |
+| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:41`   | 41   | `padding`       | `0px 3px`                                                                                                                                | `theme.spacing(0, 0.75)`                                                                                                      |
+| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:51`   | 51   | `gap`           | `8px`                                                                                                                                    | `theme.spacing(2)` (was `theme.spacing(1)` before the `spacing: 4` baseline was introduced; `spacing(1)` would now yield 4px) |
+| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:53`   | 53   | `paddingTop`    | `6px`                                                                                                                                    | `theme.spacing(1.5)`                                                                                                          |
+| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:54`   | 54   | `paddingBottom` | `6px`                                                                                                                                    | `theme.spacing(1.5)`                                                                                                          |
+| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:55`   | 55   | `paddingLeft`   | `12px` → now `6px` (rebase changed the design: left/right padding asymmetric because `paddingRight` is a `calc(...)` for end adornments) | `theme.spacing(1.5)`                                                                                                          |
+| `src/Frontend/Components/Autocomplete/Autocomplete.tsx:298`        | 298  | `padding`       | `4px`                                                                                                                                    | `sx={{ p: 1 }}`                                                                                                               |
+| `src/Frontend/Components/Autocomplete/Autocomplete.tsx:307`        | 307  | `padding`       | `2px`                                                                                                                                    | `sx={{ p: 0.5 }}`                                                                                                             |
 
 ### Checkbox
 
@@ -60,28 +60,28 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 
 | File                                                                                              | Line | Property | Value | Converted to       |
 | ------------------------------------------------------------------------------------------------- | ---- | -------- | ----- | ------------------ |
-| `src/Frontend/Components/ConfirmAttributionActionPopup/ConfirmAttributionActionPopup.style.ts:12` | 12   | `gap`    | `8px` | `theme.spacing(2)` |
+| `src/Frontend/Components/ConfirmAttributionActionPopup/ConfirmAttributionActionPopup.style.ts:13` | 13   | `gap`    | `8px` | `theme.spacing(2)` |
 
 ### ConfirmReplacePopup
 
-| File                                                                      | Line | Property | Value | Converted to    |
-| ------------------------------------------------------------------------- | ---- | -------- | ----- | --------------- |
-| `src/Frontend/Components/ConfirmReplacePopup/ConfirmReplacePopup.tsx:152` | 152  | `sx.gap` | `8px` | `sx={{ p: 2 }}` |
+| File                                                                      | Line | Property | Value | Converted to                                                                                                                                                        |
+| ------------------------------------------------------------------------- | ---- | -------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/ConfirmReplacePopup/ConfirmReplacePopup.tsx:152` | 152  | `sx.gap` | `8px` | gap removed entirely by the rebase; the NotificationPopup container now uses `sx={{ display: 'flex', flexDirection: 'column', p: 2 }}` (8px padding instead of gap) |
 
 ### VirtualizedTree
 
 | File                                                                                     | Line | Property  | Value | Converted to |
 | ---------------------------------------------------------------------------------------- | ---- | --------- | ----- | ------------ |
-| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:39` | 39   | `padding` | `0px` | `sx p: 0`    |
-| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:40` | 40   | `margin`  | `0px` | `sx m: 0`    |
-| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:53` | 53   | `padding` | `0px` | `sx p: 0`    |
-| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:54` | 54   | `margin`  | `0px` | `sx m: 0`    |
+| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:40` | 40   | `padding` | `0px` | `sx p: 0`    |
+| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:41` | 41   | `margin`  | `0px` | `sx m: 0`    |
+| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:54` | 54   | `padding` | `0px` | `sx p: 0`    |
+| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:55` | 55   | `margin`  | `0px` | `sx m: 0`    |
 
 ### ErrorFallback
 
 | File                                                              | Line | Property | Value  | Converted to       |
 | ----------------------------------------------------------------- | ---- | -------- | ------ | ------------------ |
-| `src/Frontend/Components/ErrorFallback/ErrorFallback.style.ts:19` | 19   | `gap`    | `20px` | `theme.spacing(5)` |
+| `src/Frontend/Components/ErrorFallback/ErrorFallback.style.ts:20` | 20   | `gap`    | `20px` | `theme.spacing(5)` |
 
 ### FilePathInput
 
@@ -104,7 +104,7 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 | File                                           | Line | Property  | Value               | Converted to                          |
 | ---------------------------------------------- | ---- | --------- | ------------------- | ------------------------------------- |
 | `src/Frontend/Components/TopBar/TopBar.tsx:33` | 33   | `margin`  | `8px`               | `sx={{ mt: 2 }}`                      |
-| `src/Frontend/Components/TopBar/TopBar.tsx:36` | 36   | `padding` | `2px`               | `sx={{ p: 0.5 }}`                     |
+| `src/Frontend/Components/TopBar/TopBar.tsx:34` | 34   | `padding` | `2px`               | `sx={{ p: 0.5 }}`                     |
 | `src/Frontend/Components/TopBar/TopBar.tsx:57` | 57   | `margin`  | `8px 12px 8px 12px` | `sx={{ mt: 2, mr: 3, mb: 2, ml: 3 }}` |
 
 ### PathBar
@@ -112,29 +112,30 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 | File                                             | Line | Property  | Value | Converted to      |
 | ------------------------------------------------ | ---- | --------- | ----- | ----------------- |
 | `src/Frontend/Components/PathBar/PathBar.tsx:37` | 37   | `padding` | `8px` | `sx={{ p: 2 }}`   |
-| `src/Frontend/Components/PathBar/PathBar.tsx:41` | 41   | `gap`     | `8px` | `sx={{ gap: 2 }}` |
+| `src/Frontend/Components/PathBar/PathBar.tsx:38` | 38   | `gap`     | `8px` | `sx={{ gap: 2 }}` |
 
 ### PackageCard
 
 | File                                                     | Line | Property  | Value   | Converted to      |
 | -------------------------------------------------------- | ---- | --------- | ------- | ----------------- |
-| `src/Frontend/Components/PackageCard/PackageCard.tsx:37` | 37   | `padding` | `0 4px` | `sx={{ px: 1 }}`  |
-| `src/Frontend/Components/PackageCard/PackageCard.tsx:38` | 38   | `gap`     | `4px`   | `sx={{ gap: 1 }}` |
-| `src/Frontend/Components/PackageCard/PackageCard.tsx:50` | 50   | `gap`     | `8px`   | `sx={{ gap: 2 }}` |
+| `src/Frontend/Components/PackageCard/PackageCard.tsx:38` | 38   | `padding` | `0 4px` | `sx={{ px: 1 }}`  |
+| `src/Frontend/Components/PackageCard/PackageCard.tsx:39` | 39   | `gap`     | `4px`   | `sx={{ gap: 1 }}` |
+| `src/Frontend/Components/PackageCard/PackageCard.tsx:51` | 51   | `gap`     | `8px`   | `sx={{ gap: 2 }}` |
 
 ### TextBox
 
-| File                                              | Line | Property       | Value                     | Converted to                  |
-| ------------------------------------------------- | ---- | -------------- | ------------------------- | ----------------------------- |
-| `src/Frontend/Components/TextBox/TextBox.tsx:24`  | 24   | `padding`      | `1px 3px`                 | `sx={{ py: 0.25, px: 0.75 }}` |
-| `src/Frontend/Components/TextBox/TextBox.tsx:28`  | 28   | `padding`      | `0px`                     | `sx={{ p: 0 }}`               |
-| `src/Frontend/Components/TextBox/TextBox.tsx:53`  | 53   | `padding`      | `1px 3px`                 | `sx={{ py: 0.25, px: 0.75 }}` |
-| `src/Frontend/Components/TextBox/TextBox.tsx:59`  | 59   | `marginLeft`   | `8px`                     | `sx={{ ml: 2 }}`              |
-| `src/Frontend/Components/TextBox/TextBox.tsx:65`  | 65   | `marginRight`  | `8px`                     | `sx={{ mr: 2 }}`              |
-| `src/Frontend/Components/TextBox/TextBox.tsx:142` | 142  | `paddingY`     | `8.5px`                   | `py: 2.125`                   |
-| `src/Frontend/Components/TextBox/TextBox.tsx:127` | 127  | `marginLeft`   | `calc(... * 20px)`        | `sx={{ ml: n * 5 }}`          |
-| `src/Frontend/Components/TextBox/TextBox.tsx:128` | 128  | `paddingLeft`  | `calc(14px + ... * 20px)` | `sx={{ pl: 3.5 + n * 5 }}`    |
-| `src/Frontend/Components/TextBox/TextBox.tsx:144` | 144  | `paddingRight` | `calc(14px + ... * 20px)` | `sx={{ pr: 3.5 + n * 5 }}`    |
+| File                                              | Line         | Property       | Value                                                                                                                                                                | Converted to                                                                                                                                                                                         |
+| ------------------------------------------------- | ------------ | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/TextBox/TextBox.tsx:30`  | 30–31        | `padding`      | `1px 3px`                                                                                                                                                            | `sx={{ py: 0.25, px: 0.75 }}`                                                                                                                                                                        |
+| `src/Frontend/Components/TextBox/TextBox.tsx:35`  | 35           | `padding`      | `0px`                                                                                                                                                                | `sx={{ p: 0 }}`                                                                                                                                                                                      |
+| `src/Frontend/Components/TextBox/TextBox.tsx:60`  | 60–61        | `padding`      | `1px 3px`                                                                                                                                                            | `sx={{ py: 0.25, px: 0.75 }}`                                                                                                                                                                        |
+| `src/Frontend/Components/TextBox/TextBox.tsx:67`  | 67           | `marginLeft`   | `8px`                                                                                                                                                                | `sx={{ ml: 2 }}`                                                                                                                                                                                     |
+| `src/Frontend/Components/TextBox/TextBox.tsx:73`  | 73           | `marginRight`  | `8px`                                                                                                                                                                | `sx={{ mr: 2 }}`                                                                                                                                                                                     |
+| `src/Frontend/Components/TextBox/TextBox.tsx:83`  | 83           | `marginRight`  | `8px` (`multilineEndAdornmentRoot`)                                                                                                                                  | `sx={{ mr: 2 }}`                                                                                                                                                                                     |
+| `src/Frontend/Components/TextBox/TextBox.tsx:101` | 101–102, 201 | `paddingY`     | `8.5px` (was module constant `INPUT_VERTICAL_PADDING`; applied via `paddingBlock`/`scrollPaddingBlock` and `paddingY: props.multiline ? 0 : INPUT_VERTICAL_PADDING`) | `paddingBlock: 2.125` and `paddingY: props.multiline ? 0 : 2.125`; `scrollPaddingBlock: '8.5px'` (line 102) stays raw because it is not an sx-handled key (a raw number would never be scaled there) |
+| `src/Frontend/Components/TextBox/TextBox.tsx:179` | 179          | `marginLeft`   | `calc(... * 20px)`                                                                                                                                                   | `sx={{ ml: n * 5 }}`                                                                                                                                                                                 |
+| `src/Frontend/Components/TextBox/TextBox.tsx:202` | 202          | `paddingLeft`  | `calc(14px + ... * 20px)`                                                                                                                                            | `paddingLeft: 3.5 + n * 5` (sx-scaled; 3.5 × 4px = 14px, 5 × 4px = 20px)                                                                                                                             |
+| `src/Frontend/Components/TextBox/TextBox.tsx:203` | 203–205      | `paddingRight` | `calc(14px + ... * 20px)`                                                                                                                                            | `paddingRight: props.multiline ? 3.5 : 3.5 + n * 5`                                                                                                                                                  |
 
 ### ResizePanels
 
@@ -161,34 +162,46 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 
 ### Attribution Components
 
-| File                                                                                         | Line | Property    | Value                  | Converted to           |
-| -------------------------------------------------------------------------------------------- | ---- | ----------- | ---------------------- | ---------------------- |
-| `src/Frontend/Components/AttributionDetails/ButtonRow/ButtonRow.style.ts:10`                 | 10   | `gap`       | `16px`                 | `theme.spacing(4)`     |
-| `src/Frontend/Components/AttributionDetails/ButtonRow/ButtonRow.style.ts:13`                 | 13   | `padding`   | `12px`                 | `theme.spacing(3)`     |
-| `src/Frontend/Components/AttributionPanels/SignalsPanel/SignalsList/SignalsList.style.ts:13` | 13   | `marginTop` | `1px`                  | `theme.spacing(0.25)`  |
-| `src/Frontend/Components/AttributionForm/PackageSubPanel/PackageSubPanel.tsx:71`             | 71   | `gap`       | `8px`                  | `theme.spacing(2)`     |
-| `src/Frontend/Components/AttributionForm/AuditingOptions/AuditingOptions.tsx:19`             | 19   | `gap`       | `8px` (flexWrap: wrap) | `sx={{ gap: 2 }}`      |
-| `src/Frontend/Components/AttributionForm/AttributionForm.tsx:31`                             | 31   | `gap`       | `12px`                 | `sx={{ gap: 3 }}`      |
-| `src/Frontend/Components/AttributionForm/AttributionForm.tsx:33`                             | 33   | `padding`   | `20px 20px 0 20px`     | `sx={{ p: 5, pt: 0 }}` |
-| `src/Frontend/Components/AttributionForm/AttributionForm.style.ts:10`                        | 10   | `gap`       | `12px`                 | `sx={{ gap: 3 }}`      |
+| File                                                                                         | Line  | Property    | Value                  | Converted to                                                                                 |
+| -------------------------------------------------------------------------------------------- | ----- | ----------- | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/AttributionDetails/ButtonRow/ButtonRow.style.ts:12`                 | 12    | `gap`       | `16px`                 | `theme.spacing(4)`                                                                           |
+| `src/Frontend/Components/AttributionDetails/ButtonRow/ButtonRow.style.ts:15`                 | 15    | `padding`   | `12px`                 | `padding: theme.spacing(3)` (restored after the rebase reintroduced a dead `p: 3` shorthand) |
+| `src/Frontend/Components/AttributionPanels/SignalsPanel/SignalsList/SignalsList.style.ts:14` | 14    | `marginTop` | `1px`                  | `theme.spacing(0.25)`                                                                        |
+| `src/Frontend/Components/AttributionForm/PackageSubPanel/PackageSubPanel.tsx:27`             | 27    | `gap`       | `8px`                  | `theme.spacing(2)`                                                                           |
+| `src/Frontend/Components/AttributionForm/AuditingOptions/AuditingOptions.tsx:20`             | 20    | `gap`       | `8px` (flexWrap: wrap) | `sx={{ gap: 2 }}`                                                                            |
+| `src/Frontend/Components/AttributionForm/AttributionForm.tsx:29`                             | 29    | `gap`       | `12px`                 | `sx={{ gap: 3 }}`                                                                            |
+| `src/Frontend/Components/AttributionForm/AttributionForm.tsx:30`                             | 30–31 | `padding`   | `20px 20px 0 20px`     | `sx={{ p: 5, pt: 0 }}`                                                                       |
+| `src/Frontend/Components/AttributionForm/AttributionForm.style.ts:10`                        | 10    | `gap`       | `12px`                 | `sx={{ gap: 3 }}`                                                                            |
 
 ### SelectMenu
 
-| File                                                         | Line | Property    | Value         | Converted to                         |
-| ------------------------------------------------------------ | ---- | ----------- | ------------- | ------------------------------------ |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:72` | 72   | `marginTop` | `8px` / `4px` | `theme.spacing(anchorArrow ? 2 : 1)` |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:99` | 99   | `gap`       | `8px`         | `theme.spacing(2)`                   |     |
+| File                                                          | Line | Property       | Value         | Converted to                                                 |
+| ------------------------------------------------------------- | ---- | -------------- | ------------- | ------------------------------------------------------------ |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:48`  | 48   | `marginTop`    | `4px`         | `sx={{ mt: 1 }}`                                             |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:72`  | 72   | `marginTop`    | `8px` / `4px` | `theme.spacing(anchorArrow ? 2 : 1)`                         |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:99`  | 99   | `gap`          | `8px`         | `theme.spacing(2)`                                           |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:101` | 101  | `paddingRight` | `17px`        | `theme.spacing(4.25)`                                        |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:102` | 102  | `paddingLeft`  | `12px`        | `theme.spacing(3)`                                           |
+| `src/Frontend/Components/SelectMenu/SelectMenu.tsx:115`       | 115  | `marginTop`    | `2px`         | `sx={{ mt: 0.5 }}` in the `ListItemText` `primary` slotProps |
+
+### UpdateAppPopup
+
+| File                                                           | Line | Property     | Value  | Converted to     |
+| -------------------------------------------------------------- | ---- | ------------ | ------ | ---------------- |
+| `src/Frontend/Components/UpdateAppPopup/UpdateAppPopup.tsx:48` | 48   | `marginLeft` | `12px` | `sx={{ ml: 3 }}` |
 
 ### SplitDialog
 
-| File                                                                  | Line | Property                        | Value  | Converted to       |
-| --------------------------------------------------------------------- | ---- | ------------------------------- | ------ | ------------------ |
-| `src/Frontend/Components/SplitDialog/SplitDialog.tsx:137`             | 137  | `marginTop`                     | `20px` | `sx={{ mt: 5 }}`   |
-| `src/Frontend/Components/SplitDialog/SplitDialog.tsx:141`             | 141  | `marginTop` (MuiLinearProgress) | `8px`  | `sx={{ mt: 2 }}`   |
-| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:17` | 17   | `gap`                           | `12px` | `theme.spacing(3)` |
-| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:26` | 26   | `padding`                       | `8px`  | `theme.spacing(2)` |
-| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:33` | 33   | `gap`                           | `8px`  | `theme.spacing(2)` |
-| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:70` | 70   | `marginLeft`                    | `8px`  | `theme.spacing(2)` |
+| File                                                                  | Line | Property                        | Value                                                                    | Converted to                                                                                                                                |
+| --------------------------------------------------------------------- | ---- | ------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/SplitDialog/SplitDialog.tsx:138`             | 138  | `marginTop`                     | `20px`                                                                   | `sx={{ mt: 5 }}`                                                                                                                            |
+| `src/Frontend/Components/SplitDialog/SplitDialog.tsx:142`             | 142  | `marginTop` (MuiLinearProgress) | `8px`                                                                    | `sx={{ mt: 2 }}`                                                                                                                            |
+| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:18` | 18   | `gap`                           | `12px`                                                                   | `theme.spacing(3)`                                                                                                                          |
+| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:27` | 27   | `padding`                       | `8px`                                                                    | `theme.spacing(2)`                                                                                                                          |
+| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:34` | 34   | `gap`                           | `8px`                                                                    | `theme.spacing(2)`                                                                                                                          |
+| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:52` | 52   | `marginLeft`                    | `calc(${INDENT_PER_LEVEL}px * (level - 1))`, `INDENT_PER_LEVEL = '24px'` | `` `calc(${theme.spacing(INDENT_PER_LEVEL)} * ${level - 1})` `` with `INDENT_PER_LEVEL = 6` theme units (constant redefined in theme units) |
+| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:58` | 58   | `padding`                       | `4px` (`ExpandButton`)                                                   | `theme.spacing(1)` (theme callback pattern)                                                                                                 |
+| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:72` | 72   | `marginLeft`                    | `8px`                                                                    | `theme.spacing(2)`                                                                                                                          |
 
 ### ProgressBar
 
@@ -213,21 +226,20 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 | `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:114`     | 114  | `marginBottom` | `12px` | `sx={{ mb: 3 }}`   |
 | `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:277`     | 277  | `padding`      | `12px` | `sx={{ p: 3 }}`    |
 | `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:278`     | 278  | `paddingTop`   | `0px`  | `sx={{ pt: 0 }}`   |
-| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.style.ts:13` | 13   | `padding`      | `12px` | `theme.spacing(3)` |
+| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.style.ts:14` | 14   | `padding`      | `12px` | `theme.spacing(3)` |
 
 ### Icons
 
-| File                                         | Line | Property       | Value | Converted to       |
-| -------------------------------------------- | ---- | -------------- | ----- | ------------------ |
-| `src/Frontend/Components/Icons/Icons.tsx:34` | 34   | `paddingLeft`  | `2px` | `sx={{ px: 0.5 }}` |
-| `src/Frontend/Components/Icons/Icons.tsx:35` | 35   | `paddingRight` | `2px` | `sx={{ px: 0.5 }}` |
+| File                                         | Line | Property                     | Value      | Converted to       |
+| -------------------------------------------- | ---- | ---------------------------- | ---------- | ------------------ |
+| `src/Frontend/Components/Icons/Icons.tsx:34` | 34   | `paddingLeft`/`paddingRight` | `2px` each | `sx={{ px: 0.5 }}` |
 
 ### GroupedList
 
 | File                                                          | Line | Property  | Value      | Converted to            |
 | ------------------------------------------------------------- | ---- | --------- | ---------- | ----------------------- |
-| `src/Frontend/Components/GroupedList/GroupedList.style.ts:12` | 12   | `gap`     | `8px`      | `theme.spacing(2)`      |
-| `src/Frontend/Components/GroupedList/GroupedList.style.ts:13` | 13   | `padding` | `4px 10px` | `theme.spacing(1, 2.5)` |
+| `src/Frontend/Components/GroupedList/GroupedList.style.ts:13` | 13   | `gap`     | `8px`      | `theme.spacing(2)`      |
+| `src/Frontend/Components/GroupedList/GroupedList.style.ts:14` | 14   | `padding` | `4px 10px` | `theme.spacing(1, 2.5)` |
 
 ### ImportDialog
 
@@ -240,24 +252,101 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 
 ### PieChart
 
-| File                                               | Line | Property      | Value | Converted to                          |
-| -------------------------------------------------- | ---- | ------------- | ----- | ------------------------------------- |
-| `src/Frontend/Components/PieChart/PieChart.tsx:42` | 42   | `marginRight` | `4px` | `theme.spacing(1)` (via `useTheme()`) |
+| File                                                | Line | Property      | Value | Converted to                                                                                   |
+| --------------------------------------------------- | ---- | ------------- | ----- | ---------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/PieChart/PieChart.tsx:103` | 103  | `marginRight` | `4px` | `theme.spacing(1)` (via `useTheme()`, fed into the `getLegendIconStyle` helper at lines 37–48) |
+
+### DiffPopup
+
+| File                                                       | Line  | Property       | Value          | Converted to                                                 |
+| ---------------------------------------------------------- | ----- | -------------- | -------------- | ------------------------------------------------------------ |
+| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:8`   | 8     | `columnGap`    | `8px`          | `columnGap: 2` — undocumented so far; added after the rebase |
+| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:17`  | 17–18 | `padding`      | `8px 12px 8px` | `py: 2, px: 3`                                               |
+| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:23`  | 23    | `gap`          | `12px`         | `gap: 3`                                                     |
+| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:30`  | 30    | `padding`      | `8px 0`        | `py: 2, px: 0`                                               |
+| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:47`  | 47    | `marginBottom` | `12px`         | `mb: 3`                                                      |
+| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:62`  | 62    | `gap`          | `12px`         | `gap: 3`                                                     |
+| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:68`  | 68    | `gap`          | `8px`          | `gap: 2`                                                     |
+| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:79`  | 79    | `gap`          | `12px`         | `gap: 3`                                                     |
+| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:112` | 112   | `gap`          | `12px`         | `gap: 3`                                                     |
+| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:138` | 138   | `marginTop`    | `1px`          | `mt: 0.25`                                                   |
+| `src/Frontend/Components/DiffPopup/DiffPopup.tsx:108`      | 108   | `padding`      | `8px 24px 6px` | `titleSx={{ py: 2, px: 6, pb: 1.5 }}`                        |
+| `src/Frontend/Components/DiffPopup/DiffPopup.tsx:109`      | 109   | `padding`      | `4px 8px`      | `actionsSx={{ py: 1, px: 2 }}`                               |
+
+All `diffPopupStyles` entries are consumed through the `sx` prop (`sx={diffPopupStyles.x}`), so theme-unit numbers are scaled correctly there.
+
+### LicenseNameField
+
+| File                                                                              | Line | Property | Value | Converted to                                                                       |
+| --------------------------------------------------------------------------------- | ---- | -------- | ----- | ---------------------------------------------------------------------------------- |
+| `src/Frontend/Components/AttributionForm/LicenseSubPanel/LicenseNameField.tsx:31` | 31   | `gap`    | `8px` | `sx={{ gap: 2 }}` (this gap was moved here from LicenseSubPanel.tsx by the rebase) |
+
+### Toaster
+
+| File                                             | Line | Property | Value | Converted to                                           |
+| ------------------------------------------------ | ---- | -------- | ----- | ------------------------------------------------------ |
+| `src/Frontend/Components/Toaster/Toaster.tsx:27` | 27   | `gap`    | `8px` | `theme.spacing(2)` (theme callback on `styled('div')`) |
+
+### ResourceBrowser
+
+| File                                                                  | Line | Property  | Value | Converted to      |
+| --------------------------------------------------------------------- | ---- | --------- | ----- | ----------------- |
+| `src/Frontend/Components/ResourceBrowser/ResourceBrowser.style.ts:13` | 13   | `padding` | `2px` | `sx={{ p: 0.5 }}` |
+
+### AttributionCountPerSourcePerLicenseTable
+
+| File                                                                                                               | Line | Property       | Value | Converted to        |
+| ------------------------------------------------------------------------------------------------------------------ | ---- | -------------- | ----- | ------------------- |
+| `src/Frontend/Components/AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable.tsx:29` | 29   | `marginBottom` | `3px` | `sx={{ mb: 0.75 }}` |
+
+### DialogLogDisplay
+
+| File                                                                    | Line | Property    | Value | Converted to                        |
+| ----------------------------------------------------------------------- | ---- | ----------- | ----- | ----------------------------------- |
+| `src/Frontend/Components/DialogLogDisplay/DialogLogDisplay.style.ts:12` | 12   | `columnGap` | `4px` | `theme.spacing(1)` (theme callback) |
+
+### ReportTableItem / ReportTableHeader
+
+| File                                                                 | Line | Property  | Value  | Converted to      |
+| -------------------------------------------------------------------- | ---- | --------- | ------ | ----------------- |
+| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:62`     | 62   | `gap`     | `4px`  | `sx={{ gap: 1 }}` |
+| `src/Frontend/Components/ReportTableHeader/ReportTableHeader.tsx:24` | 24   | `padding` | `10px` | `sx={{ p: 2.5 }}` |
+
+### LogDisplay
+
+| File                                                   | Line | Property    | Value | Converted to        |
+| ------------------------------------------------------ | ---- | ----------- | ----- | ------------------- |
+| `src/Frontend/Components/LogDisplay/LogDisplay.tsx:40` | 40   | `marginTop` | `1px` | `sx={{ mt: 0.25 }}` |
+
+### LicenseSubPanel
+
+| File                                                                          | Line | Property | Value | Converted to                                                                                                               |
+| ----------------------------------------------------------------------------- | ---- | -------- | ----- | -------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/AttributionForm/LicenseSubPanel/LicenseSubPanel.tsx` | —    | `gap`    | `8px` | gap removed from this file; the layout wrapper moved into `LicenseNameField.tsx:31`, where it is now converted as `gap: 2` |
+
+### ProcessPopup
+
+New component added by the rebase; both gaps were hardcoded px strings inside `styled()` objects and are now theme-scaled:
+
+| File                                                            | Line | Property    | Value | Converted to       |
+| --------------------------------------------------------------- | ---- | ----------- | ----- | ------------------ |
+| `src/Frontend/Components/ProcessPopup/ProcessPopup.style.ts:13` | 13   | `rowGap`    | `4px` | `theme.spacing(1)` |
+| `src/Frontend/Components/ProcessPopup/ProcessPopup.style.ts:19` | 19   | `columnGap` | `8px` | `theme.spacing(2)` |
 
 ### Additional Files with Hardcoded Spacing
 
-| File                                                                            | Line | Property     | Value                                                    | Converted to                                                         |
-| ------------------------------------------------------------------------------- | ---- | ------------ | -------------------------------------------------------- | -------------------------------------------------------------------- |
-| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:55`                | 55   | `padding`    | `${PADDING}px 7px` (template literal with runtime value) | `py: PADDING, px: 1.75` (PADDING in theme units)                     |
-| `src/Frontend/Components/AttributionForm/AttributionForm.tsx:33`                | 33   | `padding`    | `20px 20px 0 20px`                                       | `sx={{ p: 5, pt: 0 }}`                                               |
-| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.tsx:747` | 747  | `sx.padding` | `2px 0`                                                  | `sx={{ py: 0.5, px: 0 }}`                                            |
-| `src/Frontend/Components/PackageCard/PackageCard.tsx:77`                        | 77   | `boxShadow`  | `inset 4px 0 0 ${OpossumColors.green}`                   | `boxShadow: (theme: Theme) => \`inset ${theme.spacing(1)} 0 0 ...\`` |
+| File                                                                            | Line      | Property     | Value                                                    | Converted to                                                                                                                            |
+| ------------------------------------------------------------------------------- | --------- | ------------ | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:50`                | 50, 57–58 | `padding`    | `${PADDING}px 7px` (template literal with runtime value) | template literal eliminated: `padding: PADDING` (= 2.5 theme units, 10px) in `tableData` and `py: PADDING, px: 1.75` in `iconTableData` |
+| `src/Frontend/Components/AttributionForm/AttributionForm.tsx:30`                | 30–31     | `padding`    | `20px 20px 0 20px`                                       | `sx={{ p: 5, pt: 0 }}`                                                                                                                  |
+| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.tsx:747` | 747       | `sx.padding` | `2px 0`                                                  | `sx={{ py: 0.5, px: 0 }}`                                                                                                               |
+| `src/Frontend/Components/PackageCard/PackageCard.tsx:78`                        | 78        | `boxShadow`  | `inset 4px 0 0 ${OpossumColors.green}`                   | `boxShadow: (theme: Theme) => \`inset ${theme.spacing(1)} 0 0 ...\``                                                                    |
 
 ### Note: Pitfalls Found and Fixed During Migration
 
 Two MUI v9 pitfalls caused earlier conversions to silently not apply. Both were found by verifying the runtime behavior of the installed `@mui/system`/`@mui/styled-engine` source and have been fixed across the codebase:
 
-1. **`styled()` style objects are not processed through the sx system.** Shorthand keys (`p`, `px`, `py`, `pl`, `gap`, …) inside `styled()` objects are serialized as literal CSS: invalid property names are dropped by the browser, and `gap: N` applies as `Npx` instead of `N × 4px`. All affected `*.style.ts(x)` files now use the `({ theme }) => ({ ... theme.spacing(...) })` pattern instead (see ButtonRow, PackagesPanel, SignalsList, MultiResourcePicker, SelectMenu, GroupedList, ProjectStatisticsPopup, ErrorFallback, ResizePanels, TextBox, PackageSubPanel).
+1. **`styled()` style objects are not processed through the sx system.** Shorthand keys (`p`, `px`, `py`, `pl`, `gap`, …) inside `styled()` objects are serialized as literal CSS: invalid property names are dropped by the browser, and `gap: N` applies as `Npx` instead of `N × 4px`. All affected `*.style.ts(x)` files use the `({ theme }) => ({ ... theme.spacing(...) })` pattern (see PackagesPanel, SignalsList, MultiResourcePicker, SelectMenu, GroupedList, ProjectStatisticsPopup, ErrorFallback, ResizePanels, TextBox, PackageSubPanel, DialogLogDisplay, ProcessPopup, Toaster, ButtonRow, DiffPopup-style plain objects). **The rebase onto main partially rolled this back** (DiffPopup.style.ts, Toaster.tsx, LicenseNameField.tsx, ResourceBrowser.style.ts, DialogLogDisplay.style.ts, MultiResourcePicker's ExpandButton, ButtonRow's `p: 3`); the affected rows have since been re-fixed using the theme callback pattern (or plain sx-unit numbers where the object is sx-consumed, as in DiffPopup.style.ts / LicenseNameField.tsx).
 
 2. **Nested `sx: { … }` keys are dead code.** A nested `sx` key inside an `sx` prop or inside an sx-consumed style object (e.g. a `classes` entry passed via `sx={classes.x}`) is emitted as a CSS selector matching nonexistent `<sx>` elements — its values never apply. 12 such instances (previously listed as converted but never applied) were fixed by hoisting the values to the object root, where sx resolves them correctly:
 
@@ -271,7 +360,7 @@ Two MUI v9 pitfalls caused earlier conversions to silently not apply. Both were 
    - `ProjectStatisticsPopup.tsx` (chart grid `sx`)
    - `AttributionForm/PackageSubPanel/PackageSubPanel.tsx` (`DisplayRow`, converted to `theme.spacing(2)`)
 
-   The "Converted to" values in the tables above now describe styles that are genuinely applied at runtime.
+   The "Converted to" values in the tables above describe styles that are genuinely applied at runtime.
 
 ## Hardcoded Pixel Values for Dimensions and Sizing
 
@@ -628,26 +717,16 @@ These values are hardcoded but not pixel-based, so they are listed separately:
 
 ### Note: residual hardcoded spacing found during the dimensions scan
 
-The following margin/padding/gap values were missed by (or added after) the spacing migration in the tables above:
+Status after re-applying the migrations reset by the rebase: most of these leftovers are now converted (rows above already describe the final state). What remains, and why:
 
-| File                                                                                                               | Line    | Property                   | Value                            |
-| ------------------------------------------------------------------------------------------------------------------ | ------- | -------------------------- | -------------------------------- |
-| `src/Frontend/shared-styles.ts:52`                                                                                 | 52–53   | padding / margin           | `'2px'` / `'0 2px'` (`baseIcon`) |
-| `src/Frontend/shared-styles.ts:98`                                                                                 | 98      | paddingRight               | `'5px'`                          |
-| `src/Frontend/shared-styles.ts:135`                                                                                | 135     | padding                    | `3` (chart tooltip)              |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:56`                                                   | 56      | paddingRight               | `calc(12px + N * 28px)`          |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:104`                                                  | 104     | Popper flip `padding`      | `64`                             |
-| `src/Frontend/Components/AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable.tsx:29` | 29      | marginBottom               | `'3px'`                          |
-| `src/Frontend/Components/DialogLogDisplay/DialogLogDisplay.style.ts:12`                                            | 12      | columnGap                  | `'4px'`                          |
-| `src/Frontend/Components/LogDisplay/LogDisplay.tsx:41`                                                             | 41      | marginTop                  | `'1px'`                          |
-| `src/Frontend/Components/AttributionForm/LicenseSubPanel/LicenseSubPanel.tsx:52`                                   | 52      | gap                        | `'8px'`                          |
-| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:58`                                              | 58      | padding                    | `'4px'` (`ExpandButton`)         |
-| `src/Frontend/Components/ProjectMetadataTable/ProjectMetadataTable.tsx:33`                                         | 33      | marginBottom               | `3`                              |
-| `src/Frontend/Components/ResourceBrowser/ResourceBrowser.style.ts:13`                                              | 13      | padding                    | `'2px'`                          |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:48`                                                       | 48      | marginTop                  | `'4px'`                          |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:101`                                                      | 101–102 | paddingRight / paddingLeft | `'17px'` / `'12px'`              |
-| `src/Frontend/Components/Toaster/Toaster.tsx:27`                                                                   | 27      | gap                        | `'8px'`                          |
-| `src/Frontend/Components/UpdateAppPopup/UpdateAppPopup.tsx:48`                                                     | 48      | marginLeft                 | `'12px'`                         |
+| File                                                                       | Line | Property              | Value / status                                                                                                                              |
+| -------------------------------------------------------------------------- | ---- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/shared-styles.ts:139`                                        | 139  | padding               | `3` — raw `React.CSSProperties` for a recharts tooltip (`contentStyle`), not sx-processed; kept as literal 3px                              |
+| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:56`           | 56   | paddingRight          | `` `calc(${theme.spacing(3)} + N * ${theme.spacing(7)})` `` — theme-scaled now, but inherently a px `calc()` (adornment-width compensation) |
+| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:104`          | 104  | Popper flip `padding` | `64` — Popper.js modifier option (viewport boundary padding), not a CSS spacing property; kept                                              |
+| `src/Frontend/Components/ProjectMetadataTable/ProjectMetadataTable.tsx:33` | 33   | marginBottom          | `3` — sx theme-unit value (= 12px), not a raw px literal; kept                                                                              |
+
+Formerly listed here and now converted: `shared-styles.ts:52–53` (`baseIcon` → `p: 0.5`, `my: 0, mx: 0.5`), `shared-styles.ts:98` (→ `pr: 1.25`), `Autocomplete.style.tsx:56` (→ theme-scaled `calc()`), `ResourceBrowser.style.ts:13` (→ `p: 0.5`), `SelectMenu.style.tsx:48/101–102` (→ `mt: 1`, `paddingRight/Left` via `theme.spacing`), `Toaster.tsx:27` (→ `theme.spacing(2)`), `UpdateAppPopup.tsx:48` (→ `sx={{ ml: 3 }}`).
 
 ## Impact Analysis
 
@@ -691,27 +770,25 @@ The following margin/padding/gap values were missed by (or added after) the spac
 
 ### Short-term (1-2 sprints) — _Immediate action_
 
-1. **Add `spacing: 2` to existing theme** — Edit `src/Frontend/Components/App/App.style.ts:37`
-   - Add `spacing: 2` to the `createTheme({ ... })` call
-   - This is MUI's default 8px baseline and requires no new files
-   - Theme is already app-wide via `ThemeProvider` in `App.tsx`
+1. ~~**Add `spacing: 2` to existing theme**~~ — **Done**: `spacing: 4` is configured at `src/Frontend/Components/App/App.style.ts:36` (4px baseline, no new files). Theme is already app-wide via `ThemeProvider` in `App.tsx`.
 
 2. **Verify typecheck passes** — Run `yarn typecheck` to confirm no errors
 
 3. **Begin component migration** — Start replacing hardcoded pixel values with MUI `sx` prop shorthand in low-risk components:
-   - `padding: '8px'` → `sx={{ p: 4 }}`
-   - `marginBottom: '16px'` → `sx={{ mb: 8 }}`
-   - `gap: '8px'` → `sx={{ gap: 4 }}`
+   - `padding: '8px'` → `sx={{ p: 2 }}`
+   - `marginBottom: '16px'` → `sx={{ mb: 4 }}`
+   - `gap: '8px'` → `sx={{ gap: 2 }}`
 
 ### Medium-term (3-5 sprints)
 
 1. **Complete component migration** — Systematically replace remaining hardcoded pixel values with theme scale values
-   - Use `sx` prop: `sx={{ p: 8, mb: 12 }}` instead of `padding: '16px', marginBottom: '24px'`
-   - Update styled components: `styled('div')({ p: 2, gap: 2 })` instead of inline pixel values
+   - Use `sx` prop: `sx={{ p: 4, mb: 3 }}` instead of `padding: '16px', marginBottom: '12px'`
+   - Update styled components: `styled('div')(({ theme }) => ({ padding: theme.spacing(2) }))` instead of inline pixel values or dead shorthand keys (see pitfall 1)
 
-2. **Evaluate custom spacing values** — Address outliers not on MUI's scale:
-   - `8.5px` in `TextBox.tsx:142` — may need custom theme extension or keep with documentation
-   - `calc()` expressions in `TextBox.tsx:127-144` — icon-dependent, may remain as-is with comments
+2. **Evaluate custom spacing values** — Address outliers not on MUI's scale (status after the latest migration pass):
+   - `8.5px` in `TextBox.tsx` — now expressed as sx theme units (`paddingBlock: 2.125`, `paddingY: props.multiline ? 0 : 2.125`); only `scrollPaddingBlock` keeps the raw `'8.5px'` literal because it is not an sx-handled key
+   - `calc()` expressions in `TextBox.tsx:202–205` — converted to sx theme-unit math (`3.5 + n * 5`)
+   - The remaining `calc()` outliers documented in the residual note (`Autocomplete.style.tsx:56`, shared-styles chart tooltip) may remain as-is with documentation
 
 3. **Consider design token export** — If Figma integration is desired, export the MUI spacing scale as design tokens
 
@@ -737,7 +814,7 @@ marginTop: '20px',
 
 ```tsx
 // After — using existing MUI theme spacing scale
-// Only requires adding `spacing: 4` to theme in App.style.ts
+// `spacing: 4` is already configured in App.style.ts (line 36)
 
 // Using MUI sx prop with theme-aware values
 sx={{
@@ -747,19 +824,20 @@ sx={{
   mt: 4,                  // 16px (spacing(4))
 }}
 
-// Or with styled components using theme values
-const StyledContainer = styled('div')({
-  padding: 4,             // 16px
-  gap: 2,                 // 8px
-  marginTop: 4,           // 16px
-});
+// Or with styled components using theme values — remember that
+// shorthand keys are dead code inside styled() objects (pitfall 1)
+const StyledContainer = styled('div')(({ theme }) => ({
+  padding: theme.spacing(4),   // 16px
+  gap: theme.spacing(2),       // 8px
+  marginTop: theme.spacing(4), // 16px
+}));
 ```
 
 ## Conclusion
 
 **The technical debt of 95+ hardcoded pixel spacing values is solvable with a single change.**
 
-The entire frontend (69+ components, app-wide theming) already uses MUI with a `ThemeProvider` wrapping the application in `App.tsx`. The theme is defined in `src/Frontend/Components/App/App.style.ts` — adding `spacing: 8` to the `createTheme({ ... })` call is the only change needed to enable standardized spacing across all components.
+The entire frontend (69+ components, app-wide theming) already uses MUI with a `ThemeProvider` wrapping the application in `App.tsx`. The theme is defined in `src/Frontend/Components/App/App.style.ts` and already configures `spacing: 4` (line 36), so the standardized spacing scale is available across all components. All spacing values documented in the tables above are now converted (see the residual note for the few deliberately kept outliers), including the conversions that the rebase had reset.
 
 **Why this works:**
 
@@ -768,6 +846,4 @@ The entire frontend (69+ components, app-wide theming) already uses MUI with a `
 - No new files, no breaking changes, no architecture overhaul required
 - `sx` prop shorthand (`sx={{ p: 2, mb: 4 }}`) replaces `padding: '8px'`, `marginBottom: '16px'` everywhere
 
-**Priority:** **Immediate** — Add `spacing: 4` to `App.style.ts` and the spacing scale is instantly available across the entire application. The infrastructure already exists; only the configuration value is missing.
-
-**Next step:** Edit `src/Frontend/Components/App/App.style.ts:37` to add `spacing: 4` to the theme config, then run `yarn typecheck` to verify.
+**Priority:** **Maintenance** — `spacing: 4` is in place in `App.style.ts`; the documented spacing values are migrated. Run `yarn typecheck` after future spacing changes to verify.

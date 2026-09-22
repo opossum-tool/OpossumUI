@@ -59,7 +59,7 @@ const classes = {
     height: `${REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX}px`,
     display: 'flex',
     flexDirection: 'column',
-    gap: '4px',
+    gap: 1,
     alignItems: 'center',
   },
   tableCell: { wordBreak: 'break-all' },
