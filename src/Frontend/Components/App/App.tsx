@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import '@fontsource-variable/karla';
-import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import { ErrorBoundary } from 'react-error-boundary';
 
 import { View } from '../../enums/enums';
@@ -17,30 +16,21 @@ import { GlobalPopup } from '../GlobalPopup/GlobalPopup';
 import { ProcessPopup } from '../ProcessPopup/ProcessPopup';
 import { ReportView } from '../ReportView/ReportView';
 import { TopBar } from '../TopBar/TopBar';
-import {
-  theme,
-  TitleContainer,
-  TitleTypography,
-  ViewContainer,
-} from './App.style';
+import { TitleContainer, TitleTypography, ViewContainer } from './App.style';
 
 export function App() {
   //pre-hydrate values
   useInitUserSettings();
 
   return (
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={theme}>
-        <ViewContainer>
-          <ErrorBoundary FallbackComponent={ErrorFallback}>
-            <GlobalPopup />
-            <ProcessPopup />
-            <TopBar />
-            <AppView />
-          </ErrorBoundary>
-        </ViewContainer>
-      </ThemeProvider>
-    </StyledEngineProvider>
+    <ViewContainer>
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <GlobalPopup />
+        <ProcessPopup />
+        <TopBar />
+        <AppView />
+      </ErrorBoundary>
+    </ViewContainer>
   );
 }
 

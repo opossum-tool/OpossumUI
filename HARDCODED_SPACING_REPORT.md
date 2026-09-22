@@ -283,9 +283,9 @@ All `diffPopupStyles` entries are consumed through the `sx` prop (`sx={diffPopup
 
 ### Toaster
 
-| File                                             | Line | Property | Value | Converted to                                           |
-| ------------------------------------------------ | ---- | -------- | ----- | ------------------------------------------------------ |
-| `src/Frontend/Components/Toaster/Toaster.tsx:27` | 27   | `gap`    | `8px` | `theme.spacing(2)` (theme callback on `styled('div')`) |
+| File                                             | Line | Property | Value | Converted to                                                                                                                                                                                                                              |
+| ------------------------------------------------ | ---- | -------- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/Toaster/Toaster.tsx:27` | 27   | `gap`    | `8px` | `theme.spacing(2)` (theme callback on `styled('div')`; `Toaster` is rendered beside `App`, so the `ThemeProvider` was moved up from `App.tsx` to `AppContainer.tsx` to keep this callback on the app theme rather than MUI's 8px default) |
 
 ### ResourceBrowser
 
@@ -770,7 +770,7 @@ Formerly listed here and now converted: `shared-styles.ts:52–53` (`baseIcon` �
 
 ### Short-term (1-2 sprints) — _Immediate action_
 
-1. ~~**Add `spacing: 2` to existing theme**~~ — **Done**: `spacing: 4` is configured at `src/Frontend/Components/App/App.style.ts:36` (4px baseline, no new files). Theme is already app-wide via `ThemeProvider` in `App.tsx`.
+1. ~~**Add `spacing: 2` to existing theme**~~ — **Done**: `spacing: 4` is configured at `src/Frontend/Components/App/App.style.ts:36` (4px baseline, no new files). Theme is app-wide via `StyledEngineProvider` + `ThemeProvider` wrapping the application root in `AppContainer.tsx` (moved from `App.tsx` so that root-level siblings like `Toaster`, which is rendered outside `App`, also resolve `theme.spacing` correctly).
 
 2. **Verify typecheck passes** — Run `yarn typecheck` to confirm no errors
 
@@ -837,7 +837,7 @@ const StyledContainer = styled('div')(({ theme }) => ({
 
 **The technical debt of 95+ hardcoded pixel spacing values is solvable with a single change.**
 
-The entire frontend (69+ components, app-wide theming) already uses MUI with a `ThemeProvider` wrapping the application in `App.tsx`. The theme is defined in `src/Frontend/Components/App/App.style.ts` and already configures `spacing: 4` (line 36), so the standardized spacing scale is available across all components. All spacing values documented in the tables above are now converted (see the residual note for the few deliberately kept outliers), including the conversions that the rebase had reset.
+The entire frontend (69+ components, app-wide theming) already uses MUI with a `StyledEngineProvider` + `ThemeProvider` wrapping the application root in `AppContainer.tsx` (this is where `App` and `Toaster` are composed, so both sit inside the provider). The theme is defined in `src/Frontend/Components/App/App.style.ts` and already configures `spacing: 4` (line 36), so the standardized spacing scale is available across all components. All spacing values documented in the tables above are now converted (see the residual note for the few deliberately kept outliers), including the conversions that the rebase had reset.
 
 **Why this works:**
 
