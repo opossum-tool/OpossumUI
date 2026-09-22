@@ -136,7 +136,7 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
           return (
             <GroupContainer role={'group'}>
               <IconComp name={groupNames[index]} />
-              <MuiTypography sx={{ ...styles.overflowEllipsis, p: 0.5 }}>
+              <MuiTypography sx={{ ...styles.overflowEllipsis, pt: 0.5 }}>
                 {groupNames[index]}
               </MuiTypography>
               <ActionComp name={groupNames[index]} />

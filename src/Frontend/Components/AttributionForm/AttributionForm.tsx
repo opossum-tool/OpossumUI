@@ -28,7 +28,7 @@ const classes = {
     flex: 1,
     gap: 3,
     p: 5,
-    pt: 0,
+    pb: 0,
     overflow: 'hidden auto',
     transition: 'opacity 150ms ease',
   },
