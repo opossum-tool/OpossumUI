@@ -130,7 +130,7 @@ exportTest(
 );
 
 exportTest(
-  'exports after unsaved changes were discarded',
+  'exports do not include unsaved changes after they were discarded',
   async ({
     attributionDetails,
     window,
@@ -139,12 +139,12 @@ exportTest(
     notSavedPopup,
     resourcesTree,
   }) => {
+    const discardedCopyright = faker.lorem.sentences();
+
     await stubShowItemInFolder(window.app);
 
     await resourcesTree.goto(resourceName1);
-    await attributionDetails.attributionForm.comment.fill(
-      faker.lorem.sentences(),
-    );
+    await attributionDetails.attributionForm.copyright.fill(discardedCopyright);
 
     await menuBar.exportFollowUp();
     await notSavedPopup.assert.isVisible();
@@ -158,5 +158,6 @@ exportTest(
       exportedFilePaths.followUpCsv,
     );
     expect(followUpContent).toContain('e2e-follow-up-package');
+    expect(followUpContent).not.toContain(discardedCopyright);
   },
 );
