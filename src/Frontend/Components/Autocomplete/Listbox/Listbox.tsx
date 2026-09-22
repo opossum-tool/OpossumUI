@@ -136,9 +136,7 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
           return (
             <GroupContainer role={'group'}>
               <IconComp name={groupNames[index]} />
-              <MuiTypography
-                sx={{ ...styles.overflowEllipsis, paddingTop: '2px' }}
-              >
+              <MuiTypography sx={{ ...styles.overflowEllipsis, pt: 0.5 }}>
                 {groupNames[index]}
               </MuiTypography>
               <ActionComp name={groupNames[index]} />
@@ -184,7 +182,7 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
         {...optionProps}
         selected={optionProps['aria-selected'] as boolean}
         disabled={optionProps['aria-disabled'] as boolean}
-        sx={{ gap: '12px', ...optionText.sx }}
+        sx={{ gap: 3, ...optionText.sx }}
         dense
         data-testid={`option-${index}`}
       >

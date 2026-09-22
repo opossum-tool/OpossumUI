@@ -149,7 +149,7 @@ export const ConfirmReplacePopup = ({
       isOpen={open}
       aria-label={'confirm replace popup'}
       width={500}
-      sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+      sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
     >
       {mixedAttributionCount > 0 && (
         <MuiAlert severity={'warning'}>

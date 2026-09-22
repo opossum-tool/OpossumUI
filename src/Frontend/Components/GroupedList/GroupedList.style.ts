@@ -2,17 +2,18 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { styled } from '@mui/material';
 import MuiLinearProgress from '@mui/material/LinearProgress';
 
-export const GroupContainer = styled('div')({
+export const GroupContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   height: '20px',
   alignItems: 'center',
-  gap: '8px',
-  padding: '4px 10px',
+  gap: theme.spacing(2),
+  padding: theme.spacing(1, 2.5),
   backgroundColor: '#cacfdb',
-});
+}));
 
 export const StyledLinearProgress = styled(MuiLinearProgress)({
   position: 'absolute',

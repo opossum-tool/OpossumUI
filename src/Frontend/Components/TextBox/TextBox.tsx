@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import type { InputBaseComponentsPropsOverrides, SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiInputAdornment from '@mui/material/InputAdornment';
@@ -26,11 +27,12 @@ const classes = {
     },
     '& label[data-shrink=true]': {
       backgroundColor: OpossumColors.white,
-      padding: '1px 3px',
+      py: 0.25,
+      px: 0.75,
       fontSize: '13px',
     },
     '& span': {
-      padding: '0px',
+      p: 0,
     },
     '& legend': {
       '& span': {
@@ -55,19 +57,20 @@ const classes = {
     },
     '& label[data-shrink=true]': {
       backgroundColor: OpossumColors.lightOrange,
-      padding: '1px 3px',
+      py: 0.25,
+      px: 0.75,
     },
   },
   startAdornmentRoot: {
     position: 'absolute',
     left: 0,
-    marginLeft: '8px',
+    ml: 2,
     height: 0,
   },
   endAdornmentRoot: {
     position: 'absolute',
     right: 0,
-    marginRight: '8px',
+    mr: 2,
     height: 0,
   },
   multilineEndAdornmentRoot: {
@@ -77,7 +80,7 @@ const classes = {
     height: 'auto',
     marginTop: 0,
     marginLeft: 0,
-    marginRight: '8px',
+    mr: 2,
   },
 } satisfies SxProps;
 
@@ -97,7 +100,7 @@ function MultilineInput({
         boxSizing: 'content-box',
         width: '100%',
         overflow: 'auto',
-        paddingBlock: INPUT_VERTICAL_PADDING,
+        paddingBlock: 2.125,
         scrollPaddingBlock: INPUT_VERTICAL_PADDING,
         maxBlockSize: maxRows ? `${maxRows}lh` : 'none',
       }}
@@ -173,7 +176,7 @@ export function TextBox(props: TextBoxProps) {
             inputLabel: {
               shrink: !!props.placeholder || !!props.text,
               sx: {
-                marginLeft: `calc(${ensureArray(props.startIcon).length} * 20px)`,
+                ml: ensureArray(props.startIcon).length * 5,
               },
             },
             input: {
@@ -197,11 +200,11 @@ export function TextBox(props: TextBoxProps) {
                     ...(props.multiline ? { boxSizing: 'border-box' } : {}),
                     overflowX: 'hidden',
                     textOverflow: 'ellipsis',
-                    paddingY: props.multiline ? 0 : INPUT_VERTICAL_PADDING,
-                    paddingLeft: `calc(14px + ${ensureArray(props.startIcon).length} * 20px)`,
+                    paddingY: props.multiline ? 0 : 2.125,
+                    paddingLeft: 3.5 + ensureArray(props.startIcon).length * 5,
                     paddingRight: props.multiline
-                      ? '14px'
-                      : `calc(14px + ${ensureArray(props.endIcon).length} * 20px)`,
+                      ? 3.5
+                      : 3.5 + ensureArray(props.endIcon).length * 5,
                   },
                 },
               },

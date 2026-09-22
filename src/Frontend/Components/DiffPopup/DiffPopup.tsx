@@ -105,8 +105,8 @@ function DiffPopupSession({
       fullWidth={true}
       width={'min(1200px, calc(100vw - 32px))'}
       height={'calc(100vh - 64px)'}
-      titleSx={{ padding: '8px 24px 6px' }}
-      actionsSx={{ padding: '4px 8px' }}
+      titleSx={{ py: 2, px: 6, pb: 1.5 }}
+      actionsSx={{ py: 1, px: 2 }}
       sx={{
         background: OpossumColors.almostWhiteBlue,
         padding: 0,

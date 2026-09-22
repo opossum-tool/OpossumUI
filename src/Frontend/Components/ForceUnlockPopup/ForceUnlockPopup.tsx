@@ -45,7 +45,7 @@ export function ForceUnlockPopup() {
       }}
       aria-label={'force unlock popup'}
     >
-      <MuiTypography sx={{ marginBottom: 2 }}>
+      <MuiTypography sx={{ marginBottom: 4 }}>
         {text.forceUnlock.description}
       </MuiTypography>
       <MuiAlert severity={'warning'}>{text.forceUnlock.warning}</MuiAlert>

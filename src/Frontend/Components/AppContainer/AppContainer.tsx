@@ -3,6 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import { QueryClientProvider } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
@@ -11,6 +12,7 @@ import { Provider } from 'react-redux';
 
 import { createAppStore } from '../../state/configure-store';
 import { App } from '../App/App';
+import { theme } from '../App/App.style';
 import { Toaster } from '../Toaster/Toaster';
 import { queryClient } from './queryClient';
 
@@ -23,8 +25,12 @@ export function AppContainer() {
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         <StrictMode>
-          <App />
-          <Toaster />
+          <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={theme}>
+              <App />
+              <Toaster />
+            </ThemeProvider>
+          </StyledEngineProvider>
         </StrictMode>
       </QueryClientProvider>
     </Provider>

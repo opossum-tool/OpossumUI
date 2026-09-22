@@ -5,7 +5,7 @@
 import { OpossumColors } from '../../shared-styles';
 
 const comparisonGrid = {
-  columnGap: '8px',
+  columnGap: 2,
   display: 'grid',
   gridTemplateColumns: 'minmax(0, 1fr) 32px minmax(0, 1fr)',
   minWidth: 0,
@@ -14,19 +14,21 @@ const comparisonGrid = {
 export const diffPopupStyles = {
   content: {
     background: OpossumColors.almostWhiteBlue,
-    padding: '8px 12px 8px',
+    py: 2,
+    px: 3,
   },
   comparison: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
+    gap: 3,
     minWidth: 0,
   },
   comparisonHeader: {
     ...comparisonGrid,
     alignItems: 'center',
     background: OpossumColors.almostWhiteBlue,
-    padding: '8px 0',
+    py: 2,
+    px: 0,
     position: 'sticky',
     top: 0,
     zIndex: 2,
@@ -42,7 +44,7 @@ export const diffPopupStyles = {
   auditingComparison: {
     ...comparisonGrid,
     alignItems: 'start',
-    marginBottom: '12px',
+    mb: 3,
     minWidth: 0,
   },
   auditingColumn: {
@@ -57,13 +59,13 @@ export const diffPopupStyles = {
   section: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
+    gap: 3,
     minWidth: 0,
   },
   sectionHeader: {
     alignItems: 'center',
     display: 'flex',
-    gap: '8px',
+    gap: 2,
     padding: 0,
   },
   sectionTitle: {
@@ -74,7 +76,7 @@ export const diffPopupStyles = {
   comparisonRows: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
+    gap: 3,
     minWidth: 0,
   },
   comparisonRow: {
@@ -107,7 +109,7 @@ export const diffPopupStyles = {
   independentColumn: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
+    gap: 3,
     minWidth: 0,
   },
   transferControls: {
@@ -133,7 +135,7 @@ export const diffPopupStyles = {
   helper: {
     color: OpossumColors.mediumGrey,
     display: 'block',
-    marginTop: '1px',
+    mt: 0.25,
   },
   attributionTypeField: {
     minWidth: 0,

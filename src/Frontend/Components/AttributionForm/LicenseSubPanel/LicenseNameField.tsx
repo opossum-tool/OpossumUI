@@ -28,7 +28,7 @@ export const LicenseNameField = memo(
         sx={{
           display: 'flex',
           alignItems: 'start',
-          gap: '8px',
+          gap: 2,
         }}
       >
         <LicenseSubPanelAutocomplete

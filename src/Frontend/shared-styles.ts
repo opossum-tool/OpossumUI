@@ -49,8 +49,9 @@ export const criticalityColor = {
 export const baseIcon = {
   width: '15px',
   height: '15px',
-  padding: '2px',
-  margin: '0 2px',
+  p: 0.5,
+  my: 0,
+  mx: 0.5,
 };
 
 export const clickableIcon = {
@@ -95,7 +96,7 @@ export const treeItemClasses = {
     alignItems: 'center',
   },
   text: {
-    paddingRight: '5px',
+    pr: 1.25,
   },
   breakpoint: {
     fontWeight: 'bold',

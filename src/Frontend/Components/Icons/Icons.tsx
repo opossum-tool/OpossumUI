@@ -31,8 +31,7 @@ const classes = {
   resourceIcon: {
     width: '18px',
     height: '18px',
-    paddingLeft: '2px',
-    paddingRight: '2px',
+    px: 0.5,
   },
   resourceDefaultColor: {
     color: OpossumColors.middleBlue,

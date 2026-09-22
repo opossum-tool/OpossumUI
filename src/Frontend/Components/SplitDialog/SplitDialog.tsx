@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiAlert from '@mui/material/Alert';
+import MuiBox from '@mui/material/Box';
 import MuiCollapse from '@mui/material/Collapse';
 import MuiLinearProgress from '@mui/material/LinearProgress';
 import MuiTypography from '@mui/material/Typography';
@@ -134,11 +135,11 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
         <MuiCollapse
           in={Boolean(splitInProgress || splitSucceeded || errorMessage)}
         >
-          <div style={{ marginTop: '20px' }}>
+          <MuiBox sx={{ mt: 5 }}>
             {splitInProgress ? (
               <>
                 <MuiTypography>{text.splitDialog.inProgress}</MuiTypography>
-                <MuiLinearProgress sx={{ marginTop: '8px' }} />
+                <MuiLinearProgress sx={{ mt: 2 }} />
               </>
             ) : splitSucceeded ? (
               <MuiAlert severity={'success'}>
@@ -147,7 +148,7 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
             ) : errorMessage ? (
               <MuiAlert severity={'error'}>{errorMessage}</MuiAlert>
             ) : null}
-          </div>
+          </MuiBox>
         </MuiCollapse>
       </div>
     </NotificationPopup>

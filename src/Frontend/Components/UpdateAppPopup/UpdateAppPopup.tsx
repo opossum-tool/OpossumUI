@@ -45,7 +45,7 @@ export function UpdateAppPopup() {
       return (
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <Spinner />
-          <MuiTypography style={{ marginLeft: '12px' }}>
+          <MuiTypography sx={{ ml: 3 }}>
             {text.updateAppPopup.loading}
           </MuiTypography>
         </div>

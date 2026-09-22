@@ -10,7 +10,7 @@ import { OpossumColors, TRANSITION } from '../../shared-styles';
 export const resourceBrowserFilterButtonStyle = (
   isFilterActive: boolean,
 ): SxProps<Theme> => ({
-  padding: '2px',
+  p: 0.5,
   color: isFilterActive ? OpossumColors.white : OpossumColors.lightBlue,
   '&:hover': {
     backgroundColor: alpha(OpossumColors.white, 0.15),

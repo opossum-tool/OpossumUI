@@ -36,7 +36,7 @@ function InfiniteListFooterContent({ floating }: { floating: boolean }) {
     footer = <MuiLinearProgress />;
   } else if (error) {
     footer = (
-      <MuiBox sx={{ display: 'flex', justifyContent: 'center', p: 1 }}>
+      <MuiBox sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
         <MuiButton size={'small'} onClick={onRetry}>
           {'Retry'}
         </MuiButton>

@@ -7,7 +7,7 @@ export const attributionColumnClasses = {
   panel: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '12px',
+    gap: 3,
   },
   textBox: {
     flex: 1,

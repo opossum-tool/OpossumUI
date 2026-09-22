@@ -744,7 +744,7 @@ export const PackagesPanel = ({
     return (
       <AlertContainer open={!!alert} color={alert?.color}>
         <MuiTypography
-          sx={{ padding: '2px 0' }}
+          sx={{ py: 0.5, px: 0 }}
           color={alert?.textColor || OpossumColors.white}
         >
           {alert?.text}

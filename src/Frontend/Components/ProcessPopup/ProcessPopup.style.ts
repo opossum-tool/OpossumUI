@@ -7,14 +7,14 @@ import { styled } from '@mui/system';
 
 import { LogDisplay } from '../LogDisplay/LogDisplay';
 
-export const DialogContent = styled(MuiDialogContent)({
+export const DialogContent = styled(MuiDialogContent)(({ theme }) => ({
   display: 'grid',
   gridTemplateRows: 'repeat(auto-fill, 1fr)',
-  rowGap: '4px',
-});
+  rowGap: theme.spacing(1),
+}));
 
-export const GridLogDisplay = styled(LogDisplay)({
+export const GridLogDisplay = styled(LogDisplay)(({ theme }) => ({
   display: 'grid',
   gridTemplateColumns: '24px 80px 1fr',
-  columnGap: '8px',
-});
+  columnGap: theme.spacing(2),
+}));

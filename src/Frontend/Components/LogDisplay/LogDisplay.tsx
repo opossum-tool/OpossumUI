@@ -37,11 +37,7 @@ export function LogDisplay(props: LogDisplayProps) {
   const { log, isInProgress, showDate, useEllipsis, sx, className } = props;
 
   const icon = useMemo(() => {
-    return isInProgress ? (
-      <Spinner sx={{ marginTop: '1px' }} />
-    ) : (
-      icons[log.level]
-    );
+    return isInProgress ? <Spinner sx={{ mt: 0.25 }} /> : icons[log.level];
   }, [log, isInProgress]);
 
   return (

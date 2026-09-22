@@ -27,7 +27,7 @@ export const HeaderIconButton = styled(MuiFab)({
   transition: TRANSITION,
 });
 
-export const Header = styled(MuiPaper)({
+export const Header = styled(MuiPaper)(({ theme }) => ({
   background: OpossumColors.middleBlue,
   height: HEADER_HEIGHT,
   minHeight: HEADER_HEIGHT,
@@ -35,20 +35,20 @@ export const Header = styled(MuiPaper)({
   zIndex: 3,
   display: 'flex',
   alignItems: 'center',
-  gap: '4px',
-  padding: '0 4px 0 12px',
-});
+  gap: theme.spacing(1),
+  padding: theme.spacing(0, 1, 0, 3),
+}));
 
-export const HeaderText = styled(MuiTypography)({
+export const HeaderText = styled(MuiTypography)(({ theme }) => ({
   textTransform: 'uppercase',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-  marginTop: '2px',
+  marginTop: theme.spacing(0.5),
   userSelect: 'none',
   flex: 1,
   color: 'ghostwhite',
-});
+}));
 
 export const Search = styled('div')<{ hasValue: boolean }>(
   ({ theme, hasValue }) => ({
@@ -69,34 +69,34 @@ export const Search = styled('div')<{ hasValue: boolean }>(
   }),
 );
 
-export const SearchIconWrapper = styled('div')({
-  padding: '0px 5px',
+export const SearchIconWrapper = styled('div')(({ theme }) => ({
+  padding: theme.spacing(0, 1.25),
   position: 'absolute',
   pointerEvents: 'none',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-});
+}));
 
-export const ClearIconWrapper = styled('div')({
-  padding: '0px 4px',
+export const ClearIconWrapper = styled('div')(({ theme }) => ({
+  padding: theme.spacing(0, 1),
   position: 'absolute',
   right: 0,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-});
+}));
 
-export const ClearButton = styled(ClearIcon)({
-  padding: '2px',
+export const ClearButton = styled(ClearIcon)(({ theme }) => ({
+  padding: theme.spacing(0.5),
   borderRadius: '50%',
   cursor: 'pointer',
   '&:hover': {
     background: OpossumColors.lightestGrey,
   },
-});
+}));
 
-export const StyledInputBase = styled(MuiInputBase)(({ value }) => ({
+export const StyledInputBase = styled(MuiInputBase)(({ theme, value }) => ({
   color: 'white',
   maxWidth: '144px',
   height: '24px',
@@ -105,8 +105,8 @@ export const StyledInputBase = styled(MuiInputBase)(({ value }) => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     caretColor: 'white',
-    paddingRight: value ? '24px' : '0px',
-    paddingLeft: '24px',
+    paddingRight: value ? theme.spacing(6) : '0px',
+    paddingLeft: theme.spacing(6),
     transition: TRANSITION,
     width: value ? '120px' : '0px',
     '&:focus': {
