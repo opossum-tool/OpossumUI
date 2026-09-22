@@ -17,8 +17,7 @@ export async function stubShowItemInFolder(
     const state: ShellStubState = { showItemInFolderCalls: [] };
     Reflect.set(shell, stateKey, state);
     Reflect.set(shell, 'showItemInFolder', (filePath: string) => {
-      state.showItemInFolderCalls.push(String(filePath));
-      return true;
+      state.showItemInFolderCalls.push(filePath);
     });
   }, SHELL_STUB_STATE_KEY);
 }
