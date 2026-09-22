@@ -14,6 +14,7 @@ import {
   type ResourcesToAttributions,
 } from '../../../../../shared/shared-types';
 import { faker } from '../../../../../testing/Faker';
+import { queryClient } from '../../../../Components/AppContainer/queryClient';
 import { PopupType, View } from '../../../../enums/enums';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { createTestStore } from '../../../../test-helpers/render';
@@ -67,12 +68,16 @@ import {
   changeAttributionFiltersOrOpenUnsavedPopup,
   changeSelectedAttributionOrOpenUnsavedPopup,
   closePopupAndUnsetTargets,
+  createSplit,
+  exportFileOrOpenUnsavedPopup,
   mergeOpossumFilesIntoCurrentFile,
   navigateToSelectedPathOrOpenUnsavedPopup,
   openFileOrOpenUnsavedPopup,
   proceedFromUnsavedPopup,
   setSelectedResourceIdOrOpenUnsavedPopup,
   setViewOrOpenUnsavedPopup,
+  showImportDialogOrOpenUnsavedPopup,
+  showMergeOpossumFilesDialogOrOpenUnsavedPopup,
   showSplitDialogOrOpenUnsavedPopup,
 } from '../popup-actions';
 
@@ -99,6 +104,46 @@ describe('mergeOpossumFilesIntoCurrentFile', () => {
     );
     expect(getSelectedResourceId(testStore.getState())).toBe('/');
     expect(getSelectedAttributionId(testStore.getState())).toBe('');
+  });
+});
+
+describe('createSplit', () => {
+  it('splits the file and invalidates backend queries on success', async () => {
+    const selectedResourcePaths = ['/root/src/something.js'];
+    const destinationPath = '/path/to/split.opossum';
+    const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+    vi.mocked(window.electronAPI.splitFile).mockResolvedValue({
+      status: 'success',
+    });
+
+    const result = await createAppStore().dispatch(
+      createSplit(selectedResourcePaths, destinationPath),
+    );
+
+    expect(window.electronAPI.splitFile).toHaveBeenCalledWith(
+      selectedResourcePaths,
+      destinationPath,
+    );
+    expect(invalidateQueriesSpy).toHaveBeenCalled();
+    expect(result).toEqual({ status: 'success' });
+  });
+
+  it('returns the error without invalidating backend queries', async () => {
+    const invalidateQueriesSpy = vi.spyOn(queryClient, 'invalidateQueries');
+    vi.mocked(window.electronAPI.splitFile).mockResolvedValue({
+      status: 'error',
+      message: 'split failed',
+    });
+
+    const result = await createAppStore().dispatch(
+      createSplit(['/root/src/something.js'], '/path/to/split.opossum'),
+    );
+
+    expect(result).toEqual({
+      status: 'error',
+      message: 'split failed',
+    });
+    expect(invalidateQueriesSpy).not.toHaveBeenCalled();
   });
 });
 
@@ -419,6 +464,125 @@ describe('The actions checking for unsaved changes', () => {
       expect(getSelectedResourceId(testStore.getState())).toBe('/root/');
       expect(getTargetSelectedResourceId(testStore.getState())).toBe(
         '/thirdParty/',
+      );
+      expect(getOpenPopup(testStore.getState())?.popup).toBe(
+        PopupType.NotSavedPopup,
+      );
+    });
+  });
+
+  describe('showImportDialogOrOpenUnsavedPopup', () => {
+    const fileFormat = {
+      fileType: FileType.LEGACY_OPOSSUM,
+      extensions: [],
+      name: '',
+    };
+
+    it('opens the import dialog immediately when there are no unsaved changes', () => {
+      const testStore = createAppStore();
+
+      testStore.dispatch(showImportDialogOrOpenUnsavedPopup(fileFormat, true));
+
+      expect(getOpenPopup(testStore.getState())).toStrictEqual({
+        popup: PopupType.ImportDialog,
+        fileFormat,
+        canImportIntoCurrentProject: true,
+      });
+      expect(getImportFileRequest(testStore.getState())).toBeNull();
+    });
+
+    it('stores the import request and opens the unsaved-changes popup', () => {
+      const testStore = createAppStore();
+      testStore.dispatch(
+        setTemporaryDisplayPackageInfo({
+          packageName: 'dirty',
+          criticality: Criticality.None,
+          id: faker.string.uuid(),
+        }),
+      );
+
+      testStore.dispatch(showImportDialogOrOpenUnsavedPopup(fileFormat, false));
+
+      expect(getOpenPopup(testStore.getState())?.popup).toBe(
+        PopupType.NotSavedPopup,
+      );
+      expect(getImportFileRequest(testStore.getState())).toEqual({
+        fileFormat,
+        canImportIntoCurrentProject: false,
+      });
+    });
+  });
+
+  describe('showMergeOpossumFilesDialogOrOpenUnsavedPopup', () => {
+    const currentFilePath = '/path/to/current.opossum';
+
+    it('opens the merge dialog immediately when there are no unsaved changes', () => {
+      const testStore = createAppStore();
+
+      testStore.dispatch(
+        showMergeOpossumFilesDialogOrOpenUnsavedPopup(true, currentFilePath),
+      );
+
+      expect(getOpenPopup(testStore.getState())).toStrictEqual({
+        popup: PopupType.MergeOpossumFilesDialog,
+        canMergeIntoCurrentFile: true,
+        currentFilePath,
+      });
+      expect(getMergeOpossumFilesRequest(testStore.getState())).toBeNull();
+    });
+
+    it('stores the merge request and opens the unsaved-changes popup', () => {
+      const testStore = createAppStore();
+      testStore.dispatch(
+        setTemporaryDisplayPackageInfo({
+          packageName: 'dirty',
+          criticality: Criticality.None,
+          id: faker.string.uuid(),
+        }),
+      );
+
+      testStore.dispatch(
+        showMergeOpossumFilesDialogOrOpenUnsavedPopup(false, currentFilePath),
+      );
+
+      expect(getOpenPopup(testStore.getState())?.popup).toBe(
+        PopupType.NotSavedPopup,
+      );
+      expect(getMergeOpossumFilesRequest(testStore.getState())).toEqual({
+        canMergeIntoCurrentFile: false,
+        currentFilePath,
+      });
+    });
+  });
+
+  describe('exportFileOrOpenUnsavedPopup', () => {
+    it('exports immediately when there are no unsaved changes', () => {
+      const testStore = createAppStore();
+
+      testStore.dispatch(exportFileOrOpenUnsavedPopup(ExportType.FollowUp));
+
+      expect(window.electronAPI.exportFile).toHaveBeenCalledWith(
+        ExportType.FollowUp,
+      );
+      expect(getExportFileRequest(testStore.getState())).toBeNull();
+      expect(getOpenPopup(testStore.getState())).toBeFalsy();
+    });
+
+    it('stores the export request and opens the unsaved-changes popup', () => {
+      const testStore = createAppStore();
+      testStore.dispatch(
+        setTemporaryDisplayPackageInfo({
+          packageName: 'dirty',
+          criticality: Criticality.None,
+          id: faker.string.uuid(),
+        }),
+      );
+
+      testStore.dispatch(exportFileOrOpenUnsavedPopup(ExportType.FollowUp));
+
+      expect(window.electronAPI.exportFile).not.toHaveBeenCalled();
+      expect(getExportFileRequest(testStore.getState())).toBe(
+        ExportType.FollowUp,
       );
       expect(getOpenPopup(testStore.getState())?.popup).toBe(
         PopupType.NotSavedPopup,

@@ -6,3 +6,4 @@ export * from '../../testing/Faker';
 export * from './dialog';
 export * from './fixtures';
 export * from './retry';
+export * from './shell';
