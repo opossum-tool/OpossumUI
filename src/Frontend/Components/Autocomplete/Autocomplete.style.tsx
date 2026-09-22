@@ -52,7 +52,7 @@ export const Input = styled(MuiTextField, {
       minHeight: '36.67px',
       paddingTop: theme.spacing(1.5),
       paddingBottom: theme.spacing(1.5),
-      paddingLeft: theme.spacing(1.5),
+      paddingLeft: theme.spacing(3),
       paddingRight: `calc(${theme.spacing(3)} + ${numberOfEndAdornments} * ${theme.spacing(7)})`,
     },
     '& .MuiInputBase-root.Mui-disabled': {
