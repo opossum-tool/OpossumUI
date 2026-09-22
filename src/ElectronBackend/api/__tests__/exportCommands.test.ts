@@ -70,6 +70,67 @@ describe('export tests', () => {
     });
   });
 
+  it('exports follow-up attributions with the resources of their closest attributed ancestors', async () => {
+    const csvPath = '/some/follow_up_ancestors.csv';
+
+    await initializeDbWithTestData({
+      resources: pathsToResources([
+        '/folder/zeta-file',
+        '/folder/alpha-file',
+        '/folder/sub/inner-file',
+      ]),
+      manualAttributions: {
+        attributions: {
+          uuid1: {
+            id: 'uuid1',
+            criticality: Criticality.None,
+            followUp: true,
+            packageName: 'ancestor-pkg',
+          },
+          uuid2: {
+            id: 'uuid2',
+            criticality: Criticality.None,
+            followUp: true,
+            packageName: 'sub-pkg',
+          },
+        },
+        resourcesToAttributions: {
+          '/folder/': ['uuid1'],
+          '/folder/sub/': ['uuid2'],
+        },
+        attributionsToResources: {
+          uuid1: ['/folder/'],
+          uuid2: ['/folder/sub/'],
+        },
+      },
+    });
+
+    await exportFile(ExportType.FollowUp, csvPath);
+
+    expect(writeCsvToFile).toHaveBeenCalledWith({
+      path: csvPath,
+      attributions: {
+        uuid1: expect.objectContaining({
+          packageName: 'ancestor-pkg',
+          resources: ['/folder/alpha-file', '/folder/zeta-file'],
+        }),
+        uuid2: expect.objectContaining({
+          packageName: 'sub-pkg',
+          resources: ['/folder/sub/inner-file'],
+        }),
+      },
+      columns: [
+        'packageName',
+        'packageVersion',
+        'url',
+        'copyright',
+        'licenseName',
+        'resources',
+      ],
+      shortenResources: true,
+    });
+  });
+
   it('exports compact BOM to CSV', async () => {
     const compactBomFilePath = '/some/compact_bom.csv';
 
@@ -175,6 +236,62 @@ describe('export tests', () => {
     });
   });
 
+  it('excludes follow-up and first-party attributions from detailed BOM', async () => {
+    const detailedBomFilePath = '/some/detailed_bom_filtered.csv';
+
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/resource']),
+      manualAttributions: {
+        attributions: {
+          uuid1: {
+            id: 'uuid1',
+            criticality: Criticality.None,
+            packageName: 'detailed-pkg',
+          },
+          uuid2: {
+            id: 'uuid2',
+            criticality: Criticality.None,
+            followUp: true,
+          },
+          uuid3: {
+            id: 'uuid3',
+            criticality: Criticality.None,
+            firstParty: true,
+          },
+        },
+        resourcesToAttributions: {
+          '/resource': ['uuid1', 'uuid2', 'uuid3'],
+        },
+        attributionsToResources: {
+          uuid1: ['/resource'],
+          uuid2: ['/resource'],
+          uuid3: ['/resource'],
+        },
+      },
+    });
+
+    await exportFile(ExportType.DetailedBom, detailedBomFilePath);
+
+    expect(writeCsvToFile).toHaveBeenCalledWith({
+      path: detailedBomFilePath,
+      attributions: {
+        uuid1: expect.objectContaining({ packageName: 'detailed-pkg' }),
+      },
+      columns: [
+        'packageName',
+        'packageVersion',
+        'packageNamespace',
+        'packageType',
+        'packagePURLAppendix',
+        'url',
+        'copyright',
+        'licenseName',
+        'licenseText',
+        'resources',
+      ],
+    });
+  });
+
   it('exports SPDX YAML document', async () => {
     const spdxYamlFilePath = '/test.yaml';
 
@@ -230,6 +347,106 @@ describe('export tests', () => {
       attributions: {
         uuid1: expect.objectContaining({ packageName: 'spdx-pkg' }),
       },
+    });
+  });
+
+  it('falls back to frequent license texts and empty string for SPDX license texts', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/resource']),
+      manualAttributions: {
+        attributions: {
+          uuid1: {
+            id: 'uuid1',
+            criticality: Criticality.None,
+            packageName: 'pkg-with-own-text',
+            licenseName: 'MIT License',
+            licenseText: 'own license text',
+          },
+          uuid2: {
+            id: 'uuid2',
+            criticality: Criticality.None,
+            packageName: 'pkg-with-frequent-license-text',
+            licenseName: 'Apache License 2.0',
+          },
+          uuid3: {
+            id: 'uuid3',
+            criticality: Criticality.None,
+            packageName: 'pkg-with-unknown-license',
+            licenseName: 'Unknown License',
+          },
+        },
+        resourcesToAttributions: {
+          '/resource': ['uuid1', 'uuid2', 'uuid3'],
+        },
+        attributionsToResources: {
+          uuid1: ['/resource'],
+          uuid2: ['/resource'],
+          uuid3: ['/resource'],
+        },
+      },
+      frequentLicenses: {
+        nameOrder: [
+          { shortName: 'MIT', fullName: 'MIT License' },
+          { shortName: 'Apache-2.0', fullName: 'Apache License 2.0' },
+        ],
+        texts: {
+          MIT: 'MIT license text',
+          'Apache-2.0': 'Apache license text',
+        },
+      },
+    });
+
+    await exportFile(ExportType.SpdxDocumentYaml, '/test.yaml');
+
+    expect(writeSpdxFile).toHaveBeenCalledWith({
+      path: '/test.yaml',
+      type: ExportType.SpdxDocumentYaml,
+      attributions: {
+        uuid1: expect.objectContaining({
+          packageName: 'pkg-with-own-text',
+          licenseText: 'own license text',
+        }),
+        uuid2: expect.objectContaining({
+          packageName: 'pkg-with-frequent-license-text',
+          licenseText: 'Apache license text',
+        }),
+        uuid3: expect.objectContaining({
+          packageName: 'pkg-with-unknown-license',
+          licenseText: '',
+        }),
+      },
+    });
+  });
+
+  it('exports an empty follow-up CSV when there are no attributions', async () => {
+    await initializeDbWithTestData();
+
+    await exportFile(ExportType.FollowUp, '/empty_follow_up.csv');
+
+    expect(writeCsvToFile).toHaveBeenCalledWith({
+      path: '/empty_follow_up.csv',
+      attributions: {},
+      columns: [
+        'packageName',
+        'packageVersion',
+        'url',
+        'copyright',
+        'licenseName',
+        'resources',
+      ],
+      shortenResources: true,
+    });
+  });
+
+  it('exports an empty SPDX document when there are no attributions', async () => {
+    await initializeDbWithTestData();
+
+    await exportFile(ExportType.SpdxDocumentJson, '/empty_spdx.json');
+
+    expect(writeSpdxFile).toHaveBeenCalledWith({
+      path: '/empty_spdx.json',
+      type: ExportType.SpdxDocumentJson,
+      attributions: {},
     });
   });
 });

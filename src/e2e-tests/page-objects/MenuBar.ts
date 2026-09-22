@@ -201,6 +201,22 @@ export class MenuBar {
     await this.clickEnabledMenuItem(menuItemIds.exportFollowUp);
   }
 
+  async exportCompactBom(): Promise<void> {
+    await this.clickEnabledMenuItem(menuItemIds.exportCompactBom);
+  }
+
+  async exportDetailedBom(): Promise<void> {
+    await this.clickEnabledMenuItem(menuItemIds.exportDetailedBom);
+  }
+
+  async exportSpdxYaml(): Promise<void> {
+    await this.clickEnabledMenuItem(menuItemIds.exportSpdxYaml);
+  }
+
+  async exportSpdxJson(): Promise<void> {
+    await this.clickEnabledMenuItem(menuItemIds.exportSpdxJson);
+  }
+
   async toggleQaMode(): Promise<void> {
     await this.clickEnabledMenuItem(menuItemIds.qaMode);
   }
