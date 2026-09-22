@@ -402,7 +402,7 @@ describe('export tests', () => {
     });
   });
 
-  it('exports an empty CSV when no attributions match the follow-up filter', async () => {
+  it('exports an empty follow-up CSV when there are no attributions', async () => {
     await initializeDbWithTestData();
 
     await exportFile(ExportType.FollowUp, '/empty_follow_up.csv');
