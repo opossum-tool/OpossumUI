@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { faker, stubOpenDialogSync, test } from '../utils';
+import { faker, test } from '../utils';
 
 const [readonlyDirectoryName, editableDirectoryName] =
   faker.opossum.resourceNames({ count: 2 });
@@ -36,7 +36,6 @@ test('force unlocks a split file, preserves unsaved changes, and persists the ed
   forceUnlockPopup,
   menuBar,
   resourcesTree,
-  window,
   filePaths,
 }) => {
   const comment = faker.lorem.sentences();
@@ -56,10 +55,13 @@ test('force unlocks a split file, preserves unsaved changes, and persists the ed
   await resourcesTree.assert.resourceIsEditable(readonlyDirectoryName);
   await attributionDetails.attributionForm.assert.commentIs(comment);
   await menuBar.assert.forceUnlockIsDisabled();
+  await attributionDetails.saveChanges();
 
-  await stubOpenDialogSync(window.app, [filePaths!.opossum]);
-  await menuBar.openFile();
+  await menuBar.openFileAndWaitForLoad(filePaths!.opossum);
 
   await resourcesTree.assert.resourceIsEditable(readonlyDirectoryName);
   await resourcesTree.assert.resourceIsEditable(editableDirectoryName);
+  await resourcesTree.goto(editableDirectoryName);
+  await attributionsPanel.packageCard.click(packageInfo);
+  await attributionDetails.attributionForm.assert.commentIs(comment);
 });

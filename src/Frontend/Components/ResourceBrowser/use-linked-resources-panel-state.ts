@@ -19,6 +19,7 @@ import {
 export type LinkedResourcesPanelState = {
   isHidden: boolean;
   isLoading: boolean;
+  isSearchApplied: boolean;
   treeState: LinkedResourcesTreeState | undefined;
 };
 
@@ -39,6 +40,12 @@ export function getLinkedResourcesPanelState({
 }: GetLinkedResourcesPanelStateParams): LinkedResourcesPanelState {
   return {
     isHidden: !hasSelectedAttribution || (isError && !treeState),
+    isSearchApplied:
+      hasSelectedAttribution &&
+      attributionDetailsReady &&
+      !isError &&
+      !isLoading &&
+      !!treeState,
     isLoading:
       hasSelectedAttribution &&
       !isError &&
