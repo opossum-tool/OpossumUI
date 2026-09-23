@@ -3,8 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { ResourceTreeNodeData } from '../ElectronBackend/api/resourceTree';
-import { initializeDb } from '../ElectronBackend/db/initializeDb';
 import type { ParsedFileContent, Resources } from '../shared/shared-types';
+import { setupBackendIntegration } from './backend-integration';
 
 export function makeResourceTreeNode(
   overrides: Partial<ResourceTreeNodeData> &
@@ -93,7 +93,7 @@ export async function initializeDbWithTestData(
     readonlyRules: [],
   } satisfies ParsedFileContent;
 
-  await initializeDb({
+  await setupBackendIntegration({
     ...emptyFileContent,
     ...overrides,
     readonlyRules: overrides?.readonlyRules ?? [],

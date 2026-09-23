@@ -71,6 +71,10 @@ export default defineConfig(({ mode }) => ({
           environment: 'happy-dom',
           include: ['src/Frontend/**/__test{s,}__/**/*.test.{ts,tsx}'],
           name: { label: 'FE', color: 'green' },
+          setupFiles: [
+            './src/testing/setup.ts',
+            './src/testing/frontend-setup.ts',
+          ],
         },
       },
       {
@@ -79,6 +83,7 @@ export default defineConfig(({ mode }) => ({
           environment: 'node',
           include: ['src/ElectronBackend/**/__test{s,}__/**/*.test.{ts,tsx}'],
           name: { label: 'BE', color: 'blue' },
+          setupFiles: ['./src/testing/setup.ts'],
         },
       },
       {
@@ -87,6 +92,7 @@ export default defineConfig(({ mode }) => ({
           environment: 'node',
           include: ['src/shared/**/__test{s,}__/**/*.test.{ts,tsx}'],
           name: { label: 'SH', color: 'yellow' },
+          setupFiles: ['./src/testing/setup.ts'],
         },
       },
       {
@@ -95,10 +101,10 @@ export default defineConfig(({ mode }) => ({
           environment: 'node',
           include: ['src/performance-tests/**/__test{s,}__/**/*.test.{ts,tsx}'],
           name: { label: 'PERF', color: 'magenta' },
+          setupFiles: ['./src/testing/setup.ts'],
         },
       },
     ],
-    setupFiles: './src/testing/setup.ts',
     globalSetup: './src/testing/globalSetup.ts',
     clearMocks: true,
     unstubGlobals: true,
