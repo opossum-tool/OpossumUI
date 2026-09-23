@@ -14,6 +14,7 @@ import {
   getResourceTree,
   getResourceTreeUnreviewedCount,
 } from '../resourceTree';
+import { getNodePathsToExpand } from '../resourceTreeExpansion';
 
 function makeAttributionData(
   attributions: Attributions,
@@ -212,6 +213,86 @@ describe('getResourceTree', () => {
     expect(result.treeNodes.map((node) => node.id)).not.toContain(
       '/writable/locked.ts',
     );
+  });
+
+  it('retains readonly ancestors of writable descendants in writable attribution trees', async () => {
+    const attributionUuid = 'writable-descendant-uuid';
+
+    await initializeDbWithTestData({
+      resources: {
+        linked: { readonly: { 'editable.ts': 1, 'locked.ts': 1 } },
+      },
+      externalAttributions: makeAttributionData(
+        {
+          [attributionUuid]: {
+            packageName: 'pkg',
+            criticality: Criticality.None,
+            id: attributionUuid,
+          },
+        },
+        { '/linked': [attributionUuid] },
+      ),
+      readonlyRules: [
+        { path: '/linked', readonly: false },
+        { path: '/linked/readonly', readonly: true },
+        { path: '/linked/readonly/editable.ts', readonly: false },
+      ],
+    });
+
+    const { result } = await getResourceTree({
+      onAttributionUuids: [attributionUuid],
+      onlyWritable: true,
+      expandedNodes: 'expandAll',
+    });
+
+    expect(result.treeNodes.map((node) => node.id)).toEqual([
+      '/',
+      '/linked/',
+      '/linked/readonly/',
+      '/linked/readonly/editable.ts',
+    ]);
+    expect(
+      result.treeNodes.find((node) => node.id === '/linked/readonly/'),
+    ).toMatchObject({ isReadonly: true, isExpandable: true });
+    expect(
+      result.treeNodes.find(
+        (node) => node.id === '/linked/readonly/editable.ts',
+      )?.isReadonly,
+    ).toBe(false);
+    expect(result.count).toBe(1);
+  });
+
+  it('expands readonly ancestors of writable descendants in writable attribution trees', async () => {
+    const attributionUuid = 'writable-descendant-uuid';
+
+    await initializeDbWithTestData({
+      resources: {
+        linked: { readonly: { 'editable.ts': 1, 'locked.ts': 1 } },
+      },
+      externalAttributions: makeAttributionData(
+        {
+          [attributionUuid]: {
+            packageName: 'pkg',
+            criticality: Criticality.None,
+            id: attributionUuid,
+          },
+        },
+        { '/linked': [attributionUuid] },
+      ),
+      readonlyRules: [
+        { path: '/linked', readonly: false },
+        { path: '/linked/readonly', readonly: true },
+        { path: '/linked/readonly/editable.ts', readonly: false },
+      ],
+    });
+
+    const { result } = await getNodePathsToExpand({
+      fromNodePath: '/linked/',
+      onAttributionUuids: [attributionUuid],
+      onlyWritable: true,
+    });
+
+    expect(result).toEqual(['/linked/', '/linked/readonly/']);
   });
 
   it('does not mark attribution-linked writable nodes expandable when all children are readonly', async () => {

@@ -180,7 +180,7 @@ export async function getResourceTree({
                 getVisibleWithFiltersExpression({
                   id: eb.ref('r.id'),
                   maxDescendantId: eb.ref('r.max_descendant_id'),
-                  isReadonly: eb.ref('r.is_readonly'),
+                  hasEditableDescendant: eb.ref('r.has_editable_descendant'),
                   inheritedMatch: eb.or([
                     eb.ref('parent.matches_filters'),
                     eb.ref('parent.ancestor_matches_filters'),
@@ -208,7 +208,9 @@ export async function getResourceTree({
                   return getVisibleWithFiltersExpression({
                     id: eb.ref('child.id'),
                     maxDescendantId: eb.ref('child.max_descendant_id'),
-                    isReadonly: eb.ref('child.is_readonly'),
+                    hasEditableDescendant: eb.ref(
+                      'child.has_editable_descendant',
+                    ),
                     inheritedMatch: eb.or([
                       eb('shown_resources.matches_filters', '=', 1),
                       eb('shown_resources.ancestor_matches_filters', '=', 1),
