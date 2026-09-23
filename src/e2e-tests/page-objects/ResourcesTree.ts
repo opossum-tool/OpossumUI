@@ -22,8 +22,8 @@ export class ResourcesTree {
     readonly license: Locator;
     readonly unreviewed: Locator;
   };
-  readonly searchField: Locator;
-  readonly clearSearchButton: Locator;
+  private readonly searchField: Locator;
+  private readonly clearSearchButton: Locator;
 
   constructor(window: Page) {
     this.window = window;
@@ -137,7 +137,7 @@ export class ResourcesTree {
 
   async revealResource(resourcePath: string): Promise<void> {
     await this.gotoRoot();
-    await this.searchField.fill(resourcePath);
+    await this.search(resourcePath);
     for (const parentResourcePath of this.getParentResourcePaths(
       resourcePath,
     )) {
@@ -168,11 +168,24 @@ export class ResourcesTree {
     await this.getResourceByPath(resourcePath).click();
   }
 
+  async search(value: string): Promise<void> {
+    await this.searchField.fill(value);
+    await this.waitForSearchResults(value);
+  }
+
   async clearSearch(): Promise<void> {
     if ((await this.searchField.inputValue()) !== '') {
       await this.clearSearchButton.click();
     }
     await expect(this.searchField).toHaveValue('');
+    await this.waitForSearchResults('');
+  }
+
+  async waitForSearchResults(expectedSearch: string): Promise<void> {
+    await expect(this.header).toHaveAttribute(
+      'data-applied-search',
+      expectedSearch,
+    );
   }
 
   async scrollToTop(): Promise<void> {

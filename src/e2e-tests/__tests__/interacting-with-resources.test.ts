@@ -229,7 +229,7 @@ test('shows only resources matching search', async ({
     resourceWithExternalDifferentLicense,
   );
 
-  await resourcesTree.searchField.fill(resourceWithExternalDifferentLicense);
+  await resourcesTree.search(resourceWithExternalDifferentLicense);
   await resourcesTree.assert.resourceIsHidden(
     resourceWithExternalSelectedLicense,
   );
@@ -237,7 +237,7 @@ test('shows only resources matching search', async ({
     resourceWithExternalDifferentLicense,
   );
 
-  await resourcesTree.clearSearchButton.click();
+  await resourcesTree.clearSearch();
   await resourcesTree.assert.resourceIsVisible(
     resourceWithExternalSelectedLicense,
   );
@@ -250,6 +250,9 @@ test('shows only resources matching search', async ({
   await window.keyboard.press(`${modKey}+F`);
   await resourcesTree.assert.searchIsFocused();
   await window.keyboard.type(resourceWithExternalDifferentLicense);
+  await resourcesTree.waitForSearchResults(
+    resourceWithExternalDifferentLicense,
+  );
   await resourcesTree.assert.resourceIsHidden(
     resourceWithExternalSelectedLicense,
   );

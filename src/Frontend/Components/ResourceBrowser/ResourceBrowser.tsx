@@ -82,6 +82,13 @@ export function ResourceBrowser() {
     },
     { placeholderData: keepPreviousData },
   );
+  const appliedSearch =
+    searchAll === debouncedSearchAll &&
+    resourceTreeAll.isSuccess &&
+    !resourceTreeAll.isFetching &&
+    !resourceTreeAll.isPlaceholderData
+      ? debouncedSearchAll
+      : undefined;
   const unreviewedFileCountQuery =
     backend.getResourceTreeUnreviewedCount.useQuery(
       {
@@ -188,6 +195,9 @@ export function ResourceBrowser() {
               expansionFilters={allResourceTreeFilters}
             />
           ),
+          headerDataAttributes: {
+            'data-applied-search': appliedSearch,
+          },
           headerTestId: 'resources-tree-header',
         }}
         lowerPanel={{

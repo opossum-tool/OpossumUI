@@ -88,7 +88,7 @@ export async function runResourceWorkflows({
     id: 'search-resource-tree',
     title: 'search the resource tree',
     execute: async () => {
-      await resourcesTree.searchField.fill(searchAnchors.targetResourceName);
+      await resourcesTree.search(searchAnchors.targetResourceName);
       await Promise.all([
         resourcesTree.assert.resourceIsVisible(
           searchAnchors.targetResourceName,
@@ -99,7 +99,7 @@ export async function runResourceWorkflows({
       ]);
     },
     teardown: async () => {
-      await resourcesTree.clearSearchButton.click();
+      await resourcesTree.clearSearch();
       await resourcesTree.assert.resourceIsVisible(
         expandAndSelectAnchors.targetResourceName,
       );
