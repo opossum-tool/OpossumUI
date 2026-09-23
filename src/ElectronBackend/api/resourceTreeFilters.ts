@@ -150,18 +150,15 @@ export function getFilteredResourcesQuery(
     );
   }
   if (onAttributionUuids) {
-    query = query.where((eb) =>
-      eb.exists((eb) =>
-        eb
-          .selectFrom('resource_to_attribution as rta')
-          .select('rta.resource_id')
-          .whereRef('rta.resource_id', '=', 'r.id')
-          .where(
-            'rta.attribution_uuid',
-            'in',
-            jsonArraySelection(onAttributionUuids),
-          ),
-      ),
+    query = query.where('r.id', 'in', (eb) =>
+      eb
+        .selectFrom('resource_to_attribution as rta')
+        .select('rta.resource_id')
+        .where(
+          'rta.attribution_uuid',
+          'in',
+          jsonArraySelection(onAttributionUuids),
+        ),
     );
   }
   if (onlyUnreviewedFiles) {

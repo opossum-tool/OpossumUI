@@ -32,6 +32,154 @@ function makeAttributionData(
   return { attributions, resourcesToAttributions, attributionsToResources };
 }
 
+const FILTER_EXTERNAL_UUID = 'filter-external-uuid';
+const FILTER_SECOND_EXTERNAL_UUID = 'filter-second-external-uuid';
+const FILTER_MANUAL_UUID = 'filter-manual-uuid';
+
+async function initializeAttributionFilterData(): Promise<void> {
+  await initializeDbWithTestData({
+    resources: {
+      src: {
+        'external.ts': 1,
+        'overlap.ts': 1,
+        'manual.ts': 1,
+        'readonly.ts': 1,
+        'writable.ts': 1,
+      },
+      docs: { 'folder.ts': 1 },
+    },
+    externalAttributions: makeAttributionData(
+      {
+        [FILTER_EXTERNAL_UUID]: {
+          packageName: 'external-mit',
+          licenseName: 'MIT',
+          criticality: Criticality.None,
+          id: FILTER_EXTERNAL_UUID,
+        },
+        [FILTER_SECOND_EXTERNAL_UUID]: {
+          packageName: 'external-apache',
+          licenseName: 'Apache-2.0',
+          criticality: Criticality.None,
+          id: FILTER_SECOND_EXTERNAL_UUID,
+        },
+      },
+      {
+        '/src/external.ts': [FILTER_EXTERNAL_UUID],
+        '/src/overlap.ts': [FILTER_EXTERNAL_UUID, FILTER_SECOND_EXTERNAL_UUID],
+        '/src/readonly.ts': [FILTER_EXTERNAL_UUID],
+        '/src/writable.ts': [FILTER_EXTERNAL_UUID],
+        '/docs/folder.ts': [FILTER_SECOND_EXTERNAL_UUID],
+      },
+    ),
+    manualAttributions: makeAttributionData(
+      {
+        [FILTER_MANUAL_UUID]: {
+          packageName: 'manual-package',
+          criticality: Criticality.None,
+          id: FILTER_MANUAL_UUID,
+        },
+      },
+      {
+        '/src/overlap.ts': [FILTER_MANUAL_UUID],
+        '/src/manual.ts': [FILTER_MANUAL_UUID],
+      },
+    ),
+    readonlyRules: [{ path: '/src/readonly.ts', readonly: true }],
+  });
+}
+
+describe('attribution filtering', () => {
+  beforeEach(initializeAttributionFilterData);
+
+  it('filters one or several UUIDs and keeps shared resources once', async () => {
+    const externalOnly = await getResourceTree({
+      expandedNodes: 'expandAll',
+      onAttributionUuids: [FILTER_EXTERNAL_UUID],
+    });
+    expect(externalOnly.result.count).toBe(4);
+
+    const manualOnly = await getResourceTree({
+      expandedNodes: 'expandAll',
+      onAttributionUuids: [FILTER_MANUAL_UUID],
+    });
+    expect(manualOnly.result.count).toBe(2);
+
+    const sharedSelection = await getResourceTree({
+      expandedNodes: 'expandAll',
+      onAttributionUuids: [FILTER_EXTERNAL_UUID, FILTER_MANUAL_UUID],
+    });
+    expect(sharedSelection.result.count).toBe(5);
+    expect(
+      sharedSelection.result.treeNodes.filter(
+        (node) => node.id === '/src/overlap.ts',
+      ),
+    ).toHaveLength(1);
+  });
+
+  it('distinguishes an omitted UUID filter from missing and empty selections', async () => {
+    const unrestricted = await getResourceTree({ expandedNodes: 'expandAll' });
+    expect(unrestricted.result.count).toBe(9);
+
+    for (const onAttributionUuids of [['missing-uuid'], []] satisfies Array<
+      Array<string>
+    >) {
+      const filtered = await getResourceTree({
+        expandedNodes: 'expandAll',
+        onAttributionUuids,
+      });
+      expect(filtered.result.count).toBe(0);
+      expect(filtered.result.treeNodes).toEqual([]);
+    }
+  });
+
+  it('conjoins attribution membership with search and license filters', async () => {
+    const searched = await getResourceTree({
+      expandedNodes: 'expandAll',
+      onAttributionUuids: [FILTER_EXTERNAL_UUID, FILTER_MANUAL_UUID],
+      search: 'overlap.ts',
+    });
+    expect(searched.result.count).toBe(1);
+    expect(searched.result.treeNodes.map((node) => node.id)).toContain(
+      '/src/overlap.ts',
+    );
+
+    const licensed = await getResourceTree({
+      expandedNodes: 'expandAll',
+      onAttributionUuids: [FILTER_EXTERNAL_UUID, FILTER_SECOND_EXTERNAL_UUID],
+      licenseFilter: { licenseName: 'MIT', external: true },
+    });
+    expect(licensed.result.count).toBe(4);
+    expect(licensed.result.treeNodes.map((node) => node.id)).not.toContain(
+      '/docs/folder.ts',
+    );
+  });
+
+  it('conjoins attribution membership with writable and unreviewed filters', async () => {
+    const writable = await getResourceTree({
+      expandedNodes: 'expandAll',
+      onAttributionUuids: [FILTER_EXTERNAL_UUID, FILTER_MANUAL_UUID],
+      onlyWritable: true,
+    });
+    expect(writable.result.count).toBe(4);
+    expect(writable.result.treeNodes.map((node) => node.id)).not.toContain(
+      '/src/readonly.ts',
+    );
+
+    const unreviewed = await getResourceTree({
+      expandedNodes: 'expandAll',
+      onAttributionUuids: [FILTER_EXTERNAL_UUID],
+      onlyUnreviewedFiles: true,
+    });
+    expect(unreviewed.result.count).toBe(2);
+    expect(unreviewed.result.treeNodes.map((node) => node.id)).toEqual([
+      '/',
+      '/src/',
+      '/src/external.ts',
+      '/src/writable.ts',
+    ]);
+  });
+});
+
 describe('getResourceTree', () => {
   describe('basic tree structure', () => {
     const resources: Resources = {
