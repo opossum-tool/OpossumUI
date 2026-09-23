@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { useTheme } from '@mui/material/styles';
 import {
   Bar as RcBar,
   BarChart as RcBarChart,
@@ -20,27 +21,40 @@ import {
 } from '../../shared-styles';
 import type { ChartDataItem } from '../../types/types';
 
-const tickStyle = {
-  fontFamily: 'sans-serif',
-  fontSize: '12px',
-} satisfies React.SVGProps<SVGTextElement>;
+const MARGIN_LEFT_IN_THEME_UNITS = 2;
+const MARGIN_RIGHT_IN_THEME_UNITS = 2.5;
+const MARGIN_BOTTOM_IN_THEME_UNITS = 1;
+const X_AXIS_LABEL_OFFSET_IN_THEME_UNITS = 0.75;
 
 interface BarChartProps {
   data: Array<ChartDataItem>;
 }
 
 export const BarChart: React.FC<BarChartProps> = (props) => {
+  const theme = useTheme();
+
+  const tickStyle = {
+    fontFamily: 'sans-serif',
+    fontSize: theme.typography.caption.fontSize,
+  } satisfies React.SVGProps<SVGTextElement>;
+
+  const spacingPx = (units: number): number => parseFloat(theme.spacing(units));
+
   return (
     <RcResponsiveContainer width={'100%'} height={'100%'}>
       <RcBarChart
         layout={'vertical'}
         data={props.data}
-        margin={{ left: 8, right: 10, bottom: 4 }}
+        margin={{
+          left: spacingPx(MARGIN_LEFT_IN_THEME_UNITS),
+          right: spacingPx(MARGIN_RIGHT_IN_THEME_UNITS),
+          bottom: spacingPx(MARGIN_BOTTOM_IN_THEME_UNITS),
+        }}
       >
         <RcXAxis type={'number'} tick={tickStyle}>
           <RcLabel
             value={text.projectStatisticsPopup.charts.count}
-            offset={-3}
+            offset={-spacingPx(X_AXIS_LABEL_OFFSET_IN_THEME_UNITS)}
             position={'insideBottom'}
             style={tickStyle}
           />
