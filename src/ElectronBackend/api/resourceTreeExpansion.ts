@@ -93,7 +93,7 @@ async function getVisibleChildren(
       getVisibleWithFiltersExpression({
         id: eb.ref('child.id'),
         maxDescendantId: eb.ref('child.max_descendant_id'),
-        isReadonly: eb.ref('child.is_readonly'),
+        hasEditableDescendant: eb.ref('child.has_editable_descendant'),
         inheritedMatch: eb.val<0 | 1>(inheritedMatch ? 1 : 0),
         filters,
         cacheId,
