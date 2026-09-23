@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (1.5 units = 6px handles, 0.75 units = 3px offsets) */
+import { useTheme } from '@mui/material/styles';
 import type { SxProps } from '@mui/system';
 import { Resizable, type ResizableProps } from 're-resizable';
 
@@ -18,15 +20,23 @@ export const ResizableBox: React.FC<Props> = ({
   sx,
   ...props
 }) => {
+  const theme = useTheme();
+
   return (
     <Resizable
       style={{ ...(sx as React.CSSProperties) }}
       handleWrapperStyle={{ zIndex: 4 }}
       handleStyles={{
-        right: { width: '6px', right: '-6px' }, // move outside of potential scrollbars
-        left: { width: '6px', left: '-3px' },
-        top: { height: '6px', top: 0 }, // move outside of potential scrollbars
-        bottom: { height: '6px', bottom: '-3px' },
+        right: {
+          width: theme.spacing(1.5),
+          right: `-${theme.spacing(1.5)}`,
+        }, // move outside of potential scrollbars
+        left: { width: theme.spacing(1.5), left: `-${theme.spacing(0.75)}` },
+        top: { height: theme.spacing(1.5), top: 0 }, // move outside of potential scrollbars
+        bottom: {
+          height: theme.spacing(1.5),
+          bottom: `-${theme.spacing(0.75)}`,
+        },
       }}
       ref={ref}
       enable={{

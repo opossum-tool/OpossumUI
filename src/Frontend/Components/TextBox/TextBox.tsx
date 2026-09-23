@@ -23,13 +23,13 @@ const classes = {
     width: '100%',
     '& div': {
       backgroundColor: OpossumColors.white,
-      borderRadius: '0px',
+      borderRadius: 0,
     },
     '& label[data-shrink=true]': {
       backgroundColor: OpossumColors.white,
       py: 0.25,
       px: 0.75,
-      fontSize: '13px',
+      fontSize: ({ spacing }: Theme) => spacing(3.25),
     },
     '& span': {
       p: 0,
@@ -47,13 +47,13 @@ const classes = {
     },
     '& .Mui-readOnly.Mui-focused fieldset': {
       borderColor: 'rgb(192, 192, 192)',
-      borderWidth: '1px',
+      borderWidth: ({ spacing }: Theme) => spacing(0.25),
     },
   },
   defaultHighlightedTextField: {
     '& div': {
       backgroundColor: OpossumColors.lightOrange,
-      borderRadius: '0px',
+      borderRadius: 0,
     },
     '& label[data-shrink=true]': {
       backgroundColor: OpossumColors.lightOrange,
@@ -82,7 +82,7 @@ const classes = {
     marginLeft: 0,
     mr: 2,
   },
-} satisfies SxProps;
+} satisfies SxProps<Theme>;
 
 function MultilineInput({
   maxRows,

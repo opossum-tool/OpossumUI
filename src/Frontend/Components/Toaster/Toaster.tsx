@@ -25,7 +25,8 @@ const ToastContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: theme.spacing(2),
-  width: '340px',
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 85 theme spacing units (= 340px)
+  width: theme.spacing(85),
 }));
 
 export function Toaster() {
