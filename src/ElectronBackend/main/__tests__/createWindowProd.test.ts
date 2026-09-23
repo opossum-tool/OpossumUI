@@ -28,13 +28,19 @@ vi.mock('electron', () => ({
       };
     }
   },
+  screen: {
+    getPrimaryDisplay: (): {
+      workAreaSize: { width: number; height: number };
+    } => ({
+      workAreaSize: { width: 1920, height: 1080 },
+    }),
+  },
   Menu: {
     setApplicationMenu: vi.fn(),
     buildFromTemplate: vi.fn(),
     getApplicationMenu: vi.fn(),
   },
 }));
-
 vi.mock('../iconHelpers', () => ({
   getIconPath: (): string => {
     return 'icon/path.png';
