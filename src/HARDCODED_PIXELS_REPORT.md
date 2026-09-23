@@ -290,77 +290,87 @@ The `COLUMN_WIDTHS` bucket map was already a genuinely reused constant (9 config
 | `src/Frontend/Components/ReportTableHeader/ReportTableHeader.tsx:18` | 18     | `headerRow.boxShadow`                       | `'0px 2px 1px -1px ...'`               | header row elevation shadow geometry                                                                    | `theme.shadows[1]` (= MUI elevation-1; verified byte-equal geometry — `createShadow(0,2,1,-1,...)`) — only insignificant whitespace after commas differs                                                                  | —                                                    |
 | `src/Frontend/Components/ReportTableHeader/ReportTableHeader.tsx:21` | 21     | `borderRight`                               | `1px solid ...`                        | header cell border                                                                                      | `spacing(0.25)` solid (= 1px) value callback                                                                                                                                                                              |
 
-Both files now carry justified file-level `no-magic-numbers` disables (0.25/0.5/3.75 unit args plus the 4-baseline math); the previous line-level comment was absorbed. `Icons.tsx`'s `IconProps.sx` was upgraded from bare `SxProps` to `SxProps<Theme>` so the callback-valued class members typecheck inside the spread icon styles. — |
+Both files now carry justified file-level `no-magic-numbers` disables (0.25/0.5/3.75 unit args plus the 4-baseline math); the previous line-level comment was absorbed. `Icons.tsx`'s `IconProps.sx` was upgraded from bare `SxProps` to `SxProps<Theme>` so the callback-valued class members typecheck inside the spread icon styles.
 
-### ResizePanels
+### _DONE_ ResizePanels
 
-| File                                                             | Line  | Property                                       | Value         | Determines                   |
-| ---------------------------------------------------------------- | ----- | ---------------------------------------------- | ------------- | ---------------------------- |
-| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:15`  | 15    | `HEADER_HEIGHT`                                | `32`          | panel header height          |
-| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:19`  | 19–22 | button `width`/`minWidth`/`height`/`minHeight` | `'24px'` each | header icon button size      |
-| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:56`  | 56    | `Search.height`                                | `'24px'`      | search field height          |
-| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:101` | 101   | `StyledInputBase.maxWidth`                     | `'144px'`     | search input max width       |
-| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:102` | 102   | `StyledInputBase.height`                       | `'24px'`      | search input height          |
-| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:111` | 111   | input `width`                                  | `'120px'`     | collapsed search input width |
-| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:113` | 113   | input `width` (focused)                        | `'120px'`     | focused search input width   |
+CSS values converted via the theme spacing scale in `styled()` theme callbacks (exact mapping, 4px unit: 6 = 24px, 30 = 120px, 36 = 144px; file-level `no-magic-numbers` disable already present). `HEADER_HEIGHT = 32` is deliberately kept as a px constant — it feeds pixel arithmetic in `ResizePanels.tsx` (`effectiveHeight <= HEADER_HEIGHT`, `containerHeight - HEADER_HEIGHT - 1`) and a numeric `minHeight` system prop; the CSS `Header` height/minHeight stay derived from it, so converting it to spacing units would desynchronize the collapse logic from the layout (same behavioral-constant category as `INFINITE_LIST_BOTTOM_OVERSCAN` / `REPORT_VIEW_ROW_HEIGHT`):
 
-### ResizableBox
+| File                                                             | Line  | Property                                       | Value         | Determines                   | Converted to                                                   |
+| ---------------------------------------------------------------- | ----- | ---------------------------------------------- | ------------- | ---------------------------- | -------------------------------------------------------------- |
+| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:15`  | 15    | `HEADER_HEIGHT`                                | `32`          | panel header height          | — kept (px behavioral constant, see note above)                |
+| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:19`  | 19–22 | button `width`/`minWidth`/`height`/`minHeight` | `'24px'` each | header icon button size      | `theme.spacing(6)` (object styled converted to theme callback) |
+| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:56`  | 56    | `Search.height`                                | `'24px'`      | search field height          | `theme.spacing(6)`                                             |
+| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:101` | 101   | `StyledInputBase.maxWidth`                     | `'144px'`     | search input max width       | `theme.spacing(36)`                                            |
+| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:102` | 102   | `StyledInputBase.height`                       | `'24px'`      | search input height          | `theme.spacing(6)`                                             |
+| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:111` | 111   | input `width`                                  | `'120px'`     | collapsed search input width | `value ? theme.spacing(30) : '0px'`                            |
+| `src/Frontend/Components/ResizePanels/ResizePanels.style.ts:113` | 113   | input `width` (focused)                        | `'120px'`     | focused search input width   | `theme.spacing(30)`                                            |
 
-| File                                                       | Line | Property                        | Value              | Determines                    |
-| ---------------------------------------------------------- | ---- | ------------------------------- | ------------------ | ----------------------------- |
-| `src/Frontend/Components/ResizableBox/ResizableBox.tsx:26` | 26   | right handle `width`/`right`    | `'6px'` / `'-6px'` | resize handle size and offset |
-| `src/Frontend/Components/ResizableBox/ResizableBox.tsx:27` | 27   | left handle `width`/`left`      | `'6px'` / `'-3px'` | resize handle size and offset |
-| `src/Frontend/Components/ResizableBox/ResizableBox.tsx:28` | 28   | top handle `height`             | `'6px'`            | resize handle size            |
-| `src/Frontend/Components/ResizableBox/ResizableBox.tsx:29` | 29   | bottom handle `height`/`bottom` | `'6px'` / `'-3px'` | resize handle size and offset |
+### _DONE_ ResizableBox
 
-### SelectMenu
+Handle styles are plain-CSS objects (re-resizable `handleStyles` props, not sx), so values resolve via `useTheme()`; the off-lattice unit args carry a justified file-level `no-magic-numbers` disable. Exact scaling (4px unit: 1.5 units = 6px handle thickness, 0.75 units = 3px handle offset; the latter passed negated via `-${theme.spacing(0.75)}`):
 
-| File                                                          | Line  | Property                         | Value                 | Determines                                                                                                                                                                           |
-| ------------------------------------------------------------- | ----- | -------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:47`  | 47    | `filter` drop-shadow             | `0px 2px 8px ...`     | paper shadow geometry                                                                                                                                                                |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:55`  | 55    | anchor arrow `left`              | `'24px'`              | anchor arrow horizontal offset                                                                                                                                                       |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:56`  | 56    | anchor arrow `right`             | `'calc(100% - 24px)'` | anchor arrow horizontal offset (right-anchored variant)                                                                                                                              |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:59`  | 59–60 | anchor arrow `width`/`height`    | `10` / `10`           | anchor arrow size                                                                                                                                                                    |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:92`  | 92–93 | `StyledCheckIcon width`/`height` | `'20px'` / `'20px'`   | check icon size                                                                                                                                                                      |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:103` | 103   | `MenuItemContainer.height`       | `'38px'`              | menu item row height                                                                                                                                                                 |
-| `src/Frontend/Components/SelectMenu/SelectMenu.tsx:110`       | 110   | `ListItemIcon minWidth`          | `'19px !important'`   | see below: converted to the shared `AUDITING_OPTION_ICON_THEME_SIZE` token (see _DONE_ AuditingOptions); `!important` kept to keep overriding MUI's default `ListItemIcon` min-width |
+| File                                                       | Line  | Property                        | Value              | Determines                    | Converted to                                     |
+| ---------------------------------------------------------- | ----- | ------------------------------- | ------------------ | ----------------------------- | ------------------------------------------------ |
+| `src/Frontend/Components/ResizableBox/ResizableBox.tsx:31` | 31–32 | right handle `width`/`right`    | `'6px'` / `'-6px'` | resize handle size and offset | `theme.spacing(1.5)` / `-${theme.spacing(1.5)}`  |
+| `src/Frontend/Components/ResizableBox/ResizableBox.tsx:34` | 34    | left handle `width`/`left`      | `'6px'` / `'-3px'` | resize handle size and offset | `theme.spacing(1.5)` / `-${theme.spacing(0.75)}` |
+| `src/Frontend/Components/ResizableBox/ResizableBox.tsx:35` | 35    | top handle `height`             | `'6px'`            | resize handle size            | `theme.spacing(1.5)`                             |
+| `src/Frontend/Components/ResizableBox/ResizableBox.tsx:38` | 38    | bottom handle `height`/`bottom` | `'6px'` / `'-3px'` | resize handle size and offset | `theme.spacing(1.5)` / `-${theme.spacing(0.75)}` |
 
-### SortButton
+### _DONE_ SelectMenu
 
-| File                                                    | Line | Property           | Value | Determines          |
-| ------------------------------------------------------- | ---- | ------------------ | ----- | ------------------- |
-| `src/Frontend/Components/SortButton/SortButton.tsx:116` | 116  | `SelectMenu width` | `200` | sort dropdown width |
+All px values converted via the theme spacing scale; the inner `styled()` base component (menu paper/arrow) resolves the values through `useTheme()` (its slotProps sx objects cannot reach a `theme` hook otherwise), the icon/component callbacks destructure `theme` directly (the file already carries a file-level `no-magic-numbers` disable). Exact mapping (4px unit): 0.5 = 2px, 2 = 8px, 2.5 = 10px, 5 = 20px, 6 = 24px, 9.5 = 38px; the `center: '50%'` variant is a percentage (out of pixel scope). The `SelectMenu.tsx` row was converted in the AuditingOptions pass (shared `AUDITING_OPTION_ICON_THEME_SIZE` token):
 
-### SwitchableProgressBar
+| File                                                          | Line  | Property                         | Value                 | Determines                                                                                                                                                                           | Converted to                                                                          |
+| ------------------------------------------------------------- | ----- | -------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:50`  | 50    | `filter` drop-shadow             | `0px 2px 8px ...`     | paper shadow geometry                                                                                                                                                                | `drop-shadow(0px ${spacing(0.5)} ${spacing(2)} rgba(0, 0, 0, 0.32))` template literal |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:58`  | 58    | anchor arrow `left`              | `'24px'`              | anchor arrow horizontal offset                                                                                                                                                       | `theme.spacing(6)` (= 24px)                                                           |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:59`  | 59    | anchor arrow `right`             | `'calc(100% - 24px)'` | anchor arrow horizontal offset (right-anchored variant)                                                                                                                              | `calc(100% - ${theme.spacing(6)})`                                                    |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:62`  | 62–63 | anchor arrow `width`/`height`    | `10` / `10`           | anchor arrow size                                                                                                                                                                    | `theme.spacing(2.5)` (= 10px) values                                                  |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:95`  | 95–96 | `StyledCheckIcon width`/`height` | `'20px'` / `'20px'`   | check icon size                                                                                                                                                                      | `theme.spacing(5)` (= 20px); `theme` destructured in the `visible` callback           |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:107` | 107   | `MenuItemContainer.height`       | `'38px'`              | menu item row height                                                                                                                                                                 | `theme.spacing(9.5)` (= 38px)                                                         |
+| `src/Frontend/Components/SelectMenu/SelectMenu.tsx:110`       | 110   | `ListItemIcon minWidth`          | `'19px !important'`   | see below: converted to the shared `AUDITING_OPTION_ICON_THEME_SIZE` token (see _DONE_ AuditingOptions); `!important` kept to keep overriding MUI's default `ListItemIcon` min-width | already converted (shared size token, see note above)                                 |
 
-| File                                                                         | Line | Property | Value     | Determines         |
-| ---------------------------------------------------------------------------- | ---- | -------- | --------- | ------------------ |
-| `src/Frontend/Components/SwitchableProgressBar/SwitchableProgressBar.tsx:28` | 28   | `width`  | `'150px'` | progress bar width |
+### _DONE_ SortButton
 
-### TextBox
+| File                                                    | Line | Property           | Value | Determines          | Converted to                                   |
+| ------------------------------------------------------- | ---- | ------------------ | ----- | ------------------- | ---------------------------------------------- |
+| `src/Frontend/Components/SortButton/SortButton.tsx:119` | 119  | `SelectMenu width` | `200` | sort dropdown width | `theme.spacing(50)` via `useTheme()` (= 200px) |
 
-| File                                             | Line | Property                         | Value    | Determines            |
-| ------------------------------------------------ | ---- | -------------------------------- | -------- | --------------------- |
-| `src/Frontend/Components/TextBox/TextBox.tsx:26` | 26   | input `borderRadius`             | `'0px'`  | input corner (square) |
-| `src/Frontend/Components/TextBox/TextBox.tsx:32` | 32   | label `fontSize`                 | `'13px'` | floating label font   |
-| `src/Frontend/Components/TextBox/TextBox.tsx:50` | 50   | focused fieldset `borderWidth`   | `'1px'`  | focus outline width   |
-| `src/Frontend/Components/TextBox/TextBox.tsx:56` | 56   | highlighted input `borderRadius` | `'0px'`  | input corner (square) |
+### _DONE_ SwitchableProgressBar
 
-### Toaster
+| File                                                                         | Line | Property | Value     | Determines         | Converted to                                                                     |
+| ---------------------------------------------------------------------------- | ---- | -------- | --------- | ------------------ | -------------------------------------------------------------------------------- |
+| `src/Frontend/Components/SwitchableProgressBar/SwitchableProgressBar.tsx:30` | 30   | `width`  | `'150px'` | progress bar width | `spacing(37.5)` (= 150px) value callback in `classes.select` (justified disable) |
 
-| File                                             | Line | Property | Value     | Determines            |
-| ------------------------------------------------ | ---- | -------- | --------- | --------------------- |
-| `src/Frontend/Components/Toaster/Toaster.tsx:28` | 28   | `width`  | `'340px'` | toast container width |
+### _DONE_ TextBox
 
-### TopBar
+Values converted via sx value callbacks in `classes` (`({ spacing }: Theme) => spacing(...)`; the object is now `satisfies SxProps<Theme>`, matching the file's existing @mui/system `Theme` typing; file-level `no-magic-numbers` disable already present). Exact mapping (4px unit): 0.25 = 1px, 3.25 = 13px. The two `borderRadius: '0px'` rows became unitless `borderRadius: 0` (zero is the lattice's 0; the square-corner semantics are intentional and the CSS is unchanged):
 
-| File                                           | Line  | Property                        | Value               | Determines                                      |
-| ---------------------------------------------- | ----- | ------------------------------- | ------------------- | ----------------------------------------------- |
-| `src/Frontend/Components/TopBar/TopBar.tsx:28` | 28    | `root.height`                   | `'36px'`            | top bar height                                  |
-| `src/Frontend/Components/TopBar/TopBar.tsx:33` | 33–34 | open-file icon `width`/`height` | `'18px'` / `'18px'` | open-file icon box (does not fill the 36px bar) |
-| `src/Frontend/Components/TopBar/TopBar.tsx:50` | 50    | `viewButtons.width`             | `'80px'`            | Audit/Report toggle button width                |
-| `src/Frontend/Components/TopBar/TopBar.tsx:53` | 53    | `viewButtons.border`            | `2px ... solid`     | toggle button outline width                     |
-| `src/Frontend/Components/TopBar/TopBar.tsx:60` | 60    | selected toggle `border`        | `2px ... solid`     | selected toggle outline width                   |
+| File                                             | Line | Property                         | Value    | Determines            | Converted to                                            |
+| ------------------------------------------------ | ---- | -------------------------------- | -------- | --------------------- | ------------------------------------------------------- |
+| `src/Frontend/Components/TextBox/TextBox.tsx:26` | 26   | input `borderRadius`             | `'0px'`  | input corner (square) | converted to unitless `borderRadius: 0` (identical CSS) |
+| `src/Frontend/Components/TextBox/TextBox.tsx:32` | 32   | label `fontSize`                 | `'13px'` | floating label font   | `spacing(3.25)` (= 13px) value callback                 |
+| `src/Frontend/Components/TextBox/TextBox.tsx:50` | 50   | focused fieldset `borderWidth`   | `'1px'`  | focus outline width   | `spacing(0.25)` (= 1px) value callback                  |
+| `src/Frontend/Components/TextBox/TextBox.tsx:56` | 56   | highlighted input `borderRadius` | `'0px'`  | input corner (square) | converted to unitless `borderRadius: 0` (identical CSS) |
+
+### _DONE_ Toaster
+
+| File                                             | Line | Property | Value     | Determines            | Converted to                                                                  |
+| ------------------------------------------------ | ---- | -------- | --------- | --------------------- | ----------------------------------------------------------------------------- |
+| `src/Frontend/Components/Toaster/Toaster.tsx:29` | 29   | `width`  | `'340px'` | toast container width | `theme.spacing(85)` (= 340px) value callback, justified disable (85-unit arg) |
+
+### _DONE_ TopBar
+
+All values converted via sx value callbacks in `classes` (`({ spacing }: Theme) => spacing(...)`, `as const satisfies SxProps<Theme>`), with a justified file-level `no-magic-numbers` disable. Exact mapping (4px unit): 4.5 = 18px, 9 = 36px, 20 = 80px, 0.5 = 2px:
+
+| File                                           | Line  | Property                        | Value               | Determines                                      | Converted to                                 |
+| ---------------------------------------------- | ----- | ------------------------------- | ------------------- | ----------------------------------------------- | -------------------------------------------- |
+| `src/Frontend/Components/TopBar/TopBar.tsx:31` | 31    | `root.height`                   | `'36px'`            | top bar height                                  | `spacing(9)` (= 36px) value callback         |
+| `src/Frontend/Components/TopBar/TopBar.tsx:36` | 36–37 | open-file icon `width`/`height` | `'18px'` / `'18px'` | open-file icon box (does not fill the 36px bar) | `spacing(4.5)` (= 18px) value callbacks      |
+| `src/Frontend/Components/TopBar/TopBar.tsx:53` | 53    | `viewButtons.width`             | `'80px'`            | Audit/Report toggle button width                | `spacing(20)` (= 80px) value callback        |
+| `src/Frontend/Components/TopBar/TopBar.tsx:56` | 56    | `viewButtons.border`            | `2px ... solid`     | toggle button outline width                     | `${spacing(0.5)} ... solid` (= 2px) callback |
+| `src/Frontend/Components/TopBar/TopBar.tsx:64` | 64    | selected toggle `border`        | `2px ... solid`     | selected toggle outline width                   | `${spacing(0.5)} ... solid` (= 2px) callback |
 
 ### ValidationDisplay
 

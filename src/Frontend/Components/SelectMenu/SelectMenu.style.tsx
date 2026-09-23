@@ -7,7 +7,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import MuiBox from '@mui/material/Box';
 import MuiMenu, { type MenuProps as MuiMenuProps } from '@mui/material/Menu';
 import MuiMenuItem from '@mui/material/MenuItem';
-import { styled } from '@mui/material/styles';
+import { styled, useTheme } from '@mui/material/styles';
 
 import { OpossumColors } from '../../shared-styles';
 
@@ -28,46 +28,50 @@ export const StyledMenu = styled(
     anchorArrow?: boolean;
     anchorPosition: 'left' | 'right' | 'center';
     width?: string | number;
-  }) => (
-    <MuiMenu
-      elevation={0}
-      transformOrigin={{ horizontal: anchorPosition, vertical: 'top' }}
-      anchorOrigin={{ horizontal: anchorPosition, vertical: 'bottom' }}
-      slotProps={{
-        list: {
-          variant: 'menu' as const,
-          sx: { padding: 0, overflow: 'hidden' },
-        },
-        paper: {
-          elevation: 2,
-          sx: {
-            width,
-            ...(anchorArrow && {
-              overflow: 'visible',
-              filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-              mt: 1,
-              '&:before': {
-                content: '""',
-                display: 'block',
-                position: 'absolute',
-                top: 0,
-                left: {
-                  left: '24px',
-                  right: 'calc(100% - 24px)',
-                  center: '50%',
-                }[anchorPosition],
-                width: 10,
-                height: 10,
-                bgcolor: 'background.paper',
-                transform: 'translateY(-50%) rotate(45deg)',
-              },
-            }),
+  }) => {
+    const theme = useTheme();
+
+    return (
+      <MuiMenu
+        elevation={0}
+        transformOrigin={{ horizontal: anchorPosition, vertical: 'top' }}
+        anchorOrigin={{ horizontal: anchorPosition, vertical: 'bottom' }}
+        slotProps={{
+          list: {
+            variant: 'menu' as const,
+            sx: { padding: 0, overflow: 'hidden' },
           },
-        },
-      }}
-      {...props}
-    />
-  ),
+          paper: {
+            elevation: 2,
+            sx: {
+              width,
+              ...(anchorArrow && {
+                overflow: 'visible',
+                filter: `drop-shadow(0px ${theme.spacing(0.5)} ${theme.spacing(2)} rgba(0, 0, 0, 0.32))`,
+                mt: 1,
+                '&:before': {
+                  content: '""',
+                  display: 'block',
+                  position: 'absolute',
+                  top: 0,
+                  left: {
+                    left: theme.spacing(6),
+                    right: `calc(100% - ${theme.spacing(6)})`,
+                    center: '50%',
+                  }[anchorPosition],
+                  width: theme.spacing(2.5),
+                  height: theme.spacing(2.5),
+                  bgcolor: 'background.paper',
+                  transform: 'translateY(-50%) rotate(45deg)',
+                },
+              }),
+            },
+          },
+        }}
+        {...props}
+      />
+    );
+  },
 )(({ theme, anchorArrow }) => ({
   marginTop: theme.spacing(anchorArrow ? 2 : 1),
 }));
@@ -88,9 +92,9 @@ export const StyledCheckIcon = styled(CheckIcon, {
   shouldForwardProp: (name: string) => !['visible'].includes(name),
 })<{
   visible: boolean;
-}>(({ visible }) => ({
-  width: '20px',
-  height: '20px',
+}>(({ theme, visible }) => ({
+  width: theme.spacing(5),
+  height: theme.spacing(5),
   visibility: visible ? 'visible' : 'hidden',
 }));
 
@@ -100,6 +104,6 @@ export const MenuItemContainer = styled(MuiBox)(({ theme }) => ({
   alignItems: 'center',
   paddingRight: theme.spacing(4.25),
   paddingLeft: theme.spacing(3),
-  height: '38px',
+  height: theme.spacing(9.5),
   width: '100%',
 }));

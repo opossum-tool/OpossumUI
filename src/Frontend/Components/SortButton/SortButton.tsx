@@ -5,6 +5,7 @@
 import SortIcon from '@mui/icons-material/Sort';
 import MuiBadge from '@mui/material/Badge';
 import MuiIconButton from '@mui/material/IconButton';
+import { useTheme } from '@mui/material/styles';
 import MuiTooltip from '@mui/material/Tooltip';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -32,6 +33,7 @@ export const SortButton: React.FC<Props> = ({
   anchorPosition,
   disabled,
 }) => {
+  const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
   const [{ sorting }, setFilteredAttributions] = useFilteredData();
 
@@ -113,7 +115,8 @@ export const SortButton: React.FC<Props> = ({
         anchorPosition={anchorPosition}
         options={sortingOptions}
         setAnchorEl={setAnchorEl}
-        width={200}
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 50 theme spacing units (= 200px)
+        width={theme.spacing(50)}
       />
     </>
   );

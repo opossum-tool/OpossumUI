@@ -14,18 +14,18 @@ import { OpossumColors, TRANSITION } from '../../shared-styles';
 
 export const HEADER_HEIGHT = 32;
 
-export const HeaderIconButton = styled(MuiFab)({
+export const HeaderIconButton = styled(MuiFab)(({ theme }) => ({
   boxShadow: 'none',
-  width: '24px',
-  minWidth: '24px',
-  height: '24px',
-  minHeight: '24px',
+  width: theme.spacing(6),
+  minWidth: theme.spacing(6),
+  height: theme.spacing(6),
+  minHeight: theme.spacing(6),
   backgroundColor: alpha(OpossumColors.white, 0.15),
   '&:hover': {
     backgroundColor: alpha(OpossumColors.white, 0.25),
   },
   transition: TRANSITION,
-});
+}));
 
 export const Header = styled(MuiPaper)(({ theme }) => ({
   background: OpossumColors.middleBlue,
@@ -53,7 +53,7 @@ export const HeaderText = styled(MuiTypography)(({ theme }) => ({
 export const Search = styled('div')<{ hasValue: boolean }>(
   ({ theme, hasValue }) => ({
     position: 'relative',
-    height: '24px',
+    height: theme.spacing(6),
     width: 'auto',
     display: 'flex',
     alignItems: 'center',
@@ -98,8 +98,8 @@ export const ClearButton = styled(ClearIcon)(({ theme }) => ({
 
 export const StyledInputBase = styled(MuiInputBase)(({ theme, value }) => ({
   color: 'white',
-  maxWidth: '144px',
-  height: '24px',
+  maxWidth: theme.spacing(36),
+  height: theme.spacing(6),
   '& input[type=search]::-webkit-search-cancel-button': { display: 'none' },
   '& .MuiInputBase-input': {
     overflow: 'hidden',
@@ -108,9 +108,9 @@ export const StyledInputBase = styled(MuiInputBase)(({ theme, value }) => ({
     paddingRight: value ? theme.spacing(6) : '0px',
     paddingLeft: theme.spacing(6),
     transition: TRANSITION,
-    width: value ? '120px' : '0px',
+    width: value ? theme.spacing(30) : '0px',
     '&:focus': {
-      width: '120px',
+      width: theme.spacing(30),
     },
   },
 }));
