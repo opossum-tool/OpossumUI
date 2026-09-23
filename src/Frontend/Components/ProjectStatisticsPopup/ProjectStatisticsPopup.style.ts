@@ -10,7 +10,7 @@ import { OpossumColors } from '../../shared-styles';
 
 export const ChartCard = styled(MuiPaper)(({ theme }) => ({
   backgroundColor: OpossumColors.lightestBlue,
-  borderRadius: '10px',
+  borderRadius: theme.spacing(2.5),
   padding: theme.spacing(3),
   display: 'flex',
   flexDirection: 'column',

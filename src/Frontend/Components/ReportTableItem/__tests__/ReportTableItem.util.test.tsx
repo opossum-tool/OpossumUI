@@ -13,7 +13,7 @@ describe('The table helpers', () => {
     const testTableConfig: TableConfig = {
       attributionProperty: 'attributionConfidence',
       displayName: 'confidence',
-      width: '100px',
+      width: 25,
     };
     const testAttributionInfo: PackageInfo = {
       resources: ['a', 'b'],
@@ -27,7 +27,7 @@ describe('The table helpers', () => {
     const testTableConfig: TableConfig = {
       attributionProperty: 'firstParty',
       displayName: 'First Party',
-      width: '100px',
+      width: 25,
     };
     const testAttributionInfo1: PackageInfo = {
       firstParty: true,
@@ -67,7 +67,7 @@ describe('The table helpers', () => {
       const testTableConfig: TableConfig = {
         attributionProperty: 'followUp',
         displayName: 'Follow-up',
-        width: '100px',
+        width: 25,
       };
 
       const testAttributionInfo: PackageInfo = {

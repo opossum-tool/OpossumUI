@@ -6,9 +6,11 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import HomeIcon from '@mui/icons-material/Home';
+import type { SxProps } from '@mui/material';
 import MuiBreadcrumbs from '@mui/material/Breadcrumbs';
 import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
+import type { Theme } from '@mui/material/styles';
 import { compact, uniq } from 'lodash-es';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
@@ -31,6 +33,8 @@ import { usePrevious } from '../../util/use-previous';
 import { GoToLinkButton } from '../GoToLinkButton/GoToLinkButton';
 import { IconButton } from '../IconButton/IconButton';
 
+const PATH_BAR_MIN_HEIGHT_IN_THEME_UNITS = 6;
+
 const classes = {
   root: {
     zIndex: 4,
@@ -38,10 +42,11 @@ const classes = {
     gap: 2,
     display: 'flex',
     alignItems: 'center',
-    minHeight: '24px',
+    minHeight: ({ spacing }: Theme) =>
+      spacing(PATH_BAR_MIN_HEIGHT_IN_THEME_UNITS),
     background: OpossumColors.white,
   },
-};
+} satisfies SxProps<Theme>;
 
 export function PathBar() {
   const selectedResourceId = useAppSelector(getSelectedResourceId);

@@ -2,10 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing values (0.25 = 1px borders, 0.5 = 2px rings, 3.75 = 15px icons) and the 4px baseline math for the Virtuoso row-height constant */
 import EditorIcon from '@mui/icons-material/Edit';
 import { type SxProps, TableCell } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiLink from '@mui/material/Link';
+import type { Theme } from '@mui/material/styles';
 import MuiTypography from '@mui/material/Typography';
 import { skipToken } from '@tanstack/react-query';
 import { Fragment } from 'react';
@@ -40,7 +42,6 @@ import { getFormattedCellData } from './ReportTableItem.util';
 
 export const REPORT_VIEW_ROW_HEIGHT = 150;
 const PADDING = 2.5;
-// eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 4px theme spacing baseline
 const PADDING_PX = 4 * PADDING;
 
 const classes = {
@@ -48,7 +49,7 @@ const classes = {
     overflow: 'auto',
     whiteSpace: 'pre-line',
     padding: PADDING,
-    height: `${REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX}px`,
+    height: REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX,
   },
   bold: {
     fontWeight: 'bold',
@@ -56,7 +57,7 @@ const classes = {
   iconTableData: {
     py: PADDING,
     px: 1.75,
-    height: `${REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX}px`,
+    height: REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX,
     display: 'flex',
     flexDirection: 'column',
     gap: 1,
@@ -69,45 +70,55 @@ const classes = {
     background: '#e3e3e3',
   },
   borders: {
-    borderRight: `1px solid ${OpossumColors.mediumGrey}`,
-    borderBottom: `1px solid ${OpossumColors.mediumGrey}`,
+    borderRight: ({ spacing }: Theme) =>
+      `${spacing(0.25)} solid ${OpossumColors.mediumGrey}`,
+    borderBottom: ({ spacing }: Theme) =>
+      `${spacing(0.25)} solid ${OpossumColors.mediumGrey}`,
   },
   icon: {
-    width: '15px',
-    height: '15px',
+    width: ({ spacing }: Theme) => spacing(3.75),
+    height: ({ spacing }: Theme) => spacing(3.75),
   },
   editIcon: {
     backgroundColor: OpossumColors.white,
-    border: `2px ${OpossumColors.brown} solid`,
+    border: ({ spacing }: Theme) =>
+      `${spacing(0.5)} ${OpossumColors.brown} solid`,
     color: OpossumColors.brown,
   },
   firstPartyIcon: {
-    border: `2px ${OpossumColors.darkBlue} solid`,
+    border: ({ spacing }: Theme) =>
+      `${spacing(0.5)} ${OpossumColors.darkBlue} solid`,
   },
   commentIcon: {
-    border: `2px ${OpossumColors.black} solid`,
+    border: ({ spacing }: Theme) =>
+      `${spacing(0.5)} ${OpossumColors.black} solid`,
     color: OpossumColors.black,
   },
   followUpIcon: {
-    border: `2px ${OpossumColors.red} solid`,
+    border: ({ spacing }: Theme) =>
+      `${spacing(0.5)} ${OpossumColors.red} solid`,
   },
   needsReviewIcon: {
-    border: `2px ${OpossumColors.orange} solid`,
+    border: ({ spacing }: Theme) =>
+      `${spacing(0.5)} ${OpossumColors.orange} solid`,
   },
   excludeFromNoticeIcon: {
-    border: `2px ${OpossumColors.grey} solid`,
+    border: ({ spacing }: Theme) =>
+      `${spacing(0.5)} ${OpossumColors.grey} solid`,
   },
   preSelectedIcon: {
-    border: `2px ${OpossumColors.darkBlue} solid`,
+    border: ({ spacing }: Theme) =>
+      `${spacing(0.5)} ${OpossumColors.darkBlue} solid`,
   },
   preferredIcon: {
-    border: `2px ${OpossumColors.mediumOrange} solid`,
+    border: ({ spacing }: Theme) =>
+      `${spacing(0.5)} ${OpossumColors.mediumOrange} solid`,
   },
   markedTableCell: {
     backgroundColor: OpossumColors.lightOrange,
   },
   clickableIcon,
-} satisfies SxProps;
+} as const satisfies SxProps<Theme>;
 
 interface ReportTableItemProps {
   packageInfo: PackageInfo;
@@ -155,8 +166,8 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
           config.attributionProperty === 'id' ? packageInfo.id : undefined
         }
         sx={{
-          minWidth: config.width,
-          maxWidth: config.width,
+          minWidth: ({ spacing }) => spacing(config.width),
+          maxWidth: ({ spacing }) => spacing(config.width),
           ...classes.borders,
           ...classes.tableCell,
           ...(config.attributionProperty === 'id'

@@ -2,9 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (0.5 units = 2px border, 5 units = 20px height) */
 import CircleIcon from '@mui/icons-material/Circle';
 import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import type { Theme } from '@mui/material/styles';
 import MuiTooltip from '@mui/material/Tooltip';
 import Box from '@mui/system/Box';
 import { useRef } from 'react';
@@ -28,12 +30,13 @@ import {
 const classes = {
   bar: {
     flex: 1,
-    border: `2px solid ${OpossumColors.white}`,
+    border: ({ spacing }: Theme) =>
+      `${spacing(0.5)} solid ${OpossumColors.white}`,
     mt: 0.5,
-    height: '20px',
+    height: ({ spacing }: Theme) => spacing(5),
     '&:hover': { cursor: 'pointer', opacity: 0.75 },
   },
-};
+} satisfies SxProps<Theme>;
 
 interface ProgressBarProps {
   sx?: SxProps;
