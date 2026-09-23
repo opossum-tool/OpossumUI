@@ -2,7 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (3.25 units = 13px head font, 2.75 units = 11px body font) */
+import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import type { Theme } from '@mui/material/styles';
 import MuiTable from '@mui/material/Table';
 import MuiTableBody from '@mui/material/TableBody';
 import MuiTableCell from '@mui/material/TableCell';
@@ -16,13 +19,13 @@ import { backend } from '../../util/backendClient';
 
 const projectMetadataTableClasses = {
   firstColumn: {
-    fontSize: 13,
+    fontSize: ({ spacing }: Theme) => spacing(3.25),
     background: OpossumColors.darkBlue,
     color: OpossumColors.white,
     width: 'max-content',
   },
   secondColumn: {
-    fontSize: 11,
+    fontSize: ({ spacing }: Theme) => spacing(2.75),
     background: OpossumColors.lightestBlue,
     width: 'max-content',
     overflow: 'auto',
@@ -32,7 +35,7 @@ const projectMetadataTableClasses = {
     width: 'max-content',
     marginBottom: 6,
   },
-};
+} satisfies SxProps<Theme>;
 
 const values: { [key: string]: { title: string; date: boolean } } = {
   buildDate: { title: 'Build Date', date: true },

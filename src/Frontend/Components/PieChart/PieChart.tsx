@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { useTheme } from '@mui/material/styles';
+import { type Theme, useTheme } from '@mui/material/styles';
 import {
   Cell as RcCell,
   Legend as RcLegend,
@@ -19,6 +19,11 @@ import {
 } from '../../shared-styles';
 import type { ChartDataItem } from '../../types/types';
 
+const LEGEND_SWATCH_RADIUS_IN_THEME_UNITS = 1.5;
+const LEGEND_SWATCH_SIZE_IN_THEME_UNITS = 3;
+const PIE_RADIUS_IN_THEME_UNITS = 17.5;
+const LEGEND_WIDTH_IN_THEME_UNITS = 62.5;
+
 const defaultPieChartColors = [
   OpossumColors.darkBlue,
   'hsl(220, 41%, 60%)',
@@ -28,21 +33,16 @@ const defaultPieChartColors = [
   OpossumColors.brown,
 ];
 
-const legendTextStyle: React.CSSProperties = {
-  fontFamily: 'sans-serif',
-  fontSize: '12px',
-  width: '95%',
-};
-
 function getLegendIconStyle(
+  theme: Theme,
   backgroundColor: string,
   marginRight: React.CSSProperties['marginRight'],
 ): React.CSSProperties {
   return {
     backgroundColor,
-    borderRadius: '6px',
-    height: '12px',
-    width: '12px',
+    borderRadius: theme.spacing(LEGEND_SWATCH_RADIUS_IN_THEME_UNITS),
+    height: theme.spacing(LEGEND_SWATCH_SIZE_IN_THEME_UNITS),
+    width: theme.spacing(LEGEND_SWATCH_SIZE_IN_THEME_UNITS),
     marginRight,
   };
 }
@@ -54,6 +54,15 @@ interface PieChartProps {
 
 export const PieChart: React.FC<PieChartProps> = (props) => {
   const theme = useTheme();
+
+  const spacingPx = (units: number): number => parseFloat(theme.spacing(units));
+
+  const legendTextStyle: React.CSSProperties = {
+    fontFamily: 'sans-serif',
+    fontSize: theme.typography.caption.fontSize,
+    width: '95%',
+  };
+
   const pieChartColors = props.segments.map(
     ({ name }, i) =>
       props.colorMap?.[name] ??
@@ -72,7 +81,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           dataKey="count"
           nameKey="name"
           minAngle={15}
-          outerRadius={70}
+          outerRadius={spacingPx(PIE_RADIUS_IN_THEME_UNITS)}
           isAnimationActive={false}
           stroke="none"
         >
@@ -99,6 +108,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
                   <div style={{ display: 'flex' }} key={`item-${index}`}>
                     <div
                       style={getLegendIconStyle(
+                        theme,
                         entry.color ?? '',
                         theme.spacing(1),
                       )}
@@ -111,7 +121,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           verticalAlign="middle"
           align="right"
           layout="vertical"
-          width={250}
+          width={spacingPx(LEGEND_WIDTH_IN_THEME_UNITS)}
         />
       </RcPieChart>
     </RcResponsiveContainer>

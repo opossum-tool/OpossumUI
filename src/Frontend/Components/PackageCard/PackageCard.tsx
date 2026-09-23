@@ -20,6 +20,8 @@ import { Checkbox } from '../Checkbox/Checkbox';
 import { ReadonlyIcon } from '../Icons/Icons';
 import { getRightIcons } from './PackageCard.util';
 
+const OCCURRENCE_CHIP_MIN_WIDTH_IN_THEME_UNITS = 6;
+
 const PACKAGE_CARD_HEIGHT = 40;
 // package card + divider
 export const PACKAGE_CARD_LIST_ITEM_HEIGHT = PACKAGE_CARD_HEIGHT + 1;
@@ -94,6 +96,11 @@ const classes = {
     gridTemplateRows: '1fr 1fr',
     gridAutoFlow: 'column',
     direction: 'rtl',
+  },
+  occurrenceChip: {
+    minWidth: ({ spacing }: Theme) =>
+      spacing(OCCURRENCE_CHIP_MIN_WIDTH_IN_THEME_UNITS),
+    userSelect: 'none',
   },
   textLines: {
     flex: 1,
@@ -240,7 +247,7 @@ export const PackageCard = memo(
               enterDelay={500}
             >
               <MuiChip
-                sx={{ minWidth: '24px', userSelect: 'none' }}
+                sx={classes.occurrenceChip}
                 label={new Intl.NumberFormat('en-US', {
                   notation: 'compact',
                 }).format(packageInfo.count)}

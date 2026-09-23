@@ -5,115 +5,13 @@ SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 SPDX-License-Identifier: CC0-1.0
 -->
 
-# Hardcoded Pixel Values for Spacing - Technical Debt Report
+# Technical Debt Report
 
 ## Executive Summary
 
-This report documents the widespread use of hardcoded pixel values for spacing (margin, padding, gap) across the OpossumUI codebase. A total of **100+ instances** of hardcoded pixel spacing values were found across 40+ component files, representing significant technical debt that hinders maintainability, theming, and responsive design.
+This report documents the widespread use of hardcoded pixel values for spacing and dimensions across the OpossumUI codebase. This represents a significant technical debt that hinders maintainability, theming, and responsive design.
 
-The issue is pervasive because the codebase lacks a centralized spacing scale or design tokens, with spacing values scattered as string literals throughout component files.
-
-## Scope of the Issue
-
-**Total hardcoded spacing instances:** 100+ across 40+ files
-
-**Affected properties:**
-
-- `margin` / `marginTop` / `marginBottom` / `marginLeft` / `marginRight`
-- `padding` / `paddingTop` / `paddingBottom` / `paddingLeft` / `paddingRight`
-- `gap` (flex/grid gap)
-
-**Value range:** 0px to 200px, with common values at 4px, 8px, 12px, 16px, 20px, 3px, 4px, 5px, 6px, 7px, 10px, 12px, 200px
-
-## Example Occurrences by Component
-
-### Checkbox
-
-| File                                               | Line | Property     | Value | Converted to       |
-| -------------------------------------------------- | ---- | ------------ | ----- | ------------------ |
-| `src/Frontend/Components/Checkbox/Checkbox.tsx:60` | 60   | `sx.padding` | `7px` | `sx={{ p: 1.75 }}` |
-
-### ConfirmAttributionActionPopup
-
-| File                                                                                              | Line | Property | Value | Converted to       |
-| ------------------------------------------------------------------------------------------------- | ---- | -------- | ----- | ------------------ |
-| `src/Frontend/Components/ConfirmAttributionActionPopup/ConfirmAttributionActionPopup.style.ts:13` | 13   | `gap`    | `8px` | `theme.spacing(2)` |
-
-### ErrorFallback
-
-| File                                                              | Line | Property | Value  | Converted to       |
-| ----------------------------------------------------------------- | ---- | -------- | ------ | ------------------ |
-| `src/Frontend/Components/ErrorFallback/ErrorFallback.style.ts:20` | 20   | `gap`    | `20px` | `theme.spacing(5)` |
-
-### FilePathInput
-
-| File                                                         | Line | Property       | Value  | Converted to     |
-| ------------------------------------------------------------ | ---- | -------------- | ------ | ---------------- |
-| `src/Frontend/Components/FilePathInput/FilePathInput.tsx:55` | 55   | `sx.marginTop` | `20px` | `sx={{ mt: 5 }}` |
-
-### SelectMenu
-
-| File                                                          | Line | Property       | Value         | Converted to                                                 |
-| ------------------------------------------------------------- | ---- | -------------- | ------------- | ------------------------------------------------------------ |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:48`  | 48   | `marginTop`    | `4px`         | `sx={{ mt: 1 }}`                                             |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:72`  | 72   | `marginTop`    | `8px` / `4px` | `theme.spacing(anchorArrow ? 2 : 1)`                         |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:99`  | 99   | `gap`          | `8px`         | `theme.spacing(2)`                                           |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:101` | 101  | `paddingRight` | `17px`        | `theme.spacing(4.25)`                                        |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:102` | 102  | `paddingLeft`  | `12px`        | `theme.spacing(3)`                                           |
-| `src/Frontend/Components/SelectMenu/SelectMenu.tsx:115`       | 115  | `marginTop`    | `2px`         | `sx={{ mt: 0.5 }}` in the `ListItemText` `primary` slotProps |
-
-### AttributionPanels > PackagesPanel
-
-| File                                                                                | Line | Property  | Value | Converted to       |
-| ----------------------------------------------------------------------------------- | ---- | --------- | ----- | ------------------ |
-| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:32` | 32   | `gap`     | `4px` | `theme.spacing(1)` |
-| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:33` | 33   | `padding` | `4px` | `theme.spacing(1)` |
-| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:38` | 38   | `gap`     | `4px` | `theme.spacing(1)` |
-| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:67` | 67   | `padding` | `8px` | `theme.spacing(2)` |
-
-### ProjectStatisticsPopup
-
-| File                                                                                | Line | Property       | Value  | Converted to       |
-| ----------------------------------------------------------------------------------- | ---- | -------------- | ------ | ------------------ |
-| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:114`     | 114  | `marginBottom` | `12px` | `sx={{ mb: 3 }}`   |
-| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:277`     | 277  | `padding`      | `12px` | `sx={{ p: 3 }}`    |
-| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:278`     | 278  | `paddingTop`   | `0px`  | `sx={{ pt: 0 }}`   |
-| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.style.ts:14` | 14   | `padding`      | `12px` | `theme.spacing(3)` |
-
-### GroupedList
-
-| File                                                          | Line | Property  | Value      | Converted to            |
-| ------------------------------------------------------------- | ---- | --------- | ---------- | ----------------------- |
-| `src/Frontend/Components/GroupedList/GroupedList.style.ts:13` | 13   | `gap`     | `8px`      | `theme.spacing(2)`      |
-| `src/Frontend/Components/GroupedList/GroupedList.style.ts:14` | 14   | `padding` | `4px 10px` | `theme.spacing(1, 2.5)` |
-
-### PieChart
-
-| File                                                | Line | Property      | Value | Converted to                                                                                   |
-| --------------------------------------------------- | ---- | ------------- | ----- | ---------------------------------------------------------------------------------------------- |
-| `src/Frontend/Components/PieChart/PieChart.tsx:103` | 103  | `marginRight` | `4px` | `theme.spacing(1)` (via `useTheme()`, fed into the `getLegendIconStyle` helper at lines 37–48) |
-
-### DiffPopup
-
-| File                                                       | Line  | Property       | Value          | Converted to                                                 |
-| ---------------------------------------------------------- | ----- | -------------- | -------------- | ------------------------------------------------------------ |
-| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:8`   | 8     | `columnGap`    | `8px`          | `columnGap: 2` — undocumented so far; added after the rebase |
-| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:17`  | 17–18 | `padding`      | `8px 12px 8px` | `py: 2, px: 3`                                               |
-| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:23`  | 23    | `gap`          | `12px`         | `gap: 3`                                                     |
-| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:30`  | 30    | `padding`      | `8px 0`        | `py: 2, px: 0`                                               |
-| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:47`  | 47    | `marginBottom` | `12px`         | `mb: 3`                                                      |
-| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:62`  | 62    | `gap`          | `12px`         | `gap: 3`                                                     |
-| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:68`  | 68    | `gap`          | `8px`          | `gap: 2`                                                     |
-| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:79`  | 79    | `gap`          | `12px`         | `gap: 3`                                                     |
-| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:112` | 112   | `gap`          | `12px`         | `gap: 3`                                                     |
-| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:138` | 138   | `marginTop`    | `1px`          | `mt: 0.25`                                                   |
-| `src/Frontend/Components/DiffPopup/DiffPopup.tsx:108`      | 108   | `padding`      | `8px 24px 6px` | `titleSx={{ py: 2, px: 6, pb: 1.5 }}`                        |
-| `src/Frontend/Components/DiffPopup/DiffPopup.tsx:109`      | 109   | `padding`      | `4px 8px`      | `actionsSx={{ py: 1, px: 2 }}`                               |
-
-All `diffPopupStyles` entries are consumed through the `sx` prop (`sx={diffPopupStyles.x}`), so theme-unit numbers are scaled correctly there.
-|
-
-### Note: Pitfalls Found and Fixed During Migration
+### Note: Pitfalls Found and Fixed During Migration of Hardcoded Spacing Values
 
 Two MUI v9 pitfalls caused earlier conversions to silently not apply. Both were found by verifying the runtime behavior of the installed `@mui/system`/`@mui/styled-engine` source and have been fixed across the codebase:
 
@@ -296,89 +194,103 @@ All three popups share the same width bounds (`75` units = 300px, `175` units = 
 | `src/Frontend/Components/MergeOpossumFilesDialog/MergeOpossumFilesDialog.tsx:152` | 152–153 | `minWidth`/`maxWidth`                   | `'300px'` / `'700px'` | popup width bounds | `theme.spacing(75)` / `theme.spacing(175)` |
 | `src/Frontend/Components/SplitDialog/SplitDialog.tsx:97`                          | 97–98   | `minWidth`/`maxWidth`                   | `'300px'` / `'700px'` | popup width bounds | `theme.spacing(75)` / `theme.spacing(175)` |
 
-### List
+### _DONE_ List
 
-| File                                            | Line | Property                        | Value | Determines                    |
-| ----------------------------------------------- | ---- | ------------------------------- | ----- | ----------------------------- |
-| `src/Frontend/Components/List/List.style.ts:11` | 11   | `StyledLinearProgress.height`   | `2`   | progress bar thickness        |
-| `src/Frontend/Components/List/List.tsx:24`      | 24   | `INFINITE_LIST_BOTTOM_OVERSCAN` | `600` | Virtuoso bottom overscan (px) |
+| File                                            | Line | Property                        | Value | Determines                    | Converted to                                                                                                                                                                                                               |
+| ----------------------------------------------- | ---- | ------------------------------- | ----- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/List/List.style.ts:12` | 12   | `StyledLinearProgress.height`   | `2`   | progress bar thickness        | `theme.spacing(0.5)` (= 2px; object styled form converted to a theme callback; GroupedList precedent)                                                                                                                      |
+| `src/Frontend/Components/List/List.tsx:24`      | 24   | `INFINITE_LIST_BOTTOM_OVERSCAN` | `600` | Virtuoso bottom overscan (px) | — kept: a behavioral virtualization parameter fed to react-virtuoso's `increaseViewportBy`, not a CSS/sx value; already a self-documenting named constant (`ReportTableItem`/`MIN_WINDOW_WIDTH` style, not a design token) |
 
-### MultiResourcePicker
+### _DONE_ MultiResourcePicker
 
-| File                                                                  | Line | Property               | Value                                                            | Determines                                        |
-| --------------------------------------------------------------------- | ---- | ---------------------- | ---------------------------------------------------------------- | ------------------------------------------------- |
-| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:12` | 12   | `INDENT_PER_LEVEL`     | `6` (theme units; was `'24px'` before the `spacing: 4` baseline) | tree indent per level                             |
-| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:22` | 22   | `border`               | `'1px solid'`                                                    | resource tree container outline                   |
-| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:24` | 24   | `borderRadius`         | `'4px'`                                                          | resource tree container corner                    |
-| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:25` | 25   | `height`               | `'360px'`                                                        | resource tree container height                    |
-| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:35` | 35   | `minHeight`            | `'24px'`                                                         | selected paths container min height               |
-| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:53` | 53   | `minHeight`            | `'32px'`                                                         | resource row min height                           |
-| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:62` | 62   | `TreeNodeSpacer.width` | `'28px'`                                                         | spacer before expand button                       |
-| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:68` | 68   | `minWidth`             | `'34px'`                                                         | selection control size (square via `aspectRatio`) |
+All values converted via the theme spacing scale inside the `styled()` theme callbacks (the file already carries a file-level `no-magic-numbers` disable). Exact unit mapping (4px unit): 0.25 = 1px, 1 = 4px, 6 = 24px, 7 = 28px, 8 = 32px, 8.5 = 34px (`8.5 * 4 === 34` exactly), 90 = 360px; `INDENT_PER_LEVEL` was already a theme-unit constant (6 units = 24px):
 
-### PackageCard
+| File                                                                  | Line | Property               | Value                                                            | Determines                                        | Converted to                                                           |
+| --------------------------------------------------------------------- | ---- | ---------------------- | ---------------------------------------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------- |
+| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:12` | 12   | `INDENT_PER_LEVEL`     | `6` (theme units; was `'24px'` before the `spacing: 4` baseline) | tree indent per level                             | already a theme-unit constant (see the `calc()` marginLeft at line 55) |
+| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:22` | 22   | `border`               | `'1px solid'`                                                    | resource tree container outline                   | `${theme.spacing(0.25)} solid`                                         |
+| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:24` | 24   | `borderRadius`         | `'4px'`                                                          | resource tree container corner                    | `theme.spacing(1)`                                                     |
+| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:25` | 25   | `height`               | `'360px'`                                                        | resource tree container height                    | `theme.spacing(90)`                                                    |
+| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:35` | 35   | `minHeight`            | `'24px'`                                                         | selected paths container min height               | `theme.spacing(6)`                                                     |
+| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:53` | 53   | `minHeight`            | `'32px'`                                                         | resource row min height                           | `theme.spacing(8)`                                                     |
+| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:62` | 62   | `TreeNodeSpacer.width` | `'28px'`                                                         | spacer before expand button                       | `theme.spacing(7)` (object styled converted to theme callback)         |
+| `src/Frontend/Components/SplitDialog/MultiResourcePicker.style.ts:68` | 68   | `minWidth`             | `'34px'`                                                         | selection control size (square via `aspectRatio`) | `theme.spacing(8.5)` (object styled converted to theme callback)       |
 
-| File                                                      | Line | Property    | Value                                                   | Determines             |
-| --------------------------------------------------------- | ---- | ----------- | ------------------------------------------------------- | ---------------------- |
-| `src/Frontend/Components/PackageCard/PackageCard.tsx:78`  | 78   | `boxShadow` | `theme.spacing(1)` (converted, was `inset 4px 0 0 ...`) | selection stripe width |
-| `src/Frontend/Components/PackageCard/PackageCard.tsx:243` | 243  | `minWidth`  | `'24px'`                                                | confidence icon cell   |
+### _DONE_ PackageCard
 
-### PathBar
+| File                                                      | Line | Property    | Value                                        | Determines             | Converted to                                                                                     |
+| --------------------------------------------------------- | ---- | ----------- | -------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------ |
+| `src/Frontend/Components/PackageCard/PackageCard.tsx:80`  | 80   | `boxShadow` | `theme.spacing(1)` (was `inset 4px 0 0 ...`) | selection stripe width | already converted (`({ theme }) => spacing(...)` value callback)                                 |
+| `src/Frontend/Components/PackageCard/PackageCard.tsx:101` | 101  | `minWidth`  | `'24px'`                                     | confidence icon cell   | `spacing(OCCURRENCE_CHIP_MIN_WIDTH_IN_THEME_UNITS)` (6 units = 24px) in `classes.occurrenceChip` |
 
-| File                                             | Line | Property    | Value    | Determines              |
-| ------------------------------------------------ | ---- | ----------- | -------- | ----------------------- |
-| `src/Frontend/Components/PathBar/PathBar.tsx:41` | 41   | `minHeight` | `'24px'` | path bar row min height |
+### _DONE_ PathBar
 
-### PieChart
+| File                                             | Line | Property    | Value    | Determines              | Converted to                                                                                                            |
+| ------------------------------------------------ | ---- | ----------- | -------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/PathBar/PathBar.tsx:46` | 46   | `minHeight` | `'24px'` | path bar row min height | `spacing(PATH_BAR_MIN_HEIGHT_IN_THEME_UNITS)` (6 units = 24px) in the `classes` object (now `satisfies SxProps<Theme>`) |
 
-| File                                                | Line | Property                   | Value    | Determines           |
-| --------------------------------------------------- | ---- | -------------------------- | -------- | -------------------- |
-| `src/Frontend/Components/PieChart/PieChart.tsx:33`  | 33   | `legendTextStyle.fontSize` | `'12px'` | legend text font     |
-| `src/Frontend/Components/PieChart/PieChart.tsx:43`  | 43   | `borderRadius`             | `'6px'`  | legend swatch corner |
-| `src/Frontend/Components/PieChart/PieChart.tsx:44`  | 44   | swatch `height`            | `'12px'` | legend swatch size   |
-| `src/Frontend/Components/PieChart/PieChart.tsx:45`  | 45   | swatch `width`             | `'12px'` | legend swatch size   |
-| `src/Frontend/Components/PieChart/PieChart.tsx:75`  | 75   | `RcPie outerRadius`        | `70`     | pie radius           |
-| `src/Frontend/Components/PieChart/PieChart.tsx:114` | 114  | `RcLegend width`           | `250`    | legend column width  |
+### _DONE_ PieChart
 
-### ProgressBar
+Legend styles are consumed as plain CSS (recharts custom legend `style={...}` props, not sx), so values resolve via the existing `useTheme()`; the recharts numeric geometry (`outerRadius`, legend `width`) goes through the BarChart-style `spacingPx` helper (`parseFloat(theme.spacing(units))`). Module-scope unit consts (exempt from `no-magic-numbers`): 3 units = 12px, 17.5 units = 70px (`17.5 * 4 === 70` exactly), 62.5 units = 250px (`62.5 * 4 === 250` exactly):
 
-| File                                                     | Line | Property | Value           | Determines        |
-| -------------------------------------------------------- | ---- | -------- | --------------- | ----------------- |
-| `src/Frontend/Components/ProgressBar/ProgressBar.tsx:31` | 31   | `border` | `2px solid ...` | bar outline width |
-| `src/Frontend/Components/ProgressBar/ProgressBar.tsx:33` | 33   | `height` | `'20px'`        | bar height        |
+| File                                                | Line | Property                   | Value    | Determines           | Converted to                                                     |
+| --------------------------------------------------- | ---- | -------------------------- | -------- | -------------------- | ---------------------------------------------------------------- |
+| `src/Frontend/Components/PieChart/PieChart.tsx:62`  | 62   | `legendTextStyle.fontSize` | `'12px'` | legend text font     | `theme.typography.caption.fontSize` (BarChart precedent, 12px)   |
+| `src/Frontend/Components/PieChart/PieChart.tsx:43`  | 43   | `borderRadius`             | `'6px'`  | legend swatch corner | `theme.spacing(LEGEND_SWATCH_RADIUS_IN_THEME_UNITS)` (1.5 units) |
+| `src/Frontend/Components/PieChart/PieChart.tsx:44`  | 44   | swatch `height`            | `'12px'` | legend swatch size   | `theme.spacing(LEGEND_SWATCH_SIZE_IN_THEME_UNITS)` (3 units)     |
+| `src/Frontend/Components/PieChart/PieChart.tsx:45`  | 45   | swatch `width`             | `'12px'` | legend swatch size   | `theme.spacing(LEGEND_SWATCH_SIZE_IN_THEME_UNITS)` (3 units)     |
+| `src/Frontend/Components/PieChart/PieChart.tsx:84`  | 84   | `RcPie outerRadius`        | `70`     | pie radius           | `spacingPx(PIE_RADIUS_IN_THEME_UNITS)` (17.5 units = 70px)       |
+| `src/Frontend/Components/PieChart/PieChart.tsx:124` | 124  | `RcLegend width`           | `250`    | legend column width  | `spacingPx(LEGEND_WIDTH_IN_THEME_UNITS)` (62.5 units = 250px)    |
 
-### ProjectMetadataTable
+### _DONE_ ProgressBar
 
-| File                                                                       | Line | Property                | Value | Determines               |
-| -------------------------------------------------------------------------- | ---- | ----------------------- | ----- | ------------------------ |
-| `src/Frontend/Components/ProjectMetadataTable/ProjectMetadataTable.tsx:19` | 19   | `firstColumn.fontSize`  | `13`  | metadata table head font |
-| `src/Frontend/Components/ProjectMetadataTable/ProjectMetadataTable.tsx:25` | 25   | `secondColumn.fontSize` | `11`  | metadata table body font |
+Exact conversions via the theme spacing scale (0.5 units = 2px, 5 units = 20px), inline in the `classes` object (consumed through `sx` on MUI components) with a justified file-level `no-magic-numbers` disable (`Autocomplete.style.tsx` precedent):
 
-### ProjectStatisticsPopup
+| File                                                     | Line | Property | Value           | Determines        | Converted to                                                |
+| -------------------------------------------------------- | ---- | -------- | --------------- | ----------------- | ----------------------------------------------------------- |
+| `src/Frontend/Components/ProgressBar/ProgressBar.tsx:34` | 34   | `border` | `2px solid ...` | bar outline width | `spacing(0.5)` (0.5 units = 2px) + `${OpossumColors.white}` |
+| `src/Frontend/Components/ProgressBar/ProgressBar.tsx:36` | 36   | `height` | `'20px'`        | bar height        | `spacing(5)` (5 units = 20px)                               |
 
-| File                                                                                | Line | Property                   | Value                           | Determines                      |
-| ----------------------------------------------------------------------------------- | ---- | -------------------------- | ------------------------------- | ------------------------------- |
-| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:94`      | 94   | `NotificationPopup width`  | `'min(95vw, max(550px, 85vw))'` | popup width (contains `550px`)  |
-| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:95`      | 95   | `NotificationPopup height` | `'min(95vh, max(550px, 75vh))'` | popup height (contains `550px`) |
-| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:299`     | 299  | chart grid `minHeight`     | `'220px'`                       | chart card minimum height       |
-| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:300`     | 300  | chart grid `minWidth`      | `'440px'`                       | chart card minimum width        |
-| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:301`     | 301  | chart grid `height`        | `'47%'`                         | chart card height (percentage)  |
-| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.style.ts:13` | 13   | `borderRadius`             | `'10px'`                        | popup corner radius             |
+### _DONE_ ProjectMetadataTable
 
-### ReportView column configuration / ReportTableItem / ReportTableHeader
+Font sizes are unitless sx numbers (= CSS px via emotion, `13` → `'13px'`, `11` → `'11px'`); converted on the same 4px lattice with a justified file-level `no-magic-numbers` disable (inline calls); 3.25 units = 13px, 2.75 units = 11px:
 
-| File                                                                 | Line   | Property                     | Value                                  | Determines                                                                                              |
-| -------------------------------------------------------------------- | ------ | ---------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `src/Frontend/Components/ReportView/TableConfig.tsx:20`              | 20–23  | `COLUMN_WIDTHS` bucket sizes | `'40px' / '100px' / '320px' / '460px'` | width buckets (`verySmall`–`wide`) for all report table columns (applied as cell `minWidth`/`maxWidth`) |
-| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:41`     | 41     | `REPORT_VIEW_ROW_HEIGHT`     | `150`                                  | report view row height                                                                                  |
-| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:44`     | 44     | `PADDING_PX`                 | `10`                                   | row padding in px (4 × `PADDING`)                                                                       |
-| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:51`     | 51     | `tableData.height`           | `` `${150 - 2*10}px` -> `130px` ``     | table cell height                                                                                       |
-| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:59`     | 59     | `iconTableData.height`       | `130px` (derived)                      | icon cell height                                                                                        |
-| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:72`     | 72–73  | `borderRight`/`borderBottom` | `1px solid ...`                        | cell borders                                                                                            |
-| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:76`     | 76–77  | icon `width`/`height`        | `'15px'`                               | table icon size                                                                                         |
-| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:81`     | 81–104 | `border` (8 icon variants)   | `2px ... solid`                        | icon badge outlines                                                                                     |
-| `src/Frontend/Components/ReportTableHeader/ReportTableHeader.tsx:16` | 16–17  | `headerRow.boxShadow`        | `'0px 2px 1px -1px ...'`               | header row elevation shadow geometry                                                                    |
-| `src/Frontend/Components/ReportTableHeader/ReportTableHeader.tsx:20` | 20     | `borderRight`                | `1px solid ...`                        | header cell border                                                                                      |
+| File                                                                       | Line | Property                | Value | Determines               | Converted to                        |
+| -------------------------------------------------------------------------- | ---- | ----------------------- | ----- | ------------------------ | ----------------------------------- |
+| `src/Frontend/Components/ProjectMetadataTable/ProjectMetadataTable.tsx:22` | 22   | `firstColumn.fontSize`  | `13`  | metadata table head font | `spacing(3.25)` (3.25 units = 13px) |
+| `src/Frontend/Components/ProjectMetadataTable/ProjectMetadataTable.tsx:28` | 28   | `secondColumn.fontSize` | `11`  | metadata table body font | `spacing(2.75)` (2.75 units = 11px) |
+
+### _DONE_ ProjectStatisticsPopup
+
+Pixels converted via the theme spacing scale through the component's `useTheme()`/sx value callbacks, with module-scope unit consts (`no-magic-numbers`-exempt; 137.5 units = 550px, 55 units = 220px, 110 units = 440px, 2.5 units = 10px — all FP-exact, e.g. `137.5 * 4 === 550`); the viewport (`95vw`/`95vh`, `85vw`/`75vh`) and percentage (`'47%'`) parts remain out of pixel scope (see the viewport/percentage note):
+
+| File                                                                                | Line | Property                   | Value                           | Determines                      | Converted to                                                                                       |
+| ----------------------------------------------------------------------------------- | ---- | -------------------------- | ------------------------------- | ------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:99`      | 99   | `NotificationPopup width`  | `'min(95vw, max(550px, 85vw))'` | popup width (contains `550px`)  | `` `min(95vw, max(${theme.spacing(POPUP_MIN_SIZE_IN_THEME_UNITS)}, 85vw))` `` (px floor converted) |
+| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:100`     | 100  | `NotificationPopup height` | `'min(95vh, max(550px, 75vh))'` | popup height (contains `550px`) | `` `min(95vh, max(${theme.spacing(POPUP_MIN_SIZE_IN_THEME_UNITS)}, 75vh))` `` (px floor converted) |
+| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:304`     | 304  | chart grid `minHeight`     | `'220px'`                       | chart card minimum height       | `spacing(CHART_CARD_MIN_HEIGHT_IN_THEME_UNITS)` (55 units = 220px)                                 |
+| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:306`     | 306  | chart grid `minWidth`      | `'440px'`                       | chart card minimum width        | `spacing(CHART_CARD_MIN_WIDTH_IN_THEME_UNITS)` (110 units = 440px)                                 |
+| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:308`     | 308  | chart grid `height`        | `'47%'`                         | chart card height (percentage)  | — kept (percentage, see viewport/percentage note)                                                  |
+| `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.style.ts:13` | 13   | `borderRadius`             | `'10px'`                        | popup corner radius             | `theme.spacing(2.5)` (= 10px; file-level `no-magic-numbers` disable in place)                      |
+
+### _DONE_ ReportView column configuration / ReportTableItem / ReportTableHeader
+
+The `COLUMN_WIDTHS` bucket map was already a genuinely reused constant (9 config entries); only its values changed form — theme-unit numbers resolved at the consumers via sx value callbacks (`theme.spacing(config.width)`; no new constants, no lint disables). Exact mapping (4px unit): 10 = 40px, 25 = 100px, 80 = 320px, 115 = 460px:
+
+| File                                                                 | Line   | Property                                    | Value                                  | Determines                                                                                              | Converted to                                                                                                                                                                                                              |
+| -------------------------------------------------------------------- | ------ | ------------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/ReportView/TableConfig.tsx:19`              | 19–24  | `COLUMN_WIDTHS_IN_THEME_UNITS` bucket sizes | `'40px' / '100px' / '320px' / '460px'` | width buckets (`verySmall`–`wide`) for all report table columns (applied as cell `minWidth`/`maxWidth`) | `10 / 25 / 80 / 115` units; `TableConfig.width: number`; resolved via `spacing()` at `ReportTableItem.tsx:158–159` and `ReportTableHeader.tsx:44–45`                                                                      |
+| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:43`     | 43     | `REPORT_VIEW_ROW_HEIGHT`                    | `150`                                  | report view row height                                                                                  | — kept (px): behavioral row-height constant fed to Virtuoso's `fixedItemHeight`/`defaultItemHeight` and a raw numeric cell height in `ReportView.tsx` (same non-design-token category as `INFINITE_LIST_BOTTOM_OVERSCAN`) | —                                                    |
+| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:45`     | 45     | `PADDING_PX`                                | `10`                                   | row padding in px (4 × `PADDING`)                                                                       | kept as the px lens (`4 × PADDING` = 4 × 2.5 units = 10px) under the file-level disable (the `4` baseline is needed precisely because `REPORT_VIEW_ROW_HEIGHT` stays a px constant)                                       | — (deliberate 4px-baseline math, documented disable) |
+| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:52`     | 52     | `tableData.height`                          | `` `${150 - 2*10}px` -> `130px` ``     | table cell height                                                                                       | derived numeric (130 = sx raw px, single-source from `REPORT_VIEW_ROW_HEIGHT` − 2 × padding; px string template removed)                                                                                                  | — (derived from theme-unit constants)                |
+| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:60`     | 60     | `iconTableData.height`                      | `130px` (derived)                      | icon cell height                                                                                        | derived numeric (130 raw px, single-source; the adjacent `py: PADDING` remains a theme unit)                                                                                                                              | — (derived)                                          |
+| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:73`     | 73–76  | `borderRight`/`borderBottom`                | `1px solid ...`                        | cell borders                                                                                            | `spacing(0.25)` solid (= 1px) in sx value callbacks                                                                                                                                                                       | —                                                    |
+| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:79`     | 79–80  | icon `width`/`height`                       | `'15px'`                               | table icon size                                                                                         | `spacing(3.75)` (= 15px) value callbacks                                                                                                                                                                                  | —                                                    |
+| `src/Frontend/Components/ReportTableItem/ReportTableItem.tsx:84`     | 84–115 | `border` (8 icon variants)                  | `2px ... solid`                        | icon badge outlines                                                                                     | `spacing(0.5)` (= 2px) inside `<unit> <color> solid` callbacks for all variants                                                                                                                                           | —                                                    |
+| `src/Frontend/Components/ReportTableHeader/ReportTableHeader.tsx:18` | 18     | `headerRow.boxShadow`                       | `'0px 2px 1px -1px ...'`               | header row elevation shadow geometry                                                                    | `theme.shadows[1]` (= MUI elevation-1; verified byte-equal geometry — `createShadow(0,2,1,-1,...)`) — only insignificant whitespace after commas differs                                                                  | —                                                    |
+| `src/Frontend/Components/ReportTableHeader/ReportTableHeader.tsx:21` | 21     | `borderRight`                               | `1px solid ...`                        | header cell border                                                                                      | `spacing(0.25)` solid (= 1px) value callback                                                                                                                                                                              |
+
+Both files now carry justified file-level `no-magic-numbers` disables (0.25/0.5/3.75 unit args plus the 4-baseline math); the previous line-level comment was absorbed. `Icons.tsx`'s `IconProps.sx` was upgraded from bare `SxProps` to `SxProps<Theme>` so the callback-valued class members typecheck inside the spread icon styles. — |
 
 ### ResizePanels
 

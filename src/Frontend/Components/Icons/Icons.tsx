@@ -42,7 +42,7 @@ const classes = {
 } satisfies SxProps<Theme>;
 
 interface IconProps {
-  sx?: SxProps;
+  sx?: SxProps<Theme>;
   noTooltip?: boolean;
   className?: string;
   tooltipPlacement?: 'top' | 'bottom' | 'left' | 'right';

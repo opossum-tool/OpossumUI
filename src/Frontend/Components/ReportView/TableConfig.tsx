@@ -16,11 +16,11 @@ import type {
 import { useAppSelector } from '../../state/hooks';
 import { getSelectedAttributionId } from '../../state/selectors/resource-selectors';
 
-const COLUMN_WIDTHS = {
-  verySmall: '40px',
-  small: '100px',
-  medium: '320px',
-  wide: '460px',
+const COLUMN_WIDTHS_IN_THEME_UNITS = {
+  verySmall: 10,
+  small: 25,
+  medium: 80,
+  wide: 115,
 };
 
 export interface TableConfig {
@@ -29,7 +29,7 @@ export interface TableConfig {
     keyof Omit<EphemeralPackageInfoProps, 'id'>
   >;
   displayName: React.ReactNode;
-  width: string;
+  width: number;
 }
 
 export type ReportTableData = PackageInfo | undefined;
@@ -38,47 +38,47 @@ export const tableConfigs: Array<TableConfig> = [
   {
     attributionProperty: 'id',
     displayName: null,
-    width: COLUMN_WIDTHS.verySmall,
+    width: COLUMN_WIDTHS_IN_THEME_UNITS.verySmall,
   },
   {
     attributionProperty: 'packageName',
     displayName: 'Name',
-    width: COLUMN_WIDTHS.medium,
+    width: COLUMN_WIDTHS_IN_THEME_UNITS.medium,
   },
   {
     attributionProperty: 'packageVersion',
     displayName: 'Version',
-    width: COLUMN_WIDTHS.small,
+    width: COLUMN_WIDTHS_IN_THEME_UNITS.small,
   },
   {
     attributionProperty: 'licenseName',
     displayName: 'License',
-    width: COLUMN_WIDTHS.medium,
+    width: COLUMN_WIDTHS_IN_THEME_UNITS.medium,
   },
   {
     attributionProperty: 'licenseText',
     displayName: 'License Text',
-    width: COLUMN_WIDTHS.wide,
+    width: COLUMN_WIDTHS_IN_THEME_UNITS.wide,
   },
   {
     attributionProperty: 'url',
     displayName: 'Upstream Address',
-    width: COLUMN_WIDTHS.medium,
+    width: COLUMN_WIDTHS_IN_THEME_UNITS.medium,
   },
   {
     attributionProperty: 'copyright',
     displayName: 'Copyright',
-    width: COLUMN_WIDTHS.medium,
+    width: COLUMN_WIDTHS_IN_THEME_UNITS.medium,
   },
   {
     attributionProperty: 'attributionConfidence',
     displayName: 'Confidence',
-    width: COLUMN_WIDTHS.small,
+    width: COLUMN_WIDTHS_IN_THEME_UNITS.small,
   },
   {
     attributionProperty: 'comment',
     displayName: 'Comment',
-    width: COLUMN_WIDTHS.wide,
+    width: COLUMN_WIDTHS_IN_THEME_UNITS.wide,
   },
 ];
 

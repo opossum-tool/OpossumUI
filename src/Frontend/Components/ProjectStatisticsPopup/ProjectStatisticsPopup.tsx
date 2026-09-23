@@ -2,8 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { createTheme, Grid as MuiGrid, useTheme } from '@mui/material';
-import { ThemeProvider } from '@mui/material/styles';
+import { type Theme, ThemeProvider } from '@mui/material/styles';
 import MuiTab from '@mui/material/Tab';
 import MuiTabs from '@mui/material/Tabs';
 import MuiTypography from '@mui/material/Typography';
@@ -39,7 +40,10 @@ const CRITICALITY_COLORS = {
   [CRITICALITY_LABEL[Criticality.None]]: criticalityColor[Criticality.None],
 };
 
+const POPUP_MIN_SIZE_IN_THEME_UNITS = 137.5;
+
 export const ProjectStatisticsPopup: React.FC = () => {
+  const theme = useTheme();
   const dispatch = useAppDispatch();
 
   const classifications = useClassifications();
@@ -91,8 +95,8 @@ export const ProjectStatisticsPopup: React.FC = () => {
     <NotificationPopup
       header={text.projectStatisticsPopup.title}
       isOpen={true}
-      width={'min(95vw, max(550px, 85vw))'}
-      height={'min(95vh, max(550px, 75vh))'}
+      width={`min(95vw, max(${theme.spacing(POPUP_MIN_SIZE_IN_THEME_UNITS)}, 85vw))`}
+      height={`min(95vh, max(${theme.spacing(POPUP_MIN_SIZE_IN_THEME_UNITS)}, 75vh))`}
       rightButtonConfig={{ onClick: close, buttonText: text.buttons.close }}
       onBackdropClick={close}
       onEscapeKeyDown={close}
@@ -296,8 +300,8 @@ const ChartGridItem: React.FC<ChartGridItemProps> = (props) => {
       size={1}
       data-testid={props.testId}
       sx={{
-        minHeight: '220px',
-        minWidth: '440px',
+        minHeight: ({ spacing }: Theme) => spacing(55),
+        minWidth: ({ spacing }: Theme) => spacing(110),
         height: '47%',
         display: 'flex',
       }}
