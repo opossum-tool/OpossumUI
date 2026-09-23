@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiAlert from '@mui/material/Alert';
 import MuiButton, { type ButtonProps } from '@mui/material/Button';
+import { useTheme } from '@mui/material/styles';
 import MuiTypography from '@mui/material/Typography';
 
 import type {
@@ -64,6 +65,7 @@ export function ConfirmAttributionActionPopup({
   selection,
   attributionCount,
 }: Props) {
+  const theme = useTheme();
   const isMutationPending =
     globalAction.isPending || (localAction?.isPending ?? false);
   const isLocalActionVisible =
@@ -105,7 +107,8 @@ export function ConfirmAttributionActionPopup({
       }}
       isOpen={open}
       aria-label={ariaLabel}
-      width={580}
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 145 theme spacing units (= 580px)
+      width={theme.spacing(145)}
     >
       {mixedAttributionCount > 0 && (
         <MuiAlert severity={'warning'}>{mixedWarning}</MuiAlert>
@@ -134,7 +137,10 @@ export function ConfirmAttributionActionPopup({
               readOnly
               disableHighlightSelected={!isLocalActionAvailable}
               state={linkedResourcesTreeState}
-              sx={{ minHeight: '100px' }}
+              sx={
+                // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 25 theme spacing units (= 100px)
+                { minHeight: theme.spacing(25) }
+              }
             />
           )}
         </>

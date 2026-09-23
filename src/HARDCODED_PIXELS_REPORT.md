@@ -175,17 +175,19 @@ Window size constants in `src/ElectronBackend/main/createWindow.ts` (screen-awar
 | `src/ElectronBackend/main/createWindow.ts:14` | 14   | `MIN_WINDOW_WIDTH`      | `500`  | minimum window width (constraint, not a design token)      |
 | `src/ElectronBackend/main/createWindow.ts:15` | 15   | `MIN_WINDOW_HEIGHT`     | `400`  | minimum window height (constraint, not a design token)     |
 
-### Autocomplete
+### _DONE_ Autocomplete
 
-| File                                                              | Line | Property                       | Value                   | Determines                                |
-| ----------------------------------------------------------------- | ---- | ------------------------------ | ----------------------- | ----------------------------------------- |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:42`  | 42   | input label `fontSize`         | `'13px'`                | floating label font                       |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:43`  | 43   | label `top`                    | `'1px'`                 | label vertical offset                     |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:52`  | 52   | `MuiInputBase-root minHeight`  | `'36.67px'`             | input row minimum height                  |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:56`  | 56   | `paddingRight`                 | `calc(12px + N * 28px)` | width reserved for end adornments         |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:83`  | 83   | focused fieldset `borderWidth` | `'1px'`                 | focus outline width                       |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:119` | 119  | `EndAdornmentContainer.right`  | `'14px'`                | end-adornment inset from right edge       |
-| `src/Frontend/Components/Autocomplete/AutocompleteUtil.tsx:27`    | 27   | `minWidth`                     | `'24px'`                | end-adornment icon wrapper (also line 53) |
+All rows converted via the theme spacing scale in `styled()` theme callbacks, except `AutocompleteUtil.tsx` (module-scope `occurrenceChipClass`, `satisfies SxProps<Theme>`; numbers in module-scope const class members are exempt from `no-magic-numbers`). Unit mapping (4px spacing unit): 0.25 units = 1px, 3 units = 12px, 3.25 units = 13px, 3.5 units = 14px, 6 units = 24px, 7 units = 28px, 9.1675 units = 36.67px (`4 * 9.1675 === 36.67` exactly). Row 56 was already theme-scaled in code — only the stale Value description was corrected:
+
+| File                                                              | Line | Property                       | Value                   | Determines                                                                  | Converted to                                                                                                                                   |
+| ----------------------------------------------------------------- | ---- | ------------------------------ | ----------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:42`  | 42   | input label `fontSize`         | `'13px'`                | floating label font                                                         | `theme.spacing(3.25)`                                                                                                                          |
+| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:43`  | 43   | label `top`                    | `'1px'`                 | label vertical offset                                                       | `theme.spacing(0.25)`                                                                                                                          |
+| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:52`  | 52   | `MuiInputBase-root minHeight`  | `'36.67px'`             | input row minimum height                                                    | `theme.spacing(9.1675)`                                                                                                                        |
+| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:56`  | 56   | `paddingRight`                 | `calc(12px + N * 28px)` | width reserved for end adornments                                           | already `calc(theme.spacing(3) + N * theme.spacing(7))` (theme-scaled px `calc()`)                                                             |
+| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:83`  | 83   | focused fieldset `borderWidth` | `'1px'`                 | focus outline width                                                         | `theme.spacing(0.25)`                                                                                                                          |
+| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:119` | 119  | `EndAdornmentContainer.right`  | `'14px'`                | end-adornment inset from right edge                                         | `theme.spacing(3.5)`                                                                                                                           |
+| `src/Frontend/Components/Autocomplete/AutocompleteUtil.tsx:14`    | 14   | `minWidth`                     | `'24px'`                | end-adornment icon wrapper (`occurrenceChipClass`, used at lines 34 and 60) | `spacing(OCCURRENCE_CHIP_MIN_WIDTH_IN_THEME_UNITS)` (= 6 units = 24px) in module-scope `occurrenceChipClass` (deduped from the two chip spots) |
 
 ### _DONE_ AuditingOptions
 
@@ -205,25 +207,29 @@ The values are read from the MUI theme at runtime via `useTheme()` (PieChart pre
 | `src/Frontend/Components/BarChart/BarChart.tsx:48` | 48–52 | `RcBarChart margin`  | `{ left: 8, right: 10, bottom: 4 }` | chart plot-area margins        | theme-unit constants (`MARGIN_LEFT_IN_THEME_UNITS` = 2, `MARGIN_RIGHT_IN_THEME_UNITS` = 2.5, `MARGIN_BOTTOM_IN_THEME_UNITS` = 1), resolved numerically via `parseFloat(theme.spacing(units))` (= 8/10/4px) because recharts `margin` needs numbers |
 | `src/Frontend/Components/BarChart/BarChart.tsx:57` | 57    | `RcLabel offset`     | `-3` (recharts px offset)           | x-axis label vertical position | `X_AXIS_LABEL_OFFSET_IN_THEME_UNITS` = 0.75 units (= 3px), passed negated                                                                                                                                                                          |
 
-### CardList
+### _DONE_ CardList
 
-| File                                               | Line | Property | Value                             | Determines         |
-| -------------------------------------------------- | ---- | -------- | --------------------------------- | ------------------ |
-| `src/Frontend/Components/CardList/CardList.tsx:29` | 29   | `border` | `'1px solid rgba(0, 0, 0, 0.12)'` | card outline width |
+| File                                               | Line | Property | Value                             | Determines         | Converted to                                                                                                                                                                                                                                                                                                               |
+| -------------------------------------------------- | ---- | -------- | --------------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/CardList/CardList.tsx:30` | 30   | `border` | `'1px solid rgba(0, 0, 0, 0.12)'` | card outline width | fully theme-driven via `useTheme()`: width `theme.spacing(BORDER_WIDTH_IN_THEME_UNITS)` (`BORDER_WIDTH_IN_THEME_UNITS` = 0.25 units = 1px with the 4px spacing unit), color `theme.palette.divider` (= MUI's default `rgba(0, 0, 0, 0.12)`; other repo borders, e.g. `DiffPopup.style.ts:146`, still keep a literal `1px`) |
 
-### ConfirmAttributionActionPopup
+### _DONE_ ConfirmAttributionActionPopup
 
-| File                                                                                              | Line | Property                  | Value     | Determines                     |
-| ------------------------------------------------------------------------------------------------- | ---- | ------------------------- | --------- | ------------------------------ |
-| `src/Frontend/Components/ConfirmAttributionActionPopup/ConfirmAttributionActionPopup.tsx:108`     | 108  | `NotificationPopup width` | `580`     | popup width                    |
-| `src/Frontend/Components/ConfirmAttributionActionPopup/ConfirmAttributionActionPopup.tsx:137`     | 137  | `minHeight`               | `'100px'` | content box minimum height     |
-| `src/Frontend/Components/ConfirmAttributionActionPopup/ConfirmAttributionActionPopup.style.ts:14` | 14   | `height`                  | `'400px'` | resource tree container height |
+All three values are exact conversions via the theme spacing scale (4px unit: 145 units = 580px, 25 units = 100px, 100 units = 400px), resolved at runtime through the theme — they follow the spacing unit if it ever changes. The `145`/`25` call arguments carry a justified `no-magic-numbers` disable comment (`100` is in the rule's allowlist; report precedent: `ReportTableItem.tsx`). Unit tests render these components without `ThemeProvider` (MUI default spacing of 8 applies there), so the pixel fidelity described here refers to the app runtime under the app theme (`App.style.ts`, unit 4):
 
-### ConfirmReplacePopup
+| File                                                                                              | Line | Property                  | Value     | Determines                     | Converted to                                                                                         |
+| ------------------------------------------------------------------------------------------------- | ---- | ------------------------- | --------- | ------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/ConfirmAttributionActionPopup/ConfirmAttributionActionPopup.tsx:111`     | 111  | `NotificationPopup width` | `580`     | popup width                    | `theme.spacing(145)` via `useTheme()` ( lands in the dialog-paper sx of `NotificationPopup.tsx:56` ) |
+| `src/Frontend/Components/ConfirmAttributionActionPopup/ConfirmAttributionActionPopup.tsx:142`     | 142  | `minHeight`               | `'100px'` | content box minimum height     | `theme.spacing(25)` via `useTheme()`                                                                 |
+| `src/Frontend/Components/ConfirmAttributionActionPopup/ConfirmAttributionActionPopup.style.ts:15` | 15   | `height`                  | `'400px'` | resource tree container height | `theme.spacing(100)` in the `styled()` theme callback                                                |
 
-| File                                                                      | Line | Property                  | Value | Determines  |
-| ------------------------------------------------------------------------- | ---- | ------------------------- | ----- | ----------- |
-| `src/Frontend/Components/ConfirmReplacePopup/ConfirmReplacePopup.tsx:151` | 151  | `NotificationPopup width` | `500` | popup width |
+### _DONE_ ConfirmReplacePopup
+
+Exact conversion via the theme spacing scale (4px unit: 125 units = 500px), same caveats as _DONE_ ConfirmAttributionActionPopup above (scale-coupling; unit tests render without `ThemeProvider`):
+
+| File                                                                      | Line | Property                  | Value | Determines  | Converted to                          |
+| ------------------------------------------------------------------------- | ---- | ------------------------- | ----- | ----------- | ------------------------------------- |
+| `src/Frontend/Components/ConfirmReplacePopup/ConfirmReplacePopup.tsx:154` | 154  | `NotificationPopup width` | `500` | popup width | `theme.spacing(125)` via `useTheme()` |
 
 ### DiffPopup
 

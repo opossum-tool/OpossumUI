@@ -2,11 +2,19 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { SxProps } from '@mui/material';
 import MuiChip from '@mui/material/Chip';
+import type { Theme } from '@mui/material/styles';
 import MuiTooltip from '@mui/material/Tooltip';
 
 import { text } from '../../../shared/text';
 import { maybePluralize } from '../../util/maybe-pluralize';
+
+const OCCURRENCE_CHIP_MIN_WIDTH_IN_THEME_UNITS = 6;
+const occurrenceChipClass = {
+  minWidth: ({ spacing }: Theme) =>
+    spacing(OCCURRENCE_CHIP_MIN_WIDTH_IN_THEME_UNITS),
+} satisfies SxProps<Theme>;
 
 export function renderOccurrenceCount(
   count: number | [number, number] | undefined,
@@ -24,7 +32,7 @@ export function renderOccurrenceCount(
       >
         <MuiChip
           data-testid={'occurrence-count'}
-          sx={{ minWidth: '24px' }}
+          sx={occurrenceChipClass}
           label={new Intl.NumberFormat('en-US', {
             notation: 'compact',
           }).format(count)}
@@ -50,7 +58,7 @@ export function renderOccurrenceCount(
     >
       <MuiChip
         data-testid={'occurrence-count'}
-        sx={{ minWidth: '24px' }}
+        sx={occurrenceChipClass}
         label={new Intl.NumberFormat('en-US', {
           notation: 'compact',
         }).format(attributionCount + signalCount)}

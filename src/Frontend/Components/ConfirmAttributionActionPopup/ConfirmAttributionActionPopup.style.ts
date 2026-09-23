@@ -11,6 +11,6 @@ export const StyledConfirmAttributionActionPopup = styled(NotificationPopup)(
     display: 'flex',
     flexDirection: 'column',
     gap: theme.spacing(2),
-    height: '400px',
+    height: theme.spacing(100),
   }),
 );
