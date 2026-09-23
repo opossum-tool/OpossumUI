@@ -96,14 +96,14 @@ export function getSearchMatchExpression<TDB, TB extends keyof TDB & string>(
 export function getVisibleWithFiltersExpression({
   id,
   maxDescendantId,
-  isReadonly,
+  hasEditableDescendant,
   inheritedMatch,
   filters,
   cacheId,
 }: {
   id: Expression<number>;
   maxDescendantId: Expression<number>;
-  isReadonly: Expression<number>;
+  hasEditableDescendant: Expression<number>;
   inheritedMatch: Expression<SqlBool>;
   filters: ResourceTreeFilters;
   cacheId: number;
@@ -112,7 +112,7 @@ export function getVisibleWithFiltersExpression({
   return eb.or([
     filteredResourcesContainIdBetween(cacheId, id, maxDescendantId),
     filters.onlyWritable
-      ? eb.and([eb(isReadonly, '=', 0), inheritedMatch])
+      ? eb.and([eb(hasEditableDescendant, '=', 1), inheritedMatch])
       : inheritedMatch,
   ]);
 }
