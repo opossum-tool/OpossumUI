@@ -11,6 +11,7 @@ import {
 } from '../../../shared/shared-types';
 import { initializeDbWithTestData } from '../../../testing/global-test-helpers';
 import {
+  getLinkedResourceTree,
   getResourceTree,
   getResourceTreeUnreviewedCount,
 } from '../resourceTree';
@@ -90,6 +91,51 @@ async function initializeAttributionFilterData(): Promise<void> {
 
 describe('attribution filtering', () => {
   beforeEach(initializeAttributionFilterData);
+
+  it.each<[Array<string> | 'expandAll', Array<string>]>([
+    [[], [FILTER_EXTERNAL_UUID]],
+    [['/'], [FILTER_EXTERNAL_UUID]],
+    [['/', '/src/'], [FILTER_EXTERNAL_UUID]],
+    ['expandAll', [FILTER_EXTERNAL_UUID]],
+    ['expandAll', []],
+  ])(
+    'matches the full tree common fields with expansion %j and UUID selection %j',
+    async (expandedNodes, onAttributionUuids) => {
+      const request = {
+        expandedNodes,
+        onAttributionUuids,
+        search: 'external',
+        selectedResourcePath: '/src',
+      };
+      const [fullTree, linkedTree] = await Promise.all([
+        getResourceTree(request),
+        getLinkedResourceTree(request),
+      ]);
+
+      const commonNodes = fullTree.result.treeNodes.map((node) => ({
+        id: node.id,
+        labelText: node.labelText,
+        level: node.level,
+        isExpandable: node.isExpandable,
+        isExpanded: node.isExpanded,
+        canHaveChildren: node.canHaveChildren,
+        isAttributionBreakpoint: node.isAttributionBreakpoint,
+        isFile: node.isFile,
+        isReadonly: node.isReadonly,
+        matchesFilters: node.matchesFilters,
+      }));
+
+      expect(linkedTree).toEqual({
+        result: {
+          ...fullTree.result,
+          treeNodes: commonNodes,
+        },
+      });
+      expect(Object.keys(linkedTree.result.treeNodes[0] ?? {}).sort()).toEqual(
+        Object.keys(commonNodes[0] ?? {}).sort(),
+      );
+    },
+  );
 
   it('filters one or several UUIDs and keeps shared resources once', async () => {
     const externalOnly = await getResourceTree({

@@ -5,7 +5,7 @@
 import { keepPreviousData, skipToken } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 
-import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
+import type { LinkedResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
 import type { ResourceTreeFilters } from '../../../../ElectronBackend/api/resourceTreeFilters';
 import { useAppSelector } from '../../../state/hooks';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
@@ -16,7 +16,7 @@ export type LinkedResourcesTreeState = {
   count: number;
   expandedIds: Array<string>;
   setExpandedIds: (values: Array<string>) => void;
-  treeNodes: Array<ResourceTreeNodeData>;
+  treeNodes: Array<LinkedResourceTreeNodeData>;
   expansionFilters?: ResourceTreeFilters;
 };
 
@@ -93,7 +93,7 @@ export function useLinkedResourcesTree({
     expandedIds.ownerKey === ownerKey &&
     expandedIds.source === expansionPaths.data;
 
-  const resources = backend.getResourceTree.useQuery(
+  const resources = backend.getLinkedResourceTree.useQuery(
     treeReady
       ? {
           ...expansionFilters,

@@ -48,6 +48,7 @@ import {
   getNextFileToReviewForCriticality,
 } from './progressBarQueries';
 import {
+  getLinkedResourceTree,
   getResourceTree,
   getResourceTreeUnreviewedCount,
 } from './resourceTree';
@@ -140,6 +141,7 @@ export const queries = {
   locateAttribution,
   getAttributionSelectionSummary,
   getResourceTree,
+  getLinkedResourceTree,
   getResourceTreeUnreviewedCount,
   manualAttributionStatistics,
   externalAttributionStatistics,
