@@ -8,6 +8,7 @@ import { invalidateFilteredResourcesCache } from './resource-tree-cache';
 
 const cacheInvalidators: Partial<Record<QueryName, () => void>> = {
   getResourceTree: () => invalidateFilteredResourcesCache(getDb()),
+  getLinkedResourceTree: () => invalidateFilteredResourcesCache(getDb()),
 };
 
 export function invalidateBackendQueryCaches(
