@@ -6782,7 +6782,7 @@ __metadata:
     rolldown: "npm:1.2.9"
     run-script-os: "npm:1.1.6"
     spdx-license-ids: "npm:3.0.24"
-    stream-json: "npm:3.6.0"
+    stream-json: "npm:3.7.0"
     tsx: "npm:4.23.15"
     typescript: "npm:6.0.3"
     typescript-eslint: "npm:8.70.0"
@@ -8041,12 +8041,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stream-json@npm:3.6.0":
-  version: 3.6.0
-  resolution: "stream-json@npm:3.6.0"
+"stream-json@npm:3.7.0":
+  version: 3.7.0
+  resolution: "stream-json@npm:3.7.0"
   dependencies:
     stream-chain: "npm:^4.2.5"
-  checksum: 10/74b90a3ad58ffc3e7149d5e84d447f8c0db89959dab8560da1bedb94ca1d15eeb5c4910c6558d4fa8ca1d18c04519b4b6d24840c346a660df37144cecb1c01e5
+  checksum: 10/58882ad6451262d571662da88b4d3feebab630dfaa980c4469c3a572ceca17c3400690e264cbaad681432341061998068b569b15548f2b11b8dff584d569aee6
   languageName: node
   linkType: hard
 
