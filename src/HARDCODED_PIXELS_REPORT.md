@@ -111,7 +111,7 @@ The issue is pervasive because the codebase lacks a centralized spacing scale or
 | `src/Frontend/Components/DiffPopup/DiffPopup.tsx:109`      | 109   | `padding`      | `4px 8px`      | `actionsSx={{ py: 1, px: 2 }}`                               |
 
 All `diffPopupStyles` entries are consumed through the `sx` prop (`sx={diffPopupStyles.x}`), so theme-unit numbers are scaled correctly there.
-                                              |
+|
 
 ### Note: Pitfalls Found and Fixed During Migration
 
@@ -164,7 +164,7 @@ Scope conventions for the tables below:
 | `src/Frontend/Components/App/App.style.ts:49` | 49   | `typography.caption.lineHeight`               | `'20px'`            | caption line box height                            |
 | `src/Frontend/Components/App/App.style.ts:75` | 75   | `MuiInputBase` override `minHeight`           | `'36px !important'` | min height of every input in the app               |
 
-### Electron main process
+### _DONE_ Electron main process
 
 Window size constants in `src/ElectronBackend/main/createWindow.ts` (screen-aware clamping uses `screen.getPrimaryDisplay().workAreaSize`) — the preferred size is clamped to the actual screen work area when the window opens, so on small screens (e.g. 1366×768 laptops) the window no longer opens taller than the desktop:
 
@@ -187,19 +187,23 @@ Window size constants in `src/ElectronBackend/main/createWindow.ts` (screen-awar
 | `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:119` | 119  | `EndAdornmentContainer.right`  | `'14px'`                | end-adornment inset from right edge       |
 | `src/Frontend/Components/Autocomplete/AutocompleteUtil.tsx:27`    | 27   | `minWidth`                     | `'24px'`                | end-adornment icon wrapper (also line 53) |
 
-### AuditingOptions
+### _DONE_ AuditingOptions
 
-| File                                                                                   | Line | Property         | Value               | Determines                                         |
-| -------------------------------------------------------------------------------------- | ---- | ---------------- | ------------------- | -------------------------------------------------- |
-| `src/Frontend/Components/AttributionForm/AuditingOptions/AuditingOptions.util.tsx:266` | 266  | `width`/`height` | `'19px'` / `'19px'` | satisfaction icons (also lines 273, 280, 287, 295) |
+| File                                                                                   | Line | Property         | Value               | Determines                                         | Converted to                                                                                                                                                                                              |
+| -------------------------------------------------------------------------------------- | ---- | ---------------- | ------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/AttributionForm/AuditingOptions/AuditingOptions.util.tsx:266` | 266  | `width`/`height` | `'19px'` / `'19px'` | satisfaction icons (also lines 273, 280, 287, 295) | `spacing(AUDITING_OPTION_ICON_THEME_SIZE)` (= 4.75 theme units, 19px) in module-scope `satisfactionIconClass`, deduped via a sx theme callback (values, e.g. `width`/`height`, are not auto-scaled by sx) |
 
-### BarChart
+The size token lives in `src/Frontend/shared-styles.ts` (`AUDITING_OPTION_ICON_THEME_SIZE`) and is shared with the SelectMenu icon column (see below).
 
-| File                                               | Line | Property             | Value                               | Determines                     |
-| -------------------------------------------------- | ---- | -------------------- | ----------------------------------- | ------------------------------ |
-| `src/Frontend/Components/BarChart/BarChart.tsx:25` | 25   | `tickStyle.fontSize` | `'12px'`                            | axis tick labels               |
-| `src/Frontend/Components/BarChart/BarChart.tsx:38` | 38   | `RcBarChart margin`  | `{ left: 8, right: 10, bottom: 4 }` | chart plot-area margins        |
-| `src/Frontend/Components/BarChart/BarChart.tsx:43` | 43   | `RcLabel offset`     | `-3` (recharts px offset)           | x-axis label vertical position |
+### _DONE_ BarChart
+
+The values are read from the MUI theme at runtime via `useTheme()` (PieChart precedent), because recharts consumes plain object values (`tick`/`style` props and numeric `margin`/`offset`), not theme-unit sx shorthands — sx theme-unit numbers would be raw pixels here:
+
+| File                                               | Line  | Property             | Value                               | Determines                     | Converted to                                                                                                                                                                                                                                       |
+| -------------------------------------------------- | ----- | -------------------- | ----------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/BarChart/BarChart.tsx:38` | 38    | `tickStyle.fontSize` | `'12px'`                            | axis tick labels               | `theme.typography.caption.fontSize` (caption is 12px in `App.style.ts:48`)                                                                                                                                                                         |
+| `src/Frontend/Components/BarChart/BarChart.tsx:48` | 48–52 | `RcBarChart margin`  | `{ left: 8, right: 10, bottom: 4 }` | chart plot-area margins        | theme-unit constants (`MARGIN_LEFT_IN_THEME_UNITS` = 2, `MARGIN_RIGHT_IN_THEME_UNITS` = 2.5, `MARGIN_BOTTOM_IN_THEME_UNITS` = 1), resolved numerically via `parseFloat(theme.spacing(units))` (= 8/10/4px) because recharts `margin` needs numbers |
+| `src/Frontend/Components/BarChart/BarChart.tsx:57` | 57    | `RcLabel offset`     | `-3` (recharts px offset)           | x-axis label vertical position | `X_AXIS_LABEL_OFFSET_IN_THEME_UNITS` = 0.75 units (= 3px), passed negated                                                                                                                                                                          |
 
 ### CardList
 
@@ -387,15 +391,15 @@ Grid column track widths of the log grid (the `columnGap` itself is theme-scaled
 
 ### SelectMenu
 
-| File                                                          | Line  | Property                         | Value                 | Determines                                              |
-| ------------------------------------------------------------- | ----- | -------------------------------- | --------------------- | ------------------------------------------------------- |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:47`  | 47    | `filter` drop-shadow             | `0px 2px 8px ...`     | paper shadow geometry                                   |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:55`  | 55    | anchor arrow `left`              | `'24px'`              | anchor arrow horizontal offset                          |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:56`  | 56    | anchor arrow `right`             | `'calc(100% - 24px)'` | anchor arrow horizontal offset (right-anchored variant) |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:59`  | 59–60 | anchor arrow `width`/`height`    | `10` / `10`           | anchor arrow size                                       |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:92`  | 92–93 | `StyledCheckIcon width`/`height` | `'20px'` / `'20px'`   | check icon size                                         |
-| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:103` | 103   | `MenuItemContainer.height`       | `'38px'`              | menu item row height                                    |
-| `src/Frontend/Components/SelectMenu/SelectMenu.tsx:110`       | 110   | `ListItemIcon minWidth`          | `'19px !important'`   | menu item icon column width                             |
+| File                                                          | Line  | Property                         | Value                 | Determines                                                                                                                                                                           |
+| ------------------------------------------------------------- | ----- | -------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:47`  | 47    | `filter` drop-shadow             | `0px 2px 8px ...`     | paper shadow geometry                                                                                                                                                                |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:55`  | 55    | anchor arrow `left`              | `'24px'`              | anchor arrow horizontal offset                                                                                                                                                       |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:56`  | 56    | anchor arrow `right`             | `'calc(100% - 24px)'` | anchor arrow horizontal offset (right-anchored variant)                                                                                                                              |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:59`  | 59–60 | anchor arrow `width`/`height`    | `10` / `10`           | anchor arrow size                                                                                                                                                                    |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:92`  | 92–93 | `StyledCheckIcon width`/`height` | `'20px'` / `'20px'`   | check icon size                                                                                                                                                                      |
+| `src/Frontend/Components/SelectMenu/SelectMenu.style.tsx:103` | 103   | `MenuItemContainer.height`       | `'38px'`              | menu item row height                                                                                                                                                                 |
+| `src/Frontend/Components/SelectMenu/SelectMenu.tsx:110`       | 110   | `ListItemIcon minWidth`          | `'19px !important'`   | see below: converted to the shared `AUDITING_OPTION_ICON_THEME_SIZE` token (see _DONE_ AuditingOptions); `!important` kept to keep overriding MUI's default `ListItemIcon` min-width |
 
 ### SortButton
 
