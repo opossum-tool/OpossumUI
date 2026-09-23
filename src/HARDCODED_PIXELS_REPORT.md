@@ -211,7 +211,7 @@ The values are read from the MUI theme at runtime via `useTheme()` (PieChart pre
 
 | File                                               | Line | Property | Value                             | Determines         | Converted to                                                                                                                                                                                                                                                                                                               |
 | -------------------------------------------------- | ---- | -------- | --------------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/Frontend/Components/CardList/CardList.tsx:30` | 30   | `border` | `'1px solid rgba(0, 0, 0, 0.12)'` | card outline width | fully theme-driven via `useTheme()`: width `theme.spacing(BORDER_WIDTH_IN_THEME_UNITS)` (`BORDER_WIDTH_IN_THEME_UNITS` = 0.25 units = 1px with the 4px spacing unit), color `theme.palette.divider` (= MUI's default `rgba(0, 0, 0, 0.12)`; other repo borders, e.g. `DiffPopup.style.ts:146`, still keep a literal `1px`) |
+| `src/Frontend/Components/CardList/CardList.tsx:30` | 30   | `border` | `'1px solid rgba(0, 0, 0, 0.12)'` | card outline width | fully theme-driven via `useTheme()`: width `theme.spacing(BORDER_WIDTH_IN_THEME_UNITS)` (`BORDER_WIDTH_IN_THEME_UNITS` = 0.25 units = 1px with the 4px spacing unit), color `theme.palette.divider` (= MUI's default `rgba(0, 0, 0, 0.12)`; other repo borders, e.g. `ReportTableItem.tsx:72`, still keep a literal `1px`) |
 
 ### _DONE_ ConfirmAttributionActionPopup
 
@@ -231,64 +231,70 @@ Exact conversion via the theme spacing scale (4px unit: 125 units = 500px), same
 | ------------------------------------------------------------------------- | ---- | ------------------------- | ----- | ----------- | ------------------------------------- |
 | `src/Frontend/Components/ConfirmReplacePopup/ConfirmReplacePopup.tsx:154` | 154  | `NotificationPopup width` | `500` | popup width | `theme.spacing(125)` via `useTheme()` |
 
-### DiffPopup
+### _DONE_ DiffPopup
 
-The `DiffEndIcon` component (24px undo/redo icons) no longer exists; the popup's transfer/undo controls are now styled inline in `DiffPopup.style.ts`:
+The `DiffEndIcon` component (24px undo/redo icons) no longer exists; the popup's transfer/undo controls are now styled inline in `DiffPopup.style.ts`. All px values converted via sx value callbacks around the theme spacing scale (4px unit: 0.25 units = 1px, 0.75 units = 3px, 5 units = 20px, 6 units = 24px, 8 units = 32px), applied to objects consumed through `sx={...}` on MUI components (PackageCard-style value-function precedent: `PackageCard.tsx:78`); a justified file-level `no-magic-numbers` disable covers the unit lattice (`Autocomplete.style.tsx` precedent). The popup's own viewport-calc size row is out of pixel scope and tracked in the viewport note:
 
-| File                                                       | Line | Property                             | Value                                                        | Determines                                                   |
-| ---------------------------------------------------------- | ---- | ------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:10`  | 10   | `comparisonGrid.gridTemplateColumns` | `'minmax(0, 1fr) 32px minmax(0, 1fr)'`                       | fixed 32px middle (transfer) column                          |
-| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:125` | 125  | `transferButton.borderRadius`        | `'3px'`                                                      | transfer button corner radius                                |
-| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:127` | 127  | `transferButton.height`              | `'20px'`                                                     | transfer button height                                       |
-| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:129` | 129  | `transferButton.width`               | `'24px'`                                                     | transfer button width                                        |
-| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:146` | 146  | `attributionTypeUndo.border`         | `` `1px solid ...` ``                                        | undo button ring width                                       |
-| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:148` | 148  | `attributionTypeUndo.width`/`height` | `24` / `24` (unitless)                                       | hover undo button size (also line 154)                       |
-| `src/Frontend/Components/DiffPopup/DiffPopup.tsx:106-107`  | 106  | `NotificationPopup width`/`height`   | `'min(1200px, calc(100vw - 32px))'` / `'calc(100vh - 64px)'` | popup size (pixel bounds + viewport calc; see viewport note) |
+| File                                                       | Line | Property                             | Value                                                        | Determines                                                   | Converted to                                                           |
+| ---------------------------------------------------------- | ---- | ------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:13`  | 13   | `comparisonGrid.gridTemplateColumns` | `'minmax(0, 1fr) 32px minmax(0, 1fr)'`                       | fixed 32px middle (transfer) column                          | `({ spacing }) => `minmax(0, 1fr) ${spacing(8)} minmax(0, 1fr)``       |
+| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:129` | 129  | `transferButton.borderRadius`        | `'3px'`                                                      | transfer button corner radius                                | `({ spacing }) => spacing(0.75)`                                       |
+| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:131` | 131  | `transferButton.height`              | `'20px'`                                                     | transfer button height                                       | `({ spacing }) => spacing(5)`                                          |
+| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:133` | 133  | `transferButton.width`               | `'24px'`                                                     | transfer button width                                        | `({ spacing }) => spacing(6)`                                          |
+| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:150` | 150  | `attributionTypeUndo.border`         | `` `1px solid ...` ``                                        | undo button ring width                                       | `({ spacing }) => `${spacing(0.25)} solid ${OpossumColors.lightBlue}`` |
+| `src/Frontend/Components/DiffPopup/DiffPopup.style.ts:153` | 153  | `attributionTypeUndo.width`/`height` | `24` / `24` (unitless)                                       | hover undo button size (also line 155)                       | `({ spacing }) => spacing(6)`                                          |
+| `src/Frontend/Components/DiffPopup/DiffPopup.tsx:106-107`  | 106  | `NotificationPopup width`/`height`   | `'min(1200px, calc(100vw - 32px))'` / `'calc(100vh - 64px)'` | popup size (pixel bounds + viewport calc; see viewport note) | — (viewport-based, out of pixel scope; tracked in the viewport note)   |
 
-### ErrorFallback
+### _DONE_ ErrorFallback
 
-| File                                                              | Line | Property   | Value     | Determines              |
-| ----------------------------------------------------------------- | ---- | ---------- | --------- | ----------------------- |
-| `src/Frontend/Components/ErrorFallback/ErrorFallback.style.ts:22` | 22   | `maxWidth` | `'600px'` | error box maximum width |
+| File                                                              | Line | Property   | Value     | Determines              | Converted to                                                                                                |
+| ----------------------------------------------------------------- | ---- | ---------- | --------- | ----------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/ErrorFallback/ErrorFallback.style.ts:22` | 22   | `maxWidth` | `'600px'` | error box maximum width | `breakpoints.values.sm` (MUI's default `sm` breakpoint = 600px; the app theme doesn't override breakpoints) |
 
-### ProcessPopup
+### _DONE_ ProcessPopup
 
-Grid column track widths of the log grid (the `columnGap` itself is theme-scaled and documented in the spacing part):
+Grid column track widths of the log grid (the `columnGap` itself is theme-scaled and documented in the spacing part). Exact conversion: 6 units = 24px (severity icon), 20 units = 80px (timestamp):
 
-| File                                                            | Line | Property                             | Value             | Determines                                                              |
-| --------------------------------------------------------------- | ---- | ------------------------------------ | ----------------- | ----------------------------------------------------------------------- |
-| `src/Frontend/Components/ProcessPopup/ProcessPopup.style.ts:18` | 18   | `GridLogDisplay gridTemplateColumns` | `'24px 80px 1fr'` | severity icon column (24px) and timestamp column (80px) of the log grid |
+| File                                                            | Line | Property                             | Value             | Determines                                                              | Converted to                                                                                                                                                                |
+| --------------------------------------------------------------- | ---- | ------------------------------------ | ----------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/ProcessPopup/ProcessPopup.style.ts:21` | 21   | `GridLogDisplay gridTemplateColumns` | `'24px 80px 1fr'` | severity icon column (24px) and timestamp column (80px) of the log grid | `${theme.spacing(GRID_ICON_COLUMN_IN_THEME_UNITS)} ${theme.spacing(GRID_TIMESTAMP_COLUMN_IN_THEME_UNITS)} 1fr` (consts = 6 / 20 units; module-scope consts are lint-exempt) |
 
-### FilterButton
+### _DONE_ FilterButton
 
-| File                                                        | Line  | Property                          | Value             | Determines                   |
-| ----------------------------------------------------------- | ----- | --------------------------------- | ----------------- | ---------------------------- |
-| `src/Frontend/Components/FilterButton/FilterButton.tsx:81`  | 81–83 | badge `minWidth`/`width`/`height` | `'8px'` each      | active-filter badge dot size |
-| `src/Frontend/Components/FilterButton/FilterButton.tsx:84`  | 84–85 | badge `top` / `right`             | `'4px'` / `'4px'` | badge dot offset             |
-| `src/Frontend/Components/FilterButton/FilterButton.tsx:120` | 120   | `SelectMenu width`                | `336`             | filter dropdown width        |
+The badge dot styles sit in a plain `style` prop (not sx), so the values are resolved via `useTheme()` at runtime; the dropdown width lands in `SelectMenu`'s `width` prop (`React.CSSProperties['width']`-typed). Exact conversions (4px unit: 2 units = 8px, 1 unit = 4px, 84 units = 336px); the `84`-unit call carries a justified `no-magic-numbers` disable:
 
-### GroupedList
+| File                                                        | Line  | Property                          | Value             | Determines                   | Converted to                         |
+| ----------------------------------------------------------- | ----- | --------------------------------- | ----------------- | ---------------------------- | ------------------------------------ |
+| `src/Frontend/Components/FilterButton/FilterButton.tsx:85`  | 85–87 | badge `minWidth`/`width`/`height` | `'8px'` each      | active-filter badge dot size | `theme.spacing(2)` via `useTheme()`  |
+| `src/Frontend/Components/FilterButton/FilterButton.tsx:88`  | 88–89 | badge `top` / `right`             | `'4px'` / `'4px'` | badge dot offset             | `theme.spacing(1)` via `useTheme()`  |
+| `src/Frontend/Components/FilterButton/FilterButton.tsx:125` | 125   | `SelectMenu width`                | `336`             | filter dropdown width        | `theme.spacing(84)` via `useTheme()` |
 
-| File                                                          | Line | Property                      | Value    | Determines              |
-| ------------------------------------------------------------- | ---- | ----------------------------- | -------- | ----------------------- |
-| `src/Frontend/Components/GroupedList/GroupedList.style.ts:11` | 11   | `GroupContainer.height`       | `'20px'` | group header row height |
-| `src/Frontend/Components/GroupedList/GroupedList.style.ts:21` | 21   | `StyledLinearProgress.height` | `2`      | progress bar thickness  |
+### _DONE_ GroupedList
 
-### Icons
+| File                                                          | Line | Property                      | Value    | Determines              | Converted to                                                                   |
+| ------------------------------------------------------------- | ---- | ----------------------------- | -------- | ----------------------- | ------------------------------------------------------------------------------ |
+| `src/Frontend/Components/GroupedList/GroupedList.style.ts:11` | 11   | `GroupContainer.height`       | `'20px'` | group header row height | `theme.spacing(5)` (-- 5 units = 20px)                                         |
+| `src/Frontend/Components/GroupedList/GroupedList.style.ts:21` | 21   | `StyledLinearProgress.height` | `2`      | progress bar thickness  | `theme.spacing(0.5)` (= 2px; object styled form converted to a theme callback) |
 
-| File                                          | Line | Property              | Value    | Determines                       |
-| --------------------------------------------- | ---- | --------------------- | -------- | -------------------------------- |
-| `src/Frontend/Components/Icons/Icons.tsx:32`  | 32   | `resourceIcon.width`  | `'18px'` | resource tree icon size          |
-| `src/Frontend/Components/Icons/Icons.tsx:33`  | 33   | `resourceIcon.height` | `'18px'` | resource tree icon size          |
-| `src/Frontend/Components/Icons/Icons.tsx:294` | 294  | `strokeWidth`         | `0.5`    | classification icon stroke width |
+### _DONE_ Icons
 
-### ImportDialog / MergeOpossumFilesDialog / SplitDialog
+`resourceIcon` is a module-scope classes object spread into consumers' sx, so it uses sx value callbacks with the unit kept in a module const (const declarations are `no-magic-numbers`-exempt; 4.5 units = 18px). The `strokeWidth` row is kept as-is: it is SVG user-unit geometry (`stroke-width: 0.5` scales with the icon's viewBox, not a CSS px value), the same non-CSS-scope category as the retained Popper flip padding in the residual note — mapping it through the spacing lattice would alter rendering semantics:
 
-| File                                                                              | Line    | Property                                | Value                 | Determines         |
-| --------------------------------------------------------------------------------- | ------- | --------------------------------------- | --------------------- | ------------------ |
-| `src/Frontend/Components/ImportDialog/ImportDialog.tsx:111`                       | 111–112 | `NotificationPopup minWidth`/`maxWidth` | `'300px'` / `'700px'` | popup width bounds |
-| `src/Frontend/Components/MergeOpossumFilesDialog/MergeOpossumFilesDialog.tsx:149` | 149–150 | `minWidth`/`maxWidth`                   | `'300px'` / `'700px'` | popup width bounds |
-| `src/Frontend/Components/SplitDialog/SplitDialog.tsx:94`                          | 94–95   | `minWidth`/`maxWidth`                   | `'300px'` / `'700px'` | popup width bounds |
+| File                                          | Line | Property              | Value    | Determines                       | Converted to                                         |
+| --------------------------------------------- | ---- | --------------------- | -------- | -------------------------------- | ---------------------------------------------------- |
+| `src/Frontend/Components/Icons/Icons.tsx:35`  | 35   | `resourceIcon.width`  | `'18px'` | resource tree icon size          | `spacing(RESOURCE_ICON_SIZE_IN_THEME_UNITS)` (4.5 u) |
+| `src/Frontend/Components/Icons/Icons.tsx:36`  | 36   | `resourceIcon.height` | `'18px'` | resource tree icon size          | `spacing(RESOURCE_ICON_SIZE_IN_THEME_UNITS)` (4.5 u) |
+| `src/Frontend/Components/Icons/Icons.tsx:297` | 297  | `strokeWidth`         | `0.5`    | classification icon stroke width | — kept (SVG user-unit geometry, see note)            |
+
+### _DONE_ ImportDialog / MergeOpossumFilesDialog / SplitDialog
+
+All three popups share the same width bounds (`75` units = 300px, `175` units = 700px, exact with the 4px spacing unit), resolved via `useTheme()`; the `80vw` popup `width` is viewport-based and out of pixel scope (see the viewport note). The unit call args carry justified `no-magic-numbers` disables:
+
+| File                                                                              | Line    | Property                                | Value                 | Determines         | Converted to                               |
+| --------------------------------------------------------------------------------- | ------- | --------------------------------------- | --------------------- | ------------------ | ------------------------------------------ |
+| `src/Frontend/Components/ImportDialog/ImportDialog.tsx:114`                       | 114–115 | `NotificationPopup minWidth`/`maxWidth` | `'300px'` / `'700px'` | popup width bounds | `theme.spacing(75)` / `theme.spacing(175)` |
+| `src/Frontend/Components/MergeOpossumFilesDialog/MergeOpossumFilesDialog.tsx:152` | 152–153 | `minWidth`/`maxWidth`                   | `'300px'` / `'700px'` | popup width bounds | `theme.spacing(75)` / `theme.spacing(175)` |
+| `src/Frontend/Components/SplitDialog/SplitDialog.tsx:97`                          | 97–98   | `minWidth`/`maxWidth`                   | `'300px'` / `'700px'` | popup width bounds | `theme.spacing(75)` / `theme.spacing(175)` |
 
 ### List
 

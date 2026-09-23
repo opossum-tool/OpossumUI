@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiFormControlLabel from '@mui/material/FormControlLabel';
+import { useTheme } from '@mui/material/styles';
 import MuiSwitch from '@mui/material/Switch';
 import MuiTypography from '@mui/material/Typography';
 import { useState } from 'react';
@@ -27,6 +28,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
   fileFormat,
 }) => {
   const dispatch = useAppDispatch();
+  const theme = useTheme();
 
   const [inputFilePath, setInputFilePath] = useState<string>('');
   const [opossumFilePath, setOpossumFilePath] = useState<string>('');
@@ -108,8 +110,10 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
     <NotificationPopup
       header={text.importDialog.title(fileFormat)}
       width={'80vw'}
-      minWidth={'300px'}
-      maxWidth={'700px'}
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 75 theme spacing units (= 300px)
+      minWidth={theme.spacing(75)}
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 175 theme spacing units (= 700px)
+      maxWidth={theme.spacing(175)}
       isOpen={true}
       customAction={
         processingStatusUpdatedEvents.length ? (
