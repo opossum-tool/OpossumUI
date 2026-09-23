@@ -20,9 +20,40 @@ import {
 } from './resourceTreeFilters';
 import { getResourceOrThrow, removeTrailingSlash } from './utils';
 
-export type ResourceTreeNodeData = Awaited<
-  ReturnType<typeof getResourceTree>
->['result']['treeNodes'][number];
+export interface ResourceTreeNodeBase {
+  id: string;
+  labelText: string;
+  level: number;
+  isExpandable: boolean;
+  isExpanded: boolean;
+  canHaveChildren: boolean;
+  isAttributionBreakpoint: boolean;
+  isFile: boolean;
+  isReadonly: boolean;
+  matchesFilters: boolean;
+}
+
+export type ResourceTreeNodeData = ResourceTreeNodeBase & {
+  hasManualAttribution: boolean;
+  hasExternalAttribution: boolean;
+  hasUnresolvedExternalAttribution: boolean;
+  hasParentWithManualAttribution: boolean;
+  containsExternalAttribution: boolean;
+  containsManualAttribution: boolean;
+  containsResourcesWithOnlyExternalAttribution: boolean;
+  criticality: number | null;
+  classification: number | null;
+};
+
+type ResourceTreeResult<T> = {
+  result: {
+    treeNodes: Array<T>;
+    count: number;
+    belowSelectedResource?: number;
+  };
+};
+
+export type LinkedResourceTreeNodeData = ResourceTreeNodeBase;
 
 export async function getResourceTree({
   search,
@@ -35,8 +66,108 @@ export async function getResourceTree({
 }: ResourceTreeFilters & {
   expandedNodes: Array<string> | 'expandAll';
   selectedResourcePath?: string;
-}) {
-  const expandedNodeSet =
+}): Promise<ResourceTreeResult<ResourceTreeNodeData>> {
+  const queryResult = await getResourceTreeWithProjection(
+    {
+      search,
+      expandedNodes,
+      onlyUnreviewedFiles,
+      licenseFilter,
+      onAttributionUuids,
+      selectedResourcePath,
+      onlyWritable,
+    },
+    'full',
+  );
+
+  return {
+    result: {
+      ...queryResult.result,
+      treeNodes: queryResult.result.treeNodes.map(
+        (node): ResourceTreeNodeData => ({
+          ...mapCommonNode(node, {
+            expandedNodeSet: queryResult.expandedNodeSet,
+            onAttributionUuids,
+            search,
+          }),
+          hasManualAttribution: Boolean(node.has_manual_attribution),
+          hasExternalAttribution: Boolean(node.has_external_attribution),
+          hasUnresolvedExternalAttribution: Boolean(
+            node.has_unresolved_external_attribution,
+          ),
+          hasParentWithManualAttribution: Boolean(
+            node.has_parent_with_manual_attribution,
+          ),
+          containsExternalAttribution: Boolean(
+            node.contains_external_attribution,
+          ),
+          containsManualAttribution: Boolean(node.contains_manual_attribution),
+          containsResourcesWithOnlyExternalAttribution: Boolean(
+            node.contains_resource_with_only_external_attribution,
+          ),
+          criticality: node.max_criticality_on_unresolved_external_attribution,
+          classification:
+            node.max_classification_on_unresolved_external_attribution,
+        }),
+      ),
+    },
+  };
+}
+
+export async function getLinkedResourceTree({
+  search,
+  expandedNodes,
+  onAttributionUuids,
+  selectedResourcePath,
+  onlyWritable,
+}: {
+  onAttributionUuids: Array<string>;
+  expandedNodes: Array<string> | 'expandAll';
+  search?: string;
+  selectedResourcePath?: string;
+  onlyWritable?: boolean;
+}): Promise<ResourceTreeResult<LinkedResourceTreeNodeData>> {
+  const queryResult = await getResourceTreeWithProjection(
+    {
+      search,
+      expandedNodes,
+      onAttributionUuids,
+      selectedResourcePath,
+      onlyWritable,
+    },
+    'linked',
+  );
+
+  return {
+    result: {
+      ...queryResult.result,
+      treeNodes: queryResult.result.treeNodes.map((node) =>
+        mapCommonNode(node, {
+          expandedNodeSet: queryResult.expandedNodeSet,
+          onAttributionUuids,
+          search,
+        }),
+      ),
+    },
+  };
+}
+
+async function getResourceTreeWithProjection(
+  {
+    search,
+    expandedNodes,
+    onlyUnreviewedFiles,
+    licenseFilter,
+    onAttributionUuids,
+    selectedResourcePath,
+    onlyWritable,
+  }: ResourceTreeFilters & {
+    expandedNodes: Array<string> | 'expandAll';
+    selectedResourcePath?: string;
+  },
+  projection: 'full' | 'linked',
+) {
+  const expandedNodeSet: ExpandedNodeSet =
     expandedNodes === 'expandAll'
       ? 'expandAll'
       : new Set(expandedNodes.map((path) => removeTrailingSlash(path)));
@@ -96,7 +227,10 @@ export async function getResourceTree({
     }
 
     if (total === 0) {
-      return { result: { treeNodes: [], count: 0 } };
+      return {
+        result: { treeNodes: [], count: 0 },
+        expandedNodeSet,
+      };
     }
 
     let query = trx
@@ -113,9 +247,11 @@ export async function getResourceTree({
             'is_readonly',
             'parent_id',
             sb.val(0).as('level'),
-            sb.val(0).as('has_parent_with_manual_attribution'),
+            ...(projection === 'full'
+              ? [sb.val(0).as('has_parent_with_manual_attribution')]
+              : []),
           ])
-          .select((eb) => getTreeNodeProps(eb))
+          .select((eb) => getTreeNodeProps(eb, projection))
           .select([
             sql`FALSE`.as('matches_filters'),
             sql`FALSE`.as('ancestor_matches_filters'),
@@ -140,11 +276,15 @@ export async function getResourceTree({
                 'r.is_readonly',
                 'r.parent_id',
                 sql<number>`parent.level + 1`.as('level'),
-                sql<number>`r.is_attribution_breakpoint = 0 AND (parent.has_manual_attribution OR parent.has_parent_with_manual_attribution)`.as(
-                  'has_parent_with_manual_attribution',
-                ),
+                ...(projection === 'full'
+                  ? [
+                      sql<number>`r.is_attribution_breakpoint = 0 AND (parent.has_manual_attribution OR parent.has_parent_with_manual_attribution)`.as(
+                        'has_parent_with_manual_attribution',
+                      ),
+                    ]
+                  : []),
               ])
-              .select((eb) => getTreeNodeProps(eb))
+              .select((eb) => getTreeNodeProps(eb, projection))
               .select((eb) => {
                 if (!filtersAreActive) {
                   return sql`FALSE`.as('matches_filters');
@@ -234,37 +374,7 @@ export async function getResourceTree({
 
     query = query.orderBy('id');
 
-    const treeNodes = (await query.execute()).map((node) => ({
-      id: node.path + (node.can_have_children ? '/' : ''), // For compatibility with legacy code
-      labelText: node.name || '/',
-      level: node.level,
-      isExpandable: Boolean(node.is_expandable),
-      isExpanded:
-        expandedNodeSet === 'expandAll' || expandedNodeSet.has(node.path),
-      hasManualAttribution: Boolean(node.has_manual_attribution),
-      hasExternalAttribution: Boolean(node.has_external_attribution),
-      hasUnresolvedExternalAttribution: Boolean(
-        node.has_unresolved_external_attribution,
-      ),
-      hasParentWithManualAttribution: Boolean(
-        node.has_parent_with_manual_attribution,
-      ),
-      containsExternalAttribution: Boolean(node.contains_external_attribution),
-      containsManualAttribution: Boolean(node.contains_manual_attribution),
-      containsResourcesWithOnlyExternalAttribution: Boolean(
-        node.contains_resource_with_only_external_attribution,
-      ),
-      canHaveChildren: Boolean(node.can_have_children),
-      isAttributionBreakpoint: Boolean(node.is_attribution_breakpoint),
-      isFile: Boolean(node.is_file),
-      isReadonly: Boolean(node.is_readonly),
-      criticality: node.max_criticality_on_unresolved_external_attribution,
-      classification:
-        node.max_classification_on_unresolved_external_attribution,
-      matchesFilters: onAttributionUuids
-        ? Boolean(search && node.highlight_matches)
-        : Boolean(node.matches_filters),
-    }));
+    const treeNodes = await query.execute();
 
     return {
       result: {
@@ -272,11 +382,46 @@ export async function getResourceTree({
         count: total,
         belowSelectedResource: belowSelectedResourceTotal,
       },
+      expandedNodeSet,
     };
   };
   return filtersAreActive
     ? withFilteredResourcesTable(filters, runQuery)
     : db.transaction().execute(runQuery);
+}
+
+type ResourceTreeQueryResult = Awaited<
+  ReturnType<typeof getResourceTreeWithProjection>
+>;
+type ResourceTreeQueryRow =
+  ResourceTreeQueryResult['result']['treeNodes'][number];
+type ExpandedNodeSet = Set<string> | 'expandAll';
+
+function mapCommonNode(
+  node: ResourceTreeQueryRow,
+  {
+    expandedNodeSet,
+    onAttributionUuids,
+    search,
+  }: Pick<ResourceTreeFilters, 'onAttributionUuids' | 'search'> & {
+    expandedNodeSet: ExpandedNodeSet;
+  },
+): ResourceTreeNodeBase {
+  return {
+    id: node.path + (node.can_have_children ? '/' : ''), // For compatibility with legacy code
+    labelText: node.name || '/',
+    level: node.level,
+    isExpandable: Boolean(node.is_expandable),
+    isExpanded:
+      expandedNodeSet === 'expandAll' || expandedNodeSet.has(node.path),
+    canHaveChildren: Boolean(node.can_have_children),
+    isAttributionBreakpoint: Boolean(node.is_attribution_breakpoint),
+    isFile: Boolean(node.is_file),
+    isReadonly: Boolean(node.is_readonly),
+    matchesFilters: onAttributionUuids
+      ? Boolean(search && node.highlight_matches)
+      : Boolean(node.matches_filters),
+  };
 }
 
 export async function getResourceTreeUnreviewedCount({
@@ -311,11 +456,20 @@ type TreeNodeQueryType = DB & {
   r: Resource;
 };
 
-function getTreeNodeProps(eb: ExpressionBuilder<TreeNodeQueryType, 'r'>) {
-  return [
+function getTreeNodeProps(
+  eb: ExpressionBuilder<TreeNodeQueryType, 'r'>,
+  projection: 'full' | 'linked',
+) {
+  const commonProps = [
     eb.ref('r.name').as('name'),
 
     eb.ref('r.can_have_children').as('can_have_children'),
+  ];
+  if (projection === 'linked') {
+    return commonProps;
+  }
+  return [
+    ...commonProps,
 
     eb
       .exists(

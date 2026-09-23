@@ -7,7 +7,10 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MuiBox from '@mui/material/Box';
 import { type MouseEvent, useEffect, useRef } from 'react';
 
-import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
+import type {
+  ResourceTreeNodeBase,
+  ResourceTreeNodeData,
+} from '../../../../ElectronBackend/api/resourceTree';
 import type { ResourceTreeFilters } from '../../../../ElectronBackend/api/resourceTreeFilters';
 import { OpossumColors } from '../../../shared-styles';
 import { getNodeIdsToExpand } from './VirtualizedTreeNode.util';
@@ -68,17 +71,18 @@ const classes = {
   },
 };
 
-export interface TreeNode {
-  resource: ResourceTreeNodeData;
+export interface TreeNode<
+  T extends ResourceTreeNodeBase = ResourceTreeNodeData,
+> {
+  resource: T;
 }
 
-interface VirtualizedTreeNodeProps extends TreeNode {
-  TreeNodeLabel: React.FC<TreeNode>;
+interface VirtualizedTreeNodeProps<
+  T extends ResourceTreeNodeBase,
+> extends TreeNode<T> {
+  TreeNodeLabel: React.FC<TreeNode<T>>;
   onSelect: (nodeId: string) => void;
-  onContextMenu?: (
-    event: MouseEvent<HTMLElement>,
-    resource: ResourceTreeNodeData,
-  ) => void;
+  onContextMenu?: (event: MouseEvent<HTMLElement>, resource: T) => void;
   onToggle: (nodeIdsToExpand: Array<string>) => void;
   readOnly?: boolean;
   selected: boolean;
@@ -87,7 +91,9 @@ interface VirtualizedTreeNodeProps extends TreeNode {
   expansionFilters?: ResourceTreeFilters;
 }
 
-export function VirtualizedTreeNode({
+export function VirtualizedTreeNode<
+  T extends ResourceTreeNodeBase = ResourceTreeNodeData,
+>({
   TreeNodeLabel,
   resource,
   onSelect,
@@ -98,7 +104,7 @@ export function VirtualizedTreeNode({
   highlighted,
   focused,
   expansionFilters,
-}: VirtualizedTreeNodeProps) {
+}: VirtualizedTreeNodeProps<T>) {
   const marginRight =
     resource.level * INDENT_PER_DEPTH_LEVEL +
     (resource.isExpandable ? 0 : SIMPLE_FOLDER_EXTRA_INDENT);
