@@ -102,7 +102,7 @@ export async function runSplitWorkflows({
       await resourcesTree.revealResource(
         split.mixedWritableResource.resourcePath,
       );
-      await resourcesTree.selectRevealedResource(
+      await resourcesTree.clickResourceAtPath(
         split.mixedWritableResource.resourcePath,
       );
       await resourcesTree.clearSearch();

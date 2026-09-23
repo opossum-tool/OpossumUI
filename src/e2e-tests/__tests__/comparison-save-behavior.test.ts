@@ -372,7 +372,7 @@ async function openResource({
   packageInfo: RawPackageInfo;
 }): Promise<void> {
   await resourcesTree.revealResource(resourcePath);
-  await resourcesTree.selectRevealedResource(resourcePath);
+  await resourcesTree.clickResourceAtPath(resourcePath);
   await attributionsPanel.packageCard.click(packageInfo);
   await attributionDetails.attributionForm.assert.nameIs(
     packageInfo.packageName || '',

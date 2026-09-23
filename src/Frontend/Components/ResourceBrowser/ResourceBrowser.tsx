@@ -225,6 +225,13 @@ export function ResourceBrowser() {
               )}
             </>
           ),
+          headerDataAttributes: {
+            'data-applied-search':
+              searchLinked === debouncedSearchLinked &&
+              linkedResourcesPanelState.isSearchApplied
+                ? debouncedSearchLinked
+                : undefined,
+          },
           headerTestId: 'linked-resources-tree-header',
         }}
       />

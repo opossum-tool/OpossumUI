@@ -44,7 +44,7 @@ test('preserves the selected resource viewport when expanding an upper folder', 
   await resourcesTree.scrollToTop();
   await resourcesTree.assert.resourceAtPathIsInViewport(upperFolder);
   await resourcesTree.assert.resourceAtPathIsNotInViewport(selectedResource);
-  await resourcesTree.expandResource(upperFolder);
+  await resourcesTree.expandResourceAtPath(upperFolder);
 
   await resourcesTree.assert.resourceAtPathIsInViewport(upperFolder);
   for (const childResource of childResources) {
