@@ -60,6 +60,9 @@ export class ReportView {
     attributionIsVisible: async (id: string): Promise<void> => {
       await expect(this.attributionRow(id)).toBeVisible();
     },
+    attributionIsInViewport: async (id: string): Promise<void> => {
+      await expect(this.attributionRow(id)).toBeInViewport();
+    },
     attributionIsEditable: async (id: string): Promise<void> => {
       await expect(this.attributionRow(id)).toBeVisible();
     },

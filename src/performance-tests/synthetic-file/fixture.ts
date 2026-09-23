@@ -12,6 +12,7 @@ import {
   getSyntheticPackageLayout,
   getSyntheticPackageName,
   iterateSyntheticResources,
+  type SyntheticResource,
 } from './resource-tree';
 
 export const SYNTHETIC_LICENSE_NAMES = [
@@ -46,6 +47,9 @@ const SYNTHETIC_SCENARIO_BLUEPRINT = {
     rareSignal: 4,
     frequentSignal: 8,
     linkSignal: 6,
+    linkedResourcesOpenSignal: 9,
+    linkedResourcesSearchSignal: 11,
+    linkedResourcesExpansionSignal: 13,
   },
   manualAttributions: {
     default: 0,
@@ -188,6 +192,20 @@ interface DenseSignalScenario {
 
 interface HighFanoutScenario {
   readonly external: SyntheticAttributionRecord;
+  readonly linkedResourceTargets: {
+    readonly open: {
+      readonly signal: SyntheticAttributionRecord;
+      readonly resource: SyntheticResourceAnchor;
+    };
+    readonly search: {
+      readonly signal: SyntheticAttributionRecord;
+      readonly resource: SyntheticResourceAnchor;
+    };
+    readonly expansion: {
+      readonly signal: SyntheticAttributionRecord;
+      readonly resource: SyntheticResourceAnchor;
+    };
+  };
   readonly manual: SyntheticAttributionRecord;
   readonly resource: SyntheticResourceAnchor;
   readonly writableResource: SyntheticResourceAnchor;
@@ -629,6 +647,26 @@ export function createSyntheticFileModel(
     'manual',
     profile.manualAttributionCount - 1,
   );
+  const linkedResourceSignals = {
+    open: getSyntheticAttributionRecord(
+      profile,
+      'external',
+      SYNTHETIC_SCENARIO_BLUEPRINT.externalAttributions
+        .linkedResourcesOpenSignal,
+    ),
+    search: getSyntheticAttributionRecord(
+      profile,
+      'external',
+      SYNTHETIC_SCENARIO_BLUEPRINT.externalAttributions
+        .linkedResourcesSearchSignal,
+    ),
+    expansion: getSyntheticAttributionRecord(
+      profile,
+      'external',
+      SYNTHETIC_SCENARIO_BLUEPRINT.externalAttributions
+        .linkedResourcesExpansionSignal,
+    ),
+  };
   const splitDirectoryCount = profile.splitDirectoryCountPerPartition;
   const firstPartition = Array.from(
     { length: splitDirectoryCount },
@@ -646,6 +684,64 @@ export function createSyntheticFileModel(
     0,
   );
   const highFanoutReadonlyResource = getSyntheticPackageFileAnchor(profile, 1);
+  const targetOrdinals = [1, 2, 3].map(
+    (offset) => offset * profile.highFanoutLinkCount,
+  );
+  const targetResources: Array<SyntheticResource> = [];
+  for (const resource of iterateSyntheticResources(profile)) {
+    if (
+      !resource.isDirectory &&
+      targetResources.length < targetOrdinals.length &&
+      resource.ordinal >= targetOrdinals[targetResources.length]
+    ) {
+      targetResources.push(resource);
+    }
+    if (targetResources.length === targetOrdinals.length) {
+      break;
+    }
+  }
+  if (targetResources.length !== targetOrdinals.length) {
+    throw new Error('Unable to find all linked-resource target anchors.');
+  }
+  const linkedResourceTargets = {
+    open: targetResources[0],
+    search: targetResources[1],
+    expansion: targetResources[2],
+  };
+  const makeLinkedTarget = (
+    targetResource: SyntheticResource,
+    signal: SyntheticAttributionRecord,
+  ) => {
+    const pathSegments = targetResource.path.slice(1).split('/') as [
+      string,
+      string,
+      string,
+    ];
+    const resource: SyntheticResourceAnchor = {
+      resourcePath: targetResource.path,
+      resourceName: pathSegments[2],
+      resourceNames: pathSegments,
+    };
+    linkOverrides.set(resource.resourcePath, {
+      external: [signal.id],
+      manual: [highFanoutManual.id],
+    });
+    return { signal, resource };
+  };
+  const namedLinkedResourceTargets = {
+    open: makeLinkedTarget(
+      linkedResourceTargets.open,
+      linkedResourceSignals.open,
+    ),
+    search: makeLinkedTarget(
+      linkedResourceTargets.search,
+      linkedResourceSignals.search,
+    ),
+    expansion: makeLinkedTarget(
+      linkedResourceTargets.expansion,
+      linkedResourceSignals.expansion,
+    ),
+  };
   linkOverrides.set(highFanoutWritableResource.resourcePath, {
     ...linkOverrides.get(highFanoutWritableResource.resourcePath),
     manual: [highFanoutManual.id],
@@ -665,7 +761,6 @@ export function createSyntheticFileModel(
     sourcePackageIndex,
   );
   const bulkSignals = denseSignals.slice(1, profile.bulkSignalCount + 1);
-  const highFanoutResource = highFanoutReadonlyResource;
 
   const scenarios = {
     expandAndSelect: {
@@ -738,8 +833,9 @@ export function createSyntheticFileModel(
     },
     highFanout: {
       external: highFanoutExternal,
+      linkedResourceTargets: namedLinkedResourceTargets,
       manual: highFanoutManual,
-      resource: highFanoutResource,
+      resource: highFanoutReadonlyResource,
       writableResource: highFanoutWritableResource,
       readonlyResource: highFanoutReadonlyResource,
     },
@@ -761,10 +857,20 @@ export function createSyntheticFileModel(
   };
 }
 
-const FREQUENT_SIGNAL_START = 100;
-const FREQUENT_SIGNAL_END = 1100;
+const FREQUENT_SIGNAL_LINK_COUNT = 1000;
 const DEFAULT_SIGNAL_END = 10000;
 const HIGH_FANOUT_START = 0;
+const HIGH_FANOUT_RANGE_COUNT = 4;
+const LINKED_RESOURCE_SIGNAL_INDICES = [
+  SYNTHETIC_SCENARIO_BLUEPRINT.externalAttributions.linkedResourcesOpenSignal,
+  SYNTHETIC_SCENARIO_BLUEPRINT.externalAttributions.linkedResourcesSearchSignal,
+  SYNTHETIC_SCENARIO_BLUEPRINT.externalAttributions
+    .linkedResourcesExpansionSignal,
+];
+const SORTING_SIGNAL_INDICES: number[] = [
+  SYNTHETIC_SCENARIO_BLUEPRINT.externalAttributions.rareSignal,
+  SYNTHETIC_SCENARIO_BLUEPRINT.externalAttributions.frequentSignal,
+];
 
 export function getSyntheticLinksForResource(
   ordinal: number,
@@ -787,16 +893,35 @@ export function getSyntheticLinksForResource(
         profile.denseSignalCount +
         1
   ) {
+    const fanoutSignalOffset = Math.floor(
+      (ordinal - HIGH_FANOUT_START) / profile.highFanoutLinkCount,
+    );
+    const highFanoutEnd =
+      HIGH_FANOUT_START + profile.highFanoutLinkCount * HIGH_FANOUT_RANGE_COUNT;
+    const frequentSignalEnd = highFanoutEnd + FREQUENT_SIGNAL_LINK_COUNT;
     const externalIndex =
-      ordinal >= HIGH_FANOUT_START &&
-      ordinal < HIGH_FANOUT_START + profile.highFanoutLinkCount
-        ? profile.externalAttributionCount - profile.denseSignalCount
-        : ordinal >= FREQUENT_SIGNAL_START && ordinal < FREQUENT_SIGNAL_END
+      ordinal >= HIGH_FANOUT_START && ordinal < highFanoutEnd
+        ? fanoutSignalOffset === 0
+          ? profile.externalAttributionCount - profile.denseSignalCount
+          : LINKED_RESOURCE_SIGNAL_INDICES[fanoutSignalOffset - 1]
+        : ordinal >= highFanoutEnd && ordinal < frequentSignalEnd
           ? model.scenarios.signalSort.frequentSignal.index
           : ordinal < DEFAULT_SIGNAL_END
             ? 0
-            : syntheticHash(profile.seed, ordinal) %
-              profile.externalAttributionCount;
+            : (() => {
+                const hashIndex =
+                  syntheticHash(profile.seed, ordinal) %
+                  profile.externalAttributionCount;
+                const matchesReservedSignal =
+                  hashIndex ===
+                    profile.externalAttributionCount -
+                      profile.denseSignalCount ||
+                  SORTING_SIGNAL_INDICES.includes(hashIndex) ||
+                  Object.values(
+                    model.scenarios.highFanout.linkedResourceTargets,
+                  ).some(({ signal }) => signal.index === hashIndex);
+                return matchesReservedSignal ? 0 : hashIndex;
+              })();
     links.push(getSyntheticAttributionId('external', externalIndex));
     if (ordinal < EXTRA_EARLY_LINK_COUNT) {
       links.push(getSyntheticAttributionId('external', externalIndex + 1));
@@ -814,4 +939,24 @@ export function getSyntheticLinksForResource(
     );
   }
   return links;
+}
+
+export function getSyntheticAttributionLinkCounts(
+  profile: SyntheticFileProfile,
+  model: Fixture,
+  kind: SyntheticAttributionKind,
+): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const resource of iterateSyntheticResources(profile)) {
+    for (const attributionId of getSyntheticLinksForResource(
+      resource.ordinal,
+      resource.path,
+      profile,
+      model,
+      kind,
+    )) {
+      counts.set(attributionId, (counts.get(attributionId) ?? 0) + 1);
+    }
+  }
+  return counts;
 }

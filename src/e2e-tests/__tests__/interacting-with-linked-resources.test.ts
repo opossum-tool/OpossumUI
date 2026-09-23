@@ -76,12 +76,12 @@ test('shows only linked resources matching search', async ({
   await linkedResourcesTree.assert.resourceIsVisible(resourceName1);
   await linkedResourcesTree.assert.resourceIsVisible(resourceName4);
 
-  await linkedResourcesTree.searchField.fill(resourceName4);
+  await linkedResourcesTree.search(resourceName4);
   await linkedResourcesTree.assert.resourceIsHidden(resourceName1);
   await linkedResourcesTree.assert.resourceIsVisible(resourceName4);
   await linkedResourcesTree.assert.resourceIsHighlighted(resourceName4);
 
-  await linkedResourcesTree.clearSearchButton.click();
+  await linkedResourcesTree.clearSearch();
   await linkedResourcesTree.assert.resourceIsVisible(resourceName1);
   await linkedResourcesTree.assert.resourceIsVisible(resourceName4);
   await linkedResourcesTree.assert.resourceIsNotHighlighted(resourceName1);

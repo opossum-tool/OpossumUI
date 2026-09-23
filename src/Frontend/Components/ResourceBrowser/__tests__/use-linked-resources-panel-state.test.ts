@@ -22,7 +22,12 @@ describe('getLinkedResourcesPanelState', () => {
         isLoading: false,
         treeState: undefined,
       }),
-    ).toEqual({ isHidden: true, isLoading: false, treeState: undefined });
+    ).toEqual({
+      isHidden: true,
+      isLoading: false,
+      isSearchApplied: false,
+      treeState: undefined,
+    });
   });
 
   it('shows loading while attribution details are unavailable', () => {
@@ -34,7 +39,12 @@ describe('getLinkedResourcesPanelState', () => {
         isLoading: false,
         treeState: undefined,
       }),
-    ).toEqual({ isHidden: false, isLoading: true, treeState: undefined });
+    ).toEqual({
+      isHidden: false,
+      isLoading: true,
+      isSearchApplied: false,
+      treeState: undefined,
+    });
   });
 
   it('returns loading while linked-resource queries are fetching', () => {
@@ -46,7 +56,12 @@ describe('getLinkedResourcesPanelState', () => {
         isLoading: true,
         treeState: undefined,
       }),
-    ).toEqual({ isHidden: false, isLoading: true, treeState: undefined });
+    ).toEqual({
+      isHidden: false,
+      isLoading: true,
+      isSearchApplied: false,
+      treeState: undefined,
+    });
   });
 
   it('hides the panel when linked-resource data is unavailable after a failure', () => {
@@ -58,7 +73,12 @@ describe('getLinkedResourcesPanelState', () => {
         isLoading: false,
         treeState: undefined,
       }),
-    ).toEqual({ isHidden: true, isLoading: false, treeState: undefined });
+    ).toEqual({
+      isHidden: true,
+      isLoading: false,
+      isSearchApplied: false,
+      treeState: undefined,
+    });
   });
 
   it('hides the panel when attribution details fail to load', () => {
@@ -70,7 +90,12 @@ describe('getLinkedResourcesPanelState', () => {
         isLoading: false,
         treeState: undefined,
       }),
-    ).toEqual({ isHidden: true, isLoading: false, treeState: undefined });
+    ).toEqual({
+      isHidden: true,
+      isLoading: false,
+      isSearchApplied: false,
+      treeState: undefined,
+    });
   });
 
   it('keeps ready data available when a background refresh fails', () => {
@@ -82,7 +107,12 @@ describe('getLinkedResourcesPanelState', () => {
         isLoading: false,
         treeState,
       }),
-    ).toEqual({ isHidden: false, isLoading: false, treeState });
+    ).toEqual({
+      isHidden: false,
+      isLoading: false,
+      isSearchApplied: false,
+      treeState,
+    });
   });
 
   it('returns ready data when linked-resource data is available', () => {
@@ -94,6 +124,11 @@ describe('getLinkedResourcesPanelState', () => {
         isLoading: false,
         treeState,
       }),
-    ).toEqual({ isHidden: false, isLoading: false, treeState });
+    ).toEqual({
+      isHidden: false,
+      isLoading: false,
+      isSearchApplied: true,
+      treeState,
+    });
   });
 });

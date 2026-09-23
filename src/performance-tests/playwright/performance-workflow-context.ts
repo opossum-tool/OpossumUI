@@ -7,6 +7,7 @@ import type { ElectronApplication, Page, TestInfo } from '@playwright/test';
 import type { AttributionDetails } from '../../e2e-tests/page-objects/AttributionDetails';
 import type { AttributionsPanel } from '../../e2e-tests/page-objects/AttributionsPanel';
 import type { ConfirmSavePopup } from '../../e2e-tests/page-objects/ConfirmSavePopup';
+import type { LinkedResourcesTree } from '../../e2e-tests/page-objects/LinkedResourcesTree';
 import type { MenuBar } from '../../e2e-tests/page-objects/MenuBar';
 import type { MergeOpossumFilesDialog } from '../../e2e-tests/page-objects/MergeOpossumFilesDialog';
 import type { PathBar } from '../../e2e-tests/page-objects/PathBar';
@@ -27,6 +28,7 @@ export type PerformanceWorkflowContext = {
   confirmSavePopup: ConfirmSavePopup;
   menuBar: MenuBar;
   mergeOpossumFilesDialog: MergeOpossumFilesDialog;
+  linkedResourcesTree: LinkedResourcesTree;
   pathBar: PathBar;
   projectStatisticsPopup: ProjectStatisticsPopup;
   performanceProfile: SyntheticFileProfile;

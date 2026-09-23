@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect } from '@playwright/test';
 
+import { getSyntheticAttributionLinkCounts } from '../synthetic-file/fixture';
 import {
   applyUnreviewedResourceFilter,
   clearUnreviewedResourceFilter,
@@ -15,20 +16,57 @@ import {
 } from './performance-test-helpers';
 import type { PerformanceWorkflowContext } from './performance-workflow-context';
 
-export async function runResourceWorkflows({
-  model,
-  attributionDetails,
-  attributionsPanel,
-  menuBar,
-  pathBar,
-  projectStatisticsPopup,
-  reportView,
-  resourcesTree,
-  runScenario,
-  signalsPanel,
-  topBar,
-  window,
-}: PerformanceWorkflowContext): Promise<void> {
+async function prepareHighFanoutLinkedResources(
+  context: PerformanceWorkflowContext,
+  resource = context.model.scenarios.highFanout.resource,
+): Promise<void> {
+  const {
+    attributionDetails,
+    attributionsPanel,
+    linkedResourcesTree,
+    model,
+    resourcesTree,
+    signalsPanel,
+  } = context;
+  const highFanout = model.scenarios.highFanout;
+
+  await navigateToResource({
+    anchor: resource,
+    assertEditable: false,
+    attributionDetails,
+    attributionsPanel,
+    resourcesTree,
+    signalsPanel,
+  });
+  await linkedResourcesTree.clearSearch();
+  await attributionsPanel.packageCard.click(highFanout.manual.packageInfo);
+  await Promise.all([
+    attributionDetails.attributionForm.assert.matchesPackageInfo(
+      highFanout.manual.packageInfo,
+    ),
+    attributionDetails.assert.loadingIndicatorIsHidden(),
+    linkedResourcesTree.assert.isVisible(),
+    linkedResourcesTree.waitForLoadingToFinish(),
+  ]);
+}
+
+export async function runResourceWorkflows(
+  context: PerformanceWorkflowContext,
+): Promise<void> {
+  const {
+    model,
+    attributionDetails,
+    attributionsPanel,
+    linkedResourcesTree,
+    menuBar,
+    pathBar,
+    projectStatisticsPopup,
+    reportView,
+    resourcesTree,
+    runScenario,
+    signalsPanel,
+    topBar,
+  } = context;
   const expandAndSelectScenario = model.scenarios.expandAndSelect;
   const expandAndSelectAnchors = expandAndSelectScenario.anchors;
   const expectedContent = expandAndSelectScenario.expected;
@@ -38,6 +76,28 @@ export async function runResourceWorkflows({
   const signalSearch = model.scenarios.signalSearch;
   const signalSort = model.scenarios.signalSort;
   const highFanout = model.scenarios.highFanout;
+  const linkedResourceTargets = highFanout.linkedResourceTargets;
+  const expansionBranchPath = `/${linkedResourceTargets.expansion.resource.resourceNames[0]}/`;
+  const expansionChildPath = `/${linkedResourceTargets.expansion.resource.resourceNames[0]}/${linkedResourceTargets.expansion.resource.resourceNames[1]}/`;
+  const linkCounts = getSyntheticAttributionLinkCounts(
+    model.profile,
+    model,
+    'external',
+  );
+  const getLinkCount = (signalId: string): number => {
+    const count = linkCounts.get(signalId);
+    if (count === undefined) {
+      throw new Error(
+        `No generated linked resources for attribution ${signalId}.`,
+      );
+    }
+    return count;
+  };
+  const targetCounts = {
+    open: getLinkCount(linkedResourceTargets.open.signal.id),
+    search: getLinkCount(linkedResourceTargets.search.signal.id),
+    expansion: getLinkCount(linkedResourceTargets.expansion.signal.id),
+  };
 
   await runScenario({
     id: 'expand-and-select-resource',
@@ -108,24 +168,12 @@ export async function runResourceWorkflows({
 
   await runScenario({
     id: 'open-high-fanout-attribution-details',
-    title: 'open high-fanout attribution details before linked resources',
+    title: 'open high-fanout attribution details',
     setup: async () => {
-      await navigateToResource({
-        anchor: highFanout.resource,
-        assertEditable: false,
-        attributionDetails,
-        attributionsPanel,
-        resourcesTree,
-        signalsPanel,
-      });
-      await Promise.all([
-        signalsPanel.packageCard.assert.isVisible(
-          highFanout.external.packageInfo,
-        ),
-        window
-          .locator('[data-testid="linked-resources-loading"]')
-          .waitFor({ state: 'hidden' }),
-      ]);
+      await prepareHighFanoutLinkedResources(context);
+      await signalsPanel.packageCard.assert.isVisible(
+        highFanout.external.packageInfo,
+      );
     },
     execute: async () => {
       await signalsPanel.packageCard.click(highFanout.external.packageInfo);
@@ -137,9 +185,117 @@ export async function runResourceWorkflows({
       ]);
     },
     teardown: async () => {
-      await window
-        .locator('[data-testid="linked-resources-loading"]')
-        .waitFor({ state: 'hidden' });
+      await linkedResourcesTree.waitForLoadingToFinish();
+    },
+  });
+
+  await runScenario({
+    id: 'open-high-fanout-linked-resources',
+    title: 'open high-fanout linked resources',
+    setup: async () => {
+      await prepareHighFanoutLinkedResources(
+        context,
+        linkedResourceTargets.open.resource,
+      );
+      await signalsPanel.packageCard.assert.isVisible(
+        linkedResourceTargets.open.signal.packageInfo,
+      );
+    },
+    execute: async () => {
+      await signalsPanel.packageCard.click(
+        linkedResourceTargets.open.signal.packageInfo,
+      );
+      await Promise.all([
+        attributionDetails.attributionForm.assert.matchesPackageInfo(
+          linkedResourceTargets.open.signal.packageInfo,
+        ),
+        attributionDetails.assert.loadingIndicatorIsHidden(),
+        linkedResourcesTree.assert.isVisible(),
+        linkedResourcesTree.assert.totalCountIs(targetCounts.open),
+        linkedResourcesTree.waitForLoadingToFinish(),
+      ]);
+    },
+  });
+
+  await runScenario({
+    id: 'search-high-fanout-linked-resources',
+    title: 'search high-fanout linked resources',
+    setup: async () => {
+      await prepareHighFanoutLinkedResources(
+        context,
+        linkedResourceTargets.search.resource,
+      );
+      await signalsPanel.packageCard.click(
+        linkedResourceTargets.search.signal.packageInfo,
+      );
+      await Promise.all([
+        attributionDetails.attributionForm.assert.matchesPackageInfo(
+          linkedResourceTargets.search.signal.packageInfo,
+        ),
+        attributionDetails.assert.loadingIndicatorIsHidden(),
+        linkedResourcesTree.assert.isVisible(),
+        linkedResourcesTree.assert.totalCountIs(targetCounts.search),
+        linkedResourcesTree.waitForLoadingToFinish(),
+      ]);
+    },
+    execute: async () => {
+      await linkedResourcesTree.search(
+        linkedResourceTargets.search.resource.resourceName,
+      );
+      await Promise.all([
+        linkedResourcesTree.assert.resourceIsVisible(
+          linkedResourceTargets.search.resource.resourceName,
+        ),
+        linkedResourcesTree.assert.totalCountIs(1),
+        linkedResourcesTree.waitForLoadingToFinish(),
+      ]);
+    },
+    teardown: async () => {
+      await linkedResourcesTree.clearSearch();
+      await linkedResourcesTree.waitForLoadingToFinish();
+      await linkedResourcesTree.assert.totalCountIs(targetCounts.search);
+      await linkedResourcesTree.assert.resourceIsVisible(
+        linkedResourceTargets.search.resource.resourceName,
+      );
+    },
+  });
+
+  await runScenario({
+    id: 'expand-high-fanout-linked-resources',
+    title: 'expand a high-fanout linked resource branch',
+    setup: async () => {
+      await prepareHighFanoutLinkedResources(
+        context,
+        linkedResourceTargets.expansion.resource,
+      );
+      await signalsPanel.packageCard.click(
+        linkedResourceTargets.expansion.signal.packageInfo,
+      );
+      await Promise.all([
+        attributionDetails.attributionForm.assert.matchesPackageInfo(
+          linkedResourceTargets.expansion.signal.packageInfo,
+        ),
+        attributionDetails.assert.loadingIndicatorIsHidden(),
+        linkedResourcesTree.assert.totalCountIs(targetCounts.expansion),
+        linkedResourcesTree.waitForLoadingToFinish(),
+      ]);
+      await linkedResourcesTree.scrollToTop();
+      await linkedResourcesTree.assert.resourceAtPathIsVisible(
+        expansionBranchPath,
+      );
+      await linkedResourcesTree.ensureResourceCollapsed(expansionBranchPath);
+      await linkedResourcesTree.waitForLoadingToFinish();
+      await linkedResourcesTree.assert.resourceAtPathIsHidden(
+        expansionChildPath,
+      );
+    },
+    execute: async () => {
+      await linkedResourcesTree.expandResourceAtPath(expansionBranchPath);
+      await Promise.all([
+        linkedResourcesTree.assert.resourceAtPathIsVisible(expansionChildPath),
+        linkedResourcesTree.assert.totalCountIs(targetCounts.expansion),
+        linkedResourcesTree.waitForLoadingToFinish(),
+      ]);
     },
   });
 

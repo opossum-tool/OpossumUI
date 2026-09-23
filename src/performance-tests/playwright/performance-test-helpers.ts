@@ -40,7 +40,7 @@ export async function selectResourceAndWaitForAudit({
   resourcesTree: ResourcesTree;
   signalsPanel: SignalsPanel;
 }): Promise<void> {
-  await resourcesTree.selectRevealedResource(anchor.resourcePath);
+  await resourcesTree.clickResourceAtPath(anchor.resourcePath);
   await Promise.all([
     attributionsPanel.assert.loadingIndicatorIsHidden(),
     signalsPanel.assert.loadingIndicatorIsHidden(),
