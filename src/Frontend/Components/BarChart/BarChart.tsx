@@ -61,7 +61,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
         </RcXAxis>
         <RcYAxis dataKey={'name'} type={'category'} tick={tickStyle} />
         <RcTooltip
-          contentStyle={chartTooltipContentStyle}
+          contentStyle={chartTooltipContentStyle(theme)}
           itemStyle={chartTooltipTextStyle}
           labelStyle={chartTooltipTextStyle}
         />

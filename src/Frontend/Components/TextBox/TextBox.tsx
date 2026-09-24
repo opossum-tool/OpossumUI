@@ -6,12 +6,12 @@
 import type { InputBaseComponentsPropsOverrides, SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiInputAdornment from '@mui/material/InputAdornment';
+import type { Theme } from '@mui/material/styles';
 import MuiTextareaAutosize, {
   type TextareaAutosizeProps,
 } from '@mui/material/TextareaAutosize';
 import MuiTextField, { type TextFieldProps } from '@mui/material/TextField';
 import MuiTooltip, { type TooltipProps } from '@mui/material/Tooltip';
-import type { Theme } from '@mui/system';
 
 import { OpossumColors } from '../../shared-styles';
 import { ensureArray } from '../../util/ensure-array';
@@ -29,7 +29,7 @@ const classes = {
       backgroundColor: OpossumColors.white,
       py: 0.25,
       px: 0.75,
-      fontSize: ({ spacing }: Theme) => spacing(3.25),
+      fontSize: (theme: Theme) => theme.typography.body3.fontSize,
     },
     '& span': {
       p: 0,

@@ -90,7 +90,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           ))}
         </RcPie>
         <RcTooltip
-          contentStyle={chartTooltipContentStyle}
+          contentStyle={chartTooltipContentStyle(theme)}
           itemStyle={chartTooltipTextStyle}
         />
         <RcLegend
