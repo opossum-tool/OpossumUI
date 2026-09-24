@@ -526,7 +526,12 @@ These values are hardcoded but not pixel-based, so they are listed separately:
 
 1. **Formal design system integration** — If/when the design system evolves, the spacing scale is already in place via MUI theme
 
-2. **Automated enforcement** — ESLint rule to flag hardcoded pixel spacing values; pre-commit hook to catch new instances
+2. ~~**Automated enforcement**~~ — **Done**: ESLint enforcement via two `no-restricted-syntax` selectors in `eslint.config.mjs` (alongside the pre-existing `styled()`-inside-functions rule). They flag string literals containing `px` in spacing properties — longhand keys (`padding`, `margin`, `gap`, `rowGap`, `columnGap`, `scrollPadding`, and their `Top/Right/Bottom/Left/Block/Inline` variants) and MUI sx shorthand keys (`p`, `pt`, `pr`, `pb`, `pl`, `px`, `py`, `m`, `mt`, `mr`, `mb`, `ml`, `mx`, `my`) — with messages pointing at `theme.spacing` and this report. Enforcement runs through the existing pipelines with no extra wiring: `yarn lint-check` in CI and the lint-staged `eslint` step on staged `*.{ts,tsx}` in the pre-commit hook. Scope notes (deliberate v1 limitations):
+   - Unitless numbers in spacing keys are not flagged (sx numbers are theme units, i.e. the desired pattern); only px strings are.
+   - Exact `'0px'` values are exempt (zero is the lattice's 0, see scope conventions).
+   - px values reached through constant indirection are not visible to the selector (e.g. TextBox's `INPUT_VERTICAL_PADDING = '8.5px'` → `scrollPaddingBlock`), same residual category as the kept px constants.
+   - Template literals (`` `${x}px` `` interpolations) and dimension keys (`width`/`height`/`border`/`borderRadius`/`fontSize`) are out of scope; dimensions migrate differently (see the section notes).
+   - The repo currently lints clean under the rule (verified: zero findings), matching the migrated state documented in the tables above.
 
 ## Migration Path Example
 
@@ -576,7 +581,7 @@ The entire frontend (69+ components, app-wide theming) already uses MUI with a `
 - No new files, no breaking changes, no architecture overhaul required
 - `sx` prop shorthand (`sx={{ p: 2, mb: 4 }}`) replaces `padding: '8px'`, `marginBottom: '16px'` everywhere
 
-**Priority:** **Maintenance** — `spacing: 4` is in place in `App.style.ts`; the documented spacing and dimension values are migrated. Run `yarn typecheck` after future spacing changes to verify.
+**Priority:** **Maintenance** — `spacing: 4` is in place in `App.style.ts`; the documented spacing and dimension values are migrated, and ESLint enforcement (see Long-term #2) prevents px strings in spacing properties from re-accumulating. Run `yarn typecheck` after future spacing changes to verify.
 
 ## Residual Hardcoded Pixel Values (found in latest verification pass)
 
