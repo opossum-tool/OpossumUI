@@ -2,13 +2,19 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { ThemeProvider } from '@mui/material/styles';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook as nativeRenderHook, render } from '@testing-library/react';
+import {
+  renderHook as nativeRenderHook,
+  render,
+  type RenderOptions,
+} from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
 import type { ParsedFileContent } from '../../shared/shared-types';
 import { setupBackendIntegration } from '../../testing/backend-integration';
+import { theme } from '../Components/App/App.style';
 import { type Action, createAppStore } from '../state/configure-store';
 import { setDatabaseInitialized } from '../util/backendClient';
 
@@ -63,7 +69,19 @@ export async function renderComponent(
   return {
     store,
     ...render(component, {
-      wrapper: makeProviderWrapper(store),
+      wrapper: ({ children }) => (
+        <ThemeProvider theme={theme}>
+          <Provider store={store}>
+            <QueryClientProvider client={makeReactQueryClient()}>
+              <VirtuosoMockContext
+                value={{ itemHeight: 40, viewportHeight: 1200 }}
+              >
+                {children}
+              </VirtuosoMockContext>
+            </QueryClientProvider>
+          </Provider>
+        </ThemeProvider>
+      ),
     }),
   };
 }
@@ -85,9 +103,29 @@ export async function renderHook<P, R>(
 
   return {
     ...nativeRenderHook(callback, {
-      wrapper: makeProviderWrapper(store),
+      wrapper: ({ children }) => (
+        <ThemeProvider theme={theme}>
+          <Provider store={store}>
+            <QueryClientProvider client={makeReactQueryClient()}>
+              {children}
+            </QueryClientProvider>
+          </Provider>
+        </ThemeProvider>
+      ),
       initialProps,
     }),
     store,
   };
+}
+
+export function renderWithTheme(
+  component: React.ReactElement<unknown>,
+  options?: RenderOptions,
+) {
+  return render(component, {
+    ...options,
+    wrapper: ({ children }) => (
+      <ThemeProvider theme={theme}>{children}</ThemeProvider>
+    ),
+  });
 }
