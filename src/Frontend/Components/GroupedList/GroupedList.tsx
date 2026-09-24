@@ -26,9 +26,10 @@ import {
   InfiniteListFooterContext,
 } from '../List/InfiniteListFooter';
 import type { UnloadedItemsProps } from '../List/List';
+import { LoadingIndicator } from '../LoadingIndicator/loading-indicator';
 import { LoadingMask } from '../LoadingMask/LoadingMask';
 import { VirtuosoComponentContext } from '../VirtuosoComponentContext/VirtuosoComponentContext';
-import { GroupContainer, StyledLinearProgress } from './GroupedList.style';
+import { GroupContainer } from './GroupedList.style';
 
 export interface GroupedListItemContentProps {
   index: number;
@@ -225,7 +226,7 @@ export function GroupedList({
       active={loading}
       testId={testId}
     >
-      {loading && <StyledLinearProgress data-testid={'loading'} />}
+      {loading && <LoadingIndicator data-testid={'loading'} />}
       {groups && (
         // Virtuoso components must not be inlined: https://github.com/petyosi/react-virtuoso/issues/566
         <VirtuosoComponentContext value={{ isVirtuosoFocused, loading }}>

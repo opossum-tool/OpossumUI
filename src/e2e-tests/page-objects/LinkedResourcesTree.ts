@@ -21,7 +21,10 @@ export class LinkedResourcesTree extends Tree {
 
   async waitForLoadingToFinish(): Promise<void> {
     await this.window
-      .getByTestId('linked-resources-loading')
-      .waitFor({ state: 'hidden' });
+      .getByTestId('linked-resources-panel-content')
+      .waitFor({ state: 'attached' });
+    await expect(
+      this.window.getByTestId('linked-resources-panel-content'),
+    ).toHaveAttribute('aria-busy', 'false');
   }
 }
