@@ -203,7 +203,30 @@ test('scrolls a selected attribution into view after report navigation', async (
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     reportChildAttribution,
   );
+  await resourcesTree.assert.resourceAtPathIsSelected(
+    faker.opossum.folderPath(emptyResourceName),
+  );
   await attributionsPanel.packageCard.assert.isInViewport(
     reportChildAttribution,
+  );
+  await topBar.gotoReportView();
+  await topBar.assert.reportViewIsActive();
+  await reportView.assert.isVisible();
+  await reportView.assert.attributionIsInViewport(reportChildAttributionId);
+  await reportView.scrollToTop();
+  await reportView.assert.attributionIsInViewport(
+    childManualAttributionEntries[0][0],
+  );
+  await reportView.openAttributionInAuditView(
+    childManualAttributionEntries[0][0],
+  );
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    firstChildAttribution,
+  );
+  await resourcesTree.assert.resourceAtPathIsSelected(
+    faker.opossum.folderPath(emptyResourceName),
+  );
+  await attributionsPanel.packageCard.assert.isInViewport(
+    firstChildAttribution,
   );
 });
