@@ -42,8 +42,20 @@ export function getTargetSelectedResourceId(state: State): string | null {
   return state.resourceState.targetSelectedResourceId;
 }
 
+export function getTargetAttributionSelectionPolicy(
+  state: State,
+): 'auto' | 'preserve' {
+  return state.resourceState.targetAttributionSelectionPolicy;
+}
+
 export function getSelectedResourceId(state: State): string {
   return state.resourceState.selectedResourceId;
+}
+
+export function getAttributionSelectionPolicy(
+  state: State,
+): 'auto' | 'preserve' {
+  return state.resourceState.attributionSelectionPolicy;
 }
 
 export function getAttributionSelectionPendingResourceId(

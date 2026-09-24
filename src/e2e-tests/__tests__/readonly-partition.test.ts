@@ -198,6 +198,7 @@ test('opens a report attribution from a readonly resource via the root', async (
   await reportView.openAttributionInAuditView(editableManualId);
 
   await topBar.assert.auditViewIsActive();
+  await resourcesTree.assert.resourceAtPathIsSelected('/');
   await attributionsPanel.assert.selectedTabIs('onChildren');
   await attributionsPanel.packageCard.assert.isVisible(editableManual);
   await attributionDetails.attributionForm.assert.nameIs(

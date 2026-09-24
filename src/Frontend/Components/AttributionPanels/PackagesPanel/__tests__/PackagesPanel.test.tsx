@@ -47,6 +47,7 @@ function mockAttributions(
   attributions: Attributions,
   visibleAttributions: Attributions = attributions,
   scopeByRelation = true,
+  navigationRelation: Relation = 'resource',
 ) {
   const relationCounts = Object.values(attributions).reduce<
     Partial<Record<Relation, { visibleCount: number; editableCount: number }>>
@@ -82,7 +83,7 @@ function mockAttributions(
       visibleAttributions !== attributions
         ? {
             found: true,
-            targetRelation: 'resource',
+            targetRelation: navigationRelation,
             prefix: {
               attributions,
               offset: 0,
@@ -94,7 +95,7 @@ function mockAttributions(
     navigationAttributions:
       visibleAttributions !== attributions ? attributions : {},
     navigationRelation:
-      visibleAttributions !== attributions ? 'resource' : null,
+      visibleAttributions !== attributions ? navigationRelation : null,
   }));
 }
 
@@ -105,6 +106,8 @@ function renderPackagesPanel({
   actions,
   data,
   scopeByRelation,
+  navigationRelation,
+  external = false,
 }: {
   attributions: Attributions;
   visibleAttributions?: Attributions;
@@ -112,12 +115,19 @@ function renderPackagesPanel({
   actions?: Array<Action>;
   data?: ParsedFileContent;
   scopeByRelation?: boolean;
+  navigationRelation?: Relation;
+  external?: boolean;
 }) {
-  mockAttributions(attributions, visibleAttributions, scopeByRelation);
-  vi.mocked(useSelectedAttributionIsExternal).mockReturnValue(false);
+  mockAttributions(
+    attributions,
+    visibleAttributions,
+    scopeByRelation,
+    navigationRelation,
+  );
+  vi.mocked(useSelectedAttributionIsExternal).mockReturnValue(external);
   return renderComponent(
     <PackagesPanel
-      external={false}
+      external={external}
       filterOptions={[]}
       renderActions={() => null}
       useAttributionFilters={() => [initialAttributionFilters, vi.fn()]}
@@ -131,11 +141,21 @@ function renderPackagesPanel({
 function rerenderPackagesPanel(
   rerender: (ui: React.ReactElement) => void,
   attributions: Attributions,
+  {
+    external = false,
+    visibleAttributions = attributions,
+    navigationRelation,
+  }: {
+    external?: boolean;
+    visibleAttributions?: Attributions;
+    navigationRelation?: Relation;
+  } = {},
 ) {
-  mockAttributions(attributions, attributions, true);
+  mockAttributions(attributions, visibleAttributions, true, navigationRelation);
+  vi.mocked(useSelectedAttributionIsExternal).mockReturnValue(external);
   rerender(
     <PackagesPanel
-      external={false}
+      external={external}
       filterOptions={[]}
       renderActions={() => null}
       useAttributionFilters={() => [initialAttributionFilters, vi.fn()]}
@@ -190,6 +210,340 @@ describe('PackagesPanel', () => {
     await waitFor(() => {
       expect(store.getState().resourceState.selectedAttributionId).toBe('');
     });
+  });
+
+  it('preserves the selected attribution during linked resource navigation', async () => {
+    const firstAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const selectedAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const { store } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [firstAttribution.id]: firstAttribution,
+        [selectedAttribution.id]: selectedAttribution,
+      }),
+      actions: [setSelectedAttributionId(selectedAttribution.id)],
+    });
+
+    act(() =>
+      store.dispatch(
+        openResourceInResourceBrowser('/linked-resource', 'preserve'),
+      ),
+    );
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedResourceId).toBe(
+        '/linked-resource',
+      );
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        selectedAttribution.id,
+      );
+      expect(
+        getAttributionSelectionPendingResourceId(store.getState()),
+      ).toBeNull();
+    });
+
+    act(() =>
+      store.dispatch(openResourceInResourceBrowser('/ordinary-resource')),
+    );
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.attributionSelectionPolicy).toBe(
+        'auto',
+      );
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        firstAttribution.id,
+      );
+    });
+  });
+
+  it('uses a cached selected attribution relation during preserved navigation', async () => {
+    const firstAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const selectedAttribution = faker.opossum.packageInfo({
+      relation: 'children',
+    });
+    const attributions = faker.opossum.attributions({
+      [firstAttribution.id]: firstAttribution,
+      [selectedAttribution.id]: selectedAttribution,
+    });
+    let activeRelation: Relation = 'resource';
+    const captureRelation = ({
+      activeRelation: relation,
+    }: PackagesPanelChildrenProps) => {
+      activeRelation = relation;
+      return null;
+    };
+    const { store } = await renderPackagesPanel({
+      attributions,
+      visibleAttributions: {},
+      navigationRelation: 'children',
+      children: captureRelation,
+      actions: [
+        setSelectedAttributionId(selectedAttribution.id),
+        setSelectedResourceId('/origin', 'preserve'),
+      ],
+    });
+
+    act(() =>
+      store.dispatch(
+        openResourceInResourceBrowser('/cached-destination', 'preserve'),
+      ),
+    );
+
+    await waitFor(() => {
+      expect(activeRelation).toBe('children');
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        selectedAttribution.id,
+      );
+    });
+  });
+
+  it('starts preserved navigation on resource and follows a later selected relation', async () => {
+    const firstAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const selectedAttribution = faker.opossum.packageInfo({
+      relation: 'children',
+    });
+    const attributions = faker.opossum.attributions({
+      [firstAttribution.id]: firstAttribution,
+      [selectedAttribution.id]: selectedAttribution,
+    });
+    let activeRelation: Relation = 'resource';
+    const captureRelation = ({
+      activeRelation: relation,
+    }: PackagesPanelChildrenProps) => {
+      activeRelation = relation;
+      return null;
+    };
+    const makePanel = () => (
+      <PackagesPanel
+        external={false}
+        filterOptions={[]}
+        renderActions={() => null}
+        useAttributionFilters={() => [initialAttributionFilters, vi.fn()]}
+      >
+        {captureRelation}
+      </PackagesPanel>
+    );
+    mockAttributions(attributions);
+    vi.mocked(useSelectedAttributionIsExternal).mockReturnValue(false);
+    const { rerender, store } = await renderComponent(makePanel(), {
+      actions: [
+        setSelectedAttributionId(selectedAttribution.id),
+        setSelectedResourceId('/origin', 'preserve'),
+      ],
+    });
+
+    act(() =>
+      store.dispatch(
+        openResourceInResourceBrowser('/arriving-destination', 'preserve'),
+      ),
+    );
+    await waitFor(() => expect(activeRelation).toBe('resource'));
+
+    mockAttributions(attributions, {}, true, 'children');
+    rerender(makePanel());
+
+    await waitFor(() => expect(activeRelation).toBe('children'));
+  });
+
+  it('keeps a deliberate signal tab through data refreshes and resets on identity changes', async () => {
+    const selectedSignal = faker.opossum.packageInfo({ relation: 'children' });
+    const nextSignal = faker.opossum.packageInfo({ relation: 'parents' });
+    const resourceSignal = faker.opossum.packageInfo({ relation: 'resource' });
+    const initialAttributions = faker.opossum.attributions({
+      [selectedSignal.id]: selectedSignal,
+      [resourceSignal.id]: resourceSignal,
+    });
+    const { rerender, store } = await renderPackagesPanel({
+      attributions: initialAttributions,
+      visibleAttributions: {},
+      navigationRelation: 'children',
+      external: true,
+      actions: [setSelectedAttributionId(selectedSignal.id)],
+    });
+    await waitFor(() =>
+      expect(
+        screen.getByRole('tab', {
+          name: new RegExp(text.relations['children']),
+        }),
+      ).toHaveAttribute('aria-selected', 'true'),
+    );
+    await userEvent.click(
+      screen.getByRole('tab', { name: new RegExp(text.relations.resource) }),
+    );
+
+    const refreshedAttributions = faker.opossum.attributions({
+      [selectedSignal.id]: selectedSignal,
+      [nextSignal.id]: nextSignal,
+      [resourceSignal.id]: resourceSignal,
+    });
+    rerenderPackagesPanel(rerender, refreshedAttributions, {
+      external: true,
+      visibleAttributions: {},
+      navigationRelation: 'children',
+    });
+    await waitFor(() =>
+      expect(
+        screen.getByRole('tab', {
+          name: new RegExp(text.relations.resource),
+        }),
+      ).toHaveAttribute('aria-selected', 'true'),
+    );
+
+    await act(() => store.dispatch(setSelectedResourceId('/next-resource')));
+    rerenderPackagesPanel(rerender, refreshedAttributions, {
+      external: true,
+      visibleAttributions: {},
+      navigationRelation: 'children',
+    });
+    await waitFor(() =>
+      expect(
+        screen.getByRole('tab', {
+          name: new RegExp(text.relations['children']),
+        }),
+      ).toHaveAttribute('aria-selected', 'true'),
+    );
+
+    rerenderPackagesPanel(rerender, refreshedAttributions, {
+      external: true,
+      visibleAttributions: {},
+      navigationRelation: 'parents',
+    });
+    await act(() => store.dispatch(setSelectedAttributionId(nextSignal.id)));
+    await waitFor(() =>
+      expect(
+        screen.getByRole('tab', {
+          name: new RegExp(text.relations.parents),
+        }),
+      ).toHaveAttribute('aria-selected', 'true'),
+    );
+  });
+
+  it('reveals after delayed destination data and again after an unavailable destination', async () => {
+    const selectedSignal = faker.opossum.packageInfo({ relation: 'children' });
+    const resourceSignal = faker.opossum.packageInfo({ relation: 'resource' });
+    let destinationDataAvailable = false;
+    vi.mocked(useSelectedAttributionIsExternal).mockReturnValue(true);
+    vi.mocked(useAuditAttributionsList).mockImplementation(
+      ({ criteria, relation }) => {
+        const isUnavailable =
+          criteria.resourcePathForRelationships === '/unavailable';
+        const hasSelectedSignal =
+          criteria.resourcePathForRelationships === '/destination' &&
+          destinationDataAvailable;
+        const attributions = faker.opossum.attributions({
+          ...(hasSelectedSignal ? { [selectedSignal.id]: selectedSignal } : {}),
+          [resourceSignal.id]: resourceSignal,
+        });
+        const relationCounts = {
+          resource: { visibleCount: 1, editableCount: 1 },
+          ...(hasSelectedSignal
+            ? { children: { visibleCount: 1, editableCount: 1 } }
+            : {}),
+        };
+        const navigationAttributions = hasSelectedSignal
+          ? { [selectedSignal.id]: selectedSignal }
+          : {};
+
+        return {
+          attributions: Object.fromEntries(
+            Object.entries(attributions).filter(
+              ([, attribution]) => attribution.relation === relation,
+            ),
+          ),
+          loading: false,
+          relationCounts: isUnavailable
+            ? { resource: relationCounts.resource }
+            : relationCounts,
+          hasNextPage: false,
+          isFetching: false,
+          isFetchingNextPage: false,
+          fetchNextPage: vi.fn(() => Promise.resolve()),
+          nextPageError: null,
+          resultSetKey: `${criteria.resourcePathForRelationships}:${relation}`,
+          navigationLoading: false,
+          navigationResult: hasSelectedSignal
+            ? {
+                found: true,
+                targetRelation: 'children',
+                prefix: {
+                  attributions: navigationAttributions,
+                  offset: 0,
+                  limit: 200,
+                  hasNextPage: false,
+                },
+              }
+            : undefined,
+          navigationAttributions,
+          navigationRelation: hasSelectedSignal ? 'children' : null,
+        };
+      },
+    );
+    const renderExternalPanel = () => (
+      <PackagesPanel
+        external
+        filterOptions={[]}
+        renderActions={() => null}
+        useAttributionFilters={() => [initialAttributionFilters, vi.fn()]}
+      >
+        {() => null}
+      </PackagesPanel>
+    );
+    const { rerender, store } = await renderComponent(renderExternalPanel(), {
+      actions: [
+        setSelectedAttributionId(selectedSignal.id),
+        setSelectedResourceId('/', 'preserve'),
+      ],
+    });
+
+    await act(() =>
+      store.dispatch(setSelectedResourceId('/destination', 'preserve')),
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByRole('tab', {
+          name: new RegExp(text.relations.resource),
+        }),
+      ).toHaveAttribute('aria-selected', 'true'),
+    );
+
+    destinationDataAvailable = true;
+    rerender(renderExternalPanel());
+    await waitFor(() =>
+      expect(
+        screen.getByRole('tab', {
+          name: new RegExp(text.relations['children']),
+        }),
+      ).toHaveAttribute('aria-selected', 'true'),
+    );
+
+    await act(() =>
+      store.dispatch(setSelectedResourceId('/unavailable', 'preserve')),
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByRole('tab', {
+          name: new RegExp(text.relations.resource),
+        }),
+      ).toHaveAttribute('aria-selected', 'true'),
+    );
+
+    await act(() =>
+      store.dispatch(setSelectedResourceId('/destination', 'preserve')),
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByRole('tab', {
+          name: new RegExp(text.relations['children']),
+        }),
+      ).toHaveAttribute('aria-selected', 'true'),
+    );
   });
 
   it('does not auto-select when a resource navigation is cancelled', async () => {
@@ -690,8 +1044,9 @@ describe('PackagesPanel', () => {
       screen.getByRole('tab', { name: new RegExp(text.relations.unrelated) }),
     ).toBeInTheDocument();
     expect(
-      // eslint-disable-next-line testing-library/no-node-access
-      screen.queryByRole('tab', { name: new RegExp(text.relations.children) }),
+      screen.queryByRole('tab', {
+        name: new RegExp(text.relations['children']),
+      }),
     ).not.toBeInTheDocument();
     expect(
       screen.getByRole('tab', { name: new RegExp(text.relations.resource) }),

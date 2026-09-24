@@ -2,20 +2,21 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { render } from '@testing-library/react';
-import { type Ref, useImperativeHandle } from 'react';
+import { fireEvent, render } from '@testing-library/react';
+import { type Ref, useEffect, useImperativeHandle } from 'react';
 import type { VirtuosoHandle } from 'react-virtuoso';
 
 import { useVirtuosoRefs } from '../use-virtuoso-refs';
 
 interface Item {
-  id: string;
+  id: string | undefined;
 }
 
 interface HookProps {
   data: ReadonlyArray<Item> | null;
   isListReady?: boolean;
   selectedId: string | undefined;
+  resultSetKey?: string;
 }
 
 interface VirtuosoHarnessProps {
@@ -23,7 +24,7 @@ interface VirtuosoHarnessProps {
   ref: Ref<VirtuosoHandle>;
 }
 
-const item = (id: string): Item => ({ id });
+const item = (id: string | undefined): Item => ({ id });
 
 const virtuosoHandle = (scrollIntoView: VirtuosoHandle['scrollIntoView']) =>
   ({
@@ -44,11 +45,27 @@ function SelectionScrollHarness({
   data,
   handle,
   isListReady,
+  resultSetKey,
   selectedId,
 }: HookProps & Pick<VirtuosoHarnessProps, 'handle'>) {
-  const { ref } = useVirtuosoRefs({ data, isListReady, selectedId });
+  const { ref, scrollerRef, setIsVirtuosoFocused } = useVirtuosoRefs({
+    data,
+    isListReady,
+    resultSetKey,
+    selectedId,
+  });
 
-  return <VirtuosoHarness ref={ref} handle={handle} />;
+  useEffect(() => {
+    scrollerRef(window);
+    setIsVirtuosoFocused(true);
+    return () => scrollerRef(null);
+  }, [scrollerRef, setIsVirtuosoFocused]);
+
+  return (
+    <div onFocus={() => setIsVirtuosoFocused(true)} tabIndex={0}>
+      <VirtuosoHarness ref={ref} handle={handle} />
+    </div>
+  );
 }
 
 const renderHarness = (
@@ -76,6 +93,36 @@ describe('useVirtuosoRefs', () => {
 
     expect(scrollIntoView).toHaveBeenCalledTimes(1);
     expect(scrollIntoView).toHaveBeenCalledWith({ index: 1, align: 'center' });
+  });
+
+  it('uses placeholder positions when scrolling to a later grouped item', () => {
+    const scrollIntoView = vi.fn();
+
+    renderHarness(
+      {
+        data: [item('first'), item(undefined), item('later')],
+        selectedId: 'later',
+      },
+      scrollIntoView,
+    );
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ index: 2, align: 'center' });
+  });
+
+  it('skips unloaded placeholders during keyboard navigation', () => {
+    const scrollIntoView = vi.fn();
+    renderHarness(
+      {
+        data: [item('first'), item(undefined), item('later')],
+        selectedId: 'first',
+      },
+      scrollIntoView,
+    );
+
+    scrollIntoView.mockClear();
+    fireEvent.keyDown(window, { code: 'ArrowDown' });
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ index: 2, behavior: 'auto' });
   });
 
   it('waits for the virtualized list to be ready before scrolling selection', () => {
@@ -116,6 +163,41 @@ describe('useVirtuosoRefs', () => {
       <SelectionScrollHarness
         data={[item('replacement'), item('second')]}
         selectedId="replacement"
+        handle={virtuosoHandle(scrollIntoView)}
+      />,
+    );
+
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(scrollIntoView).toHaveBeenCalledWith({ index: 0, align: 'center' });
+  });
+
+  it('scrolls on A to B to A result-set changes with the same selection', () => {
+    const scrollIntoView = vi.fn();
+    const props: HookProps = {
+      data: [item('selected')],
+      isListReady: true,
+      resultSetKey: 'result-set-1',
+      selectedId: 'selected',
+    };
+    const { rerender } = renderHarness(props, scrollIntoView);
+    scrollIntoView.mockClear();
+
+    rerender(
+      <SelectionScrollHarness
+        {...props}
+        resultSetKey="result-set-2"
+        handle={virtuosoHandle(scrollIntoView)}
+      />,
+    );
+
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(scrollIntoView).toHaveBeenCalledWith({ index: 0, align: 'center' });
+
+    scrollIntoView.mockClear();
+    rerender(
+      <SelectionScrollHarness
+        {...props}
+        resultSetKey="result-set-1"
         handle={virtuosoHandle(scrollIntoView)}
       />,
     );
