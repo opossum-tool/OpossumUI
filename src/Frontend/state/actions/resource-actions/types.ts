@@ -35,6 +35,8 @@ export interface PendingAttributionNavigation {
   fallbackResourcePath: string;
 }
 
+export type AttributionSelectionPolicy = 'auto' | 'preserve';
+
 export type ResourceAction =
   | ResetResourceStateAction
   | SetTemporaryDisplayPackageInfoAction
@@ -66,12 +68,18 @@ export interface InitializePackageInfoEditingAction {
 
 export interface SetSelectedResourceIdAction {
   type: typeof ACTION_SET_SELECTED_RESOURCE_ID;
-  payload: string;
+  payload: {
+    resourceId: string;
+    attributionSelectionPolicy: AttributionSelectionPolicy;
+  };
 }
 
 export interface SetTargetSelectedResourceId {
   type: typeof ACTION_SET_TARGET_SELECTED_RESOURCE_ID;
-  payload: string | null;
+  payload: {
+    resourceId: string;
+    attributionSelectionPolicy: AttributionSelectionPolicy;
+  } | null;
 }
 
 export interface SetExpandedIdsAction {

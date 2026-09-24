@@ -78,12 +78,17 @@ function withUnsavedCheck({
 
 export function navigateToSelectedPathOrOpenUnsavedPopup(
   resourcePath: string,
+  attributionSelectionPolicy: 'auto' | 'preserve' = 'auto',
 ): AppThunkAction {
   return withUnsavedCheck({
     executeImmediately: (dispatch) =>
-      dispatch(openResourceInResourceBrowser(resourcePath)),
+      dispatch(
+        openResourceInResourceBrowser(resourcePath, attributionSelectionPolicy),
+      ),
     requestContinuation: (dispatch) =>
-      dispatch(setTargetSelectedResourceId(resourcePath)),
+      dispatch(
+        setTargetSelectedResourceId(resourcePath, attributionSelectionPolicy),
+      ),
   });
 }
 
@@ -109,8 +114,12 @@ export function changeAttributionFiltersOrOpenUnsavedPopup({
   filters: AttributionFilters;
 }): AppThunkAction {
   return withUnsavedCheck({
-    executeImmediately: (dispatch) =>
-      setAttributionFilters(dispatch, external, filters),
+    executeImmediately: (dispatch, getState) => {
+      dispatch(
+        setSelectedResourceId(getSelectedResourceId(getState()), 'auto'),
+      );
+      setAttributionFilters(dispatch, external, filters);
+    },
     requestContinuation: (dispatch) =>
       dispatch(
         setTargetAttributionFilterChange({
@@ -308,6 +317,9 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     }
 
     if (targetAttributionFilterChange) {
+      dispatch(
+        setSelectedResourceId(getSelectedResourceId(getState()), 'auto'),
+      );
       setAttributionFilters(
         dispatch,
         targetAttributionFilterChange.external,

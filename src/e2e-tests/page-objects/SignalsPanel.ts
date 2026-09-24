@@ -199,10 +199,8 @@ export class SignalsPanel {
 
   async scrollToTop(): Promise<void> {
     await this.node
-      .locator('[data-virtuoso-scroller="true"]')
-      .evaluate((scroller) => {
-        scroller.scrollTo({ top: 0 });
-      });
+      .getByLabel(text.packageLists.scrollToTop, { exact: true })
+      .click();
   }
 
   async jumpToNextGroup(groupName: string): Promise<void> {
