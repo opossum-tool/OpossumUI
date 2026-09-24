@@ -14,6 +14,7 @@ interface Item {
 
 interface HookProps {
   data: ReadonlyArray<Item> | null;
+  isListReady?: boolean;
   selectedId: string | undefined;
 }
 
@@ -42,9 +43,10 @@ function VirtuosoHarness({ handle, ref }: VirtuosoHarnessProps) {
 function SelectionScrollHarness({
   data,
   handle,
+  isListReady,
   selectedId,
 }: HookProps & Pick<VirtuosoHarnessProps, 'handle'>) {
-  const { ref } = useVirtuosoRefs({ data, selectedId });
+  const { ref } = useVirtuosoRefs({ data, isListReady, selectedId });
 
   return <VirtuosoHarness ref={ref} handle={handle} />;
 }
@@ -70,6 +72,29 @@ describe('useVirtuosoRefs', () => {
         selectedId: 'selected',
       },
       scrollIntoView,
+    );
+
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(scrollIntoView).toHaveBeenCalledWith({ index: 1, align: 'center' });
+  });
+
+  it('waits for the virtualized list to be ready before scrolling selection', () => {
+    const scrollIntoView = vi.fn();
+    const props: HookProps = {
+      data: [item('first'), item('selected')],
+      isListReady: false,
+      selectedId: 'selected',
+    };
+    const { rerender } = renderHarness(props, scrollIntoView);
+
+    expect(scrollIntoView).not.toHaveBeenCalled();
+
+    rerender(
+      <SelectionScrollHarness
+        {...props}
+        isListReady={true}
+        handle={virtuosoHandle(scrollIntoView)}
+      />,
     );
 
     expect(scrollIntoView).toHaveBeenCalledTimes(1);
