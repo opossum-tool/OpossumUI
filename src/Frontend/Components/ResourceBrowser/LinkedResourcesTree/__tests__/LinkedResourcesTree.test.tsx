@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 
 import { Criticality } from '../../../../../shared/shared-types';
 import { OpossumColors } from '../../../../shared-styles';
@@ -64,6 +64,12 @@ describe('LinkedResourcesTree', () => {
       expect(screen.getByText('resource_1')).toBeInTheDocument();
     });
     expect(screen.getByText('resource_2')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Directly linked')).toHaveLength(2);
+    expect(
+      within(
+        screen.getByTestId('linked-resources-tree-node-/folder1/'),
+      ).queryByLabelText('Directly linked'),
+    ).not.toBeInTheDocument();
   });
 
   it('waits for enabled before loading linked resources', async () => {

@@ -10,6 +10,7 @@ import {
   type ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import { initializeDbWithTestData } from '../../../testing/global-test-helpers';
+import { getDb } from '../../db/db';
 import {
   getLinkedResourceTree,
   getResourceTree,
@@ -128,11 +129,20 @@ describe('attribution filtering', () => {
       expect(linkedTree).toEqual({
         result: {
           ...fullTree.result,
-          treeNodes: commonNodes,
+          treeNodes: linkedTree.result.treeNodes,
         },
       });
-      expect(Object.keys(linkedTree.result.treeNodes[0] ?? {}).sort()).toEqual(
-        Object.keys(commonNodes[0] ?? {}).sort(),
+      expect(
+        linkedTree.result.treeNodes.map(
+          ({ isDirectlyLinked, ...node }) => node,
+        ),
+      ).toEqual(commonNodes);
+      expect(
+        linkedTree.result.treeNodes.map((node) => Object.keys(node).sort()),
+      ).toEqual(
+        commonNodes.map((node) =>
+          [...Object.keys(node), 'isDirectlyLinked'].sort(),
+        ),
       );
     },
   );
@@ -160,6 +170,72 @@ describe('attribution filtering', () => {
         (node) => node.id === '/src/overlap.ts',
       ),
     ).toHaveLength(1);
+  });
+
+  it('marks only resources directly linked to any requested UUID', async () => {
+    const linkedTree = await getLinkedResourceTree({
+      expandedNodes: 'expandAll',
+      onAttributionUuids: [FILTER_EXTERNAL_UUID, FILTER_SECOND_EXTERNAL_UUID],
+    });
+    const directIds = linkedTree.result.treeNodes
+      .filter((node) => node.isDirectlyLinked)
+      .map((node) => node.id);
+
+    expect(directIds).toEqual([
+      '/docs/folder.ts',
+      '/src/external.ts',
+      '/src/overlap.ts',
+      '/src/readonly.ts',
+      '/src/writable.ts',
+    ]);
+    expect(
+      linkedTree.result.treeNodes.find((node) => node.id === '/')
+        ?.isDirectlyLinked,
+    ).toBe(false);
+    const searchedTree = await getLinkedResourceTree({
+      expandedNodes: 'expandAll',
+      onAttributionUuids: [FILTER_EXTERNAL_UUID],
+      search: 'external',
+    });
+    expect(
+      searchedTree.result.treeNodes.find(
+        (node) => node.id === '/src/external.ts',
+      )?.isDirectlyLinked,
+    ).toBe(true);
+    expect(
+      linkedTree.result.treeNodes.find((node) => node.id === '/src/')
+        ?.isDirectlyLinked,
+    ).toBe(false);
+    expect(
+      linkedTree.result.treeNodes.find((node) => node.id === '/docs/')
+        ?.isDirectlyLinked,
+    ).toBe(false);
+  });
+
+  it('marks the root resource when it directly links to a requested UUID', async () => {
+    const root = await getDb()
+      .selectFrom('resource')
+      .select('id')
+      .where('path', '=', '')
+      .executeTakeFirstOrThrow();
+    await getDb()
+      .insertInto('resource_to_attribution')
+      .values({
+        resource_id: root.id,
+        attribution_uuid: FILTER_EXTERNAL_UUID,
+        attribution_is_external: 1,
+      })
+      .execute();
+
+    const linkedTree = await getLinkedResourceTree({
+      expandedNodes: 'expandAll',
+      onAttributionUuids: [FILTER_EXTERNAL_UUID],
+    });
+
+    expect(linkedTree.result.treeNodes[0]).toMatchObject({
+      id: '/',
+      isDirectlyLinked: true,
+    });
   });
 
   it('distinguishes an omitted UUID filter from missing and empty selections', async () => {

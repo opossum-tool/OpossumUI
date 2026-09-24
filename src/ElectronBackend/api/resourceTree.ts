@@ -53,7 +53,9 @@ type ResourceTreeResult<T> = {
   };
 };
 
-export type LinkedResourceTreeNodeData = ResourceTreeNodeBase;
+export type LinkedResourceTreeNodeData = ResourceTreeNodeBase & {
+  isDirectlyLinked: boolean;
+};
 
 export async function getResourceTree({
   search,
@@ -141,13 +143,14 @@ export async function getLinkedResourceTree({
   return {
     result: {
       ...queryResult.result,
-      treeNodes: queryResult.result.treeNodes.map((node) =>
-        mapCommonNode(node, {
+      treeNodes: queryResult.result.treeNodes.map((node) => ({
+        ...mapCommonNode(node, {
           expandedNodeSet: queryResult.expandedNodeSet,
           onAttributionUuids,
           search,
         }),
-      ),
+        isDirectlyLinked: Boolean(node.is_directly_linked),
+      })),
     },
   };
 }
@@ -251,7 +254,7 @@ async function getResourceTreeWithProjection(
               ? [sb.val(0).as('has_parent_with_manual_attribution')]
               : []),
           ])
-          .select((eb) => getTreeNodeProps(eb, projection))
+          .select((eb) => getTreeNodeProps(eb, projection, onAttributionUuids))
           .select([
             sql`FALSE`.as('matches_filters'),
             sql`FALSE`.as('ancestor_matches_filters'),
@@ -284,7 +287,9 @@ async function getResourceTreeWithProjection(
                     ]
                   : []),
               ])
-              .select((eb) => getTreeNodeProps(eb, projection))
+              .select((eb) =>
+                getTreeNodeProps(eb, projection, onAttributionUuids),
+              )
               .select((eb) => {
                 if (!filtersAreActive) {
                   return sql`FALSE`.as('matches_filters');
@@ -459,6 +464,7 @@ type TreeNodeQueryType = DB & {
 function getTreeNodeProps(
   eb: ExpressionBuilder<TreeNodeQueryType, 'r'>,
   projection: 'full' | 'linked',
+  onAttributionUuids?: Array<string>,
 ) {
   const commonProps = [
     eb.ref('r.name').as('name'),
@@ -466,7 +472,25 @@ function getTreeNodeProps(
     eb.ref('r.can_have_children').as('can_have_children'),
   ];
   if (projection === 'linked') {
-    return commonProps;
+    // Filtering uses IN to find linked resources across the project. Here,
+    // EXISTS only checks returned tree nodes, avoiding the cost of building
+    // the full linked-ID set. Benchmarks favor this for a single attribution.
+    return [
+      ...commonProps,
+      eb
+        .exists(
+          eb
+            .selectFrom('resource_to_attribution')
+            .selectAll()
+            .whereRef('r.id', '=', 'resource_id')
+            .where(
+              'attribution_uuid',
+              'in',
+              jsonArraySelection(onAttributionUuids ?? []),
+            ),
+        )
+        .as('is_directly_linked'),
+    ];
   }
   return [
     ...commonProps,
