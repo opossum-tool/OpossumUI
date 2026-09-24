@@ -5,6 +5,7 @@
 import MuiListItemButton from '@mui/material/ListItemButton';
 import MuiListItemText from '@mui/material/ListItemText';
 import MuiPaper from '@mui/material/Paper';
+import { useTheme } from '@mui/material/styles';
 import MuiTypography from '@mui/material/Typography';
 import type {
   AutocompleteFreeSoloValueMapping,
@@ -78,6 +79,7 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
   ref,
   ...listboxProps
 }: ListboxProps<Value, FreeSolo>) => {
+  const theme = useTheme();
   const [height, setHeight] = useState<number>(Number.MAX_SAFE_INTEGER); // will result in max-height
 
   const groups = useMemo((): Groups<Value> | undefined => {
@@ -120,7 +122,8 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
             maxHeight: `min(${maxHeight}px, ${styles.virtuoso.maxHeight})`,
           }),
         }}
-        increaseViewportBy={20}
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 5 theme spacing units (= 20px)
+        increaseViewportBy={parseFloat(theme.spacing(5))}
         initialTopMostItemIndex={
           ~firstSelectedIndex && {
             index: firstSelectedIndex,
@@ -161,7 +164,8 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
         }}
         data={options}
         itemContent={(index, option) => renderOption({ option, index })}
-        increaseViewportBy={20}
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 5 theme spacing units (= 20px)
+        increaseViewportBy={parseFloat(theme.spacing(5))}
         totalListHeightChanged={setHeight}
       />
     );
