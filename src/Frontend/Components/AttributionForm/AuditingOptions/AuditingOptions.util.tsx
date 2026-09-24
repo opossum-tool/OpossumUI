@@ -291,9 +291,6 @@ function getSatisfaction(value: number): React.ReactNode {
   }
 
   return (
-    <SentimentVerySatisfiedIcon
-      color={'success'}
-      sx={{ width: '19px', height: '19px' }}
-    />
+    <SentimentVerySatisfiedIcon color={'success'} sx={satisfactionIconClass} />
   );
 }
