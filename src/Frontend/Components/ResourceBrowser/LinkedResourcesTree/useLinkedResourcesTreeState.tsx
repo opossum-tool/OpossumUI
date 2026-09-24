@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { keepPreviousData, skipToken } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { LinkedResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
 import type { ResourceTreeFilters } from '../../../../ElectronBackend/api/resourceTreeFilters';
@@ -104,20 +104,33 @@ export function useLinkedResourcesTree({
     { placeholderData: treeReady ? keepPreviousData : undefined },
   );
 
-  const state =
-    treeReady && resources.data
-      ? {
-          ...resources.data,
-          expansionFilters,
-          expandedIds: expandedIds.values,
-          setExpandedIds: (values: Array<string>) =>
-            setExpandedIds({
-              ownerKey,
-              source: expandedIds.source,
-              values,
-            }),
-        }
-      : undefined;
+  const updateExpandedIds = useCallback(
+    (values: Array<string>) =>
+      setExpandedIds({
+        ownerKey,
+        source: expandedIds.source,
+        values,
+      }),
+    [expandedIds.source, ownerKey],
+  );
+  const state = useMemo(
+    () =>
+      treeReady && resources.data
+        ? {
+            ...resources.data,
+            expansionFilters,
+            expandedIds: expandedIds.values,
+            setExpandedIds: updateExpandedIds,
+          }
+        : undefined,
+    [
+      expandedIds.values,
+      expansionFilters,
+      resources.data,
+      treeReady,
+      updateExpandedIds,
+    ],
+  );
 
   return {
     isError: enabled && (expansionPaths.isError || resources.isError),

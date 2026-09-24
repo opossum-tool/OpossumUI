@@ -5,7 +5,7 @@
 import { styled } from '@mui/material';
 import MuiLinearProgress from '@mui/material/LinearProgress';
 
-export const StyledLinearProgress = styled(MuiLinearProgress)({
+export const LoadingIndicator = styled(MuiLinearProgress)({
   position: 'absolute',
   width: '100%',
   height: 2,
