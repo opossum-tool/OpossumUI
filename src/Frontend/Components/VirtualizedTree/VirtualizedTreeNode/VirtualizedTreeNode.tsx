@@ -2,9 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (3 = 12px indent, 4 = 16px icons, 5 = 20px rows) */
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MuiBox from '@mui/material/Box';
+import { type Theme, useTheme } from '@mui/material/styles';
 import { type MouseEvent, useEffect, useRef } from 'react';
 
 import type { ResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
@@ -12,8 +14,8 @@ import type { ResourceTreeFilters } from '../../../../ElectronBackend/api/resour
 import { OpossumColors } from '../../../shared-styles';
 import { getNodeIdsToExpand } from './VirtualizedTreeNode.util';
 
-const INDENT_PER_DEPTH_LEVEL = 12;
-const SIMPLE_FOLDER_EXTRA_INDENT = 16;
+const INDENT_PER_DEPTH_LEVEL_IN_THEME_UNITS = 3;
+const SIMPLE_FOLDER_EXTRA_INDENT_IN_THEME_UNITS = 4;
 
 const classes = {
   treeNodeSpacer: {
@@ -23,7 +25,7 @@ const classes = {
   },
   listNode: {
     display: 'flex',
-    height: '20px',
+    height: ({ spacing }: Theme) => spacing(5),
     '&:hover .tree-node-selected-indicator': {
       display: 'block',
     },
@@ -35,8 +37,8 @@ const classes = {
     },
   },
   clickableIcon: {
-    width: '16px',
-    height: '20px',
+    width: ({ spacing }: Theme) => spacing(4),
+    height: ({ spacing }: Theme) => spacing(5),
     p: 0,
     m: 0,
   },
@@ -49,8 +51,8 @@ const classes = {
   treeExpandIcon: {
     position: 'relative',
     zIndex: 1,
-    width: '16px',
-    height: '20px',
+    width: ({ spacing }: Theme) => spacing(4),
+    height: ({ spacing }: Theme) => spacing(5),
     p: 0,
     m: 0,
     color: OpossumColors.darkBlue,
@@ -61,7 +63,7 @@ const classes = {
   treeNodeSelectedIndicator: {
     position: 'absolute',
     width: '100%',
-    height: '20px',
+    height: ({ spacing }: Theme) => spacing(5),
     background: 'white',
     zIndex: 0,
     left: 0,
@@ -99,9 +101,15 @@ export function VirtualizedTreeNode({
   focused,
   expansionFilters,
 }: VirtualizedTreeNodeProps) {
+  const theme = useTheme();
+
+  const spacingPx = (units: number): number => parseFloat(theme.spacing(units));
+
   const marginRight =
-    resource.level * INDENT_PER_DEPTH_LEVEL +
-    (resource.isExpandable ? 0 : SIMPLE_FOLDER_EXTRA_INDENT);
+    resource.level * spacingPx(INDENT_PER_DEPTH_LEVEL_IN_THEME_UNITS) +
+    (resource.isExpandable
+      ? 0
+      : spacingPx(SIMPLE_FOLDER_EXTRA_INDENT_IN_THEME_UNITS));
 
   const ref = useRef<HTMLDivElement>(null);
   const expansionFiltersRef = useRef(expansionFilters);
@@ -172,7 +180,6 @@ export function VirtualizedTreeNode({
         sx={{
           ...classes.treeNodeSelectedIndicator,
           display: highlighted ? 'block' : 'none',
-          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           opacity: highlighted ? 1 : 0.5,
           cursor: handleClick ? 'pointer' : 'default',
         }}

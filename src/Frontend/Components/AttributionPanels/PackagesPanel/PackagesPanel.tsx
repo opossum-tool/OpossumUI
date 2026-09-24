@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { useTheme } from '@mui/material/styles';
 import MuiTooltip from '@mui/material/Tooltip';
 import MuiTypography from '@mui/material/Typography';
 import { intersection, isEqual } from 'lodash-es';
@@ -120,6 +121,7 @@ export const PackagesPanel = ({
   testId,
 }: Props) => {
   const dispatch = useAppDispatch();
+  const theme = useTheme();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const pendingAttributionNavigation = useAppSelector(
     getPendingAttributionNavigation,
@@ -631,7 +633,10 @@ export const PackagesPanel = ({
     activeRelation,
     attributionIds,
     attributions,
-    contentHeight: `calc(100% - 42px - ${availableRelations?.length ? TABS_CONTAINER_HEIGHT : 0}px - ${alert ? ALERT_CONTAINER_HEIGHT : 0}px)`,
+    contentHeight: `calc(100% - ${
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 10.5 theme spacing units (= 42px)
+      theme.spacing(10.5)
+    } - ${availableRelations?.length ? `${TABS_CONTAINER_HEIGHT}px` : '0px'} - ${alert ? `${ALERT_CONTAINER_HEIGHT}px` : '0px'})`,
     loading,
     loadingMore,
     loadMoreError,

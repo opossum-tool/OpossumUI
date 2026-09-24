@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { Theme } from '@mui/material/styles';
+
 import { OpossumColors } from '../../../shared-styles';
 import { Autocomplete } from '../../Autocomplete/Autocomplete';
 
@@ -35,7 +37,8 @@ export const ValueFilterAutocomplete: React.FC<Props> = ({
   return (
     <Autocomplete<string, false, false, false>
       sx={{
-        height: '38px',
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 9.5 theme spacing units (= 38px; matches the menu item row height)
+        height: ({ spacing }: Theme) => spacing(9.5),
         opacity: disabled ? DISABLED_FILTER_OPACITY : 1,
       }}
       background={selectedValue ? OpossumColors.lightestBlue : 'transparent'}

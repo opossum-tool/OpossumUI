@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { type TableCellProps, TableSortLabel } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import type { Theme } from '@mui/material/styles';
 import MuiTableCell from '@mui/material/TableCell';
 import type { SxProps } from '@mui/system';
 import { visuallyHidden } from '@mui/utils';
@@ -17,7 +18,7 @@ interface TableCellWithSortingProps extends PropsWithChildren {
   onRequestSort: () => void;
   defaultOrder: Order;
   tableCellProps?: TableCellProps;
-  sx?: SxProps;
+  sx?: SxProps<Theme>;
 }
 
 export const TableCellWithSorting: React.FC<TableCellWithSortingProps> = (

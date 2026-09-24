@@ -13,6 +13,7 @@ import MuiFade from '@mui/material/Fade';
 import MuiIconButton, {
   type IconButtonProps as MuiIconButtonProps,
 } from '@mui/material/IconButton';
+import type { Theme } from '@mui/material/styles';
 import type { TextFieldProps as MuiInputProps } from '@mui/material/TextField';
 import MuiTooltip from '@mui/material/Tooltip';
 import useMuiAutocomplete, {
@@ -67,7 +68,7 @@ type AutocompleteProps<
     placeholder?: string;
     hidePopupIndicator?: boolean;
     startAdornment?: React.ReactNode;
-    sx?: SxProps;
+    sx?: SxProps<Theme>;
     title?: string;
     variant?: MuiTextFieldProps['variant'];
     disableCloseOnSelect?: boolean;

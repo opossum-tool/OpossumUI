@@ -3,8 +3,10 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiLinearProgress from '@mui/material/LinearProgress';
+import type { Theme } from '@mui/material/styles';
 import { useLayoutEffect } from 'react';
 
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
@@ -32,14 +34,15 @@ const classes = {
     position: 'relative',
   },
   loadingIndicator: {
-    height: 2,
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 0.5 theme spacing units (= 2px loading bar thickness)
+    height: ({ spacing }: Theme) => spacing(0.5),
     left: 0,
     position: 'absolute',
     right: 0,
     top: 0,
     zIndex: 2,
   },
-};
+} satisfies SxProps<Theme>;
 
 export function AttributionDetails() {
   const dispatch = useAppDispatch();
