@@ -74,11 +74,14 @@ export function List<ItemType extends BaseItem>({
   initialTopMostItemIndex,
   totalCount,
   unloadedItemHeight,
+  endReached,
+  itemsRendered,
+  rangeChanged,
   ...props
 }: ListProps<ItemType> &
   UnloadedItemsProps &
   Omit<VirtuosoProps<ItemType, unknown>, 'data' | 'selected' | 'totalCount'>) {
-  const { endReached, rangeChanged } = props;
+  const [isListReady, setIsListReady] = useState(false);
   const [visibleRange, setVisibleRange] = useState<{
     endIndex: number;
     resultSetKey: string | undefined;
@@ -104,6 +107,7 @@ export function List<ItemType extends BaseItem>({
 
   useEffect(() => {
     if (data === null) {
+      setIsListReady(false);
       setVisibleRange(null);
     }
   }, [data]);
@@ -136,6 +140,7 @@ export function List<ItemType extends BaseItem>({
     isVirtuosoFocused,
   } = useVirtuosoRefs<ItemType, VirtuosoHandle>({
     data,
+    isListReady,
     selectedId,
   });
 
@@ -176,17 +181,24 @@ export function List<ItemType extends BaseItem>({
               data={virtuosoData}
               {...(effectiveTotalCount === undefined
                 ? {}
-                : {
-                    totalCount: effectiveTotalCount,
-                    rangeChanged: (range) => {
-                      setVisibleRange({
-                        endIndex: range.endIndex,
-                        resultSetKey,
-                      });
-                      rangeChanged?.(range);
-                    },
-                    endReached: hasUnloadedRows ? undefined : endReached,
-                  })}
+                : { totalCount: effectiveTotalCount })}
+              endReached={hasUnloadedRows ? undefined : endReached}
+              itemsRendered={(items) => {
+                // Initial probe rows can have size zero before real measurement.
+                if (items.some((item) => item.size > 0)) {
+                  setIsListReady(true);
+                }
+                itemsRendered?.(items);
+              }}
+              rangeChanged={(range) => {
+                if (effectiveTotalCount !== undefined) {
+                  setVisibleRange({
+                    endIndex: range.endIndex,
+                    resultSetKey,
+                  });
+                }
+                rangeChanged?.(range);
+              }}
               itemContent={(index) =>
                 hasUnloadedRows && !data?.[index] ? (
                   <div style={{ height: unloadedItemHeight }} />

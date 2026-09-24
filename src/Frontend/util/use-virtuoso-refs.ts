@@ -18,9 +18,11 @@ export function useVirtuosoRefs<
   T extends VirtuosoHandle,
 >({
   data,
+  isListReady = true,
   selectedId,
 }: {
   data: ReadonlyArray<ItemType> | null | undefined;
+  isListReady?: boolean;
   selectedId: ItemType['id'] | undefined;
 }) {
   const ref = useRef<T>(null);
@@ -66,10 +68,10 @@ export function useVirtuosoRefs<
   });
 
   useLayoutEffect(() => {
-    if (selectedId !== undefined && selectedIsAvailable) {
+    if (isListReady && selectedId !== undefined && selectedIsAvailable) {
       scrollToSelection();
     }
-  }, [selectedId, selectedIsAvailable]);
+  }, [isListReady, selectedId, selectedIsAvailable]);
 
   const handleKeyDown = useCallback(
     (event: Event) => {

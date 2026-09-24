@@ -80,6 +80,12 @@ export class ReportView {
       .click();
   }
 
+  async scrollToTop(): Promise<void> {
+    await this.node.evaluate((scroller) => {
+      scroller.scrollTop = 0;
+    });
+  }
+
   async closeFilterMenu() {
     if (await this.filterMenu.isVisible()) {
       await this.filterMenu.press('Escape');
