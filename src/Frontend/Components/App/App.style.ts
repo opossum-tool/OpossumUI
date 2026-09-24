@@ -7,6 +7,7 @@ import { createTheme, styled } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 
+import { typographyVariants } from '../../app-typography';
 import { OpossumColors } from '../../shared-styles';
 
 export const TitleTypography = styled(MuiTypography)(({ theme }) => ({
@@ -34,21 +35,7 @@ export const ViewContainer = styled(MuiBox)({
 
 export const theme = createTheme({
   spacing: 4,
-  typography: {
-    fontFamily: ['Karla Variable', 'sans-serif'].join(','),
-    body1: {
-      fontSize: '14px',
-      lineHeight: '20px',
-    },
-    body2: {
-      fontSize: '14px',
-      lineHeight: '18px',
-    },
-    caption: {
-      fontSize: '12px',
-      lineHeight: '20px',
-    },
-  },
+  typography: typographyVariants,
   palette: {
     primary: {
       main: OpossumColors.darkBlue,
@@ -71,9 +58,9 @@ export const theme = createTheme({
   components: {
     MuiInputBase: {
       styleOverrides: {
-        root: {
-          minHeight: '36px !important',
-        },
+        root: ({ theme }) => ({
+          minHeight: `${theme.spacing(9)} !important`,
+        }),
       },
     },
     MuiToggleButton: {

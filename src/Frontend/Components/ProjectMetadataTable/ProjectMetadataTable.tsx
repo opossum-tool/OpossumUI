@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (3.25 units = 13px head font, 2.75 units = 11px body font) */
 import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import type { Theme } from '@mui/material/styles';
@@ -19,13 +18,13 @@ import { backend } from '../../util/backendClient';
 
 const projectMetadataTableClasses = {
   firstColumn: {
-    fontSize: ({ spacing }: Theme) => spacing(3.25),
+    fontSize: (theme: Theme) => theme.typography.body3.fontSize,
     background: OpossumColors.darkBlue,
     color: OpossumColors.white,
     width: 'max-content',
   },
   secondColumn: {
-    fontSize: ({ spacing }: Theme) => spacing(2.75),
+    fontSize: (theme: Theme) => theme.typography.dense.fontSize,
     background: OpossumColors.lightestBlue,
     width: 'max-content',
     overflow: 'auto',

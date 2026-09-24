@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { useTheme } from '@mui/material/styles';
 import { useIsMutating } from '@tanstack/react-query';
 import { useState } from 'react';
 
@@ -54,6 +55,7 @@ function DiffPopupSession({
   onClose,
   onAcceptDrafts,
 }: DiffPopupProps) {
+  const theme = useTheme();
   const isBusy = useIsMutating() > 0;
   const [saveRequest, setSaveRequest] = useState<{
     acceptedAttributions: Attributions;
@@ -103,8 +105,10 @@ function DiffPopupSession({
       aria-label={ariaLabel}
       background={'lightestBlue'}
       fullWidth={true}
-      width={'min(1200px, calc(100vw - 32px))'}
-      height={'calc(100vh - 64px)'}
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 300 units (= 1200px cap) and 8 units (= 32px gutter); the viewport terms stay fluid
+      width={`min(${theme.spacing(300)}, calc(100vw - ${theme.spacing(8)}))`}
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 16 theme spacing units (= 64px)
+      height={`calc(100vh - ${theme.spacing(16)})`}
       titleSx={{ py: 2, px: 6, pb: 1.5 }}
       actionsSx={{ py: 1, px: 2 }}
       sx={{
