@@ -10,6 +10,7 @@ import { text } from '../../../../../shared/text';
 import { readonlyStyle, treeItemClasses } from '../../../../shared-styles';
 import {
   BreakpointIcon,
+  DirectlyLinkedIcon,
   DirectoryIcon,
   FileIcon,
   ReadonlyIcon,
@@ -57,6 +58,7 @@ export const LinkedResourcesTreeNode: React.FC<
       >
         {labelText}
       </MuiTypography>
+      {resource.isDirectlyLinked && <DirectlyLinkedIcon />}
       {resource.isReadonly && (
         <ReadonlyIcon
           label={'readonly resource'}

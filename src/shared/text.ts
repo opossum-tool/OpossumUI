@@ -262,6 +262,7 @@ export const text = {
     hasMediumCriticalSignals: 'Has medium critical signals',
     hasSignals: 'Has signals',
     readonlyResource: 'This resource is readonly',
+    directlyLinked: 'Directly linked',
   },
   auditingOptions: {
     add: 'Add Auditing Option',
