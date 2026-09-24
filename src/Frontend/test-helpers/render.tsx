@@ -7,8 +7,8 @@ import { renderHook as nativeRenderHook, render } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
-import { initializeDb } from '../../ElectronBackend/db/initializeDb';
 import type { ParsedFileContent } from '../../shared/shared-types';
+import { setupBackendIntegration } from '../../testing/backend-integration';
 import { type Action, createAppStore } from '../state/configure-store';
 import { setDatabaseInitialized } from '../util/backendClient';
 
@@ -22,9 +22,26 @@ function makeReactQueryClient() {
   });
 }
 
+function makeProviderWrapper(
+  store: Awaited<ReturnType<typeof createTestStore>>,
+) {
+  const queryClient = makeReactQueryClient();
+  return function ProviderWrapper({ children }: { children: React.ReactNode }) {
+    return (
+      <Provider store={store}>
+        <QueryClientProvider client={queryClient}>
+          <VirtuosoMockContext value={{ itemHeight: 40, viewportHeight: 1200 }}>
+            {children}
+          </VirtuosoMockContext>
+        </QueryClientProvider>
+      </Provider>
+    );
+  };
+}
+
 export async function createTestStore(data?: ParsedFileContent) {
   if (data) {
-    await initializeDb(data);
+    await setupBackendIntegration(data);
     setDatabaseInitialized(true);
   }
   return createAppStore();
@@ -46,17 +63,7 @@ export async function renderComponent(
   return {
     store,
     ...render(component, {
-      wrapper: ({ children }) => (
-        <Provider store={store}>
-          <QueryClientProvider client={makeReactQueryClient()}>
-            <VirtuosoMockContext
-              value={{ itemHeight: 40, viewportHeight: 1200 }}
-            >
-              {children}
-            </VirtuosoMockContext>
-          </QueryClientProvider>
-        </Provider>
-      ),
+      wrapper: makeProviderWrapper(store),
     }),
   };
 }
@@ -78,13 +85,7 @@ export async function renderHook<P, R>(
 
   return {
     ...nativeRenderHook(callback, {
-      wrapper: ({ children }) => (
-        <Provider store={store}>
-          <QueryClientProvider client={makeReactQueryClient()}>
-            {children}
-          </QueryClientProvider>
-        </Provider>
-      ),
+      wrapper: makeProviderWrapper(store),
       initialProps,
     }),
     store,

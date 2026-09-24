@@ -115,6 +115,7 @@ describe('AttributionDetails', () => {
   it('renders nothing when the selected attribution ID is not visible', async () => {
     const packageInfo = faker.opossum.packageInfo();
     const { container } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({}),
       actions: [
         setTemporaryDisplayPackageInfo(packageInfo),
         setSelectedAttributionId(packageInfo.id),
