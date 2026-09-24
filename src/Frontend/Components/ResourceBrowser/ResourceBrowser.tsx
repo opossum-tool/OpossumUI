@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiLinearProgress from '@mui/material/LinearProgress';
 import { keepPreviousData } from '@tanstack/react-query';
 import { useCallback, useMemo, useRef, useState } from 'react';
 
@@ -22,6 +21,7 @@ import { useResourceTreeFilterProperties } from '../../util/use-filter-propertie
 import { FilterButton } from '../FilterButton/FilterButton';
 import { LicenseAutocomplete } from '../FilterButton/LicenseAutocomplete/LicenseAutocomplete';
 import { UnreviewedIcon } from '../Icons/Icons';
+import { LoadingIndicator } from '../LoadingIndicator/loading-indicator';
 import { ResizePanels } from '../ResizePanels/ResizePanels';
 import { LinkedResourcesTree } from './LinkedResourcesTree/LinkedResourcesTree';
 import { resourceBrowserFilterButtonStyle } from './ResourceBrowser.style';
@@ -214,16 +214,30 @@ export function ResourceBrowser() {
           },
           hidden: linkedResourcesPanelState.isHidden,
           component: (
-            <>
-              {linkedResourcesPanelState.isLoading && (
-                <MuiLinearProgress data-testid={'linked-resources-loading'} />
+            <div
+              aria-busy={linkedResourcesPanelState.isLoading}
+              data-testid={'linked-resources-panel-content'}
+              style={{
+                position: 'relative',
+                flex: 1,
+                minHeight: 0,
+                overflow: 'hidden',
+              }}
+            >
+              {linkedResourcesPanelState.isIndicatorVisible && (
+                <LoadingIndicator data-testid={'linked-resources-loading'} />
               )}
-              {linkedResourcesPanelState.treeState && (
-                <LinkedResourcesTree
-                  state={linkedResourcesPanelState.treeState}
-                />
-              )}
-            </>
+              <div
+                inert={linkedResourcesPanelState.isLoading}
+                style={{ height: '100%' }}
+              >
+                {linkedResourcesPanelState.treeState && (
+                  <LinkedResourcesTree
+                    state={linkedResourcesPanelState.treeState}
+                  />
+                )}
+              </div>
+            </div>
           ),
           headerDataAttributes: {
             'data-applied-search':

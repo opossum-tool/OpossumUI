@@ -12,6 +12,7 @@ import {
 
 import { useVirtuosoRefs } from '../../util/use-virtuoso-refs';
 import { EmptyPlaceholder } from '../EmptyPlaceholder/EmptyPlaceholder';
+import { LoadingIndicator } from '../LoadingIndicator/loading-indicator';
 import { LoadingMask } from '../LoadingMask/LoadingMask';
 import { VirtuosoComponentContext } from '../VirtuosoComponentContext/VirtuosoComponentContext';
 import {
@@ -19,7 +20,6 @@ import {
   InfiniteListFooter,
   InfiniteListFooterContext,
 } from './InfiniteListFooter';
-import { StyledLinearProgress } from './List.style';
 
 export const INFINITE_LIST_BOTTOM_OVERSCAN = 600;
 
@@ -151,7 +151,7 @@ export function List<ItemType extends BaseItem>({
       active={loading}
       testId={testId}
     >
-      {loading && <StyledLinearProgress data-testid={'loading'} />}
+      {loading && <LoadingIndicator data-testid={'loading'} />}
       {data && (
         // Virtuoso components must not be inlined: https://github.com/petyosi/react-virtuoso/issues/566
         <VirtuosoComponentContext value={{ isVirtuosoFocused, loading }}>
