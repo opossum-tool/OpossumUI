@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { useTheme } from '@mui/material/styles';
 import type { SxProps } from '@mui/system';
 import { remove } from 'lodash-es';
 import { useCallback } from 'react';
@@ -27,6 +28,7 @@ export function LinkedResourcesTree({
   state,
   sx,
 }: Props) {
+  const theme = useTheme();
   const dispatch = useAppDispatch();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
 
@@ -68,7 +70,8 @@ export function LinkedResourcesTree({
       sx={{
         ...(readOnly && {
           background: OpossumColors.lightGrey,
-          border: `1px solid ${OpossumColors.lightGrey}`,
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 0.25 theme spacing units (= 1px)
+          border: `${theme.spacing(0.25)} solid ${OpossumColors.lightGrey}`,
           boxSizing: 'border-box',
         }),
         ...sx,

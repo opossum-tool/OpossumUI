@@ -2,10 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (6 = 24px row, 4 = 16px warning icon, 4.5 = 18px expand icon) */
 import { ExpandMore } from '@mui/icons-material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import MuiBox from '@mui/material/Box';
 import MuiCollapse from '@mui/material/Collapse';
+import type { Theme } from '@mui/material/styles';
 import MuiTypography from '@mui/material/Typography';
 import { useState } from 'react';
 
@@ -34,7 +36,7 @@ export const ValidationDisplay: React.FC<ValidationErrorDisplayProps> = ({
       <MuiBox
         data-testid="validation-display"
         sx={{
-          minHeight: 24,
+          minHeight: ({ spacing }: Theme) => spacing(6),
           mt: 1.5,
           pl: 2,
           display: 'flex',
@@ -44,7 +46,7 @@ export const ValidationDisplay: React.FC<ValidationErrorDisplayProps> = ({
       >
         <WarningAmberIcon
           sx={{
-            fontSize: 16,
+            fontSize: ({ spacing }: Theme) => spacing(4),
             flexShrink: 0,
           }}
         />
@@ -59,8 +61,8 @@ export const ValidationDisplay: React.FC<ValidationErrorDisplayProps> = ({
                   rotate: expanded ? '180deg' : '0deg',
                   transition: 'rotate 0.3s ease',
                   cursor: 'pointer',
-                  height: '18px',
-                  width: '18px',
+                  height: ({ spacing }: Theme) => spacing(4.5),
+                  width: ({ spacing }: Theme) => spacing(4.5),
                 }}
               />
             )}

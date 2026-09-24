@@ -43,24 +43,25 @@ Scope conventions for the tables below:
 
 ### Shared styles and theme
 
-| File                                          | Line | Property                                      | Value               | Determines                                         |
-| --------------------------------------------- | ---- | --------------------------------------------- | ------------------- | -------------------------------------------------- |
-| `src/Frontend/shared-styles.ts:50`            | 50   | `baseIcon.width`                              | `'15px'`            | size of all icons using `baseIcon`/`clickableIcon` |
-| `src/Frontend/shared-styles.ts:51`            | 51   | `baseIcon.height`                             | `'15px'`            | icon size (see above)                              |
-| `src/Frontend/shared-styles.ts:72`            | 72   | `tableClasses.head.fontSize`                  | `13`                | table head font size                               |
-| `src/Frontend/shared-styles.ts:77`            | 77   | `tableClasses.body.fontSize`                  | `11`                | table body font size                               |
-| `src/Frontend/shared-styles.ts:79`            | 79   | `tableClasses.body.maxWidth`                  | `'200px'`           | max table cell width                               |
-| `src/Frontend/shared-styles.ts:85`            | 85   | `tableClasses.footer.fontSize`                | `12`                | table footer font size                             |
-| `src/Frontend/shared-styles.ts:125`           | 125  | `treeItemClasses.matchesFilters.borderRadius` | `'3px'`             | corner radius of the "matches filters" highlight   |
-| `src/Frontend/shared-styles.ts:138`           | 138  | `chartTooltipContentStyle.fontSize`           | `'12px'`            | recharts tooltip font size                         |
-| `src/Frontend/shared-styles.ts:142`           | 142  | `chartTooltipContentStyle.borderRadius`       | `'4px'`             | recharts tooltip corner radius                     |
-| `src/Frontend/Components/App/App.style.ts:40` | 40   | `typography.body1.fontSize`                   | `'14px'`            | app-wide body1 font size                           |
-| `src/Frontend/Components/App/App.style.ts:41` | 41   | `typography.body1.lineHeight`                 | `'20px'`            | body1 line box height                              |
-| `src/Frontend/Components/App/App.style.ts:44` | 44   | `typography.body2.fontSize`                   | `'14px'`            | app-wide body2 font size                           |
-| `src/Frontend/Components/App/App.style.ts:45` | 45   | `typography.body2.lineHeight`                 | `'18px'`            | body2 line box height                              |
-| `src/Frontend/Components/App/App.style.ts:48` | 48   | `typography.caption.fontSize`                 | `'12px'`            | app-wide caption font size                         |
-| `src/Frontend/Components/App/App.style.ts:49` | 49   | `typography.caption.lineHeight`               | `'20px'`            | caption line box height                            |
-| `src/Frontend/Components/App/App.style.ts:75` | 75   | `MuiInputBase` override `minHeight`           | `'36px !important'` | min height of every input in the app               |
+| File                                          | Line | Property                                      | Value               | Determines                                                                                                                                             |
+| --------------------------------------------- | ---- | --------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/Frontend/shared-styles.ts:50`            | 50   | `baseIcon.width`                              | `'15px'`            | size of all icons using `baseIcon`/`clickableIcon`                                                                                                     |
+| `src/Frontend/shared-styles.ts:51`            | 51   | `baseIcon.height`                             | `'15px'`            | icon size (see above)                                                                                                                                  |
+| `src/Frontend/shared-styles.ts:72`            | 72   | `tableClasses.head.fontSize`                  | `13`                | table head font size                                                                                                                                   |
+| `src/Frontend/shared-styles.ts:77`            | 77   | `tableClasses.body.fontSize`                  | `11`                | table body font size                                                                                                                                   |
+| `src/Frontend/shared-styles.ts:79`            | 79   | `tableClasses.body.maxWidth`                  | `'200px'`           | max table cell width                                                                                                                                   |
+| `src/Frontend/shared-styles.ts:85`            | 85   | `tableClasses.footer.fontSize`                | `12`                | table footer font size                                                                                                                                 |
+| `src/Frontend/shared-styles.ts:125`           | 125  | `treeItemClasses.matchesFilters.borderRadius` | `'3px'`             | corner radius of the "matches filters" highlight                                                                                                       |
+| `src/Frontend/shared-styles.ts:140`           | 140  | `chartTooltipContentStyle.fontSize`           | `'12px'`            | recharts tooltip font size                                                                                                                             |
+| `src/Frontend/shared-styles.ts:142`           | 142  | `chartTooltipContentStyle.padding`            | `3`                 | recharts tooltip inner padding — raw `React.CSSProperties` (`contentStyle`), not sx-processed; kept as literal 3px (moved here from the residual note) |
+| `src/Frontend/shared-styles.ts:144`           | 144  | `chartTooltipContentStyle.borderRadius`       | `'4px'`             | recharts tooltip corner radius                                                                                                                         |
+| `src/Frontend/Components/App/App.style.ts:40` | 40   | `typography.body1.fontSize`                   | `'14px'`            | app-wide body1 font size                                                                                                                               |
+| `src/Frontend/Components/App/App.style.ts:41` | 41   | `typography.body1.lineHeight`                 | `'20px'`            | body1 line box height                                                                                                                                  |
+| `src/Frontend/Components/App/App.style.ts:44` | 44   | `typography.body2.fontSize`                   | `'14px'`            | app-wide body2 font size                                                                                                                               |
+| `src/Frontend/Components/App/App.style.ts:45` | 45   | `typography.body2.lineHeight`                 | `'18px'`            | body2 line box height                                                                                                                                  |
+| `src/Frontend/Components/App/App.style.ts:48` | 48   | `typography.caption.fontSize`                 | `'12px'`            | app-wide caption font size                                                                                                                             |
+| `src/Frontend/Components/App/App.style.ts:49` | 49   | `typography.caption.lineHeight`               | `'20px'`            | caption line box height                                                                                                                                |
+| `src/Frontend/Components/App/App.style.ts:75` | 75   | `MuiInputBase` override `minHeight`           | `'36px !important'` | min height of every input in the app                                                                                                                   |
 
 ### _DONE_ Electron main process
 
@@ -176,7 +177,7 @@ The badge dot styles sit in a plain `style` prop (not sx), so the values are res
 
 ### _DONE_ Icons
 
-`resourceIcon` is a module-scope classes object spread into consumers' sx, so it uses sx value callbacks with the unit kept in a module const (const declarations are `no-magic-numbers`-exempt; 4.5 units = 18px). The `strokeWidth` row is kept as-is: it is SVG user-unit geometry (`stroke-width: 0.5` scales with the icon's viewBox, not a CSS px value), the same non-CSS-scope category as the retained Popper flip padding in the residual note — mapping it through the spacing lattice would alter rendering semantics:
+`resourceIcon` is a module-scope classes object spread into consumers' sx, so it uses sx value callbacks with the unit kept in a module const (const declarations are `no-magic-numbers`-exempt; 4.5 units = 18px). The `strokeWidth` row is kept as-is: it is SVG user-unit geometry (`stroke-width: 0.5` scales with the icon's viewBox, not a CSS px value), the same non-CSS-lattice category as other documented keeps (consumed-by-non-sx values like the recharts tooltip `contentStyle` padding — shared-styles table — or recharts geometry numerics) — mapping it through the spacing lattice would alter rendering semantics:
 
 | File                                          | Line | Property              | Value    | Determines                       | Converted to                                         |
 | --------------------------------------------- | ---- | --------------------- | -------- | -------------------------------- | ---------------------------------------------------- |
@@ -372,67 +373,71 @@ All values converted via sx value callbacks in `classes` (`({ spacing }: Theme) 
 | `src/Frontend/Components/TopBar/TopBar.tsx:56` | 56    | `viewButtons.border`            | `2px ... solid`     | toggle button outline width                     | `${spacing(0.5)} ... solid` (= 2px) callback |
 | `src/Frontend/Components/TopBar/TopBar.tsx:64` | 64    | selected toggle `border`        | `2px ... solid`     | selected toggle outline width                   | `${spacing(0.5)} ... solid` (= 2px) callback |
 
-### ValidationDisplay
+### _DONE_ ValidationDisplay
 
-| File                                                                 | Line  | Property                     | Value    | Determines                |
-| -------------------------------------------------------------------- | ----- | ---------------------------- | -------- | ------------------------- |
-| `src/Frontend/Components/ValidationDisplay/ValidationDisplay.tsx:37` | 37    | container `minHeight`        | `24`     | validation row min height |
-| `src/Frontend/Components/ValidationDisplay/ValidationDisplay.tsx:47` | 47    | warning icon `fontSize`      | `16`     | warning icon size         |
-| `src/Frontend/Components/ValidationDisplay/ValidationDisplay.tsx:62` | 62–63 | expand icon `height`/`width` | `'18px'` | expand/collapse icon size |
+All values converted via sx value callbacks on the MUI components (`({ spacing }: Theme) => spacing(...)`), with a justified file-level `no-magic-numbers` disable. Exact mapping (4px unit): 4 = 16px, 4.5 = 18px, 6 = 24px:
 
-### ValueFilterAutocomplete
+| File                                                                 | Line  | Property                     | Value    | Determines                | Converted to                            |
+| -------------------------------------------------------------------- | ----- | ---------------------------- | -------- | ------------------------- | --------------------------------------- |
+| `src/Frontend/Components/ValidationDisplay/ValidationDisplay.tsx:39` | 39    | container `minHeight`        | `24`     | validation row min height | `spacing(6)` (= 24px) value callback    |
+| `src/Frontend/Components/ValidationDisplay/ValidationDisplay.tsx:49` | 49    | warning icon `fontSize`      | `16`     | warning icon size         | `spacing(4)` (= 16px) value callback    |
+| `src/Frontend/Components/ValidationDisplay/ValidationDisplay.tsx:64` | 64–65 | expand icon `height`/`width` | `'18px'` | expand/collapse icon size | `spacing(4.5)` (= 18px) value callbacks |
 
-| File                                                                                          | Line | Property | Value    | Determines                                     |
-| --------------------------------------------------------------------------------------------- | ---- | -------- | -------- | ---------------------------------------------- |
-| `src/Frontend/Components/FilterButton/ValueFilterAutocomplete/ValueFilterAutocomplete.tsx:38` | 38   | `height` | `'38px'` | filter trigger height (matches 38px menu rows) |
+### _DONE_ ValueFilterAutocomplete
 
-### VirtualizedTree
+| File                                                                                          | Line | Property | Value    | Determines                                     | Converted to                                                                                                                                                                       |
+| --------------------------------------------------------------------------------------------- | ---- | -------- | -------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/FilterButton/ValueFilterAutocomplete/ValueFilterAutocomplete.tsx:41` | 41   | `height` | `'38px'` | filter trigger height (matches 38px menu rows) | `spacing(9.5)` (= 38px) value callback, justified disable — same 9.5 units as the SelectMenu `MenuItemContainer.height` (9.5 = 38px), keeping the height coupling documented above |
 
-| File                                                                                     | Line  | Property                        | Value               | Determines                           |
-| ---------------------------------------------------------------------------------------- | ----- | ------------------------------- | ------------------- | ------------------------------------ |
-| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:15` | 15    | `INDENT_PER_DEPTH_LEVEL`        | `12`                | indent per tree depth level (px)     |
-| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:16` | 16    | `SIMPLE_FOLDER_EXTRA_INDENT`    | `16`                | extra indent for simple folders (px) |
-| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:26` | 26    | `listNode.height`               | `'20px'`            | tree node row height                 |
-| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:38` | 38–39 | clickable icon `width`/`height` | `'16px'` / `'20px'` | node icon button box                 |
-| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:52` | 52–53 | expand icon `width`/`height`    | `'16px'` / `'20px'` | expand/collapse icon box             |
-| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:64` | 64    | selected indicator `height`     | `'20px'`            | selection highlight height           |
+### _DONE_ VirtualizedTree
 
-### ResourceBrowser
+CSS values converted via sx value callbacks in `classes` (`({ spacing }: Theme) => spacing(...)`); the indent constants became theme-unit constants resolved numerically at runtime (they feed pixel arithmetic for the spacer `style.width`, so they use the BagrChart-style `spacingPx` helper — `parseFloat(theme.spacing(units))`; multiplier arithmetic over `resource.level` stays integer-exact). Exact mapping (4px unit): 3 = 12px, 4 = 16px, 5 = 20px; a justified file-level `no-magic-numbers` disable covers the unit args and the pre-existing `opacity` fallback (its former line comment was absorbed):
 
-| File                                                                                     | Line | Property | Value           | Determines                    |
-| ---------------------------------------------------------------------------------------- | ---- | -------- | --------------- | ----------------------------- |
-| `src/Frontend/Components/ResourceBrowser/LinkedResourcesTree/LinkedResourcesTree.tsx:71` | 71   | `border` | `1px solid ...` | linked resources tree outline |
+| File                                                                                     | Line  | Property                        | Value               | Determines                           | Converted to                                                                           |
+| ---------------------------------------------------------------------------------------- | ----- | ------------------------------- | ------------------- | ------------------------------------ | -------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:17` | 17    | `INDENT_PER_DEPTH_LEVEL`        | `12`                | indent per tree depth level (px)     | `INDENT_PER_DEPTH_LEVEL_IN_THEME_UNITS = 3` units, resolved via `spacingPx` (12px)     |
+| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:18` | 18    | `SIMPLE_FOLDER_EXTRA_INDENT`    | `16`                | extra indent for simple folders (px) | `SIMPLE_FOLDER_EXTRA_INDENT_IN_THEME_UNITS = 4` units, resolved via `spacingPx` (16px) |
+| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:28` | 28    | `listNode.height`               | `'20px'`            | tree node row height                 | `spacing(5)` (= 20px) value callback                                                   |
+| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:40` | 40–41 | clickable icon `width`/`height` | `'16px'` / `'20px'` | node icon button box                 | `spacing(4)` (= 16px) / `spacing(5)` (= 20px) value callbacks                          |
+| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:54` | 54–55 | expand icon `width`/`height`    | `'16px'` / `'20px'` | expand/collapse icon box             | `spacing(4)` (= 16px) / `spacing(5)` (= 20px) value callbacks                          |
+| `src/Frontend/Components/VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.tsx:66` | 66    | selected indicator `height`     | `'20px'`            | selection highlight height           | `spacing(5)` (= 20px) value callback                                                   |
 
-(The formerly listed `ResourcesTreeNode.tsx:81 borderRadius: '3px'` favorite-badge corner no longer exists in this component; the surviving `'3px'` literal moved to the `matchesFilters` highlight in `shared-styles.ts:125`, see the shared-styles table.)
+### _DONE_ ResourceBrowser
 
-### AttributionCountPerSourcePerLicenseTableHead
+| File                                                                                     | Line | Property | Value           | Determines                    | Converted to                                                            |
+| ---------------------------------------------------------------------------------------- | ---- | -------- | --------------- | ----------------------------- | ----------------------------------------------------------------------- |
+| `src/Frontend/Components/ResourceBrowser/LinkedResourcesTree/LinkedResourcesTree.tsx:74` | 74   | `border` | `1px solid ...` | linked resources tree outline | `theme.spacing(0.25)` solid via `useTheme()` (= 1px; justified disable) |
 
-| File                                                                                                                                                                | Line | Property       | Value                     | Determines       |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- | -------------- | ------------------------- | ---------------- |
-| `src/Frontend/Components/AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTableHead/AttributionCountPerSourcePerLicenseTableHead.tsx:17` | 17   | `borderRight`  | `'2px solid lightgray'`   | head cell border |
-| `src/Frontend/Components/AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTableHead/AttributionCountPerSourcePerLicenseTableHead.tsx:20` | 20   | `borderBottom` | `'1.5px solid lightgray'` | head cell border |
+### _DONE_ AttributionCountPerSourcePerLicenseTableHead
 
-### ToggleHiddenSignalsButton
+| File                                                                                                                                                                | Line | Property       | Value                     | Determines       | Converted to                                                                                                       |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- | -------------- | ------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `src/Frontend/Components/AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTableHead/AttributionCountPerSourcePerLicenseTableHead.tsx:19` | 19   | `borderRight`  | `'2px solid lightgray'`   | head cell border | `spacing(0.5)` (= 2px) value callback (justified disable; `classes` now `satisfies SxProps<Theme>`)                |
+| `src/Frontend/Components/AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTableHead/AttributionCountPerSourcePerLicenseTableHead.tsx:23` | 23   | `borderBottom` | `'1.5px solid lightgray'` | head cell border | `spacing(0.375)` (= 1.5px) value callback (justified disable; the `lightgray` color literal itself is not a pixel) |
 
-| File                                                                                                                | Line | Property | Value    | Determines               |
-| ------------------------------------------------------------------------------------------------------------------- | ---- | -------- | -------- | ------------------------ |
-| `src/Frontend/Components/AttributionPanels/SignalsPanel/ToggleHiddenSignalsButton/ToggleHiddenSignalsButton.tsx:32` | 32   | `height` | `'24px'` | toggle button row height |
+### _DONE_ ToggleHiddenSignalsButton
 
-### AttributionDetails
+| File                                                                                                                | Line | Property | Value    | Determines               | Converted to                                                                                                                              |
+| ------------------------------------------------------------------------------------------------------------------- | ---- | -------- | -------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/AttributionPanels/SignalsPanel/ToggleHiddenSignalsButton/ToggleHiddenSignalsButton.tsx:36` | 36   | `height` | `'24px'` | toggle button row height | `({ spacing }: Theme) => spacing(6)` (= 24px) value callback, justified disable (`@mui/system` `Theme`, matching the system `Box` import) |
 
-| File                                                                   | Line | Property                  | Value | Determines            |
-| ---------------------------------------------------------------------- | ---- | ------------------------- | ----- | --------------------- |
-| `src/Frontend/Components/AttributionDetails/AttributionDetails.tsx:35` | 35   | `loadingIndicator.height` | `2`   | loading bar thickness |
+### _DONE_ AttributionDetails
 
-### PackagesPanel
+| File                                                                   | Line | Property                  | Value | Determines            | Converted to                                                                                                                                                          |
+| ---------------------------------------------------------------------- | ---- | ------------------------- | ----- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/AttributionDetails/AttributionDetails.tsx:38` | 38   | `loadingIndicator.height` | `2`   | loading bar thickness | `({ spacing }: Theme) => spacing(0.5)` (= 2px) value callbacks, justified disable (`classes` now `satisfies SxProps<Theme>`; GroupedList/List progress-bar precedent) |
 
-| File                                                                                | Line   | Property                 | Value                       | Determines                            |
-| ----------------------------------------------------------------------------------- | ------ | ------------------------ | --------------------------- | ------------------------------------- |
-| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:12` | 12     | `ALERT_CONTAINER_HEIGHT` | `24`                        | alert strip height (px)               |
-| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:13` | 13     | `TABS_CONTAINER_HEIGHT`  | `30`                        | tabs bar height (px)                  |
-| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:26` | 26, 55 | `boxShadow`              | `'0px 2px 1px -1px ...'`    | elevation shadow geometry             |
-| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:60` | 60     | tabs indicator `height`  | `'1px'`                     | tab underline thickness               |
-| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.tsx:634`     | 634    | `contentHeight` calc     | `'42px'` inside `calc(...)` | panel header offset in content height |
+### _DONE_ PackagesPanel
+
+`ALERT_CONTAINER_HEIGHT = 24` and `TABS_CONTAINER_HEIGHT = 30` stay as **px behavioral/layout constants** (same category as `HEADER_HEIGHT`/`REPORT_VIEW_ROW_HEIGHT`): they feed the `contentHeight` `calc()` string arithmetic in `PackagesPanel.tsx` alongside numeric CSS heights (`height: open ? ALERT_CONTAINER_HEIGHT : 0`, `height: TABS_CONTAINER_HEIGHT`), so routing them through the spacing lattice would desync the header math (`30 + 24 = 54px header band`) from the collapsed heights. The elevation shadows are now the exact MUI token (`theme.shadows[1]` — verified previously to be the same geometry as the copied literal), the indicator thickness converted on-lattice, and the ad-hoc `42px` panel-header offset derived from a theme callback ('10.5 units = 42px', justified disable):
+
+| File                                                                                | Line   | Property                 | Value                       | Determines                            | Converted to                                                                                                                                                                                                                           |
+| ----------------------------------------------------------------------------------- | ------ | ------------------------ | --------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:12` | 12     | `ALERT_CONTAINER_HEIGHT` | `24`                        | alert strip height (px)               | — kept (px behavioral constant, see note above)                                                                                                                                                                                        |
+| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:13` | 13     | `TABS_CONTAINER_HEIGHT`  | `30`                        | tabs bar height (px)                  | — kept (px behavioral constant, see note above)                                                                                                                                                                                        |
+| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:25` | 25, 53 | `boxShadow`              | `'0px 2px 1px -1px ...'`    | elevation shadow geometry             | `theme.shadows[1]` in `({ theme })` callbacks (both ActionBarContainer and Tabs)                                                                                                                                                       |
+| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.style.ts:59` | 59     | tabs indicator `height`  | `'1px'`                     | tab underline thickness               | `theme.spacing(0.25)`, justified disable (0.25 units = 1px)                                                                                                                                                                            |
+| `src/Frontend/Components/AttributionPanels/PackagesPanel/PackagesPanel.tsx:635`     | 635    | `contentHeight` calc     | `'42px'` inside `calc(...)` | panel header offset in content height | `${theme.spacing(10.5)}` (= 42px) via `useTheme()` inside the template literal; the `${TABS_CONTAINER_HEIGHT}px` / `${ALERT_CONTAINER_HEIGHT}px` segments keep feeding from their px constants, preserving this variable-part behavior |
 
 ### Note: viewport- and percentage-based sizing
 
@@ -450,19 +455,6 @@ These values are hardcoded but not pixel-based, so they are listed separately:
 | `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:94`    | 94–95 | width/height bounds    | `95vw` / `85vw` / `75vh`            | popup size bounds               |
 | `src/Frontend/Components/ProjectStatisticsPopup/ProjectStatisticsPopup.tsx:301`   | 301   | `height`               | `'47%'`                             | chart card height               |
 | `src/Frontend/Components/PieChart/PieChart.tsx:34`                                | 34    | legend text `width`    | `'95%'`                             | legend text width               |
-
-### Note: residual hardcoded spacing found during the dimensions scan
-
-Status after re-applying the migrations reset by the rebase: most of these leftovers are now converted (rows above already describe the final state). What remains, and why:
-
-| File                                                                       | Line | Property              | Value / status                                                                                                                              |
-| -------------------------------------------------------------------------- | ---- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/Frontend/shared-styles.ts:140`                                        | 140  | padding               | `3` — raw `React.CSSProperties` for a recharts tooltip (`contentStyle`), not sx-processed; kept as literal 3px                              |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:56`           | 56   | paddingRight          | `` `calc(${theme.spacing(3)} + N * ${theme.spacing(7)})` `` — theme-scaled now, but inherently a px `calc()` (adornment-width compensation) |
-| `src/Frontend/Components/Autocomplete/Autocomplete.style.tsx:104`          | 104  | Popper flip `padding` | `64` — Popper.js modifier option (viewport boundary padding), not a CSS spacing property; kept                                              |
-| `src/Frontend/Components/ProjectMetadataTable/ProjectMetadataTable.tsx:33` | 33   | marginBottom          | `6` — sx theme-unit value (= 24px), not a raw px literal; kept                                                                              |
-
-Formerly listed here and now converted: `shared-styles.ts:52–53` (`baseIcon` → `p: 0.5`, `my: 0, mx: 0.5`), `shared-styles.ts:98` (→ `pr: 1.25`), `Autocomplete.style.tsx:56` (→ theme-scaled `calc()`), `ResourceBrowser.style.ts:13` (→ `p: 0.5`), `SelectMenu.style.tsx:48/101–102` (→ `mt: 1`, `paddingRight/Left` via `theme.spacing`), `Toaster.tsx:27` (→ `theme.spacing(2)`), `UpdateAppPopup.tsx:48` (→ `sx={{ ml: 3 }}`).
 
 ## Impact Analysis
 
@@ -524,7 +516,7 @@ Formerly listed here and now converted: `shared-styles.ts:52–53` (`baseIcon` �
 2. **Evaluate custom spacing values** — Address outliers not on MUI's scale (status after the latest migration pass):
    - `8.5px` in `TextBox.tsx` — now expressed as sx theme units (`paddingBlock: 2.125`, `paddingY: props.multiline ? 0 : 2.125`); only `scrollPaddingBlock` keeps the raw `'8.5px'` literal because it is not an sx-handled key
    - `calc()` expressions in `TextBox.tsx:202–205` — converted to sx theme-unit math (`3.5 + n * 5`)
-   - The remaining `calc()` outliers documented in the residual note (`Autocomplete.style.tsx:56`, shared-styles chart tooltip) may remain as-is with documentation
+   - The remaining `calc()` outliers (`Autocomplete.style.tsx:56` — theme-scaled calc) may remain as-is with documentation; the shared-styles chart-tooltip padding now lives in the _Shared styles and theme_ table
 
 3. **Consider design token export** — If Figma integration is desired, export the MUI spacing scale as design tokens
 
