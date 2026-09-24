@@ -35,9 +35,8 @@ describe('The load and navigation simple actions', () => {
 
     testStore.dispatch(resetResourceState());
 
-    expect(testStore.getState().resourceState).toMatchObject(
-      initialResourceState,
-    );
+    const resetState = testStore.getState().resourceState;
+    expect(resetState).toEqual(initialResourceState);
   });
 
   it('sets and gets temporaryDisplayPackageInfo', () => {

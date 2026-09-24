@@ -10,6 +10,58 @@ import {
 import { getRawDb } from '../../db/db';
 import { queries } from '../queries';
 
+describe('getAttributionLinkStatus', () => {
+  beforeEach(async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources([
+        '/root/target/file.ts',
+        '/root/sibling/file.ts',
+      ]),
+      externalAttributions: {
+        attributions: Object.fromEntries(
+          [
+            'direct',
+            'descendant',
+            'both',
+            'ancestor',
+            'unrelated',
+            'unlinked',
+          ].map((id) => [id, { id, criticality: 0 }]),
+        ),
+        resourcesToAttributions: {
+          '/root/target': ['direct', 'both'],
+          '/root/target/file.ts': ['descendant', 'both'],
+          '/root': ['ancestor'],
+          '/root/sibling': ['unrelated'],
+        },
+        attributionsToResources: {
+          direct: ['/root/target'],
+          descendant: ['/root/target/file.ts'],
+          both: ['/root/target', '/root/target/file.ts'],
+          ancestor: ['/root'],
+          unrelated: ['/root/sibling'],
+        },
+      },
+    });
+  });
+
+  it.each([
+    ['direct', { onResource: true, onDescendants: false }],
+    ['descendant', { onResource: false, onDescendants: true }],
+    ['both', { onResource: true, onDescendants: true }],
+    ['ancestor', { onResource: false, onDescendants: false }],
+    ['unrelated', { onResource: false, onDescendants: false }],
+    ['unlinked', { onResource: false, onDescendants: false }],
+    ['nonexistent', { onResource: false, onDescendants: false }],
+  ])('reports relationship for %s', async (attributionUuid, expected) => {
+    const { result } = await queries.getAttributionLinkStatus({
+      resourcePath: '/root/target',
+      attributionUuid,
+    });
+    expect(result).toEqual(expected);
+  });
+});
+
 describe('filterProperties', () => {
   async function setupDb(options?: { resolved?: Array<string> }) {
     await initializeDbWithTestData({

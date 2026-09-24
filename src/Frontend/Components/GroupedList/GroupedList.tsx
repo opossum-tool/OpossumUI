@@ -78,6 +78,12 @@ export function GroupedList({
 }: GroupedListProps &
   UnloadedItemsProps &
   Omit<GroupedVirtuosoProps<string, unknown>, 'selected'>) {
+  const [readiness, setReadiness] = useState<{
+    resultSetKey: string | undefined;
+    ready: boolean;
+  }>({ resultSetKey, ready: false });
+  const isListReady =
+    readiness.resultSetKey === resultSetKey && readiness.ready;
   const [range, setRange] = useState<{
     startIndex: number;
     endIndex: number;
@@ -170,6 +176,7 @@ export function GroupedList({
 
   useEffect(() => {
     if (grouped === null) {
+      setReadiness({ resultSetKey, ready: false });
       setRange((current) =>
         current.startIndex === 0 && current.endIndex === 0
           ? { ...current, resultSetKey }
@@ -211,12 +218,12 @@ export function GroupedList({
     setIsVirtuosoFocused,
     selectedIndex,
     isVirtuosoFocused,
-  } = useVirtuosoRefs<{ id: string }, GroupedVirtuosoHandle>({
-    data: groups?.ids
-      .slice(0, loadedItemCount)
-      .filter((id): id is string => id !== undefined)
-      .map((id) => ({ id })),
+  } = useVirtuosoRefs<{ id: string | undefined }, GroupedVirtuosoHandle>({
+    data: groups?.ids.map((id) => ({ id })),
+    isListReady,
+    resultSetKey,
     selectedId,
+    scrollToIndex: true,
   });
 
   return (
@@ -241,6 +248,7 @@ export function GroupedList({
             }}
           >
             <GroupedVirtuoso
+              key={resultSetKey}
               ref={ref}
               onFocus={() => setIsVirtuosoFocused(true)}
               onBlur={() => setIsVirtuosoFocused(false)}
@@ -258,6 +266,15 @@ export function GroupedList({
                   endIndex: range.endIndex,
                   resultSetKey,
                 });
+              }}
+              itemsRendered={(items) => {
+                if (items.some((item) => item.size > 0)) {
+                  setReadiness((current) =>
+                    current.resultSetKey === resultSetKey && current.ready
+                      ? current
+                      : { resultSetKey, ready: true },
+                  );
+                }
               }}
               endReached={hasUnloadedRows ? undefined : endReached}
               groupCounts={groups?.counts}

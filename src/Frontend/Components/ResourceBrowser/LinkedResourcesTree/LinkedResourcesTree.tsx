@@ -52,7 +52,7 @@ export function LinkedResourcesTree({
 
   const handleSelect = useCallback(
     (nodeId: string) =>
-      dispatch(navigateToSelectedPathOrOpenUnsavedPopup(nodeId)),
+      dispatch(navigateToSelectedPathOrOpenUnsavedPopup(nodeId, 'preserve')),
     [dispatch],
   );
 

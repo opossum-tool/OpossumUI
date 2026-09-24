@@ -141,6 +141,7 @@ export function List<ItemType extends BaseItem>({
   } = useVirtuosoRefs<ItemType, VirtuosoHandle>({
     data,
     isListReady,
+    resultSetKey,
     selectedId,
   });
 

@@ -7,6 +7,7 @@ import { getParents } from '../../helpers/get-parents';
 import {
   getSelectedAttributionId,
   getSelectedResourceId,
+  getTargetAttributionSelectionPolicy,
   getTargetSelectedAttributionId,
   getTargetSelectedResourceId,
 } from '../../selectors/resource-selectors';
@@ -33,10 +34,12 @@ export function setSelectedResourceOrAttributionIdToTargetValue(): AppThunkActio
       getTargetSelectedAttributionId(getState());
 
     if (targetSelectedResourceId !== null) {
-      if (getSelectedResourceId(getState()) !== targetSelectedResourceId) {
-        dispatch(setAttributionSelectionPending(targetSelectedResourceId));
-      }
-      dispatch(setSelectedResourceId(targetSelectedResourceId));
+      dispatch(
+        openResourceInResourceBrowser(
+          targetSelectedResourceId,
+          getTargetAttributionSelectionPolicy(getState()),
+        ),
+      );
       dispatch(setTargetSelectedResourceId(null));
     }
 
@@ -63,13 +66,20 @@ export function resetManualAuditFiltersPreservingSort(): AppThunkAction {
 
 export function openResourceInResourceBrowser(
   resourceId: string,
+  attributionSelectionPolicy: 'auto' | 'preserve' = 'auto',
 ): AppThunkAction {
   return (dispatch, getState) => {
-    if (getSelectedResourceId(getState()) !== resourceId) {
+    if (attributionSelectionPolicy === 'preserve') {
+      dispatch(setAttributionSelectionPending(null));
+    }
+    if (
+      attributionSelectionPolicy === 'auto' &&
+      getSelectedResourceId(getState()) !== resourceId
+    ) {
       dispatch(setAttributionSelectionPending(resourceId));
     }
     dispatch(setExpandedIds(getParents(resourceId).concat([resourceId])));
-    dispatch(setSelectedResourceId(resourceId));
+    dispatch(setSelectedResourceId(resourceId, attributionSelectionPolicy));
   };
 }
 

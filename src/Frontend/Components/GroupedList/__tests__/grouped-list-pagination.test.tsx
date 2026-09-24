@@ -4,6 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useImperativeHandle } from 'react';
+import type { GroupedVirtuosoHandle } from 'react-virtuoso';
 
 import { renderComponent } from '../../../test-helpers/render';
 import { GroupedList } from '../GroupedList';
@@ -12,6 +14,9 @@ const virtuosoMock = vi.hoisted(() => ({
   rangeChanged: undefined as
     ((range: { startIndex: number; endIndex: number }) => void) | undefined,
   groupCounts: undefined as ReadonlyArray<number> | undefined,
+  itemsRendered: undefined as
+    ((items: ReadonlyArray<{ size: number }>) => void) | undefined,
+  scrollToIndex: vi.fn(),
 }));
 
 vi.mock('react-virtuoso', async (importOriginal) => {
@@ -22,18 +27,115 @@ vi.mock('react-virtuoso', async (importOriginal) => {
     GroupedVirtuoso: ({
       rangeChanged,
       groupCounts,
+      itemsRendered,
+      ref,
     }: {
       rangeChanged?: (range: { startIndex: number; endIndex: number }) => void;
       groupCounts?: ReadonlyArray<number>;
+      itemsRendered?: (items: ReadonlyArray<{ size: number }>) => void;
+      ref?: React.Ref<GroupedVirtuosoHandle>;
     }) => {
+      useImperativeHandle(
+        ref,
+        () =>
+          ({
+            scrollIntoView: vi.fn(),
+            scrollToIndex: virtuosoMock.scrollToIndex,
+          }) as unknown as GroupedVirtuosoHandle,
+      );
       virtuosoMock.rangeChanged = rangeChanged;
       virtuosoMock.groupCounts = groupCounts;
+      virtuosoMock.itemsRendered = itemsRendered;
       return <div />;
     },
   };
 });
 
 describe('GroupedList pagination', () => {
+  it('waits for a measured row before revealing an available selection', async () => {
+    virtuosoMock.scrollToIndex.mockClear();
+    await renderComponent(
+      <GroupedList
+        grouped={{ earlier: ['earlier-item'], later: ['selected-item'] }}
+        groupMetadata={[
+          { name: 'earlier', totalCount: 2 },
+          { name: 'later', totalCount: 1 },
+        ]}
+        selectedId={'selected-item'}
+        resultSetKey={'initial'}
+        renderItemContent={(id) => <div>{id}</div>}
+      />,
+    );
+
+    expect(virtuosoMock.scrollToIndex).not.toHaveBeenCalled();
+    act(() => virtuosoMock.itemsRendered?.([{ size: 1 }]));
+    expect(virtuosoMock.scrollToIndex).toHaveBeenCalledTimes(1);
+    expect(virtuosoMock.scrollToIndex).toHaveBeenCalledWith({
+      index: 2,
+      align: 'center',
+    });
+  });
+
+  it('waits for measurement again when the result set changes with the same selection', async () => {
+    virtuosoMock.scrollToIndex.mockClear();
+    const renderList = (resultSetKey: string) => (
+      <GroupedList
+        grouped={{ earlier: ['loaded'], later: ['selected-item'] }}
+        groupMetadata={[
+          { name: 'earlier', totalCount: 3 },
+          { name: 'later', totalCount: 1 },
+        ]}
+        selectedId={'selected-item'}
+        resultSetKey={resultSetKey}
+        renderItemContent={(id) => <div>{id}</div>}
+      />
+    );
+    const { rerender } = await renderComponent(renderList('first'));
+
+    act(() => virtuosoMock.itemsRendered?.([{ size: 1 }]));
+    expect(virtuosoMock.scrollToIndex).toHaveBeenCalledTimes(1);
+    virtuosoMock.scrollToIndex.mockClear();
+
+    rerender(renderList('second'));
+    expect(virtuosoMock.scrollToIndex).not.toHaveBeenCalled();
+    act(() => virtuosoMock.itemsRendered?.([{ size: 1 }]));
+    expect(virtuosoMock.scrollToIndex).toHaveBeenCalledTimes(1);
+    expect(virtuosoMock.scrollToIndex).toHaveBeenCalledWith({
+      index: 3,
+      align: 'center',
+    });
+  });
+
+  it('waits for a new measurement after grouped data unmounts and returns', async () => {
+    virtuosoMock.scrollToIndex.mockClear();
+    const renderList = (grouped: { source: Array<string> } | null) => (
+      <GroupedList
+        grouped={grouped}
+        selectedId={'selected-item'}
+        resultSetKey={'same-result-set'}
+        renderItemContent={(id) => <div>{id}</div>}
+      />
+    );
+    const { rerender } = await renderComponent(
+      renderList({ source: ['selected-item'] }),
+    );
+
+    act(() => virtuosoMock.itemsRendered?.([{ size: 1 }]));
+    expect(virtuosoMock.scrollToIndex).toHaveBeenCalledTimes(1);
+    virtuosoMock.scrollToIndex.mockClear();
+
+    rerender(renderList(null));
+    rerender(renderList({ source: ['selected-item'] }));
+    expect(virtuosoMock.scrollToIndex).not.toHaveBeenCalled();
+
+    act(() => virtuosoMock.itemsRendered?.([{ size: 1 }]));
+    expect(virtuosoMock.scrollToIndex).toHaveBeenCalledTimes(1);
+    expect(virtuosoMock.scrollToIndex).toHaveBeenCalledWith({
+      index: 0,
+      align: 'center',
+    });
+  });
+
   it('uses authoritative group totals for unloaded groups', async () => {
     await renderComponent(
       <GroupedList

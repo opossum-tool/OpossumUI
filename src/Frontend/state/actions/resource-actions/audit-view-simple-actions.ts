@@ -21,6 +21,7 @@ import {
   ACTION_SET_TARGET_ATTRIBUTION_RELATION,
   ACTION_SET_TARGET_SELECTED_ATTRIBUTION_ID,
   ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
+  type AttributionSelectionPolicy,
   type CompleteAttributionSelectionAction,
   type PendingAttributionNavigation,
   type SetAttributionSelectionPendingAction,
@@ -52,16 +53,24 @@ export function completeAttributionSelection(
 
 export function setSelectedResourceId(
   resourceId: string,
+  attributionSelectionPolicy: AttributionSelectionPolicy = 'auto',
 ): SetSelectedResourceIdAction {
-  return { type: ACTION_SET_SELECTED_RESOURCE_ID, payload: resourceId };
+  return {
+    type: ACTION_SET_SELECTED_RESOURCE_ID,
+    payload: { resourceId, attributionSelectionPolicy },
+  };
 }
 
 export function setTargetSelectedResourceId(
   targetSelectedResourceId: string | null,
+  attributionSelectionPolicy: AttributionSelectionPolicy = 'auto',
 ): SetTargetSelectedResourceId {
   return {
     type: ACTION_SET_TARGET_SELECTED_RESOURCE_ID,
-    payload: targetSelectedResourceId,
+    payload:
+      targetSelectedResourceId === null
+        ? null
+        : { resourceId: targetSelectedResourceId, attributionSelectionPolicy },
   };
 }
 

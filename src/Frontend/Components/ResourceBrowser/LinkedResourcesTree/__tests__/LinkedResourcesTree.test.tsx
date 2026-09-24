@@ -113,6 +113,9 @@ describe('LinkedResourcesTree', () => {
     expect(getSelectedResourceId(store.getState())).toBe(
       '/folder1/folder2/resource_1',
     );
+    expect(store.getState().resourceState.attributionSelectionPolicy).toBe(
+      'preserve',
+    );
   });
 
   it('collapses and expands folders', async () => {

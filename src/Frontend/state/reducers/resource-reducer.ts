@@ -28,11 +28,13 @@ export const initialResourceState: ResourceState = {
   originalDisplayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
   selectedAttributionId: '',
   selectedResourceId: ROOT_PATH,
+  attributionSelectionPolicy: 'auto',
   targetSelectedAttributionId: null,
   targetAttributionFilterChange: null,
   targetAttributionRelation: null,
   pendingAttributionNavigation: null,
   targetSelectedResourceId: null,
+  targetAttributionSelectionPolicy: 'auto',
   attributionSelectionPendingResourceId: null,
   temporaryDisplayPackageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
 };
@@ -42,11 +44,13 @@ export type ResourceState = {
   originalDisplayPackageInfo: PackageInfo;
   selectedAttributionId: string;
   selectedResourceId: string;
+  attributionSelectionPolicy: 'auto' | 'preserve';
   targetSelectedAttributionId: string | null;
   targetAttributionFilterChange: TargetAttributionFilterChange | null;
   targetAttributionRelation: Relation | null;
   pendingAttributionNavigation: PendingAttributionNavigation | null;
   targetSelectedResourceId: string | null;
+  targetAttributionSelectionPolicy: 'auto' | 'preserve';
   attributionSelectionPendingResourceId: string | null;
   temporaryDisplayPackageInfo: PackageInfo;
 };
@@ -72,12 +76,15 @@ export const resourceState = (
     case ACTION_SET_SELECTED_RESOURCE_ID:
       return {
         ...state,
-        selectedResourceId: action.payload,
+        selectedResourceId: action.payload.resourceId,
+        attributionSelectionPolicy: action.payload.attributionSelectionPolicy,
       };
     case ACTION_SET_TARGET_SELECTED_RESOURCE_ID:
       return {
         ...state,
-        targetSelectedResourceId: action.payload,
+        targetSelectedResourceId: action.payload?.resourceId ?? null,
+        targetAttributionSelectionPolicy:
+          action.payload?.attributionSelectionPolicy ?? 'auto',
       };
     case ACTION_SET_ATTRIBUTION_SELECTION_PENDING:
       return {
@@ -97,6 +104,7 @@ export const resourceState = (
       return {
         ...state,
         selectedAttributionId: action.payload,
+        attributionSelectionPolicy: 'auto',
         pendingAttributionNavigation:
           state.pendingAttributionNavigation?.attributionUuid === action.payload
             ? state.pendingAttributionNavigation

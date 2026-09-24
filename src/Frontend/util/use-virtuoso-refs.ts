@@ -20,10 +20,14 @@ export function useVirtuosoRefs<
   data,
   isListReady = true,
   selectedId,
+  resultSetKey,
+  scrollToIndex = false,
 }: {
   data: ReadonlyArray<ItemType> | null | undefined;
   isListReady?: boolean;
   selectedId: ItemType['id'] | undefined;
+  resultSetKey?: string;
+  scrollToIndex?: boolean;
 }) {
   const ref = useRef<T>(null);
   const listRef = useRef<Window | HTMLElement>(undefined);
@@ -39,7 +43,7 @@ export function useVirtuosoRefs<
   }, [data, selectedId]);
 
   const focusedIndex = useMemo(() => {
-    if (!data) {
+    if (!data || focusedId === undefined) {
       return undefined;
     }
 
@@ -60,10 +64,14 @@ export function useVirtuosoRefs<
 
   const scrollToSelection = useEffectEvent(() => {
     if (selectedIndex !== undefined && selectedIndex >= 0) {
-      ref.current?.scrollIntoView({
-        index: selectedIndex,
-        align: 'center',
-      });
+      if (scrollToIndex) {
+        ref.current?.scrollToIndex({ index: selectedIndex, align: 'center' });
+      } else {
+        ref.current?.scrollIntoView({
+          index: selectedIndex,
+          align: 'center',
+        });
+      }
     }
   });
 
@@ -71,7 +79,7 @@ export function useVirtuosoRefs<
     if (isListReady && selectedId !== undefined && selectedIsAvailable) {
       scrollToSelection();
     }
-  }, [isListReady, selectedId, selectedIsAvailable]);
+  }, [isListReady, resultSetKey, selectedId, selectedIsAvailable]);
 
   const handleKeyDown = useCallback(
     (event: Event) => {
@@ -83,9 +91,19 @@ export function useVirtuosoRefs<
         let nextIndex: number | null = null;
 
         if (event.code === 'ArrowUp') {
-          nextIndex = Math.max(0, focusedIndex - 1);
+          for (let index = focusedIndex - 1; index >= 0; index -= 1) {
+            if (data[index].id !== undefined) {
+              nextIndex = index;
+              break;
+            }
+          }
         } else if (event.code === 'ArrowDown') {
-          nextIndex = Math.min(data.length - 1, focusedIndex + 1);
+          for (let index = focusedIndex + 1; index < data.length; index += 1) {
+            if (data[index].id !== undefined) {
+              nextIndex = index;
+              break;
+            }
+          }
         }
 
         if (nextIndex !== null) {

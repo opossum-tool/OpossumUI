@@ -23,14 +23,16 @@ const manualAttributionEntries = Array.from(
   { length: manualAttributionCount },
   (_, index) =>
     faker.opossum.rawAttribution({
-      packageName: `manual-${index.toString().padStart(2, '0')}`,
+      packageName: `manual-${index.toString().padStart(3, '0')}`,
       packageVersion,
     }),
 );
-const childManualAttributionEntries = Array.from({ length: 40 }, (_, index) =>
+const reportTargetLicenseName = 'Unique-Report-Scroll-Target-License';
+const childManualAttributionEntries = Array.from({ length: 240 }, (_, index) =>
   faker.opossum.rawAttribution({
-    packageName: `child-manual-${index.toString().padStart(2, '0')}`,
+    packageName: `child-manual-${index.toString().padStart(3, '0')}`,
     packageVersion,
+    ...(index === 239 ? { licenseName: reportTargetLicenseName } : {}),
   }),
 );
 const externalAttributionEntries = Array.from(
@@ -173,7 +175,10 @@ test('scrolls a selected attribution into view after report navigation', async (
 }) => {
   await window.setViewportSize({ width: 1920, height: 1080 });
   await resourcesTree.goto(emptyResourceName);
+  await attributionsPanel.sortButton.click();
+  await attributionsPanel.sortings.name.click();
   await attributionsPanel.assert.selectedTabIs('onChildren');
+  await attributionsPanel.assert.loadingIndicatorIsHidden();
   await attributionsPanel.packageCard.assert.isVisible(firstChildAttribution);
   await attributionsPanel.packageCard.assert.isNotInViewport(
     reportChildAttribution,
@@ -200,6 +205,7 @@ test('scrolls a selected attribution into view after report navigation', async (
   await reportView.openAttributionInAuditView(reportChildAttributionId);
 
   await topBar.assert.auditViewIsActive();
+  await attributionsPanel.assert.selectedTabIs('onChildren');
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     reportChildAttribution,
   );
@@ -227,6 +233,50 @@ test('scrolls a selected attribution into view after report navigation', async (
     faker.opossum.folderPath(emptyResourceName),
   );
   await attributionsPanel.packageCard.assert.isInViewport(
+    firstChildAttribution,
+  );
+});
+
+test('opens an uncached report attribution at its audit position', async ({
+  window,
+  resourcesTree,
+  attributionsPanel,
+  attributionDetails,
+  reportView,
+  topBar,
+}) => {
+  await window.setViewportSize({ width: 1920, height: 1080 });
+  await resourcesTree.goto(emptyResourceName);
+  await attributionsPanel.sortButton.click();
+  await attributionsPanel.sortings.name.click();
+  await attributionsPanel.assert.selectedTabIs('onChildren');
+  await attributionsPanel.assert.loadingIndicatorIsHidden();
+  await attributionsPanel.packageCard.assert.isFirstVisible(
+    firstChildAttribution,
+  );
+  await attributionsPanel.packageCard.assert.isNotInViewport(
+    reportChildAttribution,
+  );
+
+  await topBar.gotoReportView();
+  await reportView.filterButton.click();
+  await reportView.selectLicenseName(reportTargetLicenseName);
+  await reportView.assert.attributionIsInViewport(reportChildAttributionId);
+  await reportView.openAttributionInAuditView(reportChildAttributionId);
+
+  await topBar.assert.auditViewIsActive();
+  await resourcesTree.assert.resourceAtPathIsSelected(
+    faker.opossum.folderPath(emptyResourceName),
+  );
+  await attributionsPanel.assert.selectedTabIs('onChildren');
+  await attributionDetails.assert.loadingIndicatorIsHidden();
+  await attributionDetails.attributionForm.assert.matchesPackageInfo(
+    reportChildAttribution,
+  );
+  await attributionsPanel.packageCard.assert.isInViewport(
+    reportChildAttribution,
+  );
+  await attributionsPanel.packageCard.assert.isNotInViewport(
     firstChildAttribution,
   );
 });
