@@ -102,7 +102,7 @@
     "run-script-os": "1.1.6",
     "tsx": "4.23.15",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.70.0",
+    "typescript-eslint": "8.70.1",
     "vite": "8.3.0",
     "vite-plugin-electron": "1.1.2",
     "vite-plugin-svgr": "5.2.0",
