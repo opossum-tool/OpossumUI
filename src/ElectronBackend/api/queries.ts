@@ -48,6 +48,7 @@ import {
   getNextFileToReviewForCriticality,
 } from './progressBarQueries';
 import {
+  getLinkedResourceTree,
   getResourceTree,
   getResourceTreeUnreviewedCount,
 } from './resourceTree';
@@ -140,6 +141,7 @@ export const queries = {
   locateAttribution,
   getAttributionSelectionSummary,
   getResourceTree,
+  getLinkedResourceTree,
   getResourceTreeUnreviewedCount,
   manualAttributionStatistics,
   externalAttributionStatistics,
@@ -633,19 +635,43 @@ export const queries = {
     };
   },
 
-  async resourceAndAttributionAreLinked(props: {
+  async getAttributionLinkStatus(props: {
     resourcePath: string;
     attributionUuid: string;
   }) {
     const resource = await getResourceOrThrow(getDb(), props.resourcePath);
     const result = await getDb()
-      .selectFrom('resource_to_attribution')
-      .select((eb) => eb.val(1).as('one'))
-      .where('resource_id', '=', resource.id)
-      .where('attribution_uuid', '=', props.attributionUuid)
-      .executeTakeFirst();
+      .selectFrom('resource')
+      .select((eb) => [
+        eb
+          .exists(
+            eb
+              .selectFrom('resource_to_attribution')
+              .select('resource_id')
+              .where('resource_id', '=', resource.id)
+              .where('attribution_uuid', '=', props.attributionUuid),
+          )
+          .as('on_resource'),
+        eb
+          .exists(
+            eb
+              .selectFrom('resource_to_attribution')
+              .select('resource_id')
+              .where('resource_id', '>', resource.id)
+              .where('resource_id', '<=', resource.max_descendant_id)
+              .where('attribution_uuid', '=', props.attributionUuid),
+          )
+          .as('on_descendants'),
+      ])
+      .where('id', '=', resource.id)
+      .executeTakeFirstOrThrow();
 
-    return { result: result !== undefined };
+    return {
+      result: {
+        onResource: Boolean(result.on_resource),
+        onDescendants: Boolean(result.on_descendants),
+      },
+    };
   },
 } satisfies Record<string, QueryFunction>;
 

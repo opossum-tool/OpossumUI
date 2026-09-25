@@ -11,7 +11,10 @@ import type {
 } from '../../../ElectronBackend/types/types';
 import type { RawPackageInfo, Resources } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { createSyntheticFileModel } from '../fixture';
+import {
+  createSyntheticFileModel,
+  getSyntheticAttributionLinkCounts,
+} from '../fixture';
 import { getSyntheticFileProfile } from '../profiles';
 import { writeSyntheticOpossumFile } from '../writer';
 
@@ -63,6 +66,18 @@ function countAttributionLinks(
   return Object.values(resourcesToAttributions).filter((attributionIds) =>
     attributionIds.includes(attributionId),
   ).length;
+}
+
+function getSerializedLinkCounts(
+  parsed: ParsedOpossumInputFile | ParsedOpossumOutputFile,
+): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const attributionIds of Object.values(parsed.resourcesToAttributions)) {
+    for (const attributionId of attributionIds) {
+      counts.set(attributionId, (counts.get(attributionId) ?? 0) + 1);
+    }
+  }
+  return counts;
 }
 
 function getPrimaryCardLabel(packageInfo: RawPackageInfo): string {
@@ -341,6 +356,61 @@ describe('synthetic performance file generator', () => {
         highFanout.manual.id,
       );
     }
+  });
+
+  it('keeps the linked-resource signals unique with comparable fanout', () => {
+    const targets = model.scenarios.highFanout.linkedResourceTargets;
+    const signalIds = [
+      model.scenarios.highFanout.external.id,
+      targets.open.signal.id,
+      targets.search.signal.id,
+      targets.expansion.signal.id,
+    ];
+    expect(new Set(signalIds).size).toBe(signalIds.length);
+    expect(
+      new Set([
+        targets.open.resource.resourcePath,
+        targets.search.resource.resourcePath,
+        targets.expansion.resource.resourcePath,
+      ]).size,
+    ).toBe(3);
+    const serializedInputCounts = getSerializedLinkCounts(input);
+    const serializedOutputCounts = getSerializedLinkCounts(output);
+    const computedCounts = getSyntheticAttributionLinkCounts(
+      profile,
+      model,
+      'external',
+    );
+    for (const target of [targets.open, targets.search, targets.expansion]) {
+      const { signal, resource } = target;
+      expect(resourcePathExists(input.resources, resource.resourcePath)).toBe(
+        true,
+      );
+      expect(input.resourcesToAttributions[resource.resourcePath]).toContain(
+        signal.id,
+      );
+      expect(output.resourcesToAttributions[resource.resourcePath]).toContain(
+        model.scenarios.highFanout.manual.id,
+      );
+      expect(computedCounts.get(signal.id)).toBe(
+        serializedInputCounts.get(signal.id),
+      );
+      expect(computedCounts.get(signal.id)).toBe(
+        countAttributionLinks(input.resourcesToAttributions, signal.id),
+      );
+      expect(computedCounts.get(signal.id)).toBeGreaterThan(0);
+    }
+    expect(computedCounts.get(targets.open.signal.id)).toBe(
+      profile.highFanoutLinkCount - 1,
+    );
+    expect(
+      serializedOutputCounts.get(model.scenarios.highFanout.manual.id),
+    ).toBe(
+      countAttributionLinks(
+        output.resourcesToAttributions,
+        model.scenarios.highFanout.manual.id,
+      ),
+    );
   });
 
   it('generates non-overlapping split partition anchors', () => {

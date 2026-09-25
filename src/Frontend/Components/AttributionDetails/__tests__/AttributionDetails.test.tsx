@@ -12,6 +12,7 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { executeCommand } from '../../../../ElectronBackend/api/commands';
 import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
@@ -1271,5 +1272,225 @@ describe('AttributionDetails', () => {
       'data-dirty',
       'false',
     );
+  });
+
+  it('waits for a current relationship result before showing signal Link', async () => {
+    const signal = faker.opossum.packageInfo({
+      source: { name: 'Scanner', documentConfidence: 0 },
+    });
+    let resolveStatus: (() => void) | undefined;
+    let markStatusSettled: (() => void) | undefined;
+    const statusSettled = new Promise<void>((resolve) => {
+      markStatusSettled = resolve;
+    });
+    vi.mocked(window.electronAPI.api).mockImplementation((command, params) =>
+      command === 'getAttributionLinkStatus'
+        ? new Promise<Awaited<ReturnType<typeof window.electronAPI.api>>>(
+            (resolve) => {
+              resolveStatus = () =>
+                resolve({
+                  result: { onResource: false, onDescendants: true },
+                });
+            },
+          ).finally(() => markStatusSettled?.())
+        : executeCommand(command, params as never),
+    );
+
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources(['/root/child/file.ts']),
+        externalAttributions: { [signal.id]: signal },
+        resourcesToExternalAttributions: {
+          '/root/child/file.ts': [signal.id],
+        },
+      }),
+      actions: [
+        setSelectedResourceId('/root'),
+        setSelectedAttributionId(signal.id),
+      ],
+    });
+
+    await screen.findByDisplayValue(signal.packageName ?? '');
+    await waitFor(() => expect(resolveStatus).toBeDefined());
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.link }),
+    ).not.toBeInTheDocument();
+
+    await act(async () => {
+      resolveStatus?.();
+      await statusSettled;
+    });
+
+    expect(
+      await screen.findByRole('button', { name: text.attributionColumn.link }),
+    ).toBeEnabled();
+  });
+
+  it('hides signal Link when the relationship query fails', async () => {
+    const signal = faker.opossum.packageInfo({
+      source: { name: 'Scanner', documentConfidence: 0 },
+    });
+    let rejectStatus: (() => void) | undefined;
+    let markStatusSettled: (() => void) | undefined;
+    const statusSettled = new Promise<void>((resolve) => {
+      markStatusSettled = resolve;
+    });
+    let statusRequestStarted = false;
+    vi.mocked(window.electronAPI.api).mockImplementation((command, params) =>
+      command === 'getAttributionLinkStatus'
+        ? new Promise<Awaited<ReturnType<typeof window.electronAPI.api>>>(
+            (_, reject) => {
+              statusRequestStarted = true;
+              rejectStatus = () =>
+                reject(new Error('relationship unavailable'));
+            },
+          ).finally(() => markStatusSettled?.())
+        : executeCommand(command, params as never),
+    );
+
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources(['/root/child/file.ts']),
+        externalAttributions: { [signal.id]: signal },
+        resourcesToExternalAttributions: {
+          '/root/child/file.ts': [signal.id],
+        },
+      }),
+      actions: [
+        setSelectedResourceId('/root'),
+        setSelectedAttributionId(signal.id),
+      ],
+    });
+
+    await screen.findByDisplayValue(signal.packageName ?? '');
+    await waitFor(() => expect(statusRequestStarted).toBe(true));
+    await act(async () => {
+      rejectStatus?.();
+      await statusSettled;
+    });
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: text.attributionColumn.link }),
+      ).not.toBeInTheDocument(),
+    );
+  });
+
+  it('ignores a delayed eligible result after navigating to an unrelated resource', async () => {
+    const signal = faker.opossum.packageInfo({
+      source: { name: 'Scanner', documentConfidence: 0 },
+    });
+    let resolveOldStatus: (() => void) | undefined;
+    let markOldStatusSettled: (() => void) | undefined;
+    const oldStatusSettled = new Promise<void>((resolve) => {
+      markOldStatusSettled = resolve;
+    });
+    let oldStatusRequested = false;
+    let currentStatusSettled = false;
+    vi.mocked(window.electronAPI.api).mockImplementation((command, params) => {
+      if (command === 'getAttributionLinkStatus') {
+        const query = params as { resourcePath: string };
+        if (query.resourcePath === '/root') {
+          oldStatusRequested = true;
+          return new Promise<
+            Awaited<ReturnType<typeof window.electronAPI.api>>
+          >((resolve) => {
+            resolveOldStatus = () =>
+              resolve({
+                result: { onResource: false, onDescendants: true },
+              });
+          }).finally(() => markOldStatusSettled?.());
+        }
+        return executeCommand(command, params as never).then((response) => {
+          currentStatusSettled = true;
+          return response;
+        });
+      }
+      return executeCommand(command, params as never);
+    });
+
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources(['/root/child/file.ts', '/other/file.ts']),
+        externalAttributions: { [signal.id]: signal },
+        resourcesToExternalAttributions: {
+          '/root/child/file.ts': [signal.id],
+        },
+      }),
+      actions: [
+        setSelectedResourceId('/root'),
+        setSelectedAttributionId(signal.id),
+      ],
+    });
+
+    await screen.findByDisplayValue(signal.packageName ?? '');
+    await waitFor(() => expect(oldStatusRequested).toBe(true));
+    await act(() => store.dispatch(setSelectedResourceId('/other')));
+    await waitFor(() => expect(currentStatusSettled).toBe(true));
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: text.attributionColumn.link }),
+      ).not.toBeInTheDocument(),
+    );
+
+    await act(async () => {
+      resolveOldStatus?.();
+      await oldStatusSettled;
+    });
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: text.attributionColumn.link }),
+      ).not.toBeInTheDocument(),
+    );
+  });
+
+  it('keeps eligible Link visible but disabled for edits and shows its spinner while linking', async () => {
+    const user = userEvent.setup();
+    const signal = faker.opossum.packageInfo({
+      source: { name: 'Scanner', documentConfidence: 0 },
+    });
+    let resolveLink: (() => void) | undefined;
+    vi.mocked(window.electronAPI.api).mockImplementation((command, params) =>
+      command === 'createOrMatchAttributions'
+        ? new Promise((resolve) => {
+            resolveLink = () =>
+              resolve({
+                result: { focusedAttributionOutcome: { status: 'unchanged' } },
+                invalidates: [],
+              });
+          })
+        : executeCommand(command, params as never),
+    );
+
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources(['/root/child/file.ts']),
+        externalAttributions: { [signal.id]: signal },
+        resourcesToExternalAttributions: {
+          '/root/child/file.ts': [signal.id],
+        },
+      }),
+      actions: [
+        setSelectedResourceId('/root'),
+        setSelectedAttributionId(signal.id),
+      ],
+    });
+
+    const linkButton = await screen.findByRole('button', {
+      name: text.attributionColumn.link,
+    });
+    await waitFor(() => expect(linkButton).toBeEnabled());
+    await act(() =>
+      store.dispatch(
+        setTemporaryDisplayPackageInfo({ ...signal, comment: 'draft edit' }),
+      ),
+    );
+    expect(linkButton).toBeDisabled();
+    await act(() => store.dispatch(setTemporaryDisplayPackageInfo(signal)));
+    await waitFor(() => expect(linkButton).toBeEnabled());
+
+    await user.click(linkButton);
+    expect(linkButton).toBeDisabled();
+    expect(within(linkButton).getByRole('progressbar')).toBeInTheDocument();
+    act(() => resolveLink?.());
   });
 });

@@ -79,6 +79,9 @@ describe('attribution resource access', () => {
       queryName: 'resolvedAttributionUuids',
       awaitRefetch: true,
     });
+    expect(response.invalidates).toContainEqual({
+      queryName: 'getLinkedResourceTree',
+    });
   });
 
   async function initializeReadonlyStructuralAncestor() {
@@ -310,7 +313,7 @@ describe('filtered-resource cache invalidation', () => {
     });
 
     const queryLinkedResources = () =>
-      queries.getResourceTree({
+      queries.getLinkedResourceTree({
         expandedNodes: 'expandAll',
         onAttributionUuids: ['shared'],
       });

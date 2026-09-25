@@ -26,11 +26,13 @@ import {
   completeAttributionSelection,
   setPendingAttributionNavigation,
   setSelectedAttributionId,
+  setSelectedResourceId,
   setTargetAttributionRelation,
 } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { openResourceInResourceBrowser } from '../../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
+  getAttributionSelectionPolicy,
   getPendingAttributionNavigation,
   getSelectedAttributionId,
   getSelectedResourceId,
@@ -126,18 +128,34 @@ export const PackagesPanel = ({
   );
   const selectedAttributionIsExternal = useSelectedAttributionIsExternal();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const attributionSelectionPolicy = useAppSelector(
+    getAttributionSelectionPolicy,
+  );
   const targetAttributionRelation = useAppSelector(
     getTargetAttributionRelation,
   );
   const lastResourceIdWithAutoSelectionRef = useRef(selectedResourceId);
   const previousSelectedResourceId = usePrevious(selectedResourceId);
+  const previousSelectedAttributionId = usePrevious(selectedAttributionId);
+  const selectedResourceChanged =
+    previousSelectedResourceId !== undefined &&
+    previousSelectedResourceId !== selectedResourceId;
+  const selectedAttributionChanged =
+    previousSelectedAttributionId !== undefined &&
+    previousSelectedAttributionId !== selectedAttributionId;
+  const selectionIdentityChanged =
+    selectedResourceChanged || selectedAttributionChanged;
 
   const [bulkSelection, setBulkSelection] =
     useState<AttributionSelection | null>(null);
   const [activeRelation, setActiveRelation] = useState<Relation>('resource');
   const relationTransitionRef = useRef(false);
-  const preserveSelectedAttributionRef = useRef(false);
+  const preserveSelectionRef = useRef(false);
+  const preserveSelection =
+    !selectionIdentityChanged && preserveSelectionRef.current;
+  // Keeps a requested relation active until its tab appears in relation counts.
   const requestedRelationRef = useRef<Relation | null>(null);
+  const selectedSignalTabRevealedRef = useRef(false);
   const relationForCurrentResource =
     selectedResourceId !== previousSelectedResourceId
       ? 'resource'
@@ -154,7 +172,7 @@ export const PackagesPanel = ({
   const [userSettings] = useUserSettings();
   const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
   const navigationTargetUuid =
-    !preserveSelectedAttributionRef.current &&
+    !preserveSelection &&
     selectedAttributionId &&
     selectedAttributionIsExternal === external
       ? selectedAttributionId
@@ -202,7 +220,11 @@ export const PackagesPanel = ({
     targetAttributionUuid: navigationTargetUuid,
   });
   useEffect(() => {
-    if (!pendingAttributionNavigation || !pendingNavigationMatches) {
+    if (
+      !pendingAttributionNavigation ||
+      !pendingNavigationMatches ||
+      selectedAttributionIsExternal !== external
+    ) {
       return;
     }
 
@@ -246,9 +268,11 @@ export const PackagesPanel = ({
     navigationLoading,
     navigationAttributions,
     navigationRelation,
+    navigationResult,
     pendingAttributionNavigation,
     pendingNavigationMatches,
-    navigationResult,
+    selectedAttributionIsExternal,
+    external,
     selectedAttributionId,
     selectedResourceId,
   ]);
@@ -256,9 +280,18 @@ export const PackagesPanel = ({
   const selectedAttribution =
     selectedAttributionFromPage ??
     navigationAttributions[selectedAttributionId];
+  const selectedAttributionRelation = selectedAttribution?.relation;
+
+  useEffect(() => {
+    if (selectionIdentityChanged) {
+      preserveSelectionRef.current = false;
+      selectedSignalTabRevealedRef.current = false;
+    }
+  }, [selectionIdentityChanged, selectedAttributionId, selectedResourceId]);
+
   const setFiltersWithUnsavedCheck = useCallback(
     (nextFilters: AttributionFilters) => {
-      preserveSelectedAttributionRef.current = false;
+      preserveSelectionRef.current = false;
       if (selectedAttribution) {
         dispatch(
           changeAttributionFiltersOrOpenUnsavedPopup({
@@ -270,9 +303,16 @@ export const PackagesPanel = ({
         return;
       }
 
+      dispatch(setSelectedResourceId(selectedResourceId, 'auto'));
       setFilteredAttributions(nextFilters);
     },
-    [dispatch, external, selectedAttribution, setFilteredAttributions],
+    [
+      dispatch,
+      external,
+      selectedAttribution,
+      selectedResourceId,
+      setFilteredAttributions,
+    ],
   );
   const menuFilterOptions = useAttributionFilterOptions({
     filterOptions,
@@ -303,7 +343,7 @@ export const PackagesPanel = ({
   // falling back to the closest available relation.
   useEffect(() => {
     if (!external && targetAttributionRelation !== null) {
-      preserveSelectedAttributionRef.current = true;
+      preserveSelectionRef.current = true;
       requestedRelationRef.current = targetAttributionRelation;
       setActiveRelation(targetAttributionRelation);
       dispatch(setTargetAttributionRelation(null));
@@ -324,6 +364,12 @@ export const PackagesPanel = ({
     const isAutoSelectionPending =
       !external &&
       lastResourceIdWithAutoSelectionRef.current !== selectedResourceId;
+
+    if (isAutoSelectionPending && attributionSelectionPolicy === 'preserve') {
+      lastResourceIdWithAutoSelectionRef.current = selectedResourceId;
+      dispatch(completeAttributionSelection(selectedResourceId));
+      return;
+    }
 
     if (isAutoSelectionPending) {
       dispatch(setSelectedAttributionId(''));
@@ -377,16 +423,14 @@ export const PackagesPanel = ({
       replacementAttribution &&
       relationIsSettled &&
       !pendingNavigationMatches &&
-      !preserveSelectedAttributionRef.current
+      attributionSelectionPolicy !== 'preserve' &&
+      !preserveSelection
     ) {
       dispatch(setSelectedAttributionId(replacementAttribution.id));
     }
 
-    if (
-      preserveSelectedAttributionRef.current &&
-      attributions?.[selectedAttributionId]
-    ) {
-      preserveSelectedAttributionRef.current = false;
+    if (attributions?.[selectedAttributionId]) {
+      preserveSelectionRef.current = false;
     }
   }, [
     activeRelation,
@@ -401,15 +445,16 @@ export const PackagesPanel = ({
     selectedAttributionId,
     selectedAttributionIsExternal,
     navigationLoading,
-    navigationAttributions,
-    navigationRelation,
     pendingAttributionNavigation,
     pendingNavigationMatches,
     selectedResourceId,
     databaseInitialized,
+    attributionSelectionPolicy,
+    navigationAttributions,
+    navigationRelation,
+    preserveSelection,
   ]);
 
-  const selectedAttributionRelation = selectedAttribution?.relation;
   const activeAttributionIds =
     relationForCurrentResource === activeRelation ? attributionIds : null;
 
@@ -551,9 +596,17 @@ export const PackagesPanel = ({
   useEffect(() => {
     if (selectedResourceId !== previousSelectedResourceId) {
       clearSelection();
-      setActiveRelation('resource');
+      if (external && !selectedAttributionRelation) {
+        setActiveRelation('resource');
+      }
     }
-  }, [clearSelection, previousSelectedResourceId, selectedResourceId]);
+  }, [
+    clearSelection,
+    external,
+    previousSelectedResourceId,
+    selectedAttributionRelation,
+    selectedResourceId,
+  ]);
 
   // remove explicit selections that are no longer loaded after filtering
   useEffect(() => {
@@ -619,12 +672,58 @@ export const PackagesPanel = ({
     }
   }, [activeRelation, availableRelations, loading]);
 
-  // switch to the tab of a newly selected attribution
+  // Resource navigation takes precedence over the selected attribution's
+  // previous relation. Once destination data arrives, align the manual tab.
   useEffect(() => {
+    if (external) {
+      return;
+    }
+    const resourceChanged =
+      previousSelectedResourceId !== undefined &&
+      selectedResourceId !== previousSelectedResourceId;
+    if (resourceChanged) {
+      setActiveRelation(
+        attributionSelectionPolicy === 'preserve'
+          ? (selectedAttributionRelation ?? 'resource')
+          : 'resource',
+      );
+      return;
+    }
     if (selectedAttributionRelation) {
       setActiveRelation(selectedAttributionRelation);
     }
-  }, [selectedAttributionRelation]);
+  }, [
+    attributionSelectionPolicy,
+    external,
+    previousSelectedResourceId,
+    selectedAttributionRelation,
+    selectedResourceId,
+  ]);
+
+  // Reveal the selected signal once its relation is available. Later query
+  // updates keep any deliberate tab choice until selection or resource changes.
+  useEffect(() => {
+    if (!external || selectedSignalTabRevealedRef.current) {
+      return;
+    }
+    const destinationRelation =
+      attributions?.[selectedAttributionId]?.relation ??
+      (navigationAttributions[selectedAttributionId]
+        ? navigationRelation
+        : undefined);
+    if (!destinationRelation) {
+      return;
+    }
+    selectedSignalTabRevealedRef.current = true;
+    setActiveRelation(destinationRelation);
+  }, [
+    external,
+    attributions,
+    navigationAttributions,
+    navigationRelation,
+    selectedAttributionId,
+    selectedResourceId,
+  ]);
 
   const childrenProps: PackagesPanelChildrenProps = {
     activeAttributionIds,
@@ -725,7 +824,7 @@ export const PackagesPanel = ({
         variant={'fullWidth'}
         value={activeTabIndex === -1 ? false : activeTabIndex}
         onChange={(_, index) => {
-          preserveSelectedAttributionRef.current = true;
+          preserveSelectionRef.current = true;
           setActiveRelation(availableRelations[index]);
         }}
       >

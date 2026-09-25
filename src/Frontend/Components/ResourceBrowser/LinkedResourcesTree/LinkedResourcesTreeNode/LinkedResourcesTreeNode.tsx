@@ -5,10 +5,12 @@
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 
+import type { LinkedResourceTreeNodeData } from '../../../../../ElectronBackend/api/resourceTree';
 import { text } from '../../../../../shared/text';
 import { readonlyStyle, treeItemClasses } from '../../../../shared-styles';
 import {
   BreakpointIcon,
+  DirectlyLinkedIcon,
   DirectoryIcon,
   FileIcon,
   ReadonlyIcon,
@@ -17,7 +19,9 @@ import type { TreeNode } from '../../../VirtualizedTree/VirtualizedTreeNode/Virt
 
 const labelDetail = 'without information';
 
-export const LinkedResourcesTreeNode: React.FC<TreeNode> = ({ resource }) => {
+export const LinkedResourcesTreeNode: React.FC<
+  TreeNode<LinkedResourceTreeNodeData>
+> = ({ resource }) => {
   const isAttributionBreakpoint = resource.isAttributionBreakpoint;
   const showFolderIcon = !resource.isFile;
   const labelText = resource.labelText;
@@ -54,6 +58,7 @@ export const LinkedResourcesTreeNode: React.FC<TreeNode> = ({ resource }) => {
       >
         {labelText}
       </MuiTypography>
+      {resource.isDirectlyLinked && <DirectlyLinkedIcon />}
       {resource.isReadonly && (
         <ReadonlyIcon
           label={'readonly resource'}

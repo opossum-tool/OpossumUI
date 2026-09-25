@@ -60,6 +60,9 @@ export class ReportView {
     attributionIsVisible: async (id: string): Promise<void> => {
       await expect(this.attributionRow(id)).toBeVisible();
     },
+    attributionIsInViewport: async (id: string): Promise<void> => {
+      await expect(this.attributionRow(id)).toBeInViewport();
+    },
     attributionIsEditable: async (id: string): Promise<void> => {
       await expect(this.attributionRow(id)).toBeVisible();
     },
@@ -75,6 +78,12 @@ export class ReportView {
     await this.attributionRow(id)
       .getByRole('button', { name: text.reportView.openInAuditView })
       .click();
+  }
+
+  async scrollToTop(): Promise<void> {
+    await this.node.evaluate((scroller) => {
+      scroller.scrollTop = 0;
+    });
   }
 
   async closeFilterMenu() {

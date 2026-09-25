@@ -9,6 +9,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import ExploreIcon from '@mui/icons-material/Explore';
 import Filter1Icon from '@mui/icons-material/Filter1';
 import FolderOutlinedIcon from '@mui/icons-material/Folder';
+import LinkIcon from '@mui/icons-material/Link';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
@@ -363,6 +364,17 @@ export function BreakpointIcon() {
       aria-label={'Breakpoint icon'}
       sx={{ ...classes.resourceIcon, ...classes.resourceDefaultColor }}
     />
+  );
+}
+
+export function DirectlyLinkedIcon() {
+  return (
+    <MuiTooltip title={text.resourceBrowser.directlyLinked} disableInteractive>
+      <LinkIcon
+        aria-label={text.resourceBrowser.directlyLinked}
+        sx={{ ...classes.resourceIcon, ...classes.resourceDefaultColor }}
+      />
+    </MuiTooltip>
   );
 }
 

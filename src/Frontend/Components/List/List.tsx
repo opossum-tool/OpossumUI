@@ -12,6 +12,7 @@ import {
 
 import { useVirtuosoRefs } from '../../util/use-virtuoso-refs';
 import { EmptyPlaceholder } from '../EmptyPlaceholder/EmptyPlaceholder';
+import { LoadingIndicator } from '../LoadingIndicator/loading-indicator';
 import { LoadingMask } from '../LoadingMask/LoadingMask';
 import { VirtuosoComponentContext } from '../VirtuosoComponentContext/VirtuosoComponentContext';
 import {
@@ -19,7 +20,6 @@ import {
   InfiniteListFooter,
   InfiniteListFooterContext,
 } from './InfiniteListFooter';
-import { StyledLinearProgress } from './List.style';
 
 export const INFINITE_LIST_BOTTOM_OVERSCAN = 600;
 
@@ -74,11 +74,14 @@ export function List<ItemType extends BaseItem>({
   initialTopMostItemIndex,
   totalCount,
   unloadedItemHeight,
+  endReached,
+  itemsRendered,
+  rangeChanged,
   ...props
 }: ListProps<ItemType> &
   UnloadedItemsProps &
   Omit<VirtuosoProps<ItemType, unknown>, 'data' | 'selected' | 'totalCount'>) {
-  const { endReached, rangeChanged } = props;
+  const [isListReady, setIsListReady] = useState(false);
   const [visibleRange, setVisibleRange] = useState<{
     endIndex: number;
     resultSetKey: string | undefined;
@@ -104,6 +107,7 @@ export function List<ItemType extends BaseItem>({
 
   useEffect(() => {
     if (data === null) {
+      setIsListReady(false);
       setVisibleRange(null);
     }
   }, [data]);
@@ -136,6 +140,8 @@ export function List<ItemType extends BaseItem>({
     isVirtuosoFocused,
   } = useVirtuosoRefs<ItemType, VirtuosoHandle>({
     data,
+    isListReady,
+    resultSetKey,
     selectedId,
   });
 
@@ -146,7 +152,7 @@ export function List<ItemType extends BaseItem>({
       active={loading}
       testId={testId}
     >
-      {loading && <StyledLinearProgress data-testid={'loading'} />}
+      {loading && <LoadingIndicator data-testid={'loading'} />}
       {data && (
         // Virtuoso components must not be inlined: https://github.com/petyosi/react-virtuoso/issues/566
         <VirtuosoComponentContext value={{ isVirtuosoFocused, loading }}>
@@ -176,17 +182,24 @@ export function List<ItemType extends BaseItem>({
               data={virtuosoData}
               {...(effectiveTotalCount === undefined
                 ? {}
-                : {
-                    totalCount: effectiveTotalCount,
-                    rangeChanged: (range) => {
-                      setVisibleRange({
-                        endIndex: range.endIndex,
-                        resultSetKey,
-                      });
-                      rangeChanged?.(range);
-                    },
-                    endReached: hasUnloadedRows ? undefined : endReached,
-                  })}
+                : { totalCount: effectiveTotalCount })}
+              endReached={hasUnloadedRows ? undefined : endReached}
+              itemsRendered={(items) => {
+                // Initial probe rows can have size zero before real measurement.
+                if (items.some((item) => item.size > 0)) {
+                  setIsListReady(true);
+                }
+                itemsRendered?.(items);
+              }}
+              rangeChanged={(range) => {
+                if (effectiveTotalCount !== undefined) {
+                  setVisibleRange({
+                    endIndex: range.endIndex,
+                    resultSetKey,
+                  });
+                }
+                rangeChanged?.(range);
+              }}
               itemContent={(index) =>
                 hasUnloadedRows && !data?.[index] ? (
                   <div style={{ height: unloadedItemHeight }} />

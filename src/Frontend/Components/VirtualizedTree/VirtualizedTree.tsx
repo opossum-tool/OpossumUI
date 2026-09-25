@@ -5,8 +5,10 @@
 import type { SxProps } from '@mui/system';
 import type { MouseEvent } from 'react';
 
-import type { QueryResult } from '../../../ElectronBackend/api/queries';
-import type { ResourceTreeNodeData } from '../../../ElectronBackend/api/resourceTree';
+import type {
+  ResourceTreeNodeBase,
+  ResourceTreeNodeData,
+} from '../../../ElectronBackend/api/resourceTree';
 import type { ResourceTreeFilters } from '../../../ElectronBackend/api/resourceTreeFilters';
 import { List } from '../List/List';
 import { SearchList } from '../SearchList/SearchList';
@@ -15,14 +17,11 @@ import {
   VirtualizedTreeNode,
 } from './VirtualizedTreeNode/VirtualizedTreeNode';
 
-interface VirtualizedTreeProps {
-  TreeNodeLabel: React.FC<TreeNode>;
-  resources: QueryResult<'getResourceTree'>['treeNodes'];
+interface VirtualizedTreeProps<T extends ResourceTreeNodeBase> {
+  TreeNodeLabel: React.FC<TreeNode<T>>;
+  resources: Array<T>;
   onSelect: (nodeId: string) => void;
-  onContextMenu?: (
-    event: MouseEvent<HTMLElement>,
-    resource: ResourceTreeNodeData,
-  ) => void;
+  onContextMenu?: (event: MouseEvent<HTMLElement>, resource: T) => void;
   onToggle: (nodeIdsToExpand: Array<string>) => void;
   contextMenuNodeId?: string;
   expansionFilters?: ResourceTreeFilters;
@@ -32,7 +31,9 @@ interface VirtualizedTreeProps {
   testId?: string;
 }
 
-export function VirtualizedTree({
+export function VirtualizedTree<
+  T extends ResourceTreeNodeBase = ResourceTreeNodeData,
+>({
   TreeNodeLabel,
   onSelect,
   onContextMenu,
@@ -44,7 +45,7 @@ export function VirtualizedTree({
   selectedNodeId,
   sx,
   testId,
-}: VirtualizedTreeProps) {
+}: VirtualizedTreeProps<T>) {
   return (
     <List
       data={resources}

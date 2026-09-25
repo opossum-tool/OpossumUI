@@ -2,38 +2,18 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import {
-  type ElementHandle,
-  expect,
-  type Locator,
-  type Page,
-} from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 import { text } from '../../shared/text';
+import { Tree } from './tree';
 
-export class ResourcesTree {
-  private readonly window: Page;
-  private readonly node: Locator;
-  private readonly header: Locator;
+export class ResourcesTree extends Tree {
   private readonly filterMenu: Locator;
-  private readonly loadingIndicators: Locator;
   readonly filterButton: Locator;
-  readonly filters: {
-    readonly license: Locator;
-    readonly unreviewed: Locator;
-  };
-  private readonly searchField: Locator;
-  private readonly clearSearchButton: Locator;
+  readonly filters: { readonly license: Locator; readonly unreviewed: Locator };
 
   constructor(window: Page) {
-    this.window = window;
-    this.node = window.getByTestId('resources-tree');
-    this.header = window.getByTestId('resources-tree-header');
-    this.loadingIndicators = window
-      .getByTestId('attributions-panel')
-      .getByTestId('loading')
-      .or(window.getByTestId('signals-panel').getByTestId('loading'))
-      .or(window.getByTestId('attribution-details-loading'));
+    super(window, 'resources-tree', 'resources-tree-header');
     this.filterButton = this.header.getByLabel('filter button', {
       exact: true,
     });
@@ -44,69 +24,14 @@ export class ResourcesTree {
       }),
     };
     this.filterMenu = window.getByRole('menu');
-    this.searchField = this.header.getByRole('searchbox');
-    this.clearSearchButton = this.header.getByLabel('clear search');
   }
 
   public assert = {
-    isVisible: async (timeout?: number): Promise<void> => {
-      await expect(this.node).toBeVisible({ timeout });
-    },
-    isHidden: async (): Promise<void> => {
-      await expect(this.node).toBeHidden();
-    },
-    resourceIsVisible: async (resourceName: string): Promise<void> => {
-      await expect(this.getResourceByName(resourceName)).toBeVisible();
-    },
-    resourceIsEditable: async (resourceName: string): Promise<void> => {
-      await expect(
-        this.getResourceByName(resourceName).getByTestId('readonly-indicator'),
-      ).toBeHidden();
-    },
-    resourceIsReadonly: async (resourceName: string): Promise<void> => {
-      await expect(
-        this.getResourceByName(resourceName).getByTestId('readonly-indicator'),
-      ).toBeVisible();
-    },
-    resourceIsHidden: async (resourceName: string): Promise<void> => {
-      await expect(this.getResourceByName(resourceName)).toBeHidden();
-    },
-    resourceAtPathIsVisible: async (resourcePath: string): Promise<void> => {
-      await expect(this.getResourceByPath(resourcePath)).toBeVisible();
-    },
-    resourceCountIs: async (count: number): Promise<void> => {
-      await expect(this.header).toContainText(
-        `Resources (${count} / ${count})`,
-      );
-    },
-    resourceAtPathIsEditable: async (resourcePath: string): Promise<void> => {
-      const resource = this.getResourceByPath(resourcePath);
-      await expect(resource).toBeVisible();
-      await expect(resource.getByTestId('readonly-indicator')).toBeHidden();
-    },
-    resourceAtPathIsReadonly: async (resourcePath: string): Promise<void> => {
-      await expect(
-        this.getResourceByPath(resourcePath).getByTestId('readonly-indicator'),
-      ).toBeVisible();
-    },
-    resourceAtPathIsInViewport: async (resourcePath: string): Promise<void> => {
-      await expect(this.getResourceByPath(resourcePath)).toBeInViewport();
-    },
-    resourceAtPathIsNotInViewport: async (
-      resourcePath: string,
-    ): Promise<void> => {
-      await expect(this.getResourceByPath(resourcePath)).not.toBeInViewport();
-    },
-    resourceAtPathIsSelected: async (resourcePath: string): Promise<void> => {
-      await expect(
-        this.node.locator('[data-virtuoso-scroller="true"]'),
-      ).toHaveAttribute('data-selected-id', resourcePath);
-    },
-    searchIsFocused: async (): Promise<void> => {
-      await expect(this.searchField).toBeFocused();
-    },
-    splitHereIsDisabled: async (resourceName: string): Promise<void> => {
-      await this.openContextMenu(resourceName);
+    ...this.treeAssertions,
+    resourceCountIs: async (count: number): Promise<void> =>
+      expect(this.header).toContainText(`Resources (${count} / ${count})`),
+    splitHereIsDisabled: async (name: string): Promise<void> => {
+      await this.openContextMenu(name);
       await expect(
         this.window.getByRole('menuitem', {
           name: text.resourceBrowser.splitHere,
@@ -116,185 +41,48 @@ export class ResourcesTree {
     },
   };
 
-  private getResourceByName(resourceName: string): Locator {
-    return this.node.getByRole('treeitem', { name: resourceName, exact: true });
+  async openContextMenu(name: string): Promise<void> {
+    await this.getResourceByName(name).click({ button: 'right' });
   }
-
-  private getResourceByPath(resourcePath: string): Locator {
-    const normalizedPath = resourcePath.replace(/\/$/, '');
-    return this.node.locator(
-      `[data-resource-path="${normalizedPath}"], ` +
-        `[data-resource-path="${normalizedPath}/"]`,
-    );
-  }
-
-  private getParentResourcePaths(resourcePath: string): Array<string> {
-    const pathSegments = resourcePath.split('/').filter(Boolean);
-    return pathSegments.slice(0, -1).map((_, index) => {
-      return `/${pathSegments.slice(0, index + 1).join('/')}/`;
-    });
-  }
-
-  async revealResource(resourcePath: string): Promise<void> {
-    await this.gotoRoot();
-    await this.search(resourcePath);
-    for (const parentResourcePath of this.getParentResourcePaths(
-      resourcePath,
-    )) {
-      const parentResource = this.getResourceByPath(parentResourcePath);
-      await expect(parentResource).toBeVisible();
-      const normalizedPath = parentResourcePath.replace(/\/$/, '');
-      const expandButton = parentResource
-        .getByLabel(`expand ${parentResourcePath}`)
-        .or(parentResource.getByLabel(`expand ${normalizedPath}`));
-      if (await expandButton.isVisible()) {
-        await expandButton.click();
-      }
-    }
-    await expect(this.getResourceByPath(resourcePath)).toBeVisible();
-  }
-
-  async expandResourceAtPath(resourcePath: string): Promise<void> {
-    const resource = this.getResourceByPath(resourcePath);
-    await expect(resource).toBeVisible();
-    const normalizedPath = resourcePath.replace(/\/$/, '');
-    await resource
-      .getByLabel(`expand ${resourcePath}`)
-      .or(resource.getByLabel(`expand ${normalizedPath}`))
-      .click();
-  }
-
-  async selectRevealedResource(resourcePath: string): Promise<void> {
-    await this.getResourceByPath(resourcePath).click();
-  }
-
-  async search(value: string): Promise<void> {
-    await this.searchField.fill(value);
-    await this.waitForSearchResults(value);
-  }
-
-  async clearSearch(): Promise<void> {
-    if ((await this.searchField.inputValue()) !== '') {
-      await this.clearSearchButton.click();
-    }
-    await expect(this.searchField).toHaveValue('');
-    await this.waitForSearchResults('');
-  }
-
-  async waitForSearchResults(expectedSearch: string): Promise<void> {
-    await expect(this.header).toHaveAttribute(
-      'data-applied-search',
-      expectedSearch,
-    );
-  }
-
-  async scrollToTop(): Promise<void> {
-    await this.node
-      .locator('[data-virtuoso-scroller="true"]')
-      .evaluate((scroller) => scroller.scrollTo({ top: 0 }));
-  }
-
-  async scrollToBottom(): Promise<void> {
-    await this.node
-      .locator('[data-virtuoso-scroller="true"]')
-      .evaluate((scroller) =>
-        scroller.scrollTo({ top: scroller.scrollHeight }),
-      );
-  }
-
-  async expandResource(resourcePath: string): Promise<void> {
-    const resource = this.getResourceByPath(resourcePath);
-    await resource.getByLabel(`expand ${resourcePath}`).click();
-    await expect(resource.getByLabel(`collapse ${resourcePath}`)).toBeVisible();
-  }
-
-  async getElementHandle(): Promise<ElementHandle | undefined> {
-    const [elementHandle] = await this.node.elementHandles();
-    return elementHandle;
-  }
-
-  async gotoRoot(): Promise<void> {
-    await this.window
-      .getByLabel('path bar')
-      .getByText('Home', { exact: true })
-      .click();
-    await expect(
-      this.window.getByLabel('path bar').getByRole('listitem'),
-    ).toHaveText(['Home']);
-    await expect(this.loadingIndicators).toHaveCount(0);
-  }
-
-  async goto(...resourceNames: Array<string>): Promise<void> {
-    for (const resourceName of resourceNames) {
-      await this.clickResource(resourceName);
-      await expect(this.getResourceByName(resourceName)).toHaveAttribute(
-        'aria-selected',
-        'true',
-      );
-      await expect(this.loadingIndicators).toHaveCount(0);
-    }
-  }
-
-  async clickResource(resourceName: string): Promise<void> {
-    await this.getResourceByName(resourceName).click();
-  }
-
-  async focusResource(resourceName: string): Promise<void> {
-    await this.getResourceByName(resourceName).focus();
-  }
-
-  async openContextMenu(resourceName: string): Promise<void> {
-    await this.node
-      .getByText(resourceName, { exact: true })
-      .click({ button: 'right' });
-  }
-
-  async openSplitDialog(resourceName: string): Promise<void> {
-    await this.openContextMenu(resourceName);
+  async openSplitDialog(name: string): Promise<void> {
+    await this.openContextMenu(name);
     await this.window
       .getByRole('menuitem', { name: text.resourceBrowser.splitHere })
       .click();
   }
-
-  async openSplitDialogAtPath(resourcePath: string): Promise<void> {
-    await this.revealResource(resourcePath);
-    await this.getResourceByPath(resourcePath).click({ button: 'right' });
+  async openSplitDialogAtPath(path: string): Promise<void> {
+    await this.revealResource(path);
+    await this.getResourceByPath(path).click({ button: 'right' });
     await this.window
       .getByRole('menuitem', { name: text.resourceBrowser.splitHere })
       .click();
   }
-
   async closeMenu(): Promise<void> {
     if (await this.filterMenu.isVisible()) {
       await this.filterMenu.press('Escape');
     }
     await expect(this.filterMenu).toBeHidden();
   }
-
   async setUnreviewedFilter(selected: boolean): Promise<void> {
     if (!(await this.filterMenu.isVisible())) {
       await this.filterButton.click();
     }
     await expect(this.filterMenu).toBeVisible();
-    const expectedValue = selected.toString();
+    const expected = selected.toString();
     if (
-      (await this.filters.unreviewed.getAttribute('aria-selected')) !==
-      expectedValue
+      (await this.filters.unreviewed.getAttribute('aria-selected')) !== expected
     ) {
       await this.filters.unreviewed.click();
     }
     await expect(this.filters.unreviewed).toHaveAttribute(
       'aria-selected',
-      expectedValue,
+      expected,
     );
     await this.closeMenu();
   }
-
-  async selectLicenseName(licenseName: string): Promise<void> {
-    await this.filters.license.fill(licenseName);
-    await this.window
-      .getByRole('option', { name: licenseName, exact: true })
-      .click();
-    await expect(this.filters.license).toHaveValue(licenseName);
+  async selectLicenseName(name: string): Promise<void> {
+    await this.filters.license.fill(name);
+    await this.window.getByRole('option', { name, exact: true }).click();
+    await expect(this.filters.license).toHaveValue(name);
   }
 }

@@ -96,14 +96,14 @@ export function getSearchMatchExpression<TDB, TB extends keyof TDB & string>(
 export function getVisibleWithFiltersExpression({
   id,
   maxDescendantId,
-  isReadonly,
+  hasEditableDescendant,
   inheritedMatch,
   filters,
   cacheId,
 }: {
   id: Expression<number>;
   maxDescendantId: Expression<number>;
-  isReadonly: Expression<number>;
+  hasEditableDescendant: Expression<number>;
   inheritedMatch: Expression<SqlBool>;
   filters: ResourceTreeFilters;
   cacheId: number;
@@ -112,7 +112,7 @@ export function getVisibleWithFiltersExpression({
   return eb.or([
     filteredResourcesContainIdBetween(cacheId, id, maxDescendantId),
     filters.onlyWritable
-      ? eb.and([eb(isReadonly, '=', 0), inheritedMatch])
+      ? eb.and([eb(hasEditableDescendant, '=', 1), inheritedMatch])
       : inheritedMatch,
   ]);
 }
@@ -150,18 +150,15 @@ export function getFilteredResourcesQuery(
     );
   }
   if (onAttributionUuids) {
-    query = query.where((eb) =>
-      eb.exists((eb) =>
-        eb
-          .selectFrom('resource_to_attribution as rta')
-          .select('rta.resource_id')
-          .whereRef('rta.resource_id', '=', 'r.id')
-          .where(
-            'rta.attribution_uuid',
-            'in',
-            jsonArraySelection(onAttributionUuids),
-          ),
-      ),
+    query = query.where('r.id', 'in', (eb) =>
+      eb
+        .selectFrom('resource_to_attribution as rta')
+        .select('rta.resource_id')
+        .where(
+          'rta.attribution_uuid',
+          'in',
+          jsonArraySelection(onAttributionUuids),
+        ),
     );
   }
   if (onlyUnreviewedFiles) {

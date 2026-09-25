@@ -151,14 +151,18 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
   const attributionResourceInfoReady =
     !packageInfo.id || attributionResourceInfoQuery.isSuccess;
 
-  const { data: resourceAndAttributionAreLinked } =
-    backend.resourceAndAttributionAreLinked.useQuery({
-      resourcePath: selectedResourceId,
-      attributionUuid: packageInfo.id,
-    });
+  const attributionLinkStatusQuery = backend.getAttributionLinkStatus.useQuery({
+    resourcePath: selectedResourceId,
+    attributionUuid: packageInfo.id,
+  });
 
-  const isSelectedResourceOnSelectedAttribution =
-    !selectedAttributionIsExternal && resourceAndAttributionAreLinked;
+  const linkRelationshipEligible =
+    attributionLinkStatusQuery.isSuccess &&
+    (selectedAttributionIsExternal === true
+      ? attributionLinkStatusQuery.data.onResource ||
+        attributionLinkStatusQuery.data.onDescendants
+      : selectedAttributionIsExternal === false &&
+        !attributionLinkStatusQuery.data.onResource);
 
   const isCreatingNewAttribution = !packageInfo.id;
 
@@ -310,7 +314,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
       isSelectedResourceBreakpoint ||
       isSelectedResourceReadonly ||
       isCreatingNewAttribution ||
-      (isEditable && isSelectedResourceOnSelectedAttribution !== false)
+      !linkRelationshipEligible
     ) {
       return null;
     }

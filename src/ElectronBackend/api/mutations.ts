@@ -170,6 +170,7 @@ const EXTERNAL_ATTRIBUTION_INVALIDATIONS: Array<MutationInvalidation> = [
 
 const RESOURCE_TREE_INVALIDATIONS: Array<MutationInvalidation> = [
   { queryName: 'getResourceTree' },
+  { queryName: 'getLinkedResourceTree' },
   { queryName: 'getResourcePathsAndParentsForAttributions' },
   { queryName: 'getResourceTreeUnreviewedCount' },
 ];
@@ -179,6 +180,7 @@ const MANUAL_ATTRIBUTION_INVALIDATIONS: Array<MutationInvalidation> = [
   ...RESOURCE_TREE_INVALIDATIONS,
   ...MANUAL_ATTRIBUTION_STATISTICS_INVALIDATIONS,
   { queryName: 'getResourceInfoOnAttributions' },
+  { queryName: 'getAttributionLinkStatus' },
 ];
 
 const mutationImplementations = {
@@ -682,6 +684,7 @@ async function setAttributionsResolvedStatus(
       ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
       ...EXTERNAL_ATTRIBUTION_INVALIDATIONS,
       { queryName: 'getResourceTree' } as const,
+      { queryName: 'getLinkedResourceTree' } as const,
     ],
   };
 }
