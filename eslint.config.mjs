@@ -216,6 +216,18 @@ export default tseslint.config(
           message:
             'Do not call styled() inside functions. It creates a new component type on every render, causing React to remount DOM elements and break event handlers. Move styled() calls to module scope or a .style.ts file, or use the sx prop.',
         },
+        {
+          selector:
+            'Property[key.name=/^(padding|margin|gap|rowGap|columnGap|scrollPadding)(Top|Right|Bottom|Left|Block|Inline)?$/][value.type=Literal][value.value=/^(?!0px$).*px/]',
+          message:
+            'Hardcoded pixel value in a spacing property. Use the theme spacing scale instead (e.g. `padding: theme.spacing(2)` in styled()/style objects or `p: 2` in sx).',
+        },
+        {
+          selector:
+            'Property[key.name=/^(p|pt|pr|pb|pl|px|py|m|mt|mr|mb|ml|mx|my)$/][value.type=Literal][value.value=/^(?!0px$).*px/]',
+          message:
+            'Hardcoded pixel string in an sx spacing shorthand. Shorthand keys resolve sx numbers through the theme (`p: 2` = 8px with spacing: 4); px strings bypass the scale.',
+        },
       ],
     },
   },

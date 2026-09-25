@@ -19,5 +19,5 @@ export const TextContainer = styled('div')(({ theme }) => ({
   flexDirection: 'column',
   gap: theme.spacing(5),
   width: 'fit-content',
-  maxWidth: '600px',
+  maxWidth: theme.breakpoints.values.sm,
 }));

@@ -17,14 +17,13 @@ export const Panel = styled(MuiBox)({
   overflowY: 'hidden',
 });
 
-export const ActionBarContainer = styled(MuiBox)({
+export const ActionBarContainer = styled(MuiBox)(({ theme }) => ({
   overflow: 'auto',
   background: OpossumColors.lightBlue,
   position: 'relative',
   zIndex: 2,
-  boxShadow:
-    '0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12)',
-});
+  boxShadow: theme.shadows[1],
+}));
 
 export const ActionBar = styled(MuiBox)(({ theme }) => ({
   display: 'grid',
@@ -49,17 +48,17 @@ export const AlertContainer = styled(MuiBox, {
   transition: TRANSITION,
 }));
 
-export const Tabs = styled(MuiTabs)({
+export const Tabs = styled(MuiTabs)(({ theme }) => ({
   minHeight: 'unset',
-  boxShadow:
-    '0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12)',
+  boxShadow: theme.shadows[1],
   boxSizing: 'border-box',
   height: TABS_CONTAINER_HEIGHT,
   '& .MuiTabs-indicator': {
     backgroundColor: OpossumColors.darkBlue,
-    height: '1px',
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 0.25 theme spacing units (= 1px)
+    height: theme.spacing(0.25),
   },
-});
+}));
 
 export const Tab = styled(MuiTab)(({ theme }) => ({
   whiteSpace: 'nowrap',

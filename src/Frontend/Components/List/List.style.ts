@@ -5,11 +5,12 @@
 import { styled } from '@mui/material';
 import MuiLinearProgress from '@mui/material/LinearProgress';
 
-export const StyledLinearProgress = styled(MuiLinearProgress)({
+export const StyledLinearProgress = styled(MuiLinearProgress)(({ theme }) => ({
   position: 'absolute',
   width: '100%',
-  height: 2,
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 0.5 theme spacing units (= 2px)
+  height: theme.spacing(0.5),
   zIndex: 2,
   top: 0,
   left: 0,
-});
+}));

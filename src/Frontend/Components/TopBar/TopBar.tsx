@@ -3,8 +3,11 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (9 = 36px bar, 4.5 = 18px icon, 20 = 80px button, 0.5 = 2px toggle rings) */
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
+import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import type { Theme } from '@mui/material/styles';
 import MuiToggleButton from '@mui/material/ToggleButton';
 import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import MuiTypography from '@mui/material/Typography';
@@ -25,13 +28,13 @@ import { SwitchableProgressBar } from '../SwitchableProgressBar/SwitchableProgre
 
 const classes = {
   root: {
-    height: '36px',
+    height: ({ spacing }: Theme) => spacing(9),
     background: OpossumColors.darkBlue,
     display: 'flex',
   },
   openFileIcon: {
-    width: '18px',
-    height: '18px',
+    width: ({ spacing }: Theme) => spacing(4.5),
+    height: ({ spacing }: Theme) => spacing(4.5),
     color: OpossumColors.white,
   },
   openFileButton: {
@@ -47,17 +50,19 @@ const classes = {
     display: 'flex',
   },
   viewButtons: {
-    width: '80px',
+    width: ({ spacing }: Theme) => spacing(20),
     background: OpossumColors.lightestBlue,
     color: OpossumColors.black,
-    border: `2px ${OpossumColors.darkBlue} solid`,
+    border: ({ spacing }: Theme) =>
+      `${spacing(0.5)} ${OpossumColors.darkBlue} solid`,
     '&:hover': {
       background: OpossumColors.lightestBlueOnHover,
     },
     '&.Mui-selected': {
       background: OpossumColors.middleBlue,
       color: OpossumColors.black,
-      border: `2px ${OpossumColors.darkBlue} solid`,
+      border: ({ spacing }: Theme) =>
+        `${spacing(0.5)} ${OpossumColors.darkBlue} solid`,
     },
   },
   versionInfo: {
@@ -73,7 +78,7 @@ const classes = {
     color: OpossumColors.lightBlue,
     userSelect: 'none',
   },
-};
+} as const satisfies SxProps<Theme>;
 
 export const TopBar: React.FC = () => {
   const selectedView = useAppSelector(getSelectedView);

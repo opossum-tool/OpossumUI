@@ -2,7 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing values fed to theme.spacing / typography reads (exact 4px lattice: 3.75 = 15px icons, 50 = 200px widths, 1 = 4px, 0.75 = 3px radii/padding) */
+import type { SxProps } from '@mui/material';
+import type { Theme } from '@mui/material/styles';
+
 import { Criticality } from '../shared/shared-types';
+// pulls in the MUI TypographyVariants module augmentation
+// (body3/dense variants) declared in app-typography.ts
+import './app-typography';
 
 export const OpossumColors = {
   white: 'hsl(0, 0%, 100%)',
@@ -47,12 +54,12 @@ export const criticalityColor = {
 };
 
 export const baseIcon = {
-  width: '15px',
-  height: '15px',
+  width: ({ spacing }: Theme) => spacing(3.75),
+  height: ({ spacing }: Theme) => spacing(3.75),
   p: 0.5,
   my: 0,
   mx: 0.5,
-};
+} satisfies SxProps<Theme>;
 
 export const clickableIcon = {
   ...baseIcon,
@@ -69,26 +76,26 @@ export const disabledIcon = {
 
 export const tableClasses = {
   head: {
-    fontSize: 13,
+    fontSize: (theme: Theme) => theme.typography.body3.fontSize,
     background: OpossumColors.darkBlue,
     color: OpossumColors.white,
   },
   body: {
-    fontSize: 11,
+    fontSize: (theme: Theme) => theme.typography.dense.fontSize,
     background: OpossumColors.lightestBlue,
-    maxWidth: '200px',
+    maxWidth: ({ spacing }: Theme) => spacing(50),
     overflow: 'auto',
     color: OpossumColors.black,
   },
   footer: {
     fontWeight: 'bold',
-    fontSize: 12,
+    fontSize: (theme: Theme) => theme.typography.caption.fontSize,
     background: OpossumColors.lightBlue,
     position: 'sticky',
     bottom: 0,
     color: OpossumColors.black,
   },
-};
+} satisfies SxProps<Theme>;
 
 export const treeItemClasses = {
   labelRoot: {
@@ -122,25 +129,29 @@ export const treeItemClasses = {
   },
   matchesFilters: {
     backgroundColor: OpossumColors.lightBlue,
-    borderRadius: '3px',
+    borderRadius: ({ spacing }: Theme) => spacing(0.75),
   },
   notContainsResourcesWithOnlyExternalAttribution: {
     color: OpossumColors.pastelMiddleGreen,
   },
-};
+} as const satisfies SxProps<Theme>;
 
 export const TRANSITION = 'all 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms';
+
+export const AUDITING_OPTION_ICON_THEME_SIZE = 4.75;
 
 export const PICKER_MODE_DISABLED_OPACITY = 0.5;
 export const readonlyStyle = { opacity: 0.6 };
 
-export const chartTooltipContentStyle: React.CSSProperties = {
-  fontSize: '12px',
+export const chartTooltipContentStyle = (
+  theme: Theme,
+): React.CSSProperties => ({
+  fontSize: theme.typography.caption.fontSize,
   background: OpossumColors.grey,
-  padding: 3,
+  padding: theme.spacing(0.75),
   border: 0,
-  borderRadius: '4px',
-};
+  borderRadius: theme.spacing(1),
+});
 
 export const chartTooltipTextStyle: React.CSSProperties = {
   color: OpossumColors.white,

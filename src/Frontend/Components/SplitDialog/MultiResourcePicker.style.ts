@@ -19,10 +19,10 @@ export const PickerContainer = styled(MuiBox)(({ theme }) => ({
 }));
 
 export const ResourceTreeContainer = styled(MuiBox)(({ theme }) => ({
-  border: '1px solid',
+  border: `${theme.spacing(0.25)} solid`,
   borderColor: 'divider',
-  borderRadius: '4px',
-  height: '360px',
+  borderRadius: theme.spacing(1),
+  height: theme.spacing(90),
   overflowY: 'auto',
   padding: theme.spacing(2),
   position: 'relative',
@@ -32,7 +32,7 @@ export const SelectedPathsContainer = styled(MuiBox)(({ theme }) => ({
   display: 'flex',
   flexWrap: 'wrap',
   gap: theme.spacing(2),
-  minHeight: '24px',
+  minHeight: theme.spacing(6),
 }));
 
 export const LoadingIndicator = styled(MuiLinearProgress)({
@@ -50,7 +50,7 @@ export const ResourceRow = styled(MuiBox, {
     alignItems: 'center',
     display: 'flex',
     marginLeft: `calc(${theme.spacing(INDENT_PER_LEVEL)} * ${resourceLevel - 1})`,
-    minHeight: '32px',
+    minHeight: theme.spacing(8),
     opacity: selectedByAncestor ? INCLUDED_RESOURCE_OPACITY : 1,
   }),
 );
@@ -59,16 +59,18 @@ export const ExpandButton = styled(MuiIconButton)(({ theme }) => ({
   padding: theme.spacing(1),
 }));
 
-export const TreeNodeSpacer = styled(MuiBox)({ width: '28px' });
+export const TreeNodeSpacer = styled(MuiBox)(({ theme }) => ({
+  width: theme.spacing(7),
+}));
 
-export const SelectionControl = styled(MuiBox)({
+export const SelectionControl = styled(MuiBox)(({ theme }) => ({
   alignSelf: 'stretch',
   aspectRatio: '1',
   display: 'grid',
-  minWidth: '34px',
+  minWidth: theme.spacing(8.5),
   placeItems: 'center',
   flexShrink: 0,
-});
+}));
 
 export const ResourceLabel = styled(MuiTypography)(({ theme }) => ({
   marginLeft: theme.spacing(2),

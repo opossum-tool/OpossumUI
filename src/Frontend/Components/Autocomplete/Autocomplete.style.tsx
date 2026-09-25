@@ -9,6 +9,7 @@ import {
   type PopperProps,
   styled,
 } from '@mui/material';
+import type { Theme } from '@mui/material/styles';
 import MuiTextField from '@mui/material/TextField';
 
 import { OpossumColors } from '../../shared-styles';
@@ -39,8 +40,8 @@ export const Input = styled(MuiTextField, {
     '& .MuiInputLabel-root': {
       backgroundColor: background || errorBackground,
       padding: theme.spacing(0, 0.75),
-      fontSize: '13px',
-      top: '1px',
+      fontSize: (theme: Theme) => theme.typography.body3.fontSize,
+      top: theme.spacing(0.25),
     },
     '& .MuiInputBase-root': {
       backgroundColor: background || errorBackground,
@@ -49,7 +50,7 @@ export const Input = styled(MuiTextField, {
       flexWrap: 'wrap',
       alignItems: 'center',
       gap: theme.spacing(2),
-      minHeight: '36.67px',
+      minHeight: theme.spacing(9.1675),
       paddingTop: theme.spacing(1.5),
       paddingBottom: theme.spacing(1.5),
       paddingLeft: theme.spacing(3),
@@ -80,7 +81,7 @@ export const Input = styled(MuiTextField, {
     },
     '& .Mui-readOnly.Mui-focused fieldset': {
       borderColor: 'rgba(0, 0, 0, 0.23)',
-      borderWidth: '1px',
+      borderWidth: theme.spacing(0.25),
     },
   };
 });
@@ -114,10 +115,10 @@ export const StyledPopper = styled(
   zIndex: theme.zIndex.modal,
 }));
 
-export const EndAdornmentContainer = styled('div')({
+export const EndAdornmentContainer = styled('div')(({ theme }) => ({
   position: 'absolute',
-  right: '14px',
+  right: theme.spacing(3.5),
   display: 'flex',
   height: '100%',
   alignItems: 'center',
-});
+}));

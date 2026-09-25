@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { MenuItem, Select, type SelectChangeEvent } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import type { Theme } from '@mui/material/styles';
 import type { SxProps } from '@mui/system';
 import { useState } from 'react';
 
@@ -25,14 +26,15 @@ const classes = {
     mt: 1,
   },
   select: {
-    width: '150px',
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 37.5 theme spacing units (= 150px)
+    width: ({ spacing }: Theme) => spacing(37.5),
     backgroundColor: OpossumColors.lightestBlue,
     minHeight: 'unset !important',
   },
   progressBar: {
     flex: 1,
   },
-} satisfies SxProps;
+} satisfies SxProps<Theme>;
 
 const text = fullText.topBar.switchableProgressBar;
 

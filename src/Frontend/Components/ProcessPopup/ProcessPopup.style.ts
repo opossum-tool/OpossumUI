@@ -7,6 +7,9 @@ import { styled } from '@mui/system';
 
 import { LogDisplay } from '../LogDisplay/LogDisplay';
 
+const GRID_ICON_COLUMN_IN_THEME_UNITS = 6;
+const GRID_TIMESTAMP_COLUMN_IN_THEME_UNITS = 20;
+
 export const DialogContent = styled(MuiDialogContent)(({ theme }) => ({
   display: 'grid',
   gridTemplateRows: 'repeat(auto-fill, 1fr)',
@@ -15,6 +18,6 @@ export const DialogContent = styled(MuiDialogContent)(({ theme }) => ({
 
 export const GridLogDisplay = styled(LogDisplay)(({ theme }) => ({
   display: 'grid',
-  gridTemplateColumns: '24px 80px 1fr',
+  gridTemplateColumns: `${theme.spacing(GRID_ICON_COLUMN_IN_THEME_UNITS)} ${theme.spacing(GRID_TIMESTAMP_COLUMN_IN_THEME_UNITS)} 1fr`,
   columnGap: theme.spacing(2),
 }));

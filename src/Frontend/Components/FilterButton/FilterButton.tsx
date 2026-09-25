@@ -5,6 +5,7 @@
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import type { SxProps, Theme } from '@mui/material';
 import MuiBadge, { type BadgeProps } from '@mui/material/Badge';
+import { useTheme } from '@mui/material/styles';
 import MuiTooltip from '@mui/material/Tooltip';
 import { type CSSProperties, useMemo, useState } from 'react';
 
@@ -46,6 +47,9 @@ export function FilterButton({
   iconSx,
   triggerStyle,
 }: Props) {
+  const theme = useTheme();
+  const BADGE_SIZE = theme.spacing(2);
+  const BADGE_OFFSET = theme.spacing(1);
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
   const handleSetAnchorEl = (nextAnchorEl: HTMLElement | undefined) => {
     setAnchorEl(nextAnchorEl);
@@ -78,11 +82,11 @@ export function FilterButton({
       slotProps={{
         badge: {
           style: {
-            minWidth: '8px',
-            width: '8px',
-            height: '8px',
-            top: '4px',
-            right: '4px',
+            minWidth: BADGE_SIZE,
+            width: BADGE_SIZE,
+            height: BADGE_SIZE,
+            top: BADGE_OFFSET,
+            right: BADGE_OFFSET,
             ...activeBadgeStyle,
           },
         },
@@ -117,7 +121,8 @@ export function FilterButton({
         multiple
         options={menuOptions}
         setAnchorEl={handleSetAnchorEl}
-        width={336}
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 84 theme spacing units (= 336px)
+        width={theme.spacing(84)}
       />
     </>
   );

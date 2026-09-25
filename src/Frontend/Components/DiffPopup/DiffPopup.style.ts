@@ -1,13 +1,17 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit lattice values (0.25/0.75/5/6/8 = 1/3/20/24/32px at the 4px unit) */
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { Theme } from '@mui/material/styles';
+
 import { OpossumColors } from '../../shared-styles';
 
 const comparisonGrid = {
   columnGap: 2,
   display: 'grid',
-  gridTemplateColumns: 'minmax(0, 1fr) 32px minmax(0, 1fr)',
+  gridTemplateColumns: ({ spacing }: Theme) =>
+    `minmax(0, 1fr) ${spacing(8)} minmax(0, 1fr)`,
   minWidth: 0,
 } as const;
 
@@ -122,11 +126,11 @@ export const diffPopupStyles = {
     zIndex: 1,
   },
   transferButton: {
-    borderRadius: '3px',
+    borderRadius: ({ spacing }: Theme) => spacing(0.75),
     color: OpossumColors.mediumGrey,
-    height: '20px',
+    height: ({ spacing }: Theme) => spacing(5),
     padding: 0,
-    width: '24px',
+    width: ({ spacing }: Theme) => spacing(6),
     '&:hover': {
       background: OpossumColors.lightestBlue,
       color: OpossumColors.darkBlue,
@@ -143,15 +147,16 @@ export const diffPopupStyles = {
   },
   attributionTypeUndo: {
     backgroundColor: OpossumColors.almostWhiteBlue,
-    border: `1px solid ${OpossumColors.lightBlue}`,
+    border: ({ spacing }: Theme) =>
+      `${spacing(0.25)} solid ${OpossumColors.lightBlue}`,
     borderRadius: '50%',
-    height: 24,
+    height: ({ spacing }: Theme) => spacing(6),
     left: '50%',
     padding: 0,
     position: 'absolute',
     top: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 24,
+    width: ({ spacing }: Theme) => spacing(6),
     zIndex: 1,
     '&:hover': {
       backgroundColor: OpossumColors.lightestBlue,

@@ -6,12 +6,12 @@
 import type { InputBaseComponentsPropsOverrides, SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiInputAdornment from '@mui/material/InputAdornment';
+import type { Theme } from '@mui/material/styles';
 import MuiTextareaAutosize, {
   type TextareaAutosizeProps,
 } from '@mui/material/TextareaAutosize';
 import MuiTextField, { type TextFieldProps } from '@mui/material/TextField';
 import MuiTooltip, { type TooltipProps } from '@mui/material/Tooltip';
-import type { Theme } from '@mui/system';
 
 import { OpossumColors } from '../../shared-styles';
 import { ensureArray } from '../../util/ensure-array';
@@ -23,13 +23,13 @@ const classes = {
     width: '100%',
     '& div': {
       backgroundColor: OpossumColors.white,
-      borderRadius: '0px',
+      borderRadius: 0,
     },
     '& label[data-shrink=true]': {
       backgroundColor: OpossumColors.white,
       py: 0.25,
       px: 0.75,
-      fontSize: '13px',
+      fontSize: (theme: Theme) => theme.typography.body3.fontSize,
     },
     '& span': {
       p: 0,
@@ -47,13 +47,13 @@ const classes = {
     },
     '& .Mui-readOnly.Mui-focused fieldset': {
       borderColor: 'rgb(192, 192, 192)',
-      borderWidth: '1px',
+      borderWidth: ({ spacing }: Theme) => spacing(0.25),
     },
   },
   defaultHighlightedTextField: {
     '& div': {
       backgroundColor: OpossumColors.lightOrange,
-      borderRadius: '0px',
+      borderRadius: 0,
     },
     '& label[data-shrink=true]': {
       backgroundColor: OpossumColors.lightOrange,
@@ -82,7 +82,7 @@ const classes = {
     marginLeft: 0,
     mr: 2,
   },
-} satisfies SxProps;
+} satisfies SxProps<Theme>;
 
 function MultilineInput({
   maxRows,
