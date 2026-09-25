@@ -28,23 +28,6 @@ function makeReactQueryClient() {
   });
 }
 
-function makeProviderWrapper(
-  store: Awaited<ReturnType<typeof createTestStore>>,
-) {
-  const queryClient = makeReactQueryClient();
-  return function ProviderWrapper({ children }: { children: React.ReactNode }) {
-    return (
-      <Provider store={store}>
-        <QueryClientProvider client={queryClient}>
-          <VirtuosoMockContext value={{ itemHeight: 40, viewportHeight: 1200 }}>
-            {children}
-          </VirtuosoMockContext>
-        </QueryClientProvider>
-      </Provider>
-    );
-  };
-}
-
 export async function createTestStore(data?: ParsedFileContent) {
   if (data) {
     await setupBackendIntegration(data);
