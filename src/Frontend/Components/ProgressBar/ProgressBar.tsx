@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { keyframes } from '@emotion/react';
 import CircleIcon from '@mui/icons-material/Circle';
 import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
@@ -25,6 +26,13 @@ import {
   type ProgressBarStep,
 } from './ProgressBar.util';
 
+const throbberDotPulsing = keyframes`
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+`;
+
+const throbberDotDelays = ['0s', '0.1s', '0.2s', '0.3s', '0.4s'];
+
 const classes = {
   bar: {
     flex: 1,
@@ -32,6 +40,31 @@ const classes = {
     mt: 0.5,
     height: '20px',
     '&:hover': { cursor: 'pointer', opacity: 0.75 },
+    position: 'relative',
+  },
+  loadingBar: {
+    flex: 1,
+    border: `2px solid ${OpossumColors.white}`,
+    mt: 0.5,
+    height: '20px',
+    background: OpossumColors.middleBlue,
+    position: 'relative',
+  },
+  throbber: {
+    position: 'absolute',
+    inset: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '6px',
+    pointerEvents: 'none',
+  },
+  throbberDot: {
+    width: '6px',
+    height: '6px',
+    borderRadius: '50%',
+    backgroundColor: OpossumColors.white,
+    animation: `${throbberDotPulsing} 1s infinite`,
   },
 };
 
@@ -106,6 +139,21 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     );
   const classifications = useClassifications();
 
+  const progressBarDataQueries: Record<
+    SelectedProgressBar,
+    { isPending: boolean; isFetching: boolean }
+  > = {
+    attribution: attributionsProgressBarData,
+    criticality: criticalityProgressBarData,
+    classification: classificationProgressBarData,
+  };
+
+  const isInitialFetchInProgress =
+    progressBarDataQueries[props.selectedProgressBar].isPending;
+  const isRefetchInProgress =
+    progressBarDataQueries[props.selectedProgressBar].isFetching &&
+    !isInitialFetchInProgress;
+
   const progressBarConfigurations: Record<
     SelectedProgressBar,
     {
@@ -159,6 +207,20 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const { ariaLabel, steps, onClickHandler, Title } =
     progressBarConfigurations[props.selectedProgressBar];
 
+  if (isInitialFetchInProgress) {
+    return (
+      <MuiBox sx={props.sx}>
+        <MuiBox
+          aria-busy={true}
+          data-testid={'progress-bar-loading'}
+          sx={classes.loadingBar}
+        >
+          <LoadingDotsThrobber />
+        </MuiBox>
+      </MuiBox>
+    );
+  }
+
   if (!steps) {
     return <MuiBox sx={{ flex: 1 }} />;
   }
@@ -167,6 +229,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     <MuiBox sx={props.sx}>
       <MuiTooltip title={<Title steps={steps} />} followCursor>
         <MuiBox
+          aria-busy={isRefetchInProgress ? true : undefined}
           aria-label={ariaLabel}
           data-testid={'progress-bar'}
           sx={{
@@ -174,11 +237,28 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
             background: createBackgroundFromProgressBarSteps(steps),
           }}
           onClick={onClickHandler}
-        />
+        >
+          {isRefetchInProgress && <LoadingDotsThrobber />}
+        </MuiBox>
       </MuiTooltip>
     </MuiBox>
   );
 };
+
+const LoadingDotsThrobber: React.FC = () => (
+  <MuiBox
+    aria-hidden={true}
+    data-testid={'progress-bar-throbber'}
+    sx={classes.throbber}
+  >
+    {throbberDotDelays.map((delay) => (
+      <MuiBox
+        key={delay}
+        sx={{ ...classes.throbberDot, animationDelay: delay }}
+      />
+    ))}
+  </MuiBox>
+);
 
 const ProgressBarTooltipTitle: React.FC<{
   intro: string;
