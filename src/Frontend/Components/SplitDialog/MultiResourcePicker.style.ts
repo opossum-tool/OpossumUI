@@ -21,7 +21,7 @@ export const PickerContainer = styled(MuiBox)(({ theme }) => ({
 export const ResourceTreeContainer = styled(MuiBox)(({ theme }) => ({
   border: `${theme.spacing(0.25)} solid`,
   borderColor: 'divider',
-  borderRadius: theme.spacing(1),
+  borderRadius: theme.shape.borderRadiusDefault,
   height: theme.spacing(90),
   overflowY: 'auto',
   padding: theme.spacing(2),

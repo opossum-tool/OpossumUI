@@ -19,7 +19,6 @@ import {
 } from '../../shared-styles';
 import type { ChartDataItem } from '../../types/types';
 
-const LEGEND_SWATCH_RADIUS_IN_THEME_UNITS = 1.5;
 const LEGEND_SWATCH_SIZE_IN_THEME_UNITS = 3;
 const PIE_RADIUS_IN_THEME_UNITS = 17.5;
 const LEGEND_WIDTH_IN_THEME_UNITS = 62.5;
@@ -40,7 +39,7 @@ function getLegendIconStyle(
 ): React.CSSProperties {
   return {
     backgroundColor,
-    borderRadius: theme.spacing(LEGEND_SWATCH_RADIUS_IN_THEME_UNITS),
+    borderRadius: theme.shape.borderRadiusMedium,
     height: theme.spacing(LEGEND_SWATCH_SIZE_IN_THEME_UNITS),
     width: theme.spacing(LEGEND_SWATCH_SIZE_IN_THEME_UNITS),
     marginRight,

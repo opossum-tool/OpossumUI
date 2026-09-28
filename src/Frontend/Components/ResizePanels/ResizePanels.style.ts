@@ -57,13 +57,13 @@ export const Search = styled('div')<{ hasValue: boolean }>(
     width: 'auto',
     display: 'flex',
     alignItems: 'center',
-    borderRadius: hasValue ? theme.shape.borderRadius : '50%',
+    borderRadius: hasValue ? theme.shape.borderRadiusDefault : '50%',
     backgroundColor: alpha(theme.palette.common.white, 0.15),
     '&:hover': {
       backgroundColor: alpha(theme.palette.common.white, 0.25),
     },
     '&:focus-within': {
-      borderRadius: theme.shape.borderRadius,
+      borderRadius: theme.shape.borderRadiusDefault,
     },
     transition: TRANSITION,
   }),

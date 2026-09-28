@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing values fed to theme.spacing / typography reads (exact 4px lattice: 3.75 = 15px icons, 50 = 200px widths, 1 = 4px, 0.75 = 3px radii/padding) */
+/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing values fed to theme.spacing / typography reads (exact 4px lattice: 3.75 = 15px icons, 50 = 200px widths, 1 = 4px, 0.75 = 3px tooltip padding) */
 import type { SxProps } from '@mui/material';
 import type { Theme } from '@mui/material/styles';
 
@@ -129,7 +129,7 @@ export const treeItemClasses = {
   },
   matchesFilters: {
     backgroundColor: OpossumColors.lightBlue,
-    borderRadius: ({ spacing }: Theme) => spacing(0.75),
+    borderRadius: ({ shape }: Theme) => shape.borderRadiusSmall,
   },
   notContainsResourcesWithOnlyExternalAttribution: {
     color: OpossumColors.pastelMiddleGreen,
@@ -150,7 +150,7 @@ export const chartTooltipContentStyle = (
   background: OpossumColors.grey,
   padding: theme.spacing(0.75),
   border: 0,
-  borderRadius: theme.spacing(1),
+  borderRadius: theme.shape.borderRadiusDefault,
 });
 
 export const chartTooltipTextStyle: React.CSSProperties = {

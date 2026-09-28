@@ -35,6 +35,13 @@ export const ViewContainer = styled(MuiBox)({
 
 export const theme = createTheme({
   spacing: 4,
+  shape: {
+    borderRadius: 4,
+    borderRadiusSmall: 3,
+    borderRadiusDefault: 4,
+    borderRadiusMedium: 6,
+    borderRadiusLarge: 10,
+  },
   typography: typographyVariants,
   palette: {
     primary: {

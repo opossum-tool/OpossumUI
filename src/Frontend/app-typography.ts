@@ -17,6 +17,24 @@ declare module '@mui/material/styles' {
     body3?: Partial<TypographyStyle>;
     dense?: Partial<TypographyStyle>;
   }
+
+  // Corner-radius scale of the app theme (values are registered in
+  // App.style.ts via createTheme). Radii are shape tokens, deliberately
+  // decoupled from theme.spacing so that changing the spacing base cannot
+  // scale radii.
+  interface Shape {
+    borderRadiusSmall: number;
+    borderRadiusDefault: number;
+    borderRadiusMedium: number;
+    borderRadiusLarge: number;
+  }
+
+  interface ShapeOptions {
+    borderRadiusSmall?: number;
+    borderRadiusDefault?: number;
+    borderRadiusMedium?: number;
+    borderRadiusLarge?: number;
+  }
 }
 
 export const typographyVariants: TypographyVariantsOptions = {

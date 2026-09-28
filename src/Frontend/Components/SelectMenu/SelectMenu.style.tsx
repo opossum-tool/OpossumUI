@@ -47,7 +47,7 @@ export const StyledMenu = styled(
               width,
               ...(anchorArrow && {
                 overflow: 'visible',
-                filter: `drop-shadow(0px ${theme.spacing(0.5)} ${theme.spacing(2)} rgba(0, 0, 0, 0.32))`,
+                filter: 'drop-shadow(0px 2px 8px rgba(0, 0, 0, 0.32))',
                 mt: 1,
                 '&:before': {
                   content: '""',

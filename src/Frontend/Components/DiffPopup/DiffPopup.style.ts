@@ -126,7 +126,7 @@ export const diffPopupStyles = {
     zIndex: 1,
   },
   transferButton: {
-    borderRadius: ({ spacing }: Theme) => spacing(0.75),
+    borderRadius: ({ shape }: Theme) => shape.borderRadiusSmall,
     color: OpossumColors.mediumGrey,
     height: ({ spacing }: Theme) => spacing(5),
     padding: 0,
