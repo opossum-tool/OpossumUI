@@ -40,10 +40,11 @@ const CRITICALITY_COLORS = {
   [CRITICALITY_LABEL[Criticality.None]]: criticalityColor[Criticality.None],
 };
 
-const POPUP_MIN_SIZE_IN_THEME_UNITS = 137.5;
+// Popup size floor for both width and height, fixed px (not spacing-scaled);
+// the viewport terms in the calc() strings stay fluid.
+const POPUP_MIN_SIZE = '550px';
 
 export const ProjectStatisticsPopup: React.FC = () => {
-  const theme = useTheme();
   const dispatch = useAppDispatch();
 
   const classifications = useClassifications();
@@ -95,8 +96,8 @@ export const ProjectStatisticsPopup: React.FC = () => {
     <NotificationPopup
       header={text.projectStatisticsPopup.title}
       isOpen={true}
-      width={`min(95vw, max(${theme.spacing(POPUP_MIN_SIZE_IN_THEME_UNITS)}, 85vw))`}
-      height={`min(95vh, max(${theme.spacing(POPUP_MIN_SIZE_IN_THEME_UNITS)}, 75vh))`}
+      width={`min(95vw, max(${POPUP_MIN_SIZE}, 85vw))`}
+      height={`min(95vh, max(${POPUP_MIN_SIZE}, 75vh))`}
       rightButtonConfig={{ onClick: close, buttonText: text.buttons.close }}
       onBackdropClick={close}
       onEscapeKeyDown={close}

@@ -6,11 +6,11 @@ import MuiAlert from '@mui/material/Alert';
 import MuiBox from '@mui/material/Box';
 import MuiCollapse from '@mui/material/Collapse';
 import MuiLinearProgress from '@mui/material/LinearProgress';
-import { useTheme } from '@mui/material/styles';
 import MuiTypography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
 
 import { text } from '../../../shared/text';
+import { popupMaxWidth, popupMinWidth } from '../../shared-styles';
 import { createSplit } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
@@ -29,7 +29,6 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
   resourcePath,
 }) => {
   const dispatch = useAppDispatch();
-  const theme = useTheme();
   const [destinationPath, setDestinationPath] = useState('');
   const [errorMessage, setErrorMessage] = useState<string>();
   const [splitInProgress, setSplitInProgress] = useState(false);
@@ -93,10 +92,8 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
     <NotificationPopup
       header={text.splitDialog.title}
       width={'80vw'}
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 75 theme spacing units (= 300px)
-      minWidth={theme.spacing(75)}
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 175 theme spacing units (= 700px)
-      maxWidth={theme.spacing(175)}
+      minWidth={popupMinWidth}
+      maxWidth={popupMaxWidth}
       isOpen={open}
       leftButtonConfig={{
         onClick: handleCreateSplit,

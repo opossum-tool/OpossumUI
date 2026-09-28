@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { useTheme } from '@mui/material/styles';
 import { useIsMutating } from '@tanstack/react-query';
 import { useState } from 'react';
 
@@ -15,6 +14,12 @@ import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { ComparisonView } from './ComparisonView';
 import type { ComparisonItem } from './DiffPopup.util';
 import { useComparisonState } from './use-comparison-state';
+
+// Fixed px (not spacing-scaled) size bounds and viewport gutters of the
+// diff popup; the viewport terms (100vw/100vh) stay fluid.
+const MAX_WIDTH = '1200px';
+const VIEWPORT_MARGIN = '32px';
+const VIEWPORT_VERTICAL_MARGIN = '64px';
 
 export type { ComparisonItem } from './DiffPopup.util';
 
@@ -55,7 +60,6 @@ function DiffPopupSession({
   onClose,
   onAcceptDrafts,
 }: DiffPopupProps) {
-  const theme = useTheme();
   const isBusy = useIsMutating() > 0;
   const [saveRequest, setSaveRequest] = useState<{
     acceptedAttributions: Attributions;
@@ -105,10 +109,8 @@ function DiffPopupSession({
       aria-label={ariaLabel}
       background={'lightestBlue'}
       fullWidth={true}
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 300 units (= 1200px cap) and 8 units (= 32px gutter); the viewport terms stay fluid
-      width={`min(${theme.spacing(300)}, calc(100vw - ${theme.spacing(8)}))`}
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 16 theme spacing units (= 64px)
-      height={`calc(100vh - ${theme.spacing(16)})`}
+      width={`min(${MAX_WIDTH}, calc(100vw - ${VIEWPORT_MARGIN}))`}
+      height={`calc(100vh - ${VIEWPORT_VERTICAL_MARGIN})`}
       titleSx={{ py: 2, px: 6, pb: 1.5 }}
       actionsSx={{ py: 1, px: 2 }}
       sx={{

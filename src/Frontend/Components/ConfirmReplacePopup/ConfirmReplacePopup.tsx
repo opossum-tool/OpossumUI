@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiAlert from '@mui/material/Alert';
-import { useTheme } from '@mui/material/styles';
 import MuiTypography from '@mui/material/Typography';
 import { skipToken } from '@tanstack/react-query';
 
@@ -19,6 +18,9 @@ import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../util/use-f
 import { AttributionCardList } from '../AttributionCardList/AttributionCardList';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
+// Popup width, fixed px (not spacing-scaled).
+const POPUP_WIDTH = '500px';
+
 interface Props {
   selectedAttribution: PackageInfo;
   open: boolean;
@@ -30,7 +32,6 @@ export const ConfirmReplacePopup = ({
   onClose,
   open,
 }: Props) => {
-  const theme = useTheme();
   const dispatch = useAppDispatch();
 
   const [selectionForReplacement, setSelectionForReplacement] =
@@ -150,8 +151,7 @@ export const ConfirmReplacePopup = ({
       }}
       isOpen={open}
       aria-label={'confirm replace popup'}
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 125 theme spacing units (= 500px)
-      width={theme.spacing(125)}
+      width={POPUP_WIDTH}
       sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
     >
       {mixedAttributionCount > 0 && (

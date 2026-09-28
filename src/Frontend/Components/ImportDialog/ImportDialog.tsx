@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiFormControlLabel from '@mui/material/FormControlLabel';
-import { useTheme } from '@mui/material/styles';
 import MuiSwitch from '@mui/material/Switch';
 import MuiTypography from '@mui/material/Typography';
 import { useState } from 'react';
@@ -11,6 +10,7 @@ import { useState } from 'react';
 import type { FileFormatInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file-utils';
+import { popupMaxWidth, popupMinWidth } from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { useProcessingStatusUpdated } from '../../util/use-processing-status-updated';
@@ -28,7 +28,6 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
   fileFormat,
 }) => {
   const dispatch = useAppDispatch();
-  const theme = useTheme();
 
   const [inputFilePath, setInputFilePath] = useState<string>('');
   const [opossumFilePath, setOpossumFilePath] = useState<string>('');
@@ -110,10 +109,8 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
     <NotificationPopup
       header={text.importDialog.title(fileFormat)}
       width={'80vw'}
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 75 theme spacing units (= 300px)
-      minWidth={theme.spacing(75)}
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 175 theme spacing units (= 700px)
-      maxWidth={theme.spacing(175)}
+      minWidth={popupMinWidth}
+      maxWidth={popupMaxWidth}
       isOpen={true}
       customAction={
         processingStatusUpdatedEvents.length ? (

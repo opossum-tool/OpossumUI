@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiAlert from '@mui/material/Alert';
 import MuiButton, { type ButtonProps } from '@mui/material/Button';
-import { useTheme } from '@mui/material/styles';
 import MuiTypography from '@mui/material/Typography';
 
 import type {
@@ -18,6 +17,10 @@ import { LinkedResourcesTree } from '../ResourceBrowser/LinkedResourcesTree/Link
 import type { LinkedResourcesTreeState } from '../ResourceBrowser/LinkedResourcesTree/useLinkedResourcesTreeState';
 import { StyledConfirmAttributionActionPopup } from './ConfirmAttributionActionPopup.style';
 import { useAttributionPreview } from './use-attribution-preview';
+
+// Popup width and content minimum height, fixed px (not spacing-scaled).
+const POPUP_WIDTH = '580px';
+const MIN_CONTENT_HEIGHT = '100px';
 
 interface Action {
   buttonText: string;
@@ -65,7 +68,6 @@ export function ConfirmAttributionActionPopup({
   selection,
   attributionCount,
 }: Props) {
-  const theme = useTheme();
   const isMutationPending =
     globalAction.isPending || (localAction?.isPending ?? false);
   const isLocalActionVisible =
@@ -107,8 +109,7 @@ export function ConfirmAttributionActionPopup({
       }}
       isOpen={open}
       aria-label={ariaLabel}
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 145 theme spacing units (= 580px)
-      width={theme.spacing(145)}
+      width={POPUP_WIDTH}
     >
       {mixedAttributionCount > 0 && (
         <MuiAlert severity={'warning'}>{mixedWarning}</MuiAlert>
@@ -137,10 +138,9 @@ export function ConfirmAttributionActionPopup({
               readOnly
               disableHighlightSelected={!isLocalActionAvailable}
               state={linkedResourcesTreeState}
-              sx={
-                // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 25 theme spacing units (= 100px)
-                { minHeight: theme.spacing(25) }
-              }
+              sx={{
+                minHeight: MIN_CONTENT_HEIGHT,
+              }}
             />
           )}
         </>

@@ -10,7 +10,6 @@ import MuiList from '@mui/material/List';
 import MuiListItem from '@mui/material/ListItem';
 import MuiListItemText from '@mui/material/ListItemText';
 import MuiPaper from '@mui/material/Paper';
-import { useTheme } from '@mui/material/styles';
 import MuiSwitch from '@mui/material/Switch';
 import MuiTypography from '@mui/material/Typography';
 import { uniq } from 'lodash-es';
@@ -21,6 +20,7 @@ import {
   OPOSSUM_FILE_FORMAT,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
+import { popupMaxWidth, popupMinWidth } from '../../shared-styles';
 import { mergeOpossumFilesIntoCurrentFile } from '../../state/actions/popup-actions/popup-actions';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
@@ -37,7 +37,6 @@ export const MergeOpossumFilesDialog: React.FC<
   MergeOpossumFilesDialogProps
 > = ({ canMergeIntoCurrentFile, currentFilePath }) => {
   const dispatch = useAppDispatch();
-  const theme = useTheme();
   const [inputFilePaths, setInputFilePaths] = useState<Array<string>>([]);
   const [outputFilePath, setOutputFilePath] = useState('');
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -148,10 +147,8 @@ export const MergeOpossumFilesDialog: React.FC<
           : text.mergeOpossumFilesDialog.title
       }
       width={'80vw'}
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 75 theme spacing units (= 300px)
-      minWidth={theme.spacing(75)}
-      // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 175 theme spacing units (= 700px)
-      maxWidth={theme.spacing(175)}
+      minWidth={popupMinWidth}
+      maxWidth={popupMaxWidth}
       isOpen={true}
       rightButtonConfig={{
         onClick: () => dispatch(closePopup()),
