@@ -7,7 +7,7 @@ import MuiTab from '@mui/material/Tab';
 import MuiTabs from '@mui/material/Tabs';
 import MuiBox from '@mui/system/Box';
 
-import { OpossumColors, TRANSITION } from '../../../shared-styles';
+import { borderThin, OpossumColors, TRANSITION } from '../../../shared-styles';
 
 export const ALERT_CONTAINER_HEIGHT = 24;
 export const TABS_CONTAINER_HEIGHT = 30;
@@ -55,8 +55,7 @@ export const Tabs = styled(MuiTabs)(({ theme }) => ({
   height: TABS_CONTAINER_HEIGHT,
   '& .MuiTabs-indicator': {
     backgroundColor: OpossumColors.darkBlue,
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 0.25 theme spacing units (= 1px)
-    height: theme.spacing(0.25),
+    height: borderThin,
   },
 }));
 

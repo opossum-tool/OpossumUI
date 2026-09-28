@@ -9,18 +9,20 @@ import MuiTableRow from '@mui/material/TableRow';
 import type { SxProps } from '@mui/system';
 
 import type { Order, TableOrdering } from '../../../../shared/shared-types';
-import { tableClasses } from '../../../shared-styles';
+import {
+  borderMedium,
+  borderTableHead,
+  tableClasses,
+} from '../../../shared-styles';
 import { TableCellWithSorting } from '../../TableCellWithSorting/TableCellWithSorting';
 import type { ColumnConfig } from '../AttributionCountPerSourcePerLicenseTable.util';
 
 const classes = {
   headerCellWithVerticalSeparator: {
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 0.5 theme spacing units (= 2px)
-    borderRight: ({ spacing }: Theme) => `${spacing(0.5)} solid lightgray`,
+    borderRight: `${borderMedium} solid lightgray`,
   },
   headerCellWithHorizontalSeparator: {
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 0.375 theme spacing units (= 1.5px)
-    borderBottom: ({ spacing }: Theme) => `${spacing(0.375)} solid lightgray`,
+    borderBottom: `${borderTableHead} solid lightgray`,
   },
 } satisfies SxProps<Theme>;
 

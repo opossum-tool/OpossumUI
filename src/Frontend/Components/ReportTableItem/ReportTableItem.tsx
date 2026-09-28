@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing values (0.25 = 1px borders, 0.5 = 2px rings, 3.75 = 15px icons) and the 4px baseline math for the Virtuoso row-height constant */
+/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing values (2.5 = 10px cell padding const, 3.75 = 15px icons) and the 4px baseline math for the Virtuoso row-height constant */
 import EditorIcon from '@mui/icons-material/Edit';
 import { type SxProps, TableCell } from '@mui/material';
 import MuiBox from '@mui/material/Box';
@@ -16,7 +16,12 @@ import type { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { View } from '../../enums/enums';
 import { ROOT_PATH } from '../../shared-constants';
-import { clickableIcon, OpossumColors } from '../../shared-styles';
+import {
+  borderMedium,
+  borderThin,
+  clickableIcon,
+  OpossumColors,
+} from '../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { setPendingAttributionNavigation } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { resetManualAuditFiltersPreservingSort } from '../../state/actions/resource-actions/navigation-actions';
@@ -70,10 +75,8 @@ const classes = {
     background: '#e3e3e3',
   },
   borders: {
-    borderRight: ({ spacing }: Theme) =>
-      `${spacing(0.25)} solid ${OpossumColors.mediumGrey}`,
-    borderBottom: ({ spacing }: Theme) =>
-      `${spacing(0.25)} solid ${OpossumColors.mediumGrey}`,
+    borderRight: `${borderThin} solid ${OpossumColors.mediumGrey}`,
+    borderBottom: `${borderThin} solid ${OpossumColors.mediumGrey}`,
   },
   icon: {
     width: ({ spacing }: Theme) => spacing(3.75),
@@ -81,38 +84,30 @@ const classes = {
   },
   editIcon: {
     backgroundColor: OpossumColors.white,
-    border: ({ spacing }: Theme) =>
-      `${spacing(0.5)} ${OpossumColors.brown} solid`,
+    border: `${borderMedium} ${OpossumColors.brown} solid`,
     color: OpossumColors.brown,
   },
   firstPartyIcon: {
-    border: ({ spacing }: Theme) =>
-      `${spacing(0.5)} ${OpossumColors.darkBlue} solid`,
+    border: `${borderMedium} ${OpossumColors.darkBlue} solid`,
   },
   commentIcon: {
-    border: ({ spacing }: Theme) =>
-      `${spacing(0.5)} ${OpossumColors.black} solid`,
+    border: `${borderMedium} ${OpossumColors.black} solid`,
     color: OpossumColors.black,
   },
   followUpIcon: {
-    border: ({ spacing }: Theme) =>
-      `${spacing(0.5)} ${OpossumColors.red} solid`,
+    border: `${borderMedium} ${OpossumColors.red} solid`,
   },
   needsReviewIcon: {
-    border: ({ spacing }: Theme) =>
-      `${spacing(0.5)} ${OpossumColors.orange} solid`,
+    border: `${borderMedium} ${OpossumColors.orange} solid`,
   },
   excludeFromNoticeIcon: {
-    border: ({ spacing }: Theme) =>
-      `${spacing(0.5)} ${OpossumColors.grey} solid`,
+    border: `${borderMedium} ${OpossumColors.grey} solid`,
   },
   preSelectedIcon: {
-    border: ({ spacing }: Theme) =>
-      `${spacing(0.5)} ${OpossumColors.darkBlue} solid`,
+    border: `${borderMedium} ${OpossumColors.darkBlue} solid`,
   },
   preferredIcon: {
-    border: ({ spacing }: Theme) =>
-      `${spacing(0.5)} ${OpossumColors.mediumOrange} solid`,
+    border: `${borderMedium} ${OpossumColors.mediumOrange} solid`,
   },
   markedTableCell: {
     backgroundColor: OpossumColors.lightOrange,

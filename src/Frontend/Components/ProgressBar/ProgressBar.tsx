@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (0.5 units = 2px border, 5 units = 20px height) */
+/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (0.5 units = 2px margin, 5 units = 20px bar height) */
 import CircleIcon from '@mui/icons-material/Circle';
 import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
@@ -12,7 +12,7 @@ import Box from '@mui/system/Box';
 import { useRef } from 'react';
 
 import { text } from '../../../shared/text';
-import { OpossumColors } from '../../shared-styles';
+import { borderMedium, OpossumColors } from '../../shared-styles';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getSelectedResourceId } from '../../state/selectors/resource-selectors';
@@ -30,8 +30,7 @@ import {
 const classes = {
   bar: {
     flex: 1,
-    border: ({ spacing }: Theme) =>
-      `${spacing(0.5)} solid ${OpossumColors.white}`,
+    border: `${borderMedium} solid ${OpossumColors.white}`,
     mt: 0.5,
     height: ({ spacing }: Theme) => spacing(5),
     '&:hover': { cursor: 'pointer', opacity: 0.75 },

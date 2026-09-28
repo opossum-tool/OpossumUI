@@ -7,6 +7,8 @@ import { styled } from '@mui/material';
 import MuiFab from '@mui/material/Fab';
 import MuiBox from '@mui/system/Box';
 
+import { borderThin } from '../../../shared-styles';
+
 export const Container = styled(MuiBox)(({ theme }) => ({
   display: 'flex',
   gap: theme.spacing(4),
@@ -18,6 +20,6 @@ export const Container = styled(MuiBox)(({ theme }) => ({
 export const Fab = styled(MuiFab)({
   '&:disabled': {
     opacity: 0.7,
-    border: '1px solid currentColor',
+    border: `${borderThin} solid currentColor`,
   },
 });

@@ -10,6 +10,7 @@ import type { Theme } from '@mui/material/styles';
 import { useLayoutEffect } from 'react';
 
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
+import { borderMedium } from '../../shared-styles';
 import { initializePackageInfoEditing } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -34,8 +35,7 @@ const classes = {
     position: 'relative',
   },
   loadingIndicator: {
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 0.5 theme spacing units (= 2px loading bar thickness)
-    height: ({ spacing }: Theme) => spacing(0.5),
+    height: borderMedium,
     left: 0,
     position: 'absolute',
     right: 0,

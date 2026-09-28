@@ -2,13 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing value 0.25 (1px border) */
 import { TableCell, TableRow } from '@mui/material';
 import type { Theme } from '@mui/material/styles';
 import MuiTypography from '@mui/material/Typography';
 import type { SxProps } from '@mui/system';
 
-import { OpossumColors } from '../../shared-styles';
+import { borderThin, OpossumColors } from '../../shared-styles';
 import { tableConfigs } from '../ReportView/TableConfig';
 import { TableFilterButton } from '../ReportView/TableFilterButton';
 
@@ -18,8 +17,7 @@ const classes = {
     boxShadow: (theme: Theme) => theme.shadows[1],
   },
   headerCell: {
-    borderRight: ({ spacing }: Theme) =>
-      `${spacing(0.25)} solid ${OpossumColors.mediumGrey}`,
+    borderRight: `${borderThin} solid ${OpossumColors.mediumGrey}`,
     borderBottom: 'none',
   },
   headerText: {

@@ -9,6 +9,8 @@ import MuiIconButton from '@mui/material/IconButton';
 import MuiLinearProgress from '@mui/material/LinearProgress';
 import MuiTypography from '@mui/material/Typography';
 
+import { borderThin } from '../../shared-styles';
+
 const INDENT_PER_LEVEL = 6;
 const INCLUDED_RESOURCE_OPACITY = 0.7;
 
@@ -19,7 +21,7 @@ export const PickerContainer = styled(MuiBox)(({ theme }) => ({
 }));
 
 export const ResourceTreeContainer = styled(MuiBox)(({ theme }) => ({
-  border: `${theme.spacing(0.25)} solid`,
+  border: `${borderThin} solid`,
   borderColor: 'divider',
   borderRadius: theme.shape.borderRadiusDefault,
   height: theme.spacing(90),

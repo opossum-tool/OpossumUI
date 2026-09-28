@@ -12,7 +12,7 @@ import {
 import type { Theme } from '@mui/material/styles';
 import MuiTextField from '@mui/material/TextField';
 
-import { OpossumColors } from '../../shared-styles';
+import { borderThin, OpossumColors } from '../../shared-styles';
 
 export const Container = styled('div')({
   flex: 1,
@@ -81,7 +81,7 @@ export const Input = styled(MuiTextField, {
     },
     '& .Mui-readOnly.Mui-focused fieldset': {
       borderColor: 'rgba(0, 0, 0, 0.23)',
-      borderWidth: theme.spacing(0.25),
+      borderWidth: borderThin,
     },
   };
 });

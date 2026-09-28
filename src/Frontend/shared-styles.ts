@@ -53,6 +53,11 @@ export const criticalityColor = {
   [Criticality.None]: OpossumColors.darkBlue,
 };
 
+// Border-width and line-thickness tokens
+export const borderThin = '1px';
+export const borderMedium = '2px';
+export const borderTableHead = '1.5px';
+
 export const baseIcon = {
   width: ({ spacing }: Theme) => spacing(3.75),
   height: ({ spacing }: Theme) => spacing(3.75),

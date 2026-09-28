@@ -1,11 +1,11 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit lattice values (0.25/0.75/5/6/8 = 1/3/20/24/32px at the 4px unit) */
+/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit lattice values (5/6/8 = 20/24/32px at the 4px unit) */
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { Theme } from '@mui/material/styles';
 
-import { OpossumColors } from '../../shared-styles';
+import { borderThin, OpossumColors } from '../../shared-styles';
 
 const comparisonGrid = {
   columnGap: 2,
@@ -147,8 +147,7 @@ export const diffPopupStyles = {
   },
   attributionTypeUndo: {
     backgroundColor: OpossumColors.almostWhiteBlue,
-    border: ({ spacing }: Theme) =>
-      `${spacing(0.25)} solid ${OpossumColors.lightBlue}`,
+    border: `${borderThin} solid ${OpossumColors.lightBlue}`,
     borderRadius: '50%',
     height: ({ spacing }: Theme) => spacing(6),
     left: '50%',

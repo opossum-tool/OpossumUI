@@ -5,6 +5,8 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { styled } from '@mui/material';
 
+import { borderMedium } from '../../shared-styles';
+
 export const GroupContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   height: theme.spacing(5),
@@ -14,11 +16,11 @@ export const GroupContainer = styled('div')(({ theme }) => ({
   backgroundColor: '#cacfdb',
 }));
 
-export const StyledLinearProgress = styled(MuiLinearProgress)(({ theme }) => ({
+export const StyledLinearProgress = styled(MuiLinearProgress)({
   position: 'absolute',
   width: '100%',
-  height: theme.spacing(0.5),
+  height: borderMedium,
   zIndex: 2,
   top: 0,
   left: 0,
-}));
+});

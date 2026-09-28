@@ -13,7 +13,7 @@ import MuiTextareaAutosize, {
 import MuiTextField, { type TextFieldProps } from '@mui/material/TextField';
 import MuiTooltip, { type TooltipProps } from '@mui/material/Tooltip';
 
-import { OpossumColors } from '../../shared-styles';
+import { borderThin, OpossumColors } from '../../shared-styles';
 import { ensureArray } from '../../util/ensure-array';
 
 const INPUT_VERTICAL_PADDING = '8.5px';
@@ -47,7 +47,7 @@ const classes = {
     },
     '& .Mui-readOnly.Mui-focused fieldset': {
       borderColor: 'rgb(192, 192, 192)',
-      borderWidth: ({ spacing }: Theme) => spacing(0.25),
+      borderWidth: borderThin,
     },
   },
   defaultHighlightedTextField: {

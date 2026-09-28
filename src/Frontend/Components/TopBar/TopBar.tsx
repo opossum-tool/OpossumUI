@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (9 = 36px bar, 4.5 = 18px icon, 20 = 80px button, 0.5 = 2px toggle rings) */
+/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (9 = 36px bar, 4.5 = 18px icon, 20 = 80px button) */
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
@@ -15,7 +15,7 @@ import MuiTypography from '@mui/material/Typography';
 import commitInfo from '../../../commitInfo.json';
 import { text } from '../../../shared/text';
 import { View } from '../../enums/enums';
-import { OpossumColors } from '../../shared-styles';
+import { borderMedium, OpossumColors } from '../../shared-styles';
 import {
   openFileOrOpenUnsavedPopup,
   setViewOrOpenUnsavedPopup,
@@ -53,16 +53,14 @@ const classes = {
     width: ({ spacing }: Theme) => spacing(20),
     background: OpossumColors.lightestBlue,
     color: OpossumColors.black,
-    border: ({ spacing }: Theme) =>
-      `${spacing(0.5)} ${OpossumColors.darkBlue} solid`,
+    border: `${borderMedium} ${OpossumColors.darkBlue} solid`,
     '&:hover': {
       background: OpossumColors.lightestBlueOnHover,
     },
     '&.Mui-selected': {
       background: OpossumColors.middleBlue,
       color: OpossumColors.black,
-      border: ({ spacing }: Theme) =>
-        `${spacing(0.5)} ${OpossumColors.darkBlue} solid`,
+      border: `${borderMedium} ${OpossumColors.darkBlue} solid`,
     },
   },
   versionInfo: {
