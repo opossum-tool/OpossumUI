@@ -71,6 +71,7 @@ export const buttonSpinnerSize = 16;
 // Popup width bounds shared by the file import / merge / split dialogs.
 export const popupMinWidth = '300px';
 export const popupMaxWidth = '700px';
+export const popupViewportWidth = '80vw';
 
 export const baseIcon = {
   width: baseIconSize,

@@ -2,10 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (1.5 units = 6px handles, 0.75 units = 3px offsets) */
-import { useTheme } from '@mui/material/styles';
 import type { SxProps } from '@mui/system';
 import { Resizable, type ResizableProps } from 're-resizable';
+
+// Resize-handle geometry in px, consumed as plain CSS by re-resizable's
+// handleStyles (not sx) — fixed widths/offsets, not spacing-scaled.
+const HANDLE_SIZE = '6px';
+const HANDLE_OFFSET = '3px';
 
 interface Props extends Omit<ResizableProps, 'sx' | 'style'> {
   children: React.ReactNode;
@@ -20,22 +23,20 @@ export const ResizableBox: React.FC<Props> = ({
   sx,
   ...props
 }) => {
-  const theme = useTheme();
-
   return (
     <Resizable
       style={{ ...(sx as React.CSSProperties) }}
       handleWrapperStyle={{ zIndex: 4 }}
       handleStyles={{
         right: {
-          width: theme.spacing(1.5),
-          right: `-${theme.spacing(1.5)}`,
+          width: HANDLE_SIZE,
+          right: `-${HANDLE_SIZE}`,
         }, // move outside of potential scrollbars
-        left: { width: theme.spacing(1.5), left: `-${theme.spacing(0.75)}` },
-        top: { height: theme.spacing(1.5), top: 0 }, // move outside of potential scrollbars
+        left: { width: HANDLE_SIZE, left: `-${HANDLE_OFFSET}` },
+        top: { height: HANDLE_SIZE, top: 0 }, // move outside of potential scrollbars
         bottom: {
-          height: theme.spacing(1.5),
-          bottom: `-${theme.spacing(0.75)}`,
+          height: HANDLE_SIZE,
+          bottom: `-${HANDLE_OFFSET}`,
         },
       }}
       ref={ref}
