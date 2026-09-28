@@ -235,6 +235,11 @@ export const PackagesPanel = ({
           pendingAttributionNavigation.fallbackResourcePath,
         ),
       );
+      dispatch(
+        completeAttributionSelection(
+          pendingAttributionNavigation.fallbackResourcePath,
+        ),
+      );
       return;
     }
 

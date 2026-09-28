@@ -42,6 +42,7 @@ interface AttributionFormProps {
   onEdit?: Confirm;
   label?: string;
   dimmed?: boolean;
+  interactionBlocked?: boolean;
 }
 
 export function AttributionForm({
@@ -49,10 +50,14 @@ export function AttributionForm({
   label,
   onEdit,
   dimmed,
+  interactionBlocked = false,
 }: AttributionFormProps) {
   const dispatch = useAppDispatch();
   const showHighlight = !!onEdit;
   const updatePackageInfo = useEventCallback((patch: PackagePatch) => {
+    if (interactionBlocked) {
+      return;
+    }
     dispatch(
       setTemporaryDisplayPackageInfo({
         ...packageInfo,
@@ -72,11 +77,13 @@ export function AttributionForm({
         opacity: dimmed ? PICKER_MODE_DISABLED_OPACITY : 1,
       }}
       aria-label={label}
+      inert={interactionBlocked}
     >
       <AuditingOptions
         packageInfo={packageInfo}
         isEditable={!!onEdit}
         onUpdate={updatePackageInfo}
+        interactionBlocked={interactionBlocked}
       />
       <MuiDivider variant={'middle'}>
         <MuiTypography>
