@@ -19,9 +19,10 @@ import {
 } from '../../shared-styles';
 import type { ChartDataItem } from '../../types/types';
 
-const LEGEND_SWATCH_SIZE_IN_THEME_UNITS = 3;
-const PIE_RADIUS_IN_THEME_UNITS = 17.5;
-const LEGEND_WIDTH_IN_THEME_UNITS = 62.5;
+// Chart geometry in px, consumed numerically by recharts
+const PIE_RADIUS = 70;
+const LEGEND_WIDTH = 250;
+const LEGEND_SWATCH_SIZE = '12px';
 
 const defaultPieChartColors = [
   OpossumColors.darkBlue,
@@ -40,8 +41,8 @@ function getLegendIconStyle(
   return {
     backgroundColor,
     borderRadius: theme.shape.borderRadiusMedium,
-    height: theme.spacing(LEGEND_SWATCH_SIZE_IN_THEME_UNITS),
-    width: theme.spacing(LEGEND_SWATCH_SIZE_IN_THEME_UNITS),
+    height: LEGEND_SWATCH_SIZE,
+    width: LEGEND_SWATCH_SIZE,
     marginRight,
   };
 }
@@ -53,8 +54,6 @@ interface PieChartProps {
 
 export const PieChart: React.FC<PieChartProps> = (props) => {
   const theme = useTheme();
-
-  const spacingPx = (units: number): number => parseFloat(theme.spacing(units));
 
   const legendTextStyle: React.CSSProperties = {
     fontFamily: 'sans-serif',
@@ -80,7 +79,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           dataKey="count"
           nameKey="name"
           minAngle={15}
-          outerRadius={spacingPx(PIE_RADIUS_IN_THEME_UNITS)}
+          outerRadius={PIE_RADIUS}
           isAnimationActive={false}
           stroke="none"
         >
@@ -120,7 +119,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           verticalAlign="middle"
           align="right"
           layout="vertical"
-          width={spacingPx(LEGEND_WIDTH_IN_THEME_UNITS)}
+          width={LEGEND_WIDTH}
         />
       </RcPieChart>
     </RcResponsiveContainer>

@@ -21,10 +21,11 @@ import {
 } from '../../shared-styles';
 import type { ChartDataItem } from '../../types/types';
 
-const MARGIN_LEFT_IN_THEME_UNITS = 2;
-const MARGIN_RIGHT_IN_THEME_UNITS = 2.5;
-const MARGIN_BOTTOM_IN_THEME_UNITS = 1;
-const X_AXIS_LABEL_OFFSET_IN_THEME_UNITS = 0.75;
+// Chart plot-area geometry in px, consumed numerically by recharts
+const MARGIN_LEFT = 8;
+const MARGIN_RIGHT = 10;
+const MARGIN_BOTTOM = 4;
+const X_AXIS_LABEL_OFFSET = 3;
 
 interface BarChartProps {
   data: Array<ChartDataItem>;
@@ -38,23 +39,21 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
     fontSize: theme.typography.caption.fontSize,
   } satisfies React.SVGProps<SVGTextElement>;
 
-  const spacingPx = (units: number): number => parseFloat(theme.spacing(units));
-
   return (
     <RcResponsiveContainer width={'100%'} height={'100%'}>
       <RcBarChart
         layout={'vertical'}
         data={props.data}
         margin={{
-          left: spacingPx(MARGIN_LEFT_IN_THEME_UNITS),
-          right: spacingPx(MARGIN_RIGHT_IN_THEME_UNITS),
-          bottom: spacingPx(MARGIN_BOTTOM_IN_THEME_UNITS),
+          left: MARGIN_LEFT,
+          right: MARGIN_RIGHT,
+          bottom: MARGIN_BOTTOM,
         }}
       >
         <RcXAxis type={'number'} tick={tickStyle}>
           <RcLabel
             value={text.projectStatisticsPopup.charts.count}
-            offset={-spacingPx(X_AXIS_LABEL_OFFSET_IN_THEME_UNITS)}
+            offset={-X_AXIS_LABEL_OFFSET}
             position={'insideBottom'}
             style={tickStyle}
           />

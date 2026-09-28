@@ -13,7 +13,7 @@ import MuiFade from '@mui/material/Fade';
 import MuiIconButton, {
   type IconButtonProps as MuiIconButtonProps,
 } from '@mui/material/IconButton';
-import { type Theme, useTheme } from '@mui/material/styles';
+import type { Theme } from '@mui/material/styles';
 import type { TextFieldProps as MuiInputProps } from '@mui/material/TextField';
 import MuiTooltip from '@mui/material/Tooltip';
 import useMuiAutocomplete, {
@@ -34,6 +34,9 @@ import {
   StyledPopper,
 } from './Autocomplete.style';
 import { Listbox, type ListboxProps } from './Listbox/Listbox';
+
+// Vertical gap between the anchor and the force-top listbox when capping its height
+const FORCE_TOP_PADDING = 16;
 
 type AutocompleteProps<
   Value,
@@ -114,7 +117,6 @@ export function Autocomplete<
 }: AutocompleteProps<Value, Multiple, DisableClearable, FreeSolo>) {
   const [open, setOpen] = useState(false);
   const closePopper = () => setOpen(false);
-  const theme = useTheme();
 
   const groupedOptionsRef = useRef<Array<Value> | null>(null);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -323,11 +325,9 @@ export function Autocomplete<
   }
 
   function renderPopper() {
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 4 theme spacing units (= 16px)
-    const padding = parseFloat(theme.spacing(4));
     const availableTopHeight =
       isPopupOpen && props.forceTop && anchorEl
-        ? anchorEl.getBoundingClientRect().top - padding
+        ? anchorEl.getBoundingClientRect().top - FORCE_TOP_PADDING
         : undefined;
     return (
       <StyledPopper

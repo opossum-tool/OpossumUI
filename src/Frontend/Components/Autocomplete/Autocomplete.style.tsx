@@ -14,6 +14,9 @@ import MuiTextField from '@mui/material/TextField';
 
 import { borderThin, OpossumColors } from '../../shared-styles';
 
+// Viewport inset at which the Popper flip modifier is allowed to flip
+const FLIP_PADDING = 64;
+
 export const Container = styled('div')({
   flex: 1,
 });
@@ -102,7 +105,7 @@ export const StyledPopper = styled(
             name: 'flip',
             enabled: !forcePlacement,
             options: {
-              padding: 64,
+              padding: FLIP_PADDING,
               allowedAutoPlacements: ['top', 'bottom'],
             },
           },

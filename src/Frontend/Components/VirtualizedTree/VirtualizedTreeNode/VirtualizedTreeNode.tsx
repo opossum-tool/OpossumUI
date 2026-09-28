@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (3 = 12px indent, 4 = 16px icons, 5 = 20px rows) */
+/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (4 = 16px icons, 5 = 20px rows) */
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MuiBox from '@mui/material/Box';
-import { type Theme, useTheme } from '@mui/material/styles';
+import type { Theme } from '@mui/material/styles';
 import { type MouseEvent, useEffect, useRef } from 'react';
 
 import type {
@@ -17,8 +17,9 @@ import type { ResourceTreeFilters } from '../../../../ElectronBackend/api/resour
 import { OpossumColors } from '../../../shared-styles';
 import { getNodeIdsToExpand } from './VirtualizedTreeNode.util';
 
-const INDENT_PER_DEPTH_LEVEL_IN_THEME_UNITS = 3;
-const SIMPLE_FOLDER_EXTRA_INDENT_IN_THEME_UNITS = 4;
+// Tree indentation feeding spacer-width pixel arithmetic
+const INDENT_PER_DEPTH_LEVEL = 12;
+const SIMPLE_FOLDER_EXTRA_INDENT = 16;
 
 const classes = {
   treeNodeSpacer: {
@@ -107,15 +108,9 @@ export function VirtualizedTreeNode<
   focused,
   expansionFilters,
 }: VirtualizedTreeNodeProps) {
-  const theme = useTheme();
-
-  const spacingPx = (units: number): number => parseFloat(theme.spacing(units));
-
   const marginRight =
-    resource.level * spacingPx(INDENT_PER_DEPTH_LEVEL_IN_THEME_UNITS) +
-    (resource.isExpandable
-      ? 0
-      : spacingPx(SIMPLE_FOLDER_EXTRA_INDENT_IN_THEME_UNITS));
+    resource.level * INDENT_PER_DEPTH_LEVEL +
+    (resource.isExpandable ? 0 : SIMPLE_FOLDER_EXTRA_INDENT);
 
   const ref = useRef<HTMLDivElement>(null);
   const expansionFiltersRef = useRef(expansionFilters);
