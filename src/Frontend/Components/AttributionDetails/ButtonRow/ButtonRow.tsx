@@ -13,7 +13,7 @@ import UndoIcon from '@mui/icons-material/Undo';
 import MuiButton from '@mui/material/Button';
 import MuiCircularProgress from '@mui/material/CircularProgress';
 import MuiTooltip from '@mui/material/Tooltip';
-import { skipToken, useIsMutating } from '@tanstack/react-query';
+import { useIsMutating } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
@@ -27,43 +27,31 @@ import { buttonSpinnerSize } from '../../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setTargetAttributionRelation } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
-import {
-  getIsPackageInfoDirty,
-  getSelectedResourceId,
-} from '../../../state/selectors/resource-selectors';
+import { getIsPackageInfoDirty } from '../../../state/selectors/resource-selectors';
 import { useAttributionSelectionForReplacement } from '../../../state/variables/use-attribution-selection-for-replacement';
 import { useCompareSelectionSource } from '../../../state/variables/use-compare-selection';
+import { usePickerMode } from '../../../state/variables/use-picker-mode';
 import { backend } from '../../../util/backendClient';
 import { getCardLabels } from '../../../util/get-card-labels';
 import { isPackageInvalid } from '../../../util/input-validation';
 import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../../util/use-focused-attribution-outcome';
 import { useIpcRenderer } from '../../../util/use-ipc-renderer';
-import {
-  useSelectedAttributionIsExternal,
-  useSelectedAttributionPackageInfo,
-} from '../../../util/use-selected-attribution';
-import {
-  useIsSelectedResourceBreakpoint,
-  useIsSelectedResourceReadonly,
-} from '../../../util/use-selected-resource';
 import { ConfirmDeletePopup } from '../../ConfirmDeletePopup/ConfirmDeletePopup';
 import { ConfirmReplacePopup } from '../../ConfirmReplacePopup/ConfirmReplacePopup';
 import { AttributionFormConfirmSavePopup } from '../../ConfirmSavePopup/AttributionFormConfirmSavePopup';
 import { DiffPopup } from '../../DiffPopup/DiffPopup';
+import type { AttributionDetailsPresentation } from '../use-attribution-details-presentation';
 import { Container, Fab } from './ButtonRow.style';
 
 interface Props {
-  packageInfo: PackageInfo;
-  isEditable: boolean;
-  isReadonly: boolean;
+  presentation: AttributionDetailsPresentation;
+  draft: PackageInfo;
+  isLoading: boolean;
 }
 
-export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
+export function ButtonRow(props: Props) {
   const dispatch = useAppDispatch();
-  const isPackageInfoModified = useAppSelector(getIsPackageInfoDirty);
-  const isInvalid = useMemo(() => isPackageInvalid(packageInfo), [packageInfo]);
-  const initialPackageInfo = useSelectedAttributionPackageInfo();
-  const selectedAttributionIsExternal = useSelectedAttributionIsExternal();
+  const isPackageInfoDirty = useAppSelector(getIsPackageInfoDirty);
 
   const resolveAttributions = backend.resolveAttributions.useMutation();
   const unresolveAttributions = backend.unresolveAttributions.useMutation();
@@ -80,25 +68,27 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
   });
   const mutationPending = useIsMutating() > 0;
 
-  const { data: resolvedExternalAttributions } =
-    backend.resolvedAttributionUuids.useQuery();
-  const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const isSelectedResourceBreakpoint = useIsSelectedResourceBreakpoint();
-  const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
-
-  const originalAttributionQuery = backend.getAttributionData.useQuery(
-    packageInfo.originalAttributionId
-      ? {
-          attributionUuid: packageInfo.originalAttributionId,
-        }
-      : skipToken,
-  );
-
-  const originalAttribution = packageInfo.originalAttributionId
-    ? originalAttributionQuery.data?.packageInfo
-    : undefined;
-  const originalAttributionIsExternal =
-    originalAttributionQuery.data?.isExternal;
+  const {
+    packageInfo: initialPackageInfo,
+    resourceId: selectedResourceId,
+    isExternal,
+    isAttributionReadonly: isReadonly,
+    isResourceReadonly,
+    isBreakpoint,
+    originalAttribution,
+    originalAttributionIsExternal,
+    resolvedExternalAttributions,
+    linkRelationshipEligible,
+    hasResourceInfo,
+    hasResolvedAttributions,
+    hasOriginalAttribution,
+    hasMultipleResources,
+  } = props.presentation;
+  const pickerMode = usePickerMode();
+  const packageInfo = props.draft;
+  const isEditable = !pickerMode.isActive && !isExternal && !isReadonly;
+  const isDirty = isPackageInfoDirty;
+  const interactionBlocked = props.isLoading;
 
   const [isDiffPopupOpen, setIsDiffPopupOpen] = useState(false);
 
@@ -135,66 +125,48 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
     useState(false);
   const [isConfirmSavePopupOpen, setIsConfirmSavePopupOpen] = useState(false);
 
+  const isInvalid = useMemo(() => isPackageInvalid(packageInfo), [packageInfo]);
+  const isCreatingNewAttribution = !packageInfo.id;
   const selectedSignalIsResolved = resolvedExternalAttributions?.has(
     packageInfo.id,
   );
 
-  const attributionResourceInfoQuery =
-    backend.getResourceInfoOnAttributions.useQuery({
-      attributionUuids: [packageInfo.id],
-    });
-  const { data: attributionData } = attributionResourceInfoQuery;
-  const selectedAttributionResourceInfo = attributionData?.[packageInfo.id];
-  const hasMultipleResources =
-    selectedAttributionResourceInfo?.isManual &&
-    ((selectedAttributionResourceInfo.resourceCount ?? 0) > 1 ||
-      packageInfo.resourceAccess === 'mixed');
-  const attributionResourceInfoReady =
-    !packageInfo.id || attributionResourceInfoQuery.isSuccess;
-
-  const attributionLinkStatusQuery = backend.getAttributionLinkStatus.useQuery({
-    resourcePath: selectedResourceId,
-    attributionUuid: packageInfo.id,
-  });
-
-  const linkRelationshipEligible =
-    attributionLinkStatusQuery.isSuccess &&
-    (selectedAttributionIsExternal === true
-      ? attributionLinkStatusQuery.data.onResource ||
-        attributionLinkStatusQuery.data.onDescendants
-      : selectedAttributionIsExternal === false &&
-        !attributionLinkStatusQuery.data.onResource);
-
-  const isCreatingNewAttribution = !packageInfo.id;
-
   const handleSave = useCallback(async () => {
-    if (packageInfo.preSelected || isPackageInfoModified) {
-      if (!attributionResourceInfoReady) {
+    if (interactionBlocked) {
+      return;
+    }
+    if (packageInfo.preSelected || isDirty) {
+      if (!hasResourceInfo) {
         return;
       }
       if (hasMultipleResources) {
         setIsConfirmSavePopupOpen(true);
       } else if (packageInfo.id) {
         await updateOrMatch.mutateAsync({
-          attributions: { [packageInfo.id]: packageInfo },
+          attributions: {
+            [packageInfo.id]: packageInfo,
+          },
           focusedAttributionUuid: packageInfo.id,
         });
       } else {
         await createOrMatch.mutateAsync({
           resourcePath: selectedResourceId,
-          attributions: { [packageInfo.id]: packageInfo },
+          attributions: {
+            [packageInfo.id]: packageInfo,
+          },
           focusedAttributionUuid: packageInfo.id,
         });
       }
     }
   }, [
-    packageInfo,
     updateOrMatch,
     createOrMatch,
-    isPackageInfoModified,
+    isDirty,
     hasMultipleResources,
-    attributionResourceInfoReady,
+    packageInfo,
+    hasResourceInfo,
     selectedResourceId,
+    interactionBlocked,
   ]);
 
   useIpcRenderer(AllowedFrontendChannels.SaveFileRequest, () => handleSave(), [
@@ -202,7 +174,10 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
   ]);
 
   return (
-    <Container>
+    <Container
+      data-testid={'attribution-details-footer'}
+      inert={interactionBlocked}
+    >
       {selectionForReplacement ? (
         renderReplaceButton()
       ) : compareSelectionSource ? (
@@ -226,9 +201,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
       selectionForReplacement?.mode === 'explicit' &&
       selectionForReplacement.attributionUuids.includes(packageInfo.id);
     const canUseAsReplacement =
-      !isReadonly &&
-      !isPreviewingSource &&
-      selectedAttributionIsExternal === false;
+      !isReadonly && !isPreviewingSource && !isExternal;
 
     return (
       <>
@@ -267,7 +240,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
       return null;
     }
 
-    const isConfirming = packageInfo.preSelected && !isPackageInfoModified;
+    const isConfirming = packageInfo.preSelected && !isDirty;
     const label = isConfirming
       ? text.attributionColumn.confirm
       : text.attributionColumn.save;
@@ -283,8 +256,8 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
               onClick={handleSave}
               disabled={
                 isInvalid ||
-                !attributionResourceInfoReady ||
-                (!packageInfo.preSelected && !isPackageInfoModified) ||
+                !hasResourceInfo ||
+                (!packageInfo.preSelected && !isDirty) ||
                 mutationPending
               }
             >
@@ -315,8 +288,8 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
 
   function renderLinkButton() {
     if (
-      isSelectedResourceBreakpoint ||
-      isSelectedResourceReadonly ||
+      isBreakpoint ||
+      isResourceReadonly ||
       isCreatingNewAttribution ||
       !linkRelationshipEligible
     ) {
@@ -330,11 +303,13 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
             aria-label={text.attributionColumn.link}
             size={'small'}
             color={'secondary'}
-            disabled={isPackageInfoModified || mutationPending}
+            disabled={isDirty || mutationPending}
             onClick={async () => {
               await linkAttribution.mutateAsync({
                 resourcePath: selectedResourceId,
-                attributions: { [packageInfo.id]: packageInfo },
+                attributions: {
+                  [packageInfo.id]: packageInfo,
+                },
                 focusedAttributionUuid: packageInfo.id,
               });
               dispatch(setTargetAttributionRelation('resource'));
@@ -395,7 +370,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
             aria-label={text.attributionColumn.revert}
             size={'small'}
             color={'secondary'}
-            disabled={!isPackageInfoModified || mutationPending}
+            disabled={!isDirty || mutationPending}
             onClick={() => {
               dispatch(
                 setTemporaryDisplayPackageInfo(
@@ -427,7 +402,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
             aria-label={label}
             size={'small'}
             color={'secondary'}
-            disabled={mutationPending}
+            disabled={mutationPending || !hasResolvedAttributions}
             onClick={async () => {
               selectedSignalIsResolved
                 ? await unresolveAttributions.mutateAsync({
@@ -459,7 +434,10 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
   }
 
   function renderCompareButton() {
-    if (selectedAttributionIsExternal || !originalAttribution) {
+    if (
+      isExternal ||
+      (!originalAttribution && !packageInfo.originalAttributionId)
+    ) {
       return null;
     }
 
@@ -475,28 +453,34 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
               size={'small'}
               color={'secondary'}
               onClick={() => setIsDiffPopupOpen(true)}
-              disabled={mutationPending}
+              disabled={
+                mutationPending ||
+                !hasOriginalAttribution ||
+                !originalAttribution
+              }
             >
               <CompareIcon />
             </Fab>
           </span>
         </MuiTooltip>
-        <DiffPopup
-          leftItem={{
-            packageInfo: originalAttribution,
-            isExternal: originalAttributionIsExternal ?? true,
-            label: text.attributionColumn.original,
-          }}
-          rightItem={{
-            packageInfo,
-            originalPackageInfo: initialPackageInfo ?? packageInfo,
-            isExternal: selectedAttributionIsExternal ?? false,
-            label: text.attributionColumn.current,
-          }}
-          isOpen={isDiffPopupOpen}
-          onClose={() => setIsDiffPopupOpen(false)}
-          onAcceptDrafts={acceptDiffAttributions}
-        />
+        {originalAttribution && (
+          <DiffPopup
+            leftItem={{
+              packageInfo: originalAttribution,
+              isExternal: originalAttributionIsExternal ?? true,
+              label: text.attributionColumn.original,
+            }}
+            rightItem={{
+              packageInfo,
+              originalPackageInfo: initialPackageInfo,
+              isExternal,
+              label: text.attributionColumn.current,
+            }}
+            isOpen={isDiffPopupOpen}
+            onClose={() => setIsDiffPopupOpen(false)}
+            onAcceptDrafts={acceptDiffAttributions}
+          />
+        )}
       </>
     );
   }
@@ -513,7 +497,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
             aria-label={text.attributionColumn.compareWith}
             size={'small'}
             color={'secondary'}
-            disabled={mutationPending || isPackageInfoModified}
+            disabled={mutationPending || isDirty}
             onClick={() => {
               setCompareSelectionSource(packageInfo.id);
             }}
@@ -556,8 +540,8 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
             }}
             rightItem={{
               packageInfo,
-              originalPackageInfo: initialPackageInfo ?? packageInfo,
-              isExternal: selectedAttributionIsExternal ?? false,
+              originalPackageInfo: initialPackageInfo,
+              isExternal,
               label: getCardLabels(packageInfo)[0] ?? packageInfo.id,
             }}
             isOpen={isCompareSelectionDiffOpen}

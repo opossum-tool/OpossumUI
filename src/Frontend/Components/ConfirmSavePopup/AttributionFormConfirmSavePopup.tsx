@@ -30,7 +30,8 @@ export function AttributionFormConfirmSavePopup({
   );
   const attributions = useMemo(
     () =>
-      selectedAttributionId
+      selectedAttributionId &&
+      temporaryDisplayPackageInfo.id === selectedAttributionId
         ? { [selectedAttributionId]: temporaryDisplayPackageInfo }
         : undefined,
     [selectedAttributionId, temporaryDisplayPackageInfo],

@@ -11,6 +11,7 @@ import {
   within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
 
 import { executeCommand } from '../../../../ElectronBackend/api/commands';
 import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
@@ -20,6 +21,7 @@ import { pathsToResources } from '../../../../testing/global-test-helpers';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
+  completeAttributionSelection,
   setAttributionSelectionPending,
   setSelectedAttributionId,
   setSelectedResourceId,
@@ -63,6 +65,15 @@ function makeComparisonData(
     resources: pathsToResources(['/comparison.ts']),
     ...overrides,
   });
+}
+
+async function waitForAttributionDetailsReady() {
+  await waitFor(() =>
+    expect(screen.getByLabelText('attribution column')).toHaveAttribute(
+      'aria-busy',
+      'false',
+    ),
+  );
 }
 
 describe('AttributionDetails', () => {
@@ -113,6 +124,100 @@ describe('AttributionDetails', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('keeps an editable attribution editable inside a readonly resource', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const resourcePath = '/readonly/file.ts';
+    const writableResourcePath = '/writable/file.ts';
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: { [packageInfo.id]: packageInfo },
+        resourcesToManualAttributions: {
+          [resourcePath]: [packageInfo.id],
+          [writableResourcePath]: [packageInfo.id],
+        },
+        resources: pathsToResources([resourcePath, writableResourcePath]),
+        readonlyRules: [{ path: '/readonly', readonly: true }],
+      }),
+      actions: [
+        setSelectedResourceId(resourcePath),
+        setSelectedAttributionId(packageInfo.id),
+      ],
+    });
+
+    await waitFor(() =>
+      expect(
+        screen.getByLabelText(text.attributionColumn.packageName),
+      ).not.toHaveAttribute('readonly'),
+    );
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.link }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('keeps the previous fields and footer until the new linkage query settles', async () => {
+    const second = faker.opossum.packageInfo({ packageName: 'second' });
+    const firstResource = '/first.ts';
+    const secondResource = '/second.ts';
+    let releaseLinkageQuery = () => {};
+    const linkageQueryPaused = new Promise<void>((resolve) => {
+      releaseLinkageQuery = resolve;
+    });
+    vi.mocked(window.electronAPI.api).mockImplementation(
+      async (command, params) => {
+        if (
+          command === 'getAttributionLinkStatus' &&
+          (params as { resourcePath: string }).resourcePath === secondResource
+        ) {
+          await linkageQueryPaused;
+        }
+        return executeCommand(command, params as never);
+      },
+    );
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: { [second.id]: second },
+        resources: pathsToResources([firstResource, secondResource]),
+      }),
+      actions: [
+        setSelectedResourceId(firstResource),
+        setSelectedAttributionId(''),
+      ],
+    });
+
+    await waitForAttributionDetailsReady();
+    const form = screen.getByTestId('attribution-form-wrapper');
+    expect(screen.getByText(text.auditingOptions.add)).toBeInTheDocument();
+    form.scrollTop = 123;
+
+    act(() => {
+      store.dispatch(setSelectedResourceId(secondResource));
+      store.dispatch(setSelectedAttributionId(second.id));
+    });
+    expect(
+      screen.getByLabelText(text.attributionColumn.packageName),
+    ).toHaveValue('');
+    expect(screen.getByTestId('attribution-form-wrapper')).toBe(form);
+    expect(form.scrollTop).toBe(123);
+    expect(screen.getByText(text.auditingOptions.add)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: text.attributionColumn.save }),
+    ).toBeVisible();
+    expect(form).toHaveAttribute('inert');
+    expect(screen.getByTestId('attribution-details-footer')).toHaveAttribute(
+      'inert',
+    );
+    expect(screen.getByLabelText('attribution column')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
+
+    act(() => releaseLinkageQuery());
+    await screen.findByDisplayValue('second');
+    expect(
+      await screen.findByRole('button', { name: text.attributionColumn.link }),
+    ).toBeInTheDocument();
+  });
+
   it('renders nothing when the selected attribution ID is not visible', async () => {
     const packageInfo = faker.opossum.packageInfo();
     const { container } = await renderComponent(<AttributionDetails />, {
@@ -136,11 +241,15 @@ describe('AttributionDetails', () => {
     });
 
     expect(
-      screen.getByTestId('attribution-details-loading'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByLabelText(text.attributionColumn.packageName),
-    ).toHaveAttribute('readonly');
+      screen.queryByTestId('attribution-details-loading'),
+    ).not.toBeInTheDocument();
+    expect(screen.getByLabelText('attribution column')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
+    expect(screen.getByTestId('attribution-form-wrapper')).toHaveAttribute(
+      'inert',
+    );
     expect(container).not.toHaveTextContent(text.attributionColumn.save);
   });
 
@@ -182,7 +291,11 @@ describe('AttributionDetails', () => {
   });
 
   it('disables editing while attribution selection is pending', async () => {
-    const packageInfo = faker.opossum.packageInfo();
+    const packageInfo = faker.opossum.packageInfo({
+      followUp: true,
+      preSelected: true,
+    });
+    const nextPackageInfo = faker.opossum.packageInfo();
     const { store } = await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions: { [packageInfo.id]: packageInfo },
@@ -194,16 +307,143 @@ describe('AttributionDetails', () => {
     });
 
     await screen.findByDisplayValue(packageInfo.packageName ?? '');
+    await waitFor(() =>
+      expect(screen.getByLabelText('attribution column')).toHaveAttribute(
+        'aria-busy',
+        'false',
+      ),
+    );
+    vi.useFakeTimers();
     act(() => {
       store.dispatch(setAttributionSelectionPending('/resource'));
+      store.dispatch(setSelectedAttributionId(nextPackageInfo.id));
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(149);
+    });
+    expect(
+      screen.queryByTestId('attribution-details-loading'),
+    ).not.toBeInTheDocument();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
     });
 
     expect(
       screen.getByTestId('attribution-details-loading'),
     ).toBeInTheDocument();
+    expect(screen.getByLabelText('attribution column')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
+    expect(screen.getByTestId('attribution-form-wrapper')).toHaveAttribute(
+      'inert',
+    );
     expect(
       screen.getByLabelText(text.attributionColumn.packageName),
-    ).toHaveAttribute('readonly');
+    ).not.toHaveAttribute('readonly');
+    expect(
+      screen.getByLabelText(text.attributionColumn.packageName),
+    ).toHaveValue(packageInfo.packageName ?? '');
+    expect(screen.getByText(text.auditingOptions.add)).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId('auditing-option-follow-up')).getByTestId(
+        'CancelIcon',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: text.attributionColumn.confirm }),
+    ).toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it('keeps the progress indicator visible across sequential query phases', async () => {
+    const first = faker.opossum.packageInfo({ packageName: 'first' });
+    const second = faker.opossum.packageInfo({ packageName: 'second' });
+    const firstResource = '/first.ts';
+    const secondResource = '/second.ts';
+    let releaseLinkageQuery = () => {};
+    let notifyLinkageQueryStarted = () => {};
+    const linkageQueryPaused = new Promise<void>((resolve) => {
+      releaseLinkageQuery = resolve;
+    });
+    const linkageQueryStarted = new Promise<void>((resolve) => {
+      notifyLinkageQueryStarted = resolve;
+    });
+    vi.mocked(window.electronAPI.api).mockImplementation(
+      async (command, params) => {
+        if (
+          command === 'getAttributionLinkStatus' &&
+          (params as { resourcePath: string }).resourcePath === secondResource
+        ) {
+          notifyLinkageQueryStarted();
+          await linkageQueryPaused;
+        }
+        return executeCommand(command, params as never);
+      },
+    );
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        manualAttributions: { [first.id]: first, [second.id]: second },
+        resourcesToManualAttributions: {
+          [firstResource]: [first.id],
+          [secondResource]: [second.id],
+        },
+        resources: pathsToResources([firstResource, secondResource]),
+      }),
+      actions: [
+        setSelectedResourceId(firstResource),
+        setSelectedAttributionId(first.id),
+      ],
+    });
+
+    await screen.findByDisplayValue('first');
+    await waitFor(() =>
+      expect(screen.getByLabelText('attribution column')).toHaveAttribute(
+        'aria-busy',
+        'false',
+      ),
+    );
+    vi.useFakeTimers();
+    try {
+      act(() => {
+        store.dispatch(setAttributionSelectionPending(secondResource));
+        store.dispatch(setSelectedResourceId(secondResource));
+        store.dispatch(setSelectedAttributionId(second.id));
+      });
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(150);
+      });
+      expect(
+        screen.getByTestId('attribution-details-loading'),
+      ).toBeInTheDocument();
+
+      act(() => {
+        store.dispatch(completeAttributionSelection(secondResource));
+      });
+      await act(async () => {
+        await linkageQueryStarted;
+      });
+      expect(screen.getByDisplayValue('first')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('attribution-details-loading'),
+      ).toBeInTheDocument();
+
+      act(() => releaseLinkageQuery());
+      vi.useRealTimers();
+      await screen.findByDisplayValue('second');
+      await waitFor(() =>
+        expect(screen.getByLabelText('attribution column')).toHaveAttribute(
+          'aria-busy',
+          'false',
+        ),
+      );
+      expect(
+        screen.queryByTestId('attribution-details-loading'),
+      ).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('shows only the cancel button when the selected attribution is marked for replacement', async () => {
@@ -222,6 +462,7 @@ describe('AttributionDetails', () => {
       ],
     });
 
+    await waitForAttributionDetailsReady();
     await waitFor(() => expect(container).not.toBeEmptyDOMElement());
 
     expect(
@@ -282,6 +523,7 @@ describe('AttributionDetails', () => {
       ],
     });
 
+    await waitForAttributionDetailsReady();
     expect(
       await screen.findByRole('button', { name: text.buttons.cancel }),
     ).toBeInTheDocument();
@@ -375,6 +617,7 @@ describe('AttributionDetails', () => {
       ],
     });
 
+    await waitForAttributionDetailsReady();
     await userEvent.click(
       await screen.findByRole('button', {
         name: text.attributionColumn.replace,
@@ -510,13 +753,32 @@ describe('AttributionDetails', () => {
       [resourceId]: [packageInfo1.id, packageInfo2.id],
     });
     await expectResolvedExternalAttributions(new Set());
+    expect(getIsPackageInfoDirty(store.getState())).toBe(false);
+
+    act(() => {
+      store.dispatch(
+        setTemporaryDisplayPackageInfo({
+          ...packageInfo1,
+          packageName: 'newer-unsaved-edit',
+        }),
+      );
+    });
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.revert,
+      }),
+    );
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject({
+      ...packageInfo1,
+      packageName: newPackageName,
+    });
   });
 
   it('confirms attribution', async () => {
     const packageInfo1 = faker.opossum.packageInfo({ preSelected: true });
     const packageInfo2 = faker.opossum.packageInfo();
     const resourceId = faker.system.filePath();
-    await renderComponent(<AttributionDetails />, {
+    const { store } = await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
         manualAttributions: faker.opossum.attributions({
           [packageInfo1.id]: packageInfo1,
@@ -547,6 +809,10 @@ describe('AttributionDetails', () => {
       [resourceId]: [packageInfo1.id, packageInfo2.id],
     });
     await expectResolvedExternalAttributions(new Set());
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject({
+      ...packageInfo1,
+      preSelected: false,
+    });
   });
 
   it('disables save button if package is neither pre-selected nor modified', async () => {
@@ -601,6 +867,7 @@ describe('AttributionDetails', () => {
       ],
     });
 
+    await waitForAttributionDetailsReady();
     await userEvent.click(
       await screen.findByRole('button', {
         name: text.attributionColumn.link,
@@ -685,6 +952,7 @@ describe('AttributionDetails', () => {
       ],
     });
 
+    await waitForAttributionDetailsReady();
     await screen.findByRole('button', { name: text.attributionColumn.save });
 
     expect(
@@ -714,6 +982,7 @@ describe('AttributionDetails', () => {
       ],
     });
 
+    await waitForAttributionDetailsReady();
     await userEvent.click(
       await screen.findByRole('button', {
         name: text.attributionColumn.delete,
@@ -800,6 +1069,7 @@ describe('AttributionDetails', () => {
       ],
     });
 
+    await waitForAttributionDetailsReady();
     act(() => {
       store.dispatch(
         setTemporaryDisplayPackageInfo({
@@ -832,6 +1102,7 @@ describe('AttributionDetails', () => {
       ],
     });
 
+    await waitForAttributionDetailsReady();
     await userEvent.click(
       await screen.findByRole('button', {
         name: text.attributionColumn.delete,
@@ -857,6 +1128,7 @@ describe('AttributionDetails', () => {
       ],
     });
 
+    await waitForAttributionDetailsReady();
     await userEvent.click(
       await screen.findByRole('button', {
         name: text.attributionColumn.restore,
@@ -894,6 +1166,7 @@ describe('AttributionDetails', () => {
       ],
     });
 
+    await waitForAttributionDetailsReady();
     await userEvent.click(
       await screen.findByRole('button', {
         name: text.attributionColumn.compareToOriginal,
@@ -939,10 +1212,7 @@ describe('AttributionDetails', () => {
       ],
     });
 
-    const packageName = await screen.findByLabelText(
-      text.attributionColumn.packageName,
-    );
-    await waitFor(() => expect(packageName).not.toHaveAttribute('readonly'));
+    const packageName = await screen.findByDisplayValue('A');
     fireEvent.change(packageName, { target: { value: 'B' } });
     await userEvent.click(
       await screen.findByRole('button', {
@@ -979,6 +1249,7 @@ describe('AttributionDetails', () => {
       ],
     });
 
+    await waitForAttributionDetailsReady();
     await userEvent.click(
       await screen.findByRole('button', {
         name: text.attributionColumn.compareWith,
@@ -1025,7 +1296,7 @@ describe('AttributionDetails', () => {
     });
 
     await userEvent.type(
-      await screen.findByLabelText(text.attributionColumn.packageName),
+      await screen.findByDisplayValue(packageInfo.packageName ?? ''),
       'unsaved changes',
     );
 
@@ -1059,6 +1330,7 @@ describe('AttributionDetails', () => {
       ],
     });
 
+    await waitForAttributionDetailsReady();
     await userEvent.click(
       await screen.findByRole('button', {
         name: text.attributionColumn.compareWith,
@@ -1274,6 +1546,30 @@ describe('AttributionDetails', () => {
     );
   });
 
+  it('does not show Link for an unrelated signal after relationship data settles', async () => {
+    const signal = faker.opossum.packageInfo({
+      source: { name: 'Scanner', documentConfidence: 0 },
+    });
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources(['/root/file.ts', '/other/file.ts']),
+        externalAttributions: { [signal.id]: signal },
+        resourcesToExternalAttributions: {
+          '/other/file.ts': [signal.id],
+        },
+      }),
+      actions: [
+        setSelectedResourceId('/root'),
+        setSelectedAttributionId(signal.id),
+      ],
+    });
+
+    await waitForAttributionDetailsReady();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.link }),
+    ).not.toBeInTheDocument();
+  });
+
   it('waits for a current relationship result before showing signal Link', async () => {
     const signal = faker.opossum.packageInfo({
       source: { name: 'Scanner', documentConfidence: 0 },
@@ -1310,7 +1606,6 @@ describe('AttributionDetails', () => {
       ],
     });
 
-    await screen.findByDisplayValue(signal.packageName ?? '');
     await waitFor(() => expect(resolveStatus).toBeDefined());
     expect(
       screen.queryByRole('button', { name: text.attributionColumn.link }),
@@ -1320,6 +1615,8 @@ describe('AttributionDetails', () => {
       resolveStatus?.();
       await statusSettled;
     });
+    await waitForAttributionDetailsReady();
+    await screen.findByDisplayValue(signal.packageName ?? '');
 
     expect(
       await screen.findByRole('button', { name: text.attributionColumn.link }),
@@ -1362,12 +1659,13 @@ describe('AttributionDetails', () => {
       ],
     });
 
-    await screen.findByDisplayValue(signal.packageName ?? '');
     await waitFor(() => expect(statusRequestStarted).toBe(true));
     await act(async () => {
       rejectStatus?.();
       await statusSettled;
     });
+    await waitForAttributionDetailsReady();
+    await screen.findByDisplayValue(signal.packageName ?? '');
     await waitFor(() =>
       expect(
         screen.queryByRole('button', { name: text.attributionColumn.link }),
@@ -1422,10 +1720,10 @@ describe('AttributionDetails', () => {
       ],
     });
 
-    await screen.findByDisplayValue(signal.packageName ?? '');
     await waitFor(() => expect(oldStatusRequested).toBe(true));
     await act(() => store.dispatch(setSelectedResourceId('/other')));
     await waitFor(() => expect(currentStatusSettled).toBe(true));
+    await waitForAttributionDetailsReady();
     await waitFor(() =>
       expect(
         screen.queryByRole('button', { name: text.attributionColumn.link }),
@@ -1436,6 +1734,7 @@ describe('AttributionDetails', () => {
       resolveOldStatus?.();
       await oldStatusSettled;
     });
+    await waitForAttributionDetailsReady();
     await waitFor(() =>
       expect(
         screen.queryByRole('button', { name: text.attributionColumn.link }),

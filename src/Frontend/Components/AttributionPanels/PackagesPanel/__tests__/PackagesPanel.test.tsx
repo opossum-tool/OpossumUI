@@ -701,6 +701,9 @@ describe('PackagesPanel', () => {
       expect(store.getState().resourceState.pendingAttributionNavigation).toBe(
         null,
       );
+      expect(
+        store.getState().resourceState.attributionSelectionPendingResourceId,
+      ).toBe(null);
     });
   });
 
