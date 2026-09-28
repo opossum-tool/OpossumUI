@@ -8,12 +8,11 @@ import type { Theme } from '@mui/material/styles';
 import MuiTooltip from '@mui/material/Tooltip';
 
 import { text } from '../../../shared/text';
+import { occurrenceChipMinWidth } from '../../shared-styles';
 import { maybePluralize } from '../../util/maybe-pluralize';
 
-const OCCURRENCE_CHIP_MIN_WIDTH_IN_THEME_UNITS = 6;
 const occurrenceChipClass = {
-  minWidth: ({ spacing }: Theme) =>
-    spacing(OCCURRENCE_CHIP_MIN_WIDTH_IN_THEME_UNITS),
+  minWidth: occurrenceChipMinWidth,
 } satisfies SxProps<Theme>;
 
 export function renderOccurrenceCount(

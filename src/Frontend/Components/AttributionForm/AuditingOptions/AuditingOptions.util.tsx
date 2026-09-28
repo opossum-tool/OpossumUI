@@ -15,10 +15,7 @@ import { useMemo } from 'react';
 
 import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
-import {
-  AUDITING_OPTION_ICON_THEME_SIZE,
-  OpossumColors,
-} from '../../../shared-styles';
+import { auditingOptionIconSize, OpossumColors } from '../../../shared-styles';
 import { useUserSettings } from '../../../state/variables/use-user-setting';
 import { backend } from '../../../util/backendClient';
 import { prettifySource } from '../../../util/prettify-source';
@@ -45,8 +42,8 @@ interface AuditingOption extends SelectMenuOption {
 }
 
 const satisfactionIconClass = {
-  width: ({ spacing }: Theme) => spacing(AUDITING_OPTION_ICON_THEME_SIZE),
-  height: ({ spacing }: Theme) => spacing(AUDITING_OPTION_ICON_THEME_SIZE),
+  width: auditingOptionIconSize,
+  height: auditingOptionIconSize,
 } satisfies SxProps<Theme>;
 
 export function useAuditingOptions({

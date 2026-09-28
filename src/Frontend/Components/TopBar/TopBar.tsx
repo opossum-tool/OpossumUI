@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (9 = 36px bar, 4.5 = 18px icon, 20 = 80px button) */
+/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (9 = 36px bar, 20 = 80px button) */
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
@@ -15,7 +15,11 @@ import MuiTypography from '@mui/material/Typography';
 import commitInfo from '../../../commitInfo.json';
 import { text } from '../../../shared/text';
 import { View } from '../../enums/enums';
-import { borderMedium, OpossumColors } from '../../shared-styles';
+import {
+  borderMedium,
+  OpossumColors,
+  resourceIconSize,
+} from '../../shared-styles';
 import {
   openFileOrOpenUnsavedPopup,
   setViewOrOpenUnsavedPopup,
@@ -33,8 +37,8 @@ const classes = {
     display: 'flex',
   },
   openFileIcon: {
-    width: ({ spacing }: Theme) => spacing(4.5),
-    height: ({ spacing }: Theme) => spacing(4.5),
+    width: resourceIconSize,
+    height: resourceIconSize,
     color: OpossumColors.white,
   },
   openFileButton: {

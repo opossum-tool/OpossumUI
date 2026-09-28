@@ -4,10 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiListItemIcon from '@mui/material/ListItemIcon';
 import MuiListItemText from '@mui/material/ListItemText';
-import type { Theme } from '@mui/material/styles';
 import { useMemo } from 'react';
 
-import { AUDITING_OPTION_ICON_THEME_SIZE } from '../../shared-styles';
+import { auditingOptionIconSize } from '../../shared-styles';
 import {
   MenuItemContainer,
   StyledCheckIcon,
@@ -111,8 +110,7 @@ export const SelectMenu: React.FC<SelectMenuProps> = ({
               <MenuItemContainer>
                 <MuiListItemIcon
                   sx={{
-                    minWidth: ({ spacing }: Theme) =>
-                      `${spacing(AUDITING_OPTION_ICON_THEME_SIZE)} !important`,
+                    minWidth: `${auditingOptionIconSize} !important`,
                   }}
                 >
                   {icon}

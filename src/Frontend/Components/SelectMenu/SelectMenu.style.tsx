@@ -9,7 +9,7 @@ import MuiMenu, { type MenuProps as MuiMenuProps } from '@mui/material/Menu';
 import MuiMenuItem from '@mui/material/MenuItem';
 import { styled, useTheme } from '@mui/material/styles';
 
-import { OpossumColors } from '../../shared-styles';
+import { checkIconSize, OpossumColors } from '../../shared-styles';
 
 export const StyledMenu = styled(
   ({
@@ -92,9 +92,9 @@ export const StyledCheckIcon = styled(CheckIcon, {
   shouldForwardProp: (name: string) => !['visible'].includes(name),
 })<{
   visible: boolean;
-}>(({ theme, visible }) => ({
-  width: theme.spacing(5),
-  height: theme.spacing(5),
+}>(({ visible }) => ({
+  width: checkIconSize,
+  height: checkIconSize,
   visibility: visible ? 'visible' : 'hidden',
 }));
 

@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing values (2.5 = 10px cell padding const, 3.75 = 15px icons) and the 4px baseline math for the Virtuoso row-height constant */
+/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing value (2.5 = 10px cell padding const) and the 4px baseline math for the Virtuoso row-height constant */
 import EditorIcon from '@mui/icons-material/Edit';
 import { type SxProps, TableCell } from '@mui/material';
 import MuiBox from '@mui/material/Box';
@@ -17,6 +17,7 @@ import { text } from '../../../shared/text';
 import { View } from '../../enums/enums';
 import { ROOT_PATH } from '../../shared-constants';
 import {
+  baseIconSize,
   borderMedium,
   borderThin,
   clickableIcon,
@@ -79,8 +80,8 @@ const classes = {
     borderBottom: `${borderThin} solid ${OpossumColors.mediumGrey}`,
   },
   icon: {
-    width: ({ spacing }: Theme) => spacing(3.75),
-    height: ({ spacing }: Theme) => spacing(3.75),
+    width: baseIconSize,
+    height: baseIconSize,
   },
   editIcon: {
     backgroundColor: OpossumColors.white,

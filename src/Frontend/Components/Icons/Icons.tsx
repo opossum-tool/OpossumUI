@@ -26,15 +26,18 @@ import MuiTooltip from '@mui/material/Tooltip';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { baseIcon, criticalityColor, OpossumColors } from '../../shared-styles';
+import {
+  baseIcon,
+  criticalityColor,
+  OpossumColors,
+  resourceIconSize,
+} from '../../shared-styles';
 import { useClassifications } from '../../util/use-classifications';
-
-const RESOURCE_ICON_SIZE_IN_THEME_UNITS = 4.5;
 
 const classes = {
   resourceIcon: {
-    width: ({ spacing }: Theme) => spacing(RESOURCE_ICON_SIZE_IN_THEME_UNITS),
-    height: ({ spacing }: Theme) => spacing(RESOURCE_ICON_SIZE_IN_THEME_UNITS),
+    width: resourceIconSize,
+    height: resourceIconSize,
     px: 0.5,
   },
   resourceDefaultColor: {

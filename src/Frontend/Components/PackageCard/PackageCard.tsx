@@ -12,15 +12,17 @@ import { memo, useEffect, useMemo, useRef } from 'react';
 
 import type { Criticality, PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { OpossumColors, readonlyStyle } from '../../shared-styles';
+import {
+  occurrenceChipMinWidth,
+  OpossumColors,
+  readonlyStyle,
+} from '../../shared-styles';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { getCardLabels } from '../../util/get-card-labels';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { ReadonlyIcon } from '../Icons/Icons';
 import { getRightIcons } from './PackageCard.util';
-
-const OCCURRENCE_CHIP_MIN_WIDTH_IN_THEME_UNITS = 6;
 
 const PACKAGE_CARD_HEIGHT = 40;
 // package card + divider
@@ -98,8 +100,7 @@ const classes = {
     direction: 'rtl',
   },
   occurrenceChip: {
-    minWidth: ({ spacing }: Theme) =>
-      spacing(OCCURRENCE_CHIP_MIN_WIDTH_IN_THEME_UNITS),
+    minWidth: occurrenceChipMinWidth,
     userSelect: 'none',
   },
   textLines: {

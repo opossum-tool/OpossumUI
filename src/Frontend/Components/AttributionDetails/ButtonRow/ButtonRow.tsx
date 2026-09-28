@@ -23,6 +23,7 @@ import type {
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
+import { buttonSpinnerSize } from '../../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setTargetAttributionRelation } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
@@ -288,7 +289,10 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
               }
             >
               {updateOrMatch.isPending || createOrMatch.isPending ? (
-                <MuiCircularProgress size={16} color={'inherit'} />
+                <MuiCircularProgress
+                  size={buttonSpinnerSize}
+                  color={'inherit'}
+                />
               ) : isConfirming ? (
                 <CheckIcon />
               ) : (
@@ -337,7 +341,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
             }}
           >
             {linkAttribution.isPending ? (
-              <MuiCircularProgress size={16} color={'inherit'} />
+              <MuiCircularProgress size={buttonSpinnerSize} color={'inherit'} />
             ) : (
               <CallMergeIcon />
             )}
@@ -442,7 +446,7 @@ export function ButtonRow({ packageInfo, isEditable, isReadonly }: Props) {
           >
             {unresolveAttributions.isPending ||
             resolveAttributions.isPending ? (
-              <MuiCircularProgress size={16} color={'inherit'} />
+              <MuiCircularProgress size={buttonSpinnerSize} color={'inherit'} />
             ) : selectedSignalIsResolved ? (
               <RestoreFromTrashIcon />
             ) : (

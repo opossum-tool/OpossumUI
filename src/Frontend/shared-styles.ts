@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing values fed to theme.spacing / typography reads (exact 4px lattice: 3.75 = 15px icons, 50 = 200px widths, 1 = 4px, 0.75 = 3px tooltip padding) */
+/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing values fed to theme.spacing / typography reads (exact 4px lattice: 50 = 200px widths, 0.75 = 3px tooltip padding) */
 import type { SxProps } from '@mui/material';
 import type { Theme } from '@mui/material/styles';
 
@@ -58,9 +58,19 @@ export const borderThin = '1px';
 export const borderMedium = '2px';
 export const borderTableHead = '1.5px';
 
+// Icon-size tokens. Plain px literals
+export const baseIconSize = '15px';
+export const resourceIconSize = '18px';
+export const auditingOptionIconSize = '19px';
+export const checkIconSize = '20px';
+export const warningIconFontSize = '16px';
+export const occurrenceChipMinWidth = '24px';
+export const spinnerDefaultSize = 12;
+export const buttonSpinnerSize = 16;
+
 export const baseIcon = {
-  width: ({ spacing }: Theme) => spacing(3.75),
-  height: ({ spacing }: Theme) => spacing(3.75),
+  width: baseIconSize,
+  height: baseIconSize,
   p: 0.5,
   my: 0,
   mx: 0.5,
@@ -142,8 +152,6 @@ export const treeItemClasses = {
 } as const satisfies SxProps<Theme>;
 
 export const TRANSITION = 'all 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms';
-
-export const AUDITING_OPTION_ICON_THEME_SIZE = 4.75;
 
 export const PICKER_MODE_DISABLED_OPACITY = 0.5;
 export const readonlyStyle = { opacity: 0.6 };
