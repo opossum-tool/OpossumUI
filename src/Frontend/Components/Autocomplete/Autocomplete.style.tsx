@@ -9,7 +9,6 @@ import {
   type PopperProps,
   styled,
 } from '@mui/material';
-import type { Theme } from '@mui/material/styles';
 import MuiTextField from '@mui/material/TextField';
 
 import { borderThin, OpossumColors } from '../../shared-styles';
@@ -43,7 +42,7 @@ export const Input = styled(MuiTextField, {
     '& .MuiInputLabel-root': {
       backgroundColor: background || errorBackground,
       padding: theme.spacing(0, 0.75),
-      fontSize: (theme: Theme) => theme.typography.body3.fontSize,
+      fontSize: theme.typography.body3.fontSize,
       top: theme.spacing(0.25),
     },
     '& .MuiInputBase-root': {
