@@ -6768,7 +6768,7 @@ __metadata:
     ohm-js: "npm:17.5.0"
     packageurl-js: "npm:2.0.1"
     prettier: "npm:3.9.9"
-    prettier-plugin-sh: "npm:0.19.0"
+    prettier-plugin-sh: "npm:0.20.2"
     proxy-memoize: "npm:3.0.1"
     re-resizable: "npm:6.11.2"
     react: "npm:19.3.0"
@@ -7227,15 +7227,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-plugin-sh@npm:0.19.0":
-  version: 0.19.0
-  resolution: "prettier-plugin-sh@npm:0.19.0"
+"prettier-plugin-sh@npm:0.20.2":
+  version: 0.20.2
+  resolution: "prettier-plugin-sh@npm:0.20.2"
   dependencies:
     "@reteps/dockerfmt": "npm:^0.5.4"
-    sh-syntax: "npm:^0.6.0"
+    sh-syntax: "npm:^0.7.0"
   peerDependencies:
     prettier: ^3.6.0
-  checksum: 10/ebb247e0e6f75fda3dac9a055b303e8bdabf4c0c57b5fc9b9b691eae8b4957525c0a20060c0fae18e569a21aea7ac0e59648f2e1b1b5d7539a24919b2a6ddca9
+  checksum: 10/a9a3d8b72f81ca405ec7dfc247b55fcdf95651b845198002d18d14a3c4dba58eecfda65c09508ce3134e554a26e8766b3ca62a67f399400531c340565b592b48
   languageName: node
   linkType: hard
 
@@ -7892,10 +7892,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sh-syntax@npm:^0.6.0":
-  version: 0.6.0
-  resolution: "sh-syntax@npm:0.6.0"
-  checksum: 10/ad2ddff06374a6e422741d286a5e7012222b0d16f23df6842c7e06af3a01390dab53821e953b33671d816e961a9af32fdd61feb8ddf882b50f3d3d08a81a913e
+"sh-syntax@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "sh-syntax@npm:0.7.0"
+  checksum: 10/ef3bfe170af5b17ce6dd1b9b56015f796af957804ffbca77a1908663e6864d155a3f781e90d9b72822204ee50cfb817cea411267ec953b1a1c60420c56b95b80
   languageName: node
   linkType: hard
 
