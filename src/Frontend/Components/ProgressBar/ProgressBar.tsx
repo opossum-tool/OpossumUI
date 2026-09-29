@@ -63,7 +63,8 @@ const classes = {
     width: '6px',
     height: '6px',
     borderRadius: '50%',
-    backgroundColor: OpossumColors.white,
+    backgroundColor: OpossumColors.middleBlue,
+    boxShadow: `0 0 0 1px ${OpossumColors.darkBlue}`,
     animation: `${throbberDotPulsing} 1s infinite`,
   },
 };
