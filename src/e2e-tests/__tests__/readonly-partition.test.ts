@@ -203,6 +203,7 @@ test('opens a report attribution from a readonly resource via the root', async (
   await attributionDetails.attributionForm.assert.nameIs(
     editableManual.packageName!,
   );
+  await expect(attributionDetails.attributionForm.name).toBeEditable();
 });
 
 test('uses only editable data for statistics and progress navigation', async ({

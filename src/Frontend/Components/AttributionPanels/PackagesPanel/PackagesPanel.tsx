@@ -31,6 +31,7 @@ import {
 import { openResourceInResourceBrowser } from '../../../state/actions/resource-actions/navigation-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
+  getAttributionSelectionPendingResourceId,
   getPendingAttributionNavigation,
   getSelectedAttributionId,
   getSelectedResourceId,
@@ -126,10 +127,18 @@ export const PackagesPanel = ({
   );
   const selectedAttributionIsExternal = useSelectedAttributionIsExternal();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const attributionSelectionPendingResourceId = useAppSelector(
+    getAttributionSelectionPendingResourceId,
+  );
   const targetAttributionRelation = useAppSelector(
     getTargetAttributionRelation,
   );
-  const lastResourceIdWithAutoSelectionRef = useRef(selectedResourceId);
+  const lastResourceIdWithAutoSelectionRef = useRef(
+    attributionSelectionPendingResourceId === selectedResourceId &&
+      !(pendingAttributionNavigation?.attributionUuid === selectedAttributionId)
+      ? null
+      : selectedResourceId,
+  );
   const previousSelectedResourceId = usePrevious(selectedResourceId);
 
   const [bulkSelection, setBulkSelection] =
@@ -208,6 +217,7 @@ export const PackagesPanel = ({
 
     const targetIsLoaded = !!attributions?.[selectedAttributionId];
     if (targetIsLoaded) {
+      dispatch(completeAttributionSelection(selectedResourceId));
       dispatch(setPendingAttributionNavigation(null));
       return;
     }
@@ -235,9 +245,15 @@ export const PackagesPanel = ({
           pendingAttributionNavigation.fallbackResourcePath,
         ),
       );
+      dispatch(
+        completeAttributionSelection(
+          pendingAttributionNavigation.fallbackResourcePath,
+        ),
+      );
       return;
     }
 
+    dispatch(completeAttributionSelection(selectedResourceId));
     dispatch(setPendingAttributionNavigation(null));
   }, [
     attributions,
@@ -404,6 +420,7 @@ export const PackagesPanel = ({
     navigationAttributions,
     navigationRelation,
     pendingAttributionNavigation,
+    attributionSelectionPendingResourceId,
     pendingNavigationMatches,
     selectedResourceId,
     databaseInitialized,
