@@ -28,6 +28,36 @@ function makeReactQueryClient() {
   });
 }
 
+function ThemedChildren({ children }: { children: React.ReactNode }) {
+  return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
+}
+
+function makeProviderWrapper(
+  store: Awaited<ReturnType<typeof createTestStore>>,
+  { withVirtuosoContext = false }: { withVirtuosoContext?: boolean } = {},
+) {
+  const queryClient = makeReactQueryClient();
+  return function ProviderWrapper({ children }: { children: React.ReactNode }) {
+    return (
+      <ThemedChildren>
+        <Provider store={store}>
+          <QueryClientProvider client={queryClient}>
+            {withVirtuosoContext ? (
+              <VirtuosoMockContext
+                value={{ itemHeight: 40, viewportHeight: 1200 }}
+              >
+                {children}
+              </VirtuosoMockContext>
+            ) : (
+              children
+            )}
+          </QueryClientProvider>
+        </Provider>
+      </ThemedChildren>
+    );
+  };
+}
+
 export async function createTestStore(data?: ParsedFileContent) {
   if (data) {
     await setupBackendIntegration(data);
@@ -52,19 +82,7 @@ export async function renderComponent(
   return {
     store,
     ...render(component, {
-      wrapper: ({ children }) => (
-        <ThemeProvider theme={theme}>
-          <Provider store={store}>
-            <QueryClientProvider client={makeReactQueryClient()}>
-              <VirtuosoMockContext
-                value={{ itemHeight: 40, viewportHeight: 1200 }}
-              >
-                {children}
-              </VirtuosoMockContext>
-            </QueryClientProvider>
-          </Provider>
-        </ThemeProvider>
-      ),
+      wrapper: makeProviderWrapper(store, { withVirtuosoContext: true }),
     }),
   };
 }
@@ -86,15 +104,7 @@ export async function renderHook<P, R>(
 
   return {
     ...nativeRenderHook(callback, {
-      wrapper: ({ children }) => (
-        <ThemeProvider theme={theme}>
-          <Provider store={store}>
-            <QueryClientProvider client={makeReactQueryClient()}>
-              {children}
-            </QueryClientProvider>
-          </Provider>
-        </ThemeProvider>
-      ),
+      wrapper: makeProviderWrapper(store),
       initialProps,
     }),
     store,
@@ -107,8 +117,6 @@ export function renderWithTheme(
 ) {
   return render(component, {
     ...options,
-    wrapper: ({ children }) => (
-      <ThemeProvider theme={theme}>{children}</ThemeProvider>
-    ),
+    wrapper: ThemedChildren,
   });
 }
