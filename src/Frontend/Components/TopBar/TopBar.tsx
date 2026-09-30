@@ -3,7 +3,6 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (9 = 36px bar, 20 = 80px button) */
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
@@ -19,6 +18,7 @@ import {
   borderMedium,
   OpossumColors,
   resourceIconSize,
+  Sizing,
 } from '../../shared-styles';
 import {
   openFileOrOpenUnsavedPopup,
@@ -32,7 +32,7 @@ import { SwitchableProgressBar } from '../SwitchableProgressBar/SwitchableProgre
 
 const classes = {
   root: {
-    height: ({ spacing }: Theme) => spacing(9),
+    height: ({ spacing }: Theme) => spacing(Sizing.TopBar),
     background: OpossumColors.darkBlue,
     display: 'flex',
   },
@@ -54,7 +54,7 @@ const classes = {
     display: 'flex',
   },
   viewButtons: {
-    width: ({ spacing }: Theme) => spacing(20),
+    width: ({ spacing }: Theme) => spacing(Sizing.WideButton),
     background: OpossumColors.lightestBlue,
     color: OpossumColors.black,
     border: `${borderMedium} ${OpossumColors.darkBlue} solid`,
@@ -69,9 +69,9 @@ const classes = {
   },
   versionInfo: {
     mt: 2,
-    mr: 3,
+    mr: Sizing.MediumPad,
     mb: 2,
-    ml: 3,
+    ml: Sizing.MediumPad,
     color: OpossumColors.white,
     background: OpossumColors.darkBlue,
     float: 'right',

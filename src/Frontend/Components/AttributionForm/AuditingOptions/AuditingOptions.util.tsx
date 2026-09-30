@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import SentimentSatisfiedIcon from '@mui/icons-material/SentimentSatisfied';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAltOutlined';
@@ -203,9 +202,13 @@ export function useAuditingOptions({
                 color: OpossumColors.grey,
               },
             }}
+            // 100: percent-based attribution confidence, 5: MUI rating has 5 stars
+            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
             value={((packageInfo.attributionConfidence || 0) / 100) * 5}
             onChange={(_, newValue) => {
               if (newValue) {
+                // 20: percent per rating star
+                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                 onUpdate({ attributionConfidence: newValue * 20 });
               }
             }}
@@ -220,6 +223,8 @@ export function useAuditingOptions({
                   <span
                     aria-disabled={
                       Math.round(
+                        // 5: MUI rating has 5 stars, 100: percent-based confidence
+                        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                         ((packageInfo.attributionConfidence || 0) / 100) * 5,
                       ) !== value
                     }
@@ -277,11 +282,17 @@ function getSatisfaction(value: number): React.ReactNode {
     return (
       <SentimentDissatisfiedIcon color={'error'} sx={satisfactionIconClass} />
     );
-  } else if (value === 3) {
+  }
+  // 3: three stars of five
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+  else if (value === 3) {
     return (
       <SentimentSatisfiedIcon color={'warning'} sx={satisfactionIconClass} />
     );
-  } else if (value === 4) {
+  }
+  // 4: four stars of five
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+  else if (value === 4) {
     return (
       <SentimentSatisfiedAltIcon color={'success'} sx={satisfactionIconClass} />
     );

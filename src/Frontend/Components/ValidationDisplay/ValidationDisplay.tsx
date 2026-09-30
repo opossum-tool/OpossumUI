@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (6 = 24px row) */
 import { ExpandMore } from '@mui/icons-material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import MuiBox from '@mui/material/Box';
@@ -14,6 +13,7 @@ import { useState } from 'react';
 import {
   OpossumColors,
   resourceIconSize,
+  Sizing,
   warningIconFontSize,
 } from '../../shared-styles';
 
@@ -40,7 +40,7 @@ export const ValidationDisplay: React.FC<ValidationErrorDisplayProps> = ({
       <MuiBox
         data-testid="validation-display"
         sx={{
-          minHeight: ({ spacing }: Theme) => spacing(6),
+          minHeight: ({ spacing }: Theme) => spacing(Sizing.Section),
           mt: 1.5,
           pl: 2,
           display: 'flex',

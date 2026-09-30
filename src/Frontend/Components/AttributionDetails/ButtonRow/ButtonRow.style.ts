@@ -2,19 +2,18 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { styled } from '@mui/material';
 import MuiFab from '@mui/material/Fab';
 import MuiBox from '@mui/system/Box';
 
-import { borderThin } from '../../../shared-styles';
+import { borderThin, Sizing } from '../../../shared-styles';
 
 export const Container = styled(MuiBox)(({ theme }) => ({
   display: 'flex',
-  gap: theme.spacing(4),
+  gap: theme.spacing(Sizing.Large),
   justifyContent: 'flex-end',
   flexWrap: 'wrap',
-  padding: theme.spacing(3),
+  padding: theme.spacing(Sizing.MediumPad),
 }));
 
 export const Fab = styled(MuiFab)({

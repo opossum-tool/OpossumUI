@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import type { InputBaseComponentsPropsOverrides, SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiInputAdornment from '@mui/material/InputAdornment';
@@ -176,6 +175,8 @@ export function TextBox(props: TextBoxProps) {
             inputLabel: {
               shrink: !!props.placeholder || !!props.text,
               sx: {
+                // 5 units = 20px indent for the start-adornment icon
+                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                 ml: ensureArray(props.startIcon).length * 5,
               },
             },
@@ -200,11 +201,18 @@ export function TextBox(props: TextBoxProps) {
                     ...(props.multiline ? { boxSizing: 'border-box' } : {}),
                     overflowX: 'hidden',
                     textOverflow: 'ellipsis',
+                    // 2.125 units ≈ 8.5px vertical padding matching INPUT_VERTICAL_PADDING
+                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                     paddingY: props.multiline ? 0 : 2.125,
+                    // 3.5 units = 14px + 5 units (20px) per start-adornment icon
+                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                     paddingLeft: 3.5 + ensureArray(props.startIcon).length * 5,
+                    // 3.5 units = 14px + 5 units (20px) per end-adornment icon
                     paddingRight: props.multiline
-                      ? 3.5
-                      : 3.5 + ensureArray(props.endIcon).length * 5,
+                      ? // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                        3.5
+                      : // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                        3.5 + ensureArray(props.endIcon).length * 5,
                   },
                 },
               },

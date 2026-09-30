@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing unit values (4 = 16px icons, 5 = 20px rows) */
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MuiBox from '@mui/material/Box';
@@ -14,7 +13,7 @@ import type {
   ResourceTreeNodeData,
 } from '../../../../ElectronBackend/api/resourceTree';
 import type { ResourceTreeFilters } from '../../../../ElectronBackend/api/resourceTreeFilters';
-import { OpossumColors } from '../../../shared-styles';
+import { OpossumColors, Sizing } from '../../../shared-styles';
 import { getNodeIdsToExpand } from './VirtualizedTreeNode.util';
 
 // Tree indentation feeding spacer-width pixel arithmetic
@@ -29,7 +28,7 @@ const classes = {
   },
   listNode: {
     display: 'flex',
-    height: ({ spacing }: Theme) => spacing(5),
+    height: ({ spacing }: Theme) => spacing(Sizing.Row),
     '&:hover .tree-node-selected-indicator': {
       display: 'block',
     },
@@ -41,8 +40,8 @@ const classes = {
     },
   },
   clickableIcon: {
-    width: ({ spacing }: Theme) => spacing(4),
-    height: ({ spacing }: Theme) => spacing(5),
+    width: ({ spacing }: Theme) => spacing(Sizing.Large),
+    height: ({ spacing }: Theme) => spacing(Sizing.Row),
     p: 0,
     m: 0,
   },
@@ -55,8 +54,8 @@ const classes = {
   treeExpandIcon: {
     position: 'relative',
     zIndex: 1,
-    width: ({ spacing }: Theme) => spacing(4),
-    height: ({ spacing }: Theme) => spacing(5),
+    width: ({ spacing }: Theme) => spacing(Sizing.Large),
+    height: ({ spacing }: Theme) => spacing(Sizing.Row),
     p: 0,
     m: 0,
     color: OpossumColors.darkBlue,
@@ -67,7 +66,7 @@ const classes = {
   treeNodeSelectedIndicator: {
     position: 'absolute',
     width: '100%',
-    height: ({ spacing }: Theme) => spacing(5),
+    height: ({ spacing }: Theme) => spacing(Sizing.Row),
     background: 'white',
     zIndex: 0,
     left: 0,
@@ -181,6 +180,8 @@ export function VirtualizedTreeNode<
         sx={{
           ...classes.treeNodeSelectedIndicator,
           display: highlighted ? 'block' : 'none',
+          // 0.5: dimmed indicator for unhighlighted rows
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           opacity: highlighted ? 1 : 0.5,
           cursor: handleClick ? 'pointer' : 'default',
         }}

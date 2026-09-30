@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing value (2.5 = 10px cell padding const) and the 4px baseline math for the Virtuoso row-height constant */
 import EditorIcon from '@mui/icons-material/Edit';
 import { type SxProps, TableCell } from '@mui/material';
 import MuiBox from '@mui/material/Box';
@@ -48,6 +47,8 @@ import { getFormattedCellData } from './ReportTableItem.util';
 
 export const REPORT_VIEW_ROW_HEIGHT = 150;
 const PADDING = 2.5;
+// 4px theme spacing lattice base × PADDING units
+// eslint-disable-next-line @typescript-eslint/no-magic-numbers
 const PADDING_PX = 4 * PADDING;
 
 const classes = {

@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { SortOption } from '../../../shared/attribution-result-set';
 import { text } from '../../../shared/text';
+import { Sizing } from '../../shared-styles';
 import type { UseAttributionFilters } from '../../state/variables/use-filters';
 import {
   SelectMenu,
@@ -115,8 +116,7 @@ export const SortButton: React.FC<Props> = ({
         anchorPosition={anchorPosition}
         options={sortingOptions}
         setAnchorEl={setAnchorEl}
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 50 theme spacing units (= 200px)
-        width={theme.spacing(50)}
+        width={theme.spacing(Sizing.Content)}
       />
     </>
   );

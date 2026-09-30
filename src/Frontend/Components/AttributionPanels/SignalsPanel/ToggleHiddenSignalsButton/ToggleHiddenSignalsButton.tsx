@@ -10,6 +10,7 @@ import type { Theme } from '@mui/system';
 import MuiBox from '@mui/system/Box';
 
 import { text } from '../../../../../shared/text';
+import { Sizing } from '../../../../shared-styles';
 
 type ToggleHiddenSignalsButtonProps = {
   showHiddenSignals: boolean;
@@ -31,10 +32,7 @@ export const ToggleHiddenSignalsButton: React.FC<
     >
       <MuiTooltip title={label} disableInteractive placement={'top'}>
         <MuiBox
-          sx={
-            // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 6 theme spacing units (= 24px)
-            { height: ({ spacing }: Theme) => spacing(6) }
-          }
+          sx={{ height: ({ spacing }: Theme) => spacing(Sizing.Section) }}
         >
           {showHiddenSignals ? <VisibilityIcon /> : <VisibilityOffIcon />}
         </MuiBox>

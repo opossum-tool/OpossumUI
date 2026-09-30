@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers -- theme spacing values fed to theme.spacing / typography reads (exact 4px lattice: 50 = 200px widths, 0.75 = 3px tooltip padding) */
 import type { SxProps } from '@mui/material';
 import type { Theme } from '@mui/material/styles';
 
@@ -10,6 +9,31 @@ import { Criticality } from '../shared/shared-types';
 // pulls in the MUI TypographyVariants module augmentation
 // (body3/dense variants) declared in app-typography.ts
 import './app-typography';
+
+/**
+ * Commonly used values on the 4px theme spacing lattice.
+ * Each entry carries its px meaning so call sites stay readable.
+ */
+export enum Sizing {
+  /** 1 unit = 4px: tiny gaps, fine offsets, icon padding */
+  Tiny = 1,
+  /** 2 units = 8px: gap between related elements */
+  SmallGap = 2,
+  /** 3 units = 12px: standard block padding and medium gap */
+  MediumPad = 3,
+  /** 4 units = 16px: icon dimension or large gap */
+  Large = 4,
+  /** 5 units = 20px: default row, bar, or button height */
+  Row = 5,
+  /** 6 units = 24px: prominent controls, buffers between sections */
+  Section = 6,
+  /** 9 units = 36px: top-bar height */
+  TopBar = 9,
+  /** 20 units = 80px: top-bar view button width */
+  WideButton = 20,
+  /** 50 units = 200px: report table content width */
+  Content = 50,
+}
 
 export const OpossumColors = {
   white: 'hsl(0, 0%, 100%)',
@@ -103,7 +127,7 @@ export const tableClasses = {
   body: {
     fontSize: (theme: Theme) => theme.typography.dense.fontSize,
     background: OpossumColors.lightestBlue,
-    maxWidth: ({ spacing }: Theme) => spacing(50),
+    maxWidth: ({ spacing }: Theme) => spacing(Sizing.Content),
     overflow: 'auto',
     color: OpossumColors.black,
   },
@@ -166,6 +190,8 @@ export const chartTooltipContentStyle = (
 ): React.CSSProperties => ({
   fontSize: theme.typography.caption.fontSize,
   background: OpossumColors.grey,
+  // 0.75 units = 3px tooltip padding
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   padding: theme.spacing(0.75),
   border: 0,
   borderRadius: theme.shape.borderRadiusDefault,

@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { createTheme, Grid as MuiGrid, useTheme } from '@mui/material';
 import { type Theme, ThemeProvider } from '@mui/material/styles';
 import MuiTab from '@mui/material/Tab';
@@ -13,7 +12,7 @@ import { type PropsWithChildren, useState } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { criticalityColor, OpossumColors } from '../../shared-styles';
+import { criticalityColor, OpossumColors, Sizing } from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import {
@@ -116,7 +115,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
         <MuiTabs
           value={selectedTab}
           onChange={(_, tab) => setSelectedTab(tab)}
-          sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
+          sx={{ mb: Sizing.MediumPad, borderBottom: 1, borderColor: 'divider' }}
         >
           <MuiTab label={text.projectStatisticsPopup.tabs.overview} />
           <MuiTab label={text.projectStatisticsPopup.tabs.details} />
@@ -275,11 +274,11 @@ const ChartGrid: React.FC<PropsWithChildren> = (props) => {
       <MuiGrid
         container
         columns={{ sm: 1, md: 2, lg: 3 }}
-        spacing={6}
+        spacing={Sizing.Section}
         sx={{
           height: '100%',
           minHeight: 'fit-content',
-          p: 3,
+          p: Sizing.MediumPad,
           pt: 0,
           alignContent: 'flex-start',
         }}
@@ -301,7 +300,11 @@ const ChartGridItem: React.FC<ChartGridItemProps> = (props) => {
       size={1}
       data-testid={props.testId}
       sx={{
+        // 55 units = 220px minimum chart height
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         minHeight: ({ spacing }: Theme) => spacing(55),
+        // 110 units = 440px minimum chart width
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         minWidth: ({ spacing }: Theme) => spacing(110),
         height: '47%',
         display: 'flex',
