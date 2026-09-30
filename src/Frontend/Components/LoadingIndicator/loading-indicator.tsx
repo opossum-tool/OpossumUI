@@ -7,7 +7,7 @@ import MuiLinearProgress from '@mui/material/LinearProgress';
 
 import { borderMedium } from '../../shared-styles';
 
-export const StyledLinearProgress = styled(MuiLinearProgress)({
+export const LoadingIndicator = styled(MuiLinearProgress)({
   position: 'absolute',
   width: '100%',
   height: borderMedium,

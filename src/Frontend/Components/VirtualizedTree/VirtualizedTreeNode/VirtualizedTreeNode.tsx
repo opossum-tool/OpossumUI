@@ -106,7 +106,7 @@ export function VirtualizedTreeNode<
   highlighted,
   focused,
   expansionFilters,
-}: VirtualizedTreeNodeProps) {
+}: VirtualizedTreeNodeProps<T>) {
   const marginRight =
     resource.level * INDENT_PER_DEPTH_LEVEL +
     (resource.isExpandable ? 0 : SIMPLE_FOLDER_EXTRA_INDENT);

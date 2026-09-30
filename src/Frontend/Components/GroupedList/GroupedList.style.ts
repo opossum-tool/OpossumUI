@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { styled } from '@mui/material';
 
-import { borderMedium, Sizing } from '../../shared-styles';
+import { Sizing } from '../../shared-styles';
 
 export const GroupContainer = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -16,12 +16,3 @@ export const GroupContainer = styled('div')(({ theme }) => ({
   padding: theme.spacing(1, 2.5),
   backgroundColor: '#cacfdb',
 }));
-
-export const StyledLinearProgress = styled(MuiLinearProgress)({
-  position: 'absolute',
-  width: '100%',
-  height: borderMedium,
-  zIndex: 2,
-  top: 0,
-  left: 0,
-});
