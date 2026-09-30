@@ -3,16 +3,11 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { app, BrowserWindow, screen } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import upath from 'upath';
 
 import { getIconPath } from './iconHelpers';
-
-const DEFAULT_WINDOW_WIDTH = 1920;
-const DEFAULT_WINDOW_HEIGHT = 1080;
-const MIN_WINDOW_WIDTH = 500;
-const MIN_WINDOW_HEIGHT = 400;
 
 export async function loadWebApp(
   mainWindow: Electron.CrossProcessExports.BrowserWindow,
@@ -28,14 +23,11 @@ export async function loadWebApp(
 }
 
 export function createWindow(): BrowserWindow {
-  const { width: workAreaWidth, height: workAreaHeight } =
-    screen.getPrimaryDisplay().workAreaSize;
-
   return new BrowserWindow({
-    width: Math.min(DEFAULT_WINDOW_WIDTH, workAreaWidth),
-    height: Math.min(DEFAULT_WINDOW_HEIGHT, workAreaHeight),
-    minWidth: MIN_WINDOW_WIDTH,
-    minHeight: MIN_WINDOW_HEIGHT,
+    width: 1920,
+    height: 1080,
+    minWidth: 500,
+    minHeight: 400,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
