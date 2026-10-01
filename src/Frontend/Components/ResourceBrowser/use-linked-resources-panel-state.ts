@@ -149,7 +149,6 @@ export function useLinkedResourcesPanelState({
   useEffect(() => setIsIndicatorVisible(panelLoading), [panelLoading]);
   return {
     ...panelState,
-    isHidden: panelState.isHidden,
     isLoading: panelLoading,
     isIndicatorVisible: panelLoading && isIndicatorVisible,
   };

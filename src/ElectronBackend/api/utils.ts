@@ -245,17 +245,24 @@ export function removeTrailingSlash(path: string) {
   return path.replace(/\/$/, '');
 }
 
-export async function getResourceOrThrow(
+export async function findResourceOrNull(
   dbOrTrx: Kysely<DB>,
   resourcePath: string,
 ) {
   const strippedResourcePath = removeTrailingSlash(resourcePath);
 
-  const resource = await dbOrTrx
+  return dbOrTrx
     .selectFrom('resource')
     .select(['id', 'max_descendant_id', 'is_readonly'])
     .where('path', '=', strippedResourcePath)
     .executeTakeFirst();
+}
+
+export async function getResourceOrThrow(
+  dbOrTrx: Kysely<DB>,
+  resourcePath: string,
+) {
+  const resource = await findResourceOrNull(dbOrTrx, resourcePath);
 
   if (!resource) {
     throw new Error(`Resource ${resourcePath} does not exist.`);

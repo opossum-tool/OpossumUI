@@ -18,7 +18,7 @@ import {
   type LicenseFilter,
   type ResourceTreeFilters,
 } from './resourceTreeFilters';
-import { getResourceOrThrow, removeTrailingSlash } from './utils';
+import { findResourceOrNull, removeTrailingSlash } from './utils';
 
 export interface ResourceTreeNodeBase {
   id: string;
@@ -205,28 +205,32 @@ async function getResourceTreeWithProjection(
 
     let belowSelectedResourceTotal = undefined;
     if (selectedResourcePath) {
-      const selectedResource = await getResourceOrThrow(
+      // Read-only query: a stale (no longer existing) selected path simply
+      // degrades to no belowSelectedResource count instead of failing.
+      const selectedResource = await findResourceOrNull(
         trx,
         selectedResourcePath,
       );
 
-      belowSelectedResourceTotal = (
-        await trx
-          .$extendTables<FilteredTable>()
-          .selectFrom(resourceIdsTable)
-          .select((eb) => eb.fn.countAll<number>().as('count'))
-          .$if(filtersAreActive, (query) =>
-            query.where('cache_id', '=', cacheId!),
-          )
-          .where((eb) =>
-            eb.between(
-              'id',
-              selectedResource.id,
-              selectedResource.max_descendant_id,
-            ),
-          )
-          .executeTakeFirstOrThrow()
-      ).count;
+      if (selectedResource) {
+        belowSelectedResourceTotal = (
+          await trx
+            .$extendTables<FilteredTable>()
+            .selectFrom(resourceIdsTable)
+            .select((eb) => eb.fn.countAll<number>().as('count'))
+            .$if(filtersAreActive, (query) =>
+              query.where('cache_id', '=', cacheId!),
+            )
+            .where((eb) =>
+              eb.between(
+                'id',
+                selectedResource.id,
+                selectedResource.max_descendant_id,
+              ),
+            )
+            .executeTakeFirstOrThrow()
+        ).count;
+      }
     }
 
     if (total === 0) {

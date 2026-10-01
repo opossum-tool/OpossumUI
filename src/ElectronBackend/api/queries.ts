@@ -60,6 +60,7 @@ import {
 } from './statistics';
 import {
   attributionToResourceRelationship,
+  findResourceOrNull,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
   getResourceOrThrow,
   removeParentFromPath,
@@ -390,18 +391,22 @@ export const queries = {
     const results: Array<string> = [];
 
     if (prioritizedResourcePath) {
-      const prioritizedResource = await getResourceOrThrow(
+      // Read-only query: if the path is stale we simply skip prioritization
+      // instead of failing the whole query.
+      const prioritizedResource = await findResourceOrNull(
         getDb(),
         prioritizedResourcePath,
       );
 
-      results.push(
-        ...(await resourcesToExpand(getDb(), {
-          aboveAttributionUuids: attributionUuids,
-          aboveResourceId: prioritizedResource.id,
-          limit,
-        })),
-      );
+      if (prioritizedResource) {
+        results.push(
+          ...(await resourcesToExpand(getDb(), {
+            aboveAttributionUuids: attributionUuids,
+            aboveResourceId: prioritizedResource.id,
+            limit,
+          })),
+        );
+      }
     }
 
     results.push(
