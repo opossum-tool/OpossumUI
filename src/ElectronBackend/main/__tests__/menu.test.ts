@@ -21,7 +21,7 @@ vi.mock('electron', async () => {
     app: {
       isPackaged: true,
     },
-    ...(await import('./menu-mock')).menuMock,
+    ...(await import('./electron-mocks')).menuMock,
     nativeTheme: {},
   };
   return {

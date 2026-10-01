@@ -56,14 +56,8 @@ vi.mock('electron', async () => ({
     };
     close = vi.fn(() => Promise.resolve(null));
   },
-  screen: {
-    getPrimaryDisplay: (): {
-      workAreaSize: { width: number; height: number };
-    } => ({
-      workAreaSize: { width: 1920, height: 1080 },
-    }),
-  },
-  ...(await import('./menu-mock')).menuMock,
+  ...(await import('./electron-mocks')).menuMock,
+  ...(await import('./electron-mocks')).screenMock,
   dialog: {
     showOpenDialogSync: vi.fn(),
     showMessageBox: vi.fn(() => {

@@ -9,3 +9,13 @@ export const menuMock = {
     getApplicationMenu: vi.fn(),
   },
 };
+
+export const screenMock = {
+  screen: {
+    getPrimaryDisplay: (): {
+      workAreaSize: { width: number; height: number };
+    } => ({
+      workAreaSize: { width: 1920, height: 1080 },
+    }),
+  },
+};
