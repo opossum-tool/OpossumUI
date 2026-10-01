@@ -32,7 +32,7 @@ import {
 } from '../listeners';
 import { importFileFormats } from '../menu/fileMenu';
 
-vi.mock('electron', () => ({
+vi.mock('electron', async () => ({
   app: {
     on: vi.fn(),
     getPath: vi.fn(),
@@ -63,11 +63,7 @@ vi.mock('electron', () => ({
       workAreaSize: { width: 1920, height: 1080 },
     }),
   },
-  Menu: {
-    setApplicationMenu: vi.fn(),
-    buildFromTemplate: vi.fn(),
-    getApplicationMenu: vi.fn(),
-  },
+  ...(await import('./menu-mock')).menuMock,
   dialog: {
     showOpenDialogSync: vi.fn(),
     showMessageBox: vi.fn(() => {

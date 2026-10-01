@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { createWindow } from '../createWindow';
 
-vi.mock('electron', () => ({
+vi.mock('electron', async () => ({
   app: {
     on: vi.fn(),
     getPath: vi.fn(),
@@ -35,11 +35,7 @@ vi.mock('electron', () => ({
       workAreaSize: { width: 1920, height: 1080 },
     }),
   },
-  Menu: {
-    setApplicationMenu: vi.fn(),
-    buildFromTemplate: vi.fn(),
-    getApplicationMenu: vi.fn(),
-  },
+  ...(await import('./menu-mock')).menuMock,
 }));
 vi.mock('../iconHelpers', () => ({
   getIconPath: (): string => {

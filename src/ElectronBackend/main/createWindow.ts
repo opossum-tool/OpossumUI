@@ -11,8 +11,8 @@ import { getIconPath } from './iconHelpers';
 
 const DEFAULT_WINDOW_WIDTH = 1920;
 const DEFAULT_WINDOW_HEIGHT = 1080;
-const MIN_WINDOW_WIDTH = 500;
-const MIN_WINDOW_HEIGHT = 400;
+export const MIN_WINDOW_WIDTH = 500;
+export const MIN_WINDOW_HEIGHT = 400;
 
 export async function loadWebApp(
   mainWindow: Electron.CrossProcessExports.BrowserWindow,

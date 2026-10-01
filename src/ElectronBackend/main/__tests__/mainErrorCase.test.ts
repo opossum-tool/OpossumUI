@@ -15,7 +15,7 @@ vi.mock('electron-settings', () => ({
   },
 }));
 
-vi.mock('electron', () => ({
+vi.mock('electron', async () => ({
   ipcMain: {
     handle: vi.fn(),
   },
@@ -46,11 +46,7 @@ vi.mock('electron', () => ({
       workAreaSize: { width: 1920, height: 1080 },
     }),
   },
-  Menu: {
-    setApplicationMenu: vi.fn(),
-    buildFromTemplate: vi.fn(),
-    getApplicationMenu: vi.fn(),
-  },
+  ...(await import('./menu-mock')).menuMock,
   dialog: {
     showMessageBox: vi.fn(),
   },

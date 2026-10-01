@@ -15,16 +15,13 @@ import { createMenu } from '../menu';
 import { getFileMenu, importFileFormats } from '../menu/fileMenu';
 import { UserSettingsService } from '../user-settings-service';
 
-vi.mock('electron', () => {
+vi.mock('electron', async () => {
   const mockElectron = {
     BrowserWindow: class BrowserWindowMock {},
     app: {
       isPackaged: true,
     },
-    Menu: {
-      buildFromTemplate: vi.fn(),
-      setApplicationMenu: vi.fn(),
-    },
+    ...(await import('./menu-mock')).menuMock,
     nativeTheme: {},
   };
   return {
