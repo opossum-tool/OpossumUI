@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { keyframes } from '@emotion/react';
 import CircleIcon from '@mui/icons-material/Circle';
 import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import MuiLinearProgress from '@mui/material/LinearProgress';
 import MuiTooltip from '@mui/material/Tooltip';
 import Box from '@mui/system/Box';
 import { useRef } from 'react';
@@ -26,13 +26,6 @@ import {
   type ProgressBarStep,
 } from './ProgressBar.util';
 
-const throbberDotPulsing = keyframes`
-  0%, 100% { opacity: 0.25; }
-  50% { opacity: 1; }
-`;
-
-const throbberDotDelays = ['0s', '0.1s', '0.2s', '0.3s', '0.4s'];
-
 const classes = {
   bar: {
     flex: 1,
@@ -50,22 +43,12 @@ const classes = {
     background: OpossumColors.middleBlue,
     position: 'relative',
   },
-  throbber: {
+  loadingLine: {
     position: 'absolute',
-    inset: 0,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '6px',
-    pointerEvents: 'none',
-  },
-  throbberDot: {
-    width: '6px',
-    height: '6px',
-    borderRadius: '50%',
-    backgroundColor: OpossumColors.middleBlue,
-    boxShadow: `0 0 0 1px ${OpossumColors.darkBlue}`,
-    animation: `${throbberDotPulsing} 1s infinite`,
+    top: 0,
+    left: 0,
+    width: '100%',
+    zIndex: 2,
   },
 };
 
@@ -216,7 +199,10 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
           data-testid={'progress-bar-loading'}
           sx={classes.loadingBar}
         >
-          <LoadingDotsThrobber />
+          <MuiLinearProgress
+            data-testid={'progress-bar-throbber'}
+            sx={classes.loadingLine}
+          />
         </MuiBox>
       </MuiBox>
     );
@@ -239,27 +225,17 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
           }}
           onClick={onClickHandler}
         >
-          {isRefetchInProgress && <LoadingDotsThrobber />}
+          {isRefetchInProgress && (
+            <MuiLinearProgress
+              data-testid={'progress-bar-throbber'}
+              sx={classes.loadingLine}
+            />
+          )}
         </MuiBox>
       </MuiTooltip>
     </MuiBox>
   );
 };
-
-const LoadingDotsThrobber: React.FC = () => (
-  <MuiBox
-    aria-hidden={true}
-    data-testid={'progress-bar-throbber'}
-    sx={classes.throbber}
-  >
-    {throbberDotDelays.map((delay) => (
-      <MuiBox
-        key={delay}
-        sx={{ ...classes.throbberDot, animationDelay: delay }}
-      />
-    ))}
-  </MuiBox>
-);
 
 const ProgressBarTooltipTitle: React.FC<{
   intro: string;
