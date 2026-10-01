@@ -18,6 +18,9 @@ import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../util/use-f
 import { AttributionCardList } from '../AttributionCardList/AttributionCardList';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
+// Popup width, fixed px (not spacing-scaled).
+const POPUP_WIDTH = '500px';
+
 interface Props {
   selectedAttribution: PackageInfo;
   open: boolean;
@@ -148,7 +151,7 @@ export const ConfirmReplacePopup = ({
       }}
       isOpen={open}
       aria-label={'confirm replace popup'}
-      width={500}
+      width={POPUP_WIDTH}
       sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
     >
       {mixedAttributionCount > 0 && (

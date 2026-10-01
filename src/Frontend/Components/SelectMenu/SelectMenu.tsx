@@ -6,6 +6,7 @@ import MuiListItemIcon from '@mui/material/ListItemIcon';
 import MuiListItemText from '@mui/material/ListItemText';
 import { useMemo } from 'react';
 
+import { auditingOptionIconSize } from '../../shared-styles';
 import {
   MenuItemContainer,
   StyledCheckIcon,
@@ -107,7 +108,11 @@ export const SelectMenu: React.FC<SelectMenuProps> = ({
           >
             {isLabelString ? (
               <MenuItemContainer>
-                <MuiListItemIcon sx={{ minWidth: '19px !important' }}>
+                <MuiListItemIcon
+                  sx={{
+                    minWidth: `${auditingOptionIconSize} !important`,
+                  }}
+                >
                   {icon}
                 </MuiListItemIcon>
                 <MuiListItemText

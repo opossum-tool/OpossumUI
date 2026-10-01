@@ -10,6 +10,11 @@ import { useState } from 'react';
 import type { FileFormatInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file-utils';
+import {
+  popupMaxWidth,
+  popupMinWidth,
+  popupViewportWidth,
+} from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { useProcessingStatusUpdated } from '../../util/use-processing-status-updated';
@@ -107,9 +112,9 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
   return (
     <NotificationPopup
       header={text.importDialog.title(fileFormat)}
-      width={'80vw'}
-      minWidth={'300px'}
-      maxWidth={'700px'}
+      width={popupViewportWidth}
+      minWidth={popupMinWidth}
+      maxWidth={popupMaxWidth}
       isOpen={true}
       customAction={
         processingStatusUpdatedEvents.length ? (

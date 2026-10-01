@@ -119,8 +119,6 @@ export default defineConfig(({ mode }) => ({
             '@testing-library/user-event',
             '@reduxjs/toolkit',
             'react-redux',
-            '@mui/material',
-            '@mui/icons-material',
             '@emotion/react',
           ],
         },

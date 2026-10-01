@@ -21,26 +21,32 @@ import StarHalfIcon from '@mui/icons-material/StarHalf';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import WidgetsIcon from '@mui/icons-material/Widgets';
 import { createSvgIcon, type SxProps } from '@mui/material';
+import type { Theme } from '@mui/material/styles';
 import MuiTooltip from '@mui/material/Tooltip';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { baseIcon, criticalityColor, OpossumColors } from '../../shared-styles';
+import {
+  baseIcon,
+  criticalityColor,
+  OpossumColors,
+  resourceIconSize,
+} from '../../shared-styles';
 import { useClassifications } from '../../util/use-classifications';
 
 const classes = {
   resourceIcon: {
-    width: '18px',
-    height: '18px',
+    width: resourceIconSize,
+    height: resourceIconSize,
     px: 0.5,
   },
   resourceDefaultColor: {
     color: OpossumColors.middleBlue,
   },
-};
+} satisfies SxProps<Theme>;
 
 interface IconProps {
-  sx?: SxProps;
+  sx?: SxProps<Theme>;
   noTooltip?: boolean;
   className?: string;
   tooltipPlacement?: 'top' | 'bottom' | 'left' | 'right';
@@ -292,6 +298,9 @@ export function ClassificationIcon(
         sx={{
           ...baseIcon,
           ...props.sx,
+          // SVG user-unit geometry, not CSS px: stroke-width scales with the
+          // viewBox, so the theme spacing lattice (0.125 units = absolute
+          // 0.5px) must not apply here. Kept intentionally.
           strokeWidth: 0.5,
           stroke: OpossumColors.darkGrey,
           color: `${color} !important`,

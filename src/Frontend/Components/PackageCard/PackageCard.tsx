@@ -12,7 +12,11 @@ import { memo, useEffect, useMemo, useRef } from 'react';
 
 import type { Criticality, PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { OpossumColors, readonlyStyle } from '../../shared-styles';
+import {
+  occurrenceChipMinWidth,
+  OpossumColors,
+  readonlyStyle,
+} from '../../shared-styles';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { getCardLabels } from '../../util/get-card-labels';
 import { maybePluralize } from '../../util/maybe-pluralize';
@@ -94,6 +98,10 @@ const classes = {
     gridTemplateRows: '1fr 1fr',
     gridAutoFlow: 'column',
     direction: 'rtl',
+  },
+  occurrenceChip: {
+    minWidth: occurrenceChipMinWidth,
+    userSelect: 'none',
   },
   textLines: {
     flex: 1,
@@ -240,7 +248,7 @@ export const PackageCard = memo(
               enterDelay={500}
             >
               <MuiChip
-                sx={{ minWidth: '24px', userSelect: 'none' }}
+                sx={classes.occurrenceChip}
                 label={new Intl.NumberFormat('en-US', {
                   notation: 'compact',
                 }).format(packageInfo.count)}

@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { useTheme } from '@mui/material/styles';
+import { type Theme, useTheme } from '@mui/material/styles';
 import {
   Cell as RcCell,
   Legend as RcLegend,
@@ -19,6 +19,11 @@ import {
 } from '../../shared-styles';
 import type { ChartDataItem } from '../../types/types';
 
+// Chart geometry in px, consumed numerically by recharts
+const PIE_RADIUS = 70;
+const LEGEND_WIDTH = 250;
+const LEGEND_SWATCH_SIZE = '12px';
+
 const defaultPieChartColors = [
   OpossumColors.darkBlue,
   'hsl(220, 41%, 60%)',
@@ -28,21 +33,16 @@ const defaultPieChartColors = [
   OpossumColors.brown,
 ];
 
-const legendTextStyle: React.CSSProperties = {
-  fontFamily: 'sans-serif',
-  fontSize: '12px',
-  width: '95%',
-};
-
 function getLegendIconStyle(
+  theme: Theme,
   backgroundColor: string,
   marginRight: React.CSSProperties['marginRight'],
 ): React.CSSProperties {
   return {
     backgroundColor,
-    borderRadius: '6px',
-    height: '12px',
-    width: '12px',
+    borderRadius: theme.shape.borderRadiusMedium,
+    height: LEGEND_SWATCH_SIZE,
+    width: LEGEND_SWATCH_SIZE,
     marginRight,
   };
 }
@@ -54,6 +54,13 @@ interface PieChartProps {
 
 export const PieChart: React.FC<PieChartProps> = (props) => {
   const theme = useTheme();
+
+  const legendTextStyle: React.CSSProperties = {
+    fontFamily: 'sans-serif',
+    fontSize: theme.typography.caption.fontSize,
+    width: '95%',
+  };
+
   const pieChartColors = props.segments.map(
     ({ name }, i) =>
       props.colorMap?.[name] ??
@@ -72,7 +79,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           dataKey="count"
           nameKey="name"
           minAngle={15}
-          outerRadius={70}
+          outerRadius={PIE_RADIUS}
           isAnimationActive={false}
           stroke="none"
         >
@@ -81,7 +88,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           ))}
         </RcPie>
         <RcTooltip
-          contentStyle={chartTooltipContentStyle}
+          contentStyle={chartTooltipContentStyle(theme)}
           itemStyle={chartTooltipTextStyle}
         />
         <RcLegend
@@ -99,6 +106,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
                   <div style={{ display: 'flex' }} key={`item-${index}`}>
                     <div
                       style={getLegendIconStyle(
+                        theme,
                         entry.color ?? '',
                         theme.spacing(1),
                       )}
@@ -111,7 +119,7 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           verticalAlign="middle"
           align="right"
           layout="vertical"
-          width={250}
+          width={LEGEND_WIDTH}
         />
       </RcPieChart>
     </RcResponsiveContainer>

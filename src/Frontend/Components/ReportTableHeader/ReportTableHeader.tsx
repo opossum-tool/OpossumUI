@@ -3,21 +3,21 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { TableCell, TableRow } from '@mui/material';
+import type { Theme } from '@mui/material/styles';
 import MuiTypography from '@mui/material/Typography';
 import type { SxProps } from '@mui/system';
 
-import { OpossumColors } from '../../shared-styles';
+import { borderThin, OpossumColors } from '../../shared-styles';
 import { tableConfigs } from '../ReportView/TableConfig';
 import { TableFilterButton } from '../ReportView/TableFilterButton';
 
 const classes = {
   headerRow: {
     backgroundColor: OpossumColors.lightBlue,
-    boxShadow:
-      '0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12)',
+    boxShadow: (theme: Theme) => theme.shadows[1],
   },
   headerCell: {
-    borderRight: `1px solid ${OpossumColors.mediumGrey}`,
+    borderRight: `${borderThin} solid ${OpossumColors.mediumGrey}`,
     borderBottom: 'none',
   },
   headerText: {
@@ -30,7 +30,7 @@ const classes = {
     background: OpossumColors.lightBlue,
     textAlign: 'center',
   },
-} satisfies SxProps;
+} satisfies SxProps<Theme>;
 
 export function ReportTableHeader({ empty = false }: { empty?: boolean }) {
   return (
@@ -41,8 +41,8 @@ export function ReportTableHeader({ empty = false }: { empty?: boolean }) {
           component={'th'}
           scope={'col'}
           sx={{
-            minWidth: config.width,
-            maxWidth: config.width,
+            minWidth: ({ spacing }) => spacing(config.width),
+            maxWidth: ({ spacing }) => spacing(config.width),
             ...(config.attributionProperty === 'id' && classes.iconsCell),
             ...classes.headerCell,
           }}

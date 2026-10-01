@@ -2,13 +2,19 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { ThemeProvider } from '@mui/material/styles';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook as nativeRenderHook, render } from '@testing-library/react';
+import {
+  renderHook as nativeRenderHook,
+  render,
+  type RenderOptions,
+} from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
 import type { ParsedFileContent } from '../../shared/shared-types';
 import { setupBackendIntegration } from '../../testing/backend-integration';
+import { theme } from '../Components/App/App.style';
 import { type Action, createAppStore } from '../state/configure-store';
 import { setDatabaseInitialized } from '../util/backendClient';
 
@@ -22,19 +28,32 @@ function makeReactQueryClient() {
   });
 }
 
+function ThemedChildren({ children }: { children: React.ReactNode }) {
+  return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
+}
+
 function makeProviderWrapper(
   store: Awaited<ReturnType<typeof createTestStore>>,
+  { withVirtuosoContext = false }: { withVirtuosoContext?: boolean } = {},
 ) {
   const queryClient = makeReactQueryClient();
   return function ProviderWrapper({ children }: { children: React.ReactNode }) {
     return (
-      <Provider store={store}>
-        <QueryClientProvider client={queryClient}>
-          <VirtuosoMockContext value={{ itemHeight: 40, viewportHeight: 1200 }}>
-            {children}
-          </VirtuosoMockContext>
-        </QueryClientProvider>
-      </Provider>
+      <ThemedChildren>
+        <Provider store={store}>
+          <QueryClientProvider client={queryClient}>
+            {withVirtuosoContext ? (
+              <VirtuosoMockContext
+                value={{ itemHeight: 40, viewportHeight: 1200 }}
+              >
+                {children}
+              </VirtuosoMockContext>
+            ) : (
+              children
+            )}
+          </QueryClientProvider>
+        </Provider>
+      </ThemedChildren>
     );
   };
 }
@@ -63,7 +82,7 @@ export async function renderComponent(
   return {
     store,
     ...render(component, {
-      wrapper: makeProviderWrapper(store),
+      wrapper: makeProviderWrapper(store, { withVirtuosoContext: true }),
     }),
   };
 }
@@ -90,4 +109,14 @@ export async function renderHook<P, R>(
     }),
     store,
   };
+}
+
+export function renderWithTheme(
+  component: React.ReactElement<unknown>,
+  options?: RenderOptions,
+) {
+  return render(component, {
+    ...options,
+    wrapper: ThemedChildren,
+  });
 }

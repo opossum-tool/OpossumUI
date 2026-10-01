@@ -5,6 +5,11 @@
 import type { SxProps } from '@mui/system';
 import { Resizable, type ResizableProps } from 're-resizable';
 
+// Resize-handle geometry in px, consumed as plain CSS by re-resizable's
+// handleStyles (not sx) — fixed widths/offsets, not spacing-scaled.
+const HANDLE_SIZE = '6px';
+const HANDLE_OFFSET = '3px';
+
 interface Props extends Omit<ResizableProps, 'sx' | 'style'> {
   children: React.ReactNode;
   ref?: React.RefObject<Resizable | null>;
@@ -23,10 +28,16 @@ export const ResizableBox: React.FC<Props> = ({
       style={{ ...(sx as React.CSSProperties) }}
       handleWrapperStyle={{ zIndex: 4 }}
       handleStyles={{
-        right: { width: '6px', right: '-6px' }, // move outside of potential scrollbars
-        left: { width: '6px', left: '-3px' },
-        top: { height: '6px', top: 0 }, // move outside of potential scrollbars
-        bottom: { height: '6px', bottom: '-3px' },
+        right: {
+          width: HANDLE_SIZE,
+          right: `-${HANDLE_SIZE}`,
+        }, // move outside of potential scrollbars
+        left: { width: HANDLE_SIZE, left: `-${HANDLE_OFFSET}` },
+        top: { height: HANDLE_SIZE, top: 0 }, // move outside of potential scrollbars
+        bottom: {
+          height: HANDLE_SIZE,
+          bottom: `-${HANDLE_OFFSET}`,
+        },
       }}
       ref={ref}
       enable={{

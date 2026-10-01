@@ -2,18 +2,19 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import SentimentSatisfiedIcon from '@mui/icons-material/SentimentSatisfied';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAltOutlined';
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfied';
+import type { SxProps } from '@mui/material';
 import MuiRating from '@mui/material/Rating';
+import type { Theme } from '@mui/material/styles';
 import { useMemo } from 'react';
 
 import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
-import { OpossumColors } from '../../../shared-styles';
+import { auditingOptionIconSize, OpossumColors } from '../../../shared-styles';
 import { useUserSettings } from '../../../state/variables/use-user-setting';
 import { backend } from '../../../util/backendClient';
 import { prettifySource } from '../../../util/prettify-source';
@@ -38,6 +39,11 @@ interface AuditingOption extends SelectMenuOption {
   id: string;
   interactive: boolean;
 }
+
+const satisfactionIconClass = {
+  width: auditingOptionIconSize,
+  height: auditingOptionIconSize,
+} satisfies SxProps<Theme>;
 
 export function useAuditingOptions({
   packageInfo,
@@ -196,9 +202,13 @@ export function useAuditingOptions({
                 color: OpossumColors.grey,
               },
             }}
+            // 100: percent-based attribution confidence, 5: MUI rating has 5 stars
+            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
             value={((packageInfo.attributionConfidence || 0) / 100) * 5}
             onChange={(_, newValue) => {
               if (newValue) {
+                // 20: percent per rating star
+                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                 onUpdate({ attributionConfidence: newValue * 20 });
               }
             }}
@@ -213,6 +223,8 @@ export function useAuditingOptions({
                   <span
                     aria-disabled={
                       Math.round(
+                        // 5: MUI rating has 5 stars, 100: percent-based confidence
+                        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                         ((packageInfo.attributionConfidence || 0) / 100) * 5,
                       ) !== value
                     }
@@ -263,36 +275,30 @@ function getSatisfaction(value: number): React.ReactNode {
     return (
       <SentimentVeryDissatisfiedIcon
         color={'error'}
-        sx={{ width: '19px', height: '19px' }}
+        sx={satisfactionIconClass}
       />
     );
   } else if (value === 2) {
     return (
-      <SentimentDissatisfiedIcon
-        color={'error'}
-        sx={{ width: '19px', height: '19px' }}
-      />
+      <SentimentDissatisfiedIcon color={'error'} sx={satisfactionIconClass} />
     );
-  } else if (value === 3) {
+  }
+  // 3: three stars of five
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+  else if (value === 3) {
     return (
-      <SentimentSatisfiedIcon
-        color={'warning'}
-        sx={{ width: '19px', height: '19px' }}
-      />
+      <SentimentSatisfiedIcon color={'warning'} sx={satisfactionIconClass} />
     );
-  } else if (value === 4) {
+  }
+  // 4: four stars of five
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+  else if (value === 4) {
     return (
-      <SentimentSatisfiedAltIcon
-        color={'success'}
-        sx={{ width: '19px', height: '19px' }}
-      />
+      <SentimentSatisfiedAltIcon color={'success'} sx={satisfactionIconClass} />
     );
   }
 
   return (
-    <SentimentVerySatisfiedIcon
-      color={'success'}
-      sx={{ width: '19px', height: '19px' }}
-    />
+    <SentimentVerySatisfiedIcon color={'success'} sx={satisfactionIconClass} />
   );
 }

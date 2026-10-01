@@ -2,24 +2,29 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { Theme } from '@mui/material/styles';
 import MuiTableCell from '@mui/material/TableCell';
 import MuiTableHead from '@mui/material/TableHead';
 import MuiTableRow from '@mui/material/TableRow';
 import type { SxProps } from '@mui/system';
 
 import type { Order, TableOrdering } from '../../../../shared/shared-types';
-import { tableClasses } from '../../../shared-styles';
+import {
+  borderMedium,
+  borderTableHead,
+  tableClasses,
+} from '../../../shared-styles';
 import { TableCellWithSorting } from '../../TableCellWithSorting/TableCellWithSorting';
 import type { ColumnConfig } from '../AttributionCountPerSourcePerLicenseTable.util';
 
 const classes = {
   headerCellWithVerticalSeparator: {
-    borderRight: '2px solid lightgray',
+    borderRight: `${borderMedium} solid lightgray`,
   },
   headerCellWithHorizontalSeparator: {
-    borderBottom: '1.5px solid lightgray',
+    borderBottom: `${borderTableHead} solid lightgray`,
   },
-} satisfies SxProps;
+} satisfies SxProps<Theme>;
 
 interface AttributionCountPerSourcePerLicenseTableHeadProps {
   columnConfig: ColumnConfig;

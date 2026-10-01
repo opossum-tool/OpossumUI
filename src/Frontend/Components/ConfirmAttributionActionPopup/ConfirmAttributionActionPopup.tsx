@@ -18,6 +18,10 @@ import type { LinkedResourcesTreeState } from '../ResourceBrowser/LinkedResource
 import { StyledConfirmAttributionActionPopup } from './ConfirmAttributionActionPopup.style';
 import { useAttributionPreview } from './use-attribution-preview';
 
+// Popup width and content minimum height, fixed px (not spacing-scaled).
+const POPUP_WIDTH = '580px';
+const MIN_CONTENT_HEIGHT = '100px';
+
 interface Action {
   buttonText: string;
   onClick: () => void;
@@ -105,7 +109,7 @@ export function ConfirmAttributionActionPopup({
       }}
       isOpen={open}
       aria-label={ariaLabel}
-      width={580}
+      width={POPUP_WIDTH}
     >
       {mixedAttributionCount > 0 && (
         <MuiAlert severity={'warning'}>{mixedWarning}</MuiAlert>
@@ -134,7 +138,9 @@ export function ConfirmAttributionActionPopup({
               readOnly
               disableHighlightSelected={!isLocalActionAvailable}
               state={linkedResourcesTreeState}
-              sx={{ minHeight: '100px' }}
+              sx={{
+                minHeight: MIN_CONTENT_HEIGHT,
+              }}
             />
           )}
         </>

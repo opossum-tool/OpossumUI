@@ -6,10 +6,16 @@ import { ExpandMore } from '@mui/icons-material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import MuiBox from '@mui/material/Box';
 import MuiCollapse from '@mui/material/Collapse';
+import type { Theme } from '@mui/material/styles';
 import MuiTypography from '@mui/material/Typography';
 import { useState } from 'react';
 
-import { OpossumColors } from '../../shared-styles';
+import {
+  OpossumColors,
+  resourceIconSize,
+  Sizing,
+  warningIconFontSize,
+} from '../../shared-styles';
 
 interface ValidationErrorDisplayProps {
   messages: Array<React.ReactNode>;
@@ -34,7 +40,7 @@ export const ValidationDisplay: React.FC<ValidationErrorDisplayProps> = ({
       <MuiBox
         data-testid="validation-display"
         sx={{
-          minHeight: 24,
+          minHeight: ({ spacing }: Theme) => spacing(Sizing.Section),
           mt: 1.5,
           pl: 2,
           display: 'flex',
@@ -44,7 +50,7 @@ export const ValidationDisplay: React.FC<ValidationErrorDisplayProps> = ({
       >
         <WarningAmberIcon
           sx={{
-            fontSize: 16,
+            fontSize: warningIconFontSize,
             flexShrink: 0,
           }}
         />
@@ -59,8 +65,8 @@ export const ValidationDisplay: React.FC<ValidationErrorDisplayProps> = ({
                   rotate: expanded ? '180deg' : '0deg',
                   transition: 'rotate 0.3s ease',
                   cursor: 'pointer',
-                  height: '18px',
-                  width: '18px',
+                  height: resourceIconSize,
+                  width: resourceIconSize,
                 }}
               />
             )}

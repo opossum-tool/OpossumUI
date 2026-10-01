@@ -20,6 +20,11 @@ import {
   OPOSSUM_FILE_FORMAT,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
+import {
+  popupMaxWidth,
+  popupMinWidth,
+  popupViewportWidth,
+} from '../../shared-styles';
 import { mergeOpossumFilesIntoCurrentFile } from '../../state/actions/popup-actions/popup-actions';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
@@ -145,9 +150,9 @@ export const MergeOpossumFilesDialog: React.FC<
           ? text.mergeOpossumFilesDialog.titleForCurrentFile
           : text.mergeOpossumFilesDialog.title
       }
-      width={'80vw'}
-      minWidth={'300px'}
-      maxWidth={'700px'}
+      width={popupViewportWidth}
+      minWidth={popupMinWidth}
+      maxWidth={popupMaxWidth}
       isOpen={true}
       rightButtonConfig={{
         onClick: () => dispatch(closePopup()),

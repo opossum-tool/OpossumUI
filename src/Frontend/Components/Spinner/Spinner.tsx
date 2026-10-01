@@ -5,16 +5,14 @@
 import MuiCircularProgress from '@mui/material/CircularProgress';
 import type { SxProps } from '@mui/system';
 
-import { baseIcon } from '../../shared-styles';
-
-const DEFAULT_SIZE = 12;
+import { baseIcon, spinnerDefaultSize } from '../../shared-styles';
 
 interface SpinnerProps {
   size?: number;
   sx?: SxProps;
 }
 
-export function Spinner({ size = DEFAULT_SIZE, sx }: SpinnerProps) {
+export function Spinner({ size = spinnerDefaultSize, sx }: SpinnerProps) {
   return (
     <MuiCircularProgress
       disableShrink

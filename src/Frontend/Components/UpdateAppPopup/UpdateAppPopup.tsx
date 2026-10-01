@@ -15,6 +15,9 @@ import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { Spinner } from '../Spinner/Spinner';
 import { useLatestRelease } from './UpdateAppPopup.util';
 
+// Popup width, fixed px (not spacing-scaled).
+const POPUP_WIDTH = '600px';
+
 export function UpdateAppPopup() {
   const dispatch = useAppDispatch();
   const { latestRelease, latestReleaseError, latestReleaseLoading } =
@@ -28,7 +31,7 @@ export function UpdateAppPopup() {
     <NotificationPopup
       header={text.updateAppPopup.title}
       isOpen
-      width={600}
+      width={POPUP_WIDTH}
       rightButtonConfig={{
         onClick: handleClose,
         buttonText: text.buttons.close,

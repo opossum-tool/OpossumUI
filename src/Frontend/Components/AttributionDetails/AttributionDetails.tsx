@@ -3,11 +3,14 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiLinearProgress from '@mui/material/LinearProgress';
+import type { Theme } from '@mui/material/styles';
 import { useLayoutEffect } from 'react';
 
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
+import { borderMedium } from '../../shared-styles';
 import { initializePackageInfoEditing } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -32,14 +35,14 @@ const classes = {
     position: 'relative',
   },
   loadingIndicator: {
-    height: 2,
+    height: borderMedium,
     left: 0,
     position: 'absolute',
     right: 0,
     top: 0,
     zIndex: 2,
   },
-};
+} satisfies SxProps<Theme>;
 
 export function AttributionDetails() {
   const dispatch = useAppDispatch();

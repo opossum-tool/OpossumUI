@@ -6,9 +6,11 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
+import type { Theme } from '@mui/system';
 import MuiBox from '@mui/system/Box';
 
 import { text } from '../../../../../shared/text';
+import { Sizing } from '../../../../shared-styles';
 
 type ToggleHiddenSignalsButtonProps = {
   showHiddenSignals: boolean;
@@ -29,7 +31,9 @@ export const ToggleHiddenSignalsButton: React.FC<
       onClick={() => setShowHiddenSignals(!showHiddenSignals)}
     >
       <MuiTooltip title={label} disableInteractive placement={'top'}>
-        <MuiBox sx={{ height: '24px' }}>
+        <MuiBox
+          sx={{ height: ({ spacing }: Theme) => spacing(Sizing.Section) }}
+        >
           {showHiddenSignals ? <VisibilityIcon /> : <VisibilityOffIcon />}
         </MuiBox>
       </MuiTooltip>
