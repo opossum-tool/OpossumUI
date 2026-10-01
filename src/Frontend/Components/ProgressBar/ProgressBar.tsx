@@ -37,6 +37,7 @@ const classes = {
       cursor: 'pointer',
       opacity: 0.75,
     },
+  },
   loadingBar: {
     flex: 1,
     border: `2px solid ${OpossumColors.white}`,
