@@ -5,6 +5,7 @@
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MuiBox from '@mui/material/Box';
+import type { Theme } from '@mui/material/styles';
 import { type MouseEvent, useEffect, useRef } from 'react';
 
 import type {
@@ -12,9 +13,10 @@ import type {
   ResourceTreeNodeData,
 } from '../../../../ElectronBackend/api/resourceTree';
 import type { ResourceTreeFilters } from '../../../../ElectronBackend/api/resourceTreeFilters';
-import { OpossumColors } from '../../../shared-styles';
+import { OpossumColors, Sizing } from '../../../shared-styles';
 import { getNodeIdsToExpand } from './VirtualizedTreeNode.util';
 
+// Tree indentation feeding spacer-width pixel arithmetic
 const INDENT_PER_DEPTH_LEVEL = 12;
 const SIMPLE_FOLDER_EXTRA_INDENT = 16;
 
@@ -26,7 +28,7 @@ const classes = {
   },
   listNode: {
     display: 'flex',
-    height: '20px',
+    height: ({ spacing }: Theme) => spacing(Sizing.Row),
     '&:hover .tree-node-selected-indicator': {
       display: 'block',
     },
@@ -38,8 +40,8 @@ const classes = {
     },
   },
   clickableIcon: {
-    width: '16px',
-    height: '20px',
+    width: ({ spacing }: Theme) => spacing(Sizing.Large),
+    height: ({ spacing }: Theme) => spacing(Sizing.Row),
     p: 0,
     m: 0,
   },
@@ -52,8 +54,8 @@ const classes = {
   treeExpandIcon: {
     position: 'relative',
     zIndex: 1,
-    width: '16px',
-    height: '20px',
+    width: ({ spacing }: Theme) => spacing(Sizing.Large),
+    height: ({ spacing }: Theme) => spacing(Sizing.Row),
     p: 0,
     m: 0,
     color: OpossumColors.darkBlue,
@@ -64,7 +66,7 @@ const classes = {
   treeNodeSelectedIndicator: {
     position: 'absolute',
     width: '100%',
-    height: '20px',
+    height: ({ spacing }: Theme) => spacing(Sizing.Row),
     background: 'white',
     zIndex: 0,
     left: 0,
@@ -178,6 +180,7 @@ export function VirtualizedTreeNode<
         sx={{
           ...classes.treeNodeSelectedIndicator,
           display: highlighted ? 'block' : 'none',
+          // 0.5: dimmed indicator for unhighlighted rows
           // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           opacity: highlighted ? 1 : 0.5,
           cursor: handleClick ? 'pointer' : 'default',

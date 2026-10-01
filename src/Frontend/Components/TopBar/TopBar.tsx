@@ -4,7 +4,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
+import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import type { Theme } from '@mui/material/styles';
 import MuiToggleButton from '@mui/material/ToggleButton';
 import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import MuiTypography from '@mui/material/Typography';
@@ -12,7 +14,12 @@ import MuiTypography from '@mui/material/Typography';
 import commitInfo from '../../../commitInfo.json';
 import { text } from '../../../shared/text';
 import { View } from '../../enums/enums';
-import { OpossumColors } from '../../shared-styles';
+import {
+  borderMedium,
+  OpossumColors,
+  resourceIconSize,
+  Sizing,
+} from '../../shared-styles';
 import {
   openFileOrOpenUnsavedPopup,
   setViewOrOpenUnsavedPopup,
@@ -25,13 +32,13 @@ import { SwitchableProgressBar } from '../SwitchableProgressBar/SwitchableProgre
 
 const classes = {
   root: {
-    height: '36px',
+    height: ({ spacing }: Theme) => spacing(Sizing.TopBar),
     background: OpossumColors.darkBlue,
     display: 'flex',
   },
   openFileIcon: {
-    width: '18px',
-    height: '18px',
+    width: resourceIconSize,
+    height: resourceIconSize,
     color: OpossumColors.white,
   },
   openFileButton: {
@@ -47,24 +54,24 @@ const classes = {
     display: 'flex',
   },
   viewButtons: {
-    width: '80px',
+    width: ({ spacing }: Theme) => spacing(Sizing.WideButton),
     background: OpossumColors.lightestBlue,
     color: OpossumColors.black,
-    border: `2px ${OpossumColors.darkBlue} solid`,
+    border: `${borderMedium} ${OpossumColors.darkBlue} solid`,
     '&:hover': {
       background: OpossumColors.lightestBlueOnHover,
     },
     '&.Mui-selected': {
       background: OpossumColors.middleBlue,
       color: OpossumColors.black,
-      border: `2px ${OpossumColors.darkBlue} solid`,
+      border: `${borderMedium} ${OpossumColors.darkBlue} solid`,
     },
   },
   versionInfo: {
     mt: 2,
-    mr: 3,
+    mr: Sizing.MediumPad,
     mb: 2,
-    ml: 3,
+    ml: Sizing.MediumPad,
     color: OpossumColors.white,
     background: OpossumColors.darkBlue,
     float: 'right',
@@ -73,7 +80,7 @@ const classes = {
     color: OpossumColors.lightBlue,
     userSelect: 'none',
   },
-};
+} as const satisfies SxProps<Theme>;
 
 export const TopBar: React.FC = () => {
   const selectedView = useAppSelector(getSelectedView);

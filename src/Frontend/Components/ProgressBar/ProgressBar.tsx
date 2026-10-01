@@ -5,12 +5,13 @@
 import CircleIcon from '@mui/icons-material/Circle';
 import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import type { Theme } from '@mui/material/styles';
 import MuiTooltip from '@mui/material/Tooltip';
 import Box from '@mui/system/Box';
 import { useRef } from 'react';
 
 import { text } from '../../../shared/text';
-import { OpossumColors } from '../../shared-styles';
+import { borderMedium, OpossumColors, Sizing } from '../../shared-styles';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getSelectedResourceId } from '../../state/selectors/resource-selectors';
@@ -28,12 +29,15 @@ import {
 const classes = {
   bar: {
     flex: 1,
-    border: `2px solid ${OpossumColors.white}`,
+    border: `${borderMedium} solid ${OpossumColors.white}`,
     mt: 0.5,
-    height: '20px',
-    '&:hover': { cursor: 'pointer', opacity: 0.75 },
+    height: ({ spacing }: Theme) => spacing(Sizing.Row),
+    '&:hover': {
+      cursor: 'pointer',
+      opacity: 0.75,
+    },
   },
-};
+} satisfies SxProps<Theme>;
 
 interface ProgressBarProps {
   sx?: SxProps;

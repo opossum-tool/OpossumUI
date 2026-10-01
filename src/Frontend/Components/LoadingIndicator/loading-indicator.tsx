@@ -5,10 +5,12 @@
 import { styled } from '@mui/material';
 import MuiLinearProgress from '@mui/material/LinearProgress';
 
+import { borderMedium } from '../../shared-styles';
+
 export const LoadingIndicator = styled(MuiLinearProgress)({
   position: 'absolute',
   width: '100%',
-  height: 2,
+  height: borderMedium,
   zIndex: 2,
   top: 0,
   left: 0,

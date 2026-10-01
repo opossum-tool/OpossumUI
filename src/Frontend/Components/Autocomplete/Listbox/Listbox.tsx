@@ -17,6 +17,9 @@ import { GroupedVirtuoso, Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
 
 import { GroupContainer, styles } from './Listbox.style';
 
+// How far beyond the visible area react-virtuoso pre-renders list rows
+const LIST_OVERSCAN = 20;
+
 export type ListboxProps<
   Value,
   FreeSolo extends boolean | undefined,
@@ -120,7 +123,7 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
             maxHeight: `min(${maxHeight}px, ${styles.virtuoso.maxHeight})`,
           }),
         }}
-        increaseViewportBy={20}
+        increaseViewportBy={LIST_OVERSCAN}
         initialTopMostItemIndex={
           ~firstSelectedIndex && {
             index: firstSelectedIndex,
@@ -161,7 +164,7 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
         }}
         data={options}
         itemContent={(index, option) => renderOption({ option, index })}
-        increaseViewportBy={20}
+        increaseViewportBy={LIST_OVERSCAN}
         totalListHeightChanged={setHeight}
       />
     );

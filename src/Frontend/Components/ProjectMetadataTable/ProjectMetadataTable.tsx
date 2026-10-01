@@ -2,7 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import type { Theme } from '@mui/material/styles';
 import MuiTable from '@mui/material/Table';
 import MuiTableBody from '@mui/material/TableBody';
 import MuiTableCell from '@mui/material/TableCell';
@@ -16,13 +18,13 @@ import { backend } from '../../util/backendClient';
 
 const projectMetadataTableClasses = {
   firstColumn: {
-    fontSize: 13,
+    fontSize: (theme: Theme) => theme.typography.body3.fontSize,
     background: OpossumColors.darkBlue,
     color: OpossumColors.white,
     width: 'max-content',
   },
   secondColumn: {
-    fontSize: 11,
+    fontSize: (theme: Theme) => theme.typography.dense.fontSize,
     background: OpossumColors.lightestBlue,
     width: 'max-content',
     overflow: 'auto',
@@ -32,7 +34,7 @@ const projectMetadataTableClasses = {
     width: 'max-content',
     marginBottom: 6,
   },
-};
+} satisfies SxProps<Theme>;
 
 const values: { [key: string]: { title: string; date: boolean } } = {
   buildDate: { title: 'Build Date', date: true },

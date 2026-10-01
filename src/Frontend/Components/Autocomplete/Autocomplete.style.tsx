@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
@@ -11,7 +10,10 @@ import {
 } from '@mui/material';
 import MuiTextField from '@mui/material/TextField';
 
-import { OpossumColors } from '../../shared-styles';
+import { borderThin, OpossumColors, Sizing } from '../../shared-styles';
+
+// Viewport inset at which the Popper flip modifier is allowed to flip
+const FLIP_PADDING = 64;
 
 export const Container = styled('div')({
   flex: 1,
@@ -38,9 +40,13 @@ export const Input = styled(MuiTextField, {
   return {
     '& .MuiInputLabel-root': {
       backgroundColor: background || errorBackground,
+      // 0.75 units = 3px horizontal label padding
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       padding: theme.spacing(0, 0.75),
-      fontSize: '13px',
-      top: '1px',
+      fontSize: theme.typography.body3.fontSize,
+      // 0.25 units = 1px label nudge
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+      top: theme.spacing(0.25),
     },
     '& .MuiInputBase-root': {
       backgroundColor: background || errorBackground,
@@ -48,11 +54,18 @@ export const Input = styled(MuiTextField, {
       display: 'flex',
       flexWrap: 'wrap',
       alignItems: 'center',
-      gap: theme.spacing(2),
-      minHeight: '36.67px',
+      gap: theme.spacing(Sizing.SmallGap),
+      // 9.1675 units = 36.67px input base minimum height
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+      minHeight: theme.spacing(9.1675),
+      // 1.5 units = 6px vertical input padding
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       paddingTop: theme.spacing(1.5),
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       paddingBottom: theme.spacing(1.5),
-      paddingLeft: theme.spacing(3),
+      paddingLeft: theme.spacing(Sizing.MediumPad),
+      // 3/7 units = 12/28px left/right padding + per-adornment offset
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       paddingRight: `calc(${theme.spacing(3)} + ${numberOfEndAdornments} * ${theme.spacing(7)})`,
     },
     '& .MuiInputBase-root.Mui-disabled': {
@@ -80,7 +93,7 @@ export const Input = styled(MuiTextField, {
     },
     '& .Mui-readOnly.Mui-focused fieldset': {
       borderColor: 'rgba(0, 0, 0, 0.23)',
-      borderWidth: '1px',
+      borderWidth: borderThin,
     },
   };
 });
@@ -101,7 +114,7 @@ export const StyledPopper = styled(
             name: 'flip',
             enabled: !forcePlacement,
             options: {
-              padding: 64,
+              padding: FLIP_PADDING,
               allowedAutoPlacements: ['top', 'bottom'],
             },
           },
@@ -114,10 +127,12 @@ export const StyledPopper = styled(
   zIndex: theme.zIndex.modal,
 }));
 
-export const EndAdornmentContainer = styled('div')({
+export const EndAdornmentContainer = styled('div')(({ theme }) => ({
   position: 'absolute',
-  right: '14px',
+  // 3.5 units = 14px offset for the end adornment
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+  right: theme.spacing(3.5),
   display: 'flex',
   height: '100%',
   alignItems: 'center',
-});
+}));

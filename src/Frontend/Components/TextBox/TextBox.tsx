@@ -2,18 +2,17 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import type { InputBaseComponentsPropsOverrides, SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiInputAdornment from '@mui/material/InputAdornment';
+import type { Theme } from '@mui/material/styles';
 import MuiTextareaAutosize, {
   type TextareaAutosizeProps,
 } from '@mui/material/TextareaAutosize';
 import MuiTextField, { type TextFieldProps } from '@mui/material/TextField';
 import MuiTooltip, { type TooltipProps } from '@mui/material/Tooltip';
-import type { Theme } from '@mui/system';
 
-import { OpossumColors } from '../../shared-styles';
+import { borderThin, OpossumColors } from '../../shared-styles';
 import { ensureArray } from '../../util/ensure-array';
 
 const INPUT_VERTICAL_PADDING = '8.5px';
@@ -23,13 +22,13 @@ const classes = {
     width: '100%',
     '& div': {
       backgroundColor: OpossumColors.white,
-      borderRadius: '0px',
+      borderRadius: 0,
     },
     '& label[data-shrink=true]': {
       backgroundColor: OpossumColors.white,
       py: 0.25,
       px: 0.75,
-      fontSize: '13px',
+      fontSize: (theme: Theme) => theme.typography.body3.fontSize,
     },
     '& span': {
       p: 0,
@@ -47,13 +46,13 @@ const classes = {
     },
     '& .Mui-readOnly.Mui-focused fieldset': {
       borderColor: 'rgb(192, 192, 192)',
-      borderWidth: '1px',
+      borderWidth: borderThin,
     },
   },
   defaultHighlightedTextField: {
     '& div': {
       backgroundColor: OpossumColors.lightOrange,
-      borderRadius: '0px',
+      borderRadius: 0,
     },
     '& label[data-shrink=true]': {
       backgroundColor: OpossumColors.lightOrange,
@@ -82,7 +81,7 @@ const classes = {
     marginLeft: 0,
     mr: 2,
   },
-} satisfies SxProps;
+} satisfies SxProps<Theme>;
 
 function MultilineInput({
   maxRows,
@@ -176,6 +175,8 @@ export function TextBox(props: TextBoxProps) {
             inputLabel: {
               shrink: !!props.placeholder || !!props.text,
               sx: {
+                // 5 units = 20px indent for the start-adornment icon
+                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                 ml: ensureArray(props.startIcon).length * 5,
               },
             },
@@ -200,11 +201,18 @@ export function TextBox(props: TextBoxProps) {
                     ...(props.multiline ? { boxSizing: 'border-box' } : {}),
                     overflowX: 'hidden',
                     textOverflow: 'ellipsis',
+                    // 2.125 units ≈ 8.5px vertical padding matching INPUT_VERTICAL_PADDING
+                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                     paddingY: props.multiline ? 0 : 2.125,
+                    // 3.5 units = 14px + 5 units (20px) per start-adornment icon
+                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                     paddingLeft: 3.5 + ensureArray(props.startIcon).length * 5,
+                    // 3.5 units = 14px + 5 units (20px) per end-adornment icon
                     paddingRight: props.multiline
-                      ? 3.5
-                      : 3.5 + ensureArray(props.endIcon).length * 5,
+                      ? // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                        3.5
+                      : // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                        3.5 + ensureArray(props.endIcon).length * 5,
                   },
                 },
               },

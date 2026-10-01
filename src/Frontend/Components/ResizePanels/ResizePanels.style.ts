@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 import ClearIcon from '@mui/icons-material/Clear';
 import { alpha, styled } from '@mui/material';
 import MuiFab from '@mui/material/Fab';
@@ -10,22 +9,25 @@ import MuiInputBase from '@mui/material/InputBase';
 import MuiPaper from '@mui/material/Paper';
 import MuiTypography from '@mui/material/Typography';
 
-import { OpossumColors, TRANSITION } from '../../shared-styles';
+import { OpossumColors, Sizing, TRANSITION } from '../../shared-styles';
 
 export const HEADER_HEIGHT = 32;
 
-export const HeaderIconButton = styled(MuiFab)({
+export const HeaderIconButton = styled(MuiFab)(({ theme }) => ({
   boxShadow: 'none',
-  width: '24px',
-  minWidth: '24px',
-  height: '24px',
-  minHeight: '24px',
+  width: theme.spacing(Sizing.Section),
+  minWidth: theme.spacing(Sizing.Section),
+  height: theme.spacing(Sizing.Section),
+  minHeight: theme.spacing(Sizing.Section),
+  // 0.15/0.25: translucent white overlays
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   backgroundColor: alpha(OpossumColors.white, 0.15),
   '&:hover': {
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     backgroundColor: alpha(OpossumColors.white, 0.25),
   },
   transition: TRANSITION,
-});
+}));
 
 export const Header = styled(MuiPaper)(({ theme }) => ({
   background: OpossumColors.middleBlue,
@@ -35,8 +37,8 @@ export const Header = styled(MuiPaper)(({ theme }) => ({
   zIndex: 3,
   display: 'flex',
   alignItems: 'center',
-  gap: theme.spacing(1),
-  padding: theme.spacing(0, 1, 0, 3),
+  gap: theme.spacing(Sizing.Tiny),
+  padding: theme.spacing(0, Sizing.Tiny, 0, Sizing.MediumPad),
 }));
 
 export const HeaderText = styled(MuiTypography)(({ theme }) => ({
@@ -44,6 +46,8 @@ export const HeaderText = styled(MuiTypography)(({ theme }) => ({
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
+  // 0.5 units = 2px nudge below the header baseline
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   marginTop: theme.spacing(0.5),
   userSelect: 'none',
   flex: 1,
@@ -53,23 +57,28 @@ export const HeaderText = styled(MuiTypography)(({ theme }) => ({
 export const Search = styled('div')<{ hasValue: boolean }>(
   ({ theme, hasValue }) => ({
     position: 'relative',
-    height: '24px',
+    height: theme.spacing(Sizing.Section),
     width: 'auto',
     display: 'flex',
     alignItems: 'center',
-    borderRadius: hasValue ? theme.shape.borderRadius : '50%',
+    borderRadius: hasValue ? theme.shape.borderRadiusDefault : '50%',
+    // 0.15/0.25: translucent white overlays
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
     backgroundColor: alpha(theme.palette.common.white, 0.15),
     '&:hover': {
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       backgroundColor: alpha(theme.palette.common.white, 0.25),
     },
     '&:focus-within': {
-      borderRadius: theme.shape.borderRadius,
+      borderRadius: theme.shape.borderRadiusDefault,
     },
     transition: TRANSITION,
   }),
 );
 
 export const SearchIconWrapper = styled('div')(({ theme }) => ({
+  // 1.25 units = 5px padding around the search icon
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   padding: theme.spacing(0, 1.25),
   position: 'absolute',
   pointerEvents: 'none',
@@ -79,7 +88,7 @@ export const SearchIconWrapper = styled('div')(({ theme }) => ({
 }));
 
 export const ClearIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 1),
+  padding: theme.spacing(0, Sizing.Tiny),
   position: 'absolute',
   right: 0,
   display: 'flex',
@@ -88,6 +97,8 @@ export const ClearIconWrapper = styled('div')(({ theme }) => ({
 }));
 
 export const ClearButton = styled(ClearIcon)(({ theme }) => ({
+  // 0.5 units = 2px padding around the clear icon
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   padding: theme.spacing(0.5),
   borderRadius: '50%',
   cursor: 'pointer',
@@ -98,19 +109,24 @@ export const ClearButton = styled(ClearIcon)(({ theme }) => ({
 
 export const StyledInputBase = styled(MuiInputBase)(({ theme, value }) => ({
   color: 'white',
-  maxWidth: '144px',
-  height: '24px',
+  // 36 units = 144px max search width
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+  maxWidth: theme.spacing(36),
+  height: theme.spacing(Sizing.Section),
   '& input[type=search]::-webkit-search-cancel-button': { display: 'none' },
   '& .MuiInputBase-input': {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     caretColor: 'white',
-    paddingRight: value ? theme.spacing(6) : '0px',
-    paddingLeft: theme.spacing(6),
+    paddingRight: value ? theme.spacing(Sizing.Section) : '0px',
+    paddingLeft: theme.spacing(Sizing.Section),
     transition: TRANSITION,
-    width: value ? '120px' : '0px',
+    // 30 units = 120px expanded search width
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    width: value ? theme.spacing(30) : '0px',
     '&:focus': {
-      width: '120px',
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+      width: theme.spacing(30),
     },
   },
 }));

@@ -15,6 +15,12 @@ import { ComparisonView } from './ComparisonView';
 import type { ComparisonItem } from './DiffPopup.util';
 import { useComparisonState } from './use-comparison-state';
 
+// Fixed px (not spacing-scaled) size bounds and viewport gutters of the
+// diff popup; the viewport terms (100vw/100vh) stay fluid.
+const MAX_WIDTH = '1200px';
+const VIEWPORT_MARGIN = '32px';
+const VIEWPORT_VERTICAL_MARGIN = '64px';
+
 export type { ComparisonItem } from './DiffPopup.util';
 
 export interface DiffPopupProps {
@@ -103,8 +109,8 @@ function DiffPopupSession({
       aria-label={ariaLabel}
       background={'lightestBlue'}
       fullWidth={true}
-      width={'min(1200px, calc(100vw - 32px))'}
-      height={'calc(100vh - 64px)'}
+      width={`min(${MAX_WIDTH}, calc(100vw - ${VIEWPORT_MARGIN}))`}
+      height={`calc(100vh - ${VIEWPORT_VERTICAL_MARGIN})`}
       titleSx={{ py: 2, px: 6, pb: 1.5 }}
       actionsSx={{ py: 1, px: 2 }}
       sx={{

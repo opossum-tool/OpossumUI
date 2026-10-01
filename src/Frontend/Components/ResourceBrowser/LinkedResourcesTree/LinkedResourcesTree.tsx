@@ -6,7 +6,7 @@ import type { SxProps } from '@mui/system';
 import { remove } from 'lodash-es';
 import { useCallback } from 'react';
 
-import { OpossumColors } from '../../../shared-styles';
+import { borderThin, OpossumColors } from '../../../shared-styles';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
@@ -68,7 +68,7 @@ export function LinkedResourcesTree({
       sx={{
         ...(readOnly && {
           background: OpossumColors.lightGrey,
-          border: `1px solid ${OpossumColors.lightGrey}`,
+          border: `${borderThin} solid ${OpossumColors.lightGrey}`,
           boxSizing: 'border-box',
         }),
         ...sx,

@@ -10,6 +10,11 @@ import MuiTypography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
 
 import { text } from '../../../shared/text';
+import {
+  popupMaxWidth,
+  popupMinWidth,
+  popupViewportWidth,
+} from '../../shared-styles';
 import { createSplit } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
@@ -90,9 +95,9 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
   return (
     <NotificationPopup
       header={text.splitDialog.title}
-      width={'80vw'}
-      minWidth={'300px'}
-      maxWidth={'700px'}
+      width={popupViewportWidth}
+      minWidth={popupMinWidth}
+      maxWidth={popupMaxWidth}
       isOpen={open}
       leftButtonConfig={{
         onClick: handleCreateSplit,

@@ -2,32 +2,37 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { OpossumColors } from '../../shared-styles';
+import type { Theme } from '@mui/material/styles';
+
+import { borderThin, OpossumColors, Sizing } from '../../shared-styles';
 
 const comparisonGrid = {
-  columnGap: 2,
+  columnGap: Sizing.SmallGap,
   display: 'grid',
-  gridTemplateColumns: 'minmax(0, 1fr) 32px minmax(0, 1fr)',
+  // 8 units = 32px: middle comparison column width
+  gridTemplateColumns: ({ spacing }: Theme) =>
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    `minmax(0, 1fr) ${spacing(8)} minmax(0, 1fr)`,
   minWidth: 0,
 } as const;
 
 export const diffPopupStyles = {
   content: {
     background: OpossumColors.almostWhiteBlue,
-    py: 2,
-    px: 3,
+    py: Sizing.SmallGap,
+    px: Sizing.MediumPad,
   },
   comparison: {
     display: 'flex',
     flexDirection: 'column',
-    gap: 3,
+    gap: Sizing.MediumPad,
     minWidth: 0,
   },
   comparisonHeader: {
     ...comparisonGrid,
     alignItems: 'center',
     background: OpossumColors.almostWhiteBlue,
-    py: 2,
+    py: Sizing.SmallGap,
     px: 0,
     position: 'sticky',
     top: 0,
@@ -44,7 +49,7 @@ export const diffPopupStyles = {
   auditingComparison: {
     ...comparisonGrid,
     alignItems: 'start',
-    mb: 3,
+    mb: Sizing.MediumPad,
     minWidth: 0,
   },
   auditingColumn: {
@@ -59,13 +64,13 @@ export const diffPopupStyles = {
   section: {
     display: 'flex',
     flexDirection: 'column',
-    gap: 3,
+    gap: Sizing.MediumPad,
     minWidth: 0,
   },
   sectionHeader: {
     alignItems: 'center',
     display: 'flex',
-    gap: 2,
+    gap: Sizing.SmallGap,
     padding: 0,
   },
   sectionTitle: {
@@ -76,7 +81,7 @@ export const diffPopupStyles = {
   comparisonRows: {
     display: 'flex',
     flexDirection: 'column',
-    gap: 3,
+    gap: Sizing.MediumPad,
     minWidth: 0,
   },
   comparisonRow: {
@@ -109,7 +114,7 @@ export const diffPopupStyles = {
   independentColumn: {
     display: 'flex',
     flexDirection: 'column',
-    gap: 3,
+    gap: Sizing.MediumPad,
     minWidth: 0,
   },
   transferControls: {
@@ -122,11 +127,11 @@ export const diffPopupStyles = {
     zIndex: 1,
   },
   transferButton: {
-    borderRadius: '3px',
+    borderRadius: ({ shape }: Theme) => shape.borderRadiusSmall,
     color: OpossumColors.mediumGrey,
-    height: '20px',
+    height: ({ spacing }: Theme) => spacing(Sizing.Row),
     padding: 0,
-    width: '24px',
+    width: ({ spacing }: Theme) => spacing(Sizing.Section),
     '&:hover': {
       background: OpossumColors.lightestBlue,
       color: OpossumColors.darkBlue,
@@ -143,15 +148,15 @@ export const diffPopupStyles = {
   },
   attributionTypeUndo: {
     backgroundColor: OpossumColors.almostWhiteBlue,
-    border: `1px solid ${OpossumColors.lightBlue}`,
+    border: `${borderThin} solid ${OpossumColors.lightBlue}`,
     borderRadius: '50%',
-    height: 24,
+    height: ({ spacing }: Theme) => spacing(Sizing.Section),
     left: '50%',
     padding: 0,
     position: 'absolute',
     top: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 24,
+    width: ({ spacing }: Theme) => spacing(Sizing.Section),
     zIndex: 1,
     '&:hover': {
       backgroundColor: OpossumColors.lightestBlue,

@@ -6,6 +6,7 @@ import EditorIcon from '@mui/icons-material/Edit';
 import { type SxProps, TableCell } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiLink from '@mui/material/Link';
+import type { Theme } from '@mui/material/styles';
 import MuiTypography from '@mui/material/Typography';
 import { skipToken } from '@tanstack/react-query';
 import { Fragment } from 'react';
@@ -14,7 +15,13 @@ import type { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { View } from '../../enums/enums';
 import { ROOT_PATH } from '../../shared-constants';
-import { clickableIcon, OpossumColors } from '../../shared-styles';
+import {
+  baseIconSize,
+  borderMedium,
+  borderThin,
+  clickableIcon,
+  OpossumColors,
+} from '../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { setPendingAttributionNavigation } from '../../state/actions/resource-actions/audit-view-simple-actions';
 import { resetManualAuditFiltersPreservingSort } from '../../state/actions/resource-actions/navigation-actions';
@@ -40,7 +47,8 @@ import { getFormattedCellData } from './ReportTableItem.util';
 
 export const REPORT_VIEW_ROW_HEIGHT = 150;
 const PADDING = 2.5;
-// eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 4px theme spacing baseline
+// 4px theme spacing lattice base × PADDING units
+// eslint-disable-next-line @typescript-eslint/no-magic-numbers
 const PADDING_PX = 4 * PADDING;
 
 const classes = {
@@ -48,7 +56,7 @@ const classes = {
     overflow: 'auto',
     whiteSpace: 'pre-line',
     padding: PADDING,
-    height: `${REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX}px`,
+    height: REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX,
   },
   bold: {
     fontWeight: 'bold',
@@ -56,7 +64,7 @@ const classes = {
   iconTableData: {
     py: PADDING,
     px: 1.75,
-    height: `${REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX}px`,
+    height: REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX,
     display: 'flex',
     flexDirection: 'column',
     gap: 1,
@@ -69,45 +77,45 @@ const classes = {
     background: '#e3e3e3',
   },
   borders: {
-    borderRight: `1px solid ${OpossumColors.mediumGrey}`,
-    borderBottom: `1px solid ${OpossumColors.mediumGrey}`,
+    borderRight: `${borderThin} solid ${OpossumColors.mediumGrey}`,
+    borderBottom: `${borderThin} solid ${OpossumColors.mediumGrey}`,
   },
   icon: {
-    width: '15px',
-    height: '15px',
+    width: baseIconSize,
+    height: baseIconSize,
   },
   editIcon: {
     backgroundColor: OpossumColors.white,
-    border: `2px ${OpossumColors.brown} solid`,
+    border: `${borderMedium} ${OpossumColors.brown} solid`,
     color: OpossumColors.brown,
   },
   firstPartyIcon: {
-    border: `2px ${OpossumColors.darkBlue} solid`,
+    border: `${borderMedium} ${OpossumColors.darkBlue} solid`,
   },
   commentIcon: {
-    border: `2px ${OpossumColors.black} solid`,
+    border: `${borderMedium} ${OpossumColors.black} solid`,
     color: OpossumColors.black,
   },
   followUpIcon: {
-    border: `2px ${OpossumColors.red} solid`,
+    border: `${borderMedium} ${OpossumColors.red} solid`,
   },
   needsReviewIcon: {
-    border: `2px ${OpossumColors.orange} solid`,
+    border: `${borderMedium} ${OpossumColors.orange} solid`,
   },
   excludeFromNoticeIcon: {
-    border: `2px ${OpossumColors.grey} solid`,
+    border: `${borderMedium} ${OpossumColors.grey} solid`,
   },
   preSelectedIcon: {
-    border: `2px ${OpossumColors.darkBlue} solid`,
+    border: `${borderMedium} ${OpossumColors.darkBlue} solid`,
   },
   preferredIcon: {
-    border: `2px ${OpossumColors.mediumOrange} solid`,
+    border: `${borderMedium} ${OpossumColors.mediumOrange} solid`,
   },
   markedTableCell: {
     backgroundColor: OpossumColors.lightOrange,
   },
   clickableIcon,
-} satisfies SxProps;
+} as const satisfies SxProps<Theme>;
 
 interface ReportTableItemProps {
   packageInfo: PackageInfo;
@@ -155,8 +163,8 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
           config.attributionProperty === 'id' ? packageInfo.id : undefined
         }
         sx={{
-          minWidth: config.width,
-          maxWidth: config.width,
+          minWidth: ({ spacing }) => spacing(config.width),
+          maxWidth: ({ spacing }) => spacing(config.width),
           ...classes.borders,
           ...classes.tableCell,
           ...(config.attributionProperty === 'id'

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 // SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
@@ -7,12 +6,13 @@ import { createTheme, styled } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiTypography from '@mui/material/Typography';
 
-import { OpossumColors } from '../../shared-styles';
+import { typographyVariants } from '../../app-typography';
+import { OpossumColors, Sizing } from '../../shared-styles';
 
 export const TitleTypography = styled(MuiTypography)(({ theme }) => ({
   color: OpossumColors.mediumGrey,
   opacity: 0.5,
-  marginBottom: theme.spacing(50),
+  marginBottom: theme.spacing(Sizing.Content),
   fontWeight: 900,
   userSelect: 'none',
 }));
@@ -34,21 +34,14 @@ export const ViewContainer = styled(MuiBox)({
 
 export const theme = createTheme({
   spacing: 4,
-  typography: {
-    fontFamily: ['Karla Variable', 'sans-serif'].join(','),
-    body1: {
-      fontSize: '14px',
-      lineHeight: '20px',
-    },
-    body2: {
-      fontSize: '14px',
-      lineHeight: '18px',
-    },
-    caption: {
-      fontSize: '12px',
-      lineHeight: '20px',
-    },
+  shape: {
+    borderRadius: 4,
+    borderRadiusSmall: 3,
+    borderRadiusDefault: 4,
+    borderRadiusMedium: 6,
+    borderRadiusLarge: 10,
   },
+  typography: typographyVariants,
   palette: {
     primary: {
       main: OpossumColors.darkBlue,
@@ -71,14 +64,16 @@ export const theme = createTheme({
   components: {
     MuiInputBase: {
       styleOverrides: {
-        root: {
-          minHeight: '36px !important',
-        },
+        root: ({ theme }) => ({
+          minHeight: `${theme.spacing(Sizing.TopBar)} !important`,
+        }),
       },
     },
     MuiToggleButton: {
       styleOverrides: {
         root: ({ theme }) => ({
+          // 1.25 units = 5px toggle-button padding
+          // eslint-disable-next-line @typescript-eslint/no-magic-numbers
           padding: theme.spacing(1.25),
         }),
       },

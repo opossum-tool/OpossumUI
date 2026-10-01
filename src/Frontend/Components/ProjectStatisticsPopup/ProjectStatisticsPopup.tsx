@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { createTheme, Grid as MuiGrid, useTheme } from '@mui/material';
-import { ThemeProvider } from '@mui/material/styles';
+import { type Theme, ThemeProvider } from '@mui/material/styles';
 import MuiTab from '@mui/material/Tab';
 import MuiTabs from '@mui/material/Tabs';
 import MuiTypography from '@mui/material/Typography';
@@ -12,7 +12,7 @@ import { type PropsWithChildren, useState } from 'react';
 
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { criticalityColor, OpossumColors } from '../../shared-styles';
+import { criticalityColor, OpossumColors, Sizing } from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import {
@@ -38,6 +38,10 @@ const CRITICALITY_COLORS = {
   [CRITICALITY_LABEL[Criticality.Medium]]: criticalityColor[Criticality.Medium],
   [CRITICALITY_LABEL[Criticality.None]]: criticalityColor[Criticality.None],
 };
+
+// Popup size floor for both width and height, fixed px (not spacing-scaled);
+// the viewport terms in the calc() strings stay fluid.
+const POPUP_MIN_SIZE = '550px';
 
 export const ProjectStatisticsPopup: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -91,8 +95,8 @@ export const ProjectStatisticsPopup: React.FC = () => {
     <NotificationPopup
       header={text.projectStatisticsPopup.title}
       isOpen={true}
-      width={'min(95vw, max(550px, 85vw))'}
-      height={'min(95vh, max(550px, 75vh))'}
+      width={`min(95vw, max(${POPUP_MIN_SIZE}, 85vw))`}
+      height={`min(95vh, max(${POPUP_MIN_SIZE}, 75vh))`}
       rightButtonConfig={{ onClick: close, buttonText: text.buttons.close }}
       onBackdropClick={close}
       onEscapeKeyDown={close}
@@ -111,7 +115,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
         <MuiTabs
           value={selectedTab}
           onChange={(_, tab) => setSelectedTab(tab)}
-          sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
+          sx={{ mb: Sizing.MediumPad, borderBottom: 1, borderColor: 'divider' }}
         >
           <MuiTab label={text.projectStatisticsPopup.tabs.overview} />
           <MuiTab label={text.projectStatisticsPopup.tabs.details} />
@@ -270,11 +274,11 @@ const ChartGrid: React.FC<PropsWithChildren> = (props) => {
       <MuiGrid
         container
         columns={{ sm: 1, md: 2, lg: 3 }}
-        spacing={6}
+        spacing={Sizing.Section}
         sx={{
           height: '100%',
           minHeight: 'fit-content',
-          p: 3,
+          p: Sizing.MediumPad,
           pt: 0,
           alignContent: 'flex-start',
         }}
@@ -296,8 +300,12 @@ const ChartGridItem: React.FC<ChartGridItemProps> = (props) => {
       size={1}
       data-testid={props.testId}
       sx={{
-        minHeight: '220px',
-        minWidth: '440px',
+        // 55 units = 220px minimum chart height
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        minHeight: ({ spacing }: Theme) => spacing(55),
+        // 110 units = 440px minimum chart width
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        minWidth: ({ spacing }: Theme) => spacing(110),
         height: '47%',
         display: 'flex',
       }}
