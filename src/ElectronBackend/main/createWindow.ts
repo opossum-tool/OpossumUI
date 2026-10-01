@@ -11,8 +11,8 @@ import { getIconPath } from './iconHelpers';
 
 const DEFAULT_WINDOW_WIDTH = 1920;
 const DEFAULT_WINDOW_HEIGHT = 1080;
-const MIN_WINDOW_WIDTH = 500;
-const MIN_WINDOW_HEIGHT = 400;
+const MIN_WINDOW_WIDTH = 1000;
+const MIN_WINDOW_HEIGHT = 720;
 
 export async function loadWebApp(
   mainWindow: Electron.CrossProcessExports.BrowserWindow,
@@ -34,8 +34,8 @@ export function createWindow(): BrowserWindow {
   return new BrowserWindow({
     width: Math.min(DEFAULT_WINDOW_WIDTH, workAreaWidth),
     height: Math.min(DEFAULT_WINDOW_HEIGHT, workAreaHeight),
-    minWidth: MIN_WINDOW_WIDTH,
-    minHeight: MIN_WINDOW_HEIGHT,
+    minWidth: Math.min(MIN_WINDOW_WIDTH, workAreaWidth),
+    minHeight: Math.min(MIN_WINDOW_HEIGHT, workAreaHeight),
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
