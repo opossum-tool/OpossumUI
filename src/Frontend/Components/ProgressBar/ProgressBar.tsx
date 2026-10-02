@@ -5,6 +5,7 @@
 import CircleIcon from '@mui/icons-material/Circle';
 import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import MuiLinearProgress from '@mui/material/LinearProgress';
 import type { Theme } from '@mui/material/styles';
 import MuiTooltip from '@mui/material/Tooltip';
 import Box from '@mui/system/Box';
@@ -36,6 +37,21 @@ const classes = {
       cursor: 'pointer',
       opacity: 0.75,
     },
+  },
+  loadingBar: {
+    flex: 1,
+    border: `2px solid ${OpossumColors.white}`,
+    mt: 0.5,
+    height: '20px',
+    background: OpossumColors.middleBlue,
+    position: 'relative',
+  },
+  loadingLine: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    zIndex: 2,
   },
 } satisfies SxProps<Theme>;
 
@@ -110,6 +126,21 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     );
   const classifications = useClassifications();
 
+  const progressBarDataQueries: Record<
+    SelectedProgressBar,
+    { isPending: boolean; isFetching: boolean }
+  > = {
+    attribution: attributionsProgressBarData,
+    criticality: criticalityProgressBarData,
+    classification: classificationProgressBarData,
+  };
+
+  const isInitialFetchInProgress =
+    progressBarDataQueries[props.selectedProgressBar].isPending;
+  const isRefetchInProgress =
+    progressBarDataQueries[props.selectedProgressBar].isFetching &&
+    !isInitialFetchInProgress;
+
   const progressBarConfigurations: Record<
     SelectedProgressBar,
     {
@@ -163,6 +194,23 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const { ariaLabel, steps, onClickHandler, Title } =
     progressBarConfigurations[props.selectedProgressBar];
 
+  if (isInitialFetchInProgress) {
+    return (
+      <MuiBox sx={props.sx}>
+        <MuiBox
+          aria-busy={true}
+          data-testid={'progress-bar-loading'}
+          sx={classes.loadingBar}
+        >
+          <MuiLinearProgress
+            data-testid={'progress-bar-throbber'}
+            sx={classes.loadingLine}
+          />
+        </MuiBox>
+      </MuiBox>
+    );
+  }
+
   if (!steps) {
     return <MuiBox sx={{ flex: 1 }} />;
   }
@@ -171,6 +219,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     <MuiBox sx={props.sx}>
       <MuiTooltip title={<Title steps={steps} />} followCursor>
         <MuiBox
+          aria-busy={isRefetchInProgress ? true : undefined}
           aria-label={ariaLabel}
           data-testid={'progress-bar'}
           sx={{
@@ -178,7 +227,14 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
             background: createBackgroundFromProgressBarSteps(steps),
           }}
           onClick={onClickHandler}
-        />
+        >
+          {isRefetchInProgress && (
+            <MuiLinearProgress
+              data-testid={'progress-bar-throbber'}
+              sx={classes.loadingLine}
+            />
+          )}
+        </MuiBox>
       </MuiTooltip>
     </MuiBox>
   );

@@ -2,8 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Provider } from 'react-redux';
 
 import { Criticality } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
@@ -12,7 +14,8 @@ import {
   pathsToResources,
 } from '../../../../testing/global-test-helpers';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
-import { renderComponent } from '../../../test-helpers/render';
+import { createTestStore, renderComponent } from '../../../test-helpers/render';
+import type { SelectedProgressBar } from '../../../types/types';
 import { setDatabaseInitialized } from '../../../util/backendClient';
 import { ProgressBar } from '../ProgressBar';
 
@@ -80,6 +83,27 @@ async function clickOnClassificationProgressBar() {
       advanceTimers: vi.runOnlyPendingTimersAsync,
     },
   );
+}
+
+async function renderProgressBarWithQueryClient(
+  selectedProgressBar: SelectedProgressBar,
+) {
+  const store = await createTestStore();
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+  render(
+    <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <ProgressBar selectedProgressBar={selectedProgressBar} />
+      </QueryClientProvider>
+    </Provider>,
+  );
+  return { queryClient };
 }
 
 describe('ProgressBar', () => {
@@ -180,5 +204,43 @@ describe('ProgressBar', () => {
     expect(getSelectedResourceId(store.getState())).toBe('/b');
     await clickOnClassificationProgressBar();
     expect(getSelectedResourceId(store.getState())).toBe('/b');
+  });
+
+  it('shows a neutral loading bar with throbber while progress data is fetched for the first time', async () => {
+    vi.mocked(window.electronAPI.api).mockImplementationOnce(
+      () => new Promise(() => {}),
+    );
+    await renderComponent(<ProgressBar selectedProgressBar={'attribution'} />);
+
+    const loadingBar = screen.getByTestId('progress-bar-loading');
+    expect(loadingBar).toBeInTheDocument();
+    expect(loadingBar).toHaveAttribute('aria-busy', 'true');
+    expect(loadingBar).toContainElement(
+      screen.getByTestId('progress-bar-throbber'),
+    );
+    expect(screen.queryByTestId('progress-bar')).not.toBeInTheDocument();
+  });
+
+  it('shows a throbber in the progress bar while progress data is being refetched', async () => {
+    const { queryClient } =
+      await renderProgressBarWithQueryClient('attribution');
+    const progressBar = await screen.findByTestId('progress-bar');
+    expect(progressBar).not.toHaveAttribute('aria-busy');
+    expect(
+      screen.queryByTestId('progress-bar-throbber'),
+    ).not.toBeInTheDocument();
+
+    vi.mocked(window.electronAPI.api).mockImplementationOnce(
+      () => new Promise(() => {}),
+    );
+    await act(async () => {
+      void queryClient.invalidateQueries({
+        queryKey: ['backend', 'getAttributionProgressBarData'],
+      });
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(progressBar).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByTestId('progress-bar-throbber')).toBeInTheDocument();
   });
 });
