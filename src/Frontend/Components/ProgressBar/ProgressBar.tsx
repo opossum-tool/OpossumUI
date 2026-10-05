@@ -33,6 +33,7 @@ const classes = {
     border: `${borderMedium} solid ${OpossumColors.white}`,
     mt: 0.5,
     height: ({ spacing }: Theme) => spacing(Sizing.Row),
+    display: 'grid',
     '&:hover': {
       cursor: 'pointer',
       opacity: 0.75,
@@ -40,18 +41,17 @@ const classes = {
   },
   loadingBar: {
     flex: 1,
-    border: `2px solid ${OpossumColors.white}`,
+    border: `${borderMedium} solid ${OpossumColors.white}`,
     mt: 0.5,
-    height: '20px',
+    mb: 0.5,
+    minHeight: 0,
+    height: '100%',
     background: OpossumColors.middleBlue,
-    position: 'relative',
+    display: 'grid',
   },
   loadingLine: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    zIndex: 2,
+    gridArea: '1 / 1',
+    alignSelf: 'start',
   },
 } satisfies SxProps<Theme>;
 
