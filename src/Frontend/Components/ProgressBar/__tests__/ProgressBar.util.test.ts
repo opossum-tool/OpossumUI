@@ -128,6 +128,20 @@ describe('ProgressBar helpers', () => {
       expect(background).toBe('hsl(146, 50%, 55%)');
     });
 
+    it('returns no steps when classifications are empty', () => {
+      const classificationStatistics: ClassificationStatistics = {
+        0: 5,
+        1: 3,
+      };
+
+      const classificationBarSteps = calculateClassificationBarSteps(
+        classificationStatistics,
+        {},
+      );
+
+      expect(classificationBarSteps).toEqual([]);
+    });
+
     it('works for only one classification level configured', () => {
       const classificationEntry = faker.progressBar.classificationEntry();
 
