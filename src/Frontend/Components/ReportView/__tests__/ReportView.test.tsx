@@ -101,6 +101,7 @@ describe('ReportView', () => {
       navigationResult: undefined,
       nextPageError: null,
       resultSetKey: 'result-set',
+      targetIndex: undefined,
       totalCount: 2,
     });
 

@@ -78,6 +78,7 @@ function mockAttributions(
     fetchNextPage: vi.fn(() => Promise.resolve()),
     nextPageError: null,
     resultSetKey: 'result-set',
+    targetIndex: undefined,
     navigationLoading: false,
     navigationResult:
       visibleAttributions !== attributions
@@ -467,6 +468,7 @@ describe('PackagesPanel', () => {
           fetchNextPage: vi.fn(() => Promise.resolve()),
           nextPageError: null,
           resultSetKey: `${criteria.resourcePathForRelationships}:${relation}`,
+          targetIndex: undefined,
           navigationLoading: false,
           navigationResult: hasSelectedSignal
             ? {
@@ -649,6 +651,7 @@ describe('PackagesPanel', () => {
         fetchNextPage: vi.fn(() => Promise.resolve()),
         nextPageError: null,
         resultSetKey: isRoot ? 'root' : 'resource',
+        targetIndex: undefined,
         navigationLoading: false,
         navigationResult: isRoot
           ? undefined
