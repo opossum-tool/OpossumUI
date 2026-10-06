@@ -11,7 +11,6 @@ import {
 } from '../../../shared/shared-types';
 import { initializeDbWithTestData } from '../../../testing/global-test-helpers';
 import { getDb } from '../../db/db';
-import logger from '../../main/logger';
 import {
   getLinkedResourceTree,
   getResourceTree,
@@ -381,34 +380,6 @@ describe('getResourceTree', () => {
 
       // root, src, App.tsx, utils, helper.ts, docs, readme.md = 7
       expect(result.count).toBe(7);
-    });
-
-    it('degrades gracefully when the selected resource path is stale', async () => {
-      vi.spyOn(logger, 'warn');
-      const stalePath = '/src/from-another-file.ts';
-
-      const saneResult = await getResourceTree({
-        expandedNodes: ['/', '/src/'],
-        selectedResourcePath: '/src/App.tsx',
-      });
-      expect(saneResult.result.belowSelectedResource).toBe(1);
-
-      const staleResult = await getResourceTree({
-        expandedNodes: ['/', '/src/'],
-        selectedResourcePath: stalePath,
-      });
-
-      expect(staleResult.result.belowSelectedResource).toBeUndefined();
-      expect(staleResult.result.treeNodes.map((n) => n.labelText)).toEqual([
-        '/',
-        'docs',
-        'src',
-        'utils',
-        'App.tsx',
-      ]);
-      expect(logger.warn).toHaveBeenCalledWith(
-        `Stale resource path "${stalePath}" passed to getResourceTree - degrading gracefully.`,
-      );
     });
   });
 

@@ -18,7 +18,7 @@ import {
   type LicenseFilter,
   type ResourceTreeFilters,
 } from './resourceTreeFilters';
-import { findResourceOrNullWithWarn, removeTrailingSlash } from './utils';
+import { getResourceOrThrow, removeTrailingSlash } from './utils';
 
 export interface ResourceTreeNodeBase {
   id: string;
@@ -205,34 +205,28 @@ async function getResourceTreeWithProjection(
 
     let belowSelectedResourceTotal = undefined;
     if (selectedResourcePath) {
-      // Read-only query: a stale (no longer existing) selected path simply
-      // degrades to no belowSelectedResource count instead of failing. The
-      // miss is logged via findResourceOrNullWithWarn.
-      const selectedResource = await findResourceOrNullWithWarn(
+      const selectedResource = await getResourceOrThrow(
         trx,
         selectedResourcePath,
-        'getResourceTree',
       );
 
-      if (selectedResource) {
-        belowSelectedResourceTotal = (
-          await trx
-            .$extendTables<FilteredTable>()
-            .selectFrom(resourceIdsTable)
-            .select((eb) => eb.fn.countAll<number>().as('count'))
-            .$if(filtersAreActive, (query) =>
-              query.where('cache_id', '=', cacheId!),
-            )
-            .where((eb) =>
-              eb.between(
-                'id',
-                selectedResource.id,
-                selectedResource.max_descendant_id,
-              ),
-            )
-            .executeTakeFirstOrThrow()
-        ).count;
-      }
+      belowSelectedResourceTotal = (
+        await trx
+          .$extendTables<FilteredTable>()
+          .selectFrom(resourceIdsTable)
+          .select((eb) => eb.fn.countAll<number>().as('count'))
+          .$if(filtersAreActive, (query) =>
+            query.where('cache_id', '=', cacheId!),
+          )
+          .where((eb) =>
+            eb.between(
+              'id',
+              selectedResource.id,
+              selectedResource.max_descendant_id,
+            ),
+          )
+          .executeTakeFirstOrThrow()
+      ).count;
     }
 
     if (total === 0) {

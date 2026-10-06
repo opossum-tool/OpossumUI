@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type ExpressionBuilder, sql, type Transaction } from 'kysely';
+import { type ExpressionBuilder, sql } from 'kysely';
 
 import type {
   ClassificationStatistics,
@@ -21,29 +21,7 @@ import {
   getOnlyExternalFilesQuery,
   getOnlyPreSelectedManualFilesQuery,
 } from './progressBarUtils';
-import {
-  findResourceOrNullWithWarn,
-  GET_LEGACY_RESOURCE_PATH,
-  getResourceOrThrow,
-} from './utils';
-
-async function getSelectedResourceIdForNextFileToReview(
-  trx: Transaction<DB>,
-  selectedResourcePath: string,
-  queryName: string,
-) {
-  // The selected path is computed by the frontend and may be stale after
-  // loading a different file. Degrade to the root resource (which always
-  // exists) instead of failing, with the stale path logged via
-  // findResourceOrNullWithWarn.
-  const selectedResource = await findResourceOrNullWithWarn(
-    trx,
-    selectedResourcePath,
-    queryName,
-  );
-
-  return selectedResource ?? getResourceOrThrow(trx, '/');
-}
+import { GET_LEGACY_RESOURCE_PATH, getResourceOrThrow } from './utils';
 
 export async function getAttributionProgressBarData(): Promise<{
   result: FileWithAttributionsCounts;
@@ -135,10 +113,9 @@ export async function getNextFileToReviewForAttribution(props: {
   return getDb()
     .transaction()
     .execute(async (trx) => {
-      const selectedResourceId = await getSelectedResourceIdForNextFileToReview(
+      const selectedResourceId = await getResourceOrThrow(
         trx,
         props.selectedResourcePath,
-        'getNextFileToReviewForAttribution',
       );
       for (const option of [
         getOnlyExternalFilesQuery,
@@ -175,10 +152,9 @@ export async function getNextFileToReviewForCriticality(props: {
   return getDb()
     .transaction()
     .execute(async (trx) => {
-      const selectedResourceId = await getSelectedResourceIdForNextFileToReview(
+      const selectedResourceId = await getResourceOrThrow(
         trx,
         props.selectedResourcePath,
-        'getNextFileToReviewForCriticality',
       );
       for (const criticality of [
         Criticality.High,
@@ -212,10 +188,9 @@ export async function getNextFileToReviewForClassification(props: {
   return getDb()
     .transaction()
     .execute(async (trx) => {
-      const selectedResourceId = await getSelectedResourceIdForNextFileToReview(
+      const selectedResourceId = await getResourceOrThrow(
         trx,
         props.selectedResourcePath,
-        'getNextFileToReviewForClassification',
       );
 
       const classifications = (

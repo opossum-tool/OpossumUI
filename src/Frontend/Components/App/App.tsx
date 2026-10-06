@@ -10,6 +10,7 @@ import { useAppSelector } from '../../state/hooks';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import { useInitUserSettings } from '../../state/variables/use-user-setting';
 import { useDatabaseInitialized } from '../../util/backendClient';
+import { useRootSelectionWhenDatabaseInitializes } from '../../util/use-root-selection-when-database-initializes';
 import { AuditView } from '../AuditView/AuditView';
 import { ErrorFallback } from '../ErrorFallback/ErrorFallback';
 import { GlobalPopup } from '../GlobalPopup/GlobalPopup';
@@ -35,8 +36,10 @@ export function App() {
 }
 
 function AppView(): React.ReactNode {
+  useRootSelectionWhenDatabaseInitializes();
   const selectedView = useAppSelector(getSelectedView);
   const databaseInitialized = useDatabaseInitialized();
+
   if (!databaseInitialized) {
     return (
       <TitleContainer>
