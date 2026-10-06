@@ -132,6 +132,10 @@ function usePackageVersions(
   };
 }
 
+interface EnrichOptions {
+  shouldApply?: (result: PackageInfo) => boolean;
+}
+
 function useEnrichPackageInfo({ showToasts }: { showToasts?: boolean } = {}) {
   const { mutateAsync, error, isPending } = useMutation({
     onError: showToasts
@@ -142,11 +146,14 @@ function useEnrichPackageInfo({ showToasts }: { showToasts?: boolean } = {}) {
   });
 
   return {
-    enrichPackageInfo: (packageInfo: PackageInfo) =>
+    enrichPackageInfo: (packageInfo: PackageInfo, options?: EnrichOptions) =>
       tryit(mutateAsync)(packageInfo, {
         onSuccess: showToasts
-          ? (result) => {
-              if (isEqual(packageInfo, result)) {
+          ? (result, requested) => {
+              if (options?.shouldApply && !options.shouldApply(result)) {
+                return;
+              }
+              if (isEqual(requested, result)) {
                 toast.info(text.attributionColumn.enrichNoop);
               } else {
                 toast.success(text.attributionColumn.enrichSuccess);
