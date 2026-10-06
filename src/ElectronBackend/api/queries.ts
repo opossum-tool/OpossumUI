@@ -60,7 +60,7 @@ import {
 } from './statistics';
 import {
   attributionToResourceRelationship,
-  findResourceOrNull,
+  findResourceOrNullWithWarn,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
   getResourceOrThrow,
   removeParentFromPath,
@@ -392,10 +392,12 @@ export const queries = {
 
     if (prioritizedResourcePath) {
       // Read-only query: if the path is stale we simply skip prioritization
-      // instead of failing the whole query.
-      const prioritizedResource = await findResourceOrNull(
+      // instead of failing the whole query. The miss is logged via
+      // findResourceOrNullWithWarn.
+      const prioritizedResource = await findResourceOrNullWithWarn(
         getDb(),
         prioritizedResourcePath,
+        'getResourcePathsAndParentsForAttributions',
       );
 
       if (prioritizedResource) {

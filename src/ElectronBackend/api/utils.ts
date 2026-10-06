@@ -28,6 +28,7 @@ import {
 } from '../db/attributionData';
 import type { DB } from '../db/generated/databaseTypes';
 import { jsonArraySelection } from '../db/json-array-selection';
+import logger from '../main/logger';
 import { AttributionResourceAccess } from '../types/types';
 import { removeManualOrExternalCaaFromResources } from './progressBarUtils';
 
@@ -245,7 +246,7 @@ export function removeTrailingSlash(path: string) {
   return path.replace(/\/$/, '');
 }
 
-export async function findResourceOrNull(
+async function findResourceOrNull(
   dbOrTrx: Kysely<DB>,
   resourcePath: string,
 ) {
@@ -256,6 +257,30 @@ export async function findResourceOrNull(
     .select(['id', 'max_descendant_id', 'is_readonly'])
     .where('path', '=', strippedResourcePath)
     .executeTakeFirst();
+}
+
+/**
+ * Like findResourceOrNull, but logs a warning when the path cannot be
+ * resolved. Use this for read-only queries that receive paths computed by the
+ * frontend: after switching to a different .opossum file, the frontend may
+ * still send paths from the previously loaded file. Instead of failing the
+ * query, callers can degrade gracefully while the warning keeps the
+ * degradation visible.
+ */
+export async function findResourceOrNullWithWarn(
+  dbOrTrx: Kysely<DB>,
+  resourcePath: string,
+  context: string,
+) {
+  const resource = await findResourceOrNull(dbOrTrx, resourcePath);
+
+  if (!resource) {
+    logger.warn(
+      `Stale resource path "${resourcePath}" passed to ${context} - degrading gracefully.`,
+    );
+  }
+
+  return resource;
 }
 
 export async function getResourceOrThrow(

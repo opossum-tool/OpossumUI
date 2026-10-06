@@ -8,6 +8,7 @@ import {
   pathsToResources,
 } from '../../../testing/global-test-helpers';
 import { getRawDb } from '../../db/db';
+import logger from '../../main/logger';
 import { queries } from '../queries';
 
 describe('getAttributionLinkStatus', () => {
@@ -580,6 +581,22 @@ describe('getResourcePathsAndParentsForAttributions', () => {
     expect(result).toContain('/beta/');
   });
 
+  it('skips prioritization and warns when the prioritized path is stale', async () => {
+    vi.spyOn(logger, 'warn');
+    const stalePath = '/src/from-another-file.ts';
+
+    const { result } = await queries.getResourcePathsAndParentsForAttributions({
+      attributionUuids: ['uuid1'],
+      limit: 3,
+      prioritizedResourcePath: stalePath,
+    });
+
+    expect(result).toContain('/src/');
+    expect(logger.warn).toHaveBeenCalledWith(
+      `Stale resource path "${stalePath}" passed to getResourcePathsAndParentsForAttributions - degrading gracefully.`,
+    );
+  });
+
   it('accepts a large attribution selection', async () => {
     const attributionUuids = [
       'uuid1',
@@ -1093,6 +1110,44 @@ describe('getProgressBarData', () => {
         queries.getNextFileToReviewForCriticality({ selectedResourcePath }),
       ).resolves.toEqual({ result });
     }
+  });
+
+  it('falls back to the root resource and warns when the selected path is stale', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/a', '/B', '/c']),
+      externalAttributions: {
+        attributions: {
+          uuid1: { id: 'uuid1', criticality: Criticality.High },
+        },
+        resourcesToAttributions: {
+          '/a': ['uuid1'],
+          '/B': ['uuid1'],
+          '/c': ['uuid1'],
+        },
+        attributionsToResources: {
+          uuid1: ['/a', '/B', '/c'],
+        },
+      },
+    });
+    vi.spyOn(logger, 'warn');
+    const stalePath = '/tmp/from-another-file.ts';
+
+    await expect(
+      queries.getNextFileToReviewForCriticality({
+        selectedResourcePath: stalePath,
+      }),
+    ).resolves.toEqual({ result: '/a' });
+    await expect(
+      queries.getNextFileToReviewForAttribution({
+        selectedResourcePath: stalePath,
+      }),
+    ).resolves.toEqual({ result: '/a' });
+    expect(logger.warn).toHaveBeenCalledWith(
+      `Stale resource path "${stalePath}" passed to getNextFileToReviewForCriticality - degrading gracefully.`,
+    );
+    expect(logger.warn).toHaveBeenCalledWith(
+      `Stale resource path "${stalePath}" passed to getNextFileToReviewForAttribution - degrading gracefully.`,
+    );
   });
 
   it('reports whether a manual attribution has multiple writable resources', async () => {

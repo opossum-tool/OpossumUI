@@ -18,7 +18,7 @@ import {
   type LicenseFilter,
   type ResourceTreeFilters,
 } from './resourceTreeFilters';
-import { findResourceOrNull, removeTrailingSlash } from './utils';
+import { findResourceOrNullWithWarn, removeTrailingSlash } from './utils';
 
 export interface ResourceTreeNodeBase {
   id: string;
@@ -206,10 +206,12 @@ async function getResourceTreeWithProjection(
     let belowSelectedResourceTotal = undefined;
     if (selectedResourcePath) {
       // Read-only query: a stale (no longer existing) selected path simply
-      // degrades to no belowSelectedResource count instead of failing.
-      const selectedResource = await findResourceOrNull(
+      // degrades to no belowSelectedResource count instead of failing. The
+      // miss is logged via findResourceOrNullWithWarn.
+      const selectedResource = await findResourceOrNullWithWarn(
         trx,
         selectedResourcePath,
+        'getResourceTree',
       );
 
       if (selectedResource) {
