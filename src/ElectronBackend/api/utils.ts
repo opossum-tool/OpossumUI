@@ -246,10 +246,7 @@ export function removeTrailingSlash(path: string) {
   return path.replace(/\/$/, '');
 }
 
-async function findResourceOrNull(
-  dbOrTrx: Kysely<DB>,
-  resourcePath: string,
-) {
+async function findResourceOrNull(dbOrTrx: Kysely<DB>, resourcePath: string) {
   const strippedResourcePath = removeTrailingSlash(resourcePath);
 
   return dbOrTrx
