@@ -71,6 +71,21 @@ export function useAttributionPages({
     targetQuery.data?.found !== true ||
     (scope.mode === 'relation' &&
       targetQuery.data.targetRelation === scope.relation);
+  const targetIndex = useMemo(() => {
+    const navigationResult = targetQuery.data;
+    if (
+      !targetAttributionUuid ||
+      navigationResult?.found !== true ||
+      !navigationMatchesScope ||
+      navigationResult.prefix.offset !== 0
+    ) {
+      return undefined;
+    }
+    const index = Object.keys(navigationResult.prefix.attributions).indexOf(
+      targetAttributionUuid,
+    );
+    return index >= 0 ? index : undefined;
+  }, [navigationMatchesScope, targetAttributionUuid, targetQuery.data]);
   const query = useAttributionPagination({
     queryKey,
     enabled:
@@ -142,6 +157,7 @@ export function useAttributionPages({
     fetchNextPage: query.fetchNextPage,
     nextPageError: query.nextPageError,
     resultSetKey: query.resultSetKey,
+    targetIndex,
     navigationLoading: targetQuery.isLoading,
     navigationResult: targetQuery.data,
     navigationAttributions:
