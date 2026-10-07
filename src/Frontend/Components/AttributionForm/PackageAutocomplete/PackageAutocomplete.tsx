@@ -15,7 +15,7 @@ import MuiTooltip from '@mui/material/Tooltip';
 import type { SxProps } from '@mui/system';
 import useEventCallback from '@mui/utils/useEventCallback';
 import { compact, sortBy } from 'lodash-es';
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useRef } from 'react';
 
 import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
@@ -154,6 +154,8 @@ export function PackageAutocomplete({
 
   const errorMessage = getPackageAttributeInvalidError(attribute, packageInfo);
   const inputProps = useMemo(() => ({ color, focused }), [color, focused]);
+  const packageInfoRef = useRef(packageInfo);
+  packageInfoRef.current = packageInfo;
 
   const onSelection = useEventCallback(async (value: PackageInfo | string) => {
     if (
@@ -188,10 +190,13 @@ export function PackageAutocomplete({
   });
   const onSuggestionEnrich = useEventCallback(
     async (option: Omit<PackageInfo, 'id'>, closePopper: () => void) => {
+      const originId = packageInfo.id;
       const merged: PackageInfo = { ...packageInfo, ...option };
       const enrich = async () => {
         const enriched = (await enrichPackageInfo(merged)) || merged;
-        onUpdate(toPackagePatch(enriched));
+        if (packageInfoRef.current.id === originId) {
+          onUpdate(toPackagePatch(enriched));
+        }
         closePopper();
       };
       if (onEdit) {
