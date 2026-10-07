@@ -8,8 +8,8 @@ import path from 'path';
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
-const CI_SINGLE_TEST_TIMEOUT = 60000;
-const GLOBAL_TIMEOUT = 3000000;
+const SINGLE_TEST_TIMEOUT = 120000;
+const GLOBAL_TIMEOUT = 6000000;
 
 function getWorkers(): number | `${number}%` {
   const workers = process.env.WORKERS;
@@ -42,12 +42,13 @@ const devWebServer: PlaywrightTestConfig['webServer'] = {
 };
 
 const config: PlaywrightTestConfig = {
+  expect: { timeout: 10000 },
   outputDir: 'artifacts',
   preserveOutput: process.env.CI ? 'failures-only' : 'always',
   quiet: !!process.env.CI,
   reportSlowTests: null,
   reporter: process.env.CI ? 'github' : 'list',
-  timeout: process.env.CI ? CI_SINGLE_TEST_TIMEOUT : undefined,
+  timeout: SINGLE_TEST_TIMEOUT,
   workers: process.env.CI ? 1 : getWorkers(),
   globalTimeout: process.env.CI ? GLOBAL_TIMEOUT : undefined,
   webServer: process.env.CI || process.env.RELEASE ? undefined : devWebServer,

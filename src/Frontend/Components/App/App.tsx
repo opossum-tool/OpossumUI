@@ -37,6 +37,7 @@ export function App() {
 function AppView(): React.ReactNode {
   const selectedView = useAppSelector(getSelectedView);
   const databaseInitialized = useDatabaseInitialized();
+
   if (!databaseInitialized) {
     return (
       <TitleContainer>

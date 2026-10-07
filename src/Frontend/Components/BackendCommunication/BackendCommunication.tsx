@@ -34,15 +34,6 @@ import { useSyncProcessingStatusUpdatesToFrontendLogs } from '../../util/use-pro
 
 export const BackendCommunication: React.FC = () => {
   const dispatch = useAppDispatch();
-  function resetLoadedFileListener(
-    _: IpcRendererEvent,
-    resetState: boolean,
-  ): void {
-    if (resetState) {
-      dispatch(resetResourceState());
-    }
-  }
-
   function showProjectMetadataPopupListener(
     _: IpcRendererEvent,
     showProjectMetadataPopup: boolean,
@@ -70,11 +61,6 @@ export const BackendCommunication: React.FC = () => {
     }
   }
 
-  useIpcRenderer(
-    AllowedFrontendChannels.ResetLoadedFile,
-    resetLoadedFileListener,
-    [dispatch],
-  );
   useIpcRenderer<LoggingListener>(
     AllowedFrontendChannels.Logging,
     (_, log) => {
@@ -144,8 +130,18 @@ export const BackendCommunication: React.FC = () => {
   );
   useIpcRenderer<SetDatabaseInitializedListener>(
     AllowedFrontendChannels.SetDatabaseInitialized,
-    (_, databaseInitialized) => setDatabaseInitialized(databaseInitialized),
-    [],
+    (_, databaseInitialized) => {
+      // When a file starts loading, the selection and all state derived from
+      // the previously loaded file must be reset before queries against the
+      // new (or unloaded) database can fire. Resetting here, in the event
+      // listener, guarantees that the selection is always valid before the
+      // database becomes initialized.
+      if (!databaseInitialized) {
+        dispatch(resetResourceState());
+      }
+      setDatabaseInitialized(databaseInitialized);
+    },
+    [dispatch],
   );
   useIpcRenderer(
     AllowedFrontendChannels.ShowForceUnlockDialog,

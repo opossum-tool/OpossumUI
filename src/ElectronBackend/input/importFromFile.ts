@@ -37,9 +37,6 @@ export async function loadInputAndOutputFromFilePath(
   mainWindow: BrowserWindow,
   filePath: string,
 ): Promise<void> {
-  mainWindow.webContents.send(AllowedFrontendChannels.ResetLoadedFile, {
-    resetState: true,
-  });
   mainWindow.webContents.send(
     AllowedFrontendChannels.SetDatabaseInitialized,
     false,

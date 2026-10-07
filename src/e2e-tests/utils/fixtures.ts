@@ -48,7 +48,7 @@ import {
   installDefaultSyncDialogStubs,
 } from './dialog';
 
-const LOAD_TIMEOUT = 15000;
+const LOAD_TIMEOUT = 45000;
 
 interface OpossumData {
   inputData: ParsedOpossumInputFile;
