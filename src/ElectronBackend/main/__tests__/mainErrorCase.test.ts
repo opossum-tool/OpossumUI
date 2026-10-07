@@ -33,6 +33,7 @@ vi.mock('electron', async () => ({
         loadURL: (): void => {
           throw Error('TEST_ERROR');
         },
+        maximize: vi.fn(),
         webContents: {
           openDevTools: vi.fn(),
         },
