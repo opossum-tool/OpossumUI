@@ -113,7 +113,9 @@ export function VirtualizedTreeNode<
 
   const ref = useRef<HTMLDivElement>(null);
   const expansionFiltersRef = useRef(expansionFilters);
-  expansionFiltersRef.current = expansionFilters;
+  useEffect(() => {
+    expansionFiltersRef.current = expansionFilters;
+  });
 
   async function expand() {
     const filters = expansionFiltersRef.current;

@@ -7,7 +7,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import useEventCallback from '@mui/utils/useEventCallback';
-import { memo, useMemo, useRef } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 
 import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
@@ -268,7 +268,9 @@ export function useUrlEnrichmentAction({
     showToasts: true,
   });
   const packageInfoRef = useRef(packageInfo);
-  packageInfoRef.current = packageInfo;
+  useEffect(() => {
+    packageInfoRef.current = packageInfo;
+  });
   return useEventCallback(async () => {
     const originId = packageInfo.id;
     const isOriginAttribution = () => packageInfoRef.current.id === originId;
