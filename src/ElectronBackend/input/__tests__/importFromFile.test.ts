@@ -101,9 +101,9 @@ describe('loadInputAndOutputFromFilePath', () => {
     const webContents = mainWindow.webContents as unknown as MockWebContents;
     expect(
       webContents.numberOfCallsFromChannel(
-        AllowedFrontendChannels.ResetLoadedFile,
+        AllowedFrontendChannels.SetDatabaseInitialized,
       ),
-    ).toBe(1);
+    ).toBe(2);
     expect(getGlobalBackendState().projectTitle).toBe('My Project');
     expect(getGlobalBackendState().projectId).toBe('project-123');
   });

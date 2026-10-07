@@ -16,11 +16,6 @@ import type {
   UserSettings,
 } from '../../shared/shared-types';
 
-type ResetStateListener = (
-  event: IpcRendererEvent,
-  resetState: boolean,
-) => void;
-
 type SetStateListener = (
   event: IpcRendererEvent,
   resourceStructure: ParsedFileContent,
@@ -73,7 +68,6 @@ export type SetDatabaseInitializedListener = (
 ) => void;
 
 type Listener =
-  | ResetStateListener
   | SetStateListener
   | LoggingListener
   | ExportFileRequestListener

@@ -33,7 +33,6 @@ export enum IpcChannel {
 export enum AllowedFrontendChannels {
   ExportFileRequest = 'export-file-request',
   Logging = 'logging',
-  ResetLoadedFile = 'reset-loaded-file',
   RestoreFrontend = 'restore-frontend',
   SaveFileRequest = 'save-file-request',
   SearchAttributions = 'search-attributions',
