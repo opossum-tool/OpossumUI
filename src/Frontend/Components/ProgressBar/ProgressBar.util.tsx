@@ -138,7 +138,11 @@ export function calculateClassificationBarSteps(
   statistics: ClassificationStatistics | undefined,
   classifications: ClassificationsConfig,
 ): Array<ProgressBarStep> {
-  if (!statistics || Object.keys(statistics).length === 0) {
+  if (
+    !statistics ||
+    Object.keys(statistics).length === 0 ||
+    Object.keys(classifications).length === 0
+  ) {
     return [];
   }
   const orderedClassificationCounts = Object.entries(statistics).toSorted(

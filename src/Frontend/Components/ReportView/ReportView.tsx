@@ -35,6 +35,7 @@ export const ReportView: React.FC = () => {
     isFetchingNextPage,
     nextPageError,
     resultSetKey,
+    targetIndex,
     totalCount,
   } = useReportAttributionsList();
 
@@ -59,6 +60,12 @@ export const ReportView: React.FC = () => {
     endIndex: number;
     resultSetKey: string;
   } | null>(null);
+  const [readiness, setReadiness] = useState<{
+    resultSetKey: string;
+    ready: boolean;
+  }>({ resultSetKey: '', ready: false });
+  const isListReady =
+    readiness.resultSetKey === resultSetKey && readiness.ready;
   const visibleEndIndex =
     visibleRange !== null && visibleRange.resultSetKey === resultSetKey
       ? visibleRange.endIndex
@@ -67,8 +74,9 @@ export const ReportView: React.FC = () => {
   useEffect(() => {
     if (packageInfos === null) {
       setVisibleRange(null);
+      setReadiness({ resultSetKey, ready: false });
     }
-  }, [packageInfos]);
+  }, [packageInfos, resultSetKey]);
 
   useEffect(() => {
     if (
@@ -89,13 +97,20 @@ export const ReportView: React.FC = () => {
     visibleEndIndex,
   ]);
 
+  const loadedSelectedIndex = packageInfos?.findIndex(
+    ({ id }) => id === selectedAttributionId,
+  );
   const selectedIndex = useMemo(
-    () => packageInfos?.findIndex(({ id }) => id === selectedAttributionId),
-    [packageInfos, selectedAttributionId],
+    () =>
+      loadedSelectedIndex !== undefined && loadedSelectedIndex >= 0
+        ? loadedSelectedIndex
+        : targetIndex,
+    // Object values are recreated on every render; only compare the index.
+    [loadedSelectedIndex, targetIndex],
   );
 
   useEffect(() => {
-    if (selectedIndex !== undefined && selectedIndex >= 0) {
+    if (isListReady && selectedIndex !== undefined && selectedIndex >= 0) {
       defer(() =>
         ref.current?.scrollIntoView({
           index: selectedIndex,
@@ -103,7 +118,7 @@ export const ReportView: React.FC = () => {
         }),
       );
     }
-  }, [selectedIndex]);
+  }, [isListReady, selectedIndex]);
 
   if (!packageInfos) {
     return null;
@@ -113,11 +128,6 @@ export const ReportView: React.FC = () => {
     <TableVirtuoso<ReportTableData>
       aria-label={'report view'}
       ref={ref}
-      initialTopMostItemIndex={
-        selectedIndex !== undefined && selectedIndex >= 0
-          ? { index: selectedIndex, align: 'center' }
-          : undefined
-      }
       // https://github.com/petyosi/react-virtuoso/issues/609
       style={{ overflowAnchor: 'none' }}
       components={TABLE_COMPONENTS}
@@ -138,6 +148,17 @@ export const ReportView: React.FC = () => {
       rangeChanged={(range) =>
         setVisibleRange({ endIndex: range.endIndex, resultSetKey })
       }
+      itemsRendered={(items) => {
+        if (items.some((item) => item.size > 0)) {
+          defer(() =>
+            setReadiness((current) =>
+              current.resultSetKey === resultSetKey && current.ready
+                ? current
+                : { resultSetKey, ready: true },
+            ),
+          );
+        }
+      }}
       fixedItemHeight={REPORT_VIEW_ROW_HEIGHT}
       defaultItemHeight={REPORT_VIEW_ROW_HEIGHT}
       endReached={

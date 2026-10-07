@@ -20,7 +20,7 @@ import { GroupContainer, styles } from './Listbox.style';
 // How far beyond the visible area react-virtuoso pre-renders list rows
 const LIST_OVERSCAN = 20;
 
-const NullComponent: React.FC<{ name: string }> = () => null;
+const EmptyGroupIcon: React.FC<{ name: string }> = () => null;
 
 export type ListboxProps<
   Value,
@@ -135,8 +135,8 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
         totalListHeightChanged={setHeight}
         groupCounts={groupCounts}
         groupContent={(index) => {
-          const IconComponent = groupProps?.icon ?? NullComponent;
-          const ActionComponent = groupProps?.action ?? NullComponent;
+          const IconComp = groupProps?.icon ?? EmptyGroupIcon;
+          const ActionComp = groupProps?.action ?? EmptyGroupIcon;
 
           return (
             <GroupContainer role={'group'}>
