@@ -13,8 +13,6 @@ export function usePrevious<T>(value: T, fallback?: T): T | undefined {
     ref.current = value;
   });
 
-  // Reading the ref during render is intentional here: the ref is only ever
-  // written in the effect above, so this returns the committed previous value.
   // eslint-disable-next-line @eslint-react/refs -- previous-value hooks must read the ref during render
   return ref.current ?? fallback;
 }
