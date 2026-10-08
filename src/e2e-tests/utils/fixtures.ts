@@ -36,7 +36,6 @@ import { MenuBar } from '../page-objects/MenuBar';
 import { MergeOpossumFilesDialog } from '../page-objects/MergeOpossumFilesDialog';
 import { NotSavedPopup } from '../page-objects/NotSavedPopup';
 import { PathBar } from '../page-objects/PathBar';
-import { ProjectMetadataPopup } from '../page-objects/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../page-objects/ProjectStatisticsPopup';
 import { ReportView } from '../page-objects/ReportView';
 import { ResourcesTree } from '../page-objects/ResourcesTree';
@@ -96,7 +95,6 @@ export const test = base.extend<{
   notSavedPopup: NotSavedPopup;
   openFromCLI: boolean;
   pathBar: PathBar;
-  projectMetadataPopup: ProjectMetadataPopup;
   projectStatisticsPopup: ProjectStatisticsPopup;
   reportView: ReportView;
   resourcesTree: ResourcesTree;
@@ -272,9 +270,6 @@ export const test = base.extend<{
   },
   confirmReplacePopup: async ({ window }, use) => {
     await use(new ConfirmReplacePopup(window));
-  },
-  projectMetadataPopup: async ({ window }, use) => {
-    await use(new ProjectMetadataPopup(window));
   },
   menuBar: async ({ window }, use) => {
     await use(new MenuBar(window));
