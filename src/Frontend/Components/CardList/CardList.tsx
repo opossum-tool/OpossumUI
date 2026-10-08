@@ -18,10 +18,15 @@ export function CardList<ItemType extends BaseItem>({
   fillAvailableHeight?: boolean;
 }) {
   const theme = useTheme();
+  const numberOfCards = Math.max(
+    props.totalCount ?? 0,
+    props.data?.length ?? 0,
+  );
   const height =
-    Math.min(MAX_NUMBER_OF_CARDS, props.data?.length ?? 0) *
+    Math.min(MAX_NUMBER_OF_CARDS, numberOfCards) *
       PACKAGE_CARD_LIST_ITEM_HEIGHT +
     1;
+  const contentFitsDialog = numberOfCards <= MAX_NUMBER_OF_CARDS;
 
   return (
     <List
@@ -33,12 +38,13 @@ export function CardList<ItemType extends BaseItem>({
         maxHeight: height,
         minHeight: height,
         height,
-        ...(fillAvailableHeight && {
-          flex: 1,
-          minHeight: 0,
-          maxHeight: 'none',
-          height: 'auto',
-        }),
+        ...(fillAvailableHeight &&
+          !contentFitsDialog && {
+            flex: 1,
+            minHeight: 0,
+            maxHeight: 'none',
+            height: 'auto',
+          }),
         ...props.sx,
       }}
     />
