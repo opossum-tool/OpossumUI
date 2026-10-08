@@ -247,6 +247,7 @@ export default tseslint.config(
       '**/*.test.tsx',
       'src/testing/**/*',
       'src/e2e-tests/**/*',
+      'src/Frontend/integration-tests/**/*',
     ],
     rules: {
       '@typescript-eslint/no-magic-numbers': 'off',

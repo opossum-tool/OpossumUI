@@ -80,6 +80,19 @@ export default defineConfig(({ mode }) => ({
       {
         extends: true,
         test: {
+          environment: 'happy-dom',
+          include: ['src/Frontend/integration-tests/**/*.test.{ts,tsx}'],
+          name: { label: 'INT', color: 'red' },
+          setupFiles: [
+            './src/testing/setup.ts',
+            './src/testing/frontend-setup.ts',
+          ],
+          testTimeout: 30000,
+        },
+      },
+      {
+        extends: true,
+        test: {
           environment: 'node',
           include: ['src/ElectronBackend/**/__test{s,}__/**/*.test.{ts,tsx}'],
           name: { label: 'BE', color: 'blue' },
