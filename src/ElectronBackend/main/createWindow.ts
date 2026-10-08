@@ -44,8 +44,8 @@ function getInitialWindowSize(
 
 export function createWindow(): BrowserWindow {
   const {
-    x: workAreaX,
-    y: workAreaY,
+    x: currentDisplayX,
+    y: currentDisplayY,
     width: workAreaWidth,
     height: workAreaHeight,
   } = screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).workArea;
@@ -56,9 +56,9 @@ export function createWindow(): BrowserWindow {
   } = getInitialWindowSize(workAreaWidth, workAreaHeight);
 
   const newWindow = new BrowserWindow({
-    x: workAreaX + Math.max(0, Math.round((workAreaWidth - defaultWidth) / 2)),
+    x: currentDisplayX + Math.max(0, Math.round((workAreaWidth - defaultWidth) / 2)),
     y:
-      workAreaY + Math.max(0, Math.round((workAreaHeight - defaultHeight) / 2)),
+      currentDisplayY + Math.max(0, Math.round((workAreaHeight - defaultHeight) / 2)),
     width: defaultWidth,
     height: defaultHeight,
     minWidth: Math.min(MIN_WINDOW_WIDTH, workAreaWidth),
