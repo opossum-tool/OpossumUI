@@ -87,21 +87,32 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
     containerHeight !== undefined &&
     effectiveHeight >= containerHeight - HEADER_HEIGHT - 1;
 
-  // Runs on every render to keep the measured container height in sync with
-  // the Resizable element. The equality check prevents redundant updates.
-  // eslint-disable-next-line @eslint-react/exhaustive-deps -- deliberately deps-free: must track DOM height changes from any re-render
+  // Tracks real geometry changes of the container's DOM node via a
+  // ResizeObserver. Must not run on every re-render: measuring and
+  // setting state per render fights CSS transitions and the drag
+  // mechanics of re-resizable, causing a resize feedback loop.
   useLayoutEffect(() => {
-    const measuredHeight = containerRef.current?.size.height;
-    if (measuredHeight !== undefined && measuredHeight !== containerHeight) {
-      setContainerHeight(measuredHeight);
+    const node = containerRef.current?.resizable;
+    if (!node) {
+      return;
     }
-  });
+    const resizeObserver = new ResizeObserver(() => {
+      setContainerHeight(node.offsetHeight);
+    });
+    resizeObserver.observe(node);
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     const applyGoldenRatio = () =>
       containerHeight !== undefined && setHeight(containerHeight / fraction);
 
-    heightIsNull && applyGoldenRatio();
+    if (!heightIsNull) {
+      return;
+    }
+    applyGoldenRatio();
     window.addEventListener('resize', applyGoldenRatio);
 
     return () => {

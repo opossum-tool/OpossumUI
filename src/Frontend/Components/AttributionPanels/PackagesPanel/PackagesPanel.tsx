@@ -153,8 +153,6 @@ export const PackagesPanel = ({
   const [activeRelation, setActiveRelation] = useState<Relation>('resource');
   const relationTransitionRef = useRef(false);
   const preserveSelectionRef = useRef(false);
-  // Reading the ref during render is intentional: preserveSelectionRef is only
-  // mutated in effects and event handlers, so this returns the settled value.
   const preserveSelection =
     // eslint-disable-next-line @eslint-react/refs -- preserve-selection must not trigger re-renders
     !selectionIdentityChanged && preserveSelectionRef.current;
