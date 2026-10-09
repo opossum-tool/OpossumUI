@@ -154,6 +154,7 @@ export const PackagesPanel = ({
   const relationTransitionRef = useRef(false);
   const preserveSelectionRef = useRef(false);
   const preserveSelection =
+    // eslint-disable-next-line @eslint-react/refs -- preserve-selection must not trigger re-renders
     !selectionIdentityChanged && preserveSelectionRef.current;
   // Keeps a requested relation active until its tab appears in relation counts.
   const requestedRelationRef = useRef<Relation | null>(null);

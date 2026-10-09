@@ -15,7 +15,7 @@ import MuiTooltip from '@mui/material/Tooltip';
 import type { SxProps } from '@mui/system';
 import useEventCallback from '@mui/utils/useEventCallback';
 import { compact, sortBy } from 'lodash-es';
-import { memo, useMemo, useRef } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 
 import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
@@ -155,7 +155,9 @@ export function PackageAutocomplete({
   const errorMessage = getPackageAttributeInvalidError(attribute, packageInfo);
   const inputProps = useMemo(() => ({ color, focused }), [color, focused]);
   const packageInfoRef = useRef(packageInfo);
-  packageInfoRef.current = packageInfo;
+  useEffect(() => {
+    packageInfoRef.current = packageInfo;
+  });
 
   const onSelection = useEventCallback(async (value: PackageInfo | string) => {
     if (
