@@ -4,17 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import { test } from '../utils';
 
-test('provides expected functionality when no file is open', async ({
+test('shows the default window title when no file is open', async ({
   menuBar,
-  resourcesTree,
-  topBar,
 }) => {
+  // The renderer-covered behavior of this no-file scenario lives in
+  // src/Frontend/integration-tests/using-app-without-a-file.test.tsx.
+  // The native window title is not observable there, so it is checked here.
   await menuBar.assert.hasTitle('OpossumUI');
-  await resourcesTree.assert.isHidden();
-  await topBar.assert.openFileButtonIsVisible();
-  await topBar.assert.modeButtonsAreVisible();
-  await topBar.assert.auditViewIsActive();
-
-  await topBar.gotoReportView();
-  await topBar.assert.reportViewIsActive();
 });

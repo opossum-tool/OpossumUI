@@ -62,36 +62,6 @@ test.use({
   },
 });
 
-test('links unrelated attribution on resource and displays it as parent on child', async ({
-  attributionDetails,
-  resourcesTree,
-  attributionsPanel,
-  signalsPanel,
-}) => {
-  await attributionsPanel.assert.selectedTabIs('onChildren');
-  await signalsPanel.assert.selectedTabIs('onChildren');
-  await attributionsPanel.packageCard.assert.isVisible(packageInfo1);
-  await attributionsPanel.packageCard.assert.isVisible(packageInfo2);
-  await attributionsPanel.packageCard.assert.isVisible(packageInfo3);
-  await signalsPanel.packageCard.assert.isVisible(packageInfo5);
-
-  await resourcesTree.goto(resourceName1);
-  await attributionsPanel.assert.selectedTabIs('onResource');
-  await attributionsPanel.packageCard.assert.isVisible(packageInfo1);
-  await attributionsPanel.packageCard.assert.isHidden(packageInfo2);
-
-  await attributionsPanel.tabs.unrelated.click();
-  await attributionsPanel.packageCard.click(packageInfo2);
-  await attributionDetails.linkButton.click();
-  await attributionsPanel.assert.selectedTabIs('onResource');
-  await attributionsPanel.packageCard.assert.isVisible(packageInfo2);
-
-  await resourcesTree.goto(resourceName2);
-  await attributionsPanel.assert.selectedTabIs('onParents');
-  await attributionsPanel.packageCard.assert.isVisible(packageInfo1);
-  await attributionsPanel.packageCard.assert.isVisible(packageInfo2);
-});
-
 test('links merged signal as attribution on resource', async ({
   attributionDetails,
   resourcesTree,
@@ -162,57 +132,4 @@ test('links multiple signals on resource at once', async ({
   await attributionsPanel.assert.selectedTabIs('onResource');
   await attributionsPanel.packageCard.assert.isVisible(packageInfo4a);
   await attributionsPanel.packageCard.assert.isVisible(packageInfo5);
-});
-
-test('allows user to override parent attributions', async ({
-  attributionDetails,
-  resourcesTree,
-  attributionsPanel,
-}) => {
-  await resourcesTree.goto(resourceName1);
-  await attributionsPanel.assert.tabIsHidden('onParents');
-
-  await resourcesTree.goto(resourceName2);
-  await attributionsPanel.assert.tabIsVisible('onParents');
-  await attributionsPanel.packageCard.assert.isVisible(packageInfo1);
-  await attributionDetails.attributionForm.assert.matchesPackageInfo(
-    packageInfo1,
-  );
-
-  await attributionsPanel.tabs.unrelated.click();
-  await attributionsPanel.packageCard.assert.isHidden(packageInfo1);
-  await attributionsPanel.packageCard.assert.isVisible(packageInfo2);
-  await attributionsPanel.packageCard.assert.isVisible(packageInfo3);
-
-  await attributionsPanel.packageCard.click(packageInfo2);
-  await attributionDetails.attributionForm.assert.matchesPackageInfo(
-    packageInfo2,
-  );
-
-  await attributionsPanel.linkButton.click();
-  await attributionsPanel.assert.tabIsHidden('onParents');
-  await attributionsPanel.assert.selectedTabIs('onResource');
-  await attributionsPanel.packageCard.assert.isVisible(packageInfo2);
-  await attributionsPanel.packageCard.assert.isHidden(packageInfo1);
-  await attributionsPanel.packageCard.assert.isHidden(packageInfo3);
-  await attributionDetails.attributionForm.assert.matchesPackageInfo(
-    packageInfo2,
-  );
-});
-
-test('disables resp. hides options to create or link attributions to breakpoints', async ({
-  attributionDetails,
-  attributionsPanel,
-  resourcesTree,
-}) => {
-  await resourcesTree.goto(resourceName5);
-  await attributionsPanel.assert.tabIsVisible('unrelated');
-
-  await attributionsPanel.packageCard.click(packageInfo1);
-  await attributionDetails.attributionForm.assert.matchesPackageInfo(
-    packageInfo1,
-  );
-  await attributionsPanel.assert.createButtonIsDisabled();
-  await attributionsPanel.assert.linkButtonIsDisabled();
-  await attributionDetails.assert.linkButtonIsHidden();
 });

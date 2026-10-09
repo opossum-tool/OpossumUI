@@ -262,4 +262,16 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // Integration-test helpers implement page-object-like queries, which 
+    // need direct node access, multiple assertions inside waitFor
+    // and sync fireEvent calls.
+    files: ['src/Frontend/integration-tests/**/*'],
+    rules: {
+      'testing-library/no-node-access': 'off',
+      'testing-library/no-wait-for-multiple-assertions': 'off',
+      'testing-library/prefer-find-by': 'off',
+      'testing-library/prefer-presence-queries': 'off',
+    },
+  },
 );
