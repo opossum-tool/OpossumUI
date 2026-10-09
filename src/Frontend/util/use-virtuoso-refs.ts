@@ -11,7 +11,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import type { VirtuosoHandle } from 'react-virtuoso';
+import type { CalculateViewLocation, VirtuosoHandle } from 'react-virtuoso';
 
 export function useVirtuosoRefs<
   ItemType extends { id: unknown },
@@ -21,13 +21,15 @@ export function useVirtuosoRefs<
   isListReady = true,
   selectedId,
   resultSetKey,
-  scrollToIndex = false,
+  scrollBehavior = 'smooth',
+  viewportTopOffset = 0,
 }: {
   data: ReadonlyArray<ItemType> | null | undefined;
   isListReady?: boolean;
   selectedId: ItemType['id'] | undefined;
   resultSetKey?: string;
-  scrollToIndex?: boolean;
+  scrollBehavior?: 'auto' | 'smooth';
+  viewportTopOffset?: number;
 }) {
   const ref = useRef<T>(null);
   const listRef = useRef<Window | HTMLElement>(undefined);
@@ -51,7 +53,6 @@ export function useVirtuosoRefs<
   }, [data, focusedId]);
 
   const selectedIsAvailable = selectedIndex !== undefined && selectedIndex >= 0;
-
   useEffect(() => {
     if (isVirtuosoFocused) {
       setFocusedId(selectedId);
@@ -62,16 +63,48 @@ export function useVirtuosoRefs<
     };
   }, [isVirtuosoFocused, selectedId]);
 
+  const calculateViewLocation = useCallback<CalculateViewLocation>(
+    ({ itemTop, itemBottom, viewportTop, viewportBottom, locationParams }) => {
+      const visibleTop = viewportTop + viewportTopOffset;
+
+      if (itemTop < visibleTop) {
+        return { ...locationParams, align: locationParams.align ?? 'start' };
+      }
+      if (itemBottom > viewportBottom) {
+        return { ...locationParams, align: locationParams.align ?? 'end' };
+      }
+      return {
+        ...locationParams,
+        align: 'start',
+        behavior: 'auto',
+        offset: visibleTop - itemTop,
+      };
+    },
+    [viewportTopOffset],
+  );
+
+  const revealIndex = useCallback(
+    (index: number, behavior: 'auto' | 'smooth', align?: 'center') => {
+      const scroller = listRef.current;
+      if (scroller) {
+        const isWindow = 'scrollX' in scroller;
+        const left = isWindow ? scroller.scrollX : scroller.scrollLeft;
+        const top = isWindow ? scroller.scrollY : scroller.scrollTop;
+        scroller.scrollTo({ left, top, behavior: 'instant' });
+      }
+      ref.current?.scrollIntoView({
+        index,
+        ...(align ? { align } : {}),
+        behavior: getScrollBehavior(behavior),
+        calculateViewLocation,
+      });
+    },
+    [calculateViewLocation],
+  );
+
   const scrollToSelection = useEffectEvent(() => {
     if (selectedIndex !== undefined && selectedIndex >= 0) {
-      if (scrollToIndex) {
-        ref.current?.scrollToIndex({ index: selectedIndex, align: 'center' });
-      } else {
-        ref.current?.scrollIntoView({
-          index: selectedIndex,
-          align: 'center',
-        });
-      }
+      revealIndex(selectedIndex, scrollBehavior, 'center');
     }
   });
 
@@ -108,16 +141,13 @@ export function useVirtuosoRefs<
 
         if (nextIndex !== null) {
           const index = nextIndex;
-          ref.current?.scrollIntoView({
-            index,
-            behavior: 'auto',
-          });
+          revealIndex(index, 'auto');
           setFocusedId(data[index].id);
           event.preventDefault();
         }
       }
     },
-    [data, focusedIndex],
+    [data, focusedIndex, revealIndex],
   );
 
   const scrollerRef = useCallback(
@@ -140,4 +170,11 @@ export function useVirtuosoRefs<
     selectedIndex,
     setIsVirtuosoFocused,
   };
+}
+
+function getScrollBehavior(behavior: 'auto' | 'smooth'): 'auto' | 'smooth' {
+  return behavior === 'auto' ||
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? 'auto'
+    : 'smooth';
 }

@@ -16,7 +16,7 @@ const virtuosoMock = vi.hoisted(() => ({
   groupCounts: undefined as ReadonlyArray<number> | undefined,
   itemsRendered: undefined as
     ((items: ReadonlyArray<{ size: number }>) => void) | undefined,
-  scrollToIndex: vi.fn(),
+  scrollIntoView: vi.fn(),
 }));
 
 vi.mock('react-virtuoso', async (importOriginal) => {
@@ -39,8 +39,7 @@ vi.mock('react-virtuoso', async (importOriginal) => {
         ref,
         () =>
           ({
-            scrollIntoView: vi.fn(),
-            scrollToIndex: virtuosoMock.scrollToIndex,
+            scrollIntoView: virtuosoMock.scrollIntoView,
           }) as unknown as GroupedVirtuosoHandle,
       );
       virtuosoMock.rangeChanged = rangeChanged;
@@ -53,7 +52,7 @@ vi.mock('react-virtuoso', async (importOriginal) => {
 
 describe('GroupedList pagination', () => {
   it('waits for a measured row before revealing an available selection', async () => {
-    virtuosoMock.scrollToIndex.mockClear();
+    virtuosoMock.scrollIntoView.mockClear();
     await renderComponent(
       <GroupedList
         grouped={{ earlier: ['earlier-item'], later: ['selected-item'] }}
@@ -67,17 +66,30 @@ describe('GroupedList pagination', () => {
       />,
     );
 
-    expect(virtuosoMock.scrollToIndex).not.toHaveBeenCalled();
+    expect(virtuosoMock.scrollIntoView).not.toHaveBeenCalled();
     act(() => virtuosoMock.itemsRendered?.([{ size: 1 }]));
-    expect(virtuosoMock.scrollToIndex).toHaveBeenCalledTimes(1);
-    expect(virtuosoMock.scrollToIndex).toHaveBeenCalledWith({
+    expect(virtuosoMock.scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(virtuosoMock.scrollIntoView).toHaveBeenCalledWith({
       index: 2,
       align: 'center',
+      behavior: 'smooth',
+      calculateViewLocation: expect.any(Function),
     });
+    const { calculateViewLocation } =
+      virtuosoMock.scrollIntoView.mock.calls[0][0];
+    expect(
+      calculateViewLocation({
+        itemTop: 20,
+        itemBottom: 60,
+        viewportTop: 0,
+        viewportBottom: 300,
+        locationParams: { index: 2, align: 'center', behavior: 'smooth' },
+      }),
+    ).toEqual({ index: 2, align: 'center', behavior: 'smooth' });
   });
 
   it('waits for measurement again when the result set changes with the same selection', async () => {
-    virtuosoMock.scrollToIndex.mockClear();
+    virtuosoMock.scrollIntoView.mockClear();
     const renderList = (resultSetKey: string) => (
       <GroupedList
         grouped={{ earlier: ['loaded'], later: ['selected-item'] }}
@@ -93,21 +105,23 @@ describe('GroupedList pagination', () => {
     const { rerender } = await renderComponent(renderList('first'));
 
     act(() => virtuosoMock.itemsRendered?.([{ size: 1 }]));
-    expect(virtuosoMock.scrollToIndex).toHaveBeenCalledTimes(1);
-    virtuosoMock.scrollToIndex.mockClear();
+    expect(virtuosoMock.scrollIntoView).toHaveBeenCalledTimes(1);
+    virtuosoMock.scrollIntoView.mockClear();
 
     rerender(renderList('second'));
-    expect(virtuosoMock.scrollToIndex).not.toHaveBeenCalled();
+    expect(virtuosoMock.scrollIntoView).not.toHaveBeenCalled();
     act(() => virtuosoMock.itemsRendered?.([{ size: 1 }]));
-    expect(virtuosoMock.scrollToIndex).toHaveBeenCalledTimes(1);
-    expect(virtuosoMock.scrollToIndex).toHaveBeenCalledWith({
+    expect(virtuosoMock.scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(virtuosoMock.scrollIntoView).toHaveBeenCalledWith({
       index: 3,
       align: 'center',
+      behavior: 'smooth',
+      calculateViewLocation: expect.any(Function),
     });
   });
 
   it('waits for a new measurement after grouped data unmounts and returns', async () => {
-    virtuosoMock.scrollToIndex.mockClear();
+    virtuosoMock.scrollIntoView.mockClear();
     const renderList = (grouped: { source: Array<string> } | null) => (
       <GroupedList
         grouped={grouped}
@@ -121,18 +135,20 @@ describe('GroupedList pagination', () => {
     );
 
     act(() => virtuosoMock.itemsRendered?.([{ size: 1 }]));
-    expect(virtuosoMock.scrollToIndex).toHaveBeenCalledTimes(1);
-    virtuosoMock.scrollToIndex.mockClear();
+    expect(virtuosoMock.scrollIntoView).toHaveBeenCalledTimes(1);
+    virtuosoMock.scrollIntoView.mockClear();
 
     rerender(renderList(null));
     rerender(renderList({ source: ['selected-item'] }));
-    expect(virtuosoMock.scrollToIndex).not.toHaveBeenCalled();
+    expect(virtuosoMock.scrollIntoView).not.toHaveBeenCalled();
 
     act(() => virtuosoMock.itemsRendered?.([{ size: 1 }]));
-    expect(virtuosoMock.scrollToIndex).toHaveBeenCalledTimes(1);
-    expect(virtuosoMock.scrollToIndex).toHaveBeenCalledWith({
+    expect(virtuosoMock.scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(virtuosoMock.scrollIntoView).toHaveBeenCalledWith({
       index: 0,
       align: 'center',
+      behavior: 'smooth',
+      calculateViewLocation: expect.any(Function),
     });
   });
 
