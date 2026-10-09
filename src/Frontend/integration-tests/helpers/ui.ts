@@ -87,6 +87,21 @@ function expectCardAbsentOrHidden(
   }
 }
 
+export async function expectPackageCardPickerSource(
+  panelTestId: PanelTestId,
+  packageInfo: RawPackageInfo,
+  isPickerSource: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const card = getPackageCard(panelTestId, packageInfo);
+    if (isPickerSource) {
+      expect(card).toHaveAttribute('data-picker-source', 'true');
+    } else {
+      expect(card.getAttribute('data-picker-source')).not.toBe('true');
+    }
+  }, SETTLED_TIMEOUT);
+}
+
 export async function clickPackageCard(
   panelTestId: PanelTestId,
   packageInfo: RawPackageInfo,
@@ -447,7 +462,9 @@ export type AttributionColumnButton =
   | 'link'
   | 'replace'
   | 'cancel'
-  | 'compare';
+  | 'compare'
+  | 'compare-with'
+  | 'compare-confirm';
 
 const BUTTON_LABELS: Record<AttributionColumnButton, string> = {
   confirm: text.attributionColumn.confirm,
@@ -459,6 +476,8 @@ const BUTTON_LABELS: Record<AttributionColumnButton, string> = {
   replace: text.attributionColumn.replace,
   cancel: text.buttons.cancel,
   compare: text.attributionColumn.compareToOriginal,
+  'compare-with': text.attributionColumn.compareWith,
+  'compare-confirm': text.attributionColumn.compareConfirm,
 };
 
 function queryAttributionColumnButton(
@@ -519,6 +538,17 @@ async function getPopup(popupLabel: string): Promise<HTMLElement> {
 export async function expectPopupHidden(popupLabel: string): Promise<void> {
   await waitFor(() => {
     expect(screen.queryByLabelText(popupLabel)).toBeNull();
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectComparingWithAlertIsVisible(): Promise<void> {
+  await waitFor(() => {
+    expect(
+      screen.getByText(text.packageLists.selectComparisonAttribution),
+    ).toBeVisible();
+    expect(
+      screen.getByText(text.packageLists.selectComparisonSignal),
+    ).toBeVisible();
   }, SETTLED_TIMEOUT);
 }
 
@@ -1272,6 +1302,55 @@ export async function clickDiffPopupButton(
   await userEvent.click(
     within(getDiffPopup()).getByRole('button', { name: buttonName }),
   );
+}
+
+type EditableDiffPopupAuditingOption =
+  'followUp' | 'needsReview' | 'excludedFromNotice';
+
+const DIFF_POPUP_AUDITING_OPTION_IDS: Record<
+  EditableDiffPopupAuditingOption,
+  string
+> = {
+  followUp: 'follow-up',
+  needsReview: 'needs-review',
+  excludedFromNotice: 'excluded-from-notice',
+};
+
+export async function addDiffPopupAuditingOption(
+  side: DiffPopupSide,
+  option: EditableDiffPopupAuditingOption,
+): Promise<void> {
+  const auditingColumn = within(getDiffPopup()).getByTestId(
+    `${side}-auditing-options`,
+  );
+  await userEvent.click(
+    within(auditingColumn).getByText(text.auditingOptions.add),
+  );
+  await clickAuditingMenuOption(text.auditingOptions[option]);
+  await closeAuditingOptionsMenu();
+}
+
+export async function expectDiffPopupAuditingOption(
+  side: DiffPopupSide,
+  option: EditableDiffPopupAuditingOption,
+  visible: boolean = true,
+): Promise<void> {
+  await waitFor(() => {
+    const auditingColumn = within(getDiffPopup()).queryByTestId(
+      `${side}-auditing-options`,
+    );
+    const chip = auditingColumn
+      ? within(auditingColumn).queryByTestId(
+          `auditing-option-${DIFF_POPUP_AUDITING_OPTION_IDS[option]}`,
+        )
+      : null;
+    if (visible) {
+      expect(chip).not.toBeNull();
+      expect(chip).toBeVisible();
+    } else {
+      expect(chip).toBeNull();
+    }
+  }, SETTLED_TIMEOUT);
 }
 
 export async function expectDiffPopupSaveButtonEnabled(
