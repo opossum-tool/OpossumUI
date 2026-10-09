@@ -7,8 +7,13 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
 import { OpossumColors } from '../../../Frontend/shared-styles';
-import type { RawPackageInfo } from '../../../shared/shared-types';
+import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
+import type {
+  RawPackageInfo,
+  UserSettings,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
+import type { RenderAppResult } from './render-app';
 
 export type PanelTestId =
   'signals-panel' | 'attributions-panel' | 'linked-resources-tree';
@@ -973,6 +978,119 @@ export async function applyPanelFilter(
   await clickFilterMenuButton(getPanel(panelTestId));
   await clickFilterMenuItem(FILTER_MENU_LABELS[filter]);
   await closeFilterMenu();
+}
+
+const PROJECT_STATISTICS_POPUP_LABEL = 'project statistics';
+
+export type SendToChannel = RenderAppResult['sendToChannel'];
+
+export function sendUserSettingsChange(
+  sendToChannel: SendToChannel,
+  settings: Partial<UserSettings>,
+): void {
+  // Menu toggles (QA mode, classifications, criticality) update the user
+  // settings in the Electron main process, which broadcasts this exact IPC
+  // channel to the renderer; simulate the broadcast instead of the menu.
+  sendToChannel(AllowedFrontendChannels.UserSettingsChanged, settings);
+}
+
+export async function openProjectStatisticsPopup(
+  sendToChannel: SendToChannel,
+): Promise<void> {
+  sendToChannel(AllowedFrontendChannels.ShowProjectStatisticsPopup, true);
+  await waitFor(() => {
+    expect(screen.getByLabelText(PROJECT_STATISTICS_POPUP_LABEL)).toBeVisible();
+  }, SETTLED_TIMEOUT);
+}
+
+export type StatisticsChartTestId =
+  | 'attributionBarChart'
+  | 'mostFrequentLicenseCountPieChart'
+  | 'criticalSignalsCountPieChart'
+  | 'signalCountByClassificationPieChart'
+  | 'incompleteAttributionsPieChart';
+
+export async function expectStatisticsCharts(
+  visible: Array<StatisticsChartTestId>,
+  hidden: Array<StatisticsChartTestId> = [],
+): Promise<void> {
+  for (const testId of visible) {
+    await waitFor(() => {
+      expect(screen.getByTestId(testId)).toBeVisible();
+    }, SETTLED_TIMEOUT);
+  }
+  for (const testId of hidden) {
+    await waitFor(() => {
+      expect(screen.queryByTestId(testId)).toBeNull();
+    }, SETTLED_TIMEOUT);
+  }
+}
+
+export async function openAuditingOptionsMenu(): Promise<void> {
+  await userEvent.click(
+    within(getAttributionColumn()).getByText(text.auditingOptions.add),
+  );
+}
+
+export async function closeAuditingOptionsMenu(): Promise<void> {
+  await userEvent.keyboard('{Escape}');
+  await waitFor(() => {
+    expect(screen.queryByRole('menu')).toBeNull();
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectAuditingMenuOption(
+  label: string,
+  visible: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const menu = screen.getByRole('menu');
+    const option = within(menu).queryByText(label);
+    if (visible) {
+      expect(option).not.toBeNull();
+      expect(option).toBeVisible();
+    } else {
+      expect(option).toBeNull();
+    }
+  }, SETTLED_TIMEOUT);
+}
+
+export async function clickAuditingMenuOption(label: string): Promise<void> {
+  const menu = screen.getByRole('menu');
+  await userEvent.click(within(menu).getByText(label));
+}
+
+export async function expectAuditingOptionChip(
+  optionId: string,
+  visible: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const chip = queryAuditingOptionChip(optionId);
+    if (visible) {
+      expect(chip).not.toBeNull();
+      expect(chip).toBeVisible();
+    } else {
+      expect(chip).toBeNull();
+    }
+  }, SETTLED_TIMEOUT);
+}
+
+export async function removeAuditingOption(optionId: string): Promise<void> {
+  await userEvent.click(
+    within(getAuditingOptionChip(optionId)).getByTestId('CancelIcon'),
+  );
+}
+
+function queryAuditingOptionChip(optionId: string): HTMLElement | null {
+  return within(getAttributionColumn()).queryByTestId(
+    `auditing-option-${optionId}`,
+  );
+}
+
+function getAuditingOptionChip(optionId: string): HTMLElement {
+  const chip = queryAuditingOptionChip(optionId);
+  expect(chip).not.toBeNull();
+  return chip as HTMLElement;
 }
 
 function getDiffPopup(): HTMLElement {
