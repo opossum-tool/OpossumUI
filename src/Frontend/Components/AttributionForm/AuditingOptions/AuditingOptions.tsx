@@ -7,7 +7,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import MuiBox from '@mui/material/Box';
 import MuiChip from '@mui/material/Chip';
 import type { SxProps, Theme } from '@mui/system';
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 
 import type { PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
@@ -25,6 +25,7 @@ interface Props {
   isEditable: boolean;
   onUpdate: (patch: AuditingPropertiesPatch) => void;
   sx?: SxProps<Theme>;
+  interactionBlocked?: boolean;
 }
 
 export const AuditingOptions: React.FC<Props> = ({
@@ -32,6 +33,7 @@ export const AuditingOptions: React.FC<Props> = ({
   isEditable,
   onUpdate,
   sx,
+  interactionBlocked = false,
 }) => {
   const options = useAuditingOptions({ packageInfo, isEditable, onUpdate });
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
@@ -39,6 +41,11 @@ export const AuditingOptions: React.FC<Props> = ({
   const hasUnselectedInteractiveOption = options.some(
     ({ interactive, selected }) => interactive && !selected,
   );
+  useLayoutEffect(() => {
+    if (interactionBlocked) {
+      setAnchorEl(undefined);
+    }
+  }, [interactionBlocked]);
 
   return options.length ? (
     <>
@@ -75,14 +82,14 @@ export const AuditingOptions: React.FC<Props> = ({
   function renderSelectedOptions() {
     return options
       .filter(({ selected }) => selected)
-      .map(({ label, icon, onDelete, interactive, id }, index) => (
+      .map(({ label, icon, onDelete, interactive, id }) => (
         <MuiChip
-          key={index}
           label={label}
           size={'small'}
           icon={icon}
           onDelete={interactive ? onDelete : undefined}
           data-testid={`auditing-option-${id}`}
+          key={id}
           deleteIcon={<CancelIcon data-testid="CancelIcon" />}
         />
       ));

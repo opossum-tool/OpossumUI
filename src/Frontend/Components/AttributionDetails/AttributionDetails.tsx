@@ -7,25 +7,21 @@ import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiLinearProgress from '@mui/material/LinearProgress';
 import type { Theme } from '@mui/material/styles';
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect, useState } from 'react';
 
-import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import { borderMedium } from '../../shared-styles';
-import { initializePackageInfoEditing } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { useAppSelector } from '../../state/hooks';
 import {
-  getAttributionSelectionPendingResourceId,
   getIsPackageInfoDirty,
-  getSelectedAttributionId,
-  getSelectedResourceId,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/resource-selectors';
 import { usePickerMode } from '../../state/variables/use-picker-mode';
-import { useSelectedAttribution } from '../../util/use-selected-attribution';
-import { useIsSelectedResourceReadonly } from '../../util/use-selected-resource';
 import { AttributionForm } from '../AttributionForm/AttributionForm';
 import { ButtonRow } from './ButtonRow/ButtonRow';
+import { useAttributionDetailsPresentation } from './use-attribution-details-presentation';
 import { useConfirmAttributionEdit } from './use-confirm-attribution-edit';
+
+const PROGRESS_INDICATOR_DELAY_MS = 150;
 
 const classes = {
   root: {
@@ -45,78 +41,60 @@ const classes = {
 } satisfies SxProps<Theme>;
 
 export function AttributionDetails() {
-  const dispatch = useAppDispatch();
-  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
-  const isPackageInfoDirty = useAppSelector(getIsPackageInfoDirty);
-  const attributionSelectionPendingResourceId = useAppSelector(
-    getAttributionSelectionPendingResourceId,
-  );
-
+  const { presentation, isLoading, selectionIsPending, hasMainAttribution } =
+    useAttributionDetailsPresentation();
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
   );
-  const {
-    isExternal: selectedAttributionIsExternal,
-    isReadonly: selectedAttributionIsReadonly,
-    isPending: isSelectedAttributionPending,
-    packageInfo: selectedAttribution,
-  } = useSelectedAttribution();
-  const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const isSelectedResourceReadonly = useIsSelectedResourceReadonly();
+  const isPackageInfoDirty = useAppSelector(getIsPackageInfoDirty);
+  const pickerMode = usePickerMode();
+  const [showProgress, setShowProgress] = useState(false);
 
   useLayoutEffect(() => {
-    if (!selectedAttributionId || selectedAttribution) {
-      dispatch(
-        initializePackageInfoEditing(
-          selectedAttribution || EMPTY_DISPLAY_PACKAGE_INFO,
-        ),
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    if (isLoading) {
+      setShowProgress(false);
+      timeout = setTimeout(
+        () => setShowProgress(true),
+        PROGRESS_INDICATOR_DELAY_MS,
       );
+    } else {
+      setShowProgress(false);
     }
-  }, [
-    dispatch,
-    selectedAttributionId,
-    selectedAttribution,
-    selectedResourceId,
-  ]);
+    return () => {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    };
+  }, [isLoading]);
 
+  const isEditable =
+    !pickerMode.isActive &&
+    !presentation.isExternal &&
+    !presentation.isAttributionReadonly;
   const confirmAttributionEdit = useConfirmAttributionEdit(
     temporaryDisplayPackageInfo,
   );
-  const pickerMode = usePickerMode();
 
-  const isSelectedAttributionLoading =
-    attributionSelectionPendingResourceId === selectedResourceId ||
-    (!!selectedAttributionId &&
-      !selectedAttribution &&
-      isSelectedAttributionPending);
-  const hasSelectedAttributionData =
-    !isSelectedAttributionLoading &&
-    (!selectedAttributionId || !!selectedAttribution);
-  const isEditable =
-    hasSelectedAttributionData &&
-    !pickerMode.isActive &&
-    !selectedAttributionIsExternal &&
-    !selectedAttributionIsReadonly;
-
-  if (
-    !!selectedAttributionId &&
-    !selectedAttribution &&
-    !isSelectedAttributionLoading
-  ) {
+  if (!hasMainAttribution && !isLoading) {
     return null;
   }
-
-  if (isSelectedResourceReadonly && !selectedAttributionId) {
+  if (
+    presentation.isResourceReadonly &&
+    !presentation.attributionId &&
+    !isLoading
+  ) {
     return null;
   }
 
   return (
     <MuiBox
       aria-label={'attribution column'}
+      aria-busy={isLoading}
       data-dirty={isPackageInfoDirty}
       sx={classes.root}
     >
-      {isSelectedAttributionLoading && (
+      {showProgress && isLoading && (
         <MuiLinearProgress
           data-testid={'attribution-details-loading'}
           sx={classes.loadingIndicator}
@@ -126,14 +104,14 @@ export function AttributionDetails() {
         packageInfo={temporaryDisplayPackageInfo}
         onEdit={isEditable ? confirmAttributionEdit.confirm : undefined}
         dimmed={pickerMode.isActive}
+        interactionBlocked={isLoading}
       />
-      {!isSelectedAttributionLoading && (
-        <ButtonRow
-          isEditable={isEditable}
-          isReadonly={selectedAttributionIsReadonly === true}
-          packageInfo={temporaryDisplayPackageInfo}
-        />
-      )}
+      <ButtonRow
+        key={selectionIsPending ? 'pending' : 'ready'}
+        presentation={presentation}
+        draft={temporaryDisplayPackageInfo}
+        isLoading={isLoading}
+      />
       {confirmAttributionEdit.dialog}
     </MuiBox>
   );

@@ -5,7 +5,9 @@
 import MuiBox from '@mui/material/Box';
 import MuiDivider from '@mui/material/Divider';
 import MuiTypography from '@mui/material/Typography';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import useEventCallback from '@mui/utils/useEventCallback';
+import { useLayoutEffect, useRef, useState } from 'react';
 
 import type { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -42,6 +44,7 @@ interface AttributionFormProps {
   onEdit?: Confirm;
   label?: string;
   dimmed?: boolean;
+  interactionBlocked?: boolean;
 }
 
 export function AttributionForm({
@@ -49,10 +52,17 @@ export function AttributionForm({
   label,
   onEdit,
   dimmed,
+  interactionBlocked = false,
 }: AttributionFormProps) {
+  const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+  const headerContentRef = useRef<HTMLDivElement>(null);
+  const [headerHeight, setHeaderHeight] = useState<number>();
   const dispatch = useAppDispatch();
   const showHighlight = !!onEdit;
   const updatePackageInfo = useEventCallback((patch: PackagePatch) => {
+    if (interactionBlocked) {
+      return;
+    }
     dispatch(
       setTemporaryDisplayPackageInfo({
         ...packageInfo,
@@ -64,6 +74,20 @@ export function AttributionForm({
     void onEdit?.(() => updatePackageInfo({ firstParty }));
   });
 
+  useLayoutEffect(() => {
+    const content = headerContentRef.current;
+    if (!content) {
+      return;
+    }
+
+    const observer = new ResizeObserver(([entry]) => {
+      const height = entry.contentRect.height;
+      setHeaderHeight(height);
+    });
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <MuiBox
       data-testid={'attribution-form-wrapper'}
@@ -72,12 +96,28 @@ export function AttributionForm({
         opacity: dimmed ? PICKER_MODE_DISABLED_OPACITY : 1,
       }}
       aria-label={label}
+      inert={interactionBlocked}
     >
-      <AuditingOptions
-        packageInfo={packageInfo}
-        isEditable={!!onEdit}
-        onUpdate={updatePackageInfo}
-      />
+      <MuiBox
+        sx={{
+          height: headerHeight ?? 'auto',
+          transition:
+            headerHeight === undefined || reduceMotion
+              ? 'none'
+              : 'height 150ms ease-out',
+          flexShrink: 0,
+          overflow: 'hidden',
+        }}
+      >
+        <MuiBox ref={headerContentRef}>
+          <AuditingOptions
+            packageInfo={packageInfo}
+            isEditable={!!onEdit}
+            onUpdate={updatePackageInfo}
+            interactionBlocked={interactionBlocked}
+          />
+        </MuiBox>
+      </MuiBox>
       <MuiDivider variant={'middle'}>
         <MuiTypography>
           {text.attributionColumn.packageCoordinates}

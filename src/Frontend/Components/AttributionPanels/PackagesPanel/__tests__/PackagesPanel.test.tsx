@@ -15,6 +15,7 @@ import { faker } from '../../../../../testing/Faker';
 import { pathsToResources } from '../../../../../testing/global-test-helpers';
 import { closePopupAndUnsetTargets } from '../../../../state/actions/popup-actions/popup-actions';
 import {
+  setAttributionSelectionPending,
   setPendingAttributionNavigation,
   setSelectedAttributionId,
   setSelectedResourceId,
@@ -189,6 +190,83 @@ describe('PackagesPanel', () => {
       expect(store.getState().resourceState.selectedAttributionId).toBe(
         resourceAttribution.id,
       );
+      expect(
+        getAttributionSelectionPendingResourceId(store.getState()),
+      ).toBeNull();
+    });
+  });
+
+  it('resumes automatic selection when remounted with a pending resource', async () => {
+    const resourceAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const resource = '/pending-resource';
+    const { store } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [resourceAttribution.id]: resourceAttribution,
+      }),
+      actions: [
+        setSelectedResourceId(resource),
+        setAttributionSelectionPending(resource),
+      ],
+    });
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        resourceAttribution.id,
+      );
+      expect(
+        getAttributionSelectionPendingResourceId(store.getState()),
+      ).toBeNull();
+    });
+  });
+
+  it('completes pending selection for an empty resource', async () => {
+    const resource = '/empty-resource';
+    const { store } = await renderPackagesPanel({
+      attributions: {},
+      actions: [
+        setSelectedResourceId(resource),
+        setAttributionSelectionPending(resource),
+      ],
+    });
+
+    await waitFor(() => {
+      expect(
+        getAttributionSelectionPendingResourceId(store.getState()),
+      ).toBeNull();
+    });
+  });
+
+  it('preserves an explicit report target and completes its resource selection', async () => {
+    const firstAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const target = faker.opossum.packageInfo({ relation: 'resource' });
+    const resource = '/report-resource';
+    const { store } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [firstAttribution.id]: firstAttribution,
+        [target.id]: target,
+      }),
+      actions: [
+        setSelectedResourceId(resource),
+        setAttributionSelectionPending(resource),
+        setSelectedAttributionId(target.id),
+        setPendingAttributionNavigation({
+          attributionUuid: target.id,
+          fallbackResourcePath: '/',
+        }),
+      ],
+    });
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        target.id,
+      );
+      expect(
+        store.getState().resourceState.pendingAttributionNavigation,
+      ).toBeNull();
       expect(
         getAttributionSelectionPendingResourceId(store.getState()),
       ).toBeNull();
@@ -701,6 +779,9 @@ describe('PackagesPanel', () => {
       expect(store.getState().resourceState.pendingAttributionNavigation).toBe(
         null,
       );
+      expect(
+        store.getState().resourceState.attributionSelectionPendingResourceId,
+      ).toBe(null);
     });
   });
 

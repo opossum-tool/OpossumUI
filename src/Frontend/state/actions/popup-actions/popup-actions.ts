@@ -265,6 +265,11 @@ export function mergeOpossumFilesIntoCurrentFile(
 
 export function proceedFromUnsavedPopup(): AppThunkAction {
   return (dispatch, getState) => {
+    dispatch(
+      initializePackageInfoEditing(
+        getState().resourceState.originalDisplayPackageInfo,
+      ),
+    );
     const targetView = getTargetView(getState());
     const openFileRequest = getOpenFileRequest(getState());
     const importFileRequest = getImportFileRequest(getState());

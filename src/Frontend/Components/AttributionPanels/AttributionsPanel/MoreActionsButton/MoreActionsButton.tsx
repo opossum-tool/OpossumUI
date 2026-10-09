@@ -145,9 +145,11 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
         selection,
         property,
         value: newState,
-        attributions: selectedAttributionId
-          ? { [selectedAttributionId]: temporaryDisplayPackageInfo }
-          : undefined,
+        attributions:
+          selectedAttributionId &&
+          temporaryDisplayPackageInfo.id === selectedAttributionId
+            ? { [selectedAttributionId]: temporaryDisplayPackageInfo }
+            : undefined,
         focusedAttributionUuid: selectedAttributionId,
       });
       handleClose();
