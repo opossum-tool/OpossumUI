@@ -44,42 +44,12 @@ test.use({
   },
 });
 
-test('opens and cancels the create split dialog', async ({
-  resourcesTree,
-  splitDialog,
-}) => {
-  await resourcesTree.openSplitDialog(firstDirectoryName);
-  await splitDialog.assert.titleIsVisible();
-
-  await splitDialog.cancelButton.click();
-
-  await splitDialog.assert.titleIsHidden();
-});
-
-test('opens the create split dialog from the File menu', async ({
-  menuBar,
-  splitDialog,
-}) => {
-  await menuBar.createSplit();
-
-  await splitDialog.assert.titleIsVisible();
-  await expect(splitDialog.createButton).toBeDisabled();
-});
-
-test('warns user of unsaved changes before creating a split', async ({
-  attributionDetails,
-  notSavedPopup,
-  resourcesTree,
-}) => {
-  await resourcesTree.goto(firstDirectoryName, firstResourceName);
-  await attributionDetails.attributionForm.comment.fill(
-    faker.lorem.sentences(),
-  );
-
-  await resourcesTree.openSplitDialog(firstDirectoryName);
-
-  await notSavedPopup.assert.isVisible();
-});
+// The dialog-UX tests of this suite (opening/cancelling via the tree context
+// menu, opening via the File menu, and the unsaved-changes warning) live in
+// src/Frontend/integration-tests/splitting-opossum-files.test.tsx. The tests
+// below stay e2e: they create real partitions through the native save dialog
+// stub and verify the resulting .opossum files on disk, which the
+// integration harness cannot exercise.
 
 test('opens the new split file', async ({
   attributionsPanel,

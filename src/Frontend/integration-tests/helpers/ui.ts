@@ -1056,6 +1056,80 @@ export async function expectStatisticsCharts(
   }
 }
 
+const SPLIT_DIALOG_LABEL = 'split dialog';
+const UNSAVED_CHANGES_POPUP_LABEL = 'unsaved changes popup';
+
+export async function openSplitDialogViaTreeContextMenu(
+  name: string,
+): Promise<void> {
+  await waitFor(() => {
+    expect(resourceTreeItem(name)).toBeVisible();
+  }, SETTLED_TIMEOUT);
+  fireEvent.contextMenu(resourceTreeItem(name));
+  await userEvent.click(
+    await waitFor(
+      () =>
+        screen.getByRole('menuitem', { name: text.resourceBrowser.splitHere }),
+      SETTLED_TIMEOUT,
+    ),
+  );
+}
+
+export function openSplitDialogFromMenu(sendToChannel: SendToChannel): void {
+  // The native File-menu item sends this exact IPC channel; simulate the menu
+  // click instead of the menu itself.
+  sendToChannel(AllowedFrontendChannels.ShowSplitDialog);
+}
+
+export async function expectSplitDialogVisibility(
+  visible: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const popup = screen.queryByLabelText(SPLIT_DIALOG_LABEL);
+    if (visible) {
+      expect(popup).not.toBeNull();
+      expect(popup).toBeVisible();
+      expect(
+        within(popup as HTMLElement).getByRole('heading', {
+          name: text.splitDialog.title,
+        }),
+      ).toBeVisible();
+    } else {
+      expect(popup).toBeNull();
+    }
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectSplitDialogCreateButtonEnabled(
+  enabled: boolean,
+): Promise<void> {
+  const popup = await getPopup(SPLIT_DIALOG_LABEL);
+  const button = within(popup).getByRole('button', {
+    name: text.splitDialog.create,
+  });
+  await waitFor(() => {
+    expect(isNodeEnabled(button)).toBe(enabled);
+  }, SETTLED_TIMEOUT);
+}
+
+export async function cancelSplitDialog(): Promise<void> {
+  await clickPopupButton(SPLIT_DIALOG_LABEL, text.buttons.cancel);
+}
+
+export async function expectUnsavedChangesPopupVisibility(
+  visible: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const popup = screen.queryByLabelText(UNSAVED_CHANGES_POPUP_LABEL);
+    if (visible) {
+      expect(popup).not.toBeNull();
+      expect(popup).toBeVisible();
+    } else {
+      expect(popup).toBeNull();
+    }
+  }, SETTLED_TIMEOUT);
+}
+
 export async function openAuditingOptionsMenu(): Promise<void> {
   await userEvent.click(
     within(getAttributionColumn()).getByText(text.auditingOptions.add),
