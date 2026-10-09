@@ -6,6 +6,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, waitFor } from '@testing-library/react';
 import type { IpcRendererEvent } from 'electron';
+import { Resizable } from 're-resizable';
 import { Provider } from 'react-redux';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
@@ -24,6 +25,14 @@ import { createTestStore } from '../../test-helpers/render';
 
 type IpcListener = (event: IpcRendererEvent, ...args: Array<unknown>) => void;
 
+// re-resizable reads offsetHeight, which is always 0 in happy-dom. Give the
+// panel container a realistic size so the upper/lower split panels are not
+// collapsed and their headers keep search fields and action buttons.
+Object.defineProperty(Resizable.prototype, 'size', {
+  get: () => ({ width: 1024, height: 1920 }),
+  configurable: true,
+});
+
 export interface RenderAppOptions {
   /** Database fixture: the parsed content of the .opossum file the app opens. */
   data?: ParsedFileContent;
@@ -37,6 +46,7 @@ export interface RenderAppOptions {
 
 export interface RenderAppResult {
   store: Awaited<ReturnType<typeof createTestStore>>;
+  queryClient: QueryClient;
   /**
    * Simulates the Electron main process sending an event on an IPC channel,
    * e.g. a click on a native menu item.
@@ -148,5 +158,5 @@ export async function renderApp(
     });
   }
 
-  return { store, sendToChannel };
+  return { store, sendToChannel, queryClient };
 }
