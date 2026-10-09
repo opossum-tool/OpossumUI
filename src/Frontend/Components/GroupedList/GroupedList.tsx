@@ -7,6 +7,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 import MuiBox from '@mui/material/Box';
+import { useTheme } from '@mui/material/styles';
 import MuiTooltip from '@mui/material/Tooltip';
 import type { SxProps } from '@mui/system';
 import { useEffect, useMemo, useState } from 'react';
@@ -29,7 +30,7 @@ import type { UnloadedItemsProps } from '../List/List';
 import { LoadingIndicator } from '../LoadingIndicator/loading-indicator';
 import { LoadingMask } from '../LoadingMask/LoadingMask';
 import { VirtuosoComponentContext } from '../VirtuosoComponentContext/VirtuosoComponentContext';
-import { GroupContainer } from './GroupedList.style';
+import { getGroupContainerHeight, GroupContainer } from './GroupedList.style';
 
 export interface GroupedListItemContentProps {
   index: number;
@@ -78,6 +79,7 @@ export function GroupedList({
 }: GroupedListProps &
   UnloadedItemsProps &
   Omit<GroupedVirtuosoProps<string, unknown>, 'selected'>) {
+  const theme = useTheme();
   const [readiness, setReadiness] = useState<{
     resultSetKey: string | undefined;
     ready: boolean;
@@ -223,7 +225,10 @@ export function GroupedList({
     isListReady,
     resultSetKey,
     selectedId,
-    scrollToIndex: true,
+    viewportTopOffset:
+      groups?.syntheticGroupIndex === undefined
+        ? getGroupContainerHeight(theme)
+        : 0,
   });
 
   return (

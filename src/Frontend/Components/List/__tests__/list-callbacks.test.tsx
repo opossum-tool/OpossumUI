@@ -89,6 +89,8 @@ describe('List selection scrolling', () => {
     expect(virtuosoMock.scrollIntoView).toHaveBeenCalledWith({
       index: 3,
       align: 'center',
+      behavior: 'smooth',
+      calculateViewLocation: expect.any(Function),
     });
   });
 
@@ -158,6 +160,8 @@ describe('List pagination', () => {
     expect(virtuosoMock.scrollIntoView).toHaveBeenCalledWith({
       index: 1,
       align: 'center',
+      behavior: 'smooth',
+      calculateViewLocation: expect.any(Function),
     });
   });
 
