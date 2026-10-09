@@ -42,6 +42,7 @@ vi.mock('electron', async () => ({
   },
   BrowserWindow: class BrowserWindowMock {
     loadURL = vi.fn(() => Promise.resolve(null));
+    maximize = vi.fn();
     setTitle = vi.fn();
     getFocusedWindow = vi.fn();
     webContents = {

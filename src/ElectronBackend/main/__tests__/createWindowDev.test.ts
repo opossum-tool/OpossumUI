@@ -17,6 +17,7 @@ vi.mock('electron', async () => ({
     constructor() {
       return {
         loadURL: vi.fn(),
+        maximize: vi.fn(),
         webContents: {
           openDevTools: vi.fn(),
           session: {
