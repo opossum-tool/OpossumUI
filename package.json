@@ -94,7 +94,6 @@
     "kysely-codegen": "0.20.0",
     "lint-staged": "17.6.0",
     "mkdirp": "3.0.1",
-    "mockdate": "3.0.5",
     "nunjucks": "3.2.4",
     "prettier": "3.9.10",
     "prettier-plugin-sh": "0.20.2",

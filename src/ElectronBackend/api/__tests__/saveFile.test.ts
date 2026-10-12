@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AdmZip from 'adm-zip';
-import * as MockDate from 'mockdate';
 
 import { Criticality } from '../../../shared/shared-types';
 import { writeOpossumFile } from '../../../shared/write-file';
@@ -18,9 +17,6 @@ vi.mock('../../../shared/write-file', async () => ({
   ...(await vi.importActual('../../../shared/write-file')),
   writeOpossumFile: vi.fn(),
 }));
-
-const mockDate = 1603976726737;
-MockDate.set(new Date(mockDate));
 
 describe('saveFile', () => {
   afterEach(() => {
