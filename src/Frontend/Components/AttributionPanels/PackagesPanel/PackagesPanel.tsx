@@ -66,6 +66,7 @@ import {
   ALERT_CONTAINER_HEIGHT,
   AlertContainer,
   ButtonGroup,
+  getTabIndicatorStyle,
   Panel,
   Tab,
   Tabs,
@@ -163,6 +164,7 @@ export const PackagesPanel = ({
   const relationTransitionRef = useRef(false);
   const preserveSelectionRef = useRef(false);
   const preserveSelection =
+    // eslint-disable-next-line @eslint-react/refs -- preserve-selection must not trigger re-renders
     !selectionIdentityChanged && preserveSelectionRef.current;
   // Keeps a requested relation active until its tab appears in relation counts.
   const requestedRelationRef = useRef<Relation | null>(null);
@@ -833,7 +835,14 @@ export const PackagesPanel = ({
 
   function renderTabs() {
     if (!availableRelations?.length) {
-      return <Tabs centered variant={'fullWidth'} value={-1}></Tabs>;
+      return (
+        <Tabs
+          centered
+          variant={'fullWidth'}
+          value={-1}
+          slotProps={{ indicator: { style: { display: 'none' } } }}
+        />
+      );
     }
 
     const activeTabIndex = availableRelations.findIndex(
@@ -845,6 +854,15 @@ export const PackagesPanel = ({
         centered
         variant={'fullWidth'}
         value={activeTabIndex === -1 ? false : activeTabIndex}
+        slotProps={{
+          indicator: {
+            style: getTabIndicatorStyle(
+              activeTabIndex,
+              availableRelations.length,
+              theme.direction,
+            ),
+          },
+        }}
         onChange={(_, index) => {
           preserveSelectionRef.current = true;
           setActiveRelation(availableRelations[index]);

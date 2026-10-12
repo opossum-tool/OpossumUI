@@ -87,17 +87,32 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
     containerHeight !== undefined &&
     effectiveHeight >= containerHeight - HEADER_HEIGHT - 1;
 
+  // Tracks real geometry changes of the container's DOM node via a
+  // ResizeObserver. Must not run on every re-render: measuring and
+  // setting state per render fights CSS transitions and the drag
+  // mechanics of re-resizable, causing a resize feedback loop.
   useLayoutEffect(() => {
-    if (containerRef.current) {
-      setContainerHeight(containerRef.current.size.height);
+    const node = containerRef.current?.resizable;
+    if (!node) {
+      return;
     }
-  }, [containerRef.current?.size.height]);
+    const resizeObserver = new ResizeObserver(() => {
+      setContainerHeight(node.offsetHeight);
+    });
+    resizeObserver.observe(node);
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     const applyGoldenRatio = () =>
       containerHeight !== undefined && setHeight(containerHeight / fraction);
 
-    heightIsNull && applyGoldenRatio();
+    if (!heightIsNull) {
+      return;
+    }
+    applyGoldenRatio();
     window.addEventListener('resize', applyGoldenRatio);
 
     return () => {
