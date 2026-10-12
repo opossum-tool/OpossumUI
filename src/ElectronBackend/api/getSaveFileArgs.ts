@@ -94,8 +94,14 @@ export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
     .execute(async (trx) => {
       const manualAttributionsResult = await trx
         .selectFrom('attribution')
+        .leftJoin(
+          'attribution_ai',
+          'attribution.uuid',
+          'attribution_ai.attribution_uuid',
+        )
         .selectAll('attribution')
-        .where('is_external', '=', 0)
+        .select('attribution_ai.additional_data as ai_additional_data')
+        .where('attribution.is_external', '=', 0)
         .execute();
 
       const preferredOver = await getPreferredOverOriginIds(trx);
@@ -129,10 +135,23 @@ export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
     });
 
   const manualAttributions: Attributions = Object.fromEntries(
-    queryResults.manualAttributionsResult.map((row) => [
-      row.uuid,
-      packageInfoFromAttributionRow(row),
-    ]),
+    queryResults.manualAttributionsResult.map((row) => {
+      const packageInfo = packageInfoFromAttributionRow(row);
+      return [
+        row.uuid,
+        {
+          ...packageInfo,
+          ...(row.ai_additional_data === null
+            ? {}
+            : {
+                aiAttributions: JSON.parse(row.ai_additional_data) as Record<
+                  string,
+                  unknown
+                >,
+              }),
+        },
+      ];
+    }),
   );
 
   for (const id of Object.keys(manualAttributions)) {

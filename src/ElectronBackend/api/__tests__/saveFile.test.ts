@@ -23,6 +23,76 @@ const mockDate = 1603976726737;
 MockDate.set(new Date(mockDate));
 
 describe('saveFile', () => {
+  afterEach(() => {
+    vi.mocked(writeOpossumFile).mockReset();
+  });
+
+  it('writes current, empty, and absent AI metadata from the database', async () => {
+    const opossumZip = new AdmZip();
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/a']),
+      manualAttributions: {
+        attributions: {
+          withAi: {
+            id: 'withAi',
+            packageName: 'before',
+            criticality: Criticality.None,
+            ...{ aiAttributions: { model: 'test' } },
+          },
+          emptyAi: {
+            id: 'emptyAi',
+            packageName: 'empty',
+            criticality: Criticality.None,
+            ...{ aiAttributions: {} },
+          },
+          extraField: {
+            id: 'extraField',
+            packageName: 'extra',
+            criticality: Criticality.None,
+            ...{ ai_attributions: { legacy: true } },
+          },
+          absent: {
+            id: 'absent',
+            packageName: 'absent',
+            criticality: Criticality.None,
+          },
+        },
+        resourcesToAttributions: {
+          '/a': ['withAi', 'emptyAi', 'extraField', 'absent'],
+        },
+        attributionsToResources: {},
+      },
+    });
+    await getDb()
+      .updateTable('attribution_ai')
+      .set({ additional_data: '{"databaseValue":{"preserved":true}}' })
+      .where('attribution_uuid', '=', 'withAi')
+      .execute();
+    await saveFile(
+      { projectId: 'project', opossumFilePath: '/output/file.opossum' },
+      opossumZip,
+    );
+
+    expect(writeOpossumFile).toHaveBeenCalledWith(
+      expect.objectContaining({
+        output: expect.objectContaining({
+          manualAttributions: expect.objectContaining({
+            withAi: expect.objectContaining({
+              aiAttributions: { databaseValue: { preserved: true } },
+            }),
+            emptyAi: expect.objectContaining({ aiAttributions: {} }),
+            extraField: expect.objectContaining({
+              ai_attributions: { legacy: true },
+            }),
+            absent: expect.not.objectContaining({
+              aiAttributions: expect.anything(),
+            }),
+          }),
+        }),
+      }),
+    );
+  });
+
   it('writes to opossumFilePath as .opossum format', async () => {
     const opossumZip = new AdmZip();
 

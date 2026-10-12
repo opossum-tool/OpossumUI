@@ -5,7 +5,10 @@
 import AdmZip from 'adm-zip';
 
 import type { ReadonlyRule } from '../../../shared/shared-types';
-import { INPUT_FILE_NAME } from '../../../shared/write-file-utils';
+import {
+  INPUT_FILE_NAME,
+  OUTPUT_FILE_NAME,
+} from '../../../shared/write-file-utils';
 import { faker } from '../../../testing/Faker';
 import {
   initializeDbWithTestData,
@@ -65,6 +68,44 @@ describe('splitOpossumArchive', () => {
     expect(
       new AdmZip(splitOpossumFilePath).readAsText('additional-data.txt'),
     ).toBe('kept');
+  });
+
+  it('preserves nested, empty, and absent AI attribution metadata', async () => {
+    const { sourceOpossumFilePath, splitOpossumFilePath } = await splitArchive({
+      selectedFolderPaths: ['/docs'],
+      readonlyRules: [],
+      output: {
+        metadata: { fileCreationDate: 'today', projectId: 'project-id' },
+        manualAttributions: {
+          nested: {
+            id: 'nested',
+            packageName: 'nested',
+            ...{ aiAttributions: { nested: { value: true } } },
+          },
+          empty: {
+            id: 'empty',
+            packageName: 'empty',
+            ...{ aiAttributions: {} },
+          },
+          absent: { id: 'absent', packageName: 'absent' },
+        },
+        resourcesToAttributions: {},
+        resolvedExternalAttributions: [],
+      },
+    });
+
+    for (const archivePath of [sourceOpossumFilePath, splitOpossumFilePath]) {
+      const output = JSON.parse(
+        new AdmZip(archivePath).readAsText(OUTPUT_FILE_NAME),
+      );
+      expect(output.manualAttributions.nested.aiAttributions).toEqual({
+        nested: { value: true },
+      });
+      expect(output.manualAttributions.empty.aiAttributions).toEqual({});
+      expect(output.manualAttributions.absent).not.toHaveProperty(
+        'aiAttributions',
+      );
+    }
   });
 
   it('removes a writable override when that folder is split', async () => {
@@ -201,9 +242,11 @@ describe('splitOpossumArchive', () => {
 async function splitArchive({
   selectedFolderPaths,
   readonlyRules,
+  output,
 }: {
   selectedFolderPaths: Array<string>;
   readonlyRules: Array<ReadonlyRule>;
+  output?: Record<string, unknown>;
 }): Promise<{
   source: Array<ReadonlyRule>;
   selected: Array<ReadonlyRule>;
@@ -218,6 +261,9 @@ async function splitArchive({
   );
   const sourceZip = new AdmZip();
   sourceZip.addFile(INPUT_FILE_NAME, Buffer.from(JSON.stringify(input)));
+  if (output) {
+    sourceZip.addFile(OUTPUT_FILE_NAME, Buffer.from(JSON.stringify(output)));
+  }
   sourceZip.addFile('additional-data.txt', Buffer.from('kept'));
   await splitOpossumArchive({
     paths: {

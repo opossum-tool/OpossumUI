@@ -33,6 +33,7 @@ import { getAttributionPersistenceValues } from './attributionData';
 import { getDb, getRawDb, resetDb } from './db';
 import type {
   Attribution,
+  AttributionAi,
   DB,
   SourceForAttribution,
 } from './generated/databaseTypes';
@@ -43,6 +44,7 @@ type AttributionInsertRow = Omit<
   CompleteInsertRow<Attribution>,
   'canonical_license_name' | 'resource_access'
 >;
+type AttributionAiInsertRow = CompleteInsertRow<AttributionAi>;
 type SourceForAttributionInsertRow = CompleteInsertRow<SourceForAttribution>;
 
 type SqliteInsertValue = null | number | string;
@@ -79,6 +81,11 @@ export const comments: Record<string, Record<string, string>> = {
       'Canonical JSON array containing origin IDs this attribution is preferred over',
     resource_access:
       'Whether this attribution has only readonly resources, only writable resources, or both.',
+  },
+  attribution_ai: {
+    _table_: 'Opaque AI attribution metadata associated with an attribution',
+    additional_data:
+      'Additional properties kept as JSON for compatibility, including unknown and unused properties',
   },
   resource: {
     name: 'The name of the root resource is the empty string',
@@ -162,6 +169,8 @@ export async function initializeDb(inputFile: ParsedFileContent) {
         inputFile.manualAttributions,
         inputFile.resolvedExternalAttributions,
       );
+
+      await initializeAttributionAiTable(trx, inputFile.manualAttributions);
 
       await initializeSourceForAttributionTable(
         trx,
@@ -809,6 +818,62 @@ async function initializeAttributionTable(
     .where('is_external', '=', 1)
     .where('is_resolved', '=', 0)
     .execute();
+}
+
+async function initializeAttributionAiTable(
+  trx: Transaction<DB>,
+  manualAttributions: InputFileAttributionData,
+) {
+  const attributionAiExpressionBuilder = expressionBuilder<
+    DB,
+    'attribution_ai'
+  >();
+  await trx.schema
+    .createTable('attribution_ai')
+    .addColumn('attribution_uuid', 'text', (col) =>
+      col
+        .primaryKey()
+        .notNull()
+        .references('attribution.uuid')
+        .onDelete('cascade'),
+    )
+    .addColumn('additional_data', 'text', (col) =>
+      col
+        .notNull()
+        .check(
+          attributionAiExpressionBuilder.and([
+            attributionAiExpressionBuilder(
+              attributionAiExpressionBuilder.fn<number>('json_valid', [
+                'additional_data',
+              ]),
+              '=',
+              sql.lit(1),
+            ),
+            attributionAiExpressionBuilder(
+              attributionAiExpressionBuilder.fn<string>('json_type', [
+                'additional_data',
+              ]),
+              '=',
+              sql.lit('object'),
+            ),
+          ]),
+        ),
+    )
+    .execute();
+
+  const insertAi = createPreparedInserter<AttributionAiInsertRow>((row) =>
+    trx.insertInto('attribution_ai').values(row),
+  );
+  for (const [uuid, attribution] of Object.entries(
+    manualAttributions.attributions,
+  )) {
+    if ('aiAttributions' in attribution) {
+      insertAi({
+        attribution_uuid: uuid,
+        additional_data: JSON.stringify(attribution.aiAttributions),
+      });
+    }
+  }
 }
 
 async function initializeSourceForAttributionTable(

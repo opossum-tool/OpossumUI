@@ -118,6 +118,7 @@ const correctOutput: OpossumOutputFile = {
       needsReview: true,
       preferred: true,
       preferredOverOriginIds: ['test-id'],
+      ...{ aiAttributions: { arbitrary: [1, { nested: true }] } },
     },
   },
   resourcesToAttributions: {
@@ -172,6 +173,25 @@ describe('parseOpossumFile', () => {
       type: 'jsonParsingError',
     });
   });
+
+  it.each([null, []])(
+    'rejects non-object AI attribution metadata: %j',
+    async (value) => {
+      const invalidInput = structuredClone(correctInput);
+      invalidInput.externalAttributions[testUuid] = {
+        ...invalidInput.externalAttributions[testUuid],
+        ...{ ai_attributions: value },
+      };
+      const opossumFilePath = await writeOpossumFile({
+        input: invalidInput,
+        path: faker.outputPath(`${faker.string.uuid()}.opossum`),
+      });
+
+      expect(await parseOpossumFile(opossumFilePath)).toMatchObject({
+        type: 'jsonParsingError',
+      });
+    },
+  );
 
   it('rejects split metadata without readonly rules', async () => {
     const opossumFilePath = await writeOpossumFile({

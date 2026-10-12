@@ -8,6 +8,7 @@ import type { ReadonlyRule } from '../../../shared/shared-types';
 import { writeOpossumFile } from '../../../shared/write-file';
 import {
   INPUT_FILE_NAME,
+  OUTPUT_FILE_NAME,
   SPLIT_INFO_FILE_NAME,
 } from '../../../shared/write-file-utils';
 import { faker } from '../../../testing/Faker';
@@ -83,6 +84,47 @@ describe('mergeOpossumArchives', () => {
       'source data',
     );
   });
+
+  it.each([
+    { metadata: { source: 'writable' } },
+    { metadata: {} },
+    { metadata: undefined },
+  ])(
+    'uses writable attribution AI metadata ($metadata) in either input order',
+    async ({ metadata }) => {
+      const docsPath = await createArchive({
+        output: output({
+          attributions: { docs: 'shared', frontend: 'other' },
+          aiAttributions: { shared: metadata },
+        }),
+        readonlyRules: [
+          { path: '/', readonly: true },
+          { path: '/docs', readonly: false },
+        ],
+      });
+      const frontendPath = await createArchive({
+        output: output({
+          attributions: { docs: 'stale', frontend: 'other' },
+          aiAttributions: { shared: { source: 'readonly' } },
+        }),
+        readonlyRules: [
+          { path: '/', readonly: true },
+          { path: '/frontend', readonly: false },
+        ],
+      });
+
+      for (const inputPaths of [
+        [docsPath, frontendPath],
+        [frontendPath, docsPath],
+      ]) {
+        const outputPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
+        await mergeOpossumArchives({ inputPaths, outputPath });
+
+        const mergedAttribution = readOutputAttribution(outputPath, 'shared');
+        expectAiMetadata(mergedAttribution, metadata);
+      }
+    },
+  );
 
   it('merges consecutively split archives in any order', async () => {
     const sourcePath = await createArchive({
@@ -451,9 +493,11 @@ async function copyArchiveWithOutput(
 
 function output({
   attributions,
+  aiAttributions,
   resolved = [],
 }: {
   attributions: Record<string, string>;
+  aiAttributions?: Record<string, object | undefined>;
   resolved?: Array<string>;
 }): ParsedOpossumOutputFile {
   return {
@@ -462,10 +506,16 @@ function output({
       projectId: input.metadata.projectId,
     },
     manualAttributions: Object.fromEntries(
-      Object.values(attributions).map((attributionUuid) => [
-        attributionUuid,
-        { packageName: attributionUuid },
-      ]),
+      Object.values(attributions).map((attributionUuid) => {
+        const aiMetadata = aiAttributions?.[attributionUuid];
+        return [
+          attributionUuid,
+          {
+            packageName: attributionUuid,
+            ...(aiMetadata === undefined ? {} : { aiAttributions: aiMetadata }),
+          },
+        ];
+      }),
     ),
     resourcesToAttributions: Object.fromEntries(
       Object.entries(attributions).map(([directory, attributionUuid]) => [
@@ -488,4 +538,27 @@ async function parseMergedArchive(filePath: string) {
 function getReadonlyRules(filePath: string): Array<ReadonlyRule> {
   return JSON.parse(new AdmZip(filePath).readAsText(SPLIT_INFO_FILE_NAME))
     .readonlyRules as Array<ReadonlyRule>;
+}
+
+function readOutputAttribution(
+  filePath: string,
+  attributionId: string,
+): { aiAttributions?: unknown } {
+  const output = JSON.parse(
+    new AdmZip(filePath).readAsText(OUTPUT_FILE_NAME),
+  ) as {
+    manualAttributions: Record<string, { aiAttributions?: unknown }>;
+  };
+  return output.manualAttributions[attributionId];
+}
+
+function expectAiMetadata(
+  attribution: { aiAttributions?: unknown },
+  metadata: object | undefined,
+): void {
+  if (metadata === undefined) {
+    expect(attribution).not.toHaveProperty('aiAttributions');
+  } else {
+    expect(attribution.aiAttributions).toEqual(metadata);
+  }
 }

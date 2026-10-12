@@ -68,6 +68,17 @@ export interface Attribution {
   canonical_license_name: Generated<string | null>;
 }
 
+/**
+ * Opaque AI attribution metadata associated with an attribution
+ */
+export interface AttributionAi {
+  /**
+   * Additional properties kept as JSON for compatibility, including unknown and unused properties
+   */
+  additional_data: string;
+  attribution_uuid: string;
+}
+
 export interface Classification {
   classification: Generated<number>;
   description: string;
@@ -170,6 +181,7 @@ export interface SourceForAttribution {
 
 export interface DB {
   attribution: Attribution;
+  attribution_ai: AttributionAi;
   classification: Classification;
   closest_attributed_ancestors: ClosestAttributedAncestors;
   external_attribution_source: ExternalAttributionSource;

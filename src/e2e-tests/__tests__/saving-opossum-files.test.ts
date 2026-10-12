@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { expect } from '@playwright/test';
+import { isEqual } from 'lodash-es';
 
 import { parseOpossumFile } from '../../ElectronBackend/input/parseFile';
 import { faker, test } from '../utils';
@@ -47,9 +48,12 @@ test.describe('saving an archive opened from the CLI', () => {
 
     // wait for the changes to be written to disk before loading
     await expect
-      .poll(() => archiveContainsComment(filePaths!.opossum, comment), {
-        message: 'Expected output.json to contain the updated attribution',
-      })
+      .poll(
+        () => archiveContainsSavedAttribution(filePaths!.opossum, comment),
+        {
+          message: 'Expected saved output to contain the updated attribution',
+        },
+      )
       .toBe(true);
 
     await menuBar.openFileAndWaitForLoad(filePaths!.opossum);
@@ -73,6 +77,12 @@ const auditRejectedResourcePath = faker.opossum.filePath(
 );
 const [auditLinkedAttributionId, auditLinkedPackageInfo] =
   faker.opossum.rawAttribution();
+const [auditPreservedAttributionId, auditPreservedPackageInfo] =
+  faker.opossum.rawAttribution();
+const auditPreservedAiMetadata = {
+  source: 'saved output',
+  nested: { value: 2 },
+};
 const [auditRejectedAttributionId, auditRejectedPackageInfo] =
   faker.opossum.rawAttribution();
 const [auditDeletedAttributionId, auditDeletedPackageInfo] =
@@ -99,10 +109,15 @@ test.describe('saving an archive opened with the file dialog', () => {
       outputData: faker.opossum.outputData({
         manualAttributions: faker.opossum.rawAttributions({
           [auditDeletedAttributionId]: auditDeletedPackageInfo,
+          [auditPreservedAttributionId]: {
+            ...auditPreservedPackageInfo,
+            ...{ aiAttributions: auditPreservedAiMetadata },
+          },
         }),
         resourcesToAttributions: faker.opossum.resourcesToAttributions({
           [auditDeletedResourcePath]: [auditDeletedAttributionId],
           [auditRejectedResourcePath]: [auditDeletedAttributionId],
+          [auditLinkedResourcePath]: [auditPreservedAttributionId],
         }),
       }),
     },
@@ -143,9 +158,18 @@ test.describe('saving an archive opened with the file dialog', () => {
 
     // wait for the changes to be written to disk before loading
     await expect
-      .poll(() => archiveContainsComment(filePaths!.opossum, comment), {
-        message: 'Expected changes to be persisted',
-      })
+      .poll(
+        () =>
+          archiveContainsSavedAttribution(
+            filePaths!.opossum,
+            comment,
+            auditPreservedAiMetadata,
+          ),
+        {
+          message:
+            'Expected saved output to contain the updated attribution and AI metadata',
+        },
+      )
       .toBe(true);
 
     await menuBar.openFileAndWaitForLoad(filePaths!.opossum);
@@ -169,16 +193,23 @@ test.describe('saving an archive opened with the file dialog', () => {
   });
 });
 
-async function archiveContainsComment(
+async function archiveContainsSavedAttribution(
   filePath: string,
   comment: string,
+  metadata?: Record<string, unknown>,
 ): Promise<boolean> {
   const parsedFile = await parseOpossumFile(filePath);
+  if (!('input' in parsedFile) || parsedFile.output === null) {
+    return false;
+  }
+  const attributions = Object.values(parsedFile.output.manualAttributions);
   return (
-    'input' in parsedFile &&
-    parsedFile.output !== null &&
-    Object.values(parsedFile.output.manualAttributions).some(
-      (attribution) => attribution.comment === comment,
-    )
+    attributions.some((attribution) => attribution.comment === comment) &&
+    (metadata === undefined ||
+      attributions.some(
+        (attribution) =>
+          'aiAttributions' in attribution &&
+          isEqual(attribution.aiAttributions, metadata),
+      ))
   );
 }

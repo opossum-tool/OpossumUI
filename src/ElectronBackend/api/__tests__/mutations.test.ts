@@ -208,6 +208,154 @@ describe('attribution resource access', () => {
     expect(await resourceAccessOf(createdAttributionUuid)).toBe(
       AttributionResourceAccess.Writable,
     );
+    expect(
+      await getDb()
+        .selectFrom('attribution_ai')
+        .selectAll()
+        .where('attribution_uuid', '=', createdAttributionUuid)
+        .execute(),
+    ).toEqual([]);
+  });
+
+  it('omits raw AI metadata from ordinary attribution query results', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/a']),
+      manualAttributions: {
+        attributions: {
+          ai: {
+            id: 'ai',
+            criticality: Criticality.None,
+            packageName: 'with metadata',
+            ...{ aiAttributions: { opaque: true } },
+          },
+        },
+        resourcesToAttributions: { '/a': ['ai'] },
+        attributionsToResources: {},
+      },
+    });
+
+    const { result } = await listAttributionsPage({
+      external: false,
+      filters: [],
+      search: '',
+      valueFilters: {},
+      resourcePathForRelationships: '',
+      showResolved: true,
+      excludeUnrelated: false,
+      scope: { mode: 'all' },
+      sort: 'alphabetically',
+      includeReadonly: true,
+      offset: 0,
+      limit: 200,
+    });
+
+    expect(result.attributions.ai).not.toHaveProperty('aiAttributions');
+  });
+
+  it('preserves stored AI metadata when updating a queried attribution', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/a']),
+      manualAttributions: {
+        attributions: {
+          ai: {
+            id: 'ai',
+            criticality: Criticality.None,
+            packageName: 'before',
+            ...{ aiAttributions: { opaque: { nested: true } } },
+          },
+        },
+        resourcesToAttributions: { '/a': ['ai'] },
+        attributionsToResources: {},
+      },
+    });
+
+    const { result } = await queries.getAttributionData({
+      attributionUuid: 'ai',
+    });
+    expect(result.packageInfo).not.toHaveProperty('aiAttributions');
+
+    await mutations.updateOrMatchAttributions({
+      attributions: {
+        ai: { ...result.packageInfo, packageName: 'after' },
+      },
+    });
+
+    await expect(
+      getDb()
+        .selectFrom('attribution')
+        .select('package_name')
+        .where('uuid', '=', 'ai')
+        .executeTakeFirstOrThrow(),
+    ).resolves.toEqual({ package_name: 'after' });
+    await expect(
+      getDb()
+        .selectFrom('attribution_ai')
+        .select('additional_data')
+        .where('attribution_uuid', '=', 'ai')
+        .executeTakeFirstOrThrow(),
+    ).resolves.toEqual({ additional_data: '{"opaque":{"nested":true}}' });
+  });
+
+  it('keeps manual AI metadata when matching an external signal', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/existing', '/external']),
+      externalAttributions: {
+        attributions: {
+          source: {
+            id: 'source',
+            criticality: Criticality.None,
+            packageName: 'source',
+          },
+        },
+        resourcesToAttributions: { '/external': ['source'] },
+        attributionsToResources: {},
+      },
+      manualAttributions: {
+        attributions: {
+          existing: {
+            id: 'existing',
+            criticality: Criticality.None,
+            packageName: 'matching target',
+          },
+        },
+        resourcesToAttributions: { '/existing': ['existing'] },
+        attributionsToResources: {},
+      },
+    });
+    await getDb()
+      .insertInto('attribution_ai')
+      .values({
+        attribution_uuid: 'existing',
+        additional_data: '{"origin":"target"}',
+      })
+      .execute();
+
+    await mutations.createOrMatchAttributions({
+      resourcePath: '/external',
+      attributions: {
+        copied: {
+          id: 'source',
+          criticality: Criticality.None,
+          packageName: 'new copy',
+        },
+        matchingTarget: {
+          id: 'source',
+          criticality: Criticality.None,
+          packageName: 'matching target',
+        },
+      },
+    });
+
+    const aiRows = await getDb()
+      .selectFrom('attribution_ai')
+      .select(['attribution_uuid', 'additional_data'])
+      .execute();
+    expect(aiRows).toEqual([
+      {
+        attribution_uuid: 'existing',
+        additional_data: '{"origin":"target"}',
+      },
+    ]);
   });
 
   it('returns only the focused remapping for a query-wide link', async () => {
@@ -450,6 +598,13 @@ describe('mixed attribution mutations', () => {
 
   it('clones a mixed attribution before updating its writable partition', async () => {
     await initializeMixedAttribution();
+    await getDb()
+      .insertInto('attribution_ai')
+      .values({
+        attribution_uuid: 'shared',
+        additional_data: '{"origin":{"nested":[1,true]}}',
+      })
+      .execute();
 
     await mutations.updateAttributions({
       attributions: {
@@ -485,6 +640,13 @@ describe('mixed attribution mutations', () => {
         .where('uuid', '=', writableUuids[0])
         .executeTakeFirstOrThrow(),
     ).toEqual({ package_name: 'updated' });
+    expect(
+      await getDb()
+        .selectFrom('attribution_ai')
+        .select('additional_data')
+        .where('attribution_uuid', '=', writableUuids[0])
+        .executeTakeFirstOrThrow(),
+    ).toEqual({ additional_data: '{"origin":{"nested":[1,true]}}' });
   });
 
   it('returns the writable clone UUID after updating a mixed attribution', async () => {

@@ -22,6 +22,7 @@ import {
   THIRD_PARTY_KEYS,
 } from '../../shared/attribution-comparison';
 import type { Attributions, PackageInfo } from '../../shared/shared-types';
+import { copyAttributionAi } from '../db/attribution-ai';
 import {
   getAttributionPersistenceValues,
   packageInfoFromAttributionRow,
@@ -741,6 +742,7 @@ export async function cloneMixedAttributionsForWritableResources(
         is_resolved: attribution.is_resolved,
       })
       .execute();
+    await copyAttributionAi(trx, attribution.uuid, newUuid);
 
     await trx
       .updateTable('resource_to_attribution')
@@ -855,6 +857,7 @@ async function matchOrCreateAttribution(
       is_external: 0,
     })
     .execute();
+  await copyAttributionAi(trx, packageInfo.id, newUuid);
   return newUuid;
 }
 
