@@ -66,6 +66,7 @@ import {
   ALERT_CONTAINER_HEIGHT,
   AlertContainer,
   ButtonGroup,
+  getTabIndicatorStyle,
   Panel,
   Tab,
   Tabs,
@@ -834,7 +835,14 @@ export const PackagesPanel = ({
 
   function renderTabs() {
     if (!availableRelations?.length) {
-      return <Tabs centered variant={'fullWidth'} value={-1}></Tabs>;
+      return (
+        <Tabs
+          centered
+          variant={'fullWidth'}
+          value={-1}
+          slotProps={{ indicator: { style: { display: 'none' } } }}
+        />
+      );
     }
 
     const activeTabIndex = availableRelations.findIndex(
@@ -846,6 +854,15 @@ export const PackagesPanel = ({
         centered
         variant={'fullWidth'}
         value={activeTabIndex === -1 ? false : activeTabIndex}
+        slotProps={{
+          indicator: {
+            style: getTabIndicatorStyle(
+              activeTabIndex,
+              availableRelations.length,
+              theme.direction,
+            ),
+          },
+        }}
         onChange={(_, index) => {
           preserveSelectionRef.current = true;
           setActiveRelation(availableRelations[index]);

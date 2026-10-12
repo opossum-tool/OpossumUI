@@ -6,11 +6,28 @@ import { styled } from '@mui/material';
 import MuiTab from '@mui/material/Tab';
 import MuiTabs from '@mui/material/Tabs';
 import MuiBox from '@mui/system/Box';
+import type { CSSProperties } from 'react';
 
 import { borderThin, OpossumColors, TRANSITION } from '../../../shared-styles';
 
 export const ALERT_CONTAINER_HEIGHT = 24;
 export const TABS_CONTAINER_HEIGHT = 30;
+
+export function getTabIndicatorStyle(
+  activeTabIndex: number,
+  tabCount: number,
+  direction: 'ltr' | 'rtl',
+): CSSProperties {
+  const position = `${(activeTabIndex * 100) / tabCount}%`;
+
+  return {
+    // Percentages track resizing immediately while retaining tab-switch animations.
+    width: `${100 / tabCount}%`,
+    left: direction === 'rtl' ? undefined : position,
+    right: direction === 'rtl' ? position : undefined,
+    display: activeTabIndex === -1 ? 'none' : undefined,
+  };
+}
 
 export const Panel = styled(MuiBox)({
   flex: 1,
