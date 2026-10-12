@@ -4249,12 +4249,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:18.0.6":
-  version: 18.0.6
-  resolution: "dotenv@npm:18.0.6"
+"dotenv@npm:18.0.7":
+  version: 18.0.7
+  resolution: "dotenv@npm:18.0.7"
   bin:
     dotenv: dist/index.cjs
-  checksum: 10/67f9d106d75db66c61a7257fe83da05a89fab1e78fce00e8ed066c95758e7cde5f6cdcc00fa00cc11bbe3d636d4aa9d3453fc805bf27060743844c04f967b284
+  checksum: 10/c29709df340c67bd795a646952be837c61974eb158a395edba2e69aaac33bcc6710e9eb4f1d40e5d2db8550e1bd436a7f776210e594ee4202777c8d85edbd0f0
   languageName: node
   linkType: hard
 
@@ -6747,7 +6747,7 @@ __metadata:
     compare-versions: "npm:6.1.1"
     cross-env: "npm:10.1.0"
     dayjs: "npm:1.11.23"
-    dotenv: "npm:18.0.6"
+    dotenv: "npm:18.0.7"
     dpdm: "npm:4.3.0"
     electron: "npm:44.7.0"
     electron-builder: "npm:26.15.3"
