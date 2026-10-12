@@ -18,7 +18,12 @@ import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
+import { PopupType } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
+import {
+  changeSelectedAttributionOrOpenUnsavedPopup,
+  closePopupAndUnsetTargets,
+} from '../../../state/actions/popup-actions/popup-actions';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
   completeAttributionSelection,
@@ -30,8 +35,10 @@ import { setUserSetting } from '../../../state/actions/user-settings-actions/use
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import {
   getIsPackageInfoDirty,
+  getSelectedAttributionId,
   getTemporaryDisplayPackageInfo,
 } from '../../../state/selectors/resource-selectors';
+import { getOpenPopup } from '../../../state/selectors/view-selector';
 import { ATTRIBUTION_SELECTION_FOR_REPLACEMENT } from '../../../state/variables/use-attribution-selection-for-replacement';
 import {
   expectManualAttributions,
@@ -41,6 +48,7 @@ import {
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { backend } from '../../../util/backendClient';
+import { toast } from '../../Toaster';
 import { AttributionDetails } from '../AttributionDetails';
 
 function makeComparisonPackage(
@@ -77,6 +85,10 @@ async function waitForAttributionDetailsReady() {
 }
 
 describe('AttributionDetails', () => {
+  afterEach(() => {
+    vi.mocked(window.electronAPI.api).mockImplementation(executeCommand);
+  });
+
   it('renders nothing for a readonly structural ancestor without a selected attribution', async () => {
     const { container } = await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
@@ -1791,5 +1803,371 @@ describe('AttributionDetails', () => {
     expect(linkButton).toBeDisabled();
     expect(within(linkButton).getByRole('progressbar')).toBeInTheDocument();
     act(() => resolveLink?.());
+  });
+
+  it.each([
+    { destination: 'matched' as const, hasMatchingAttribution: true },
+    { destination: 'created' as const, hasMatchingAttribution: false },
+  ])(
+    'allows navigation after a local save to a $destination attribution',
+    async ({ hasMatchingAttribution }) => {
+      const user = userEvent.setup();
+      const attribution = faker.opossum.packageInfo({ packageName: 'before' });
+      const matchingAttribution = {
+        ...attribution,
+        id: faker.string.uuid(),
+        packageName: 'saved draft',
+      };
+      const navigationAttribution = faker.opossum.packageInfo({
+        packageName: 'navigate after save',
+      });
+      const submittedPackageInfo = {
+        ...attribution,
+        packageName: hasMatchingAttribution
+          ? matchingAttribution.packageName
+          : 'newly created attribution',
+      };
+      const selectedResource = '/selected/file.ts';
+      const linkedResource = '/linked/file.ts';
+      const matchResource = '/match/file.ts';
+      let releaseRemappedAttributionQuery: (() => void) | undefined;
+      let markRemappedAttributionQueryStarted: (() => void) | undefined;
+      const remappedAttributionQueryStarted = new Promise<void>((resolve) => {
+        markRemappedAttributionQueryStarted = resolve;
+      });
+      let resolveSave: (() => void) | undefined;
+      let markSaveStarted: (() => void) | undefined;
+      const saveStarted = new Promise<void>((resolve) => {
+        markSaveStarted = resolve;
+      });
+      let pauseRemappedAttributionQuery = false;
+
+      vi.mocked(window.electronAPI.api).mockImplementation(
+        (command, params) => {
+          if (command === 'modifyOrMatchOnlyOnOneResource') {
+            return new Promise<
+              Awaited<ReturnType<typeof window.electronAPI.api>>
+            >((resolve, reject) => {
+              markSaveStarted?.();
+              resolveSave = () => {
+                void executeCommand(command, params as never).then(
+                  (response) => {
+                    pauseRemappedAttributionQuery = true;
+                    resolve(response);
+                  },
+                  reject,
+                );
+              };
+            });
+          }
+          if (
+            command === 'getAttributionData' &&
+            pauseRemappedAttributionQuery &&
+            (params as { attributionUuid: string }).attributionUuid !==
+              attribution.id &&
+            (params as { attributionUuid: string }).attributionUuid !==
+              navigationAttribution.id
+          ) {
+            pauseRemappedAttributionQuery = false;
+            markRemappedAttributionQueryStarted?.();
+            return new Promise<
+              Awaited<ReturnType<typeof window.electronAPI.api>>
+            >((resolve) => {
+              releaseRemappedAttributionQuery = () => {
+                void executeCommand(command, params as never).then(resolve);
+              };
+            });
+          }
+          return executeCommand(command, params as never);
+        },
+      );
+
+      const { store } = await renderComponent(<AttributionDetails />, {
+        data: getParsedInputFileEnrichedWithTestData({
+          resources: pathsToResources([
+            selectedResource,
+            linkedResource,
+            matchResource,
+          ]),
+          manualAttributions: {
+            [attribution.id]: attribution,
+            ...(hasMatchingAttribution
+              ? { [matchingAttribution.id]: matchingAttribution }
+              : {}),
+            [navigationAttribution.id]: navigationAttribution,
+          },
+          resourcesToManualAttributions: {
+            [selectedResource]: [attribution.id],
+            [linkedResource]: [attribution.id],
+            ...(hasMatchingAttribution
+              ? { [matchResource]: [matchingAttribution.id] }
+              : {}),
+          },
+        }),
+        actions: [
+          setSelectedResourceId(selectedResource),
+          setSelectedAttributionId(attribution.id),
+        ],
+      });
+
+      await waitForAttributionDetailsReady();
+      await act(() =>
+        store.dispatch(setTemporaryDisplayPackageInfo(submittedPackageInfo)),
+      );
+      await user.click(
+        screen.getByRole('button', { name: text.attributionColumn.save }),
+      );
+      await user.click(
+        await screen.findByRole('button', {
+          name: text.saveAttributionsPopup.saveLocally,
+        }),
+      );
+      await saveStarted;
+      await act(() =>
+        store.dispatch(setAttributionSelectionPending(selectedResource)),
+      );
+      expect(
+        screen.getByLabelText(text.saveAttributionsPopup.ariaLabel),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', {
+          name: text.saveAttributionsPopup.saveLocally,
+        }),
+      ).toBeDisabled();
+      within(screen.getByRole('dialog'))
+        .getAllByRole('button', { name: text.buttons.cancel })
+        .forEach((button) => expect(button).toBeDisabled());
+      await act(() =>
+        store.dispatch(completeAttributionSelection(selectedResource)),
+      );
+      act(() => resolveSave?.());
+
+      await remappedAttributionQueryStarted;
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(getIsPackageInfoDirty(store.getState())).toBe(false);
+      const remappedAttributionId = getSelectedAttributionId(store.getState());
+      expect(remappedAttributionId).not.toBe(attribution.id);
+      expect(remappedAttributionId === matchingAttribution.id).toBe(
+        hasMatchingAttribution,
+      );
+      act(() =>
+        store.dispatch(
+          changeSelectedAttributionOrOpenUnsavedPopup(navigationAttribution),
+        ),
+      );
+      expect(getSelectedAttributionId(store.getState())).toBe(
+        navigationAttribution.id,
+      );
+      expect(screen.queryByLabelText('unsaved changes popup')).toBeNull();
+
+      act(() => releaseRemappedAttributionQuery?.());
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      await waitFor(() =>
+        expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject(
+          navigationAttribution,
+        ),
+      );
+      expect(getSelectedAttributionId(store.getState())).toBe(
+        navigationAttribution.id,
+      );
+    },
+  );
+
+  it('keeps the confirmation open until a global save mutation completes', async () => {
+    const user = userEvent.setup();
+    const attribution = faker.opossum.packageInfo();
+    const resource = '/selected/file.ts';
+    const linkedResource = '/linked/file.ts';
+    const submittedPackageInfo = {
+      ...attribution,
+      comment: 'globally saved draft',
+    };
+    let resolveSave: (() => void) | undefined;
+    let markSaveStarted: (() => void) | undefined;
+    const saveStarted = new Promise<void>((resolve) => {
+      markSaveStarted = resolve;
+    });
+    let pauseAttributionQuery = false;
+    let releaseAttributionQuery: (() => void) | undefined;
+    let markAttributionQueryStarted: (() => void) | undefined;
+    const attributionQueryStarted = new Promise<void>((resolve) => {
+      markAttributionQueryStarted = resolve;
+    });
+    vi.mocked(window.electronAPI.api).mockImplementation((command, params) => {
+      if (command === 'updateOrMatchAttributions') {
+        return new Promise<Awaited<ReturnType<typeof window.electronAPI.api>>>(
+          (resolve, reject) => {
+            markSaveStarted?.();
+            resolveSave = () => {
+              void executeCommand(command, params as never).then((response) => {
+                pauseAttributionQuery = true;
+                resolve(response);
+              }, reject);
+            };
+          },
+        );
+      }
+      if (
+        command === 'getAttributionData' &&
+        pauseAttributionQuery &&
+        (params as { attributionUuid: string }).attributionUuid ===
+          attribution.id
+      ) {
+        pauseAttributionQuery = false;
+        markAttributionQueryStarted?.();
+        return new Promise<Awaited<ReturnType<typeof window.electronAPI.api>>>(
+          (resolve) => {
+            releaseAttributionQuery = () => {
+              void executeCommand(command, params as never).then(resolve);
+            };
+          },
+        );
+      }
+      return executeCommand(command, params as never);
+    });
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources([resource, linkedResource]),
+        manualAttributions: { [attribution.id]: attribution },
+        resourcesToManualAttributions: {
+          [resource]: [attribution.id],
+          [linkedResource]: [attribution.id],
+        },
+      }),
+      actions: [
+        setSelectedResourceId(resource),
+        setSelectedAttributionId(attribution.id),
+      ],
+    });
+
+    await waitForAttributionDetailsReady();
+    void act(() =>
+      store.dispatch(setTemporaryDisplayPackageInfo(submittedPackageInfo)),
+    );
+    await user.click(
+      screen.getByRole('button', { name: text.attributionColumn.save }),
+    );
+    await user.click(
+      await screen.findByRole('button', {
+        name: text.saveAttributionsPopup.saveGlobally,
+      }),
+    );
+
+    await saveStarted;
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: text.saveAttributionsPopup.save,
+      }),
+    ).toBeDisabled();
+    await act(async () => {
+      resolveSave?.();
+      await attributionQueryStarted;
+    });
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(getIsPackageInfoDirty(store.getState())).toBe(false);
+    act(() => releaseAttributionQuery?.());
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    await waitForAttributionDetailsReady();
+    expect(screen.getByLabelText('attribution column')).toHaveAttribute(
+      'data-dirty',
+      'false',
+    );
+    expect(getTemporaryDisplayPackageInfo(store.getState()).comment).toBe(
+      submittedPackageInfo.comment,
+    );
+  });
+
+  it('keeps a failed local save open after a footer remount and allows retry', async () => {
+    const user = userEvent.setup();
+    const attribution = faker.opossum.packageInfo();
+    const resource = '/selected/file.ts';
+    const linkedResource = '/linked/file.ts';
+    const submittedPackageInfo = {
+      ...attribution,
+      comment: 'draft to retry',
+    };
+    let rejectFirstSave: ((error: Error) => void) | undefined;
+    let markFirstSaveStarted: (() => void) | undefined;
+    const firstSaveStarted = new Promise<void>((resolve) => {
+      markFirstSaveStarted = resolve;
+    });
+    let mutationCount = 0;
+    vi.mocked(window.electronAPI.api).mockImplementation((command, params) => {
+      if (command === 'modifyOrMatchOnlyOnOneResource') {
+        mutationCount += 1;
+        if (mutationCount === 1) {
+          return new Promise<
+            Awaited<ReturnType<typeof window.electronAPI.api>>
+          >((_, reject) => {
+            markFirstSaveStarted?.();
+            rejectFirstSave = reject;
+          });
+        }
+      }
+      return executeCommand(command, params as never);
+    });
+    const toastError = vi.spyOn(toast, 'error').mockImplementation(vi.fn());
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources([resource, linkedResource]),
+        manualAttributions: { [attribution.id]: attribution },
+        resourcesToManualAttributions: {
+          [resource]: [attribution.id],
+          [linkedResource]: [attribution.id],
+        },
+      }),
+      actions: [
+        setSelectedResourceId(resource),
+        setSelectedAttributionId(attribution.id),
+      ],
+    });
+
+    await waitForAttributionDetailsReady();
+    await act(() =>
+      store.dispatch(setTemporaryDisplayPackageInfo(submittedPackageInfo)),
+    );
+    await user.click(
+      screen.getByRole('button', { name: text.attributionColumn.save }),
+    );
+    await user.click(
+      await screen.findByRole('button', {
+        name: text.saveAttributionsPopup.saveLocally,
+      }),
+    );
+    await firstSaveStarted;
+    await act(() => store.dispatch(setAttributionSelectionPending(resource)));
+    await act(() => store.dispatch(completeAttributionSelection(resource)));
+    act(() => rejectFirstSave?.(new Error('save failed')));
+
+    await waitFor(() => expect(toastError).toHaveBeenCalledWith('save failed'));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(getIsPackageInfoDirty(store.getState())).toBe(true);
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+      submittedPackageInfo,
+    );
+    void act(() =>
+      store.dispatch(
+        changeSelectedAttributionOrOpenUnsavedPopup(
+          faker.opossum.packageInfo(),
+        ),
+      ),
+    );
+    expect(getOpenPopup(store.getState())?.popup).toBe(PopupType.NotSavedPopup);
+    act(() => store.dispatch(closePopupAndUnsetTargets()));
+
+    await waitForAttributionDetailsReady();
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: text.saveAttributionsPopup.saveGlobally,
+      }),
+    );
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    await waitForAttributionDetailsReady();
+    expect(mutationCount).toBe(1);
+    expect(screen.getByLabelText('attribution column')).toHaveAttribute(
+      'data-dirty',
+      'false',
+    );
   });
 });

@@ -15,6 +15,7 @@ interface Props {
   selection: AttributionSelection;
   open: boolean;
   onClose: () => void;
+  onAcceptDrafts?: () => void;
   clearSelection?: () => void;
 }
 
@@ -22,6 +23,7 @@ export function AttributionFormConfirmSavePopup({
   selection,
   open,
   onClose,
+  onAcceptDrafts,
   clearSelection,
 }: Props) {
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
@@ -47,6 +49,7 @@ export function AttributionFormConfirmSavePopup({
       onClose={onClose}
       attributions={attributions}
       focusedAttributionUuid={selectedAttributionId || undefined}
+      onAcceptDrafts={onAcceptDrafts}
       onSaveComplete={handleSaveComplete}
     />
   );
