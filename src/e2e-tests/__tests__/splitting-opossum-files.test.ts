@@ -177,3 +177,15 @@ async function createPartition({
   await splitDialog.createButton.click();
   await splitDialog.assert.succeeded();
 }
+
+test('opens the split dialog from the native File menu', async ({
+  menuBar,
+  splitDialog,
+}) => {
+  // Keeps the File-menu wiring exercised now that the dialog-UX tests
+  // live in the integration suite, which opens the dialog via IPC directly.
+  await menuBar.createSplit();
+  await splitDialog.assert.titleIsVisible();
+  await splitDialog.cancelButton.click();
+  await splitDialog.assert.titleIsHidden();
+});
