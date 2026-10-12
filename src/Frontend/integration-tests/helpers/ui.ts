@@ -1621,3 +1621,191 @@ export async function expandTreeResourceAtPath(path: string): Promise<void> {
     ).not.toBeNull();
   }, SETTLED_TIMEOUT);
 }
+
+const READONLY_INDICATOR_TEST_ID = 'readonly-indicator';
+
+function expectReadonlyIndicator(node: HTMLElement, readonly: boolean): void {
+  const indicator = within(node).queryByTestId(READONLY_INDICATOR_TEST_ID);
+  if (readonly) {
+    expect(indicator).not.toBeNull();
+    expect(indicator).toBeVisible();
+  } else {
+    expect(indicator === null || !isNodeVisible(indicator)).toBe(true);
+  }
+}
+
+export async function expectPackageCardPartition(
+  panelTestId: PanelTestId,
+  packageInfo: RawPackageInfo,
+  readonly: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const card = getPackageCard(panelTestId, packageInfo);
+    expect(card).toBeVisible();
+    expectReadonlyIndicator(card, readonly);
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectTreeItemPartition(
+  name: string,
+  readonly: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const item = resourceTreeItem(name);
+    expect(item).toBeVisible();
+    expectReadonlyIndicator(item, readonly);
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectSplitDialogResourceIsReadonly(
+  name: string,
+): Promise<void> {
+  const popup = await getPopup(SPLIT_DIALOG_LABEL);
+  await waitFor(() => {
+    const row = within(popup).getByText(name, { exact: true }).parentElement;
+    expect(row).not.toBeNull();
+    expectReadonlyIndicator(row as HTMLElement, true);
+    expect(within(row as HTMLElement).queryByRole('checkbox')).toBeNull();
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectSplitHereDisabled(name: string): Promise<void> {
+  await waitFor(() => {
+    expect(resourceTreeItem(name)).toBeVisible();
+  }, SETTLED_TIMEOUT);
+  fireEvent.contextMenu(resourceTreeItem(name));
+  await waitFor(() => {
+    const menuItem = screen.getByRole('menuitem', {
+      name: text.resourceBrowser.splitHere,
+    });
+    expect(menuItem).toHaveAttribute('aria-disabled', 'true');
+  }, SETTLED_TIMEOUT);
+}
+
+const CONFIRM_SAVE_POPUP_LABEL = text.saveAttributionsPopup.ariaLabel;
+
+export async function expectConfirmSavePopupIsVisible(): Promise<void> {
+  await waitFor(() => {
+    expect(screen.getByLabelText(CONFIRM_SAVE_POPUP_LABEL)).toBeVisible();
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectConfirmSavePopupSaveOnlyOnSelectedIsHidden(): Promise<void> {
+  await waitFor(() => {
+    const popup = screen.getByLabelText(CONFIRM_SAVE_POPUP_LABEL);
+    expect(
+      within(popup).queryByRole('button', {
+        name: text.saveAttributionsPopup.saveLocally,
+      }),
+    ).toBeNull();
+  }, SETTLED_TIMEOUT);
+}
+
+const LICENSE_FILTER_INPUT_LABEL = 'license names';
+
+export async function fillLicenseFilter(value: string): Promise<void> {
+  const input = await screen.findByLabelText<HTMLInputElement>(
+    LICENSE_FILTER_INPUT_LABEL,
+  );
+  fireEvent.change(input, { target: { value } });
+}
+
+export async function expectLicenseFilterOption(
+  name: string,
+  visible: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const option = screen.queryByRole('option', { name });
+    if (visible) {
+      expect(option).not.toBeNull();
+      expect(option).toBeVisible();
+    } else {
+      expect(option).toBeNull();
+    }
+  }, SETTLED_TIMEOUT);
+}
+
+type ProgressBarMode = 'Attributions' | 'Criticalities' | 'Classifications';
+
+const PROGRESS_BAR_MODE_ARIA_LABELS: Record<ProgressBarMode, string> = {
+  Attributions: text.topBar.switchableProgressBar.attributionBar.ariaLabel,
+  Criticalities: text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
+  Classifications:
+    text.topBar.switchableProgressBar.classificationBar.ariaLabel,
+};
+
+async function expectProgressBarModeIs(mode: ProgressBarMode): Promise<void> {
+  await waitFor(() => {
+    expect(screen.getByTestId('progress-bar')).toHaveAttribute(
+      'aria-label',
+      PROGRESS_BAR_MODE_ARIA_LABELS[mode],
+    );
+  }, SETTLED_TIMEOUT);
+}
+
+export async function selectProgressBar(mode: ProgressBarMode): Promise<void> {
+  await userEvent.click(
+    screen.getByLabelText(text.topBar.switchableProgressBar.selectAriaLabel),
+  );
+  await userEvent.click(await screen.findByRole('option', { name: mode }));
+  await expectProgressBarModeIs(mode);
+}
+
+export async function expectStatisticsChartNotContainsText(
+  chartTestId: StatisticsChartTestId,
+  unexpectedText: string,
+): Promise<void> {
+  await waitFor(() => {
+    expect(
+      within(screen.getByTestId(chartTestId)).queryByText(unexpectedText),
+    ).toBeNull();
+  }, SETTLED_TIMEOUT);
+}
+
+export interface ProgressBarTooltipValues {
+  filesWithAttributions?: number;
+  filesWithOnlyPreSelectedAttributions?: number;
+  filesWithOnlySignals?: number;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+export async function expectProgressBarTooltipShowsValues(
+  values: ProgressBarTooltipValues,
+): Promise<void> {
+  const progressBar = await waitFor(
+    () => screen.getByTestId('progress-bar'),
+    SETTLED_TIMEOUT,
+  );
+  fireEvent.mouseOver(progressBar, { clientX: 10, clientY: 10 });
+  await waitFor(() => {
+    const tooltip = screen.getByRole('tooltip');
+    for (const [count, label] of [
+      [
+        values.filesWithAttributions,
+        text.topBar.switchableProgressBar.attributionBar
+          .filesWithManualAttribution,
+      ],
+      [
+        values.filesWithOnlyPreSelectedAttributions,
+        text.topBar.switchableProgressBar.attributionBar
+          .filesWithOnlyPreSelectedAttribution,
+      ],
+      [
+        values.filesWithOnlySignals,
+        text.topBar.switchableProgressBar.attributionBar
+          .filesWithOnlyExternalAttribution,
+      ],
+    ] as Array<[number | undefined, string]>) {
+      if (count) {
+        expect(
+          within(tooltip).getByText(
+            new RegExp(`${escapeRegExp(label)}: ${count}`),
+          ),
+        ).toBeVisible();
+      }
+    }
+  }, SETTLED_TIMEOUT);
+}
