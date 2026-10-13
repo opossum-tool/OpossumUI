@@ -65,6 +65,7 @@ export function VirtualizedTree<
         />
       )}
       selectedId={selectedNodeId}
+      scrollBehavior={'auto'}
       testId={testId}
       sx={{
         height: '100%',
