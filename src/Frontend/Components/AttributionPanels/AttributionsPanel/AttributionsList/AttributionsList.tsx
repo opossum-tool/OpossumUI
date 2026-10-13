@@ -55,7 +55,7 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
       selectedId={selectedAttributionId}
       initialTopMostItemIndex={
         initialSelectedAttributionIndex !== undefined &&
-        initialSelectedAttributionIndex >= 0
+        initialSelectedAttributionIndex > 0
           ? { index: initialSelectedAttributionIndex, align: 'center' }
           : undefined
       }
