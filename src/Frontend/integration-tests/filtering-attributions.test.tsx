@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest';
 import { deserializeAttributions } from '../../ElectronBackend/input/parseInputData';
 import { text } from '../../shared/text';
 import { faker } from '../../testing/Faker';
+import { getFilterExcludedAttributionsFixture } from '../../testing/filter-excluded-attributions';
 import { getParsedInputFileEnrichedWithTestData } from '../test-helpers/general-test-helpers';
 import { renderApp } from './helpers/render-app';
 import {
@@ -37,42 +38,23 @@ import {
 const ATTRIBUTIONS_PANEL = 'attributions-panel';
 const ATTRIBUTIONS_HEADER = 'attributions-panel-header';
 
-const [resourceName1, resourceName2, resourceName3, resourceName4] =
-  faker.opossum.resourceNames({ count: 4 });
-const [attributionId1, packageInfo1] = faker.opossum.rawAttribution({
-  followUp: 'FOLLOW_UP',
-  licenseName: 'MIT',
-  url: '',
-  wasPreferred: true,
-});
-const [attributionId2, packageInfo2] = faker.opossum.rawAttribution({
-  licenseName: 'Apache-2.0',
-});
-const [attributionId3, packageInfo3] = faker.opossum.rawAttribution({
-  firstParty: true,
-});
+const {
+  attributionId1,
+  attributionId2,
+  attributionId3,
+  packageInfo1,
+  packageInfo2,
+  packageInfo3,
+  resourceName4,
+  resources,
+  manualAttributions,
+  resourcesToAttributions,
+} = getFilterExcludedAttributionsFixture();
 
 const data = getParsedInputFileEnrichedWithTestData({
-  resources: faker.opossum.resources({
-    [resourceName1]: {
-      [resourceName2]: {
-        [resourceName3]: 1,
-      },
-    },
-    [resourceName4]: 1,
-  }),
-  manualAttributions: deserializeAttributions({
-    [attributionId1]: packageInfo1,
-    [attributionId2]: packageInfo2,
-    [attributionId3]: packageInfo3,
-  }),
-  resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
-    [faker.opossum.filePath(resourceName1, resourceName2, resourceName3)]: [
-      attributionId1,
-    ],
-    [faker.opossum.filePath(resourceName4)]: [attributionId2],
-    [faker.opossum.folderPath(resourceName1, resourceName2)]: [attributionId3],
-  }),
+  resources,
+  manualAttributions: deserializeAttributions(manualAttributions),
+  resourcesToManualAttributions: resourcesToAttributions,
 });
 
 describe('filtering attributions', () => {

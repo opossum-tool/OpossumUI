@@ -76,12 +76,13 @@ Husky + lint-staged runs on every commit: copyright check, knip, prettier, eslin
 
 ## Vitest setup
 
-Four vitest projects with different environments:
+Five vitest projects with different environments:
 
 - **FE** (happy-dom): `src/Frontend/**/__test{s,}__/**/*.test.{ts,tsx}`
 - **INT** (happy-dom): `src/Frontend/integration-tests/**/*.test.{ts,tsx}`
 - **BE** (node): `src/ElectronBackend/**/__test{s,}__/**/*.test.{ts,tsx}`
 - **SH** (node): `src/shared/**/__test{s,}__/**/*.test.{ts,tsx}`
+- **PERF** (node): `src/performance-tests/**/__test{s,}__/**/*.test.{ts,tsx}`
 
 Test directories can be `__tests__` or `__test__`.
 
@@ -91,7 +92,8 @@ Integration tests (`src/Frontend/integration-tests/`) render the full app via th
 (`executeCommand`) run against a real SQLite DB seeded from a `ParsedFileContent`
 fixture (see `src/testing/backend-integration.ts`). They replace e2e suites that
 only exercise frontend state and rendering; e2e remains for native menus, dialogs,
-multi-window/file-IO, and layout-dependent behavior.
+multi-window/file-IO, and layout-dependent behavior. Fixtures shared between e2e
+tests and integration tests live in `src/testing/`.
 
 ## E2E testing
 
