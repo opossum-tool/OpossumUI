@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -7,9 +7,11 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
 import { OpossumColors } from '../../../Frontend/shared-styles';
+import { getCardLabels } from '../../../Frontend/util/get-card-labels';
 import { maybePluralize } from '../../../Frontend/util/maybe-pluralize';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import type {
+  PackageInfo,
   RawPackageInfo,
   UserSettings,
 } from '../../../shared/shared-types';
@@ -25,12 +27,10 @@ export type AttributionRelation =
 const SETTLED_TIMEOUT = { timeout: 10000 } as const;
 
 function cardLabel(packageInfo: RawPackageInfo): string {
-  if (packageInfo.firstParty) {
-    return text.packageLists.firstParty;
-  }
-  return packageInfo.packageVersion
-    ? `${packageInfo.packageName}, ${packageInfo.packageVersion}`
-    : `${packageInfo.packageName}`;
+  // Production PackageCard builds `package card ${labels[0]}` from
+  // getCardLabels(); reusing it keeps the helper in sync for packageInfo
+  // without a packageName (URL/license/copyright fallback).
+  return getCardLabels(packageInfo as unknown as PackageInfo)[0] ?? '';
 }
 
 function cardLabelText(packageInfo: RawPackageInfo): string {
@@ -83,8 +83,6 @@ function expectCardAbsentOrHidden(
   );
   if (card) {
     expect(card).not.toBeVisible();
-  } else {
-    expect(card).toBeNull();
   }
 }
 
@@ -924,43 +922,6 @@ export async function clickPathBarHistoryButton(
 ): Promise<void> {
   const icon = within(getPathBar()).getByLabelText(button);
   await userEvent.click(icon.closest('button') as HTMLElement);
-}
-
-export async function clickPathBarOpenResourceUrl(): Promise<void> {
-  const icon = within(getPathBar()).getByLabelText('link to open');
-  await userEvent.click(icon.closest('button') as HTMLElement);
-}
-
-export async function expectPathBarOpenResourceUrlButtonEnabled(
-  enabled: boolean,
-): Promise<void> {
-  await waitFor(() => {
-    const icon = within(getPathBar()).getByLabelText('link to open');
-    const button = icon.closest('button');
-    expect(button).not.toBeNull();
-    expect(isNodeEnabled(button as HTMLElement)).toBe(enabled);
-  }, SETTLED_TIMEOUT);
-}
-
-const ERROR_POPUP_LABEL = 'error popup';
-
-export async function expectErrorPopupVisibility(
-  visible: boolean,
-): Promise<void> {
-  await waitFor(() => {
-    const popup = screen.queryByLabelText(ERROR_POPUP_LABEL);
-    if (visible) {
-      expect(popup).not.toBeNull();
-      expect(popup).toBeVisible();
-    } else {
-      expect(popup).toBeNull();
-    }
-  }, SETTLED_TIMEOUT);
-}
-
-export async function closeErrorPopup(): Promise<void> {
-  await userEvent.keyboard('{Escape}');
-  await expectPopupHidden(ERROR_POPUP_LABEL);
 }
 
 export async function expectPathBarCrumbs(
