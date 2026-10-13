@@ -46,7 +46,7 @@
     "spdx-license-ids": "3.0.24",
     "stream-json": "3.7.0",
     "upath": "3.0.8",
-    "uuid": "14.0.2"
+    "uuid": "14.0.3"
   },
   "devDependencies": {
     "@babel/core": "8.0.7",
