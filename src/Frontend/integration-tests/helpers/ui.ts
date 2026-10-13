@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
 import { OpossumColors } from '../../../Frontend/shared-styles';
+import { maybePluralize } from '../../../Frontend/util/maybe-pluralize';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import type {
   RawPackageInfo,
@@ -102,11 +103,24 @@ export async function expectPackageCardPickerSource(
   }, SETTLED_TIMEOUT);
 }
 
+async function getPackageCardAfterItAppears(
+  panelTestId: PanelTestId,
+  packageInfo: RawPackageInfo,
+): Promise<HTMLElement> {
+  // Playwright auto-waits for the card to attach after mounting; mirror that
+  // here since callers click cards right after renderApp.
+  return waitFor(() => {
+    const card = getPackageCard(panelTestId, packageInfo);
+    expect(card).toBeVisible();
+    return card;
+  }, SETTLED_TIMEOUT);
+}
+
 export async function clickPackageCard(
   panelTestId: PanelTestId,
   packageInfo: RawPackageInfo,
 ): Promise<void> {
-  const card = getPackageCard(panelTestId, packageInfo);
+  const card = await getPackageCardAfterItAppears(panelTestId, packageInfo);
   await userEvent.click(
     within(card).getByText(cardLabel(packageInfo), { exact: true }),
   );
@@ -116,7 +130,8 @@ export async function clickPackageCardCheckbox(
   panelTestId: PanelTestId,
   packageInfo: RawPackageInfo,
 ): Promise<void> {
-  await userEvent.click(getPackageCardCheckbox(panelTestId, packageInfo));
+  const card = await getPackageCardAfterItAppears(panelTestId, packageInfo);
+  await userEvent.click(within(card).getByRole('checkbox'));
 }
 
 export async function expectPackageCardCheckbox(
@@ -421,6 +436,58 @@ export async function expectMergeDialogShowsCurrentFile(
       ),
     ).toBeVisible();
   }, SETTLED_TIMEOUT);
+}
+
+export async function expectPanelReplacementDimmed(
+  panelTestId: PanelTestId,
+  dimmed: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const panel = getPanel(panelTestId);
+    const opacity = window.getComputedStyle(panel).opacity;
+    expect(Number(opacity)).toBe(dimmed ? 0.5 : 1);
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectLicenseAutocompleteOptionContent(
+  index: number,
+  license: { shortName: string; fullName: string },
+): Promise<void> {
+  await waitFor(() => {
+    const option = within(getLicenseAutocompleteOption(index));
+    expect(option.getByText(license.shortName)).toBeVisible();
+    expect(option.getByText(license.fullName)).toBeVisible();
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectLicenseAutocompleteOptionOccurrenceTooltip(
+  index: number,
+  attributionCount: number,
+  signalCount: number,
+): Promise<void> {
+  const option = getLicenseAutocompleteOption(index);
+  const chip = within(option).getByTestId('occurrence-count');
+  fireEvent.mouseOver(chip, { clientX: 10, clientY: 10 });
+  const tooltipName = `${maybePluralize(attributionCount, 'attribution', {
+    showOne: true,
+  })}, ${maybePluralize(signalCount, 'signal', {
+    showOne: true,
+  })}`;
+  await waitFor(() => {
+    // A tooltip leaving (hover moved between options) can still be mounted,
+    // so accept whichever tooltip carries the expected text.
+    expect(
+      screen
+        .getAllByRole('tooltip')
+        .some((tooltip) => tooltip.textContent === tooltipName),
+    ).toBe(true);
+  }, SETTLED_TIMEOUT);
+}
+
+function getLicenseAutocompleteOption(index: number): HTMLElement {
+  // The popper portals the option list to the document body, outside the
+  // attribution column.
+  return screen.getByTestId(`option-${index}`);
 }
 
 export async function clickTopBarOpenFileButton(): Promise<void> {
@@ -777,6 +844,25 @@ export async function clickPanelButton(
   );
 }
 
+export async function clickEnabledPanelButton(
+  panelTestId: PanelTestId,
+  buttonLabel: string,
+): Promise<void> {
+  // Panel action buttons disable while their selection summary loads (and
+  // while a mutation is pending); wait for the enabled state before clicking,
+  // like the Playwright click does.
+  const button = await waitFor(() => {
+    const buttonNode = within(getPanel(panelTestId)).getByRole('button', {
+      name: buttonLabel,
+    });
+    if (!isNodeEnabled(buttonNode)) {
+      throw new Error(`Panel button '${buttonLabel}' still disabled`);
+    }
+    return buttonNode;
+  }, SETTLED_TIMEOUT);
+  await userEvent.click(button);
+}
+
 function getPanelButtonDisabledState(
   panelTestId: PanelTestId,
   buttonLabel: string,
@@ -838,6 +924,43 @@ export async function clickPathBarHistoryButton(
 ): Promise<void> {
   const icon = within(getPathBar()).getByLabelText(button);
   await userEvent.click(icon.closest('button') as HTMLElement);
+}
+
+export async function clickPathBarOpenResourceUrl(): Promise<void> {
+  const icon = within(getPathBar()).getByLabelText('link to open');
+  await userEvent.click(icon.closest('button') as HTMLElement);
+}
+
+export async function expectPathBarOpenResourceUrlButtonEnabled(
+  enabled: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const icon = within(getPathBar()).getByLabelText('link to open');
+    const button = icon.closest('button');
+    expect(button).not.toBeNull();
+    expect(isNodeEnabled(button as HTMLElement)).toBe(enabled);
+  }, SETTLED_TIMEOUT);
+}
+
+const ERROR_POPUP_LABEL = 'error popup';
+
+export async function expectErrorPopupVisibility(
+  visible: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const popup = screen.queryByLabelText(ERROR_POPUP_LABEL);
+    if (visible) {
+      expect(popup).not.toBeNull();
+      expect(popup).toBeVisible();
+    } else {
+      expect(popup).toBeNull();
+    }
+  }, SETTLED_TIMEOUT);
+}
+
+export async function closeErrorPopup(): Promise<void> {
+  await userEvent.keyboard('{Escape}');
+  await expectPopupHidden(ERROR_POPUP_LABEL);
 }
 
 export async function expectPathBarCrumbs(
