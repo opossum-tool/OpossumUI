@@ -31,6 +31,9 @@
           "aiAttributions": {
             "type": "object",
             "description": "Opaque AI attribution metadata preserved when the file is loaded and saved.",
+            "properties": {
+              "humanModified": { "type": "boolean" }
+            },
             "additionalProperties": true
           },
           "packageName": {

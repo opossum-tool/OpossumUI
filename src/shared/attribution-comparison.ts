@@ -12,11 +12,12 @@ export const THIRD_PARTY_KEYS: Array<keyof PackageInfo> = [
   'licenseText',
 ];
 
-export const FORM_ATTRIBUTES = [
+export const ATTRIBUTION_CONTENT_ATTRIBUTES = [
   'packageName',
   'packageVersion',
   'packageNamespace',
   'packageType',
+  'packagePURLAppendix',
   'url',
   'copyright',
   'licenseName',
@@ -25,14 +26,18 @@ export const FORM_ATTRIBUTES = [
   'comment',
 ] satisfies Array<keyof PackageInfo>;
 
+export type AttributionContent = Pick<
+  PackageInfo,
+  (typeof ATTRIBUTION_CONTENT_ATTRIBUTES)[number]
+>;
+
 export const COMPARE_TO_MANUAL_ATTRIBUTION_ATTRIBUTES = [
-  ...FORM_ATTRIBUTES,
+  ...ATTRIBUTION_CONTENT_ATTRIBUTES,
   'attributionConfidence',
   'excludeFromNotice',
   'followUp',
   'needsReview',
   'originIds',
-  'packagePURLAppendix',
   'preferred',
   'originalAttributionId',
   'originalAttributionSource',
@@ -42,7 +47,7 @@ export const COMPARE_TO_MANUAL_ATTRIBUTION_ATTRIBUTES = [
 ] satisfies Array<keyof PackageInfo>;
 
 function filterComparableAttributes(
-  packageInfo: PackageInfo,
+  packageInfo: Partial<PackageInfo>,
   attributeList: Array<keyof PackageInfo>,
 ) {
   return pickBy(
@@ -63,8 +68,11 @@ function filterManualComparableAttributes(packageInfo: PackageInfo) {
   );
 }
 
-function filterExternalComparableAttributes(packageInfo: PackageInfo) {
-  return filterComparableAttributes(packageInfo, FORM_ATTRIBUTES);
+function filterAttributionContent(packageInfo: AttributionContent) {
+  return filterComparableAttributes(
+    packageInfo,
+    ATTRIBUTION_CONTENT_ATTRIBUTES,
+  );
 }
 
 export function isEqualToManualAttribution(
@@ -77,12 +85,27 @@ export function isEqualToManualAttribution(
   );
 }
 
-export function isEqualToExternalAttribution(
-  a: PackageInfo,
-  b: PackageInfo,
+export function hasSameAttributionContent(
+  a: AttributionContent,
+  b: AttributionContent,
 ): boolean {
-  return isEqual(
-    filterExternalComparableAttributes(a),
-    filterExternalComparableAttributes(b),
-  );
+  return isEqual(filterAttributionContent(a), filterAttributionContent(b));
+}
+
+export function getEffectiveHumanModified(
+  previous: AttributionContent,
+  proposed: AttributionContent,
+  humanModified: boolean | undefined,
+): boolean | undefined {
+  return hasSameAttributionContent(previous, proposed) ? humanModified : true;
+}
+
+export function mergeHumanModified(
+  a: boolean | undefined,
+  b: boolean | undefined,
+): boolean | undefined {
+  if (a === undefined || b === undefined) {
+    return undefined;
+  }
+  return a && b;
 }

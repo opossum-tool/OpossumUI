@@ -5,7 +5,7 @@
 import { skipToken } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-import { isEqualToExternalAttribution } from '../../shared/attribution-comparison';
+import { hasSameAttributionContent } from '../../shared/attribution-comparison';
 import type { PackageInfo } from '../../shared/shared-types';
 import { backend } from './backendClient';
 
@@ -36,7 +36,7 @@ export function useCompareToOriginal(
 
     return {
       hasOriginal: true,
-      isEqualToOriginal: isEqualToExternalAttribution(
+      isEqualToOriginal: hasSameAttributionContent(
         packageInfo,
         originalAttribution.packageInfo,
       ),

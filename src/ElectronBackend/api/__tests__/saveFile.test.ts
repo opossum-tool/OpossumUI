@@ -41,6 +41,17 @@ describe('saveFile', () => {
             criticality: Criticality.None,
             ...{ aiAttributions: {} },
           },
+          missingFlagAi: {
+            id: 'missingFlagAi',
+            criticality: Criticality.None,
+            ...{ aiAttributions: { model: 'missing flag' } },
+          },
+          falseAi: {
+            id: 'falseAi',
+            packageName: 'false',
+            criticality: Criticality.None,
+            ...{ aiAttributions: { model: 'kept', humanModified: false } },
+          },
           extraField: {
             id: 'extraField',
             packageName: 'extra',
@@ -54,14 +65,25 @@ describe('saveFile', () => {
           },
         },
         resourcesToAttributions: {
-          '/a': ['withAi', 'emptyAi', 'extraField', 'absent'],
+          '/a': [
+            'withAi',
+            'emptyAi',
+            'missingFlagAi',
+            'falseAi',
+            'extraField',
+            'absent',
+          ],
         },
         attributionsToResources: {},
       },
+      readonlyRules: [{ path: '/a', readonly: true }],
     });
     await getDb()
       .updateTable('attribution_ai')
-      .set({ additional_data: '{"databaseValue":{"preserved":true}}' })
+      .set({
+        additional_data: '{"databaseValue":{"preserved":true}}',
+        human_modified: 1,
+      })
       .where('attribution_uuid', '=', 'withAi')
       .execute();
     await saveFile(
@@ -74,9 +96,20 @@ describe('saveFile', () => {
         output: expect.objectContaining({
           manualAttributions: expect.objectContaining({
             withAi: expect.objectContaining({
-              aiAttributions: { databaseValue: { preserved: true } },
+              aiAttributions: {
+                databaseValue: { preserved: true },
+                humanModified: true,
+              },
             }),
-            emptyAi: expect.objectContaining({ aiAttributions: {} }),
+            emptyAi: expect.objectContaining({
+              aiAttributions: {},
+            }),
+            missingFlagAi: expect.objectContaining({
+              aiAttributions: { model: 'missing flag' },
+            }),
+            falseAi: expect.objectContaining({
+              aiAttributions: { model: 'kept', humanModified: false },
+            }),
             extraField: expect.objectContaining({
               ai_attributions: { legacy: true },
             }),
