@@ -5,6 +5,9 @@
 import { getFilterExcludedAttributionsFixture } from '../../testing/filter-excluded-attributions';
 import { faker, test } from '../utils';
 
+// Extracted from src/e2e-tests/__tests__/filtering-attributions.test.ts when
+// that suite was converted to integration tests.
+
 const {
   attributionId1,
   packageInfo1,

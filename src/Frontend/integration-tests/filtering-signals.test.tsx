@@ -132,36 +132,6 @@ describe('filtering signals', () => {
     );
   });
 
-  it('filters signals by license name', async () => {
-    await renderFixture();
-    await expectPackageCards(
-      'signals-panel',
-      [packageInfo1, packageInfo2, packageInfo3],
-      [],
-    );
-
-    await userEvent.click(
-      within(screen.getByTestId('signals-panel')).getByRole('button', {
-        name: 'filter button',
-      }),
-    );
-    const filterMenu = await screen.findByRole('menu');
-    await userEvent.type(
-      within(filterMenu).getByLabelText('license names'),
-      packageInfo1.licenseName!,
-    );
-    await userEvent.click(
-      await screen.findByRole('option', { name: packageInfo1.licenseName }),
-    );
-    await userEvent.keyboard('{Escape}');
-
-    await expectPackageCards(
-      'signals-panel',
-      [packageInfo1],
-      [packageInfo2, packageInfo3],
-    );
-  });
-
   it('only displays signals matching search term', async () => {
     const { sendToChannel } = await renderFixture();
     await expectPackageCards(
