@@ -38,7 +38,6 @@ import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../../util/us
 import { useIpcRenderer } from '../../../util/use-ipc-renderer';
 import { ConfirmDeletePopup } from '../../ConfirmDeletePopup/ConfirmDeletePopup';
 import { ConfirmReplacePopup } from '../../ConfirmReplacePopup/ConfirmReplacePopup';
-import { AttributionFormConfirmSavePopup } from '../../ConfirmSavePopup/AttributionFormConfirmSavePopup';
 import { DiffPopup } from '../../DiffPopup/DiffPopup';
 import type { AttributionDetailsPresentation } from '../use-attribution-details-presentation';
 import { Container, Fab } from './ButtonRow.style';
@@ -47,9 +46,11 @@ interface Props {
   presentation: AttributionDetailsPresentation;
   draft: PackageInfo;
   isLoading: boolean;
+  onOpenSave: () => void;
 }
 
 export function ButtonRow(props: Props) {
+  const { onOpenSave } = props;
   const dispatch = useAppDispatch();
   const isPackageInfoDirty = useAppSelector(getIsPackageInfoDirty);
 
@@ -123,7 +124,6 @@ export function ButtonRow(props: Props) {
     useState(false);
   const [isReplaceAttributionsPopupOpen, setIsReplaceAttributionsPopupOpen] =
     useState(false);
-  const [isConfirmSavePopupOpen, setIsConfirmSavePopupOpen] = useState(false);
 
   const isInvalid = useMemo(() => isPackageInvalid(packageInfo), [packageInfo]);
   const isCreatingNewAttribution = !packageInfo.id;
@@ -140,7 +140,7 @@ export function ButtonRow(props: Props) {
         return;
       }
       if (hasMultipleResources) {
-        setIsConfirmSavePopupOpen(true);
+        onOpenSave();
       } else if (packageInfo.id) {
         await updateOrMatch.mutateAsync({
           attributions: {
@@ -159,14 +159,15 @@ export function ButtonRow(props: Props) {
       }
     }
   }, [
+    interactionBlocked,
+    packageInfo,
+    isDirty,
+    hasResourceInfo,
+    hasMultipleResources,
+    onOpenSave,
     updateOrMatch,
     createOrMatch,
-    isDirty,
-    hasMultipleResources,
-    packageInfo,
-    hasResourceInfo,
     selectedResourceId,
-    interactionBlocked,
   ]);
 
   useIpcRenderer(AllowedFrontendChannels.SaveFileRequest, () => handleSave(), [
@@ -274,14 +275,6 @@ export function ButtonRow(props: Props) {
             </Fab>
           </span>
         </MuiTooltip>
-        <AttributionFormConfirmSavePopup
-          selection={{
-            mode: 'explicit',
-            attributionUuids: [packageInfo.id],
-          }}
-          open={isConfirmSavePopupOpen}
-          onClose={() => setIsConfirmSavePopupOpen(false)}
-        />
       </>
     );
   }

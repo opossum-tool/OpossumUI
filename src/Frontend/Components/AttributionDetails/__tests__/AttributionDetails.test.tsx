@@ -18,7 +18,12 @@ import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
+import { PopupType } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
+import {
+  changeSelectedAttributionOrOpenUnsavedPopup,
+  closePopupAndUnsetTargets,
+} from '../../../state/actions/popup-actions/popup-actions';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
   completeAttributionSelection,
@@ -30,8 +35,10 @@ import { setUserSetting } from '../../../state/actions/user-settings-actions/use
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import {
   getIsPackageInfoDirty,
+  getSelectedAttributionId,
   getTemporaryDisplayPackageInfo,
 } from '../../../state/selectors/resource-selectors';
+import { getOpenPopup } from '../../../state/selectors/view-selector';
 import { ATTRIBUTION_SELECTION_FOR_REPLACEMENT } from '../../../state/variables/use-attribution-selection-for-replacement';
 import {
   expectManualAttributions,
@@ -41,6 +48,7 @@ import {
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { backend } from '../../../util/backendClient';
+import { toast } from '../../Toaster';
 import { AttributionDetails } from '../AttributionDetails';
 
 function makeComparisonPackage(
@@ -77,6 +85,10 @@ async function waitForAttributionDetailsReady() {
 }
 
 describe('AttributionDetails', () => {
+  afterEach(() => {
+    vi.mocked(window.electronAPI.api).mockImplementation(executeCommand);
+  });
+
   it('renders nothing for a readonly structural ancestor without a selected attribution', async () => {
     const { container } = await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
@@ -1791,5 +1803,292 @@ describe('AttributionDetails', () => {
     expect(linkButton).toBeDisabled();
     expect(within(linkButton).getByRole('progressbar')).toBeInTheDocument();
     act(() => resolveLink?.());
+  });
+
+  it.each([
+    { destination: 'matched' as const, hasMatchingAttribution: true },
+    { destination: 'created' as const, hasMatchingAttribution: false },
+  ])(
+    'allows navigation after a local save to a $destination attribution',
+    async ({ hasMatchingAttribution }) => {
+      const user = userEvent.setup();
+      const attribution = faker.opossum.packageInfo({ packageName: 'before' });
+      const matchingAttribution = {
+        ...attribution,
+        id: faker.string.uuid(),
+        packageName: 'saved draft',
+      };
+      const navigationAttribution = faker.opossum.packageInfo({
+        packageName: 'navigate after save',
+      });
+      const submittedPackageInfo = {
+        ...attribution,
+        packageName: hasMatchingAttribution
+          ? matchingAttribution.packageName
+          : 'newly created attribution',
+      };
+      const selectedResource = '/selected/file.ts';
+      const linkedResource = '/linked/file.ts';
+      const matchResource = '/match/file.ts';
+      const { store } = await renderComponent(<AttributionDetails />, {
+        data: getParsedInputFileEnrichedWithTestData({
+          resources: pathsToResources([
+            selectedResource,
+            linkedResource,
+            matchResource,
+          ]),
+          manualAttributions: {
+            [attribution.id]: attribution,
+            ...(hasMatchingAttribution
+              ? { [matchingAttribution.id]: matchingAttribution }
+              : {}),
+            [navigationAttribution.id]: navigationAttribution,
+          },
+          resourcesToManualAttributions: {
+            [selectedResource]: [attribution.id],
+            [linkedResource]: [attribution.id],
+            ...(hasMatchingAttribution
+              ? { [matchResource]: [matchingAttribution.id] }
+              : {}),
+          },
+        }),
+        actions: [
+          setSelectedResourceId(selectedResource),
+          setSelectedAttributionId(attribution.id),
+        ],
+      });
+
+      await waitForAttributionDetailsReady();
+      await act(() =>
+        store.dispatch(setTemporaryDisplayPackageInfo(submittedPackageInfo)),
+      );
+      let dirtyAtSelectionChange: boolean | undefined;
+      let previousSelectedAttributionId = getSelectedAttributionId(
+        store.getState(),
+      );
+      const unsubscribe = store.subscribe(() => {
+        const selectedAttributionId = getSelectedAttributionId(
+          store.getState(),
+        );
+        if (
+          dirtyAtSelectionChange === undefined &&
+          selectedAttributionId !== previousSelectedAttributionId
+        ) {
+          dirtyAtSelectionChange = getIsPackageInfoDirty(store.getState());
+        }
+        previousSelectedAttributionId = selectedAttributionId;
+      });
+      await user.click(
+        screen.getByRole('button', { name: text.attributionColumn.save }),
+      );
+      await user.click(
+        await screen.findByRole('button', {
+          name: text.saveAttributionsPopup.saveLocally,
+        }),
+      );
+      await waitFor(() =>
+        expect(getSelectedAttributionId(store.getState())).not.toBe(
+          attribution.id,
+        ),
+      );
+      expect(getIsPackageInfoDirty(store.getState())).toBe(false);
+      expect(dirtyAtSelectionChange).toBe(false);
+      unsubscribe();
+      const remappedAttributionId = getSelectedAttributionId(store.getState());
+      expect(remappedAttributionId).not.toBe(attribution.id);
+      expect(remappedAttributionId === matchingAttribution.id).toBe(
+        hasMatchingAttribution,
+      );
+      act(() =>
+        store.dispatch(
+          changeSelectedAttributionOrOpenUnsavedPopup(navigationAttribution),
+        ),
+      );
+      expect(getSelectedAttributionId(store.getState())).toBe(
+        navigationAttribution.id,
+      );
+      expect(screen.queryByLabelText('unsaved changes popup')).toBeNull();
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+      await waitFor(() =>
+        expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject(
+          navigationAttribution,
+        ),
+      );
+      expect(getSelectedAttributionId(store.getState())).toBe(
+        navigationAttribution.id,
+      );
+    },
+  );
+
+  it('keeps the confirmation open until a global save mutation completes', async () => {
+    const user = userEvent.setup();
+    const attribution = faker.opossum.packageInfo();
+    const resource = '/selected/file.ts';
+    const linkedResource = '/linked/file.ts';
+    const submittedPackageInfo = {
+      ...attribution,
+      comment: 'globally saved draft',
+    };
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources([resource, linkedResource]),
+        manualAttributions: { [attribution.id]: attribution },
+        resourcesToManualAttributions: {
+          [resource]: [attribution.id],
+          [linkedResource]: [attribution.id],
+        },
+      }),
+      actions: [
+        setSelectedResourceId(resource),
+        setSelectedAttributionId(attribution.id),
+      ],
+    });
+
+    await waitForAttributionDetailsReady();
+    void act(() =>
+      store.dispatch(setTemporaryDisplayPackageInfo(submittedPackageInfo)),
+    );
+    const saveResponse = Promise.withResolvers<void>();
+    vi.mocked(window.electronAPI.api).mockImplementation(
+      async (command, params) => {
+        if (command === 'updateOrMatchAttributions') {
+          await saveResponse.promise;
+        }
+        return executeCommand(command, params as never);
+      },
+    );
+    await user.click(
+      screen.getByRole('button', { name: text.attributionColumn.save }),
+    );
+    await user.click(
+      await screen.findByRole('button', {
+        name: text.saveAttributionsPopup.saveGlobally,
+      }),
+    );
+
+    await screen.findByRole('dialog');
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: text.saveAttributionsPopup.save,
+      }),
+    ).toBeDisabled();
+    act(() => saveResponse.resolve());
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    await waitForAttributionDetailsReady();
+    expect(screen.getByLabelText('attribution column')).toHaveAttribute(
+      'data-dirty',
+      'false',
+    );
+    expect(getTemporaryDisplayPackageInfo(store.getState()).comment).toBe(
+      submittedPackageInfo.comment,
+    );
+  });
+
+  it('keeps a failed local save open after a footer remount and allows retry', async () => {
+    const user = userEvent.setup();
+    const attribution = faker.opossum.packageInfo();
+    const resource = '/selected/file.ts';
+    const linkedResource = '/linked/file.ts';
+    const submittedPackageInfo = {
+      ...attribution,
+      comment: 'draft to retry',
+    };
+    const toastError = vi.spyOn(toast, 'error').mockImplementation(vi.fn());
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources([resource, linkedResource]),
+        manualAttributions: { [attribution.id]: attribution },
+        resourcesToManualAttributions: {
+          [resource]: [attribution.id],
+          [linkedResource]: [attribution.id],
+        },
+      }),
+      actions: [
+        setSelectedResourceId(resource),
+        setSelectedAttributionId(attribution.id),
+      ],
+    });
+
+    await waitForAttributionDetailsReady();
+    await act(() =>
+      store.dispatch(setTemporaryDisplayPackageInfo(submittedPackageInfo)),
+    );
+    const saveResponse = Promise.withResolvers<void>();
+    let holdSaveResponse = true;
+    vi.mocked(window.electronAPI.api).mockImplementation(
+      async (command, params) => {
+        if (command === 'modifyOrMatchOnlyOnOneResource' && holdSaveResponse) {
+          holdSaveResponse = false;
+          await saveResponse.promise;
+        }
+        return executeCommand(command, params as never);
+      },
+    );
+    await user.click(
+      screen.getByRole('button', { name: text.attributionColumn.save }),
+    );
+    await user.click(
+      await screen.findByRole('button', {
+        name: text.saveAttributionsPopup.saveLocally,
+      }),
+    );
+    await waitFor(() =>
+      expect(
+        within(screen.getByRole('dialog')).getByRole('button', {
+          name: text.saveAttributionsPopup.saveLocally,
+        }),
+      ).toBeDisabled(),
+    );
+    within(screen.getByRole('dialog'))
+      .getAllByRole('button', { name: text.buttons.cancel })
+      .forEach((button) => expect(button).toBeDisabled());
+    await act(() => store.dispatch(setAttributionSelectionPending(resource)));
+    await act(() => store.dispatch(completeAttributionSelection(resource)));
+    act(() => saveResponse.reject(new Error('save failed')));
+
+    await waitFor(() => expect(toastError).toHaveBeenCalledWith('save failed'));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(getIsPackageInfoDirty(store.getState())).toBe(true);
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+      submittedPackageInfo,
+    );
+    void act(() =>
+      store.dispatch(
+        changeSelectedAttributionOrOpenUnsavedPopup(
+          faker.opossum.packageInfo(),
+        ),
+      ),
+    );
+    expect(getOpenPopup(store.getState())?.popup).toBe(PopupType.NotSavedPopup);
+    act(() => store.dispatch(closePopupAndUnsetTargets()));
+
+    await waitForAttributionDetailsReady();
+    await user.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: text.saveAttributionsPopup.saveGlobally,
+      }),
+    );
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    await waitForAttributionDetailsReady();
+    expect(
+      vi
+        .mocked(window.electronAPI.api)
+        .mock.calls.filter(
+          ([command]) => command === 'modifyOrMatchOnlyOnOneResource',
+        ),
+    ).toHaveLength(1);
+    expect(
+      vi
+        .mocked(window.electronAPI.api)
+        .mock.calls.some(
+          ([command]) => command === 'updateOrMatchAttributions',
+        ),
+    ).toBe(true);
+    expect(screen.getByLabelText('attribution column')).toHaveAttribute(
+      'data-dirty',
+      'false',
+    );
   });
 });
