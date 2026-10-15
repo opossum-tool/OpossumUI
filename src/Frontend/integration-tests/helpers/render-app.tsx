@@ -25,13 +25,61 @@ import { createTestStore } from '../../test-helpers/render';
 
 type IpcListener = (event: IpcRendererEvent, ...args: Array<unknown>) => void;
 
-// re-resizable reads offsetHeight, which is always 0 in happy-dom. Give the
-// panel container a realistic size so the upper/lower split panels are not
-// collapsed and their headers keep search fields and action buttons.
+// Happy-dom does not lay out elements, so app code cannot measure the DOM
+// (frontend-setup stubs getBoundingClientRect for MUI positioning). Emulate
+// the missing layout for the full-app harness only:
+// - ResizeObserver: ResizePanels only expands the lower panel (and shows
+//   its header search field) once the observer reports the panel container
+//   height, which the no-op frontend-setup stub never does. The simulated
+//   observer resolves the height for re-resizable panel containers (their
+//   identifiable inline style is set by the library) and stays a no-op for
+//   every other consumer.
+// - re-resizable: fed the same fixed size via its internal size getter so
+//   the upper/lower split panels do not collapse.
+// Match the Playwright default viewport, the environment the e2e suite
+// runs at, to keep panel proportions comparable between the two layers.
+const PANEL_CONTAINER_SIZE = { width: 1280, height: 720 } as const;
+
+class SimulatedResizeObserver {
+  private readonly callback: ResizeObserverCallback;
+
+  constructor(callback: ResizeObserverCallback) {
+    this.callback = callback;
+  }
+
+  observe(node: Element): void {
+    // Keep the frontend-setup no-op behavior for every other consumer
+    // (AttributionForm headers, charts, react-virtuoso). ResizePanels is
+    // the only component that resolves panel geometry from the observer:
+    // its container is a re-resizable node, whose characteristic inline
+    // style is set by the library itself.
+    const styled = node instanceof HTMLElement ? node.style : undefined;
+    if (styled?.boxSizing !== 'border-box' || styled?.flexShrink !== '0') {
+      return;
+    }
+
+    Object.defineProperty(node, 'offsetHeight', {
+      get: () => PANEL_CONTAINER_SIZE.height,
+      configurable: true,
+    });
+    this.callback([{ target: node } as unknown as ResizeObserverEntry], this);
+  }
+
+  unobserve(): void {
+    // Observed nodes keep their simulated height until removed from the DOM.
+  }
+
+  disconnect(): void {
+    // Observed nodes keep their simulated height until removed from the DOM.
+  }
+}
+
 Object.defineProperty(Resizable.prototype, 'size', {
-  get: () => ({ width: 1024, height: 1920 }),
+  get: () => ({ ...PANEL_CONTAINER_SIZE }),
   configurable: true,
 });
+
+window.ResizeObserver = SimulatedResizeObserver;
 
 export interface RenderAppOptions {
   /** Database fixture: the parsed content of the .opossum file the app opens. */
@@ -46,7 +94,6 @@ export interface RenderAppOptions {
 
 export interface RenderAppResult {
   store: Awaited<ReturnType<typeof createTestStore>>;
-  queryClient: QueryClient;
   /**
    * Simulates the Electron main process sending an event on an IPC channel,
    * e.g. a click on a native menu item.
@@ -158,5 +205,5 @@ export async function renderApp(
     });
   }
 
-  return { store, sendToChannel, queryClient };
+  return { store, sendToChannel };
 }
