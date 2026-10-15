@@ -6478,13 +6478,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mockdate@npm:3.0.5":
-  version: 3.0.5
-  resolution: "mockdate@npm:3.0.5"
-  checksum: 10/ff74f43f56a12e1339e838aee623e37b6e4c378173905697f2a006a5c581eea9c71da54fcea76c27e7e744422e49395c668932bf09e67f024841240ffef91fd2
-  languageName: node
-  linkType: hard
-
 "ms@npm:^2.1.3":
   version: 2.1.3
   resolution: "ms@npm:2.1.3"
@@ -6777,7 +6770,6 @@ __metadata:
     lint-staged: "npm:17.6.0"
     lodash-es: "npm:4.18.1"
     mkdirp: "npm:3.0.1"
-    mockdate: "npm:3.0.5"
     nunjucks: "npm:3.2.4"
     object-hash: "npm:3.0.0"
     ohm-js: "npm:17.5.0"

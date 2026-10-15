@@ -11,6 +11,68 @@ import { getDb } from '../db';
 import type { Attribution } from '../generated/databaseTypes';
 
 describe('database initialization', () => {
+  it('constrains AI metadata rows and cascades attribution deletion', async () => {
+    await initializeDbWithTestData({
+      manualAttributions: {
+        attributions: {
+          ai: {
+            id: 'ai',
+            criticality: Criticality.None,
+            ...{ aiAttributions: { arbitrary: { nested: [1, true] } } },
+          },
+          invalidJson: { id: 'invalidJson', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {},
+        attributionsToResources: {},
+      },
+    });
+
+    expect(
+      await getDb()
+        .selectFrom('attribution')
+        .select('additional_data')
+        .where('uuid', '=', 'ai')
+        .executeTakeFirstOrThrow(),
+    ).toEqual({ additional_data: '{}' });
+    expect(
+      await getDb()
+        .selectFrom('attribution_ai')
+        .select('additional_data')
+        .where('attribution_uuid', '=', 'ai')
+        .executeTakeFirstOrThrow(),
+    ).toEqual({ additional_data: '{"arbitrary":{"nested":[1,true]}}' });
+
+    await expect(
+      getDb()
+        .insertInto('attribution_ai')
+        .values({ attribution_uuid: 'orphan', additional_data: '{}' })
+        .execute(),
+    ).rejects.toThrow();
+    await expect(
+      getDb()
+        .insertInto('attribution_ai')
+        .values({ attribution_uuid: 'invalidJson', additional_data: '{' })
+        .execute(),
+    ).rejects.toThrow();
+    await expect(
+      getDb()
+        .insertInto('attribution_ai')
+        .values({ attribution_uuid: 'invalidJson', additional_data: '[]' })
+        .execute(),
+    ).rejects.toThrow();
+    await expect(
+      getDb()
+        .insertInto('attribution_ai')
+        .values({ attribution_uuid: 'ai', additional_data: '{}' })
+        .execute(),
+    ).rejects.toThrow();
+
+    await getDb().deleteFrom('attribution').where('uuid', '=', 'ai').execute();
+    expect(
+      await getDb().selectFrom('attribution_ai').selectAll().execute(),
+    ).toEqual([]);
+  });
+
   it('calculates readonly resource state from inherited split rules', async () => {
     await initializeDbWithTestData({
       resources: {

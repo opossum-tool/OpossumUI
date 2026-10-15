@@ -93,13 +93,15 @@ function removeUndefinedProperties<T extends object>(value: T): T {
 }
 
 export function getAttributionPersistenceValues(attribution: PackageInfo) {
+  const { aiAttributions: _aiAttributions, ...additionalData } =
+    getAttributionExtensionData(attribution);
   const source = sourceColumnValues(attribution.source);
   const originalAttributionSource = sourceColumnValues(
     attribution.originalAttributionSource,
   );
 
   return {
-    additional_data: JSON.stringify(getAttributionExtensionData(attribution)),
+    additional_data: JSON.stringify(additionalData),
     pre_selected: optionalBoolean(attribution.preSelected),
     criticality: attribution.criticality,
     classification: optionalValue(attribution.classification),

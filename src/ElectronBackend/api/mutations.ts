@@ -565,7 +565,7 @@ const mutationImplementations = {
           const packageInfo = omit(attributionData, 'preSelected');
           const matchingAttributionUuid = await findMatchingAttributionUuid(
             trx,
-            packageInfo,
+            { ...packageInfo, id: writableAttributionUuid },
             { excludeUuids: [...matchingExcludedUuids] },
           );
           if (matchingAttributionUuid !== undefined) {

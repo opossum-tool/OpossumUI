@@ -28,6 +28,11 @@
       "additionalProperties": {
         "type": "object",
         "properties": {
+          "aiAttributions": {
+            "type": "object",
+            "description": "Opaque AI attribution metadata preserved when the file is loaded and saved.",
+            "additionalProperties": true
+          },
           "packageName": {
             "type": "string",
             "description": "Name of the package (part of a package URL)"

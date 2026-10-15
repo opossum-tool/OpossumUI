@@ -2,7 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type Attributions, Criticality } from '../../../shared/shared-types';
+import {
+  type Attributions,
+  Criticality,
+  type PackageInfo,
+} from '../../../shared/shared-types';
 import {
   initializeDbWithTestData,
   pathsToResources,
@@ -10,12 +14,26 @@ import {
 import { getDb } from '../../db/db';
 import { AttributionResourceAccess } from '../../types/types';
 import { listAttributionsPage } from '../attributions/listAttributionsPage';
+import { getSaveFileArgs } from '../getSaveFileArgs';
 import {
   decorateMutationRegistry,
   type MutationResponse,
   mutations,
 } from '../mutations';
 import { queries } from '../queries';
+
+function packageInfo(
+  id: string,
+  packageName: string,
+  aiAttributions?: Record<string, unknown>,
+): PackageInfo & { aiAttributions?: Record<string, unknown> } {
+  return {
+    id,
+    packageName,
+    criticality: Criticality.None,
+    ...(aiAttributions === undefined ? {} : { aiAttributions }),
+  };
+}
 
 async function resourceAccessOf(attributionUuid: string) {
   return (
@@ -37,6 +55,82 @@ async function attributionUuidsOn(path: string) {
       .execute()
   ).map((link) => link.attribution_uuid);
 }
+
+const metadataMatchingCases: Array<{
+  name: string;
+  sourceMetadata?: Record<string, unknown>;
+  candidateMetadata?: Record<string, unknown>;
+  expectedToMatch: boolean;
+}> = [
+  {
+    name: 'different unknown properties',
+    sourceMetadata: { known: true, sourceOnly: 1 },
+    candidateMetadata: { known: true, candidateOnly: 1 },
+    expectedToMatch: false,
+  },
+  {
+    name: 'different nested values',
+    sourceMetadata: { nested: { value: 1 } },
+    candidateMetadata: { nested: { value: 2 } },
+    expectedToMatch: false,
+  },
+  {
+    name: 'different array contents',
+    sourceMetadata: { values: [1, 2] },
+    candidateMetadata: { values: [1, 3] },
+    expectedToMatch: false,
+  },
+  {
+    name: 'different array order',
+    sourceMetadata: { values: [1, 2] },
+    candidateMetadata: { values: [2, 1] },
+    expectedToMatch: false,
+  },
+  {
+    name: 'different array value types',
+    sourceMetadata: { values: [1] },
+    candidateMetadata: { values: ['1'] },
+    expectedToMatch: false,
+  },
+  {
+    name: 'missing property',
+    sourceMetadata: { present: true },
+    candidateMetadata: {},
+    expectedToMatch: false,
+  },
+  {
+    name: 'AI source and ordinary target',
+    sourceMetadata: {},
+    expectedToMatch: false,
+  },
+  {
+    name: 'ordinary source and AI target',
+    candidateMetadata: {},
+    expectedToMatch: false,
+  },
+  {
+    name: 'two empty metadata objects',
+    sourceMetadata: {},
+    candidateMetadata: {},
+    expectedToMatch: true,
+  },
+  {
+    name: 'two ordinary attributions without metadata',
+    expectedToMatch: true,
+  },
+  {
+    name: 'omitted humanModified and false',
+    sourceMetadata: { generated: true },
+    candidateMetadata: { generated: true, humanModified: false },
+    expectedToMatch: false,
+  },
+  {
+    name: 'false and true humanModified values',
+    sourceMetadata: { humanModified: false },
+    candidateMetadata: { humanModified: true },
+    expectedToMatch: false,
+  },
+];
 
 describe('attribution resource access', () => {
   it('rejects resolving an external attribution only on readonly resources', async () => {
@@ -207,6 +301,504 @@ describe('attribution resource access', () => {
     expect(Object.keys(attributions)).toContain(createdAttributionUuid);
     expect(await resourceAccessOf(createdAttributionUuid)).toBe(
       AttributionResourceAccess.Writable,
+    );
+    expect(
+      await getDb()
+        .selectFrom('attribution_ai')
+        .selectAll()
+        .where('attribution_uuid', '=', createdAttributionUuid)
+        .execute(),
+    ).toEqual([]);
+  });
+
+  it('omits raw AI metadata from ordinary attribution query results', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/a']),
+      manualAttributions: {
+        attributions: {
+          ai: {
+            id: 'ai',
+            criticality: Criticality.None,
+            packageName: 'with metadata',
+            ...{ aiAttributions: { opaque: true } },
+          },
+        },
+        resourcesToAttributions: { '/a': ['ai'] },
+        attributionsToResources: {},
+      },
+    });
+
+    const { result } = await listAttributionsPage({
+      external: false,
+      filters: [],
+      search: '',
+      valueFilters: {},
+      resourcePathForRelationships: '',
+      showResolved: true,
+      excludeUnrelated: false,
+      scope: { mode: 'all' },
+      sort: 'alphabetically',
+      includeReadonly: true,
+      offset: 0,
+      limit: 200,
+    });
+
+    expect(result.attributions.ai).not.toHaveProperty('aiAttributions');
+  });
+
+  it('preserves stored AI metadata when updating a queried attribution', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/a']),
+      manualAttributions: {
+        attributions: {
+          ai: {
+            id: 'ai',
+            criticality: Criticality.None,
+            packageName: 'before',
+            ...{ aiAttributions: { opaque: { nested: true } } },
+          },
+        },
+        resourcesToAttributions: { '/a': ['ai'] },
+        attributionsToResources: {},
+      },
+    });
+
+    const { result } = await queries.getAttributionData({
+      attributionUuid: 'ai',
+    });
+    expect(result.packageInfo).not.toHaveProperty('aiAttributions');
+
+    await mutations.updateOrMatchAttributions({
+      attributions: {
+        ai: { ...result.packageInfo, packageName: 'after' },
+      },
+    });
+
+    await expect(
+      getDb()
+        .selectFrom('attribution')
+        .select('package_name')
+        .where('uuid', '=', 'ai')
+        .executeTakeFirstOrThrow(),
+    ).resolves.toEqual({ package_name: 'after' });
+    await expect(
+      getDb()
+        .selectFrom('attribution_ai')
+        .select('additional_data')
+        .where('attribution_uuid', '=', 'ai')
+        .executeTakeFirstOrThrow(),
+    ).resolves.toEqual({ additional_data: '{"opaque":{"nested":true}}' });
+  });
+
+  it('does not reuse AI metadata when matching an ordinary external signal', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/existing', '/external']),
+      externalAttributions: {
+        attributions: {
+          source: {
+            id: 'source',
+            criticality: Criticality.None,
+            packageName: 'source',
+          },
+        },
+        resourcesToAttributions: { '/external': ['source'] },
+        attributionsToResources: {},
+      },
+      manualAttributions: {
+        attributions: {
+          existing: {
+            id: 'existing',
+            criticality: Criticality.None,
+            packageName: 'matching target',
+            ...{ aiAttributions: { origin: 'target' } },
+          },
+        },
+        resourcesToAttributions: { '/existing': ['existing'] },
+        attributionsToResources: {},
+      },
+    });
+    await mutations.createOrMatchAttributions({
+      resourcePath: '/external',
+      attributions: {
+        copied: {
+          id: 'source',
+          criticality: Criticality.None,
+          packageName: 'new copy',
+        },
+        matchingTarget: {
+          id: 'source',
+          criticality: Criticality.None,
+          packageName: 'matching target',
+        },
+      },
+    });
+
+    const aiRows = await getDb()
+      .selectFrom('attribution_ai')
+      .select(['attribution_uuid', 'additional_data'])
+      .execute();
+    expect(aiRows).toEqual([
+      {
+        attribution_uuid: 'existing',
+        additional_data: '{"origin":"target"}',
+      },
+    ]);
+    const { result: saveFileArgs } = await getSaveFileArgs();
+    expect(Object.keys(saveFileArgs.manualAttributions)).toHaveLength(3);
+    expect(
+      Object.values(saveFileArgs.manualAttributions)
+        .map(({ packageName }) => packageName)
+        .sort(),
+    ).toEqual(['matching target', 'matching target', 'new copy']);
+  });
+
+  it('matches only a metadata-compatible candidate and compares nested objects structurally', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources([
+        '/source',
+        '/candidate-a',
+        '/candidate-b',
+        '/destination',
+      ]),
+      manualAttributions: {
+        attributions: {
+          source: packageInfo('source', 'source original', {
+            nested: { first: 1, second: [true, 'value'] },
+          }),
+          candidateA: packageInfo('candidateA', 'same content', {
+            nested: { first: 2, second: [true, 'value'] },
+          }),
+          candidateB: packageInfo('candidateB', 'same content', {
+            nested: { second: [true, 'value'], first: 1 },
+          }),
+        },
+        resourcesToAttributions: {
+          '/source': ['source'],
+          '/candidate-a': ['candidateA'],
+          '/candidate-b': ['candidateB'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    await mutations.createOrMatchAttributions({
+      resourcePath: '/destination',
+      attributions: {
+        source: {
+          id: 'source',
+          criticality: Criticality.None,
+          packageName: 'same content',
+        },
+      },
+    });
+
+    expect(await attributionUuidsOn('/destination')).toEqual(['candidateB']);
+    const { result: saveFileArgs } = await getSaveFileArgs();
+    expect(saveFileArgs.manualAttributions.candidateA).toHaveProperty(
+      'aiAttributions',
+      { nested: { first: 2, second: [true, 'value'] } },
+    );
+    expect(saveFileArgs.manualAttributions.candidateB).toHaveProperty(
+      'aiAttributions',
+      { nested: { second: [true, 'value'], first: 1 } },
+    );
+  });
+
+  it.each(metadataMatchingCases)(
+    'uses complete JSON metadata for matching: $name',
+    async ({ sourceMetadata, candidateMetadata, expectedToMatch }) => {
+      await initializeDbWithTestData({
+        resources: pathsToResources(['/source', '/candidate', '/destination']),
+        manualAttributions: {
+          attributions: {
+            source: packageInfo('source', 'source original', sourceMetadata),
+            candidate: packageInfo(
+              'candidate',
+              'same content',
+              candidateMetadata,
+            ),
+          },
+          resourcesToAttributions: {
+            '/source': ['source'],
+            '/candidate': ['candidate'],
+          },
+          attributionsToResources: {},
+        },
+      });
+
+      await mutations.createOrMatchAttributions({
+        resourcePath: '/destination',
+        attributions: {
+          source: packageInfo('source', 'same content'),
+        },
+      });
+
+      const [destinationUuid] = await attributionUuidsOn('/destination');
+      expect(destinationUuid === 'candidate').toBe(expectedToMatch);
+      const { result: saveFileArgs } = await getSaveFileArgs();
+      expect(Object.keys(saveFileArgs.manualAttributions)).toHaveLength(
+        expectedToMatch ? 2 : 3,
+      );
+      expect(saveFileArgs.manualAttributions.source.packageName).toBe(
+        'source original',
+      );
+      expect(saveFileArgs.manualAttributions.candidate.packageName).toBe(
+        'same content',
+      );
+      expect(saveFileArgs.resourcesToAttributions['/source']).toEqual([
+        'source',
+      ]);
+      expect(saveFileArgs.resourcesToAttributions['/candidate']).toEqual([
+        'candidate',
+      ]);
+      expect(saveFileArgs.resourcesToAttributions['/destination']).toEqual([
+        destinationUuid,
+      ]);
+      const savedAttribution = saveFileArgs.manualAttributions[
+        destinationUuid
+      ] as unknown as Record<string, unknown>;
+      const savedHasMetadata = Object.hasOwn(
+        savedAttribution,
+        'aiAttributions',
+      );
+      expect({
+        hasMetadata: savedHasMetadata,
+        metadata: savedAttribution.aiAttributions,
+      }).toEqual({
+        hasMetadata: sourceMetadata !== undefined,
+        metadata: sourceMetadata,
+      });
+      const savedSource = saveFileArgs.manualAttributions[
+        'source'
+      ] as unknown as Record<string, unknown>;
+      expect({
+        hasMetadata: Object.hasOwn(savedSource, 'aiAttributions'),
+        metadata: savedSource.aiAttributions,
+      }).toEqual({
+        hasMetadata: sourceMetadata !== undefined,
+        metadata: sourceMetadata,
+      });
+    },
+  );
+
+  it.each([
+    { submissionOrder: ['sourceA', 'sourceB'] as const },
+    { submissionOrder: ['sourceB', 'sourceA'] as const },
+  ])(
+    'selects each compatible target in batch order $submissionOrder',
+    async ({ submissionOrder }) => {
+      await initializeDbWithTestData({
+        resources: pathsToResources([
+          '/source-a',
+          '/source-b',
+          '/target-a',
+          '/target-b',
+          '/destination',
+        ]),
+        manualAttributions: {
+          attributions: {
+            sourceA: packageInfo('sourceA', 'source A original', {
+              origin: 'A',
+            }),
+            sourceB: packageInfo('sourceB', 'source B original', {
+              origin: 'B',
+            }),
+            targetA: packageInfo('targetA', 'shared target', { origin: 'A' }),
+            targetB: packageInfo('targetB', 'shared target', { origin: 'B' }),
+          },
+          resourcesToAttributions: {
+            '/source-a': ['sourceA'],
+            '/source-b': ['sourceB'],
+            '/target-a': ['targetA'],
+            '/target-b': ['targetB'],
+          },
+          attributionsToResources: {},
+        },
+      });
+
+      const batchAttributions: Attributions = {};
+      for (const sourceUuid of submissionOrder) {
+        batchAttributions[sourceUuid] = packageInfo(
+          sourceUuid,
+          'shared target',
+        );
+      }
+      await mutations.createOrMatchAttributions({
+        resourcePath: '/destination',
+        attributions: batchAttributions,
+      });
+
+      expect((await attributionUuidsOn('/destination')).sort()).toEqual(
+        submissionOrder
+          .map((sourceUuid) =>
+            sourceUuid === 'sourceA' ? 'targetA' : 'targetB',
+          )
+          .sort(),
+      );
+      const { result: saveFileArgs } = await getSaveFileArgs();
+      expect(Object.keys(saveFileArgs.manualAttributions)).toHaveLength(4);
+      expect(saveFileArgs.resourcesToAttributions['/source-a']).toEqual([
+        'sourceA',
+      ]);
+      expect(saveFileArgs.resourcesToAttributions['/source-b']).toEqual([
+        'sourceB',
+      ]);
+      expect(saveFileArgs.resourcesToAttributions['/target-a']).toEqual([
+        'targetA',
+      ]);
+      expect(saveFileArgs.resourcesToAttributions['/target-b']).toEqual([
+        'targetB',
+      ]);
+      expect(
+        saveFileArgs.resourcesToAttributions['/destination'].toSorted(),
+      ).toEqual(
+        submissionOrder
+          .map((sourceUuid) =>
+            sourceUuid === 'sourceA' ? 'targetA' : 'targetB',
+          )
+          .sort(),
+      );
+      expect(saveFileArgs.manualAttributions.targetA).toHaveProperty(
+        'aiAttributions',
+        { origin: 'A' },
+      );
+      expect(saveFileArgs.manualAttributions.targetB).toHaveProperty(
+        'aiAttributions',
+        { origin: 'B' },
+      );
+    },
+  );
+
+  it('keeps an edited source and its links when Global Save finds only metadata-incompatible targets', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/source', '/source-also', '/target']),
+      manualAttributions: {
+        attributions: {
+          source: packageInfo('source', 'before', { origin: 'source' }),
+          target: packageInfo('target', 'after', { origin: 'target' }),
+        },
+        resourcesToAttributions: {
+          '/source': ['source'],
+          '/source-also': ['source'],
+          '/target': ['target'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    await mutations.updateOrMatchAttributions({
+      attributions: {
+        source: packageInfo('source', 'after'),
+      },
+    });
+
+    expect(await attributionUuidsOn('/source')).toEqual(['source']);
+    expect(await attributionUuidsOn('/source-also')).toEqual(['source']);
+    const { result: saveFileArgs } = await getSaveFileArgs();
+    expect(Object.keys(saveFileArgs.manualAttributions)).toHaveLength(2);
+    expect(saveFileArgs.manualAttributions.source.packageName).toBe('after');
+    expect(saveFileArgs.manualAttributions.target.packageName).toBe('after');
+    expect(saveFileArgs.manualAttributions.source).toHaveProperty(
+      'aiAttributions',
+      { origin: 'source' },
+    );
+    expect(saveFileArgs.resourcesToAttributions['/source']).toEqual(['source']);
+    expect(saveFileArgs.resourcesToAttributions['/source-also']).toEqual([
+      'source',
+    ]);
+    expect(saveFileArgs.resourcesToAttributions['/target']).toEqual(['target']);
+  });
+
+  it('creates a metadata-preserving attribution for a resource-specific edit', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/source', '/source-also', '/target']),
+      manualAttributions: {
+        attributions: {
+          source: packageInfo('source', 'before', {
+            origin: { nested: ['source'] },
+          }),
+          target: packageInfo('target', 'after', {
+            origin: { nested: ['target'] },
+          }),
+        },
+        resourcesToAttributions: {
+          '/source': ['source'],
+          '/source-also': ['source'],
+          '/target': ['target'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    await mutations.modifyOrMatchOnlyOnOneResource({
+      resourcePath: '/source',
+      attributions: {
+        source: packageInfo('source', 'after'),
+      },
+    });
+
+    const [editedUuid] = await attributionUuidsOn('/source');
+    expect(editedUuid).not.toBe('target');
+    expect(await attributionUuidsOn('/source-also')).toEqual(['source']);
+    const { result: saveFileArgs } = await getSaveFileArgs();
+    expect(Object.keys(saveFileArgs.manualAttributions)).toHaveLength(3);
+    expect(saveFileArgs.manualAttributions.source.packageName).toBe('before');
+    expect(saveFileArgs.manualAttributions[editedUuid].packageName).toBe(
+      'after',
+    );
+    expect(saveFileArgs.manualAttributions.target.packageName).toBe('after');
+    expect(saveFileArgs.manualAttributions[editedUuid]).toHaveProperty(
+      'aiAttributions',
+      { origin: { nested: ['source'] } },
+    );
+    expect(saveFileArgs.manualAttributions.target).toHaveProperty(
+      'aiAttributions',
+      { origin: { nested: ['target'] } },
+    );
+    expect(saveFileArgs.resourcesToAttributions['/source']).toEqual([
+      editedUuid,
+    ]);
+    expect(saveFileArgs.resourcesToAttributions['/source-also']).toEqual([
+      'source',
+    ]);
+    expect(saveFileArgs.resourcesToAttributions['/target']).toEqual(['target']);
+  });
+
+  it('consolidates Global Save edits when target metadata is structurally equal', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/source', '/target']),
+      manualAttributions: {
+        attributions: {
+          source: packageInfo('source', 'before', {
+            nested: { first: 1, second: true },
+          }),
+          target: packageInfo('target', 'after', {
+            nested: { second: true, first: 1 },
+          }),
+        },
+        resourcesToAttributions: {
+          '/source': ['source'],
+          '/target': ['target'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    await mutations.updateOrMatchAttributions({
+      attributions: {
+        source: packageInfo('source', 'after'),
+      },
+    });
+
+    expect(await attributionUuidsOn('/source')).toEqual(['target']);
+    const { result: saveFileArgs } = await getSaveFileArgs();
+    expect(Object.keys(saveFileArgs.manualAttributions)).toHaveLength(1);
+    expect(saveFileArgs.resourcesToAttributions['/source']).toEqual(['target']);
+    expect(saveFileArgs.resourcesToAttributions['/target']).toEqual(['target']);
+    expect(saveFileArgs.manualAttributions.source).toBeUndefined();
+    expect(saveFileArgs.manualAttributions.target).toHaveProperty(
+      'aiAttributions',
+      { nested: { second: true, first: 1 } },
     );
   });
 
@@ -450,6 +1042,13 @@ describe('mixed attribution mutations', () => {
 
   it('clones a mixed attribution before updating its writable partition', async () => {
     await initializeMixedAttribution();
+    await getDb()
+      .insertInto('attribution_ai')
+      .values({
+        attribution_uuid: 'shared',
+        additional_data: '{"origin":{"nested":[1,true]}}',
+      })
+      .execute();
 
     await mutations.updateAttributions({
       attributions: {
@@ -485,6 +1084,13 @@ describe('mixed attribution mutations', () => {
         .where('uuid', '=', writableUuids[0])
         .executeTakeFirstOrThrow(),
     ).toEqual({ package_name: 'updated' });
+    expect(
+      await getDb()
+        .selectFrom('attribution_ai')
+        .select('additional_data')
+        .where('attribution_uuid', '=', writableUuids[0])
+        .executeTakeFirstOrThrow(),
+    ).toEqual({ additional_data: '{"origin":{"nested":[1,true]}}' });
   });
 
   it('returns the writable clone UUID after updating a mixed attribution', async () => {
@@ -508,6 +1114,51 @@ describe('mixed attribution mutations', () => {
         .executeTakeFirstOrThrow()
     ).uuid;
     expect(cloneUuid).not.toBe('shared');
+  });
+
+  it('matches mixed attribution edits using the writable clone metadata', async () => {
+    await initializeMixedAttribution();
+    await getDb()
+      .insertInto('attribution_ai')
+      .values([
+        {
+          attribution_uuid: 'shared',
+          additional_data: '{"origin":{"value":"source"}}',
+        },
+        {
+          attribution_uuid: 'replacement',
+          additional_data: '{"origin":{"value":"target"}}',
+        },
+      ])
+      .execute();
+
+    await mutations.updateOrMatchAttributions({
+      attributions: {
+        shared: {
+          id: 'shared',
+          criticality: Criticality.None,
+          packageName: 'replacement',
+        },
+      },
+    });
+
+    expect(await attributionUuidsOn('/readonly/file.ts')).toEqual(['shared']);
+    const [writableUuid] = await attributionUuidsOn('/writable/file.ts');
+    expect(writableUuid).not.toBe('shared');
+    expect(writableUuid).not.toBe('replacement');
+    const { result: saveFileArgs } = await getSaveFileArgs();
+    expect(saveFileArgs.manualAttributions.shared.packageName).toBe('original');
+    expect(saveFileArgs.manualAttributions[writableUuid].packageName).toBe(
+      'replacement',
+    );
+    expect(saveFileArgs.manualAttributions[writableUuid]).toHaveProperty(
+      'aiAttributions',
+      { origin: { value: 'source' } },
+    );
+    expect(saveFileArgs.manualAttributions.replacement).toHaveProperty(
+      'aiAttributions',
+      { origin: { value: 'target' } },
+    );
   });
 
   it('keeps the locked relationship unchanged immediately after updating a mixed attribution', async () => {

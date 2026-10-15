@@ -14,6 +14,7 @@ import {
   type Transaction,
 } from 'kysely';
 import { escapeRegExp, pickBy, snakeCase } from 'lodash-es';
+import { isDeepStrictEqual } from 'node:util';
 import { v4 as uuid4 } from 'uuid';
 
 import {
@@ -22,6 +23,7 @@ import {
   THIRD_PARTY_KEYS,
 } from '../../shared/attribution-comparison';
 import type { Attributions, PackageInfo } from '../../shared/shared-types';
+import { copyAttributionAi } from '../db/attribution-ai';
 import {
   getAttributionPersistenceValues,
   packageInfoFromAttributionRow,
@@ -741,6 +743,7 @@ export async function cloneMixedAttributionsForWritableResources(
         is_resolved: attribution.is_resolved,
       })
       .execute();
+    await copyAttributionAi(trx, attribution.uuid, newUuid);
 
     await trx
       .updateTable('resource_to_attribution')
@@ -773,6 +776,12 @@ export async function findMatchingAttributionUuid(
   let query = trx
     .selectFrom('attribution')
     .select('uuid')
+    .leftJoin(
+      'attribution_ai',
+      'attribution.uuid',
+      'attribution_ai.attribution_uuid',
+    )
+    .select('attribution_ai.additional_data as ai_additional_data')
     .where('is_external', '=', 0)
     .$if(!options?.ignorePreSelected, (eb) => eb.where('pre_selected', '=', 0))
     .$if(excludeUuids !== undefined, (eb) =>
@@ -817,9 +826,27 @@ export async function findMatchingAttributionUuid(
     );
   }
 
-  const matchedAttribution = await query.executeTakeFirst();
+  const sourceAiMetadata = await trx
+    .selectFrom('attribution_ai')
+    .select('additional_data')
+    .where('attribution_uuid', '=', packageInfo.id)
+    .executeTakeFirst();
+  const sourceMetadata = sourceAiMetadata
+    ? JSON.parse(sourceAiMetadata.additional_data)
+    : undefined;
 
-  return matchedAttribution?.uuid;
+  const matchingAttributions = await query.execute();
+  for (const matchingAttribution of matchingAttributions) {
+    const candidateMetadata =
+      matchingAttribution.ai_additional_data === null
+        ? undefined
+        : JSON.parse(matchingAttribution.ai_additional_data);
+    if (isDeepStrictEqual(sourceMetadata, candidateMetadata)) {
+      return matchingAttribution.uuid;
+    }
+  }
+
+  return undefined;
 }
 
 async function matchOrCreateAttribution(
@@ -855,6 +882,7 @@ async function matchOrCreateAttribution(
       is_external: 0,
     })
     .execute();
+  await copyAttributionAi(trx, packageInfo.id, newUuid);
   return newUuid;
 }
 
