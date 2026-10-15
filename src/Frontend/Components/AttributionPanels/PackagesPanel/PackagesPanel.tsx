@@ -184,8 +184,12 @@ export const PackagesPanel = ({
   const databaseInitialized = useDatabaseInitialized();
   const [userSettings] = useUserSettings();
   const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
+  const previousSorting = usePrevious(filters.sorting);
+  const sortingChanged =
+    previousSorting !== undefined && previousSorting !== filters.sorting;
   const navigationTargetUuid =
     !preserveSelection &&
+    !sortingChanged &&
     selectedAttributionId &&
     selectedAttributionIsExternal === external
       ? selectedAttributionId
@@ -544,6 +548,14 @@ export const PackagesPanel = ({
   const clearSelection = useCallback(() => {
     setBulkSelection(null);
   }, []);
+  useEffect(() => {
+    if (!sortingChanged) {
+      return;
+    }
+    preserveSelectionRef.current = false;
+    dispatch(setSelectedAttributionId(''));
+    clearSelection();
+  }, [clearSelection, dispatch, sortingChanged]);
   useEffect(() => {
     if (
       bulkSelection?.mode === 'allMatching' &&

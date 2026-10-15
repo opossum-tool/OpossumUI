@@ -26,7 +26,12 @@ import { setVariable } from '../../../../state/actions/variables-actions/variabl
 import type { Action } from '../../../../state/configure-store';
 import { getAttributionSelectionPendingResourceId } from '../../../../state/selectors/resource-selectors';
 import { ATTRIBUTION_SELECTION_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-selection-for-replacement';
-import { initialAttributionFilters } from '../../../../state/variables/use-filters';
+import {
+  initialAttributionFilters,
+  MANUAL_ATTRIBUTION_FILTERS_AUDIT,
+  type UseAttributionFilters,
+  useManualAttributionFilters,
+} from '../../../../state/variables/use-filters';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../../test-helpers/render';
 import { useAuditAttributionsList } from '../../../../util/use-audit-attributions-list';
@@ -110,6 +115,7 @@ function renderPackagesPanel({
   scopeByRelation,
   navigationRelation,
   external = false,
+  useAttributionFilters = () => [initialAttributionFilters, vi.fn()],
 }: {
   attributions: Attributions;
   visibleAttributions?: Attributions;
@@ -119,6 +125,7 @@ function renderPackagesPanel({
   scopeByRelation?: boolean;
   navigationRelation?: Relation;
   external?: boolean;
+  useAttributionFilters?: UseAttributionFilters;
 }) {
   mockAttributions(
     attributions,
@@ -132,7 +139,7 @@ function renderPackagesPanel({
       external={external}
       filterOptions={[]}
       renderActions={() => null}
-      useAttributionFilters={() => [initialAttributionFilters, vi.fn()]}
+      useAttributionFilters={useAttributionFilters}
     >
       {children ?? (() => null)}
     </PackagesPanel>,
@@ -336,6 +343,73 @@ describe('PackagesPanel', () => {
         firstAttribution.id,
       );
     });
+  });
+
+  it('clears the selected attribution when sorting changes', async () => {
+    const firstAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const selectedAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const { store } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [firstAttribution.id]: firstAttribution,
+        [selectedAttribution.id]: selectedAttribution,
+      }),
+      actions: [setSelectedAttributionId(selectedAttribution.id)],
+      useAttributionFilters: useManualAttributionFilters,
+    });
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        selectedAttribution.id,
+      );
+    });
+
+    await act(() =>
+      store.dispatch(
+        setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialAttributionFilters,
+          sorting: 'criticality',
+        }),
+      ),
+    );
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedAttributionId).toBe('');
+    });
+    const lastCall = vi.mocked(useAuditAttributionsList).mock.lastCall;
+    expect(lastCall?.[0].sort).toBe('criticality');
+    expect(lastCall?.[0].targetAttributionUuid).toBeUndefined();
+  });
+
+  it('clears the multi-selection when sorting changes', async () => {
+    const packageInfo1 = faker.opossum.packageInfo({ relation: 'resource' });
+    const packageInfo2 = faker.opossum.packageInfo({ relation: 'resource' });
+    const { store } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [packageInfo1.id]: packageInfo1,
+        [packageInfo2.id]: packageInfo2,
+      }),
+      useAttributionFilters: useManualAttributionFilters,
+    });
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
+    expect(screen.getByRole('checkbox', { name: 'select all' })).toBeChecked();
+
+    await act(() =>
+      store.dispatch(
+        setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialAttributionFilters,
+          sorting: 'criticality',
+        }),
+      ),
+    );
+
+    expect(
+      screen.getByRole('checkbox', { name: 'select all' }),
+    ).not.toBeChecked();
   });
 
   it('uses a cached selected attribution relation during preserved navigation', async () => {
