@@ -877,11 +877,8 @@ async function initializeAttributionAiTable(
   for (const [uuid, attribution] of Object.entries(
     manualAttributions.attributions,
   )) {
-    if ('aiAttributions' in attribution) {
-      const aiAttributions = attribution.aiAttributions as {
-        humanModified?: boolean;
-        [key: string]: unknown;
-      };
+    if (attribution.aiAttributions !== undefined) {
+      const aiAttributions = attribution.aiAttributions;
       const { humanModified, ...additionalData } = aiAttributions;
       insertAi({
         attribution_uuid: uuid,

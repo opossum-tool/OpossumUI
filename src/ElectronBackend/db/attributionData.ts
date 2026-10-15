@@ -44,6 +44,7 @@ export function attributionContentFromRow(
 
 const knownKeys = new Set([
   'id',
+  'aiAttributions',
   'source',
   'originalAttributionSource',
   'resourceAccess',
@@ -126,8 +127,7 @@ function removeUndefinedProperties<T extends object>(value: T): T {
 }
 
 export function getAttributionPersistenceValues(attribution: PackageInfo) {
-  const { aiAttributions: _aiAttributions, ...additionalData } =
-    getAttributionExtensionData(attribution);
+  const additionalData = getAttributionExtensionData(attribution);
   const source = sourceColumnValues(attribution.source);
   const originalAttributionSource = sourceColumnValues(
     attribution.originalAttributionSource,

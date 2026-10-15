@@ -207,10 +207,15 @@ describe('parseOpossumFile', () => {
   it.each([null, []])(
     'rejects non-object AI attribution metadata: %j',
     async (value) => {
-      const invalidOutput = structuredClone(correctOutput);
-      invalidOutput.manualAttributions[testUuid] = {
-        ...invalidOutput.manualAttributions[testUuid],
-        ...{ aiAttributions: value },
+      const invalidOutput = {
+        ...structuredClone(correctOutput),
+        manualAttributions: {
+          ...structuredClone(correctOutput.manualAttributions),
+          [testUuid]: {
+            ...structuredClone(correctOutput.manualAttributions[testUuid]),
+            aiAttributions: value,
+          },
+        },
       };
       const opossumFilePath = await writeOpossumFile({
         input: correctInput,
@@ -227,10 +232,15 @@ describe('parseOpossumFile', () => {
   it.each(['yes', 0, null])(
     'rejects non-boolean humanModified AI metadata: %j',
     async (humanModified) => {
-      const invalidOutput = structuredClone(correctOutput);
-      invalidOutput.manualAttributions[testUuid] = {
-        ...invalidOutput.manualAttributions[testUuid],
-        ...{ aiAttributions: { humanModified } },
+      const invalidOutput = {
+        ...structuredClone(correctOutput),
+        manualAttributions: {
+          ...structuredClone(correctOutput.manualAttributions),
+          [testUuid]: {
+            ...structuredClone(correctOutput.manualAttributions[testUuid]),
+            aiAttributions: { humanModified },
+          },
+        },
       };
       const opossumFilePath = await writeOpossumFile({
         input: correctInput,

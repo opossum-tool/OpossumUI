@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
+  type AiAttributions,
   type Attributions,
   Criticality,
   type PackageInfo,
@@ -25,8 +26,8 @@ import { queries } from '../queries';
 function packageInfo(
   id: string,
   packageName: string,
-  aiAttributions?: Record<string, unknown>,
-): PackageInfo & { aiAttributions?: Record<string, unknown> } {
+  aiAttributions?: AiAttributions,
+): PackageInfo {
   return {
     id,
     packageName,

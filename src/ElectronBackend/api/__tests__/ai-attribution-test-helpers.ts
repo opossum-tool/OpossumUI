@@ -14,9 +14,7 @@ import {
 } from '../../../testing/global-test-helpers';
 import { getDb } from '../../db/db';
 
-type AttributionFields = Partial<Omit<PackageInfo, 'id' | 'criticality'>> & {
-  aiAttributions?: Record<string, unknown>;
-};
+type AttributionFields = Partial<Omit<PackageInfo, 'id' | 'criticality'>>;
 
 type ResourceLinks = Record<string, Array<string>>;
 
@@ -32,7 +30,7 @@ interface AiAttributionFixture {
 export function attributionFixture(
   id: string,
   overrides: AttributionFields = {},
-): PackageInfo & { aiAttributions?: Record<string, unknown> } {
+): PackageInfo {
   return {
     id,
     criticality: Criticality.None,

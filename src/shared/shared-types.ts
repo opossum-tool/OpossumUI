@@ -58,6 +58,11 @@ export interface Source {
 export type Relation = 'resource' | 'children' | 'parents' | 'unrelated';
 type AttributionResourceAccess = 'readonly' | 'writable' | 'mixed';
 
+export interface AiAttributions {
+  humanModified?: boolean;
+  [key: string]: unknown;
+}
+
 type Expand<T> = T extends unknown ? { [K in keyof T]: T[K] } : never;
 
 type Never<T, K extends keyof T> = Expand<
@@ -78,6 +83,7 @@ export interface EphemeralPackageInfoProps {
 }
 
 export interface PackageInfo extends EphemeralPackageInfoProps {
+  aiAttributions?: AiAttributions;
   attributionConfidence?: number;
   classification?: Classification;
   comment?: string;
