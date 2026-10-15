@@ -55,7 +55,6 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
       selectedId={selectedAttributionId}
       // VirtuosoMockContext cannot scroll back to a centered top item: passing
       // {index: 0, align: 'center'} virtualizes away the first row in tests.
-      // Centering item 0 is a scroll no-op in real browsers anyway.
       initialTopMostItemIndex={
         initialSelectedAttributionIndex !== undefined &&
         initialSelectedAttributionIndex > 0
