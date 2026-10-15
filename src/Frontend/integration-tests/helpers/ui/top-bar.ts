@@ -120,33 +120,46 @@ export interface ProgressBarTooltipValues {
 export async function expectProgressBarTooltipShowsValues(
   values: ProgressBarTooltipValues,
 ): Promise<void> {
+  const expectedValues = [
+    [
+      values.filesWithAttributions,
+      text.topBar.switchableProgressBar.attributionBar
+        .filesWithManualAttribution,
+    ],
+    [
+      values.filesWithOnlyPreSelectedAttributions,
+      text.topBar.switchableProgressBar.attributionBar
+        .filesWithOnlyPreSelectedAttribution,
+    ],
+    [
+      values.filesWithOnlySignals,
+      text.topBar.switchableProgressBar.attributionBar
+        .filesWithOnlyExternalAttribution,
+    ],
+  ] as Array<[number | undefined, string]>;
   const progressBar = await waitFor(
     () => screen.getByTestId('progress-bar'),
     SETTLED_TIMEOUT,
   );
   fireEvent.mouseOver(progressBar, { clientX: 10, clientY: 10 });
   await waitFor(() => {
-    const tooltip = screen.getByRole('tooltip');
-    for (const [count, label] of [
-      [
-        values.filesWithAttributions,
-        text.topBar.switchableProgressBar.attributionBar
-          .filesWithManualAttribution,
-      ],
-      [
-        values.filesWithOnlyPreSelectedAttributions,
-        text.topBar.switchableProgressBar.attributionBar
-          .filesWithOnlyPreSelectedAttribution,
-      ],
-      [
-        values.filesWithOnlySignals,
-        text.topBar.switchableProgressBar.attributionBar
-          .filesWithOnlyExternalAttribution,
-      ],
-    ] as Array<[number | undefined, string]>) {
+    const tooltips = screen.getAllByRole('tooltip');
+    const tooltip = tooltips.find((candidate) => {
+      return (
+        within(candidate).queryByText(
+          new RegExp(
+            escapeRegExp(
+              text.topBar.switchableProgressBar.attributionBar.intro,
+            ),
+          ),
+        ) !== null
+      );
+    });
+    expect(tooltip).toBeTruthy();
+    for (const [count, label] of expectedValues) {
       if (count) {
         expect(
-          within(tooltip).getByText(
+          within(tooltip as HTMLElement).getByText(
             new RegExp(`${escapeRegExp(label)}: ${count}`),
           ),
         ).toBeVisible();
