@@ -71,6 +71,15 @@ test.use({
   },
 });
 
+// The remaining 17 tests of this suite were converted to integration tests
+// (src/Frontend/integration-tests/updating-attributions.test.tsx); their
+// renderer-only coverage of unsaved-changes warnings, updating, reverting and
+// form validation lives there. This test was kept e2e: porting it to the
+// happy-dom harness surfaced a behavior divergence — after confirming the
+// was-preferred modification dialog the integration store commits the draft
+// earlier than a real browser (data-dirty becomes false), so the assertions
+// cannot be mirrored faithfully yet.
+
 test('switches correctly between previously-preferred and modified previously preferred statuses of an attribution', async ({
   attributionDetails,
   confirmationDialog,

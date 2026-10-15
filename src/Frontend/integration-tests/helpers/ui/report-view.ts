@@ -3,14 +3,30 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
+import { text } from '../../../../shared/text';
 import { SETTLED_TIMEOUT } from './common';
+import { expectViewIsActive } from './top-bar';
 
 const REPORT_VIEW_LABEL = 'report view';
 
 export function getReportView(): HTMLElement {
   return screen.getByLabelText(REPORT_VIEW_LABEL);
+}
+
+export async function openReportAttributionInAuditView(
+  attributionId: string,
+): Promise<void> {
+  const openInAuditViewButton = await waitFor(() => {
+    const row = within(getReportView()).getByTestId(attributionId);
+    return within(row).getByRole('button', {
+      name: text.reportView.openInAuditView,
+    });
+  }, SETTLED_TIMEOUT);
+  await userEvent.click(openInAuditViewButton);
+  await expectViewIsActive('audit');
 }
 
 export async function expectReportAttributionVisibility(

@@ -49,6 +49,7 @@ import {
   gotoResource,
   gotoResourceTreeRoot,
   openProjectStatisticsPopup,
+  openReportAttributionInAuditView,
   openSplitDialogFromMenu,
   selectProgressBar,
   SIGNALS_PANEL,
@@ -242,5 +243,17 @@ describe('readonly partition', () => {
     await clickProjectStatisticsTab('details');
     await expectProjectStatisticsLicenseTableIsVisible();
     await expectLicenseTableTotalSignalCountIs(1);
+  });
+
+  it('opens a report attribution from a readonly resource via the root', async () => {
+    await renderApp({ data });
+    await gotoResource('readonly-only', 'hidden.ts');
+    await gotoReportView();
+    await openReportAttributionInAuditView(editableManualId);
+
+    await expectSelectedTabIs(ATTRIBUTIONS_PANEL, 'children');
+    await expectPackageCardPartition(ATTRIBUTIONS_PANEL, editableManual, false);
+    await expectFormFieldValues({ name: editableManual.packageName! });
+    await expectAttributionColumnButtonVisibility('save', true);
   });
 });

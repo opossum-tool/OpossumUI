@@ -6,7 +6,11 @@ import { getFilterExcludedAttributionsFixture } from '../../testing/filter-exclu
 import { faker, test } from '../utils';
 
 // Extracted from src/e2e-tests/__tests__/filtering-attributions.test.ts when
-// that suite was converted to integration tests.
+// that suite was converted to integration tests. This case stays e2e: when
+// ported to the happy-dom harness, the pending-navigation reveal of the
+// filter-excluded attribution (PackagesPanel effect chain) settled
+// unreliably under parallel load, while it is deterministic in a real
+// browser.
 
 const {
   attributionId1,
