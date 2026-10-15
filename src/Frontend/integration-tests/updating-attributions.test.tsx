@@ -12,6 +12,7 @@ import { faker } from '../../testing/Faker';
 import { getParsedInputFileEnrichedWithTestData } from '../test-helpers/general-test-helpers';
 import { renderApp } from './helpers/render-app';
 import {
+  ATTRIBUTIONS_PANEL,
   clearFormField,
   clickAttributionColumnButton,
   clickAttributionLicenseTextToggle,
@@ -41,8 +42,6 @@ import {
   gotoResource,
   selectLicenseExpressionOption,
 } from './helpers/ui';
-
-const ATTRIBUTIONS_PANEL = 'attributions-panel';
 
 const [
   resourceName1,

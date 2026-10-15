@@ -27,9 +27,8 @@ import {
   expectStatisticsCharts,
   gotoResource,
   openProjectStatisticsPopup,
+  SIGNALS_PANEL,
 } from './helpers/ui';
-
-const SIGNALS_PANEL = 'signals-panel';
 
 const [resourceName1] = faker.opossum.resourceNames({ count: 1 });
 const [attributionId1, packageInfo1] = faker.opossum.rawAttribution({

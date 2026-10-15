@@ -16,9 +16,8 @@ import {
   expectPackageCardCheckbox,
   expectPackageCards,
   expectSelectedTabIs,
+  SIGNALS_PANEL,
 } from './helpers/ui';
-
-const SIGNALS_PANEL = 'signals-panel';
 
 const [resourceName1, resourceName2, resourceName3, resourceName4] =
   faker.opossum.resourceNames({ count: 4 });

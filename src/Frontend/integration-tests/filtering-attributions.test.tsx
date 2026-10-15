@@ -14,6 +14,7 @@ import { getParsedInputFileEnrichedWithTestData } from '../test-helpers/general-
 import { renderApp } from './helpers/render-app';
 import {
   applyPanelFilter,
+  ATTRIBUTIONS_PANEL,
   clearPanelSearch,
   clickClearFiltersMenuItem,
   clickFilterMenuButton,
@@ -35,7 +36,6 @@ import {
   selectFilterLicenseName,
 } from './helpers/ui';
 
-const ATTRIBUTIONS_PANEL = 'attributions-panel';
 const ATTRIBUTIONS_HEADER = 'attributions-panel-header';
 
 const {

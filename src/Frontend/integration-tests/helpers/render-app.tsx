@@ -2,13 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { ThemeProvider } from '@mui/material/styles';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, waitFor } from '@testing-library/react';
 import type { IpcRendererEvent } from 'electron';
 import { Resizable } from 're-resizable';
-import { Provider } from 'react-redux';
-import { VirtuosoMockContext } from 'react-virtuoso';
 
 import type { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { DEFAULT_USER_SETTINGS } from '../../../shared/shared-constants';
@@ -17,11 +13,13 @@ import type {
   UserSettings,
 } from '../../../shared/shared-types';
 import { App } from '../../Components/App/App';
-import { theme } from '../../Components/App/App.style';
 import { Toaster } from '../../Components/Toaster/Toaster';
 import { setUserSetting } from '../../state/actions/user-settings-actions/user-settings-actions';
 import type { Action } from '../../state/configure-store';
-import { createTestStore } from '../../test-helpers/render';
+import {
+  createTestStore,
+  makeProviderWrapper,
+} from '../../test-helpers/render';
 
 type IpcListener = (event: IpcRendererEvent, ...args: Array<unknown>) => void;
 
@@ -104,6 +102,20 @@ export interface RenderAppResult {
   ) => void;
 }
 
+function mergeUserSettings(
+  overrides: NonNullable<RenderAppOptions['userSettings']>,
+): UserSettings {
+  const { panelSizes, ...rest } = overrides;
+  return {
+    ...DEFAULT_USER_SETTINGS,
+    ...rest,
+    panelSizes: {
+      ...DEFAULT_USER_SETTINGS.panelSizes,
+      ...panelSizes,
+    },
+  };
+}
+
 /**
  * Renders the full app (App + Toaster), backed by the real backend command
  * handlers executing against a real database seeded with `data` (if supplied).
@@ -116,18 +128,8 @@ export async function renderApp(
   actions?.forEach(store.dispatch);
 
   if (userSettings) {
-    const { panelSizes, ...rest } = userSettings;
-    const mergedUserSettings: UserSettings = {
-      ...DEFAULT_USER_SETTINGS,
-      ...rest,
-      panelSizes: {
-        ...DEFAULT_USER_SETTINGS.panelSizes,
-        ...panelSizes,
-      },
-    };
-    vi.spyOn(window.electronAPI, 'getUserSettings').mockResolvedValue(
-      mergedUserSettings,
-    );
+    const merged = mergeUserSettings(userSettings);
+    vi.spyOn(window.electronAPI, 'getUserSettings').mockResolvedValue(merged);
   }
 
   const channelListeners = new Map<AllowedFrontendChannels, Set<IpcListener>>();
@@ -154,21 +156,12 @@ export async function renderApp(
     listeners.forEach((listener) => listener(event, ...args));
   }
 
-  const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-
   render(
-    <Provider store={store}>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
-          <VirtuosoMockContext value={{ itemHeight: 40, viewportHeight: 1200 }}>
-            <App />
-            <Toaster />
-          </VirtuosoMockContext>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </Provider>,
+    <>
+      <App />
+      <Toaster />
+    </>,
+    { wrapper: makeProviderWrapper(store, { withVirtuosoContext: true }) },
   );
 
   await waitFor(() => {
@@ -180,24 +173,15 @@ export async function renderApp(
   // Panel layout effects measure a zero-size DOM in happy-dom and may have
   // overwritten user settings derived data; apply overrides after mounting.
   if (userSettings) {
-    const { panelSizes, ...rest } = userSettings;
-    const mergedPanelSizes = {
-      ...DEFAULT_USER_SETTINGS.panelSizes,
-      ...panelSizes,
-    };
-    store.dispatch(
-      setUserSetting({
-        ...rest,
-        panelSizes: mergedPanelSizes,
-      }),
-    );
+    const merged = mergeUserSettings(userSettings);
+    store.dispatch(setUserSetting(merged));
     await waitFor(() => {
       const current = (
         store.getState() as {
           userSettingsState?: { panelSizes?: Record<string, unknown> };
         }
       ).userSettingsState?.panelSizes;
-      for (const [key, value] of Object.entries(mergedPanelSizes)) {
+      for (const [key, value] of Object.entries(merged.panelSizes)) {
         if (value !== null && current?.[key] !== value) {
           throw new Error(`Panel size override for ${key} not applied`);
         }

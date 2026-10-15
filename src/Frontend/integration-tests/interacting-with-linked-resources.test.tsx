@@ -22,11 +22,12 @@ import {
   gotoResource,
   gotoResourceInOtherTree,
   gotoResourceTreeRoot,
+  LINKED_RESOURCES_TREE,
   pressSearchShortcut,
   searchTree,
 } from './helpers/ui';
 
-const LINKED_TREE = 'linked-resources-tree';
+const LINKED_TREE = LINKED_RESOURCES_TREE;
 const [resourceName1, resourceName2, resourceName3, resourceName4] =
   faker.opossum.resourceNames({ count: 4 });
 const [externalAttributionId, externalPackageInfo] =
