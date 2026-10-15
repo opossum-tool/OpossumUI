@@ -106,6 +106,12 @@ End to end test are available and can be run using:
 yarn test:e2e
 ```
 
+Integration test are available and can be run using:
+
+```bash
+yarn test:int
+```
+
 Prettier is used as a code formatter.
 
 ### Requirements
