@@ -7,7 +7,7 @@ import {
   QueryClientProvider,
   QueryObserver,
 } from '@tanstack/react-query';
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 
 import {
   initializeDbWithTestData,
@@ -16,6 +16,27 @@ import {
 import { backend } from '../backendClient';
 
 describe('backend client mutations', () => {
+  let queryClient: QueryClient;
+
+  beforeEach(() => {
+    queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+  });
+
+  function renderMutation(onBeforeInvalidation?: () => void) {
+    return renderHook(
+      () => backend.resolveAttributions.useMutation({ onBeforeInvalidation }),
+      {
+        wrapper: ({ children }) => (
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        ),
+      },
+    );
+  }
+
   it('invalidates the query client from the active provider', async () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/file']),
@@ -28,9 +49,6 @@ describe('backend client mutations', () => {
       },
     });
 
-    const queryClient = new QueryClient({
-      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
-    });
     const queryKey = ['backend', 'resolvedAttributionUuids'] as const;
     const queryFn = vi.fn(() => Promise.resolve(new Set<string>()));
     queryClient.setQueryData(queryKey, new Set<string>());
@@ -41,16 +59,7 @@ describe('backend client mutations', () => {
     });
     const unsubscribe = observer.subscribe(() => undefined);
 
-    const { result } = renderHook(
-      () => backend.resolveAttributions.useMutation(),
-      {
-        wrapper: ({ children }) => (
-          <QueryClientProvider client={queryClient}>
-            {children}
-          </QueryClientProvider>
-        ),
-      },
-    );
+    const { result } = renderMutation();
 
     await act(async () => {
       await result.current.mutateAsync({
@@ -60,5 +69,32 @@ describe('backend client mutations', () => {
 
     expect(queryFn).toHaveBeenCalledTimes(1);
     unsubscribe();
+  });
+
+  it('accepts the result before invalidation and stays pending until invalidation completes', async () => {
+    const invalidation = Promise.withResolvers<void>();
+    const invalidateQueries = vi
+      .spyOn(queryClient, 'invalidateQueries')
+      .mockReturnValue(invalidation.promise);
+    const onBeforeInvalidation = vi.fn();
+    vi.mocked(window.electronAPI.api).mockResolvedValueOnce({
+      result: undefined,
+      invalidates: [
+        { queryName: 'resolvedAttributionUuids', awaitRefetch: true },
+      ],
+    });
+    const { result } = renderMutation(onBeforeInvalidation);
+
+    act(() => {
+      result.current.mutate({
+        selection: { mode: 'explicit', attributionUuids: ['external'] },
+      });
+    });
+    await waitFor(() => expect(invalidateQueries).toHaveBeenCalledOnce());
+    expect(onBeforeInvalidation).toHaveBeenCalledBefore(invalidateQueries);
+    expect(result.current.isPending).toBe(true);
+
+    act(() => invalidation.resolve());
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
   });
 });

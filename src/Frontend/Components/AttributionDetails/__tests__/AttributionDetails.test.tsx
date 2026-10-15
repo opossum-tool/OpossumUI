@@ -1830,58 +1830,6 @@ describe('AttributionDetails', () => {
       const selectedResource = '/selected/file.ts';
       const linkedResource = '/linked/file.ts';
       const matchResource = '/match/file.ts';
-      let releaseRemappedAttributionQuery: (() => void) | undefined;
-      let markRemappedAttributionQueryStarted: (() => void) | undefined;
-      const remappedAttributionQueryStarted = new Promise<void>((resolve) => {
-        markRemappedAttributionQueryStarted = resolve;
-      });
-      let resolveSave: (() => void) | undefined;
-      let markSaveStarted: (() => void) | undefined;
-      const saveStarted = new Promise<void>((resolve) => {
-        markSaveStarted = resolve;
-      });
-      let pauseRemappedAttributionQuery = false;
-
-      vi.mocked(window.electronAPI.api).mockImplementation(
-        (command, params) => {
-          if (command === 'modifyOrMatchOnlyOnOneResource') {
-            return new Promise<
-              Awaited<ReturnType<typeof window.electronAPI.api>>
-            >((resolve, reject) => {
-              markSaveStarted?.();
-              resolveSave = () => {
-                void executeCommand(command, params as never).then(
-                  (response) => {
-                    pauseRemappedAttributionQuery = true;
-                    resolve(response);
-                  },
-                  reject,
-                );
-              };
-            });
-          }
-          if (
-            command === 'getAttributionData' &&
-            pauseRemappedAttributionQuery &&
-            (params as { attributionUuid: string }).attributionUuid !==
-              attribution.id &&
-            (params as { attributionUuid: string }).attributionUuid !==
-              navigationAttribution.id
-          ) {
-            pauseRemappedAttributionQuery = false;
-            markRemappedAttributionQueryStarted?.();
-            return new Promise<
-              Awaited<ReturnType<typeof window.electronAPI.api>>
-            >((resolve) => {
-              releaseRemappedAttributionQuery = () => {
-                void executeCommand(command, params as never).then(resolve);
-              };
-            });
-          }
-          return executeCommand(command, params as never);
-        },
-      );
-
       const { store } = await renderComponent(<AttributionDetails />, {
         data: getParsedInputFileEnrichedWithTestData({
           resources: pathsToResources([
@@ -1914,6 +1862,22 @@ describe('AttributionDetails', () => {
       await act(() =>
         store.dispatch(setTemporaryDisplayPackageInfo(submittedPackageInfo)),
       );
+      let dirtyAtSelectionChange: boolean | undefined;
+      let previousSelectedAttributionId = getSelectedAttributionId(
+        store.getState(),
+      );
+      const unsubscribe = store.subscribe(() => {
+        const selectedAttributionId = getSelectedAttributionId(
+          store.getState(),
+        );
+        if (
+          dirtyAtSelectionChange === undefined &&
+          selectedAttributionId !== previousSelectedAttributionId
+        ) {
+          dirtyAtSelectionChange = getIsPackageInfoDirty(store.getState());
+        }
+        previousSelectedAttributionId = selectedAttributionId;
+      });
       await user.click(
         screen.getByRole('button', { name: text.attributionColumn.save }),
       );
@@ -1922,29 +1886,14 @@ describe('AttributionDetails', () => {
           name: text.saveAttributionsPopup.saveLocally,
         }),
       );
-      await saveStarted;
-      await act(() =>
-        store.dispatch(setAttributionSelectionPending(selectedResource)),
+      await waitFor(() =>
+        expect(getSelectedAttributionId(store.getState())).not.toBe(
+          attribution.id,
+        ),
       );
-      expect(
-        screen.getByLabelText(text.saveAttributionsPopup.ariaLabel),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', {
-          name: text.saveAttributionsPopup.saveLocally,
-        }),
-      ).toBeDisabled();
-      within(screen.getByRole('dialog'))
-        .getAllByRole('button', { name: text.buttons.cancel })
-        .forEach((button) => expect(button).toBeDisabled());
-      await act(() =>
-        store.dispatch(completeAttributionSelection(selectedResource)),
-      );
-      act(() => resolveSave?.());
-
-      await remappedAttributionQueryStarted;
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
       expect(getIsPackageInfoDirty(store.getState())).toBe(false);
+      expect(dirtyAtSelectionChange).toBe(false);
+      unsubscribe();
       const remappedAttributionId = getSelectedAttributionId(store.getState());
       expect(remappedAttributionId).not.toBe(attribution.id);
       expect(remappedAttributionId === matchingAttribution.id).toBe(
@@ -1960,7 +1909,6 @@ describe('AttributionDetails', () => {
       );
       expect(screen.queryByLabelText('unsaved changes popup')).toBeNull();
 
-      act(() => releaseRemappedAttributionQuery?.());
       await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
       await waitFor(() =>
         expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject(
@@ -1982,49 +1930,6 @@ describe('AttributionDetails', () => {
       ...attribution,
       comment: 'globally saved draft',
     };
-    let resolveSave: (() => void) | undefined;
-    let markSaveStarted: (() => void) | undefined;
-    const saveStarted = new Promise<void>((resolve) => {
-      markSaveStarted = resolve;
-    });
-    let pauseAttributionQuery = false;
-    let releaseAttributionQuery: (() => void) | undefined;
-    let markAttributionQueryStarted: (() => void) | undefined;
-    const attributionQueryStarted = new Promise<void>((resolve) => {
-      markAttributionQueryStarted = resolve;
-    });
-    vi.mocked(window.electronAPI.api).mockImplementation((command, params) => {
-      if (command === 'updateOrMatchAttributions') {
-        return new Promise<Awaited<ReturnType<typeof window.electronAPI.api>>>(
-          (resolve, reject) => {
-            markSaveStarted?.();
-            resolveSave = () => {
-              void executeCommand(command, params as never).then((response) => {
-                pauseAttributionQuery = true;
-                resolve(response);
-              }, reject);
-            };
-          },
-        );
-      }
-      if (
-        command === 'getAttributionData' &&
-        pauseAttributionQuery &&
-        (params as { attributionUuid: string }).attributionUuid ===
-          attribution.id
-      ) {
-        pauseAttributionQuery = false;
-        markAttributionQueryStarted?.();
-        return new Promise<Awaited<ReturnType<typeof window.electronAPI.api>>>(
-          (resolve) => {
-            releaseAttributionQuery = () => {
-              void executeCommand(command, params as never).then(resolve);
-            };
-          },
-        );
-      }
-      return executeCommand(command, params as never);
-    });
     const { store } = await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
         resources: pathsToResources([resource, linkedResource]),
@@ -2044,6 +1949,15 @@ describe('AttributionDetails', () => {
     void act(() =>
       store.dispatch(setTemporaryDisplayPackageInfo(submittedPackageInfo)),
     );
+    const saveResponse = Promise.withResolvers<void>();
+    vi.mocked(window.electronAPI.api).mockImplementation(
+      async (command, params) => {
+        if (command === 'updateOrMatchAttributions') {
+          await saveResponse.promise;
+        }
+        return executeCommand(command, params as never);
+      },
+    );
     await user.click(
       screen.getByRole('button', { name: text.attributionColumn.save }),
     );
@@ -2053,20 +1967,14 @@ describe('AttributionDetails', () => {
       }),
     );
 
-    await saveStarted;
+    await screen.findByRole('dialog');
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(
       within(screen.getByRole('dialog')).getByRole('button', {
         name: text.saveAttributionsPopup.save,
       }),
     ).toBeDisabled();
-    await act(async () => {
-      resolveSave?.();
-      await attributionQueryStarted;
-    });
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(getIsPackageInfoDirty(store.getState())).toBe(false);
-    act(() => releaseAttributionQuery?.());
+    act(() => saveResponse.resolve());
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     await waitForAttributionDetailsReady();
     expect(screen.getByLabelText('attribution column')).toHaveAttribute(
@@ -2087,26 +1995,6 @@ describe('AttributionDetails', () => {
       ...attribution,
       comment: 'draft to retry',
     };
-    let rejectFirstSave: ((error: Error) => void) | undefined;
-    let markFirstSaveStarted: (() => void) | undefined;
-    const firstSaveStarted = new Promise<void>((resolve) => {
-      markFirstSaveStarted = resolve;
-    });
-    let mutationCount = 0;
-    vi.mocked(window.electronAPI.api).mockImplementation((command, params) => {
-      if (command === 'modifyOrMatchOnlyOnOneResource') {
-        mutationCount += 1;
-        if (mutationCount === 1) {
-          return new Promise<
-            Awaited<ReturnType<typeof window.electronAPI.api>>
-          >((_, reject) => {
-            markFirstSaveStarted?.();
-            rejectFirstSave = reject;
-          });
-        }
-      }
-      return executeCommand(command, params as never);
-    });
     const toastError = vi.spyOn(toast, 'error').mockImplementation(vi.fn());
     const { store } = await renderComponent(<AttributionDetails />, {
       data: getParsedInputFileEnrichedWithTestData({
@@ -2127,6 +2015,17 @@ describe('AttributionDetails', () => {
     await act(() =>
       store.dispatch(setTemporaryDisplayPackageInfo(submittedPackageInfo)),
     );
+    const saveResponse = Promise.withResolvers<void>();
+    let holdSaveResponse = true;
+    vi.mocked(window.electronAPI.api).mockImplementation(
+      async (command, params) => {
+        if (command === 'modifyOrMatchOnlyOnOneResource' && holdSaveResponse) {
+          holdSaveResponse = false;
+          await saveResponse.promise;
+        }
+        return executeCommand(command, params as never);
+      },
+    );
     await user.click(
       screen.getByRole('button', { name: text.attributionColumn.save }),
     );
@@ -2135,10 +2034,19 @@ describe('AttributionDetails', () => {
         name: text.saveAttributionsPopup.saveLocally,
       }),
     );
-    await firstSaveStarted;
+    await waitFor(() =>
+      expect(
+        within(screen.getByRole('dialog')).getByRole('button', {
+          name: text.saveAttributionsPopup.saveLocally,
+        }),
+      ).toBeDisabled(),
+    );
+    within(screen.getByRole('dialog'))
+      .getAllByRole('button', { name: text.buttons.cancel })
+      .forEach((button) => expect(button).toBeDisabled());
     await act(() => store.dispatch(setAttributionSelectionPending(resource)));
     await act(() => store.dispatch(completeAttributionSelection(resource)));
-    act(() => rejectFirstSave?.(new Error('save failed')));
+    act(() => saveResponse.reject(new Error('save failed')));
 
     await waitFor(() => expect(toastError).toHaveBeenCalledWith('save failed'));
     expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -2164,7 +2072,20 @@ describe('AttributionDetails', () => {
     );
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     await waitForAttributionDetailsReady();
-    expect(mutationCount).toBe(1);
+    expect(
+      vi
+        .mocked(window.electronAPI.api)
+        .mock.calls.filter(
+          ([command]) => command === 'modifyOrMatchOnlyOnOneResource',
+        ),
+    ).toHaveLength(1);
+    expect(
+      vi
+        .mocked(window.electronAPI.api)
+        .mock.calls.some(
+          ([command]) => command === 'updateOrMatchAttributions',
+        ),
+    ).toBe(true);
     expect(screen.getByLabelText('attribution column')).toHaveAttribute(
       'data-dirty',
       'false',

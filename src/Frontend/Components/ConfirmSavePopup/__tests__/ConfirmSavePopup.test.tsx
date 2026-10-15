@@ -3,7 +3,7 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { noop } from 'lodash-es';
 
@@ -118,6 +118,53 @@ describe('AttributionFormConfirmSavePopup', () => {
     await waitFor(() =>
       expect(events).toEqual(['accept', 'close', 'complete']),
     );
+  });
+
+  it('disables save and cancel controls while a global save is pending', async () => {
+    const attribution = faker.opossum.packageInfo();
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
+    const saveResponse = Promise.withResolvers<void>();
+    const onClose = vi.fn();
+    vi.mocked(window.electronAPI.api).mockImplementation(
+      async (command, params) => {
+        if (command === 'updateOrMatchAttributions') {
+          await saveResponse.promise;
+        }
+        return executeCommand(command, params as never);
+      },
+    );
+    await renderComponent(
+      <ConfirmSavePopup
+        open
+        onClose={onClose}
+        selection={{ mode: 'explicit', attributionUuids: [attribution.id] }}
+        attributions={{ [attribution.id]: attribution }}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [attribution.id]: attribution,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource]: [attribution.id],
+          }),
+          resources: pathsToResources([resource]),
+        }),
+      },
+    );
+
+    const saveButton = await screen.findByRole('button', {
+      name: text.saveAttributionsPopup.save,
+    });
+    await waitFor(() => expect(saveButton).toBeEnabled());
+    await userEvent.click(saveButton);
+    await waitFor(() => expect(saveButton).toBeDisabled());
+    within(screen.getByRole('dialog'))
+      .getAllByRole('button', { name: text.buttons.cancel })
+      .forEach((button) => expect(button).toBeDisabled());
+    await screen.findByRole('progressbar');
+    act(() => saveResponse.resolve());
+    await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
   });
 
   it('keeps the confirmation open and skips callbacks when saving fails', async () => {
