@@ -9,6 +9,7 @@ import { faker } from '../../testing/Faker';
 import { getParsedInputFileEnrichedWithTestData } from '../test-helpers/general-test-helpers';
 import { renderApp } from './helpers/render-app';
 import {
+  ATTRIBUTIONS_PANEL,
   clickAttributionColumnButton,
   clickPackageCard,
   clickPackageCardCheckbox,
@@ -27,8 +28,6 @@ import {
   expectTabVisibility,
   gotoResource,
 } from './helpers/ui';
-
-const ATTRIBUTIONS_PANEL = 'attributions-panel';
 
 const [
   resourceName1,

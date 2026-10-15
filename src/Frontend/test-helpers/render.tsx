@@ -32,7 +32,7 @@ function ThemedChildren({ children }: { children: React.ReactNode }) {
   return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
 }
 
-function makeProviderWrapper(
+export function makeProviderWrapper(
   store: Awaited<ReturnType<typeof createTestStore>>,
   queryClient: QueryClient,
   { withVirtuosoContext = false }: { withVirtuosoContext?: boolean } = {},

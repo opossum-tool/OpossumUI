@@ -12,6 +12,7 @@ import { faker } from '../../testing/Faker';
 import { getParsedInputFileEnrichedWithTestData } from '../test-helpers/general-test-helpers';
 import { renderApp } from './helpers/render-app';
 import {
+  ATTRIBUTIONS_PANEL,
   cancelSplitDialog,
   clickAttributionColumnButton,
   clickFilterMenuButton,
@@ -50,10 +51,8 @@ import {
   openProjectStatisticsPopup,
   openSplitDialogFromMenu,
   selectProgressBar,
+  SIGNALS_PANEL,
 } from './helpers/ui';
-
-const ATTRIBUTIONS_PANEL = 'attributions-panel';
-const SIGNALS_PANEL = 'signals-panel';
 
 const RESOURCES: Resources = {
   'readonly-only': { 'hidden.ts': 1 },

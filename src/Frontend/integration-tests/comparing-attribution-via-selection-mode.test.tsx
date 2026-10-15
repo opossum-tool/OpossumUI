@@ -11,6 +11,7 @@ import { getParsedInputFileEnrichedWithTestData } from '../test-helpers/general-
 import { renderApp } from './helpers/render-app';
 import {
   addDiffPopupAuditingOption,
+  ATTRIBUTIONS_PANEL,
   clickAttributionColumnButton,
   clickDiffPopupButton,
   clickPackageCard,
@@ -30,8 +31,6 @@ import {
   gotoResource,
   saveChangesInAttributionColumn,
 } from './helpers/ui';
-
-const ATTRIBUTIONS_PANEL = 'attributions-panel';
 
 const [resourceName1, resourceName2] = faker.opossum.resourceNames({
   count: 2,

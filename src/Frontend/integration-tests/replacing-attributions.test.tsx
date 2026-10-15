@@ -11,6 +11,7 @@ import { faker } from '../../testing/Faker';
 import { getParsedInputFileEnrichedWithTestData } from '../test-helpers/general-test-helpers';
 import { renderApp } from './helpers/render-app';
 import {
+  ATTRIBUTIONS_PANEL,
   clickAttributionColumnButton,
   clickPackageCard,
   clickPackageCardCheckbox,
@@ -23,11 +24,9 @@ import {
   expectPanelReplacementDimmed,
   expectPopupHasText,
   expectResourceVisibility,
+  LINKED_RESOURCES_TREE,
+  SIGNALS_PANEL,
 } from './helpers/ui';
-
-const ATTRIBUTIONS_PANEL = 'attributions-panel';
-const SIGNALS_PANEL = 'signals-panel';
-const LINKED_RESOURCES_TREE = 'linked-resources-tree';
 
 const [
   resourceName1,

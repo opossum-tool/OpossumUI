@@ -11,6 +11,7 @@ import { faker } from '../../testing/Faker';
 import { getParsedInputFileEnrichedWithTestData } from '../test-helpers/general-test-helpers';
 import { renderApp } from './helpers/render-app';
 import {
+  ATTRIBUTIONS_PANEL,
   clickPackageCard,
   clickPanelButton,
   clickPopupButton,
@@ -24,8 +25,6 @@ import {
   gotoResource,
   selectTab,
 } from './helpers/ui';
-
-const ATTRIBUTIONS_PANEL = 'attributions-panel';
 
 const [resourceName1, resourceName2, resourceName3, resourceName4] =
   faker.opossum.resourceNames({ count: 4 });

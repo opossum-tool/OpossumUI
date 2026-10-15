@@ -33,9 +33,9 @@ import {
   pressSearchShortcut,
   searchTree,
   selectFilterLicenseName,
+  SIGNALS_PANEL,
 } from './helpers/ui';
 
-const SIGNALS_PANEL = 'signals-panel';
 const SELECTED_LICENSE = 'MIT';
 const [
   resourceWithExternalSelectedLicense,

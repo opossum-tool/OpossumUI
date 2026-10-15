@@ -13,6 +13,7 @@ import { faker } from '../../testing/Faker';
 import { getParsedInputFileEnrichedWithTestData } from '../test-helpers/general-test-helpers';
 import { renderApp } from './helpers/render-app';
 import {
+  ATTRIBUTIONS_PANEL,
   clickAttributionColumnButton,
   clickEnabledPanelButton,
   clickPackageCard,
@@ -23,10 +24,8 @@ import {
   expectSelectedTabIs,
   gotoResource,
   selectTab,
+  SIGNALS_PANEL,
 } from './helpers/ui';
-
-const ATTRIBUTIONS_PANEL = 'attributions-panel';
-const SIGNALS_PANEL = 'signals-panel';
 
 const [
   resourceName1,

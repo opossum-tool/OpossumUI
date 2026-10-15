@@ -10,6 +10,7 @@ import { faker } from '../../testing/Faker';
 import { getParsedInputFileEnrichedWithTestData } from '../test-helpers/general-test-helpers';
 import { renderApp } from './helpers/render-app';
 import {
+  ATTRIBUTIONS_PANEL,
   clickAttributionTypeButton,
   clickFormField,
   clickLicenseOption,
@@ -26,8 +27,6 @@ import {
   resourceTreeItem,
   saveChangesInAttributionColumn,
 } from './helpers/ui';
-
-const ATTRIBUTIONS_PANEL = 'attributions-panel';
 
 const [resourceName1, resourceName2, resourceName3] =
   faker.opossum.resourceNames({ count: 3 });
