@@ -19,6 +19,10 @@ export async function setupBackendIntegration(data: ParsedFileContent) {
     if (api.getMockImplementation() === unexpectedBackendCall) {
       api.mockImplementation(executeCommand);
     }
+    // A pre-existing custom mock implementation intentionally wins: several
+    // component suites simulate backend failures by pre-mocking the api and
+    // then render with DB-backed helpers. Only the automatic
+    // unexpectedBackendCall stub is replaced here.
   }
   const { initializeDb } = await import('../ElectronBackend/db/initializeDb');
   await initializeDb(data);
