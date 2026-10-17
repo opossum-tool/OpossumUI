@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
+  type AiAttributions,
   type Attributions,
   Criticality,
   type PackageInfo,
@@ -25,8 +26,8 @@ import { queries } from '../queries';
 function packageInfo(
   id: string,
   packageName: string,
-  aiAttributions?: Record<string, unknown>,
-): PackageInfo & { aiAttributions?: Record<string, unknown> } {
+  aiAttributions?: AiAttributions,
+): PackageInfo {
   return {
     id,
     packageName,
@@ -122,13 +123,13 @@ const metadataMatchingCases: Array<{
     name: 'omitted humanModified and false',
     sourceMetadata: { generated: true },
     candidateMetadata: { generated: true, humanModified: false },
-    expectedToMatch: false,
+    expectedToMatch: true,
   },
   {
     name: 'false and true humanModified values',
     sourceMetadata: { humanModified: false },
     candidateMetadata: { humanModified: true },
-    expectedToMatch: false,
+    expectedToMatch: true,
   },
 ];
 
@@ -384,10 +385,115 @@ describe('attribution resource access', () => {
     await expect(
       getDb()
         .selectFrom('attribution_ai')
-        .select('additional_data')
+        .select(['additional_data', 'human_modified'])
         .where('attribution_uuid', '=', 'ai')
         .executeTakeFirstOrThrow(),
-    ).resolves.toEqual({ additional_data: '{"opaque":{"nested":true}}' });
+    ).resolves.toEqual({
+      additional_data: '{"opaque":{"nested":true}}',
+      human_modified: 1,
+    });
+  });
+
+  it('returns only the focused remapping for a query-wide link', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/writable/file.ts']),
+      externalAttributions: {
+        attributions: {
+          focused: { id: 'focused', criticality: Criticality.None },
+          other: { id: 'other', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/writable/file.ts': ['focused', 'other'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const response = await mutations.createOrMatchAttributions({
+      resourcePath: '/writable/file.ts',
+      selection: {
+        mode: 'allMatching',
+        query: {
+          external: true,
+          filters: [],
+          search: '',
+          valueFilters: {},
+          resourcePathForRelationships: '/writable/file.ts',
+          showResolved: false,
+          excludeUnrelated: false,
+          relation: 'resource',
+        },
+        excludedAttributionUuids: [],
+      },
+      focusedAttributionUuid: 'focused',
+    });
+
+    const { focusedAttributionOutcome } = response.result;
+    expect(focusedAttributionOutcome).toMatchObject({
+      status: 'remapped',
+      attributionUuid: 'focused',
+    });
+    if (focusedAttributionOutcome.status !== 'remapped') {
+      throw new Error('Expected focused attribution to be remapped');
+    }
+    expect(focusedAttributionOutcome.newAttributionUuid).not.toBe('focused');
+  });
+
+  it('hides an attribution after its last writable link is removed', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/readonly/file.ts', '/writable/file.ts']),
+      manualAttributions: {
+        attributions: {
+          shared: { id: 'shared', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/readonly/file.ts': ['shared'],
+          '/writable/file.ts': ['shared'],
+        },
+        attributionsToResources: {},
+      },
+      readonlyRules: [{ path: '/readonly', readonly: true }],
+    });
+    await getDb()
+      .insertInto('attribution_ai')
+      .values({
+        attribution_uuid: 'shared',
+        additional_data: '{"source":"ai"}',
+      })
+      .execute();
+
+    await mutations.unlinkResourceFromAttributions({
+      resourcePath: '/writable/file.ts',
+      selection: { mode: 'explicit', attributionUuids: ['shared'] },
+    });
+
+    const { result: page } = await listAttributionsPage({
+      external: false,
+      filters: [],
+      search: '',
+      valueFilters: {},
+      resourcePathForRelationships: '',
+      showResolved: true,
+      excludeUnrelated: false,
+      scope: { mode: 'all' },
+      sort: 'alphabetically',
+      includeReadonly: true,
+      offset: 0,
+      limit: 200,
+    });
+    const attributions = page.attributions;
+
+    expect(attributions).toEqual({});
+    expect(await resourceAccessOf('shared')).toBe(
+      AttributionResourceAccess.Readonly,
+    );
+    await expect(
+      getDb()
+        .selectFrom('attribution_ai')
+        .select('human_modified')
+        .where('attribution_uuid', '=', 'shared')
+        .executeTakeFirstOrThrow(),
+    ).resolves.toEqual({ human_modified: null });
   });
 
   it('does not reuse AI metadata when matching an ordinary external signal', async () => {
@@ -464,12 +570,15 @@ describe('attribution resource access', () => {
         attributions: {
           source: packageInfo('source', 'source original', {
             nested: { first: 1, second: [true, 'value'] },
+            humanModified: true,
           }),
           candidateA: packageInfo('candidateA', 'same content', {
             nested: { first: 2, second: [true, 'value'] },
+            humanModified: true,
           }),
           candidateB: packageInfo('candidateB', 'same content', {
             nested: { second: [true, 'value'], first: 1 },
+            humanModified: true,
           }),
         },
         resourcesToAttributions: {
@@ -496,11 +605,17 @@ describe('attribution resource access', () => {
     const { result: saveFileArgs } = await getSaveFileArgs();
     expect(saveFileArgs.manualAttributions.candidateA).toHaveProperty(
       'aiAttributions',
-      { nested: { first: 2, second: [true, 'value'] } },
+      {
+        nested: { first: 2, second: [true, 'value'] },
+        humanModified: true,
+      },
     );
     expect(saveFileArgs.manualAttributions.candidateB).toHaveProperty(
       'aiAttributions',
-      { nested: { second: [true, 'value'], first: 1 } },
+      {
+        nested: { second: [true, 'value'], first: 1 },
+        humanModified: true,
+      },
     );
   });
 
@@ -511,7 +626,10 @@ describe('attribution resource access', () => {
         resources: pathsToResources(['/source', '/candidate', '/destination']),
         manualAttributions: {
           attributions: {
-            source: packageInfo('source', 'source original', sourceMetadata),
+            source: {
+              ...packageInfo('source', 'same content', sourceMetadata),
+              needsReview: true,
+            },
             candidate: packageInfo(
               'candidate',
               'same content',
@@ -540,7 +658,14 @@ describe('attribution resource access', () => {
         expectedToMatch ? 2 : 3,
       );
       expect(saveFileArgs.manualAttributions.source.packageName).toBe(
-        'source original',
+        'same content',
+      );
+      expect(saveFileArgs.manualAttributions.source.needsReview).toBe(true);
+      expect(saveFileArgs.manualAttributions[destinationUuid].packageName).toBe(
+        'same content',
+      );
+      expect(saveFileArgs.manualAttributions[destinationUuid].needsReview).toBe(
+        false,
       );
       expect(saveFileArgs.manualAttributions.candidate.packageName).toBe(
         'same content',
@@ -599,12 +724,20 @@ describe('attribution resource access', () => {
           attributions: {
             sourceA: packageInfo('sourceA', 'source A original', {
               origin: 'A',
+              humanModified: true,
             }),
             sourceB: packageInfo('sourceB', 'source B original', {
               origin: 'B',
+              humanModified: true,
             }),
-            targetA: packageInfo('targetA', 'shared target', { origin: 'A' }),
-            targetB: packageInfo('targetB', 'shared target', { origin: 'B' }),
+            targetA: packageInfo('targetA', 'shared target', {
+              origin: 'A',
+              humanModified: true,
+            }),
+            targetB: packageInfo('targetB', 'shared target', {
+              origin: 'B',
+              humanModified: true,
+            }),
           },
           resourcesToAttributions: {
             '/source-a': ['sourceA'],
@@ -660,11 +793,11 @@ describe('attribution resource access', () => {
       );
       expect(saveFileArgs.manualAttributions.targetA).toHaveProperty(
         'aiAttributions',
-        { origin: 'A' },
+        { origin: 'A', humanModified: true },
       );
       expect(saveFileArgs.manualAttributions.targetB).toHaveProperty(
         'aiAttributions',
-        { origin: 'B' },
+        { origin: 'B', humanModified: true },
       );
     },
   );
@@ -700,7 +833,7 @@ describe('attribution resource access', () => {
     expect(saveFileArgs.manualAttributions.target.packageName).toBe('after');
     expect(saveFileArgs.manualAttributions.source).toHaveProperty(
       'aiAttributions',
-      { origin: 'source' },
+      { origin: 'source', humanModified: true },
     );
     expect(saveFileArgs.resourcesToAttributions['/source']).toEqual(['source']);
     expect(saveFileArgs.resourcesToAttributions['/source-also']).toEqual([
@@ -749,7 +882,7 @@ describe('attribution resource access', () => {
     expect(saveFileArgs.manualAttributions.target.packageName).toBe('after');
     expect(saveFileArgs.manualAttributions[editedUuid]).toHaveProperty(
       'aiAttributions',
-      { origin: { nested: ['source'] } },
+      { origin: { nested: ['source'] }, humanModified: true },
     );
     expect(saveFileArgs.manualAttributions.target).toHaveProperty(
       'aiAttributions',
@@ -771,9 +904,11 @@ describe('attribution resource access', () => {
         attributions: {
           source: packageInfo('source', 'before', {
             nested: { first: 1, second: true },
+            humanModified: true,
           }),
           target: packageInfo('target', 'after', {
             nested: { second: true, first: 1 },
+            humanModified: true,
           }),
         },
         resourcesToAttributions: {
@@ -798,95 +933,7 @@ describe('attribution resource access', () => {
     expect(saveFileArgs.manualAttributions.source).toBeUndefined();
     expect(saveFileArgs.manualAttributions.target).toHaveProperty(
       'aiAttributions',
-      { nested: { second: true, first: 1 } },
-    );
-  });
-
-  it('returns only the focused remapping for a query-wide link', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/writable/file.ts']),
-      externalAttributions: {
-        attributions: {
-          focused: { id: 'focused', criticality: Criticality.None },
-          other: { id: 'other', criticality: Criticality.None },
-        },
-        resourcesToAttributions: {
-          '/writable/file.ts': ['focused', 'other'],
-        },
-        attributionsToResources: {},
-      },
-    });
-
-    const response = await mutations.createOrMatchAttributions({
-      resourcePath: '/writable/file.ts',
-      selection: {
-        mode: 'allMatching',
-        query: {
-          external: true,
-          filters: [],
-          search: '',
-          valueFilters: {},
-          resourcePathForRelationships: '/writable/file.ts',
-          showResolved: false,
-          excludeUnrelated: false,
-          relation: 'resource',
-        },
-        excludedAttributionUuids: [],
-      },
-      focusedAttributionUuid: 'focused',
-    });
-
-    const { focusedAttributionOutcome } = response.result;
-    expect(focusedAttributionOutcome).toMatchObject({
-      status: 'remapped',
-      attributionUuid: 'focused',
-    });
-    if (focusedAttributionOutcome.status !== 'remapped') {
-      throw new Error('Expected focused attribution to be remapped');
-    }
-    expect(focusedAttributionOutcome.newAttributionUuid).not.toBe('focused');
-  });
-
-  it('hides an attribution after its last writable link is removed', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/readonly/file.ts', '/writable/file.ts']),
-      manualAttributions: {
-        attributions: {
-          shared: { id: 'shared', criticality: Criticality.None },
-        },
-        resourcesToAttributions: {
-          '/readonly/file.ts': ['shared'],
-          '/writable/file.ts': ['shared'],
-        },
-        attributionsToResources: {},
-      },
-      readonlyRules: [{ path: '/readonly', readonly: true }],
-    });
-
-    await mutations.unlinkResourceFromAttributions({
-      resourcePath: '/writable/file.ts',
-      selection: { mode: 'explicit', attributionUuids: ['shared'] },
-    });
-
-    const { result: page } = await listAttributionsPage({
-      external: false,
-      filters: [],
-      search: '',
-      valueFilters: {},
-      resourcePathForRelationships: '',
-      showResolved: true,
-      excludeUnrelated: false,
-      scope: { mode: 'all' },
-      sort: 'alphabetically',
-      includeReadonly: true,
-      offset: 0,
-      limit: 200,
-    });
-    const attributions = page.attributions;
-
-    expect(attributions).toEqual({});
-    expect(await resourceAccessOf('shared')).toBe(
-      AttributionResourceAccess.Readonly,
+      { nested: { second: true, first: 1 }, humanModified: true },
     );
   });
 });
@@ -903,7 +950,6 @@ describe('filtered-resource cache invalidation', () => {
         attributionsToResources: {},
       },
     });
-
     const queryLinkedResources = () =>
       queries.getLinkedResourceTree({
         expandedNodes: 'expandAll',
@@ -921,7 +967,6 @@ describe('filtered-resource cache invalidation', () => {
       resourcePath: '/second/file.ts',
       selection: { mode: 'explicit', attributionUuids: ['shared'] },
     });
-
     expect(
       (await queryLinkedResources()).result.treeNodes.map((node) => node.id),
     ).toContain('/second/file.ts');
@@ -1087,10 +1132,20 @@ describe('mixed attribution mutations', () => {
     expect(
       await getDb()
         .selectFrom('attribution_ai')
-        .select('additional_data')
+        .select(['additional_data', 'human_modified'])
         .where('attribution_uuid', '=', writableUuids[0])
         .executeTakeFirstOrThrow(),
-    ).toEqual({ additional_data: '{"origin":{"nested":[1,true]}}' });
+    ).toEqual({
+      additional_data: '{"origin":{"nested":[1,true]}}',
+      human_modified: 1,
+    });
+    expect(
+      await getDb()
+        .selectFrom('attribution_ai')
+        .select('human_modified')
+        .where('attribution_uuid', '=', 'shared')
+        .executeTakeFirstOrThrow(),
+    ).toEqual({ human_modified: null });
   });
 
   it('returns the writable clone UUID after updating a mixed attribution', async () => {
@@ -1114,51 +1169,6 @@ describe('mixed attribution mutations', () => {
         .executeTakeFirstOrThrow()
     ).uuid;
     expect(cloneUuid).not.toBe('shared');
-  });
-
-  it('matches mixed attribution edits using the writable clone metadata', async () => {
-    await initializeMixedAttribution();
-    await getDb()
-      .insertInto('attribution_ai')
-      .values([
-        {
-          attribution_uuid: 'shared',
-          additional_data: '{"origin":{"value":"source"}}',
-        },
-        {
-          attribution_uuid: 'replacement',
-          additional_data: '{"origin":{"value":"target"}}',
-        },
-      ])
-      .execute();
-
-    await mutations.updateOrMatchAttributions({
-      attributions: {
-        shared: {
-          id: 'shared',
-          criticality: Criticality.None,
-          packageName: 'replacement',
-        },
-      },
-    });
-
-    expect(await attributionUuidsOn('/readonly/file.ts')).toEqual(['shared']);
-    const [writableUuid] = await attributionUuidsOn('/writable/file.ts');
-    expect(writableUuid).not.toBe('shared');
-    expect(writableUuid).not.toBe('replacement');
-    const { result: saveFileArgs } = await getSaveFileArgs();
-    expect(saveFileArgs.manualAttributions.shared.packageName).toBe('original');
-    expect(saveFileArgs.manualAttributions[writableUuid].packageName).toBe(
-      'replacement',
-    );
-    expect(saveFileArgs.manualAttributions[writableUuid]).toHaveProperty(
-      'aiAttributions',
-      { origin: { value: 'source' } },
-    );
-    expect(saveFileArgs.manualAttributions.replacement).toHaveProperty(
-      'aiAttributions',
-      { origin: { value: 'target' } },
-    );
   });
 
   it('keeps the locked relationship unchanged immediately after updating a mixed attribution', async () => {
@@ -1208,6 +1218,14 @@ describe('mixed attribution mutations', () => {
 
   it('clones a mixed attribution before deleting its writable partition', async () => {
     await initializeMixedAttribution();
+    await getDb()
+      .insertInto('attribution_ai')
+      .values({
+        attribution_uuid: 'shared',
+        additional_data: '{}',
+        human_modified: 0,
+      })
+      .execute();
 
     await mutations.deleteAttributions({
       selection: { mode: 'explicit', attributionUuids: ['shared'] },
@@ -1225,10 +1243,39 @@ describe('mixed attribution mutations', () => {
     expect(await resourceAccessOf('shared')).toBe(
       AttributionResourceAccess.Readonly,
     );
+    await expect(
+      getDb()
+        .selectFrom('attribution')
+        .select('package_name')
+        .where('uuid', '=', 'shared')
+        .executeTakeFirstOrThrow(),
+    ).resolves.toEqual({ package_name: 'original' });
+    await expect(
+      getDb()
+        .selectFrom('attribution_ai')
+        .select('human_modified')
+        .where('attribution_uuid', '=', 'shared')
+        .executeTakeFirstOrThrow(),
+    ).resolves.toEqual({ human_modified: 0 });
   });
 
   it('clones a mixed attribution before replacing its writable partition', async () => {
     await initializeMixedAttribution();
+    await getDb()
+      .insertInto('attribution_ai')
+      .values([
+        {
+          attribution_uuid: 'shared',
+          additional_data: '{}',
+          human_modified: 0,
+        },
+        {
+          attribution_uuid: 'replacement',
+          additional_data: '{}',
+          human_modified: 0,
+        },
+      ])
+      .execute();
 
     await mutations.replaceAttributions({
       selection: { mode: 'explicit', attributionUuids: ['shared'] },
@@ -1244,6 +1291,72 @@ describe('mixed attribution mutations', () => {
     );
     expect(await resourceAccessOf('replacement')).toBe(
       AttributionResourceAccess.Writable,
+    );
+    await expect(
+      getDb()
+        .selectFrom('attribution')
+        .select('package_name')
+        .where('uuid', '=', 'shared')
+        .executeTakeFirstOrThrow(),
+    ).resolves.toEqual({ package_name: 'original' });
+    await expect(
+      getDb()
+        .selectFrom('attribution_ai')
+        .select('human_modified')
+        .where('attribution_uuid', '=', 'replacement')
+        .executeTakeFirstOrThrow(),
+    ).resolves.toEqual({ human_modified: 0 });
+    await expect(
+      getDb()
+        .selectFrom('attribution_ai')
+        .select('human_modified')
+        .where('attribution_uuid', '=', 'shared')
+        .executeTakeFirstOrThrow(),
+    ).resolves.toEqual({ human_modified: 0 });
+  });
+
+  it('matches mixed attribution edits using the writable clone metadata', async () => {
+    await initializeMixedAttribution();
+    await getDb()
+      .insertInto('attribution_ai')
+      .values([
+        {
+          attribution_uuid: 'shared',
+          additional_data: '{"origin":{"value":"source"}}',
+        },
+        {
+          attribution_uuid: 'replacement',
+          additional_data: '{"origin":{"value":"target"}}',
+        },
+      ])
+      .execute();
+
+    await mutations.updateOrMatchAttributions({
+      attributions: {
+        shared: {
+          id: 'shared',
+          criticality: Criticality.None,
+          packageName: 'replacement',
+        },
+      },
+    });
+
+    expect(await attributionUuidsOn('/readonly/file.ts')).toEqual(['shared']);
+    const [writableUuid] = await attributionUuidsOn('/writable/file.ts');
+    expect(writableUuid).not.toBe('shared');
+    expect(writableUuid).not.toBe('replacement');
+    const { result: saveFileArgs } = await getSaveFileArgs();
+    expect(saveFileArgs.manualAttributions.shared.packageName).toBe('original');
+    expect(saveFileArgs.manualAttributions[writableUuid].packageName).toBe(
+      'replacement',
+    );
+    expect(saveFileArgs.manualAttributions[writableUuid]).toHaveProperty(
+      'aiAttributions',
+      { origin: { value: 'source' }, humanModified: true },
+    );
+    expect(saveFileArgs.manualAttributions.replacement).toHaveProperty(
+      'aiAttributions',
+      { origin: { value: 'target' } },
     );
   });
 });

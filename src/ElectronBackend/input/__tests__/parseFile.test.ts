@@ -160,6 +160,36 @@ describe('parseOpossumFile', () => {
     expect(parsingResult.output).toStrictEqual(correctParsedOutput);
   });
 
+  it.each([true, false, undefined])(
+    'parses humanModified=%s AI metadata',
+    async (humanModified) => {
+      const output = structuredClone(correctOutput);
+      output.manualAttributions[testUuid] = {
+        ...output.manualAttributions[testUuid],
+        ...{
+          aiAttributions:
+            humanModified === undefined
+              ? { model: 'kept' }
+              : { model: 'kept', humanModified },
+        },
+      };
+      const path = await writeOpossumFile({
+        input: correctInput,
+        output,
+        path: faker.outputPath(`${faker.string.uuid()}.opossum`),
+      });
+      const result = await parseOpossumFile(path);
+      const parsed = result as ParsedOpossumInputAndOutput;
+      const manualAttribution = parsed.output?.manualAttributions[testUuid] as
+        { aiAttributions?: unknown } | undefined;
+      expect(manualAttribution?.aiAttributions).toStrictEqual(
+        humanModified === undefined
+          ? { model: 'kept' }
+          : { model: 'kept', humanModified },
+      );
+    },
+  );
+
   it('returns JSONParsingError on an incorrect .opossum file', async () => {
     const opossumFilePath = await writeOpossumFile({
       input: corruptInput,
@@ -177,13 +207,44 @@ describe('parseOpossumFile', () => {
   it.each([null, []])(
     'rejects non-object AI attribution metadata: %j',
     async (value) => {
-      const invalidInput = structuredClone(correctInput);
-      invalidInput.externalAttributions[testUuid] = {
-        ...invalidInput.externalAttributions[testUuid],
-        ...{ ai_attributions: value },
+      const invalidOutput = {
+        ...structuredClone(correctOutput),
+        manualAttributions: {
+          ...structuredClone(correctOutput.manualAttributions),
+          [testUuid]: {
+            ...structuredClone(correctOutput.manualAttributions[testUuid]),
+            aiAttributions: value,
+          },
+        },
       };
       const opossumFilePath = await writeOpossumFile({
-        input: invalidInput,
+        input: correctInput,
+        output: invalidOutput,
+        path: faker.outputPath(`${faker.string.uuid()}.opossum`),
+      });
+
+      expect(await parseOpossumFile(opossumFilePath)).toMatchObject({
+        type: 'jsonParsingError',
+      });
+    },
+  );
+
+  it.each(['yes', 0, null])(
+    'rejects non-boolean humanModified AI metadata: %j',
+    async (humanModified) => {
+      const invalidOutput = {
+        ...structuredClone(correctOutput),
+        manualAttributions: {
+          ...structuredClone(correctOutput.manualAttributions),
+          [testUuid]: {
+            ...structuredClone(correctOutput.manualAttributions[testUuid]),
+            aiAttributions: { humanModified },
+          },
+        },
+      };
+      const opossumFilePath = await writeOpossumFile({
+        input: correctInput,
+        output: invalidOutput,
         path: faker.outputPath(`${faker.string.uuid()}.opossum`),
       });
 

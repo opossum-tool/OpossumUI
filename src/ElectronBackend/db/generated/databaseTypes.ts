@@ -77,6 +77,10 @@ export interface AttributionAi {
    */
   additional_data: string;
   attribution_uuid: string;
+  /**
+   * Whether a person has changed this AI attribution; NULL means the flag was absent
+   */
+  human_modified: number | null;
 }
 
 export interface Classification {

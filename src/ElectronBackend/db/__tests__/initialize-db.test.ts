@@ -18,7 +18,27 @@ describe('database initialization', () => {
           ai: {
             id: 'ai',
             criticality: Criticality.None,
-            ...{ aiAttributions: { arbitrary: { nested: [1, true] } } },
+            ...{
+              aiAttributions: {
+                humanModified: true,
+                arbitrary: { nested: [1, true] },
+              },
+            },
+          },
+          falseFlag: {
+            id: 'falseFlag',
+            criticality: Criticality.None,
+            ...{ aiAttributions: { humanModified: false, kept: true } },
+          },
+          missingFlag: {
+            id: 'missingFlag',
+            criticality: Criticality.None,
+            ...{ aiAttributions: { kept: 'default' } },
+          },
+          empty: {
+            id: 'empty',
+            criticality: Criticality.None,
+            ...{ aiAttributions: {} },
           },
           invalidJson: { id: 'invalidJson', criticality: Criticality.None },
         },
@@ -34,18 +54,55 @@ describe('database initialization', () => {
         .where('uuid', '=', 'ai')
         .executeTakeFirstOrThrow(),
     ).toEqual({ additional_data: '{}' });
-    expect(
-      await getDb()
+    await expect(
+      getDb()
         .selectFrom('attribution_ai')
-        .select('additional_data')
+        .select(['additional_data', 'human_modified'])
         .where('attribution_uuid', '=', 'ai')
         .executeTakeFirstOrThrow(),
-    ).toEqual({ additional_data: '{"arbitrary":{"nested":[1,true]}}' });
+    ).resolves.toEqual({
+      additional_data: '{"arbitrary":{"nested":[1,true]}}',
+      human_modified: 1,
+    });
+    await expect(
+      getDb()
+        .selectFrom('attribution_ai')
+        .select(['additional_data', 'human_modified'])
+        .where('attribution_uuid', '=', 'falseFlag')
+        .executeTakeFirstOrThrow(),
+    ).resolves.toEqual({ additional_data: '{"kept":true}', human_modified: 0 });
+    await expect(
+      getDb()
+        .selectFrom('attribution_ai')
+        .select(['additional_data', 'human_modified'])
+        .where('attribution_uuid', '=', 'missingFlag')
+        .executeTakeFirstOrThrow(),
+    ).resolves.toEqual({
+      additional_data: '{"kept":"default"}',
+      human_modified: null,
+    });
+    await expect(
+      getDb()
+        .selectFrom('attribution_ai')
+        .select(['additional_data', 'human_modified'])
+        .where('attribution_uuid', '=', 'empty')
+        .executeTakeFirstOrThrow(),
+    ).resolves.toEqual({ additional_data: '{}', human_modified: null });
 
     await expect(
       getDb()
         .insertInto('attribution_ai')
         .values({ attribution_uuid: 'orphan', additional_data: '{}' })
+        .execute(),
+    ).rejects.toThrow();
+    await expect(
+      getDb()
+        .insertInto('attribution_ai')
+        .values({
+          attribution_uuid: 'invalidJson',
+          additional_data: '{}',
+          human_modified: 2,
+        })
         .execute(),
     ).rejects.toThrow();
     await expect(
@@ -68,9 +125,25 @@ describe('database initialization', () => {
     ).rejects.toThrow();
 
     await getDb().deleteFrom('attribution').where('uuid', '=', 'ai').execute();
+    await expect(
+      getDb()
+        .selectFrom('attribution_ai')
+        .selectAll()
+        .where('attribution_uuid', '=', 'ai')
+        .execute(),
+    ).resolves.toEqual([]);
     expect(
-      await getDb().selectFrom('attribution_ai').selectAll().execute(),
-    ).toEqual([]);
+      await getDb()
+        .selectFrom('attribution_ai')
+        .select('attribution_uuid')
+        .execute(),
+    ).toEqual(
+      expect.arrayContaining([
+        { attribution_uuid: 'falseFlag' },
+        { attribution_uuid: 'missingFlag' },
+        { attribution_uuid: 'empty' },
+      ]),
+    );
   });
 
   it('calculates readonly resource state from inherited split rules', async () => {

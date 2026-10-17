@@ -348,6 +348,11 @@ function getSyntheticPackageInfo(
     (external
       ? profile.externalAttributionCount - profile.denseSignalCount
       : profile.manualAttributionCount - 1);
+  // Reserve one AI attribution for the high-fanout scenario.
+  const isAi =
+    !external &&
+    profile.aiManualAttributionCount > 0 &&
+    (isHighFanout || index < profile.aiManualAttributionCount - 1);
   const uniquePerformanceAttribution =
     !external &&
     index ===
@@ -427,6 +432,7 @@ function getSyntheticPackageInfo(
           documentConfidence: 50 + (identityIndex % 51),
         }
       : undefined,
+    ...(isAi ? { aiAttributions: { humanModified: false } } : {}),
   };
 
   if (external) {

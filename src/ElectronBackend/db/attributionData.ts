@@ -4,13 +4,47 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { Selectable } from 'kysely';
 
+import type { AttributionContent } from '../../shared/attribution-comparison';
 import type { PackageInfo, Source } from '../../shared/shared-types';
 import type { Attribution } from './generated/databaseTypes';
 
 type AttributionRow = Selectable<Attribution>;
 
+export const ATTRIBUTION_CONTENT_COLUMNS = [
+  'copyright',
+  'license_name',
+  'license_text',
+  'url',
+  'package_name',
+  'package_namespace',
+  'package_version',
+  'package_type',
+  'package_purl_appendix',
+  'first_party',
+  'comment',
+] satisfies Array<keyof AttributionRow>;
+
+export function attributionContentFromRow(
+  row: Pick<AttributionRow, (typeof ATTRIBUTION_CONTENT_COLUMNS)[number]>,
+): AttributionContent {
+  return {
+    copyright: row.copyright ?? undefined,
+    licenseName: row.license_name ?? undefined,
+    licenseText: row.license_text ?? undefined,
+    url: row.url ?? undefined,
+    packageName: row.package_name ?? undefined,
+    packageNamespace: row.package_namespace ?? undefined,
+    packageVersion: row.package_version ?? undefined,
+    packageType: row.package_type ?? undefined,
+    packagePURLAppendix: row.package_purl_appendix ?? undefined,
+    firstParty: Boolean(row.first_party),
+    comment: row.comment ?? undefined,
+  };
+}
+
 const knownKeys = new Set([
   'id',
+  'aiAttributions',
   'source',
   'originalAttributionSource',
   'resourceAccess',
@@ -93,8 +127,7 @@ function removeUndefinedProperties<T extends object>(value: T): T {
 }
 
 export function getAttributionPersistenceValues(attribution: PackageInfo) {
-  const { aiAttributions: _aiAttributions, ...additionalData } =
-    getAttributionExtensionData(attribution);
+  const additionalData = getAttributionExtensionData(attribution);
   const source = sourceColumnValues(attribution.source);
   const originalAttributionSource = sourceColumnValues(
     attribution.originalAttributionSource,
@@ -187,22 +220,13 @@ export function packageInfoFromAttributionRow(
   >;
   return removeUndefinedProperties({
     ...additionalData,
+    ...attributionContentFromRow(row),
     id: row.uuid,
     preSelected: Boolean(row.pre_selected),
     criticality: row.criticality,
     classification: row.classification ?? undefined,
-    firstParty: Boolean(row.first_party),
     excludeFromNotice: Boolean(row.exclude_from_notice),
     wasPreferred: Boolean(row.was_preferred),
-    copyright: row.copyright ?? undefined,
-    licenseName: row.license_name ?? undefined,
-    licenseText: row.license_text ?? undefined,
-    url: row.url ?? undefined,
-    packageName: row.package_name ?? undefined,
-    packageNamespace: row.package_namespace ?? undefined,
-    packageVersion: row.package_version ?? undefined,
-    packageType: row.package_type ?? undefined,
-    packagePURLAppendix: row.package_purl_appendix ?? undefined,
     attributionConfidence: row.attribution_confidence ?? undefined,
     followUp: Boolean(row.follow_up),
     needsReview: Boolean(row.needs_review),
@@ -221,7 +245,6 @@ export function packageInfoFromAttributionRow(
       row.original_attribution_source_document_confidence,
       row.original_attribution_source_additional_name,
     ),
-    comment: row.comment ?? undefined,
     source: sourceFromRow(row),
   });
 }

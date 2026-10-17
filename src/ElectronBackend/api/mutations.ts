@@ -28,9 +28,9 @@ import {
   ensureAttributionsAreNotExternal,
   ensureAttributionsAreNotReadonly,
   ensureResourceIsWritable,
-  findMatchingAttributionUuid,
   getResourceOrThrow,
   linkAttributions,
+  matchAttribution,
   matchOrCreateAttributions,
   removeRedundantAttributions,
   replaceAttributions,
@@ -563,17 +563,17 @@ const mutationImplementations = {
           // After processing each edit, remove its writable UUID from the
           // exclusion set so later edits can match its final value.
           const packageInfo = omit(attributionData, 'preSelected');
-          const matchingAttributionUuid = await findMatchingAttributionUuid(
+          const match = await matchAttribution(
             trx,
             { ...packageInfo, id: writableAttributionUuid },
             { excludeUuids: [...matchingExcludedUuids] },
           );
-          if (matchingAttributionUuid !== undefined) {
+          if (match !== undefined) {
             await replaceAttributions(trx, {
               attributionUuidsToReplace: [writableAttributionUuid],
-              attributionUuidToReplaceWith: matchingAttributionUuid,
+              attributionUuidToReplaceWith: match,
             });
-            oldUuidsToNewUuids[attributionUuid] = matchingAttributionUuid;
+            oldUuidsToNewUuids[attributionUuid] = match;
           } else {
             await updateAttribution(trx, writableAttributionUuid, {
               ...packageInfo,
