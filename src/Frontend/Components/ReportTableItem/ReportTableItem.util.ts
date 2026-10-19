@@ -26,6 +26,7 @@ export function getFormattedCellData(
       cellData = packageInfo[config.attributionProperty]?.name.trim() || '';
       break;
     case 'id':
+    case 'aiAttributions':
     case 'originIds':
     case 'preferredOverOriginIds':
       cellData = '';

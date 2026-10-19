@@ -12,10 +12,12 @@ import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../testing/global-test-helpers';
+import { getAttributionPersistenceValues } from '../../db/attributionData';
 import { getDb } from '../../db/db';
 import {
   removeRedundantAttributions,
   removeTrailingSlash,
+  updateAttribution,
   withBatching,
   withSqlBatching,
 } from '../utils';
@@ -356,6 +358,175 @@ describe('removeRedundantAttributions', () => {
     await expectCaaConsistency();
   });
 });
+
+describe('updateAttribution', () => {
+  const packageInfo = {
+    id: 'uuid1',
+    criticality: 0,
+    originalAttributionId: 'missing-original',
+  } as const;
+
+  it('reports a missing target before looking up the original attribution', async () => {
+    await setupDb({ resourcePathsToAttributionUuids: { '/first': [] } });
+
+    await expect(
+      getDb()
+        .transaction()
+        .execute((trx) =>
+          updateAttribution(trx, 'missing-target', packageInfo),
+        ),
+    ).rejects.toThrow('Attribution missing-target does not exist.');
+  });
+
+  it('reports an external target before looking up the original attribution', async () => {
+    await setupDb({ resourcePathsToAttributionUuids: { '/first': ['uuid1'] } });
+    await getDb()
+      .updateTable('attribution')
+      .set('is_external', 1)
+      .where('uuid', '=', 'uuid1')
+      .execute();
+
+    await expect(
+      getDb()
+        .transaction()
+        .execute((trx) => updateAttribution(trx, 'uuid1', packageInfo)),
+    ).rejects.toThrow("External attributions can't be updated");
+  });
+
+  it('passes through wasPreferred when no original attribution exists', async () => {
+    await setupDb({ resourcePathsToAttributionUuids: { '/first': ['uuid1'] } });
+    await getDb()
+      .insertInto('attribution_ai')
+      .values({
+        attribution_uuid: 'uuid1',
+        additional_data: '{}',
+        human_modified: 0,
+      })
+      .execute();
+
+    await getDb()
+      .transaction()
+      .execute((trx) =>
+        updateAttribution(trx, 'uuid1', {
+          id: 'uuid1',
+          criticality: 0,
+          packageName: 'edited',
+          wasPreferred: true,
+        }),
+      );
+
+    await expect(
+      getDb()
+        .selectFrom('attribution')
+        .select('was_preferred')
+        .where('uuid', '=', 'uuid1')
+        .executeTakeFirstOrThrow(),
+    ).resolves.toEqual({ was_preferred: 1 });
+    await expect(
+      getDb()
+        .selectFrom('attribution_ai')
+        .select('human_modified')
+        .where('attribution_uuid', '=', 'uuid1')
+        .executeTakeFirstOrThrow(),
+    ).resolves.toEqual({ human_modified: 1 });
+  });
+
+  it.each([
+    {
+      name: 'keeps preference for matching content',
+      originalPreferred: true,
+      originalPackageName: 'matching',
+      packageName: 'matching',
+      criticality: 0,
+      expected: 1,
+    },
+    {
+      name: 'clears preference for changed content',
+      originalPreferred: true,
+      originalPackageName: 'original',
+      packageName: 'changed',
+      criticality: 0,
+      expected: 0,
+    },
+    {
+      name: 'clears preference for appendix-only content changes',
+      originalPreferred: true,
+      originalPackageName: 'matching',
+      originalPackagePURLAppendix: '?classifier=sources',
+      packageName: 'matching',
+      packagePURLAppendix: '?classifier=javadoc',
+      criticality: 0,
+      expected: 0,
+    },
+    {
+      name: 'keeps preference when only auditing state differs',
+      originalPreferred: true,
+      originalPackageName: 'matching',
+      packageName: 'matching',
+      criticality: 2,
+      expected: 1,
+    },
+    {
+      name: 'does not prefer a matching non-preferred original',
+      originalPreferred: false,
+      originalPackageName: 'matching',
+      packageName: 'matching',
+      criticality: 0,
+      expected: 0,
+    },
+  ])('$name', async (testCase) => {
+    await setupDb({ resourcePathsToAttributionUuids: { '/first': ['uuid1'] } });
+    await insertOriginalAttribution({
+      packageName: testCase.originalPackageName,
+      packagePURLAppendix: testCase.originalPackagePURLAppendix,
+      wasPreferred: testCase.originalPreferred,
+    });
+
+    await getDb()
+      .transaction()
+      .execute((trx) =>
+        updateAttribution(trx, 'uuid1', {
+          id: 'uuid1',
+          criticality: testCase.criticality,
+          packageName: testCase.packageName,
+          packagePURLAppendix: testCase.packagePURLAppendix,
+          originalAttributionId: 'original',
+          wasPreferred: false,
+        }),
+      );
+
+    await expect(
+      getDb()
+        .selectFrom('attribution')
+        .select('was_preferred')
+        .where('uuid', '=', 'uuid1')
+        .executeTakeFirstOrThrow(),
+    ).resolves.toEqual({ was_preferred: testCase.expected });
+  });
+});
+
+async function insertOriginalAttribution(props: {
+  packageName: string;
+  packagePURLAppendix?: string;
+  wasPreferred: boolean;
+}) {
+  await getDb()
+    .insertInto('attribution')
+    .values({
+      ...getAttributionPersistenceValues({
+        id: 'original',
+        criticality: 0,
+        packageName: props.packageName,
+        packagePURLAppendix: props.packagePURLAppendix,
+        wasPreferred: props.wasPreferred,
+      }),
+      uuid: 'original',
+      is_external: 0,
+      is_resolved: 0,
+      resource_access: 0,
+    })
+    .execute();
+}
 
 async function getResourceId(path: string): Promise<number> {
   const result = await getDb()

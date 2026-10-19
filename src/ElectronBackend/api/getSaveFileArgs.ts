@@ -100,7 +100,10 @@ export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
           'attribution_ai.attribution_uuid',
         )
         .selectAll('attribution')
-        .select('attribution_ai.additional_data as ai_additional_data')
+        .select([
+          'attribution_ai.additional_data as ai_additional_data',
+          'attribution_ai.human_modified as ai_human_modified',
+        ])
         .where('attribution.is_external', '=', 0)
         .execute();
 
@@ -137,20 +140,17 @@ export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
   const manualAttributions: Attributions = Object.fromEntries(
     queryResults.manualAttributionsResult.map((row) => {
       const packageInfo = packageInfoFromAttributionRow(row);
-      return [
-        row.uuid,
-        {
-          ...packageInfo,
-          ...(row.ai_additional_data === null
-            ? {}
-            : {
-                aiAttributions: JSON.parse(row.ai_additional_data) as Record<
-                  string,
-                  unknown
-                >,
-              }),
-        },
-      ];
+      if (row.ai_additional_data === null) {
+        return [row.uuid, packageInfo];
+      }
+      const aiAttributions = JSON.parse(row.ai_additional_data) as Record<
+        string,
+        unknown
+      >;
+      if (row.ai_human_modified !== null) {
+        aiAttributions.humanModified = Boolean(row.ai_human_modified);
+      }
+      return [row.uuid, { ...packageInfo, aiAttributions }];
     }),
   );
 

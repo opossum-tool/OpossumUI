@@ -3,9 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
+  ATTRIBUTION_CONTENT_ATTRIBUTES,
   COMPARE_TO_MANUAL_ATTRIBUTION_ATTRIBUTES,
-  FORM_ATTRIBUTES,
-  isEqualToExternalAttribution,
+  getEffectiveHumanModified,
+  hasSameAttributionContent,
   isEqualToManualAttribution,
   THIRD_PARTY_KEYS,
 } from '../attribution-comparison';
@@ -64,26 +65,60 @@ const DIFFERENT_VALUE: Partial<Record<keyof PackageInfo, unknown>> = {
 };
 
 const NON_COMPARABLE_ATTRIBUTES = ['id', 'criticality'] as const;
+const EXPECTED_CONTENT_ATTRIBUTES = [
+  'packageName',
+  'packageVersion',
+  'packageNamespace',
+  'packageType',
+  'packagePURLAppendix',
+  'url',
+  'copyright',
+  'licenseName',
+  'licenseText',
+  'firstParty',
+  'comment',
+] as const satisfies ReadonlyArray<keyof PackageInfo>;
+const EXPECTED_MANUAL_ATTRIBUTES = [
+  ...EXPECTED_CONTENT_ATTRIBUTES,
+  'attributionConfidence',
+  'excludeFromNotice',
+  'followUp',
+  'needsReview',
+  'originIds',
+  'preferred',
+  'originalAttributionId',
+  'originalAttributionSource',
+  'originalAttributionWasPreferred',
+  'preferredOverOriginIds',
+  'wasPreferred',
+] as const satisfies ReadonlyArray<keyof PackageInfo>;
+
+test('keeps the public comparison field lists complete', () => {
+  expect(ATTRIBUTION_CONTENT_ATTRIBUTES).toEqual(EXPECTED_CONTENT_ATTRIBUTES);
+  expect(COMPARE_TO_MANUAL_ATTRIBUTION_ATTRIBUTES).toEqual(
+    EXPECTED_MANUAL_ATTRIBUTES,
+  );
+});
 
 describe.each([
   {
     name: 'isEqualToManualAttribution',
     isEqual: isEqualToManualAttribution,
-    comparedAttributes: COMPARE_TO_MANUAL_ATTRIBUTION_ATTRIBUTES,
+    comparedAttributes: EXPECTED_MANUAL_ATTRIBUTES,
     ignoredAttributes: NON_COMPARABLE_ATTRIBUTES,
   },
   {
-    name: 'isEqualToExternalAttribution',
-    isEqual: isEqualToExternalAttribution,
-    comparedAttributes: FORM_ATTRIBUTES,
-    // Manual-only attributes should be ignored by the external comparison.
+    name: 'hasSameAttributionContent',
+    isEqual: hasSameAttributionContent,
+    comparedAttributes: EXPECTED_CONTENT_ATTRIBUTES,
+    // Manual-only attributes should be ignored by the content comparison.
     ignoredAttributes: [
       ...NON_COMPARABLE_ATTRIBUTES,
-      ...COMPARE_TO_MANUAL_ATTRIBUTION_ATTRIBUTES.filter(
+      ...EXPECTED_MANUAL_ATTRIBUTES.filter(
         (attribute) =>
-          !(FORM_ATTRIBUTES as ReadonlyArray<keyof PackageInfo>).includes(
-            attribute,
-          ),
+          !(
+            EXPECTED_CONTENT_ATTRIBUTES as ReadonlyArray<keyof PackageInfo>
+          ).includes(attribute),
       ),
     ],
   },
@@ -143,5 +178,63 @@ describe.each([
     const a: PackageInfo = { ...BASE, firstParty: true };
     const b: PackageInfo = { ...BASE, firstParty: false };
     expect(isEqual(a, b)).toBe(false);
+  });
+});
+
+test('treats an empty PURL appendix as equivalent to a missing appendix', () => {
+  expect(
+    hasSameAttributionContent(
+      { ...BASE, packagePURLAppendix: '' },
+      { ...BASE, packagePURLAppendix: undefined },
+    ),
+  ).toBe(true);
+});
+
+describe.each([
+  {
+    name: 'omitted flag, unchanged content',
+    flag: undefined,
+    changed: false,
+    expected: undefined,
+  },
+  {
+    name: 'false flag, unchanged content',
+    flag: false,
+    changed: false,
+    expected: false,
+  },
+  {
+    name: 'true flag, unchanged content',
+    flag: true,
+    changed: false,
+    expected: true,
+  },
+  {
+    name: 'omitted flag, changed content',
+    flag: undefined,
+    changed: true,
+    expected: true,
+  },
+  {
+    name: 'false flag, changed content',
+    flag: false,
+    changed: true,
+    expected: true,
+  },
+  {
+    name: 'true flag, changed content',
+    flag: true,
+    changed: true,
+    expected: true,
+  },
+])('getEffectiveHumanModified: $name', ({ flag, changed, expected }) => {
+  it('returns the effective flag', () => {
+    expect(
+      getEffectiveHumanModified(
+        BASE,
+        changed ? { ...BASE, packageName: 'changed' } : BASE,
+        flag,
+      ),
+    ).toBe(expected);
   });
 });

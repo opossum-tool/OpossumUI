@@ -86,6 +86,8 @@ export const comments: Record<string, Record<string, string>> = {
     _table_: 'Opaque AI attribution metadata associated with an attribution',
     additional_data:
       'Additional properties kept as JSON for compatibility, including unknown and unused properties',
+    human_modified:
+      'Whether a person has changed this AI attribution; NULL means the flag was absent',
   },
   resource: {
     name: 'The name of the root resource is the empty string',
@@ -859,6 +861,14 @@ async function initializeAttributionAiTable(
           ]),
         ),
     )
+    .addColumn('human_modified', 'integer', (col) =>
+      col.check(
+        attributionAiExpressionBuilder('human_modified', 'in', [
+          sql.lit(0),
+          sql.lit(1),
+        ]),
+      ),
+    )
     .execute();
 
   const insertAi = createPreparedInserter<AttributionAiInsertRow>((row) =>
@@ -867,10 +877,14 @@ async function initializeAttributionAiTable(
   for (const [uuid, attribution] of Object.entries(
     manualAttributions.attributions,
   )) {
-    if ('aiAttributions' in attribution) {
+    if (attribution.aiAttributions !== undefined) {
+      const aiAttributions = attribution.aiAttributions;
+      const { humanModified, ...additionalData } = aiAttributions;
       insertAi({
         attribution_uuid: uuid,
-        additional_data: JSON.stringify(attribution.aiAttributions),
+        additional_data: JSON.stringify(additionalData),
+        human_modified:
+          humanModified === undefined ? null : Number(humanModified),
       });
     }
   }

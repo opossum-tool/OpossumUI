@@ -2,7 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { FORM_ATTRIBUTES } from '../../../shared/attribution-comparison';
+import {
+  ATTRIBUTION_CONTENT_ATTRIBUTES,
+  type AttributionContent,
+} from '../../../shared/attribution-comparison';
 import type { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import type { PackagePatch } from '../AttributionForm/attribution-form.types';
@@ -16,7 +19,7 @@ import {
 } from '../AttributionForm/PackageAutocomplete/PackageAutocomplete';
 
 export type Side = 'left' | 'right';
-export type FormAttribute = (typeof FORM_ATTRIBUTES)[number];
+export type FormAttribute = keyof AttributionContent;
 type EditableKey = FormAttribute | AuditingProperty;
 
 const OPTIONAL_BOOLEAN_PROPERTIES: Array<EditableKey> = [
@@ -28,7 +31,7 @@ const OPTIONAL_BOOLEAN_PROPERTIES: Array<EditableKey> = [
 ];
 
 export const EDITABLE_KEYS: Array<EditableKey> = [
-  ...FORM_ATTRIBUTES,
+  ...ATTRIBUTION_CONTENT_ATTRIBUTES,
   ...AUDITING_PROPERTY_NAMES,
 ];
 

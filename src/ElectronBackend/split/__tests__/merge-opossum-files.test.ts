@@ -4,7 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 import AdmZip from 'adm-zip';
 
-import type { ReadonlyRule } from '../../../shared/shared-types';
+import type {
+  AiAttributions,
+  ReadonlyRule,
+} from '../../../shared/shared-types';
 import { writeOpossumFile } from '../../../shared/write-file';
 import {
   INPUT_FILE_NAME,
@@ -497,7 +500,7 @@ function output({
   resolved = [],
 }: {
   attributions: Record<string, string>;
-  aiAttributions?: Record<string, object | undefined>;
+  aiAttributions?: Record<string, AiAttributions | undefined>;
   resolved?: Array<string>;
 }): ParsedOpossumOutputFile {
   return {

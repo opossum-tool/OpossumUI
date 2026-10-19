@@ -19,12 +19,20 @@ import { v4 as uuid4 } from 'uuid';
 
 import {
   COMPARE_TO_MANUAL_ATTRIBUTION_ATTRIBUTES,
-  isEqualToExternalAttribution,
+  getEffectiveHumanModified,
+  hasSameAttributionContent,
+  mergeHumanModified,
   THIRD_PARTY_KEYS,
 } from '../../shared/attribution-comparison';
 import type { Attributions, PackageInfo } from '../../shared/shared-types';
-import { copyAttributionAi } from '../db/attribution-ai';
 import {
+  copyAttributionAi,
+  createAttributionAiFromSource,
+  updateAttributionAiHumanModified,
+} from '../db/attribution-ai';
+import {
+  ATTRIBUTION_CONTENT_COLUMNS,
+  attributionContentFromRow,
   getAttributionPersistenceValues,
   packageInfoFromAttributionRow,
 } from '../db/attributionData';
@@ -209,7 +217,7 @@ async function getAttributionOrThrow(
 ) {
   const attribution = await dbOrTrx
     .selectFrom('attribution')
-    .select(['is_external'])
+    .select(['uuid', 'is_external'])
     .where('uuid', '=', attributionUuid)
     .executeTakeFirst();
 
@@ -571,14 +579,16 @@ async function computeWasPreferred(
 
   const original = await trx
     .selectFrom('attribution')
-    .selectAll('attribution')
+    .select([...ATTRIBUTION_CONTENT_COLUMNS, 'was_preferred'])
     .where('uuid', '=', originalAttributionId)
     .executeTakeFirstOrThrow();
 
-  const originalData = packageInfoFromAttributionRow(original);
   return (
-    (isEqualToExternalAttribution(packageInfo, originalData) &&
-      originalData.wasPreferred) ||
+    (hasSameAttributionContent(
+      packageInfo,
+      attributionContentFromRow(original),
+    ) &&
+      Boolean(original.was_preferred)) ||
     undefined
   );
 }
@@ -765,23 +775,26 @@ export async function cloneMixedAttributionsForWritableResources(
   return oldUuidsToNewUuids;
 }
 
-export async function findMatchingAttributionUuid(
+export async function matchAttribution(
   trx: Transaction<DB>,
   packageInfo: PackageInfo,
   options?: { ignorePreSelected?: boolean; excludeUuids?: Array<string> },
-) {
+): Promise<string | undefined> {
   const strippedPackageInfo = removeEmptyStrings(packageInfo);
   const excludeUuids = options?.excludeUuids;
 
   let query = trx
     .selectFrom('attribution')
-    .select('uuid')
+    .select(['uuid', 'resource_access'])
     .leftJoin(
       'attribution_ai',
       'attribution.uuid',
       'attribution_ai.attribution_uuid',
     )
-    .select('attribution_ai.additional_data as ai_additional_data')
+    .select([
+      'attribution_ai.additional_data as ai_additional_data',
+      'attribution_ai.human_modified as ai_human_modified',
+    ])
     .where('is_external', '=', 0)
     .$if(!options?.ignorePreSelected, (eb) => eb.where('pre_selected', '=', 0))
     .$if(excludeUuids !== undefined, (eb) =>
@@ -826,27 +839,100 @@ export async function findMatchingAttributionUuid(
     );
   }
 
-  const sourceAiMetadata = await trx
-    .selectFrom('attribution_ai')
-    .select('additional_data')
-    .where('attribution_uuid', '=', packageInfo.id)
+  const sourceRow = await trx
+    .selectFrom('attribution')
+    .leftJoin(
+      'attribution_ai',
+      'attribution.uuid',
+      'attribution_ai.attribution_uuid',
+    )
+    .select([
+      ...ATTRIBUTION_CONTENT_COLUMNS,
+      'attribution_ai.additional_data as ai_additional_data',
+      'attribution_ai.human_modified',
+    ])
+    .where('attribution.uuid', '=', packageInfo.id)
     .executeTakeFirst();
-  const sourceMetadata = sourceAiMetadata
-    ? JSON.parse(sourceAiMetadata.additional_data)
+  const sourceIsAi = Boolean(sourceRow?.ai_additional_data);
+  const sourceOpaqueMetadata = sourceRow?.ai_additional_data
+    ? JSON.parse(sourceRow.ai_additional_data)
+    : undefined;
+  const effectiveHumanModified = sourceRow?.ai_additional_data
+    ? getEffectiveHumanModified(
+        attributionContentFromRow(sourceRow),
+        packageInfo,
+        sourceRow.human_modified === null
+          ? undefined
+          : Boolean(sourceRow.human_modified),
+      )
     : undefined;
 
-  const matchingAttributions = await query.execute();
+  // sort by uuid for a deterministic order
+  const matchingAttributions = await query
+    .orderBy('attribution.uuid', 'asc')
+    .execute();
+  let fallbackMatch: { uuid: string; humanModified: boolean } | undefined;
   for (const matchingAttribution of matchingAttributions) {
-    const candidateMetadata =
-      matchingAttribution.ai_additional_data === null
-        ? undefined
-        : JSON.parse(matchingAttribution.ai_additional_data);
-    if (isDeepStrictEqual(sourceMetadata, candidateMetadata)) {
+    const candidateIsAi = matchingAttribution.ai_additional_data !== null;
+    if (sourceIsAi !== candidateIsAi) {
+      continue;
+    }
+    if (!sourceIsAi) {
       return matchingAttribution.uuid;
+    }
+    if (
+      !isDeepStrictEqual(
+        sourceOpaqueMetadata,
+        JSON.parse(matchingAttribution.ai_additional_data!),
+      )
+    ) {
+      continue;
+    }
+
+    const targetHumanModified =
+      matchingAttribution.ai_human_modified === null
+        ? undefined
+        : Boolean(matchingAttribution.ai_human_modified);
+    // Prefer an existing omission so consolidation preserves it without a write.
+    if (targetHumanModified === undefined) {
+      return matchingAttribution.uuid;
+    }
+    const humanModified = mergeHumanModified(
+      effectiveHumanModified,
+      targetHumanModified,
+    );
+    if (
+      humanModified !== targetHumanModified &&
+      matchingAttribution.resource_access !== AttributionResourceAccess.Writable
+    ) {
+      continue;
+    }
+    if (
+      fallbackMatch === undefined ||
+      (fallbackMatch.humanModified && !targetHumanModified)
+    ) {
+      fallbackMatch = {
+        uuid: matchingAttribution.uuid,
+        humanModified: targetHumanModified,
+      };
     }
   }
 
-  return undefined;
+  if (fallbackMatch === undefined) {
+    return undefined;
+  }
+  const humanModified = mergeHumanModified(
+    effectiveHumanModified,
+    fallbackMatch.humanModified,
+  );
+  if (humanModified !== fallbackMatch.humanModified) {
+    await updateAttributionAiHumanModified(
+      trx,
+      fallbackMatch.uuid,
+      humanModified,
+    );
+  }
+  return fallbackMatch.uuid;
 }
 
 async function matchOrCreateAttribution(
@@ -863,14 +949,10 @@ async function matchOrCreateAttribution(
     wasPreferred,
   };
 
-  const matchedAttributionUuid = await findMatchingAttributionUuid(
-    trx,
-    dataToInsert,
-    options,
-  );
+  const match = await matchAttribution(trx, dataToInsert, options);
 
-  if (matchedAttributionUuid) {
-    return matchedAttributionUuid;
+  if (match) {
+    return match;
   }
 
   const newUuid = uuid4();
@@ -882,7 +964,10 @@ async function matchOrCreateAttribution(
       is_external: 0,
     })
     .execute();
-  await copyAttributionAi(trx, packageInfo.id, newUuid);
+  await createAttributionAiFromSource(trx, packageInfo.id, {
+    ...dataToInsert,
+    id: newUuid,
+  });
   return newUuid;
 }
 
@@ -910,7 +995,29 @@ export async function updateAttribution(
   attributionUuid: string,
   packageInfo: PackageInfo,
 ) {
-  const existingAttribution = await getAttributionOrThrow(trx, attributionUuid);
+  const existingAttribution = await trx
+    .selectFrom('attribution')
+    .leftJoin(
+      'attribution_ai',
+      'attribution.uuid',
+      'attribution_ai.attribution_uuid',
+    )
+    .select([
+      ...ATTRIBUTION_CONTENT_COLUMNS,
+      'is_external',
+      'attribution_ai.human_modified',
+    ])
+    .select((eb) =>
+      eb('attribution_ai.attribution_uuid', 'is not', null).as(
+        'has_ai_metadata',
+      ),
+    )
+    .where('attribution.uuid', '=', attributionUuid)
+    .executeTakeFirst();
+
+  if (!existingAttribution) {
+    throw new Error(`Attribution ${attributionUuid} does not exist.`);
+  }
 
   if (existingAttribution.is_external) {
     throw new Error("External attributions can't be updated");
@@ -919,7 +1026,6 @@ export async function updateAttribution(
   const wasPreferred = await computeWasPreferred(trx, packageInfo);
   const { resourceAccess: _resourceAccess, ...persistedPackageInfo } =
     packageInfo;
-
   await trx
     .updateTable('attribution')
     .set({
@@ -930,6 +1036,19 @@ export async function updateAttribution(
     })
     .where('uuid', '=', attributionUuid)
     .execute();
+
+  if (
+    existingAttribution.has_ai_metadata &&
+    existingAttribution.human_modified !== 1
+  ) {
+    const contentChanged = !hasSameAttributionContent(
+      attributionContentFromRow(existingAttribution),
+      packageInfo,
+    );
+    if (contentChanged) {
+      await updateAttributionAiHumanModified(trx, attributionUuid, true);
+    }
+  }
 }
 
 export async function ensureAttributionsAreNotExternal(
