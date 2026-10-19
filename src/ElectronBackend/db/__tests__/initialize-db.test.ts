@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import BetterSqlite3 from 'better-sqlite3';
 import type { Insertable } from 'kysely';
 
 import { Criticality } from '../../../shared/shared-types';
@@ -352,7 +353,79 @@ describe('database initialization', () => {
     ]);
   });
 
+  it('reuses full link statements and prepares one statement for each remainder', async () => {
+    const externalRepeatedIds = Array.from(
+      { length: 45_000 },
+      () => 'external-repeated',
+    );
+    const manualRepeatedIds = Array.from(
+      { length: 45_000 },
+      () => 'manual-repeated',
+    );
+    const prepareSpy = vi.spyOn(BetterSqlite3.prototype, 'prepare');
+    const prepareLinkStatements = () =>
+      prepareSpy.mock.calls.filter(([sql]) =>
+        sql.includes('INSERT OR IGNORE INTO resource_to_attribution'),
+      );
+
+    try {
+      await initializeDbWithTestData({
+        resources: { file: 1 },
+        externalAttributions: {
+          attributions: {
+            'external-repeated': {
+              id: 'external-repeated',
+              criticality: Criticality.None,
+            },
+            'external-final': {
+              id: 'external-final',
+              criticality: Criticality.None,
+            },
+          },
+          resourcesToAttributions: {
+            '/file': [...externalRepeatedIds, 'external-final'],
+          },
+          attributionsToResources: {},
+        },
+        manualAttributions: {
+          attributions: {
+            'manual-repeated': {
+              id: 'manual-repeated',
+              criticality: Criticality.None,
+            },
+            'manual-final': {
+              id: 'manual-final',
+              criticality: Criticality.None,
+            },
+          },
+          resourcesToAttributions: {
+            '/file/': [...manualRepeatedIds, 'manual-final'],
+          },
+          attributionsToResources: {},
+        },
+      });
+
+      expect(prepareLinkStatements()).toHaveLength(4);
+      expect(
+        await getDb()
+          .selectFrom('resource_to_attribution')
+          .select(['attribution_uuid', 'attribution_is_external'])
+          .orderBy('attribution_is_external', 'desc')
+          .orderBy('attribution_uuid')
+          .execute(),
+      ).toEqual([
+        { attribution_uuid: 'external-final', attribution_is_external: 1 },
+        { attribution_uuid: 'external-repeated', attribution_is_external: 1 },
+        { attribution_uuid: 'manual-final', attribution_is_external: 0 },
+        { attribution_uuid: 'manual-repeated', attribution_is_external: 0 },
+      ]);
+    } finally {
+      prepareSpy.mockRestore();
+    }
+  });
+
   it('rolls back initialization when a resource link has no attribution', async () => {
+    const validLinks = Array.from({ length: 15_000 }, () => 'valid');
     await expect(
       initializeDbWithTestData({
         resources: { 'file.ts': 1 },
@@ -360,7 +433,9 @@ describe('database initialization', () => {
           attributions: {
             valid: { id: 'valid', criticality: Criticality.None },
           },
-          resourcesToAttributions: { '/file.ts': ['missing'] },
+          resourcesToAttributions: {
+            '/file.ts': [...validLinks, 'missing'],
+          },
           attributionsToResources: {},
         },
       }),

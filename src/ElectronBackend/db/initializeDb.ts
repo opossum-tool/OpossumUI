@@ -966,26 +966,32 @@ async function initializeResourceToAttributionTable(
     .execute();
 
   const rawDb = getRawDb();
+  function createInsertStatement(
+    rowCount: number,
+    attribution_is_external: 0 | 1,
+  ): ReturnType<typeof rawDb.prepare<Array<number | string>>> {
+    const singleValuesSql = `(?, ?, ${attribution_is_external})`;
+    const multipleValuesSql =
+      `${singleValuesSql}, `.repeat(rowCount - 1) + singleValuesSql;
+    return rawDb.prepare<Array<number | string>>(`
+      INSERT OR IGNORE INTO resource_to_attribution 
+      (resource_id, attribution_uuid, attribution_is_external)
+      VALUES ${multipleValuesSql}
+      `);
+  }
+
   function insertRows(
     rows: {
       resource_id: number;
       attribution_uuid: string;
     }[],
-    attribution_is_external: 0 | 1,
+    statement: ReturnType<typeof createInsertStatement>,
   ) {
-    const singleValuesSql = `(?, ?, ${attribution_is_external})`;
-    const multipleValuesSql =
-      `${singleValuesSql}, `.repeat(rows.length - 1) + singleValuesSql;
-    const stmt = rawDb.prepare(`
-      INSERT OR IGNORE INTO resource_to_attribution 
-      (resource_id, attribution_uuid, attribution_is_external)
-      VALUES ${multipleValuesSql}
-      `);
     const params = rows.flatMap((row) => [
       row.resource_id,
       row.attribution_uuid,
     ]);
-    stmt.run(...params);
+    statement.run(...params);
   }
 
   // SQLite cannot handle more than 30000 parameters, and since we insert an id and a uuid, we can only insert 15000 rows at a time
@@ -993,6 +999,8 @@ async function initializeResourceToAttributionTable(
   const insertMany = rawDb.transaction(
     (resourcesToAttributions: ResourcesToAttributions, is_external: 0 | 1) => {
       const rows: { resource_id: number; attribution_uuid: string }[] = [];
+      let fullBatchStatement:
+        ReturnType<typeof createInsertStatement> | undefined;
 
       for (const resourcePath in resourcesToAttributions) {
         if (!Object.hasOwn(resourcesToAttributions, resourcePath)) {
@@ -1013,14 +1021,18 @@ async function initializeResourceToAttributionTable(
           });
 
           if (rows.length === BATCH_SIZE) {
-            insertRows(rows, is_external);
+            fullBatchStatement ??= createInsertStatement(
+              BATCH_SIZE,
+              is_external,
+            );
+            insertRows(rows, fullBatchStatement);
             rows.length = 0;
           }
         }
       }
 
       if (rows.length > 0) {
-        insertRows(rows, is_external);
+        insertRows(rows, createInsertStatement(rows.length, is_external));
       }
     },
   );
