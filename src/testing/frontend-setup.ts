@@ -38,6 +38,7 @@ global.window.electronAPI = {
   getUserSettings: vi.fn().mockReturnValue(DEFAULT_USER_SETTINGS),
   updateUserSettings: vi.fn(),
   setFrontendPopupOpen: vi.fn(),
+  getMacArchitectureMismatch: vi.fn().mockResolvedValue(false),
   api: vi.fn().mockImplementation(unexpectedBackendCall),
 } satisfies ElectronAPI;
 

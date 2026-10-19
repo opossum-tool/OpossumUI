@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type BrowserWindow, ipcMain } from 'electron';
+import { app, type BrowserWindow, ipcMain } from 'electron';
 
 import { IpcChannel } from '../../shared/ipc-channels';
 import type { UserSettings } from '../../shared/shared-types';
@@ -23,6 +23,7 @@ import {
   selectSplitDestinationListener,
   splitCurrentOpossumFileListener,
 } from './listeners';
+import { getMacArchitectureMismatch } from './mac-architecture';
 import { ProcessingStatusUpdater } from './ProcessingStatusUpdater';
 import { UserSettingsService } from './user-settings-service';
 
@@ -81,4 +82,10 @@ export function setupIpcHandling(
     getGlobalBackendState().frontendPopupOpen = open;
     await updateMenu();
   });
+  ipcMain.handle(IpcChannel.GetMacArchitectureMismatch, () =>
+    getMacArchitectureMismatch(
+      process.platform,
+      app.runningUnderARM64Translation,
+    ),
+  );
 }

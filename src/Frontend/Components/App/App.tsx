@@ -13,6 +13,7 @@ import { useDatabaseInitialized } from '../../util/backendClient';
 import { AuditView } from '../AuditView/AuditView';
 import { ErrorFallback } from '../ErrorFallback/ErrorFallback';
 import { GlobalPopup } from '../GlobalPopup/GlobalPopup';
+import { MacArchitectureWarning } from '../MacArchitectureWarning/mac-architecture-warning';
 import { ProcessPopup } from '../ProcessPopup/ProcessPopup';
 import { ReportView } from '../ReportView/ReportView';
 import { TopBar } from '../TopBar/TopBar';
@@ -28,6 +29,7 @@ export function App() {
         <GlobalPopup />
         <ProcessPopup />
         <TopBar />
+        <MacArchitectureWarning />
         <AppView />
       </ErrorBoundary>
     </ViewContainer>

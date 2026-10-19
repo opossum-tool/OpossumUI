@@ -4,6 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { UserSettings } from './shared-types';
 
+export const LATEST_RELEASES_PAGE_URL =
+  'https://github.com/opossum-tool/OpossumUI/releases/latest';
+
 export const DEFAULT_PANEL_SIZES: NonNullable<UserSettings['panelSizes']> = {
   resourceBrowserWidth: 340,
   packageListsWidth: 360,

@@ -85,6 +85,8 @@ const electronAPI: ElectronAPI = {
     ipcRenderer.invoke(IpcChannel.UpdateUserSettings, userSettings),
   setFrontendPopupOpen: (open: boolean) =>
     ipcRenderer.invoke(IpcChannel.SetFrontendPopupOpen, open),
+  getMacArchitectureMismatch: () =>
+    ipcRenderer.invoke(IpcChannel.GetMacArchitectureMismatch),
 };
 
 // This exposes an API to communicate from the window in the frontend with the backend

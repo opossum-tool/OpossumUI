@@ -34,9 +34,9 @@ function ThemedChildren({ children }: { children: React.ReactNode }) {
 
 function makeProviderWrapper(
   store: Awaited<ReturnType<typeof createTestStore>>,
+  queryClient: QueryClient,
   { withVirtuosoContext = false }: { withVirtuosoContext?: boolean } = {},
 ) {
-  const queryClient = makeReactQueryClient();
   return function ProviderWrapper({ children }: { children: React.ReactNode }) {
     return (
       <ThemedChildren>
@@ -77,12 +77,16 @@ export async function renderComponent(
   } = {},
 ) {
   const store = await createTestStore(data);
+  const queryClient = makeReactQueryClient();
   actions?.forEach(store.dispatch);
 
   return {
     store,
+    queryClient,
     ...render(component, {
-      wrapper: makeProviderWrapper(store, { withVirtuosoContext: true }),
+      wrapper: makeProviderWrapper(store, queryClient, {
+        withVirtuosoContext: true,
+      }),
     }),
   };
 }
@@ -100,11 +104,12 @@ export async function renderHook<P, R>(
   } = {},
 ) {
   const store = await createTestStore(data);
+  const queryClient = makeReactQueryClient();
   actions?.forEach(store.dispatch);
 
   return {
     ...nativeRenderHook(callback, {
-      wrapper: makeProviderWrapper(store),
+      wrapper: makeProviderWrapper(store, queryClient),
       initialProps,
     }),
     store,
