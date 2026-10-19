@@ -26,7 +26,24 @@ describe('getAttributionLinkStatus', () => {
             'ancestor',
             'unrelated',
             'unlinked',
-          ].map((id) => [id, { id, criticality: 0 }]),
+          ].map((id) => [
+            id,
+            id === 'direct'
+              ? {
+                  id,
+                  criticality: 0,
+                  packageName: 'pkg-direct',
+                  licenseName: 'MIT',
+                }
+              : id === 'descendant'
+                ? {
+                    id,
+                    criticality: 0,
+                    packageName: 'pkg-descendant',
+                    licenseName: 'Apache-2.0',
+                  }
+                : { id, criticality: 0 },
+          ]),
         ),
         resourcesToAttributions: {
           '/root/target': ['direct', 'both'],
@@ -42,17 +59,104 @@ describe('getAttributionLinkStatus', () => {
           unrelated: ['/root/sibling'],
         },
       },
+      manualAttributions: {
+        attributions: {
+          'manual-matching-direct': {
+            id: 'manual-matching-direct',
+            criticality: 0,
+            packageName: 'pkg-direct',
+            licenseName: 'MIT',
+          },
+          'manual-matching-descendant': {
+            id: 'manual-matching-descendant',
+            criticality: 0,
+            packageName: 'pkg-descendant',
+            licenseName: 'Apache-2.0',
+          },
+          'manual-unrelated': {
+            id: 'manual-unrelated',
+            criticality: 0,
+            packageName: 'pkg-unrelated',
+            licenseName: 'MIT',
+          },
+        },
+        resourcesToAttributions: {
+          '/root/target': ['manual-matching-direct', 'manual-unrelated'],
+          '/root/target/file.ts': ['manual-matching-descendant'],
+        },
+        attributionsToResources: {
+          'manual-matching-direct': ['/root/target'],
+          'manual-matching-descendant': ['/root/target/file.ts'],
+          'manual-unrelated': ['/root/target'],
+        },
+      },
     });
   });
 
   it.each([
-    ['direct', { onResource: true, onDescendants: false }],
-    ['descendant', { onResource: false, onDescendants: true }],
-    ['both', { onResource: true, onDescendants: true }],
-    ['ancestor', { onResource: false, onDescendants: false }],
-    ['unrelated', { onResource: false, onDescendants: false }],
-    ['unlinked', { onResource: false, onDescendants: false }],
-    ['nonexistent', { onResource: false, onDescendants: false }],
+    [
+      'direct',
+      {
+        onResource: true,
+        onDescendants: false,
+        matchingManualOnResource: true,
+        matchingManualOnDescendants: false,
+      },
+    ],
+    [
+      'descendant',
+      {
+        onResource: false,
+        onDescendants: true,
+        matchingManualOnResource: false,
+        matchingManualOnDescendants: true,
+      },
+    ],
+    [
+      'both',
+      {
+        onResource: true,
+        onDescendants: true,
+        matchingManualOnResource: false,
+        matchingManualOnDescendants: false,
+      },
+    ],
+    [
+      'ancestor',
+      {
+        onResource: false,
+        onDescendants: false,
+        matchingManualOnResource: false,
+        matchingManualOnDescendants: false,
+      },
+    ],
+    [
+      'unrelated',
+      {
+        onResource: false,
+        onDescendants: false,
+        matchingManualOnResource: false,
+        matchingManualOnDescendants: false,
+      },
+    ],
+    [
+      'unlinked',
+      {
+        onResource: false,
+        onDescendants: false,
+        matchingManualOnResource: false,
+        matchingManualOnDescendants: false,
+      },
+    ],
+    [
+      'nonexistent',
+      {
+        onResource: false,
+        onDescendants: false,
+        matchingManualOnResource: false,
+        matchingManualOnDescendants: false,
+      },
+    ],
   ])('reports relationship for %s', async (attributionUuid, expected) => {
     const { result } = await queries.getAttributionLinkStatus({
       resourcePath: '/root/target',

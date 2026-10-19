@@ -60,6 +60,7 @@ import {
 } from './statistics';
 import {
   attributionToResourceRelationship,
+  findMatchingAttributionUuidForLink,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
   getResourceOrThrow,
   removeParentFromPath,
@@ -639,8 +640,24 @@ export const queries = {
     resourcePath: string;
     attributionUuid: string;
   }) {
-    const resource = await getResourceOrThrow(getDb(), props.resourcePath);
-    const result = await getDb()
+    const db = getDb();
+    const resource = await getResourceOrThrow(db, props.resourcePath);
+    const attribution = await db
+      .selectFrom('attribution')
+      .selectAll()
+      .where('uuid', '=', props.attributionUuid)
+      .executeTakeFirst();
+
+    const matchingManualAttributionUuid =
+      attribution?.is_external === 1
+        ? await findMatchingAttributionUuidForLink(
+            db,
+            packageInfoFromAttributionRow(attribution),
+          )
+        : undefined;
+    const matchedManualUuid = matchingManualAttributionUuid ?? '';
+
+    const result = await db
       .selectFrom('resource')
       .select((eb) => [
         eb
@@ -662,6 +679,25 @@ export const queries = {
               .where('attribution_uuid', '=', props.attributionUuid),
           )
           .as('on_descendants'),
+        eb
+          .exists(
+            eb
+              .selectFrom('resource_to_attribution')
+              .select('resource_id')
+              .where('resource_id', '=', resource.id)
+              .where('attribution_uuid', '=', matchedManualUuid),
+          )
+          .as('matching_manual_on_resource'),
+        eb
+          .exists(
+            eb
+              .selectFrom('resource_to_attribution')
+              .select('resource_id')
+              .where('resource_id', '>', resource.id)
+              .where('resource_id', '<=', resource.max_descendant_id)
+              .where('attribution_uuid', '=', matchedManualUuid),
+          )
+          .as('matching_manual_on_descendants'),
       ])
       .where('id', '=', resource.id)
       .executeTakeFirstOrThrow();
@@ -670,6 +706,10 @@ export const queries = {
       result: {
         onResource: Boolean(result.on_resource),
         onDescendants: Boolean(result.on_descendants),
+        matchingManualOnResource: Boolean(result.matching_manual_on_resource),
+        matchingManualOnDescendants: Boolean(
+          result.matching_manual_on_descendants,
+        ),
       },
     };
   },

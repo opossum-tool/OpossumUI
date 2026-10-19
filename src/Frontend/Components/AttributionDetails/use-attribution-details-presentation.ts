@@ -115,7 +115,8 @@ export function useAttributionDetailsPresentation() {
       linkRelationshipEligible:
         linkageQuery.isSuccess &&
         (selectedAttributionQuery.data?.isExternal === true
-          ? linkageQuery.data.onResource || linkageQuery.data.onDescendants
+          ? (linkageQuery.data.onResource || linkageQuery.data.onDescendants) &&
+            !linkageQuery.data.matchingManualOnResource
           : selectedAttributionQuery.data?.isExternal === false &&
             !linkageQuery.data.onResource),
       hasResourceInfo: !selectedPackageInfo?.id || resourceInfoQuery.isSuccess,
