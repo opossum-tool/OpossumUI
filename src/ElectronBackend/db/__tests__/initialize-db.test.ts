@@ -255,6 +255,122 @@ describe('database initialization', () => {
     ).toEqual([]);
   });
 
+  it('inserts attribution links in bounded batches across categories', async () => {
+    const externalAttributionIds = Array.from(
+      { length: 15_002 },
+      (_, index) => `external-${index}`,
+    );
+    const externalAttributions = Object.fromEntries(
+      externalAttributionIds.map((id) => [
+        id,
+        { id, criticality: Criticality.None },
+      ]),
+    );
+    const largeResourceLinks = [
+      ...externalAttributionIds.slice(0, 14_999),
+      externalAttributionIds[0],
+      externalAttributionIds[14_999],
+    ];
+
+    await initializeDbWithTestData({
+      resources: { large: 1, second: 1 },
+      externalAttributions: {
+        attributions: externalAttributions,
+        resourcesToAttributions: {
+          '/large/': largeResourceLinks,
+          '/second': [externalAttributionIds[15_000]],
+          '/unknown': [externalAttributionIds[15_001]],
+        },
+        attributionsToResources: {},
+      },
+      manualAttributions: {
+        attributions: {
+          'manual-only': {
+            id: 'manual-only',
+            criticality: Criticality.None,
+          },
+        },
+        resourcesToAttributions: {
+          '/large': [externalAttributionIds[0]],
+          '/second/': ['manual-only'],
+          '/unknown/': ['manual-only'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const linkCount = await getDb()
+      .selectFrom('resource_to_attribution')
+      .select((eb) => eb.fn.countAll<number>().as('count'))
+      .executeTakeFirstOrThrow();
+    expect(linkCount.count).toBe(15_002);
+
+    await expect(
+      getDb()
+        .selectFrom('resource_to_attribution')
+        .innerJoin(
+          'resource',
+          'resource.id',
+          'resource_to_attribution.resource_id',
+        )
+        .select([
+          'resource.path as resourcePath',
+          'resource_to_attribution.attribution_uuid as attributionUuid',
+          'resource_to_attribution.attribution_is_external as isExternal',
+        ])
+        .where('attribution_uuid', 'in', [
+          externalAttributionIds[0],
+          externalAttributionIds[14_999],
+          externalAttributionIds[15_000],
+          'manual-only',
+          externalAttributionIds[15_001],
+        ])
+        .orderBy('resourcePath')
+        .orderBy('attributionUuid')
+        .execute(),
+    ).resolves.toEqual([
+      {
+        resourcePath: '/large',
+        attributionUuid: externalAttributionIds[0],
+        isExternal: 1,
+      },
+      {
+        resourcePath: '/large',
+        attributionUuid: externalAttributionIds[14_999],
+        isExternal: 1,
+      },
+      {
+        resourcePath: '/second',
+        attributionUuid: externalAttributionIds[15_000],
+        isExternal: 1,
+      },
+      {
+        resourcePath: '/second',
+        attributionUuid: 'manual-only',
+        isExternal: 0,
+      },
+    ]);
+  });
+
+  it('rolls back initialization when a resource link has no attribution', async () => {
+    await expect(
+      initializeDbWithTestData({
+        resources: { 'file.ts': 1 },
+        externalAttributions: {
+          attributions: {
+            valid: { id: 'valid', criticality: Criticality.None },
+          },
+          resourcesToAttributions: { '/file.ts': ['missing'] },
+          attributionsToResources: {},
+        },
+      }),
+    ).rejects.toThrow();
+
+    await expect(
+      getDb().selectFrom('attribution').selectAll().execute(),
+    ).rejects.toThrow();
+  });
+
   it('defaults resources to writable when split metadata is absent', async () => {
     await initializeDbWithTestData({ resources: { 'file.ts': 1 } });
 

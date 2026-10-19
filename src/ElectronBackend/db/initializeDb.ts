@@ -980,22 +980,35 @@ async function initializeResourceToAttributionTable(
   const BATCH_SIZE = 15_000;
   const insertMany = rawDb.transaction(
     (resourcesToAttributions: ResourcesToAttributions, is_external: 0 | 1) => {
-      const rows = Object.entries(resourcesToAttributions).flatMap(
-        ([resourcePath, attributionUuids]) => {
-          const resourceId = resourcePathToId.get(
-            removeTrailingSlash(resourcePath),
-          );
-          return resourceId === undefined
-            ? []
-            : attributionUuids.map((uuid) => ({
-                resource_id: resourceId,
-                attribution_uuid: uuid,
-              }));
-        },
-      );
+      const rows: { resource_id: number; attribution_uuid: string }[] = [];
 
-      for (let i = 0; i < rows.length; i += BATCH_SIZE) {
-        insertRows(rows.slice(i, i + BATCH_SIZE), is_external);
+      for (const resourcePath in resourcesToAttributions) {
+        if (!Object.hasOwn(resourcesToAttributions, resourcePath)) {
+          continue;
+        }
+
+        const resourceId = resourcePathToId.get(
+          removeTrailingSlash(resourcePath),
+        );
+        if (resourceId === undefined) {
+          continue;
+        }
+
+        for (const attributionUuid of resourcesToAttributions[resourcePath]) {
+          rows.push({
+            resource_id: resourceId,
+            attribution_uuid: attributionUuid,
+          });
+
+          if (rows.length === BATCH_SIZE) {
+            insertRows(rows, is_external);
+            rows.length = 0;
+          }
+        }
+      }
+
+      if (rows.length > 0) {
+        insertRows(rows, is_external);
       }
     },
   );
