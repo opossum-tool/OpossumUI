@@ -5,7 +5,7 @@
 import CallMergeIcon from '@mui/icons-material/CallMerge';
 import MuiIconButton from '@mui/material/IconButton';
 import MuiTooltip from '@mui/material/Tooltip';
-import { useIsMutating } from '@tanstack/react-query';
+import { skipToken, useIsMutating } from '@tanstack/react-query';
 
 import { text } from '../../../../../shared/text';
 import { setTargetAttributionRelation } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
@@ -49,6 +49,18 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
     selection.mode === 'allMatching'
       ? (selectionSummary?.selectedCount ?? 0)
       : selectedAttributionIds.length;
+  const singleSelectedAttributionId =
+    selection.mode === 'explicit' && selectedAttributionIds.length === 1
+      ? selectedAttributionIds[0]
+      : undefined;
+  const linkStatusQuery = backend.getAttributionLinkStatus.useQuery(
+    singleSelectedAttributionId
+      ? {
+          resourcePath: selectedResourceId,
+          attributionUuid: singleSelectedAttributionId,
+        }
+      : skipToken,
+  );
 
   const handleLink = async () => {
     if (attributions) {
@@ -85,7 +97,9 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
         !selectedCount ||
         selectionSummaryLoading ||
         pickerMode.isActive ||
-        mutationsPending
+        mutationsPending ||
+        (linkStatusQuery.isSuccess &&
+          linkStatusQuery.data.matchingManualOnResource)
       }
       loading={createOrMatch.isPending}
       size={'small'}
