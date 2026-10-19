@@ -102,6 +102,7 @@ export function mergeAttributions({
 
   return groups.reduce<[Attributions, ResourcesToAttributions]>(
     ([attributions, resourcesToAttributions], group) => {
+      const groupIds = group.map(({ id }) => id);
       const { resources, ...attribution } = group
         .slice(1)
         .reduce(
@@ -123,8 +124,7 @@ export function mergeAttributions({
         resourcesToAttributions[resource] = [
           attribution.id,
           ...resourcesToAttributions[resource].filter(
-            (attributionId) =>
-              !group.map(({ id }) => id).includes(attributionId),
+            (attributionId) => !groupIds.includes(attributionId),
           ),
         ];
       });
