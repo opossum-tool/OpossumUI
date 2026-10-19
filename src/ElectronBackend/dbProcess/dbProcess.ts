@@ -27,6 +27,7 @@ import {
 } from '../api/mergeOpossumFiles';
 import { saveFile } from '../api/saveFile';
 import { splitOpossumFile } from '../api/splitOpossumFile';
+import { refreshStatsAfterSave } from '../db/dev-db-cache';
 import {
   loadFile,
   type LoadFileIpcResult,
@@ -155,6 +156,7 @@ async function executeDbProcessMessage(
       }
       const { id: _, type: __, ...params } = msg;
       await saveFile(params, storedOpossumZip);
+      refreshStatsAfterSave(params.opossumFilePath);
       return undefined;
     }
     case 'forceUnlock': {
@@ -163,6 +165,7 @@ async function executeDbProcessMessage(
       }
       const { id: _, type: __, ...params } = msg;
       await forceUnlockOpossumFile(params, storedOpossumZip);
+      refreshStatsAfterSave(params.opossumFilePath);
       return undefined;
     }
     case 'splitOpossumFile': {
@@ -184,6 +187,8 @@ async function executeDbProcessMessage(
         },
         storedOpossumZip,
       );
+      refreshStatsAfterSave(saveFileParams.opossumFilePath);
+      refreshStatsAfterSave(splitOpossumFilePath);
       return undefined;
     }
     case 'mergeOpossumFiles': {

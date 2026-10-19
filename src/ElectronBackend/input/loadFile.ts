@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type AdmZip from 'adm-zip';
+import AdmZip from 'adm-zip';
 import fs from 'fs';
 import { cloneDeep } from 'lodash-es';
 import { v4 as uuid4 } from 'uuid';
@@ -12,6 +12,14 @@ import type {
   ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { saveFile } from '../api/saveFile';
+import { resetDb } from '../db/db';
+import {
+  isDevDbCacheEnabled,
+  prepareCacheEntry,
+  setLastDevFile,
+  touchAndGetFreshCacheEntry,
+  writeCacheMeta,
+} from '../db/dev-db-cache';
 import { type DatabaseImportContent, initializeDb } from '../db/initializeDb';
 import type {
   FileNotFoundError,
@@ -82,6 +90,32 @@ export async function loadFile(
         type: 'fileNotFoundError',
       } satisfies FileNotFoundError,
     };
+  }
+
+  const devCacheEntry = isDevDbCacheEnabled()
+    ? touchAndGetFreshCacheEntry(filePath)
+    : undefined;
+
+  if (devCacheEntry) {
+    try {
+      reportProgress('Restoring database from dev cache');
+      const opossumZip = new AdmZip(filePath);
+      await resetDb(devCacheEntry.dbPath);
+      setLastDevFile(filePath);
+      return {
+        ok: true,
+        opossumZip,
+        projectTitle: devCacheEntry.meta.projectTitle,
+        projectId: devCacheEntry.meta.projectId,
+      };
+    } catch (error) {
+      reportProgress(
+        `Dev cache restore failed, loading file from scratch (${
+          error instanceof Error ? error.message : String(error)
+        })`,
+        'warn',
+      );
+    }
   }
 
   reportProgress(`Reading file ${filePath}`);
@@ -161,7 +195,10 @@ export async function loadFile(
   } satisfies DatabaseImportContent;
 
   reportProgress('Loading into database');
-  await initializeDb(parsedFileContent);
+  const devDbFilename = isDevDbCacheEnabled()
+    ? prepareCacheEntry(filePath)
+    : undefined;
+  await initializeDb(parsedFileContent, { dbFilename: devDbFilename });
 
   if (createdOutputNeedsPersisting) {
     reportProgress('Writing output file');
@@ -172,6 +209,14 @@ export async function loadFile(
       },
       opossumZip,
     );
+  }
+
+  if (isDevDbCacheEnabled()) {
+    writeCacheMeta(filePath, {
+      projectId: parsedInputData.metadata.projectId,
+      projectTitle: parsedInputData.metadata.projectTitle,
+    });
+    setLastDevFile(filePath);
   }
 
   return {

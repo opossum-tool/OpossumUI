@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import BetterSqlite3 from 'better-sqlite3';
-import fs from 'fs';
 import { Kysely, SqliteDialect } from 'kysely';
 
 import type { DB } from './generated/databaseTypes';
@@ -19,16 +18,9 @@ import type { DB } from './generated/databaseTypes';
 let rawDb: BetterSqlite3.Database | undefined = undefined;
 let db: Kysely<DB> | undefined = undefined;
 
-function openDb() {
+function openDb(filename?: string) {
   // Empty filename for temporary (not in-memory) db: https://www.sqlite.org/inmemorydb.html#temp_db
-  const filename = process.env.DEBUG ? 'dev.db' : '';
-
-  if (filename !== '' && fs.existsSync(filename)) {
-    console.log('DEBUG: Deleting previous db file');
-    fs.unlinkSync(filename);
-  }
-
-  rawDb = new BetterSqlite3(filename);
+  rawDb = new BetterSqlite3(filename ?? '');
 
   rawDb.pragma('foreign_keys = ON');
   rawDb.pragma('page_size = 8192');
@@ -41,9 +33,9 @@ function openDb() {
   });
 }
 
-export async function resetDb() {
+export async function resetDb(filename?: string) {
   await db?.destroy();
-  db = openDb();
+  db = openDb(filename);
 }
 
 export function getDb() {

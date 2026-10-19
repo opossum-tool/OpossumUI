@@ -6,6 +6,7 @@ import { dialog, systemPreferences } from 'electron';
 import os from 'os';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
+import { isDevDbCacheEnabled } from '../db/dev-db-cache';
 import {
   FRONTEND_TO_DB_PROCESS_PORT,
   getDbProcessPort,
@@ -65,7 +66,15 @@ export async function main(): Promise<void> {
 
     await loadWebApp(mainWindow);
 
-    await openFileFromCliOrEnvVariableIfProvided(mainWindow, updateMenu);
+    await openFileFromCliOrEnvVariableIfProvided(mainWindow, updateMenu, {
+      // Development-only: restore the last loaded file when Electron was
+      // restarted by the vite watcher (e.g. triggered by a backend code
+      // change) instead of starting empty. A fresh `yarn start` must not
+      // reopen anything; `OPOSSUM_ELECTRON_RESTARTED` is set by
+      // `vite.config.mts` and only becomes '1' after the first spawn.
+      reopenLastDevFile:
+        isDevDbCacheEnabled() && process.env.OPOSSUM_ELECTRON_RESTARTED === '1',
+    });
 
     setRuntimeMacOsOpenFileHandler((filePath) => {
       mainWindow.webContents.send(AllowedFrontendChannels.OpenFile, filePath);

@@ -3,13 +3,21 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { BrowserWindow } from 'electron';
+import fs from 'fs';
 import { cloneDeep } from 'lodash-es';
+import path from 'path';
 
+import { faker } from '../../../testing/Faker';
+import { getLastDevFile } from '../../db/dev-db-cache';
 import { openFileFromCliOrEnvVariableIfProvided } from '../openFileFromCliOrEnvVariableIfProvided';
 import {
   queueMacOsOpenFile,
   resetMacOsOpenFileHandlingForTests,
 } from '../openFileRequests';
+
+vi.mock('../../db/dev-db-cache', () => ({
+  getLastDevFile: vi.fn(),
+}));
 
 const mockHandleOpeningFile = vi.fn();
 vi.mock('../listeners', () => ({
@@ -162,5 +170,66 @@ describe('openFileFromEnvVariable', () => {
       inputFileName,
       updateMenu,
     ]);
+  });
+});
+
+describe('reopenLastDevFile', () => {
+  beforeEach(() => {
+    process.argv = ['app'];
+    mockHandleOpeningFile.mockClear();
+    resetMacOsOpenFileHandlingForTests();
+    vi.mocked(getLastDevFile).mockReset();
+  });
+
+  it('reopens the last dev file if no other file was provided', async () => {
+    const lastFileName = faker.outputPath(`${faker.string.uuid()}.opossum`);
+    fs.mkdirSync(path.dirname(lastFileName), { recursive: true });
+    fs.writeFileSync(lastFileName, 'opossum');
+    vi.mocked(getLastDevFile).mockReturnValue(lastFileName);
+
+    const updateMenu = vi.fn();
+    await openFileFromCliOrEnvVariableIfProvided(
+      'mockBrowserWindow' as unknown as BrowserWindow,
+      updateMenu,
+      { reopenLastDevFile: true },
+    );
+
+    expect(mockHandleOpeningFile).toHaveBeenCalledWith([
+      'mockBrowserWindow',
+      lastFileName,
+      updateMenu,
+    ]);
+  });
+
+  it('prefers a CLI provided file over the last dev file', async () => {
+    const lastFileName = '/path/lastFile.opossum';
+    vi.mocked(getLastDevFile).mockReturnValue(lastFileName);
+    const inputFileName = 'path/to/file/inputfile.opossum';
+    process.argv.push(inputFileName);
+
+    const updateMenu = vi.fn();
+    await openFileFromCliOrEnvVariableIfProvided(
+      'mockBrowserWindow' as unknown as BrowserWindow,
+      updateMenu,
+      { reopenLastDevFile: true },
+    );
+
+    expect(mockHandleOpeningFile).toHaveBeenCalledWith([
+      'mockBrowserWindow',
+      inputFileName,
+      updateMenu,
+    ]);
+  });
+
+  it('does not reopen the last dev file when the option is not set', async () => {
+    vi.mocked(getLastDevFile).mockReturnValue('/path/lastFile.opossum');
+
+    const updateMenu = vi.fn();
+    await openFileFromCliOrEnvVariableIfProvided(
+      'mockBrowserWindow' as unknown as BrowserWindow,
+      updateMenu,
+    );
+
+    expect(mockHandleOpeningFile).not.toHaveBeenCalled();
   });
 });

@@ -4,7 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { BrowserWindow } from 'electron';
 import log from 'electron-log';
+import fs from 'fs';
 
+import { getLastDevFile } from '../db/dev-db-cache';
 import { handleOpeningFile } from './listeners';
 import {
   clearPendingMacOsOpenFilePaths,
@@ -14,6 +16,7 @@ import {
 export async function openFileFromCliOrEnvVariableIfProvided(
   mainWindow: BrowserWindow,
   updateMenu: () => Promise<void>,
+  options: { reopenLastDevFile?: boolean } = {},
 ): Promise<void> {
   let inputFileName: string | null = null;
 
@@ -42,6 +45,16 @@ export async function openFileFromCliOrEnvVariableIfProvided(
         `File "${inputFileFromEnvVariable}"  which was provided by env variable is not valid. ` +
           'Opening OpossumUI without loading a file.',
       );
+    }
+  }
+
+  if (!inputFileName && options.reopenLastDevFile) {
+    // Development-only convenience: after a backend code change Electron
+    // restarts and immediately restores the previously loaded file from the
+    // dev DB cache.
+    const lastDevFile = getLastDevFile();
+    if (lastDevFile?.endsWith('.opossum') && fs.existsSync(lastDevFile)) {
+      inputFileName = lastDevFile;
     }
   }
 

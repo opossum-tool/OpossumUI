@@ -4,12 +4,38 @@
 // SPDX-License-Identifier: Apache-2.0
 import babel from '@rolldown/plugin-babel';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
+import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { defineConfig, InlineConfig, loadEnv } from 'vite';
 import electron from 'vite-plugin-electron';
 import svgrPlugin from 'vite-plugin-svgr';
 
-function getElectronProcessViteConfig(): InlineConfig {
+// The dev DB cache only restores cached databases whose schema matches the
+// current code. Hashing the schema-defining module at build time ties the
+// cache invalidation to the actual schema without a manually managed version
+// constant.
+function getDbSchemaHash(): string {
+  const initializeDbPath = path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    'src/ElectronBackend/db/initializeDb.ts',
+  );
+  return crypto
+    .createHash('sha256')
+    .update(fs.readFileSync(initializeDbPath, 'utf-8'))
+    .digest('hex')
+    .slice(0, 16);
+}
+
+function getElectronProcessViteConfig(mode: string): InlineConfig {
   return {
+    define: {
+      // Baked at build time so the dev DB cache can never be enabled in
+      // production bundles, regardless of the host environment.
+      'process.env.OPOSSUM_DEV_MODE': mode === 'development' ? '"1"' : '"0"',
+      'process.env.OPOSSUM_DB_SCHEMA_HASH': JSON.stringify(getDbSchemaHash()),
+    },
     build: {
       minify: true,
       outDir: 'build/ElectronBackend',
@@ -23,6 +49,26 @@ function getElectronProcessViteConfig(): InlineConfig {
       },
     },
   };
+}
+
+let electronStartCount = 0;
+
+/**
+ * Starts Electron and records whether this spawn is a watcher restart (e.g.
+ * after a backend code change) or the initial start of a `yarn start` run.
+ *
+ * The vite dev server process persists across Electron restarts, so a module
+ * level counter cleanly distinguishes the two cases. The flag propagates to
+ * Electron via the inherited environment and gates the dev-only last-file
+ * auto-reopen (see `main.ts`).
+ */
+function handleElectronStart({
+  startup,
+}: {
+  startup: (...args: never[]) => unknown;
+}): void {
+  process.env.OPOSSUM_ELECTRON_RESTARTED = electronStartCount++ > 0 ? '1' : '0';
+  startup();
 }
 
 export default defineConfig(({ mode }) => ({
@@ -40,15 +86,18 @@ export default defineConfig(({ mode }) => ({
       : electron([
           {
             entry: 'src/ElectronBackend/preload.ts',
-            vite: getElectronProcessViteConfig(),
+            vite: getElectronProcessViteConfig(mode),
+            onstart: handleElectronStart,
           },
           {
             entry: 'src/ElectronBackend/app.ts',
-            vite: getElectronProcessViteConfig(),
+            vite: getElectronProcessViteConfig(mode),
+            onstart: handleElectronStart,
           },
           {
             entry: 'src/ElectronBackend/dbProcess/dbProcess.ts',
-            vite: getElectronProcessViteConfig(),
+            vite: getElectronProcessViteConfig(mode),
+            onstart: handleElectronStart,
           },
         ])),
   ],
