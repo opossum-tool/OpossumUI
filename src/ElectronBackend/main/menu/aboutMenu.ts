@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { type MenuItemConstructorOptions, shell } from 'electron';
 
+import { OPOSSUM_UI_GITHUB_URL } from '../../../shared/shared-constants';
 import { text } from '../../../shared/text';
 import { getIconBasedOnTheme } from '../iconHelpers';
 import {
@@ -21,8 +22,7 @@ function getOpenOnGithub(): MenuItemConstructorOptions {
     ),
     label: text.menu.aboutSubmenu.openOnGithub,
     id: menuItemIds.aboutOpenOnGithub,
-    click: () =>
-      shell.openExternal('https://github.com/opossum-tool/opossumUI'),
+    click: () => shell.openExternal(OPOSSUM_UI_GITHUB_URL),
   };
 }
 

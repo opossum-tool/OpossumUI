@@ -6,6 +6,7 @@
 import { app, type MenuItemConstructorOptions, shell } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
+import { OPOSSUM_UI_USER_GUIDE_URL } from '../../../shared/shared-constants';
 import { text } from '../../../shared/text';
 import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
@@ -47,10 +48,7 @@ function getUsersGuide(): MenuItemConstructorOptions {
     ),
     label: text.menu.helpSubmenu.userGuide,
     id: menuItemIds.helpUserGuide,
-    click: () =>
-      shell.openExternal(
-        'https://github.com/opossum-tool/OpossumUI/blob/main/USER_GUIDE.md',
-      ),
+    click: () => shell.openExternal(OPOSSUM_UI_USER_GUIDE_URL),
   };
 }
 

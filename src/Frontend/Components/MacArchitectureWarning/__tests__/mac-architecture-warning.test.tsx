@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 
+import { LATEST_RELEASES_PAGE_URL } from '../../../../shared/shared-constants';
 import { renderComponent } from '../../../test-helpers/render';
 import { MacArchitectureWarning } from '../mac-architecture-warning';
 
@@ -23,7 +24,7 @@ describe('MacArchitectureWarning', () => {
       }),
     );
     expect(window.electronAPI.openLink).toHaveBeenCalledWith(
-      'https://github.com/opossum-tool/OpossumUI/releases/latest',
+      LATEST_RELEASES_PAGE_URL,
     );
 
     expect(screen.queryByRole('button', { name: 'Close warning' })).toBeNull();
