@@ -212,21 +212,20 @@ function mergeExternalAttributions(
   return { externalAttributions, resourcesToExternalAttributions };
 }
 
-function createOpossumOutputFile(
+export function createOpossumOutputFile(
   externalAttributions: Attributions,
   resourcesToExternalAttributions: ResourcesToAttributions,
   projectId: string,
 ): OpossumOutputFile {
-  const externalAttributionsCopy = cloneDeep(externalAttributions);
-
   const manualAttributions: Attributions = {};
   const manualAttributionIdsToExternalAttributionIds: {
     [attributionId: string]: string;
   } = {};
   const manualAttributionIds = new Set<string>();
-  for (const attributionId of Object.keys(externalAttributionsCopy)) {
-    const packageInfo = externalAttributionsCopy[attributionId];
-    if (packageInfo.preSelected) {
+  for (const attributionId of Object.keys(externalAttributions)) {
+    const externalAttribution = externalAttributions[attributionId];
+    if (externalAttribution.preSelected) {
+      const packageInfo = cloneDeep(externalAttribution);
       delete packageInfo.source;
       delete packageInfo.preferred;
       delete packageInfo.preferredOverOriginIds;
