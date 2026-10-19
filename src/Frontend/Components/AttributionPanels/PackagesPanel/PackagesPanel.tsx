@@ -35,6 +35,7 @@ import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getAttributionSelectionPendingResourceId,
   getAttributionSelectionPolicy,
+  getIsPackageInfoDirty,
   getPendingAttributionNavigation,
   getSelectedAttributionId,
   getSelectedResourceId,
@@ -141,6 +142,7 @@ export const PackagesPanel = ({
   const targetAttributionRelation = useAppSelector(
     getTargetAttributionRelation,
   );
+  const isPackageInfoDirty = useAppSelector(getIsPackageInfoDirty);
   const lastResourceIdWithAutoSelectionRef = useRef(
     attributionSelectionPendingResourceId === selectedResourceId &&
       !(pendingAttributionNavigation?.attributionUuid === selectedAttributionId)
@@ -552,10 +554,36 @@ export const PackagesPanel = ({
     if (!sortingChanged) {
       return;
     }
+    if (selectedAttributionId && selectedAttributionIsExternal !== external) {
+      return;
+    }
+    clearSelection();
+    if (selectedAttributionId && isPackageInfoDirty) {
+      preserveSelectionRef.current = true;
+      if (selectedAttribution) {
+        dispatch(
+          changeAttributionFiltersOrOpenUnsavedPopup({
+            discardedPackageInfo: selectedAttribution,
+            external,
+            filters,
+          }),
+        );
+      }
+      return;
+    }
     preserveSelectionRef.current = false;
     dispatch(setSelectedAttributionId(''));
-    clearSelection();
-  }, [clearSelection, dispatch, sortingChanged]);
+  }, [
+    clearSelection,
+    dispatch,
+    external,
+    filters,
+    isPackageInfoDirty,
+    selectedAttribution,
+    selectedAttributionId,
+    selectedAttributionIsExternal,
+    sortingChanged,
+  ]);
   useEffect(() => {
     if (
       bulkSelection?.mode === 'allMatching' &&

@@ -13,7 +13,15 @@ import type {
 import { text } from '../../../../../shared/text';
 import { faker } from '../../../../../testing/Faker';
 import { pathsToResources } from '../../../../../testing/global-test-helpers';
-import { closePopupAndUnsetTargets } from '../../../../state/actions/popup-actions/popup-actions';
+import { PopupType } from '../../../../enums/enums';
+import {
+  closePopupAndUnsetTargets,
+  proceedFromUnsavedPopup,
+} from '../../../../state/actions/popup-actions/popup-actions';
+import {
+  initializePackageInfoEditing,
+  setTemporaryDisplayPackageInfo,
+} from '../../../../state/actions/resource-actions/all-views-simple-actions';
 import {
   setAttributionSelectionPending,
   setPendingAttributionNavigation,
@@ -24,7 +32,11 @@ import {
 import { openResourceInResourceBrowser } from '../../../../state/actions/resource-actions/navigation-actions';
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
 import type { Action } from '../../../../state/configure-store';
-import { getAttributionSelectionPendingResourceId } from '../../../../state/selectors/resource-selectors';
+import {
+  getAttributionSelectionPendingResourceId,
+  getTemporaryDisplayPackageInfo,
+} from '../../../../state/selectors/resource-selectors';
+import { getOpenPopup } from '../../../../state/selectors/view-selector';
 import { ATTRIBUTION_SELECTION_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-selection-for-replacement';
 import {
   initialAttributionFilters,
@@ -115,6 +127,7 @@ function renderPackagesPanel({
   scopeByRelation,
   navigationRelation,
   external = false,
+  selectedAttributionIsExternal = external,
   useAttributionFilters = () => [initialAttributionFilters, vi.fn()],
 }: {
   attributions: Attributions;
@@ -125,6 +138,7 @@ function renderPackagesPanel({
   scopeByRelation?: boolean;
   navigationRelation?: Relation;
   external?: boolean;
+  selectedAttributionIsExternal?: boolean;
   useAttributionFilters?: UseAttributionFilters;
 }) {
   mockAttributions(
@@ -133,7 +147,9 @@ function renderPackagesPanel({
     scopeByRelation,
     navigationRelation,
   );
-  vi.mocked(useSelectedAttributionIsExternal).mockReturnValue(external);
+  vi.mocked(useSelectedAttributionIsExternal).mockReturnValue(
+    selectedAttributionIsExternal,
+  );
   return renderComponent(
     <PackagesPanel
       external={external}
@@ -410,6 +426,100 @@ describe('PackagesPanel', () => {
     expect(
       screen.getByRole('checkbox', { name: 'select all' }),
     ).not.toBeChecked();
+  });
+
+  it('opens the unsaved-changes popup when sorting with unsaved changes', async () => {
+    const firstAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const selectedAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const { store } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [firstAttribution.id]: firstAttribution,
+        [selectedAttribution.id]: selectedAttribution,
+      }),
+      actions: [
+        setSelectedAttributionId(selectedAttribution.id),
+        initializePackageInfoEditing(selectedAttribution),
+        setTemporaryDisplayPackageInfo({
+          ...selectedAttribution,
+          packageName: 'changed',
+        }),
+      ],
+      useAttributionFilters: useManualAttributionFilters,
+    });
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        selectedAttribution.id,
+      );
+    });
+
+    await act(() =>
+      store.dispatch(
+        setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialAttributionFilters,
+          sorting: 'criticality',
+        }),
+      ),
+    );
+
+    await waitFor(() => {
+      expect(getOpenPopup(store.getState())?.popup).toBe(
+        PopupType.NotSavedPopup,
+      );
+    });
+    expect(store.getState().resourceState.selectedAttributionId).toBe(
+      selectedAttribution.id,
+    );
+
+    act(() => store.dispatch(proceedFromUnsavedPopup()));
+
+    expect(getOpenPopup(store.getState())).toBeNull();
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+      selectedAttribution,
+    );
+    expect(
+      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toEqual({
+      ...initialAttributionFilters,
+      sorting: 'criticality',
+    });
+  });
+
+  it('keeps the selection when sorting the other panel', async () => {
+    const selectedSignal = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const { store } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [selectedSignal.id]: selectedSignal,
+      }),
+      actions: [setSelectedAttributionId(selectedSignal.id)],
+      selectedAttributionIsExternal: true,
+      useAttributionFilters: useManualAttributionFilters,
+    });
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        selectedSignal.id,
+      );
+    });
+
+    await act(() =>
+      store.dispatch(
+        setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialAttributionFilters,
+          sorting: 'criticality',
+        }),
+      ),
+    );
+
+    expect(store.getState().resourceState.selectedAttributionId).toBe(
+      selectedSignal.id,
+    );
   });
 
   it('uses a cached selected attribution relation during preserved navigation', async () => {
