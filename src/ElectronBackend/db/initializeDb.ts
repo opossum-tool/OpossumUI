@@ -40,6 +40,18 @@ import type {
 import { insertReadonlyRules } from './split-info';
 
 type CompleteInsertRow<Table> = Required<Insertable<Table>>;
+type DatabaseImportAttributionData = Pick<
+  InputFileAttributionData,
+  'attributions' | 'resourcesToAttributions'
+>;
+export type DatabaseImportContent = Omit<
+  ParsedFileContent,
+  'manualAttributions' | 'externalAttributions'
+> & {
+  manualAttributions: DatabaseImportAttributionData;
+  externalAttributions: DatabaseImportAttributionData;
+};
+
 type AttributionInsertRow = Omit<
   CompleteInsertRow<Attribution>,
   'canonical_license_name' | 'resource_access'
@@ -139,7 +151,7 @@ const ATTRIBUTION_INDEX_COLUMNS = [
   'canonical_license_name',
 ] as const satisfies ReadonlyArray<keyof DB['attribution']>;
 
-export async function initializeDb(inputFile: ParsedFileContent) {
+export async function initializeDb(inputFile: DatabaseImportContent) {
   await resetDb();
   await getDb()
     .transaction()
@@ -574,8 +586,8 @@ async function initializeResourceTable(
 
 async function initializeAttributionTable(
   trx: Transaction<DB>,
-  externalAttributions: InputFileAttributionData,
-  manualAttributions: InputFileAttributionData,
+  externalAttributions: DatabaseImportAttributionData,
+  manualAttributions: DatabaseImportAttributionData,
   resolvedExternalAttributions: Set<string>,
 ) {
   const attributionExpressionBuilder = expressionBuilder<DB, 'attribution'>();
@@ -824,7 +836,7 @@ async function initializeAttributionTable(
 
 async function initializeAttributionAiTable(
   trx: Transaction<DB>,
-  manualAttributions: InputFileAttributionData,
+  manualAttributions: DatabaseImportAttributionData,
 ) {
   const attributionAiExpressionBuilder = expressionBuilder<
     DB,
@@ -892,7 +904,7 @@ async function initializeAttributionAiTable(
 
 async function initializeSourceForAttributionTable(
   trx: Transaction<DB>,
-  externalAttributions: InputFileAttributionData,
+  externalAttributions: DatabaseImportAttributionData,
 ) {
   await trx.schema
     .createTable('source_for_attribution')
@@ -934,8 +946,8 @@ async function initializeSourceForAttributionTable(
 
 async function initializeResourceToAttributionTable(
   trx: Transaction<DB>,
-  externalAttributions: InputFileAttributionData,
-  manualAttributions: InputFileAttributionData,
+  externalAttributions: DatabaseImportAttributionData,
+  manualAttributions: DatabaseImportAttributionData,
   resourcePathToId: Map<string, number>,
 ) {
   await trx.schema

@@ -19,6 +19,7 @@ import {
   SPLIT_INFO_FILE_NAME,
 } from '../../../shared/write-file-utils';
 import { faker } from '../../../testing/Faker';
+import { saveFile } from '../../api/saveFile';
 import { getDb } from '../../db/db';
 import type {
   OpossumOutputFile,
@@ -105,6 +106,134 @@ describe('loadFile', () => {
     const result = (await loadFile(opossumPath)) as LoadFileSuccess;
 
     expect(result.ok).toBe(true);
+  });
+
+  it('keeps merged external references when loading and saving output', async () => {
+    const firstExternalUuid = 'external-first';
+    const secondExternalUuid = 'external-second';
+    const manualUuid = 'manual-reference';
+    const projectId = faker.string.uuid();
+    const source = faker.opossum.source();
+    const input: ParsedOpossumInputFile = {
+      metadata: { ...EMPTY_PROJECT_METADATA, projectId },
+      resources: { a: 1, b: 1 },
+      config: { classifications: {} },
+      externalAttributions: {
+        [firstExternalUuid]: {
+          originId: 'origin-first',
+          source,
+          packageName: 'shared package',
+          packageVersion: '1.0.0',
+        },
+        [secondExternalUuid]: {
+          originId: 'origin-second',
+          source,
+          packageName: 'shared package',
+          packageVersion: '1.0.0',
+        },
+      },
+      frequentLicenses: [],
+      resourcesToAttributions: {
+        '/a': [firstExternalUuid, secondExternalUuid],
+        '/b': [firstExternalUuid, secondExternalUuid],
+      },
+    };
+    const output: OpossumOutputFile = {
+      metadata: { projectId, fileCreationDate: '1' },
+      manualAttributions: {
+        [manualUuid]: {
+          originId: 'origin-second',
+          packageName: 'manual reference',
+          criticality: RawCriticality[Criticality.None],
+        },
+      },
+      resourcesToAttributions: { '/a': [manualUuid] },
+      resolvedExternalAttributions: [],
+    };
+    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
+    await writeOpossumFile({ input, output, path: opossumPath });
+
+    const progressMessages: Array<string> = [];
+    const firstLoad = (await loadFile(opossumPath, (message) => {
+      progressMessages.push(message);
+    })) as LoadFileSuccess;
+    expect(firstLoad.ok).toBe(true);
+    expect(progressMessages).toEqual([
+      `Reading file ${opossumPath}`,
+      'Deserializing signals',
+      'Calculating signals to resources',
+      'Merging similar signals',
+      'Parsing frequent licenses from input',
+      'Checking and converting configuration',
+      'Deserializing attributions',
+      'Loading into database',
+    ]);
+
+    const assertMergedAttributions = async () => {
+      await expect(
+        getDb()
+          .selectFrom('attribution')
+          .select(['uuid', 'is_external', 'original_attribution_id'])
+          .orderBy('uuid')
+          .execute(),
+      ).resolves.toEqual([
+        {
+          uuid: firstExternalUuid,
+          is_external: 1,
+          original_attribution_id: firstExternalUuid,
+        },
+        {
+          uuid: manualUuid,
+          is_external: 0,
+          original_attribution_id: firstExternalUuid,
+        },
+      ]);
+      await expect(
+        getDb()
+          .selectFrom('resource_to_attribution as rta')
+          .innerJoin('resource as r', 'r.id', 'rta.resource_id')
+          .select([
+            'r.path',
+            'rta.attribution_uuid',
+            'rta.attribution_is_external',
+          ])
+          .orderBy('r.path')
+          .orderBy('rta.attribution_is_external')
+          .execute(),
+      ).resolves.toEqual([
+        {
+          path: '/a',
+          attribution_uuid: manualUuid,
+          attribution_is_external: 0,
+        },
+        {
+          path: '/a',
+          attribution_uuid: firstExternalUuid,
+          attribution_is_external: 1,
+        },
+        {
+          path: '/b',
+          attribution_uuid: firstExternalUuid,
+          attribution_is_external: 1,
+        },
+      ]);
+    };
+    await assertMergedAttributions();
+
+    const inputAfterLoad = JSON.parse(
+      new AdmZip(opossumPath).getEntry(INPUT_FILE_NAME)!.getData().toString(),
+    ) as ParsedOpossumInputFile;
+    expect(inputAfterLoad.resourcesToAttributions).toEqual(
+      input.resourcesToAttributions,
+    );
+
+    await saveFile(
+      { projectId, opossumFilePath: opossumPath },
+      firstLoad.opossumZip!,
+    );
+    const reloaded = (await loadFile(opossumPath)) as LoadFileSuccess;
+    expect(reloaded.ok).toBe(true);
+    await assertMergedAttributions();
   });
 
   it('loads split metadata into the ephemeral database', async () => {
