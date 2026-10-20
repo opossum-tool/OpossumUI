@@ -40,6 +40,18 @@ import type {
 import { insertReadonlyRules } from './split-info';
 
 type CompleteInsertRow<Table> = Required<Insertable<Table>>;
+type DatabaseImportAttributionData = Pick<
+  InputFileAttributionData,
+  'attributions' | 'resourcesToAttributions'
+>;
+export type DatabaseImportContent = Omit<
+  ParsedFileContent,
+  'manualAttributions' | 'externalAttributions'
+> & {
+  manualAttributions: DatabaseImportAttributionData;
+  externalAttributions: DatabaseImportAttributionData;
+};
+
 type AttributionInsertRow = Omit<
   CompleteInsertRow<Attribution>,
   'canonical_license_name' | 'resource_access'
@@ -139,7 +151,7 @@ const ATTRIBUTION_INDEX_COLUMNS = [
   'canonical_license_name',
 ] as const satisfies ReadonlyArray<keyof DB['attribution']>;
 
-export async function initializeDb(inputFile: ParsedFileContent) {
+export async function initializeDb(inputFile: DatabaseImportContent) {
   await resetDb();
   await getDb()
     .transaction()
@@ -574,8 +586,8 @@ async function initializeResourceTable(
 
 async function initializeAttributionTable(
   trx: Transaction<DB>,
-  externalAttributions: InputFileAttributionData,
-  manualAttributions: InputFileAttributionData,
+  externalAttributions: DatabaseImportAttributionData,
+  manualAttributions: DatabaseImportAttributionData,
   resolvedExternalAttributions: Set<string>,
 ) {
   const attributionExpressionBuilder = expressionBuilder<DB, 'attribution'>();
@@ -824,7 +836,7 @@ async function initializeAttributionTable(
 
 async function initializeAttributionAiTable(
   trx: Transaction<DB>,
-  manualAttributions: InputFileAttributionData,
+  manualAttributions: DatabaseImportAttributionData,
 ) {
   const attributionAiExpressionBuilder = expressionBuilder<
     DB,
@@ -892,7 +904,7 @@ async function initializeAttributionAiTable(
 
 async function initializeSourceForAttributionTable(
   trx: Transaction<DB>,
-  externalAttributions: InputFileAttributionData,
+  externalAttributions: DatabaseImportAttributionData,
 ) {
   await trx.schema
     .createTable('source_for_attribution')
@@ -934,8 +946,8 @@ async function initializeSourceForAttributionTable(
 
 async function initializeResourceToAttributionTable(
   trx: Transaction<DB>,
-  externalAttributions: InputFileAttributionData,
-  manualAttributions: InputFileAttributionData,
+  externalAttributions: DatabaseImportAttributionData,
+  manualAttributions: DatabaseImportAttributionData,
   resourcePathToId: Map<string, number>,
 ) {
   await trx.schema
@@ -954,48 +966,73 @@ async function initializeResourceToAttributionTable(
     .execute();
 
   const rawDb = getRawDb();
+  function createInsertStatement(
+    rowCount: number,
+    attribution_is_external: 0 | 1,
+  ): ReturnType<typeof rawDb.prepare<Array<number | string>>> {
+    const singleValuesSql = `(?, ?, ${attribution_is_external})`;
+    const multipleValuesSql =
+      `${singleValuesSql}, `.repeat(rowCount - 1) + singleValuesSql;
+    return rawDb.prepare<Array<number | string>>(`
+      INSERT OR IGNORE INTO resource_to_attribution 
+      (resource_id, attribution_uuid, attribution_is_external)
+      VALUES ${multipleValuesSql}
+      `);
+  }
+
   function insertRows(
     rows: {
       resource_id: number;
       attribution_uuid: string;
     }[],
-    attribution_is_external: 0 | 1,
+    statement: ReturnType<typeof createInsertStatement>,
   ) {
-    const singleValuesSql = `(?, ?, ${attribution_is_external})`;
-    const multipleValuesSql =
-      `${singleValuesSql}, `.repeat(rows.length - 1) + singleValuesSql;
-    const stmt = rawDb.prepare(`
-      INSERT OR IGNORE INTO resource_to_attribution 
-      (resource_id, attribution_uuid, attribution_is_external)
-      VALUES ${multipleValuesSql}
-      `);
     const params = rows.flatMap((row) => [
       row.resource_id,
       row.attribution_uuid,
     ]);
-    stmt.run(...params);
+    statement.run(...params);
   }
 
   // SQLite cannot handle more than 30000 parameters, and since we insert an id and a uuid, we can only insert 15000 rows at a time
   const BATCH_SIZE = 15_000;
   const insertMany = rawDb.transaction(
     (resourcesToAttributions: ResourcesToAttributions, is_external: 0 | 1) => {
-      const rows = Object.entries(resourcesToAttributions).flatMap(
-        ([resourcePath, attributionUuids]) => {
-          const resourceId = resourcePathToId.get(
-            removeTrailingSlash(resourcePath),
-          );
-          return resourceId === undefined
-            ? []
-            : attributionUuids.map((uuid) => ({
-                resource_id: resourceId,
-                attribution_uuid: uuid,
-              }));
-        },
-      );
+      const rows: { resource_id: number; attribution_uuid: string }[] = [];
+      let fullBatchStatement:
+        ReturnType<typeof createInsertStatement> | undefined;
 
-      for (let i = 0; i < rows.length; i += BATCH_SIZE) {
-        insertRows(rows.slice(i, i + BATCH_SIZE), is_external);
+      for (const resourcePath in resourcesToAttributions) {
+        if (!Object.hasOwn(resourcesToAttributions, resourcePath)) {
+          continue;
+        }
+
+        const resourceId = resourcePathToId.get(
+          removeTrailingSlash(resourcePath),
+        );
+        if (resourceId === undefined) {
+          continue;
+        }
+
+        for (const attributionUuid of resourcesToAttributions[resourcePath]) {
+          rows.push({
+            resource_id: resourceId,
+            attribution_uuid: attributionUuid,
+          });
+
+          if (rows.length === BATCH_SIZE) {
+            fullBatchStatement ??= createInsertStatement(
+              BATCH_SIZE,
+              is_external,
+            );
+            insertRows(rows, fullBatchStatement);
+            rows.length = 0;
+          }
+        }
+      }
+
+      if (rows.length > 0) {
+        insertRows(rows, createInsertStatement(rows.length, is_external));
       }
     },
   );

@@ -8,9 +8,11 @@ import fs from 'fs';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import {
+  type Attributions,
   Criticality,
   RawCriticality,
   type ReadonlyRule,
+  type ResourcesToAttributions,
 } from '../../../shared/shared-types';
 import { writeOpossumFile } from '../../../shared/write-file';
 import {
@@ -19,12 +21,14 @@ import {
   SPLIT_INFO_FILE_NAME,
 } from '../../../shared/write-file-utils';
 import { faker } from '../../../testing/Faker';
+import { saveFile } from '../../api/saveFile';
 import { getDb } from '../../db/db';
 import type {
   OpossumOutputFile,
   ParsedOpossumInputFile,
 } from '../../types/types';
 import {
+  createOpossumOutputFile,
   loadFile,
   type LoadFileError,
   type LoadFileSuccess,
@@ -105,6 +109,134 @@ describe('loadFile', () => {
     const result = (await loadFile(opossumPath)) as LoadFileSuccess;
 
     expect(result.ok).toBe(true);
+  });
+
+  it('keeps merged external references when loading and saving output', async () => {
+    const firstExternalUuid = 'external-first';
+    const secondExternalUuid = 'external-second';
+    const manualUuid = 'manual-reference';
+    const projectId = faker.string.uuid();
+    const source = faker.opossum.source();
+    const input: ParsedOpossumInputFile = {
+      metadata: { ...EMPTY_PROJECT_METADATA, projectId },
+      resources: { a: 1, b: 1 },
+      config: { classifications: {} },
+      externalAttributions: {
+        [firstExternalUuid]: {
+          originId: 'origin-first',
+          source,
+          packageName: 'shared package',
+          packageVersion: '1.0.0',
+        },
+        [secondExternalUuid]: {
+          originId: 'origin-second',
+          source,
+          packageName: 'shared package',
+          packageVersion: '1.0.0',
+        },
+      },
+      frequentLicenses: [],
+      resourcesToAttributions: {
+        '/a': [firstExternalUuid, secondExternalUuid],
+        '/b': [firstExternalUuid, secondExternalUuid],
+      },
+    };
+    const output: OpossumOutputFile = {
+      metadata: { projectId, fileCreationDate: '1' },
+      manualAttributions: {
+        [manualUuid]: {
+          originId: 'origin-second',
+          packageName: 'manual reference',
+          criticality: RawCriticality[Criticality.None],
+        },
+      },
+      resourcesToAttributions: { '/a': [manualUuid] },
+      resolvedExternalAttributions: [],
+    };
+    const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
+    await writeOpossumFile({ input, output, path: opossumPath });
+
+    const progressMessages: Array<string> = [];
+    const firstLoad = (await loadFile(opossumPath, (message) => {
+      progressMessages.push(message);
+    })) as LoadFileSuccess;
+    expect(firstLoad.ok).toBe(true);
+    expect(progressMessages).toEqual([
+      `Reading file ${opossumPath}`,
+      'Deserializing signals',
+      'Calculating signals to resources',
+      'Merging similar signals',
+      'Parsing frequent licenses from input',
+      'Checking and converting configuration',
+      'Deserializing attributions',
+      'Loading into database',
+    ]);
+
+    const assertMergedAttributions = async () => {
+      await expect(
+        getDb()
+          .selectFrom('attribution')
+          .select(['uuid', 'is_external', 'original_attribution_id'])
+          .orderBy('uuid')
+          .execute(),
+      ).resolves.toEqual([
+        {
+          uuid: firstExternalUuid,
+          is_external: 1,
+          original_attribution_id: firstExternalUuid,
+        },
+        {
+          uuid: manualUuid,
+          is_external: 0,
+          original_attribution_id: firstExternalUuid,
+        },
+      ]);
+      await expect(
+        getDb()
+          .selectFrom('resource_to_attribution as rta')
+          .innerJoin('resource as r', 'r.id', 'rta.resource_id')
+          .select([
+            'r.path',
+            'rta.attribution_uuid',
+            'rta.attribution_is_external',
+          ])
+          .orderBy('r.path')
+          .orderBy('rta.attribution_is_external')
+          .execute(),
+      ).resolves.toEqual([
+        {
+          path: '/a',
+          attribution_uuid: manualUuid,
+          attribution_is_external: 0,
+        },
+        {
+          path: '/a',
+          attribution_uuid: firstExternalUuid,
+          attribution_is_external: 1,
+        },
+        {
+          path: '/b',
+          attribution_uuid: firstExternalUuid,
+          attribution_is_external: 1,
+        },
+      ]);
+    };
+    await assertMergedAttributions();
+
+    const inputAfterLoad = JSON.parse(
+      new AdmZip(opossumPath).getEntry(INPUT_FILE_NAME)!.getData().toString(),
+    ) as ParsedOpossumInputFile;
+    expect(inputAfterLoad.resourcesToAttributions).toEqual(
+      input.resourcesToAttributions,
+    );
+
+    await saveFile(
+      { projectId, opossumFilePath: opossumPath },
+      firstLoad.opossumZip!,
+    );
+    const reloaded = (await loadFile(opossumPath)) as LoadFileSuccess;
+    expect(reloaded.ok).toBe(true);
+    await assertMergedAttributions();
   });
 
   it('loads split metadata into the ephemeral database', async () => {
@@ -222,6 +354,105 @@ describe('loadFile', () => {
     ]);
   });
 
+  it('creates no manual attributions when none are preselected', () => {
+    const externalAttributions: Attributions = {
+      unselected: {
+        id: 'unselected',
+        criticality: Criticality.None,
+        packageName: 'not selected',
+        preSelected: false,
+      },
+    };
+
+    const output = createOpossumOutputFile(
+      externalAttributions,
+      { '/resource': ['unselected'] },
+      'project',
+    );
+
+    expect(output.manualAttributions).toEqual({});
+    expect(output.resourcesToAttributions).toEqual({});
+    expect(externalAttributions.unselected.packageName).toBe('not selected');
+  });
+
+  it('clones only selected attributions and remaps only their resource links', () => {
+    const nestedMetadata = { nested: { value: 'unchanged' } };
+    const getUnselectedMetadata = vi.fn(() => ({ nested: true }));
+    const unselectedAttribution = {
+      id: 'unselected',
+      criticality: Criticality.None,
+      packageName: 'unselected package',
+      preSelected: false,
+    };
+    Object.defineProperty(unselectedAttribution, 'aiAttributions', {
+      enumerable: true,
+      get: getUnselectedMetadata,
+    });
+    const externalAttributions: Attributions = {
+      selected: {
+        id: 'selected',
+        criticality: Criticality.None,
+        packageName: 'selected package',
+        preSelected: true,
+        preferred: true,
+        preferredOverOriginIds: ['origin'],
+        source: { name: 'source' },
+        aiAttributions: nestedMetadata,
+      },
+      unselected: unselectedAttribution,
+    };
+    const resourcesToExternalAttributions: ResourcesToAttributions = {
+      '/selected': ['selected', 'unselected'],
+      '/unselected': ['unselected'],
+    };
+
+    const output = createOpossumOutputFile(
+      externalAttributions,
+      resourcesToExternalAttributions,
+      'project',
+    );
+
+    expect(output.manualAttributions).toEqual({
+      [manualAttributionUuid]: {
+        packageName: 'selected package',
+        preSelected: true,
+        criticality: undefined,
+        aiAttributions: nestedMetadata,
+      },
+    });
+    expect(output.resourcesToAttributions).toEqual({
+      '/selected': [manualAttributionUuid],
+    });
+    expect(externalAttributions.selected).toMatchObject({
+      preferred: true,
+      preferredOverOriginIds: ['origin'],
+      source: { name: 'source' },
+    });
+    expect(getUnselectedMetadata).not.toHaveBeenCalled();
+
+    const clonedMetadata = output.manualAttributions[manualAttributionUuid]
+      .aiAttributions as typeof nestedMetadata;
+    clonedMetadata.nested.value = 'changed';
+    expect(nestedMetadata.nested.value).toBe('unchanged');
+  });
+
+  it('creates manual output for all selected attributions', () => {
+    const externalAttributions: Attributions = {
+      selected: {
+        id: 'selected',
+        criticality: Criticality.None,
+        packageName: 'selected package',
+        preSelected: true,
+      },
+    };
+
+    const output = createOpossumOutputFile(externalAttributions, {}, 'project');
+
+    expect(output.manualAttributions[manualAttributionUuid].packageName).toBe(
+      'selected package',
+    );
+  });
+
   it('writes files-with-children attribution paths without a trailing slash to the created output', async () => {
     const externalUuid = 'ecd692d9-b154-4d4d-be8c-external';
     const inputWithFilesWithChildren: ParsedOpossumInputFile = {
@@ -269,6 +500,22 @@ describe('loadFile', () => {
     expect(Object.keys(output.resourcesToAttributions)).toEqual([
       '/some/package.json',
     ]);
+
+    await saveFile(
+      {
+        projectId: EMPTY_PROJECT_METADATA.projectId,
+        opossumFilePath: opossumPath,
+      },
+      result.opossumZip!,
+    );
+    const reloaded = (await loadFile(opossumPath)) as LoadFileSuccess;
+    expect(reloaded.ok).toBe(true);
+    const reloadedOutput = JSON.parse(
+      new AdmZip(opossumPath).getEntry(OUTPUT_FILE_NAME)!.getData().toString(),
+    ) as OpossumOutputFile;
+    expect(reloadedOutput.resourcesToAttributions).toEqual({
+      '/some/package.json': [manualAttributionUuid],
+    });
   });
 
   it('links attributions to the right resource regardless of the key form and drops unknown paths', async () => {

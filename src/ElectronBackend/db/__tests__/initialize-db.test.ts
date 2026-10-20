@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import BetterSqlite3 from 'better-sqlite3';
 import type { Insertable } from 'kysely';
 
 import { Criticality } from '../../../shared/shared-types';
@@ -253,6 +254,196 @@ describe('database initialization', () => {
         .where('attribution_uuid', '=', 'orphaned')
         .execute(),
     ).toEqual([]);
+  });
+
+  it('inserts attribution links in bounded batches across categories', async () => {
+    const externalAttributionIds = Array.from(
+      { length: 15_002 },
+      (_, index) => `external-${index}`,
+    );
+    const externalAttributions = Object.fromEntries(
+      externalAttributionIds.map((id) => [
+        id,
+        { id, criticality: Criticality.None },
+      ]),
+    );
+    const largeResourceLinks = [
+      ...externalAttributionIds.slice(0, 14_999),
+      externalAttributionIds[0],
+      externalAttributionIds[14_999],
+    ];
+
+    await initializeDbWithTestData({
+      resources: { large: 1, second: 1 },
+      externalAttributions: {
+        attributions: externalAttributions,
+        resourcesToAttributions: {
+          '/large/': largeResourceLinks,
+          '/second': [externalAttributionIds[15_000]],
+          '/unknown': [externalAttributionIds[15_001]],
+        },
+        attributionsToResources: {},
+      },
+      manualAttributions: {
+        attributions: {
+          'manual-only': {
+            id: 'manual-only',
+            criticality: Criticality.None,
+          },
+        },
+        resourcesToAttributions: {
+          '/large': [externalAttributionIds[0]],
+          '/second/': ['manual-only'],
+          '/unknown/': ['manual-only'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const linkCount = await getDb()
+      .selectFrom('resource_to_attribution')
+      .select((eb) => eb.fn.countAll<number>().as('count'))
+      .executeTakeFirstOrThrow();
+    expect(linkCount.count).toBe(15_002);
+
+    await expect(
+      getDb()
+        .selectFrom('resource_to_attribution')
+        .innerJoin(
+          'resource',
+          'resource.id',
+          'resource_to_attribution.resource_id',
+        )
+        .select([
+          'resource.path as resourcePath',
+          'resource_to_attribution.attribution_uuid as attributionUuid',
+          'resource_to_attribution.attribution_is_external as isExternal',
+        ])
+        .where('attribution_uuid', 'in', [
+          externalAttributionIds[0],
+          externalAttributionIds[14_999],
+          externalAttributionIds[15_000],
+          'manual-only',
+          externalAttributionIds[15_001],
+        ])
+        .orderBy('resourcePath')
+        .orderBy('attributionUuid')
+        .execute(),
+    ).resolves.toEqual([
+      {
+        resourcePath: '/large',
+        attributionUuid: externalAttributionIds[0],
+        isExternal: 1,
+      },
+      {
+        resourcePath: '/large',
+        attributionUuid: externalAttributionIds[14_999],
+        isExternal: 1,
+      },
+      {
+        resourcePath: '/second',
+        attributionUuid: externalAttributionIds[15_000],
+        isExternal: 1,
+      },
+      {
+        resourcePath: '/second',
+        attributionUuid: 'manual-only',
+        isExternal: 0,
+      },
+    ]);
+  });
+
+  it('reuses full link statements and prepares one statement for each remainder', async () => {
+    const externalRepeatedIds = Array.from(
+      { length: 45_000 },
+      () => 'external-repeated',
+    );
+    const manualRepeatedIds = Array.from(
+      { length: 45_000 },
+      () => 'manual-repeated',
+    );
+    const prepareSpy = vi.spyOn(BetterSqlite3.prototype, 'prepare');
+    const prepareLinkStatements = () =>
+      prepareSpy.mock.calls.filter(([sql]) =>
+        sql.includes('INSERT OR IGNORE INTO resource_to_attribution'),
+      );
+
+    try {
+      await initializeDbWithTestData({
+        resources: { file: 1 },
+        externalAttributions: {
+          attributions: {
+            'external-repeated': {
+              id: 'external-repeated',
+              criticality: Criticality.None,
+            },
+            'external-final': {
+              id: 'external-final',
+              criticality: Criticality.None,
+            },
+          },
+          resourcesToAttributions: {
+            '/file': [...externalRepeatedIds, 'external-final'],
+          },
+          attributionsToResources: {},
+        },
+        manualAttributions: {
+          attributions: {
+            'manual-repeated': {
+              id: 'manual-repeated',
+              criticality: Criticality.None,
+            },
+            'manual-final': {
+              id: 'manual-final',
+              criticality: Criticality.None,
+            },
+          },
+          resourcesToAttributions: {
+            '/file/': [...manualRepeatedIds, 'manual-final'],
+          },
+          attributionsToResources: {},
+        },
+      });
+
+      expect(prepareLinkStatements()).toHaveLength(4);
+      expect(
+        await getDb()
+          .selectFrom('resource_to_attribution')
+          .select(['attribution_uuid', 'attribution_is_external'])
+          .orderBy('attribution_is_external', 'desc')
+          .orderBy('attribution_uuid')
+          .execute(),
+      ).toEqual([
+        { attribution_uuid: 'external-final', attribution_is_external: 1 },
+        { attribution_uuid: 'external-repeated', attribution_is_external: 1 },
+        { attribution_uuid: 'manual-final', attribution_is_external: 0 },
+        { attribution_uuid: 'manual-repeated', attribution_is_external: 0 },
+      ]);
+    } finally {
+      prepareSpy.mockRestore();
+    }
+  });
+
+  it('rolls back initialization when a resource link has no attribution', async () => {
+    const validLinks = Array.from({ length: 15_000 }, () => 'valid');
+    await expect(
+      initializeDbWithTestData({
+        resources: { 'file.ts': 1 },
+        externalAttributions: {
+          attributions: {
+            valid: { id: 'valid', criticality: Criticality.None },
+          },
+          resourcesToAttributions: {
+            '/file.ts': [...validLinks, 'missing'],
+          },
+          attributionsToResources: {},
+        },
+      }),
+    ).rejects.toThrow();
+
+    await expect(
+      getDb().selectFrom('attribution').selectAll().execute(),
+    ).rejects.toThrow();
   });
 
   it('defaults resources to writable when split metadata is absent', async () => {

@@ -9,14 +9,14 @@ import { v4 as uuid4 } from 'uuid';
 
 import type {
   Attributions,
-  ParsedFileContent,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { saveFile } from '../api/saveFile';
-import { initializeDb } from '../db/initializeDb';
+import { type DatabaseImportContent, initializeDb } from '../db/initializeDb';
 import type {
   FileNotFoundError,
   OpossumOutputFile,
+  ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
   ParsingError,
 } from '../types/types';
@@ -94,25 +94,8 @@ export async function loadFile(
   const opossumZip = parsingResult.opossumZip;
   const readonlyRules = parsingResult.readonlyRules;
 
-  reportProgress('Deserializing signals');
-  const unmergedExternalAttributions = deserializeAttributions(
-    parsedInputData.externalAttributions,
-  );
-
-  reportProgress('Calculating signals to resources');
-  const externalAttributionsToResources = getAttributionsToResources(
-    parsedInputData.resourcesToAttributions,
-  );
-
-  reportProgress('Merging similar signals');
-  const [externalAttributions, resourcesToExternalAttributions] =
-    mergeAttributions({
-      attributions: unmergedExternalAttributions,
-      // mergeAttributions reassigns keys on the map it receives, so pass a copy
-      // to avoid mutating the parsed input.
-      resourcesToAttributions: { ...parsedInputData.resourcesToAttributions },
-      attributionsToResources: externalAttributionsToResources,
-    });
+  const { externalAttributions, resourcesToExternalAttributions } =
+    mergeExternalAttributions(parsedInputData, reportProgress);
 
   reportProgress('Parsing frequent licenses from input');
   const frequentLicenses = parseFrequentLicenses(
@@ -145,11 +128,6 @@ export async function loadFile(
     parsedInputData.filesWithChildren?.map(addTrailingSlashIfAbsent),
   );
 
-  reportProgress('Calculating attributions to resources');
-  const manualAttributionsToResources = getAttributionsToResources(
-    parsedOutputData.resourcesToAttributions,
-  );
-
   reportProgress('Deserializing attributions');
   const manualAttributions = deserializeAttributions(
     parsedOutputData.manualAttributions,
@@ -163,12 +141,10 @@ export async function loadFile(
     manualAttributions: {
       attributions: manualAttributions,
       resourcesToAttributions: parsedOutputData.resourcesToAttributions,
-      attributionsToResources: manualAttributionsToResources,
     },
     externalAttributions: {
       attributions: externalAttributions,
       resourcesToAttributions: resourcesToExternalAttributions,
-      attributionsToResources: externalAttributionsToResources,
     },
     frequentLicenses,
     resolvedExternalAttributions: new Set(
@@ -182,7 +158,7 @@ export async function loadFile(
     externalAttributionSources:
       parsedInputData.externalAttributionSources ?? {},
     readonlyRules,
-  } satisfies ParsedFileContent;
+  } satisfies DatabaseImportContent;
 
   reportProgress('Loading into database');
   await initializeDb(parsedFileContent);
@@ -206,21 +182,50 @@ export async function loadFile(
   };
 }
 
-function createOpossumOutputFile(
+function mergeExternalAttributions(
+  parsedInputData: ParsedOpossumInputFile,
+  reportProgress: LoadFileProgressCallback,
+): {
+  externalAttributions: Attributions;
+  resourcesToExternalAttributions: ResourcesToAttributions;
+} {
+  reportProgress('Deserializing signals');
+  const unmergedExternalAttributions = deserializeAttributions(
+    parsedInputData.externalAttributions,
+  );
+
+  reportProgress('Calculating signals to resources');
+  const externalAttributionsToResources = getAttributionsToResources(
+    parsedInputData.resourcesToAttributions,
+  );
+
+  reportProgress('Merging similar signals');
+  const [externalAttributions, resourcesToExternalAttributions] =
+    mergeAttributions({
+      attributions: unmergedExternalAttributions,
+      // mergeAttributions reassigns keys on the map it receives, so pass a copy
+      // to avoid mutating the parsed input.
+      resourcesToAttributions: { ...parsedInputData.resourcesToAttributions },
+      attributionsToResources: externalAttributionsToResources,
+    });
+
+  return { externalAttributions, resourcesToExternalAttributions };
+}
+
+export function createOpossumOutputFile(
   externalAttributions: Attributions,
   resourcesToExternalAttributions: ResourcesToAttributions,
   projectId: string,
 ): OpossumOutputFile {
-  const externalAttributionsCopy = cloneDeep(externalAttributions);
-
   const manualAttributions: Attributions = {};
   const manualAttributionIdsToExternalAttributionIds: {
     [attributionId: string]: string;
   } = {};
   const manualAttributionIds = new Set<string>();
-  for (const attributionId of Object.keys(externalAttributionsCopy)) {
-    const packageInfo = externalAttributionsCopy[attributionId];
-    if (packageInfo.preSelected) {
+  for (const attributionId of Object.keys(externalAttributions)) {
+    const externalAttribution = externalAttributions[attributionId];
+    if (externalAttribution.preSelected) {
+      const packageInfo = cloneDeep(externalAttribution);
       delete packageInfo.source;
       delete packageInfo.preferred;
       delete packageInfo.preferredOverOriginIds;
