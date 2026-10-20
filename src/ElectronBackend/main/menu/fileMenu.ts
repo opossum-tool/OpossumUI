@@ -224,7 +224,10 @@ function getProjectMetadata(
     id: menuItemIds.projectMetadata,
     click: () => {
       if (isFileLoaded(getGlobalBackendState())) {
-        webContents.send(AllowedFrontendChannels.ShowProjectMetadataPopup, true);
+        webContents.send(
+          AllowedFrontendChannels.ShowProjectMetadataPopup,
+          true,
+        );
       }
     },
     enabled:

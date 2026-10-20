@@ -158,9 +158,9 @@ describe('filtering signals', () => {
       [],
     );
 
-    // The native app menu accelerator (Ctrl/Cmd+F) sends this channel to
-    // focus the signals panel search field. The signal is selected first,
-    // as in the original e2e flow.
+    // The native app menu item (Edit > Search Signals, accelerator
+    // Ctrl/Cmd+Shift+S) sends this channel to focus the signals panel search
+    // field.
     await clickPackageCard('signals-panel', packageInfo1);
     sendToChannel(AllowedFrontendChannels.SearchSignals);
     const searchbox = within(

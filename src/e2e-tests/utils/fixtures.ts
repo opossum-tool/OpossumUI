@@ -36,6 +36,7 @@ import { MenuBar } from '../page-objects/MenuBar';
 import { MergeOpossumFilesDialog } from '../page-objects/MergeOpossumFilesDialog';
 import { NotSavedPopup } from '../page-objects/NotSavedPopup';
 import { PathBar } from '../page-objects/PathBar';
+import { ProjectMetadataPopup } from '../page-objects/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../page-objects/ProjectStatisticsPopup';
 import { ReportView } from '../page-objects/ReportView';
 import { ResourcesTree } from '../page-objects/ResourcesTree';
@@ -95,7 +96,10 @@ export const test = base.extend<{
   notSavedPopup: NotSavedPopup;
   openFromCLI: boolean;
   pathBar: PathBar;
+  projectMetadataPopup: ProjectMetadataPopup;
   projectStatisticsPopup: ProjectStatisticsPopup;
+  /** Closes the app and relaunches it with the same user data directory (no reset, no file). */
+  relaunch: () => Promise<Page & { app: ElectronApplication }>;
   reportView: ReportView;
   resourcesTree: ResourcesTree;
   signalsPanel: SignalsPanel;
@@ -233,12 +237,73 @@ export const test = base.extend<{
         ),
       });
     }
-    await app.close();
+    try {
+      await app.close();
+    } catch {
+      // The app has already been closed by the test (e.g. relaunched).
+    }
 
     if (unexpectedDialogCalls.length > 0) {
       throw new Error(
         `Unexpected unstubbed native dialog call${unexpectedDialogCalls.length === 1 ? '' : 's'}: ${unexpectedDialogCalls.join(', ')}`,
       );
+    }
+  },
+  relaunch: async (
+    { window, appLoadTimeout, releasePathOverride },
+    use,
+    info,
+  ) => {
+    let relaunchedApp: ElectronApplication | undefined;
+
+    await use(async (): Promise<Page & { app: ElectronApplication }> => {
+      await window.app.close();
+
+      const [executablePath, main] = getLaunchProps(releasePathOverride);
+      // The user data directory is reused so that persisted user settings are
+      // still present. Contrary to the initial launch, no reset flags are
+      // passed and no file is opened.
+      const args = [`--user-data-dir=${info.outputPath('user-data')}`];
+      if (os.platform() === 'linux') {
+        args.push('--no-sandbox');
+      }
+      if (process.env.E2E_XVFB) {
+        // The purpose of this is to allow running the tests in the background. Wayland requires a configured headless compositor for this, so force X11.
+        args.push('--ozone-platform=x11');
+      }
+      // An empty (falsy) RESET value prevents the user settings reset without
+      // introducing undefined values in the environment.
+      const env = { ...process.env, RESET: '' };
+
+      const app = await electron.launch({
+        args: [...(main ? [main] : []), ...args],
+        executablePath,
+        env,
+      });
+      relaunchedApp = app;
+      await installDefaultSyncDialogStubs(app);
+
+      const relaunchedWindow = await app.firstWindow();
+      await relaunchedWindow.setViewportSize({
+        width: 1920,
+        height: 1080,
+      });
+      await relaunchedWindow.waitForLoadState('domcontentloaded', {
+        timeout: appLoadTimeout,
+      });
+      await relaunchedWindow
+        .getByRole('button', { name: 'open file' })
+        .waitFor({ state: 'visible', timeout: appLoadTimeout });
+
+      return Object.assign(relaunchedWindow, { app });
+    });
+
+    if (relaunchedApp) {
+      try {
+        await relaunchedApp.close();
+      } catch {
+        // The app has already been closed.
+      }
     }
   },
   debug: async ({ window: _ }, use, info) => {
@@ -249,6 +314,9 @@ export const test = base.extend<{
   },
   modKey: async ({}, use) => {
     await use(os.platform() === 'darwin' ? 'Meta' : 'Control');
+  },
+  projectMetadataPopup: async ({ window }, use) => {
+    await use(new ProjectMetadataPopup(window));
   },
   projectStatisticsPopup: async ({ window }, use) => {
     await use(new ProjectStatisticsPopup(window));
