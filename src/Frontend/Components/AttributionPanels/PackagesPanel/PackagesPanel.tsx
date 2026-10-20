@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type {
   AttributionResultSetCriteria,
   AttributionSourceGroupCount,
+  SortOption,
 } from '../../../../shared/attribution-result-set';
 import type {
   AttributionSelection,
@@ -346,6 +347,30 @@ export const PackagesPanel = ({
     filters,
     setFilters: setFiltersWithUnsavedCheck,
   });
+  const setSortingWithUnsavedCheck = useCallback(
+    (sorting: SortOption) => {
+      if (selectedAttribution && isPackageInfoDirty) {
+        dispatch(
+          changeAttributionFiltersOrOpenUnsavedPopup({
+            discardedPackageInfo: selectedAttribution,
+            external,
+            filters: { ...filters, sorting },
+          }),
+        );
+        return;
+      }
+
+      setFilteredAttributions((prev) => ({ ...prev, sorting }));
+    },
+    [
+      dispatch,
+      external,
+      filters,
+      isPackageInfoDirty,
+      selectedAttribution,
+      setFilteredAttributions,
+    ],
+  );
   const isFilterActive =
     !!attributionFilters.length || Object.values(valueFilters).some(Boolean);
   const pickerMode = usePickerMode();
@@ -557,29 +582,13 @@ export const PackagesPanel = ({
     if (selectedAttributionId && selectedAttributionIsExternal !== external) {
       return;
     }
-    clearSelection();
-    if (selectedAttributionId && isPackageInfoDirty) {
-      preserveSelectionRef.current = true;
-      if (selectedAttribution) {
-        dispatch(
-          changeAttributionFiltersOrOpenUnsavedPopup({
-            discardedPackageInfo: selectedAttribution,
-            external,
-            filters,
-          }),
-        );
-      }
-      return;
-    }
     preserveSelectionRef.current = false;
     dispatch(setSelectedAttributionId(''));
+    clearSelection();
   }, [
     clearSelection,
     dispatch,
     external,
-    filters,
-    isPackageInfoDirty,
-    selectedAttribution,
     selectedAttributionId,
     selectedAttributionIsExternal,
     sortingChanged,
@@ -845,6 +854,7 @@ export const PackagesPanel = ({
               }
               anchorPosition={'right'}
               useFilteredData={useFilteredData}
+              onSortingChange={setSortingWithUnsavedCheck}
             />
             <FilterButton
               options={menuFilterOptions}

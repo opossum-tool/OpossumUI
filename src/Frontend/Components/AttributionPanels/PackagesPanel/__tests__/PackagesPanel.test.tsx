@@ -428,7 +428,7 @@ describe('PackagesPanel', () => {
     ).not.toBeChecked();
   });
 
-  it('opens the unsaved-changes popup when sorting with unsaved changes', async () => {
+  it('defers sorting behind the unsaved-changes prompt', async () => {
     const firstAttribution = faker.opossum.packageInfo({
       relation: 'resource',
     });
@@ -457,22 +457,17 @@ describe('PackagesPanel', () => {
       );
     });
 
-    await act(() =>
-      store.dispatch(
-        setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
-          ...initialAttributionFilters,
-          sorting: 'criticality',
-        }),
-      ),
+    await userEvent.click(screen.getByRole('button', { name: 'sort button' }));
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: text.sortings.criticality }),
     );
 
-    await waitFor(() => {
-      expect(getOpenPopup(store.getState())?.popup).toBe(
-        PopupType.NotSavedPopup,
-      );
-    });
+    expect(getOpenPopup(store.getState())?.popup).toBe(PopupType.NotSavedPopup);
     expect(store.getState().resourceState.selectedAttributionId).toBe(
       selectedAttribution.id,
+    );
+    expect(vi.mocked(useAuditAttributionsList).mock.lastCall?.[0].sort).toBe(
+      'alphabetically',
     );
 
     act(() => store.dispatch(proceedFromUnsavedPopup()));
@@ -486,6 +481,9 @@ describe('PackagesPanel', () => {
     ).toEqual({
       ...initialAttributionFilters,
       sorting: 'criticality',
+    });
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedAttributionId).toBe('');
     });
   });
 

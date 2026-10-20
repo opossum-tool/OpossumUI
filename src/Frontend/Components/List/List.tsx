@@ -170,6 +170,11 @@ export function List<ItemType extends BaseItem>({
             }}
           >
             <Virtuoso
+              // A new result set replaces all items: remount to reset the
+              // retained scroll offset, which would otherwise point at
+              // unrelated items of the new order (or unloaded placeholder
+              // rows).
+              key={resultSetKey}
               {...props}
               ref={ref}
               data-selected-id={selectedId}
