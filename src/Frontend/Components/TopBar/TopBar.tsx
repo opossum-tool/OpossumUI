@@ -33,6 +33,7 @@ import { SwitchableProgressBar } from '../SwitchableProgressBar/SwitchableProgre
 const classes = {
   root: {
     height: ({ spacing }: Theme) => spacing(Sizing.TopBar),
+    flexShrink: 0,
     background: OpossumColors.darkBlue,
     display: 'flex',
   },

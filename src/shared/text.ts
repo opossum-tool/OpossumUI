@@ -13,6 +13,11 @@ function menuLabelForFileFormat(fileFilter: FileFilter): string {
 }
 
 export const text = {
+  macArchitectureMismatch: {
+    warning:
+      'You’re running the Intel version of OpossumUI on an Apple Silicon Mac. This can reduce performance. Download the Apple Silicon (ARM64) version for your Mac.',
+    download: 'Download Apple Silicon (ARM64) version',
+  },
   menu: {
     file: 'File',
     fileSubmenu: {

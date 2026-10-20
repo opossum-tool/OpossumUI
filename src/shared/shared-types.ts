@@ -323,6 +323,7 @@ export interface ElectronAPI {
   getUserSettings: () => Promise<UserSettings>;
   updateUserSettings: (userSettings: Partial<UserSettings>) => Promise<void>;
   setFrontendPopupOpen: (open: boolean) => Promise<void>;
+  getMacArchitectureMismatch: () => Promise<boolean>;
   api: <C extends CommandName>(
     command: C,
     params: CommandParams<C>,
