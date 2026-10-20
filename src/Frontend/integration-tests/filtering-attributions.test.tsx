@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 
@@ -238,6 +238,9 @@ describe('filtering attributions', () => {
     await pressSearchShortcut();
     const searchBox = () =>
       within(screen.getByTestId(ATTRIBUTIONS_HEADER)).getByRole('searchbox');
+    await waitFor(() => {
+      expect(searchBox()).toHaveFocus();
+    });
     await userEvent.type(searchBox(), packageInfo1.packageName ?? '');
     expect(searchBox()).toHaveValue(packageInfo1.packageName);
     await expectPackageCards(

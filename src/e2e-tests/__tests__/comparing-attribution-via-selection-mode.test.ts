@@ -34,14 +34,6 @@ test.use({
   },
 });
 
-// The renderer-covered parts of this suite (opening/cancelling
-// compare-selection mode, picking a compare target, and saving comparison
-// edits via the save popup) live in
-// src/Frontend/integration-tests/comparing-attribution-via-selection-mode.test.tsx.
-// This test stays e2e: it also verifies that the drafted package names
-// persisted through the real save/file-IO path by re-parsing the saved
-// .opossum file from disk, which the integration harness cannot exercise.
-
 test('keeps both drafts when save confirmation is cancelled and persists the reopened save', async ({
   attributionDetails,
   attributionsPanel,
