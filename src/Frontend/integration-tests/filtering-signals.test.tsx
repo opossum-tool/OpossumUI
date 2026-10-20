@@ -7,12 +7,15 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
 import { deserializeAttributions } from '../../ElectronBackend/input/parseInputData';
-import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { text } from '../../shared/text';
 import { faker } from '../../testing/Faker';
 import { getParsedInputFileEnrichedWithTestData } from '../test-helpers/general-test-helpers';
 import { renderApp, type RenderAppResult } from './helpers/render-app';
-import { clickPackageCard, expectPackageCards } from './helpers/ui';
+import {
+  clickPackageCard,
+  expectPackageCards,
+  pressSearchShortcut,
+} from './helpers/ui';
 
 const [resourceName1, resourceName2, resourceName3, resourceName4] =
   faker.opossum.resourceNames({ count: 4 });
@@ -133,7 +136,7 @@ describe('filtering signals', () => {
   });
 
   it('only displays signals matching search term', async () => {
-    const { sendToChannel } = await renderFixture();
+    await renderFixture();
     await expectPackageCards(
       'signals-panel',
       [packageInfo1, packageInfo2, packageInfo3],
@@ -157,12 +160,8 @@ describe('filtering signals', () => {
       [packageInfo1, packageInfo2, packageInfo3],
       [],
     );
-
-    // The native app menu item (Edit > Search Signals, accelerator
-    // Ctrl/Cmd+Shift+S) sends this channel to focus the signals panel search
-    // field.
     await clickPackageCard('signals-panel', packageInfo1);
-    sendToChannel(AllowedFrontendChannels.SearchSignals);
+    await pressSearchShortcut();
     const searchbox = within(
       screen.getByTestId('signals-panel-header'),
     ).getByRole('searchbox');
