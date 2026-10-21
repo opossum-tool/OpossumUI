@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type {
   AttributionResultSetCriteria,
   AttributionSourceGroupCount,
+  SortOption,
 } from '../../../../shared/attribution-result-set';
 import type {
   AttributionSelection,
@@ -35,6 +36,8 @@ import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import {
   getAttributionSelectionPendingResourceId,
   getAttributionSelectionPolicy,
+  getIsPackageInfoDirty,
+  getOriginalDisplayPackageInfo,
   getPendingAttributionNavigation,
   getSelectedAttributionId,
   getSelectedResourceId,
@@ -141,6 +144,10 @@ export const PackagesPanel = ({
   const targetAttributionRelation = useAppSelector(
     getTargetAttributionRelation,
   );
+  const isPackageInfoDirty = useAppSelector(getIsPackageInfoDirty);
+  const originalDisplayPackageInfo = useAppSelector(
+    getOriginalDisplayPackageInfo,
+  );
   const lastResourceIdWithAutoSelectionRef = useRef(
     attributionSelectionPendingResourceId === selectedResourceId &&
       !(pendingAttributionNavigation?.attributionUuid === selectedAttributionId)
@@ -184,8 +191,12 @@ export const PackagesPanel = ({
   const databaseInitialized = useDatabaseInitialized();
   const [userSettings] = useUserSettings();
   const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
+  const previousSorting = usePrevious(filters.sorting);
+  const sortingChanged =
+    previousSorting !== undefined && previousSorting !== filters.sorting;
   const navigationTargetUuid =
     !preserveSelection &&
+    !sortingChanged &&
     selectedAttributionId &&
     selectedAttributionIsExternal === external
       ? selectedAttributionId
@@ -312,10 +323,14 @@ export const PackagesPanel = ({
   const setFiltersWithUnsavedCheck = useCallback(
     (nextFilters: AttributionFilters) => {
       preserveSelectionRef.current = false;
-      if (selectedAttribution) {
+      if (
+        selectedAttribution ||
+        (selectedAttributionId && selectedAttributionIsExternal === external)
+      ) {
         dispatch(
           changeAttributionFiltersOrOpenUnsavedPopup({
-            discardedPackageInfo: selectedAttribution,
+            discardedPackageInfo:
+              selectedAttribution ?? originalDisplayPackageInfo,
             external,
             filters: nextFilters,
           }),
@@ -329,7 +344,10 @@ export const PackagesPanel = ({
     [
       dispatch,
       external,
+      originalDisplayPackageInfo,
       selectedAttribution,
+      selectedAttributionId,
+      selectedAttributionIsExternal,
       selectedResourceId,
       setFilteredAttributions,
     ],
@@ -340,6 +358,42 @@ export const PackagesPanel = ({
     filters,
     setFilters: setFiltersWithUnsavedCheck,
   });
+  const setSortingWithUnsavedCheck = useCallback(
+    (sorting: SortOption) => {
+      if (sorting === filters.sorting) {
+        return;
+      }
+
+      if (
+        selectedAttributionId &&
+        selectedAttributionIsExternal === external &&
+        isPackageInfoDirty
+      ) {
+        dispatch(
+          changeAttributionFiltersOrOpenUnsavedPopup({
+            discardedPackageInfo:
+              selectedAttribution ?? originalDisplayPackageInfo,
+            external,
+            filters: { ...filters, sorting },
+          }),
+        );
+        return;
+      }
+
+      setFilteredAttributions((prev) => ({ ...prev, sorting }));
+    },
+    [
+      dispatch,
+      external,
+      filters,
+      isPackageInfoDirty,
+      originalDisplayPackageInfo,
+      selectedAttribution,
+      selectedAttributionId,
+      selectedAttributionIsExternal,
+      setFilteredAttributions,
+    ],
+  );
   const isFilterActive =
     !!attributionFilters.length || Object.values(valueFilters).some(Boolean);
   const pickerMode = usePickerMode();
@@ -544,6 +598,24 @@ export const PackagesPanel = ({
   const clearSelection = useCallback(() => {
     setBulkSelection(null);
   }, []);
+  useEffect(() => {
+    if (!sortingChanged) {
+      return;
+    }
+    clearSelection();
+    if (selectedAttributionId && selectedAttributionIsExternal !== external) {
+      return;
+    }
+    preserveSelectionRef.current = false;
+    dispatch(setSelectedAttributionId(''));
+  }, [
+    clearSelection,
+    dispatch,
+    external,
+    selectedAttributionId,
+    selectedAttributionIsExternal,
+    sortingChanged,
+  ]);
   useEffect(() => {
     if (
       bulkSelection?.mode === 'allMatching' &&
@@ -805,6 +877,7 @@ export const PackagesPanel = ({
               }
               anchorPosition={'right'}
               useFilteredData={useFilteredData}
+              onSortingChange={setSortingWithUnsavedCheck}
             />
             <FilterButton
               options={menuFilterOptions}

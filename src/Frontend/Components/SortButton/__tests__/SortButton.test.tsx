@@ -50,6 +50,29 @@ describe('SortButton', () => {
     expect(screen.getByRole('button', { name: 'sort button' })).toBeDisabled();
   });
 
+  it('calls onSortingChange instead of writing the filters when provided', async () => {
+    const setFilteredData = vi.fn();
+    const useFilteredData: UseAttributionFilters = () => [
+      initialAttributionFilters,
+      setFilteredData,
+    ];
+    const onSortingChange = vi.fn();
+    await renderComponent(
+      <SortButton
+        useFilteredData={useFilteredData}
+        onSortingChange={onSortingChange}
+      />,
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'sort button' }));
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: text.sortings.criticality }),
+    );
+
+    expect(onSortingChange).toHaveBeenCalledWith('criticality');
+    expect(setFilteredData).not.toHaveBeenCalled();
+  });
+
   it('shows all sort options', async () => {
     const useFilteredData: UseAttributionFilters = () => [
       initialAttributionFilters,

@@ -26,6 +26,7 @@ interface Props extends Pick<
 > {
   useFilteredData: UseAttributionFilters;
   disabled?: boolean;
+  onSortingChange?: (sorting: SortOption) => void;
 }
 
 export const SortButton: React.FC<Props> = ({
@@ -33,6 +34,7 @@ export const SortButton: React.FC<Props> = ({
   anchorArrow,
   anchorPosition,
   disabled,
+  onSortingChange,
 }) => {
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
@@ -42,12 +44,16 @@ export const SortButton: React.FC<Props> = ({
 
   const setSorting = useCallback(
     (sortOption: SortOption) => {
+      if (onSortingChange) {
+        onSortingChange(sortOption);
+        return;
+      }
       setFilteredAttributions((prev) => ({
         ...prev,
         sorting: sortOption,
       }));
     },
-    [setFilteredAttributions],
+    [onSortingChange, setFilteredAttributions],
   );
 
   const isCurrentSortingActive = sortConfiguration[sorting].active;
