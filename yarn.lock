@@ -6522,12 +6522,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-abi@npm:4.37.0":
-  version: 4.37.0
-  resolution: "node-abi@npm:4.37.0"
+"node-abi@npm:4.38.0":
+  version: 4.38.0
+  resolution: "node-abi@npm:4.38.0"
   dependencies:
     semver: "npm:^7.6.3"
-  checksum: 10/9290f0d1dd311a39e317b7f03050578d08a124456e820c0a1fd693d901ae1c765b8122a6493caca84d1f0e55377a273e2c43256ecd0296f738ff8801da54c482
+  checksum: 10/47dd64c20faa56611301ae239d7757b7737d7e901656c49769e61c0b261656892f7115fea7bac02a4914906f8ae3b30f05d8c6bd223fedb66f42c9fe6408b5b4
   languageName: node
   linkType: hard
 
