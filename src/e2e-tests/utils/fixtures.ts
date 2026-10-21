@@ -255,8 +255,14 @@ export const test = base.extend<{
     info,
   ) => {
     let relaunchedApp: ElectronApplication | undefined;
+    let unexpectedOriginalAppDialogCalls: string[] = [];
 
     await use(async (): Promise<Page & { app: ElectronApplication }> => {
+      // The original app is closed here, so its dialog stub state must be
+      // read before closing
+      unexpectedOriginalAppDialogCalls = await getUnexpectedSyncDialogCalls(
+        window.app,
+      );
       await window.app.close();
 
       const [executablePath, main] = getLaunchProps(releasePathOverride);
@@ -299,11 +305,26 @@ export const test = base.extend<{
     });
 
     if (relaunchedApp) {
+      const unexpectedRelaunchDialogCalls =
+        await getUnexpectedSyncDialogCalls(relaunchedApp);
+
       try {
         await relaunchedApp.close();
       } catch {
         // The app has already been closed.
       }
+
+      if (unexpectedRelaunchDialogCalls.length > 0) {
+        throw new Error(
+          `After relaunch - Unexpected unstubbed native dialog call${unexpectedRelaunchDialogCalls.length === 1 ? '' : 's'}: ${unexpectedRelaunchDialogCalls.join(', ')}`,
+        );
+      }
+    }
+
+    if (unexpectedOriginalAppDialogCalls.length > 0) {
+      throw new Error(
+        `Before relaunch - Unexpected unstubbed native dialog call${unexpectedOriginalAppDialogCalls.length === 1 ? '' : 's'}: ${unexpectedOriginalAppDialogCalls.join(', ')}`,
+      );
     }
   },
   debug: async ({ window: _ }, use, info) => {
