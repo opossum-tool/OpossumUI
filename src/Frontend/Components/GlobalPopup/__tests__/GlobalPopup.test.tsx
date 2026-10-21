@@ -14,14 +14,6 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/ge
 import { renderComponent } from '../../../test-helpers/render';
 import { GlobalPopup } from '../GlobalPopup';
 
-vi.mock('../../../Components/UpdateAppPopup/UpdateAppPopup.util.ts', () => ({
-  useLatestRelease: vi.fn().mockReturnValue({
-    latestRelease: undefined,
-    latestReleaseError: null,
-    latestReleaseLoading: false,
-  }),
-}));
-
 describe('The GlobalPopUp', () => {
   it('does not open by default', async () => {
     await renderComponent(<GlobalPopup />);
@@ -63,17 +55,6 @@ describe('The GlobalPopUp', () => {
     });
 
     expect(await screen.findByText('Project Statistics')).toBeInTheDocument();
-    expect(
-      global.window.electronAPI.setFrontendPopupOpen,
-    ).toHaveBeenLastCalledWith(true);
-  });
-
-  it('opens the UpdateAppPopup', async () => {
-    await renderComponent(<GlobalPopup />, {
-      actions: [openPopup(PopupType.UpdateAppPopup)],
-    });
-
-    expect(screen.getByText(text.updateAppPopup.title)).toBeInTheDocument();
     expect(
       global.window.electronAPI.setFrontendPopupOpen,
     ).toHaveBeenLastCalledWith(true);

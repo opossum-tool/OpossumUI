@@ -38,7 +38,6 @@ export type PopupWithoutPayload =
   | PopupType.InvalidLinkPopup
   | PopupType.ProjectMetadataPopup
   | PopupType.ProjectStatisticsPopup
-  | PopupType.UpdateAppPopup
   | PopupType.ForceUnlockPopup;
 
 export type PopupInfo =

@@ -14,7 +14,6 @@ export enum PopupType {
   NotSavedPopup = 'NotSavedPopup',
   ProjectMetadataPopup = 'ProjectMetadataPopup',
   ProjectStatisticsPopup = 'ProjectStatisticsPopup',
-  UpdateAppPopup = 'UpdateAppPopup',
   ImportDialog = 'ImportDialog',
   MergeOpossumFilesDialog = 'MergeOpossumFilesDialog',
   SplitDialog = 'SplitDialog',

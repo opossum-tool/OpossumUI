@@ -16,7 +16,6 @@ import { NotSavedPopup } from '../NotSavedPopup/NotSavedPopup';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup/ProjectStatisticsPopup';
 import { SplitDialogPopup } from '../SplitDialog/SplitDialogPopup';
-import { UpdateAppPopup } from '../UpdateAppPopup/UpdateAppPopup';
 
 function getPopupComponent(popupInfo: PopupInfo | null) {
   switch (popupInfo?.popup) {
@@ -28,8 +27,6 @@ function getPopupComponent(popupInfo: PopupInfo | null) {
       return <ProjectMetadataPopup />;
     case PopupType.ProjectStatisticsPopup:
       return <ProjectStatisticsPopup />;
-    case PopupType.UpdateAppPopup:
-      return <UpdateAppPopup />;
     case PopupType.ImportDialog:
       return (
         <ImportDialog

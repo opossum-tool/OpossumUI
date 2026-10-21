@@ -221,6 +221,26 @@ export class MenuBar {
     await this.clickEnabledMenuItem(menuItemIds.qaMode);
   }
 
+  async checkForUpdates(): Promise<void> {
+    await this.clickEnabledMenuItem(menuItemIds.helpCheckForUpdates);
+  }
+
+  async toggleAutomaticUpdateChecks(): Promise<void> {
+    const previousIcon = await this.getMenuItemIconReference(
+      menuItemIds.helpAutomaticallyCheckForUpdates,
+    );
+    await this.clickEnabledMenuItem(
+      menuItemIds.helpAutomaticallyCheckForUpdates,
+    );
+    await expect
+      .poll(() =>
+        this.getMenuItemIconReference(
+          menuItemIds.helpAutomaticallyCheckForUpdates,
+        ),
+      )
+      .not.toBe(previousIcon);
+  }
+
   /** Clicks a menu item even if it is currently disabled, e.g. to test click handler guards. */
   async forceClickMenuItem(menuItemId: string): Promise<void> {
     await clickMenuItemById(this.window.app, menuItemId);

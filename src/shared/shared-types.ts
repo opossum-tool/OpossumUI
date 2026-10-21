@@ -324,11 +324,19 @@ export interface ElectronAPI {
   updateUserSettings: (userSettings: Partial<UserSettings>) => Promise<void>;
   setFrontendPopupOpen: (open: boolean) => Promise<void>;
   getMacArchitectureMismatch: () => Promise<boolean>;
+  getUpdateState: () => Promise<UpdateState>;
+  checkForUpdates: () => Promise<UpdateState>;
   api: <C extends CommandName>(
     command: C,
     params: CommandParams<C>,
   ) => Promise<Awaited<CommandReturn<C>>>;
 }
+
+export type UpdateState =
+  | { status: 'checking' }
+  | { status: 'up-to-date'; installedTag: string }
+  | { status: 'available'; tag: string; url: string }
+  | { status: 'error'; message: string };
 
 declare global {
   interface Window {
@@ -383,6 +391,7 @@ export interface UserSettings {
   };
   recentlyOpenedPaths: Array<string>;
   attributionTableOrdering: TableOrdering;
+  automaticallyCheckForUpdates: boolean;
 }
 
 export type PanelSizes = UserSettings['panelSizes'];

@@ -41,7 +41,7 @@ export async function createMenu(mainWindow: BrowserWindow): Promise<void> {
       getEditMenu(webContents),
       await getViewMenu(updateMenu),
       getAboutMenu(),
-      getHelpMenu(webContents),
+      await getHelpMenu(webContents, updateMenu),
     ]),
   );
 }

@@ -17,7 +17,14 @@ import { MacArchitectureWarning } from '../MacArchitectureWarning/mac-architectu
 import { ProcessPopup } from '../ProcessPopup/ProcessPopup';
 import { ReportView } from '../ReportView/ReportView';
 import { TopBar } from '../TopBar/TopBar';
-import { TitleContainer, TitleTypography, ViewContainer } from './App.style';
+import { UpdateBanner } from '../UpdateBanner/UpdateBanner';
+import {
+  NotificationRegion,
+  TitleContainer,
+  TitleTypography,
+  ViewContainer,
+  Workspace,
+} from './App.style';
 
 export function App() {
   //pre-hydrate values
@@ -29,8 +36,13 @@ export function App() {
         <GlobalPopup />
         <ProcessPopup />
         <TopBar />
-        <MacArchitectureWarning />
-        <AppView />
+        <NotificationRegion>
+          <UpdateBanner />
+          <MacArchitectureWarning />
+        </NotificationRegion>
+        <Workspace>
+          <AppView />
+        </Workspace>
       </ErrorBoundary>
     </ViewContainer>
   );

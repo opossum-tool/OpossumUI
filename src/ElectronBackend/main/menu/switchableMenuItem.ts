@@ -12,6 +12,7 @@ interface SwitchableItemOptions {
   id: string;
   label: string;
   userSettingsKey: keyof IUserSettings;
+  onChange?: (enabled: boolean) => void | Promise<void>;
 }
 
 export async function switchableMenuItem(
@@ -27,6 +28,7 @@ export async function switchableMenuItem(
       await UserSettingsService.update(
         Object.fromEntries([[options.userSettingsKey, !state]]),
       );
+      await options.onChange?.(!state);
       await updateMenu();
     },
   };

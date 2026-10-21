@@ -10,7 +10,12 @@ import { OPOSSUM_UI_USER_GUIDE_URL } from '../../../shared/shared-constants';
 import { text } from '../../../shared/text';
 import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
+import {
+  startAutomaticUpdateChecks,
+  stopAutomaticUpdateChecks,
+} from '../update-service';
 import { menuItemIds } from './menuItemIds';
+import { switchableMenuItem } from './switchableMenuItem';
 
 function getOpenLogFiles(): MenuItemConstructorOptions {
   return {
@@ -32,9 +37,7 @@ function getCheckForUpdates(
     label: text.menu.helpSubmenu.checkForUpdates,
     id: menuItemIds.helpCheckForUpdates,
     click: () => {
-      webContents.send(AllowedFrontendChannels.ShowUpdateAppPopup, {
-        showUpdateAppPopup: true,
-      });
+      webContents.send(AllowedFrontendChannels.CheckForUpdatesRequested);
     },
     enabled: !getGlobalBackendState().frontendPopupOpen,
   };
@@ -52,9 +55,10 @@ function getUsersGuide(): MenuItemConstructorOptions {
   };
 }
 
-export function getHelpMenu(
+export async function getHelpMenu(
   webContents: Electron.WebContents,
-): MenuItemConstructorOptions {
+  updateMenu: () => Promise<void>,
+): Promise<MenuItemConstructorOptions> {
   return {
     label: text.menu.help,
     id: menuItemIds.help,
@@ -62,6 +66,13 @@ export function getHelpMenu(
       getUsersGuide(),
       getOpenLogFiles(),
       getCheckForUpdates(webContents),
+      await switchableMenuItem(updateMenu, {
+        id: menuItemIds.helpAutomaticallyCheckForUpdates,
+        label: text.menu.helpSubmenu.automaticallyCheckForUpdates,
+        userSettingsKey: 'automaticallyCheckForUpdates',
+        onChange: (enabled) =>
+          enabled ? startAutomaticUpdateChecks() : stopAutomaticUpdateChecks(),
+      }),
     ],
   };
 }

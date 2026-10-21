@@ -52,15 +52,6 @@ export const BackendCommunication: React.FC = () => {
     }
   }
 
-  function showUpdateAppPopupListener(
-    _: IpcRendererEvent,
-    showUpdateAppPopup: boolean,
-  ): void {
-    if (showUpdateAppPopup) {
-      dispatch(openPopup(PopupType.UpdateAppPopup));
-    }
-  }
-
   useIpcRenderer<LoggingListener>(
     AllowedFrontendChannels.Logging,
     (_, log) => {
@@ -89,11 +80,6 @@ export const BackendCommunication: React.FC = () => {
   useIpcRenderer<ExportFileRequestListener>(
     AllowedFrontendChannels.ExportFileRequest,
     (_, exportType) => dispatch(exportFileOrOpenUnsavedPopup(exportType)),
-    [dispatch],
-  );
-  useIpcRenderer(
-    AllowedFrontendChannels.ShowUpdateAppPopup,
-    showUpdateAppPopupListener,
     [dispatch],
   );
   useIpcRenderer<OpenFileListener>(

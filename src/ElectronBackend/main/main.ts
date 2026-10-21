@@ -16,6 +16,7 @@ import { createMenu } from './menu';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
 import { setRuntimeMacOsOpenFileHandler } from './openFileRequests';
 import { setupIpcHandling } from './setUpIpcHandling';
+import { startAutomaticUpdateChecks } from './update-service';
 import { UserSettingsService } from './user-settings-service';
 
 export async function main(): Promise<void> {
@@ -31,6 +32,9 @@ export async function main(): Promise<void> {
     const mainWindow = createWindow();
 
     await UserSettingsService.init();
+    if (await UserSettingsService.get('automaticallyCheckForUpdates')) {
+      startAutomaticUpdateChecks();
+    }
     await createMenu(mainWindow);
     const updateMenu = () => createMenu(mainWindow);
 

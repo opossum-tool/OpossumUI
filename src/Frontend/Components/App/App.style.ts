@@ -19,7 +19,8 @@ export const TitleTypography = styled(MuiTypography)(({ theme }) => ({
 
 export const TitleContainer = styled(MuiBox)({
   width: '100%',
-  height: '100%',
+  flex: 1,
+  minHeight: 0,
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
@@ -28,8 +29,25 @@ export const TitleContainer = styled(MuiBox)({
 export const ViewContainer = styled(MuiBox)({
   display: 'flex',
   height: '100vh',
+  minHeight: 0,
+  overflow: 'hidden',
   flexDirection: 'column',
   background: OpossumColors.lightGrey,
+});
+
+export const NotificationRegion = styled(MuiBox)({
+  display: 'flex',
+  flexDirection: 'column',
+  flexShrink: 0,
+  '&:empty': { display: 'none' },
+});
+
+export const Workspace = styled(MuiBox)({
+  display: 'flex',
+  flex: 1,
+  minHeight: 0,
+  overflow: 'hidden',
+  flexDirection: 'column',
 });
 
 export const theme = createTheme({

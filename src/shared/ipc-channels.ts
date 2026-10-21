@@ -27,6 +27,8 @@ export enum IpcChannel {
   UpdateUserSettings = 'update-user-settings',
   SetFrontendPopupOpen = 'set-frontend-popup-open',
   GetMacArchitectureMismatch = 'get-mac-architecture-mismatch',
+  GetUpdateState = 'get-update-state',
+  CheckForUpdates = 'check-for-updates',
   Quit = 'quit',
   Relaunch = 'relaunch',
 }
@@ -48,8 +50,9 @@ export enum AllowedFrontendChannels {
   ShowForceUnlockDialog = 'show-force-unlock-dialog',
   ShowProjectMetadataPopup = 'show-project-metadata-pop-up',
   ShowProjectStatisticsPopup = 'show-project-statistics-pop-up',
-  ShowUpdateAppPopup = 'show-update-app-pop-up',
+  CheckForUpdatesRequested = 'check-for-updates-requested',
   UserSettingsChanged = 'user-settings-changed',
+  UpdateStateChanged = 'update-state-changed',
   ProcessingStateChanged = 'processing-state-changed',
   SetDatabaseInitialized = 'set-database-initialized',
 }

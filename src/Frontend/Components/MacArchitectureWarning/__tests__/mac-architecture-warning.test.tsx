@@ -4,12 +4,15 @@
 // SPDX-License-Identifier: Apache-2.0
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 
-import { LATEST_RELEASES_PAGE_URL } from '../../../../shared/shared-constants';
+import {
+  getLatestReleaseAssetDownloadUrl,
+  UPDATE_ASSET_NAMES,
+} from '../../../../shared/release-assets';
 import { renderComponent } from '../../../test-helpers/render';
 import { MacArchitectureWarning } from '../mac-architecture-warning';
 
 describe('MacArchitectureWarning', () => {
-  it('shows a persistent warning and opens the release page', async () => {
+  it('shows a persistent warning and opens the Apple Silicon download', async () => {
     vi.mocked(window.electronAPI.getMacArchitectureMismatch).mockResolvedValue(
       true,
     );
@@ -24,7 +27,7 @@ describe('MacArchitectureWarning', () => {
       }),
     );
     expect(window.electronAPI.openLink).toHaveBeenCalledWith(
-      LATEST_RELEASES_PAGE_URL,
+      getLatestReleaseAssetDownloadUrl(UPDATE_ASSET_NAMES.macArm64),
     );
 
     expect(screen.queryByRole('button', { name: 'Close warning' })).toBeNull();

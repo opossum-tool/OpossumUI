@@ -2,13 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiAlert from '@mui/material/Alert';
 import MuiLink from '@mui/material/Link';
 import { useQuery } from '@tanstack/react-query';
 
-import { LATEST_RELEASES_PAGE_URL } from '../../../shared/shared-constants';
+import {
+  getLatestReleaseAssetDownloadUrl,
+  UPDATE_ASSET_NAMES,
+} from '../../../shared/release-assets';
 import { text } from '../../../shared/text';
 import { openUrl } from '../../util/open-url';
+import { NotificationBanner } from '../NotificationBanner/NotificationBanner';
 
 export function MacArchitectureWarning(): React.ReactNode {
   const { data, isSuccess } = useQuery({
@@ -23,18 +26,20 @@ export function MacArchitectureWarning(): React.ReactNode {
   }
 
   return (
-    <MuiAlert severity={'warning'} sx={{ flexShrink: 0, mx: 2, mt: 1 }}>
+    <NotificationBanner severity={'warning'}>
       {text.macArchitectureMismatch.warning}{' '}
       <MuiLink
         href={'#'}
         color={'inherit'}
         onClick={(event) => {
           event.preventDefault();
-          openUrl(LATEST_RELEASES_PAGE_URL);
+          openUrl(
+            getLatestReleaseAssetDownloadUrl(UPDATE_ASSET_NAMES.macArm64),
+          );
         }}
       >
         {text.macArchitectureMismatch.download}
       </MuiLink>
-    </MuiAlert>
+    </NotificationBanner>
   );
 }
