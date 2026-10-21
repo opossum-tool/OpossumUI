@@ -116,7 +116,8 @@ export function useAttributionDetailsPresentation() {
         linkageQuery.isSuccess &&
         (selectedAttributionQuery.data?.isExternal === true
           ? (linkageQuery.data.onResource || linkageQuery.data.onDescendants) &&
-            !linkageQuery.data.matchingManualOnResource
+            !linkageQuery.data.matchingManualOnResource &&
+            !linkageQuery.data.linkWouldBeRedundant
           : selectedAttributionQuery.data?.isExternal === false &&
             !linkageQuery.data.onResource),
       hasResourceInfo: !selectedPackageInfo?.id || resourceInfoQuery.isSuccess,

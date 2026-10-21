@@ -1687,6 +1687,79 @@ describe('AttributionDetails', () => {
     ).toBeEnabled();
   });
 
+  it('does not show Link for a signal whose matching manual attribution would only be inherited redundantly', async () => {
+    const signal = faker.opossum.packageInfo({
+      source: { name: 'Scanner', documentConfidence: 0 },
+    });
+    const manualAttribution = {
+      ...signal,
+      id: faker.string.uuid(),
+      preSelected: false,
+    };
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources(['/root/child/file.ts']),
+        externalAttributions: { [signal.id]: signal },
+        resourcesToExternalAttributions: {
+          '/root/child/file.ts': [signal.id],
+        },
+        manualAttributions: { [manualAttribution.id]: manualAttribution },
+        resourcesToManualAttributions: {
+          '/root': [manualAttribution.id],
+        },
+      }),
+      actions: [
+        setSelectedResourceId('/root/child'),
+        setSelectedAttributionId(signal.id),
+      ],
+    });
+
+    await waitForAttributionDetailsReady();
+    await screen.findByDisplayValue(signal.packageName ?? '');
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: text.attributionColumn.link }),
+      ).not.toBeInTheDocument(),
+    );
+  });
+
+  it('shows Link for a signal when the matching ancestor has additional manual attributions', async () => {
+    const signal = faker.opossum.packageInfo({
+      source: { name: 'Scanner', documentConfidence: 0 },
+    });
+    const manualAttribution = {
+      ...signal,
+      id: faker.string.uuid(),
+      preSelected: false,
+    };
+    const otherManualAttribution = faker.opossum.packageInfo();
+    await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources(['/root/child/file.ts']),
+        externalAttributions: { [signal.id]: signal },
+        resourcesToExternalAttributions: {
+          '/root/child/file.ts': [signal.id],
+        },
+        manualAttributions: {
+          [manualAttribution.id]: manualAttribution,
+          [otherManualAttribution.id]: otherManualAttribution,
+        },
+        resourcesToManualAttributions: {
+          '/root': [manualAttribution.id, otherManualAttribution.id],
+        },
+      }),
+      actions: [
+        setSelectedResourceId('/root/child'),
+        setSelectedAttributionId(signal.id),
+      ],
+    });
+
+    await waitForAttributionDetailsReady();
+    expect(
+      await screen.findByRole('button', { name: text.attributionColumn.link }),
+    ).toBeEnabled();
+  });
+
   it('waits for a current relationship result before showing signal Link', async () => {
     const signal = faker.opossum.packageInfo({
       source: { name: 'Scanner', documentConfidence: 0 },

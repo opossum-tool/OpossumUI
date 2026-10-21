@@ -99,7 +99,8 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
         pickerMode.isActive ||
         mutationsPending ||
         (linkStatusQuery.isSuccess &&
-          linkStatusQuery.data.matchingManualOnResource)
+          (linkStatusQuery.data.matchingManualOnResource ||
+            linkStatusQuery.data.linkWouldBeRedundant))
       }
       loading={createOrMatch.isPending}
       size={'small'}

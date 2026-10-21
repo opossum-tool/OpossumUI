@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { sql } from 'kysely';
+import { type Kysely, sql } from 'kysely';
 import { omit, uniqBy } from 'lodash-es';
 
 import type {
@@ -17,6 +17,7 @@ import type {
 } from '../../shared/shared-types';
 import { packageInfoFromAttributionRow } from '../db/attributionData';
 import { getDb } from '../db/db';
+import type { DB } from '../db/generated/databaseTypes';
 import { jsonArraySelection } from '../db/json-array-selection';
 import { isProjectSplit } from '../db/split-info';
 import {
@@ -657,6 +658,12 @@ export const queries = {
         : undefined;
     const matchedManualUuid = matchingManualAttributionUuid ?? '';
 
+    const linkWouldBeRedundant = await getLinkWouldBeRedundant(
+      db,
+      resource.id,
+      matchedManualUuid,
+    );
+
     const result = await db
       .selectFrom('resource')
       .select((eb) => [
@@ -710,10 +717,119 @@ export const queries = {
         matchingManualOnDescendants: Boolean(
           result.matching_manual_on_descendants,
         ),
+        linkWouldBeRedundant,
       },
     };
   },
 } satisfies Record<string, QueryFunction>;
+
+/**
+ * Returns true if linking the matched manual attribution to the resource
+ * would be immediately removed again as redundant, because the resource
+ * would then have the same manual attributions as its closest attributed
+ * ancestor (see removeRedundantAttributions). Linking is a no-op in that case.
+ */
+async function getLinkWouldBeRedundant(
+  db: Kysely<DB>,
+  resourceId: number,
+  matchedManualUuid: string,
+): Promise<boolean> {
+  if (matchedManualUuid === '') {
+    return false;
+  }
+
+  const closestAttributedAncestor = await db
+    .selectFrom('resource')
+    .innerJoin(
+      'closest_attributed_ancestors as parent_caa',
+      'parent_caa.resource_id',
+      'resource.parent_id',
+    )
+    .select('parent_caa.manual')
+    .where('resource.id', '=', resourceId)
+    .executeTakeFirst();
+
+  const ancestorId = closestAttributedAncestor?.manual;
+  if (ancestorId === null || ancestorId === undefined) {
+    return false;
+  }
+
+  const redundancy = await db
+    .selectFrom('resource')
+    .select((eb) => [
+      eb
+        .exists(
+          eb
+            .selectFrom('resource_to_attribution')
+            .select('resource_id')
+            .where('resource_id', '=', ancestorId)
+            .where('attribution_uuid', '=', matchedManualUuid),
+        )
+        .as('match_on_ancestor'),
+      eb
+        .not(
+          eb.exists(
+            eb
+              .selectFrom('resource_to_attribution as ancestor_attr')
+              .select('ancestor_attr.resource_id')
+              .where('ancestor_attr.resource_id', '=', ancestorId)
+              .where('ancestor_attr.attribution_is_external', '=', 0)
+              .where('ancestor_attr.attribution_uuid', '!=', matchedManualUuid)
+              .where((attrEb) =>
+                attrEb.not(
+                  attrEb.exists(
+                    attrEb
+                      .selectFrom('resource_to_attribution as resource_attr')
+                      .select('resource_attr.resource_id')
+                      .where('resource_attr.resource_id', '=', resourceId)
+                      .where('resource_attr.attribution_is_external', '=', 0)
+                      .whereRef(
+                        'resource_attr.attribution_uuid',
+                        '=',
+                        'ancestor_attr.attribution_uuid',
+                      ),
+                  ),
+                ),
+              ),
+          ),
+        )
+        .as('ancestor_covered'),
+      eb
+        .not(
+          eb.exists(
+            eb
+              .selectFrom('resource_to_attribution as resource_attr')
+              .select('resource_attr.resource_id')
+              .where('resource_attr.resource_id', '=', resourceId)
+              .where('resource_attr.attribution_is_external', '=', 0)
+              .where((attrEb) =>
+                attrEb.not(
+                  attrEb.exists(
+                    attrEb
+                      .selectFrom('resource_to_attribution as ancestor_attr')
+                      .select('ancestor_attr.resource_id')
+                      .where('ancestor_attr.resource_id', '=', ancestorId)
+                      .whereRef(
+                        'ancestor_attr.attribution_uuid',
+                        '=',
+                        'resource_attr.attribution_uuid',
+                      ),
+                  ),
+                ),
+              ),
+          ),
+        )
+        .as('resource_covered'),
+    ])
+    .where('id', '=', resourceId)
+    .executeTakeFirstOrThrow();
+
+  return Boolean(
+    redundancy.match_on_ancestor &&
+    redundancy.ancestor_covered &&
+    redundancy.resource_covered,
+  );
+}
 
 type Queries = typeof queries;
 export type QueryName = keyof Queries;

@@ -15,8 +15,13 @@ describe('getAttributionLinkStatus', () => {
     await initializeDbWithTestData({
       resources: pathsToResources([
         '/root/target/file.ts',
+        '/root/target/empty-child.ts',
         '/root/sibling/file.ts',
+        '/other/child.ts',
+        '/other/bp/child.ts',
+        '/third/child.ts',
       ]),
+      attributionBreakpoints: new Set(['/other/bp']),
       externalAttributions: {
         attributions: Object.fromEntries(
           [
@@ -26,9 +31,11 @@ describe('getAttributionLinkStatus', () => {
             'ancestor',
             'unrelated',
             'unlinked',
+            'signal-matching-target-manual',
+            'solo-signal',
           ].map((id) => [
             id,
-            id === 'direct'
+            id === 'direct' || id === 'signal-matching-target-manual'
               ? {
                   id,
                   criticality: 0,
@@ -42,7 +49,14 @@ describe('getAttributionLinkStatus', () => {
                     packageName: 'pkg-descendant',
                     licenseName: 'Apache-2.0',
                   }
-                : { id, criticality: 0 },
+                : id === 'solo-signal'
+                  ? {
+                      id,
+                      criticality: 0,
+                      packageName: 'pkg-solo',
+                      licenseName: 'MIT',
+                    }
+                  : { id, criticality: 0 },
           ]),
         ),
         resourcesToAttributions: {
@@ -79,15 +93,32 @@ describe('getAttributionLinkStatus', () => {
             packageName: 'pkg-unrelated',
             licenseName: 'MIT',
           },
+          'manual-solo': {
+            id: 'manual-solo',
+            criticality: 0,
+            packageName: 'pkg-solo',
+            licenseName: 'MIT',
+          },
+          'manual-extra': {
+            id: 'manual-extra',
+            criticality: 0,
+            packageName: 'pkg-extra',
+            licenseName: 'Apache-2.0',
+          },
         },
         resourcesToAttributions: {
           '/root/target': ['manual-matching-direct', 'manual-unrelated'],
           '/root/target/file.ts': ['manual-matching-descendant'],
+          '/other': ['manual-solo'],
+          '/third': ['manual-solo', 'manual-extra'],
+          '/third/child.ts': ['manual-extra'],
         },
         attributionsToResources: {
           'manual-matching-direct': ['/root/target'],
           'manual-matching-descendant': ['/root/target/file.ts'],
           'manual-unrelated': ['/root/target'],
+          'manual-solo': ['/other', '/third'],
+          'manual-extra': ['/third', '/third/child.ts'],
         },
       },
     });
@@ -101,6 +132,7 @@ describe('getAttributionLinkStatus', () => {
         onDescendants: false,
         matchingManualOnResource: true,
         matchingManualOnDescendants: false,
+        linkWouldBeRedundant: false,
       },
     ],
     [
@@ -110,6 +142,7 @@ describe('getAttributionLinkStatus', () => {
         onDescendants: true,
         matchingManualOnResource: false,
         matchingManualOnDescendants: true,
+        linkWouldBeRedundant: false,
       },
     ],
     [
@@ -119,6 +152,7 @@ describe('getAttributionLinkStatus', () => {
         onDescendants: true,
         matchingManualOnResource: false,
         matchingManualOnDescendants: false,
+        linkWouldBeRedundant: false,
       },
     ],
     [
@@ -128,6 +162,7 @@ describe('getAttributionLinkStatus', () => {
         onDescendants: false,
         matchingManualOnResource: false,
         matchingManualOnDescendants: false,
+        linkWouldBeRedundant: false,
       },
     ],
     [
@@ -137,6 +172,7 @@ describe('getAttributionLinkStatus', () => {
         onDescendants: false,
         matchingManualOnResource: false,
         matchingManualOnDescendants: false,
+        linkWouldBeRedundant: false,
       },
     ],
     [
@@ -146,6 +182,7 @@ describe('getAttributionLinkStatus', () => {
         onDescendants: false,
         matchingManualOnResource: false,
         matchingManualOnDescendants: false,
+        linkWouldBeRedundant: false,
       },
     ],
     [
@@ -155,6 +192,7 @@ describe('getAttributionLinkStatus', () => {
         onDescendants: false,
         matchingManualOnResource: false,
         matchingManualOnDescendants: false,
+        linkWouldBeRedundant: false,
       },
     ],
   ])('reports relationship for %s', async (attributionUuid, expected) => {
@@ -163,6 +201,90 @@ describe('getAttributionLinkStatus', () => {
       attributionUuid,
     });
     expect(result).toEqual(expected);
+  });
+
+  it('reports linkWouldBeRedundant when linking would only replicate the inherited matching attribution', async () => {
+    const { result } = await queries.getAttributionLinkStatus({
+      resourcePath: '/other/child.ts',
+      attributionUuid: 'solo-signal',
+    });
+    expect(result).toEqual({
+      onResource: false,
+      onDescendants: false,
+      matchingManualOnResource: false,
+      matchingManualOnDescendants: false,
+      linkWouldBeRedundant: true,
+    });
+  });
+
+  it('reports linkWouldBeRedundant when the resource only lacks the matching inherited attribution', async () => {
+    const { result } = await queries.getAttributionLinkStatus({
+      resourcePath: '/third/child.ts',
+      attributionUuid: 'solo-signal',
+    });
+    expect(result).toEqual({
+      onResource: false,
+      onDescendants: false,
+      matchingManualOnResource: false,
+      matchingManualOnDescendants: false,
+      linkWouldBeRedundant: true,
+    });
+  });
+
+  it('reports linkWouldBeRedundant false when the matching ancestor has additional manual attributions', async () => {
+    const { result } = await queries.getAttributionLinkStatus({
+      resourcePath: '/root/target/empty-child.ts',
+      attributionUuid: 'signal-matching-target-manual',
+    });
+    expect(result).toEqual({
+      onResource: false,
+      onDescendants: false,
+      matchingManualOnResource: false,
+      matchingManualOnDescendants: false,
+      linkWouldBeRedundant: false,
+    });
+  });
+
+  it('reports linkWouldBeRedundant false below an attribution breakpoint', async () => {
+    const { result } = await queries.getAttributionLinkStatus({
+      resourcePath: '/other/bp/child.ts',
+      attributionUuid: 'solo-signal',
+    });
+    expect(result).toEqual({
+      onResource: false,
+      onDescendants: false,
+      matchingManualOnResource: false,
+      matchingManualOnDescendants: false,
+      linkWouldBeRedundant: false,
+    });
+  });
+
+  it('reports linkWouldBeRedundant false when the matching manual attribution is on an unrelated resource', async () => {
+    const { result } = await queries.getAttributionLinkStatus({
+      resourcePath: '/root/sibling/file.ts',
+      attributionUuid: 'solo-signal',
+    });
+    expect(result).toEqual({
+      onResource: false,
+      onDescendants: false,
+      matchingManualOnResource: false,
+      matchingManualOnDescendants: false,
+      linkWouldBeRedundant: false,
+    });
+  });
+
+  it('reports linkWouldBeRedundant false for a signal without a matching manual attribution', async () => {
+    const { result } = await queries.getAttributionLinkStatus({
+      resourcePath: '/other/child.ts',
+      attributionUuid: 'unlinked',
+    });
+    expect(result).toEqual({
+      onResource: false,
+      onDescendants: false,
+      matchingManualOnResource: false,
+      matchingManualOnDescendants: false,
+      linkWouldBeRedundant: false,
+    });
   });
 });
 
