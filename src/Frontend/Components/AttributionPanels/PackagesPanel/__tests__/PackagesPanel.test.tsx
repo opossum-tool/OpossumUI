@@ -487,6 +487,66 @@ describe('PackagesPanel', () => {
     });
   });
 
+  it('defers sorting behind the unsaved-changes prompt after switching tabs', async () => {
+    const resourceAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const parentsAttribution = faker.opossum.packageInfo({
+      relation: 'parents',
+    });
+    const { store } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [resourceAttribution.id]: resourceAttribution,
+        [parentsAttribution.id]: parentsAttribution,
+      }),
+      actions: [
+        setSelectedAttributionId(resourceAttribution.id),
+        initializePackageInfoEditing(resourceAttribution),
+        setTemporaryDisplayPackageInfo({
+          ...resourceAttribution,
+          packageName: 'changed',
+        }),
+      ],
+      useAttributionFilters: useManualAttributionFilters,
+    });
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        resourceAttribution.id,
+      );
+    });
+
+    await userEvent.click(
+      screen.getByRole('tab', { name: `${text.relations.parents} (1)` }),
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'sort button' }));
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: text.sortings.criticality }),
+    );
+
+    expect(getOpenPopup(store.getState())?.popup).toBe(PopupType.NotSavedPopup);
+    expect(store.getState().resourceState.selectedAttributionId).toBe(
+      resourceAttribution.id,
+    );
+    expect(vi.mocked(useAuditAttributionsList).mock.lastCall?.[0].sort).toBe(
+      'alphabetically',
+    );
+
+    act(() => store.dispatch(proceedFromUnsavedPopup()));
+
+    expect(getOpenPopup(store.getState())).toBeNull();
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+      resourceAttribution,
+    );
+    expect(
+      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toEqual({
+      ...initialAttributionFilters,
+      sorting: 'criticality',
+    });
+  });
+
   it('keeps the selection when sorting the other panel', async () => {
     const selectedSignal = faker.opossum.packageInfo({
       relation: 'resource',
@@ -515,6 +575,45 @@ describe('PackagesPanel', () => {
       ),
     );
 
+    expect(store.getState().resourceState.selectedAttributionId).toBe(
+      selectedSignal.id,
+    );
+  });
+
+  it('clears the multi-selection when sorting the other panel', async () => {
+    const selectedSignal = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const { store } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [selectedSignal.id]: selectedSignal,
+      }),
+      actions: [setSelectedAttributionId(selectedSignal.id)],
+      selectedAttributionIsExternal: true,
+      useAttributionFilters: useManualAttributionFilters,
+    });
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        selectedSignal.id,
+      );
+    });
+
+    await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
+    expect(screen.getByRole('checkbox', { name: 'select all' })).toBeChecked();
+
+    await act(() =>
+      store.dispatch(
+        setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+          ...initialAttributionFilters,
+          sorting: 'criticality',
+        }),
+      ),
+    );
+
+    expect(
+      screen.getByRole('checkbox', { name: 'select all' }),
+    ).not.toBeChecked();
     expect(store.getState().resourceState.selectedAttributionId).toBe(
       selectedSignal.id,
     );

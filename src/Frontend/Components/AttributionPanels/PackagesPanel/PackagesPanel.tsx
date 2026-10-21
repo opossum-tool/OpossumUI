@@ -37,6 +37,7 @@ import {
   getAttributionSelectionPendingResourceId,
   getAttributionSelectionPolicy,
   getIsPackageInfoDirty,
+  getOriginalDisplayPackageInfo,
   getPendingAttributionNavigation,
   getSelectedAttributionId,
   getSelectedResourceId,
@@ -144,6 +145,9 @@ export const PackagesPanel = ({
     getTargetAttributionRelation,
   );
   const isPackageInfoDirty = useAppSelector(getIsPackageInfoDirty);
+  const originalDisplayPackageInfo = useAppSelector(
+    getOriginalDisplayPackageInfo,
+  );
   const lastResourceIdWithAutoSelectionRef = useRef(
     attributionSelectionPendingResourceId === selectedResourceId &&
       !(pendingAttributionNavigation?.attributionUuid === selectedAttributionId)
@@ -319,10 +323,14 @@ export const PackagesPanel = ({
   const setFiltersWithUnsavedCheck = useCallback(
     (nextFilters: AttributionFilters) => {
       preserveSelectionRef.current = false;
-      if (selectedAttribution) {
+      if (
+        selectedAttribution ||
+        (selectedAttributionId && selectedAttributionIsExternal === external)
+      ) {
         dispatch(
           changeAttributionFiltersOrOpenUnsavedPopup({
-            discardedPackageInfo: selectedAttribution,
+            discardedPackageInfo:
+              selectedAttribution ?? originalDisplayPackageInfo,
             external,
             filters: nextFilters,
           }),
@@ -336,7 +344,10 @@ export const PackagesPanel = ({
     [
       dispatch,
       external,
+      originalDisplayPackageInfo,
       selectedAttribution,
+      selectedAttributionId,
+      selectedAttributionIsExternal,
       selectedResourceId,
       setFilteredAttributions,
     ],
@@ -349,10 +360,15 @@ export const PackagesPanel = ({
   });
   const setSortingWithUnsavedCheck = useCallback(
     (sorting: SortOption) => {
-      if (selectedAttribution && isPackageInfoDirty) {
+      if (
+        selectedAttributionId &&
+        selectedAttributionIsExternal === external &&
+        isPackageInfoDirty
+      ) {
         dispatch(
           changeAttributionFiltersOrOpenUnsavedPopup({
-            discardedPackageInfo: selectedAttribution,
+            discardedPackageInfo:
+              selectedAttribution ?? originalDisplayPackageInfo,
             external,
             filters: { ...filters, sorting },
           }),
@@ -367,7 +383,10 @@ export const PackagesPanel = ({
       external,
       filters,
       isPackageInfoDirty,
+      originalDisplayPackageInfo,
       selectedAttribution,
+      selectedAttributionId,
+      selectedAttributionIsExternal,
       setFilteredAttributions,
     ],
   );
@@ -579,12 +598,12 @@ export const PackagesPanel = ({
     if (!sortingChanged) {
       return;
     }
+    clearSelection();
     if (selectedAttributionId && selectedAttributionIsExternal !== external) {
       return;
     }
     preserveSelectionRef.current = false;
     dispatch(setSelectedAttributionId(''));
-    clearSelection();
   }, [
     clearSelection,
     dispatch,

@@ -68,6 +68,10 @@ export function getTemporaryDisplayPackageInfo(state: State): PackageInfo {
   return state.resourceState.temporaryDisplayPackageInfo;
 }
 
+export function getOriginalDisplayPackageInfo(state: State): PackageInfo {
+  return state.resourceState.originalDisplayPackageInfo;
+}
+
 export function getIsPackageInfoDirty(state: State): boolean {
   return !isEqualToManualAttribution(
     state.resourceState.temporaryDisplayPackageInfo,
