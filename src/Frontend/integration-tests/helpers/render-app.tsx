@@ -19,6 +19,7 @@ import type { Action } from '../../state/configure-store';
 import {
   createTestStore,
   makeProviderWrapper,
+  makeReactQueryClient,
 } from '../../test-helpers/render';
 
 type IpcListener = (event: IpcRendererEvent, ...args: Array<unknown>) => void;
@@ -161,7 +162,11 @@ export async function renderApp(
       <App />
       <Toaster />
     </>,
-    { wrapper: makeProviderWrapper(store, { withVirtuosoContext: true }) },
+    {
+      wrapper: makeProviderWrapper(store, makeReactQueryClient(), {
+        withVirtuosoContext: true,
+      }),
+    },
   );
 
   await waitFor(() => {

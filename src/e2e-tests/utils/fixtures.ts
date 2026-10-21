@@ -62,7 +62,12 @@ interface FilePaths {
 }
 
 export const test = base.extend<{
-  window: Page & { app: ElectronApplication; startupDurationMs: number | null };
+  window: Page & {
+    app: ElectronApplication;
+    startupDurationMs: number | null;
+    /** Ends the collected Playwright trace, if one is being recorded. */
+    stopTracing: (tracePath: string) => Promise<void>;
+  };
   /** Specify the input/output data contained in the opossum file which the app will open as part of the test. */
   data: OpossumData | undefined;
   /** Open an existing file instead of creating a test file. */
@@ -151,63 +156,42 @@ export const test = base.extend<{
       existingFilePath ??
       (data && filePaths && (await createTestFiles({ data, filePaths })));
 
-    const [executablePath, main] = getLaunchProps(releasePathOverride);
-    const args = ['--reset', `--user-data-dir=${info.outputPath('user-data')}`];
-    if (os.platform() === 'linux') {
-      args.push('--no-sandbox');
-    }
-    if (process.env.E2E_XVFB) {
-      // The purpose of this is to allow running the tests in the background. Wayland requires a configured headless compositor for this, so force X11.
-      args.push('--ozone-platform=x11');
-    }
+    const artifactBaseName = getArtifactBaseName(data);
 
     const startupStartedAt = performance.now();
-    const app = await electron.launch({
+    const { app, window, mainProcessLogs } = await launchOpossumApp({
+      appLoadTimeout,
       args: [
-        ...(main ? [main] : []),
-        ...(!opossumFilePath || !openFromCLI
-          ? args
-          : args.concat([opossumFilePath])),
-      ],
-      executablePath,
-      env: {
-        ...process.env,
-        RESET: '1',
-      },
+        '--reset',
+        `--user-data-dir=${info.outputPath('user-data')}`,
+      ].concat(opossumFilePath && openFromCLI ? [opossumFilePath] : []),
+      env: { ...process.env, RESET: '1' },
+      releasePathOverride,
     });
-    await installDefaultSyncDialogStubs(app);
-
-    // Capture main process stdout/stderr for debugging
-    const mainProcessLogs: Array<string> = [];
-    app.process().stdout?.on('data', (data: Buffer) => {
-      mainProcessLogs.push(`[stdout] ${data.toString()}`);
-    });
-    app.process().stderr?.on('data', (data: Buffer) => {
-      mainProcessLogs.push(`[stderr] ${data.toString()}`);
-    });
-
-    const window = await app.firstWindow();
-    await window.setViewportSize({
-      width: 1920,
-      height: 1080,
-    });
-    await window.waitForLoadState('domcontentloaded', {
-      timeout: appLoadTimeout,
-    });
-    await window
-      .getByRole('button', { name: 'open file' })
-      .waitFor({ state: 'visible', timeout: appLoadTimeout });
     if (opossumFilePath && openFromCLI) {
       await window.getByTestId('resources-tree').waitFor({
         state: 'visible',
         timeout: appLoadTimeout,
       });
     }
+
+    let tracingActive = false;
     if (playwrightTracing) {
       await window
         .context()
         .tracing.start({ screenshots: true, snapshots: true });
+      tracingActive = true;
     }
+    // Ends the trace and writes it to tracePath. Becomes a no-op once the
+    // trace has already been ended, e.g. by the relaunch fixture when
+    // switching app sessions.
+    const stopTracing = async (tracePath: string): Promise<void> => {
+      if (!tracingActive) {
+        return;
+      }
+      tracingActive = false;
+      await window.context().tracing.stop({ path: tracePath });
+    };
 
     await use(
       Object.assign(window, {
@@ -215,6 +199,7 @@ export const test = base.extend<{
         startupDurationMs: measureStartup
           ? performance.now() - startupStartedAt
           : null,
+        stopTracing,
       }),
     );
 
@@ -223,20 +208,12 @@ export const test = base.extend<{
     // Write main process logs to artifacts
     if (mainProcessLogs.length > 0) {
       fs.writeFileSync(
-        info.outputPath(
-          `${data?.inputData.metadata.projectId || 'app'}.main-process.log`,
-        ),
+        info.outputPath(`${artifactBaseName}.main-process.log`),
         mainProcessLogs.join(''),
       );
     }
 
-    if (playwrightTracing) {
-      await window.context().tracing.stop({
-        path: info.outputPath(
-          `${data?.inputData.metadata.projectId || 'app'}.trace.zip`,
-        ),
-      });
-    }
+    await stopTracing(info.outputPath(`${artifactBaseName}.trace.zip`));
     try {
       await app.close();
     } catch {
@@ -250,63 +227,79 @@ export const test = base.extend<{
     }
   },
   relaunch: async (
-    { window, appLoadTimeout, releasePathOverride },
+    { window, appLoadTimeout, data, playwrightTracing, releasePathOverride },
     use,
     info,
   ) => {
     let relaunchedApp: ElectronApplication | undefined;
+    let relaunchedWindow: Page | undefined;
+    let relaunchedMainProcessLogs: Array<string> = [];
+    let relaunchedTracingActive = false;
     let unexpectedOriginalAppDialogCalls: string[] = [];
 
     await use(async (): Promise<Page & { app: ElectronApplication }> => {
       // The original app is closed here, so its dialog stub state must be
-      // read before closing
+      // read before closing.
       unexpectedOriginalAppDialogCalls = await getUnexpectedSyncDialogCalls(
         window.app,
       );
+      // The trace of the original app session must be ended before the app
+      // and its browser context are closed.
+      await window.stopTracing(
+        info.outputPath(`${getArtifactBaseName(data)}.pre-relaunch.trace.zip`),
+      );
       await window.app.close();
 
-      const [executablePath, main] = getLaunchProps(releasePathOverride);
       // The user data directory is reused so that persisted user settings are
       // still present. Contrary to the initial launch, no reset flags are
       // passed and no file is opened.
-      const args = [`--user-data-dir=${info.outputPath('user-data')}`];
-      if (os.platform() === 'linux') {
-        args.push('--no-sandbox');
-      }
-      if (process.env.E2E_XVFB) {
-        // The purpose of this is to allow running the tests in the background. Wayland requires a configured headless compositor for this, so force X11.
-        args.push('--ozone-platform=x11');
-      }
       // An empty (falsy) RESET value prevents the user settings reset without
       // introducing undefined values in the environment.
-      const env = { ...process.env, RESET: '' };
-
-      const app = await electron.launch({
-        args: [...(main ? [main] : []), ...args],
-        executablePath,
-        env,
+      const {
+        app,
+        window: relaunched,
+        mainProcessLogs,
+      } = await launchOpossumApp({
+        appLoadTimeout,
+        args: [`--user-data-dir=${info.outputPath('user-data')}`],
+        env: { ...process.env, RESET: '' },
+        releasePathOverride,
       });
       relaunchedApp = app;
-      await installDefaultSyncDialogStubs(app);
+      relaunchedWindow = relaunched;
+      relaunchedMainProcessLogs = mainProcessLogs;
 
-      const relaunchedWindow = await app.firstWindow();
-      await relaunchedWindow.setViewportSize({
-        width: 1920,
-        height: 1080,
-      });
-      await relaunchedWindow.waitForLoadState('domcontentloaded', {
-        timeout: appLoadTimeout,
-      });
-      await relaunchedWindow
-        .getByRole('button', { name: 'open file' })
-        .waitFor({ state: 'visible', timeout: appLoadTimeout });
+      if (playwrightTracing) {
+        await relaunched
+          .context()
+          .tracing.start({ screenshots: true, snapshots: true });
+        relaunchedTracingActive = true;
+      }
 
-      return Object.assign(relaunchedWindow, { app });
+      return Object.assign(relaunched, { app });
     });
 
-    if (relaunchedApp) {
+    if (relaunchedApp && relaunchedWindow) {
       const unexpectedRelaunchDialogCalls =
         await getUnexpectedSyncDialogCalls(relaunchedApp);
+
+      // Write main process logs of the relaunched app session to artifacts
+      if (relaunchedMainProcessLogs.length > 0) {
+        fs.writeFileSync(
+          info.outputPath(
+            `${getArtifactBaseName(data)}.post-relaunch.main-process.log`,
+          ),
+          relaunchedMainProcessLogs.join(''),
+        );
+      }
+
+      if (relaunchedTracingActive) {
+        await relaunchedWindow.context().tracing.stop({
+          path: info.outputPath(
+            `${getArtifactBaseName(data)}.post-relaunch.trace.zip`,
+          ),
+        });
+      }
 
       try {
         await relaunchedApp.close();
@@ -406,6 +399,69 @@ export const test = base.extend<{
     await use(new MergeOpossumFilesDialog(window));
   },
 });
+
+function getArtifactBaseName(data: OpossumData | undefined): string {
+  return data?.inputData.metadata.projectId || 'app';
+}
+
+function getPlatformArgs(): Array<string> {
+  const platformArgs = [];
+  if (os.platform() === 'linux') {
+    platformArgs.push('--no-sandbox');
+  }
+  if (process.env.E2E_XVFB) {
+    // The purpose of this is to allow running the tests in the background. Wayland requires a configured headless compositor for this, so force X11.
+    platformArgs.push('--ozone-platform=x11');
+  }
+  return platformArgs;
+}
+
+async function launchOpossumApp({
+  appLoadTimeout,
+  args,
+  env,
+  releasePathOverride,
+}: {
+  appLoadTimeout: number;
+  args: Array<string>;
+  env: { [key: string]: string };
+  releasePathOverride: string | null;
+}): Promise<{
+  app: ElectronApplication;
+  window: Page;
+  mainProcessLogs: Array<string>;
+}> {
+  const [executablePath, main] = getLaunchProps(releasePathOverride);
+  const app = await electron.launch({
+    args: [...(main ? [main] : []), ...args, ...getPlatformArgs()],
+    executablePath,
+    env,
+  });
+  await installDefaultSyncDialogStubs(app);
+
+  // Capture main process stdout/stderr for debugging
+  const mainProcessLogs: Array<string> = [];
+  app.process().stdout?.on('data', (data: Buffer) => {
+    mainProcessLogs.push(`[stdout] ${data.toString()}`);
+  });
+  app.process().stderr?.on('data', (data: Buffer) => {
+    mainProcessLogs.push(`[stderr] ${data.toString()}`);
+  });
+
+  const window = await app.firstWindow();
+  await window.setViewportSize({
+    width: 1920,
+    height: 1080,
+  });
+  await window.waitForLoadState('domcontentloaded', {
+    timeout: appLoadTimeout,
+  });
+  await window
+    .getByRole('button', { name: 'open file' })
+    .waitFor({ state: 'visible', timeout: appLoadTimeout });
+
+  return { app, window, mainProcessLogs };
+}
 
 function getLaunchProps(
   releasePathOverride: string | null,

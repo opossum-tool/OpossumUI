@@ -18,7 +18,7 @@ import { theme } from '../Components/App/App.style';
 import { type Action, createAppStore } from '../state/configure-store';
 import { setDatabaseInitialized } from '../util/backendClient';
 
-function makeReactQueryClient() {
+export function makeReactQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
