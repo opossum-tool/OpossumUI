@@ -6,7 +6,6 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
-import { maybePluralize } from '../../../../Frontend/util/maybe-pluralize';
 import type { RawPackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { isNodeEnabled, isNodeVisible, SETTLED_TIMEOUT } from './common';
@@ -451,47 +450,6 @@ function getAuditingOptionChip(optionId: string): HTMLElement {
   const chip = queryAuditingOptionChip(optionId);
   expect(chip).not.toBeNull();
   return chip as HTMLElement;
-}
-
-function getLicenseAutocompleteOption(index: number): HTMLElement {
-  // The popper portals the option list to the document body, outside the
-  // attribution column.
-  return screen.getByTestId(`option-${index}`);
-}
-
-export async function expectLicenseAutocompleteOptionContent(
-  index: number,
-  license: { shortName: string; fullName: string },
-): Promise<void> {
-  await waitFor(() => {
-    const option = within(getLicenseAutocompleteOption(index));
-    expect(option.getByText(license.shortName)).toBeVisible();
-    expect(option.getByText(license.fullName)).toBeVisible();
-  }, SETTLED_TIMEOUT);
-}
-
-export async function expectLicenseAutocompleteOptionOccurrenceTooltip(
-  index: number,
-  attributionCount: number,
-  signalCount: number,
-): Promise<void> {
-  const option = getLicenseAutocompleteOption(index);
-  const chip = within(option).getByTestId('occurrence-count');
-  fireEvent.mouseOver(chip, { clientX: 10, clientY: 10 });
-  const tooltipName = `${maybePluralize(attributionCount, 'attribution', {
-    showOne: true,
-  })}, ${maybePluralize(signalCount, 'signal', {
-    showOne: true,
-  })}`;
-  await waitFor(() => {
-    // A tooltip leaving (hover moved between options) can still be mounted,
-    // so accept whichever tooltip carries the expected text.
-    expect(
-      screen
-        .getAllByRole('tooltip')
-        .some((tooltip) => tooltip.textContent === tooltipName),
-    ).toBe(true);
-  }, SETTLED_TIMEOUT);
 }
 
 export async function expectAttributionLicenseTextVisibility(

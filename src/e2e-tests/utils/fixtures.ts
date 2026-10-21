@@ -50,10 +50,23 @@ import {
 
 const LOAD_TIMEOUT = 45000;
 
+// When a test relaunches the app, artifacts of the app sessions are
+// distinguished by these suffixes so that they are all kept.
+const BEFORE_RELAUNCH_ARTIFACT_SUFFIX = '.pre-relaunch';
+const AFTER_RELAUNCH_ARTIFACT_SUFFIX = '.post-relaunch';
+
 interface OpossumData {
   inputData: ParsedOpossumInputFile;
   outputData?: ParsedOpossumOutputFile;
   readonlyRules?: ReadonlyRule[];
+}
+
+/** The state needed to launch, use and close one app session. */
+interface AppSession {
+  app: ElectronApplication;
+  window: Page;
+  mainProcessLogs: Array<string>;
+  tracingActive: boolean;
 }
 
 interface FilePaths {
@@ -65,8 +78,8 @@ export const test = base.extend<{
   window: Page & {
     app: ElectronApplication;
     startupDurationMs: number | null;
-    /** Ends the collected Playwright trace, if one is being recorded. */
-    stopTracing: (tracePath: string) => Promise<void>;
+    /** Closes the app and relaunches it with the same user data directory (no reset, no file). */
+    relaunch: () => Promise<Page & { app: ElectronApplication }>;
   };
   /** Specify the input/output data contained in the opossum file which the app will open as part of the test. */
   data: OpossumData | undefined;
@@ -103,7 +116,7 @@ export const test = base.extend<{
   pathBar: PathBar;
   projectMetadataPopup: ProjectMetadataPopup;
   projectStatisticsPopup: ProjectStatisticsPopup;
-  /** Closes the app and relaunches it with the same user data directory (no reset, no file). */
+  /** Closes the app and relaunches it */
   relaunch: () => Promise<Page & { app: ElectronApplication }>;
   reportView: ReportView;
   resourcesTree: ResourcesTree;
@@ -159,166 +172,123 @@ export const test = base.extend<{
     const artifactBaseName = getArtifactBaseName(data);
 
     const startupStartedAt = performance.now();
-    const { app, window, mainProcessLogs } = await launchOpossumApp({
+    let currentSession = await startAppSession({
       appLoadTimeout,
       args: [
         '--reset',
         `--user-data-dir=${info.outputPath('user-data')}`,
       ].concat(opossumFilePath && openFromCLI ? [opossumFilePath] : []),
       env: { ...process.env, RESET: '1' },
+      playwrightTracing,
       releasePathOverride,
     });
     if (opossumFilePath && openFromCLI) {
-      await window.getByTestId('resources-tree').waitFor({
+      await currentSession.window.getByTestId('resources-tree').waitFor({
         state: 'visible',
         timeout: appLoadTimeout,
       });
     }
 
-    let tracingActive = false;
-    if (playwrightTracing) {
-      await window
-        .context()
-        .tracing.start({ screenshots: true, snapshots: true });
-      tracingActive = true;
-    }
-    // Ends the trace and writes it to tracePath. Becomes a no-op once the
-    // trace has already been ended, e.g. by the relaunch fixture when
-    // switching app sessions.
-    const stopTracing = async (tracePath: string): Promise<void> => {
-      if (!tracingActive) {
-        return;
-      }
-      tracingActive = false;
-      await window.context().tracing.stop({ path: tracePath });
-    };
+    // Starting and closing app sessions works identically for the initially
+    // launched session and for sessions created by relaunching, so both flows
+    // behave the same. The session labels describe the session in relation to
+    // relaunches and are used prefixed in error messages; without any
+    // relaunch the label is empty.
+    const finishedSessions: Array<{
+      label: string;
+      unexpectedDialogCalls: Array<string>;
+    }> = [];
 
-    await use(
-      Object.assign(window, {
-        app,
-        startupDurationMs: measureStartup
-          ? performance.now() - startupStartedAt
-          : null,
-        stopTracing,
-      }),
-    );
+    const finishCurrentAppSession = async (
+      artifactSuffix: string,
+    ): Promise<Array<string>> => {
+      const { app, window, mainProcessLogs, tracingActive } = currentSession;
 
-    const unexpectedDialogCalls = await getUnexpectedSyncDialogCalls(app);
+      // The dialog stub state must be read before the app is closed.
+      const unexpectedDialogCalls = await getUnexpectedSyncDialogCalls(app);
 
-    // Write main process logs to artifacts
-    if (mainProcessLogs.length > 0) {
-      fs.writeFileSync(
-        info.outputPath(`${artifactBaseName}.main-process.log`),
-        mainProcessLogs.join(''),
-      );
-    }
-
-    await stopTracing(info.outputPath(`${artifactBaseName}.trace.zip`));
-    try {
-      await app.close();
-    } catch {
-      // The app has already been closed by the test (e.g. relaunched).
-    }
-
-    if (unexpectedDialogCalls.length > 0) {
-      throw new Error(
-        `Unexpected unstubbed native dialog call${unexpectedDialogCalls.length === 1 ? '' : 's'}: ${unexpectedDialogCalls.join(', ')}`,
-      );
-    }
-  },
-  relaunch: async (
-    { window, appLoadTimeout, data, playwrightTracing, releasePathOverride },
-    use,
-    info,
-  ) => {
-    let relaunchedApp: ElectronApplication | undefined;
-    let relaunchedWindow: Page | undefined;
-    let relaunchedMainProcessLogs: Array<string> = [];
-    let relaunchedTracingActive = false;
-    let unexpectedOriginalAppDialogCalls: string[] = [];
-
-    await use(async (): Promise<Page & { app: ElectronApplication }> => {
-      // The original app is closed here, so its dialog stub state must be
-      // read before closing.
-      unexpectedOriginalAppDialogCalls = await getUnexpectedSyncDialogCalls(
-        window.app,
-      );
-      // The trace of the original app session must be ended before the app
-      // and its browser context are closed.
-      await window.stopTracing(
-        info.outputPath(`${getArtifactBaseName(data)}.pre-relaunch.trace.zip`),
-      );
-      await window.app.close();
-
-      // The user data directory is reused so that persisted user settings are
-      // still present. Contrary to the initial launch, no reset flags are
-      // passed and no file is opened.
-      // An empty (falsy) RESET value prevents the user settings reset without
-      // introducing undefined values in the environment.
-      const {
-        app,
-        window: relaunched,
-        mainProcessLogs,
-      } = await launchOpossumApp({
-        appLoadTimeout,
-        args: [`--user-data-dir=${info.outputPath('user-data')}`],
-        env: { ...process.env, RESET: '' },
-        releasePathOverride,
-      });
-      relaunchedApp = app;
-      relaunchedWindow = relaunched;
-      relaunchedMainProcessLogs = mainProcessLogs;
-
-      if (playwrightTracing) {
-        await relaunched
-          .context()
-          .tracing.start({ screenshots: true, snapshots: true });
-        relaunchedTracingActive = true;
-      }
-
-      return Object.assign(relaunched, { app });
-    });
-
-    if (relaunchedApp && relaunchedWindow) {
-      const unexpectedRelaunchDialogCalls =
-        await getUnexpectedSyncDialogCalls(relaunchedApp);
-
-      // Write main process logs of the relaunched app session to artifacts
-      if (relaunchedMainProcessLogs.length > 0) {
+      if (mainProcessLogs.length > 0) {
         fs.writeFileSync(
           info.outputPath(
-            `${getArtifactBaseName(data)}.post-relaunch.main-process.log`,
+            `${artifactBaseName}${artifactSuffix}.main-process.log`,
           ),
-          relaunchedMainProcessLogs.join(''),
+          mainProcessLogs.join(''),
         );
       }
 
-      if (relaunchedTracingActive) {
-        await relaunchedWindow.context().tracing.stop({
+      // The trace must be ended before the app and its browser context are
+      // closed.
+      if (tracingActive) {
+        currentSession.tracingActive = false;
+        await window.context().tracing.stop({
           path: info.outputPath(
-            `${getArtifactBaseName(data)}.post-relaunch.trace.zip`,
+            `${artifactBaseName}${artifactSuffix}.trace.zip`,
           ),
         });
       }
 
       try {
-        await relaunchedApp.close();
+        await app.close();
       } catch {
         // The app has already been closed.
       }
 
-      if (unexpectedRelaunchDialogCalls.length > 0) {
-        throw new Error(
-          `After relaunch - Unexpected unstubbed native dialog call${unexpectedRelaunchDialogCalls.length === 1 ? '' : 's'}: ${unexpectedRelaunchDialogCalls.join(', ')}`,
-        );
-      }
-    }
+      return unexpectedDialogCalls;
+    };
 
-    if (unexpectedOriginalAppDialogCalls.length > 0) {
+    await use(
+      Object.assign(currentSession.window, {
+        app: currentSession.app,
+        startupDurationMs: measureStartup
+          ? performance.now() - startupStartedAt
+          : null,
+        relaunch: async (): Promise<Page & { app: ElectronApplication }> => {
+          finishedSessions.push({
+            label: 'Before relaunch',
+            unexpectedDialogCalls: await finishCurrentAppSession(
+              BEFORE_RELAUNCH_ARTIFACT_SUFFIX,
+            ),
+          });
+          currentSession = await startAppSession({
+            appLoadTimeout,
+            // The user data directory is reused so that persisted user
+            // settings are still present. Contrary to the initial launch, no
+            // reset flags are passed and no file is opened.
+            args: [`--user-data-dir=${info.outputPath('user-data')}`],
+            env: { ...process.env, RESET: '' },
+            playwrightTracing,
+            releasePathOverride,
+          });
+          return Object.assign(currentSession.window, {
+            app: currentSession.app,
+          });
+        },
+      }),
+    );
+
+    finishedSessions.push({
+      label: finishedSessions.length > 0 ? 'After relaunch' : '',
+      unexpectedDialogCalls: await finishCurrentAppSession(
+        finishedSessions.length > 0 ? AFTER_RELAUNCH_ARTIFACT_SUFFIX : '',
+      ),
+    });
+
+    const violatingSessions = finishedSessions.filter(
+      ({ unexpectedDialogCalls }) => unexpectedDialogCalls.length > 0,
+    );
+    if (violatingSessions.length > 0) {
       throw new Error(
-        `Before relaunch - Unexpected unstubbed native dialog call${unexpectedOriginalAppDialogCalls.length === 1 ? '' : 's'}: ${unexpectedOriginalAppDialogCalls.join(', ')}`,
+        violatingSessions
+          .map(
+            ({ label, unexpectedDialogCalls }) =>
+              `${label ? `${label} - ` : ''}Unexpected unstubbed native dialog call${unexpectedDialogCalls.length === 1 ? '' : 's'}: ${unexpectedDialogCalls.join(', ')}`,
+          )
+          .join('\n'),
       );
     }
+  },
+  relaunch: async ({ window }, use) => {
+    await use(window.relaunch);
   },
   debug: async ({ window: _ }, use, info) => {
     await use(() => {
@@ -461,6 +431,37 @@ async function launchOpossumApp({
     .waitFor({ state: 'visible', timeout: appLoadTimeout });
 
   return { app, window, mainProcessLogs };
+}
+
+async function startAppSession({
+  appLoadTimeout,
+  args,
+  env,
+  playwrightTracing,
+  releasePathOverride,
+}: {
+  appLoadTimeout: number;
+  args: Array<string>;
+  env: { [key: string]: string };
+  playwrightTracing: boolean;
+  releasePathOverride: string | null;
+}): Promise<AppSession> {
+  const { app, window, mainProcessLogs } = await launchOpossumApp({
+    appLoadTimeout,
+    args,
+    env,
+    releasePathOverride,
+  });
+
+  let tracingActive = false;
+  if (playwrightTracing) {
+    await window
+      .context()
+      .tracing.start({ screenshots: true, snapshots: true });
+    tracingActive = true;
+  }
+
+  return { app, window, mainProcessLogs, tracingActive };
 }
 
 function getLaunchProps(
