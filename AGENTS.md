@@ -80,7 +80,7 @@ Husky + lint-staged runs on every commit: copyright check, knip, prettier, eslin
 Five vitest projects with different environments:
 
 - **FE** (happy-dom): `src/Frontend/**/__test{s,}__/**/*.test.{ts,tsx}`
-- **INT** (happy-dom): `src/Frontend/integration-tests/**/*.test.{ts,tsx}`
+- **INT** (happy-dom): `src/integration-tests/**/*.test.{ts,tsx}`
 - **BE** (node): `src/ElectronBackend/**/__test{s,}__/**/*.test.{ts,tsx}`
 - **SH** (node): `src/shared/**/__test{s,}__/**/*.test.{ts,tsx}`
 - **PERF** (node): `src/performance-tests/**/__test{s,}__/**/*.test.{ts,tsx}`
@@ -88,7 +88,7 @@ Five vitest projects with different environments:
 Test directories can be `__tests__` or `__test__`.
 
 Run only the integration tests with `yarn test:int`.
-Integration tests (`src/Frontend/integration-tests/`) render the full app via the
+Integration tests (`src/integration-tests/`) render the full app via the
 `renderApp` helper in `helpers/render-app.tsx`: the real backend command handlers
 (`executeCommand`) run against a real SQLite DB seeded from a `ParsedFileContent`
 fixture (see `src/testing/backend-integration.ts`). They replace e2e suites that

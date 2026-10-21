@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -72,10 +72,10 @@ test.use({
 });
 
 // The remaining 17 tests of this suite were converted to integration tests
-// (src/Frontend/integration-tests/updating-attributions.test.tsx); their
+// (src/integration-tests/updating-attributions.test.tsx); their
 // renderer-only coverage of unsaved-changes warnings, updating, reverting and
 // form validation lives there. This test was kept e2e: porting it to the
-// happy-dom harness surfaced a behavior divergence — after confirming the
+// happy-dom harness surfaced a behavior divergence â€” after confirming the
 // was-preferred modification dialog the integration store commits the draft
 // earlier than a real browser (data-dirty becomes false), so the assertions
 // cannot be mirrored faithfully yet.

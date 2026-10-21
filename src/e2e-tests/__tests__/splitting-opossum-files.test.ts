@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -46,7 +46,7 @@ test.use({
 
 // The dialog-UX tests of this suite (opening/cancelling via the tree context
 // menu, opening via the File menu, and the unsaved-changes warning) live in
-// src/Frontend/integration-tests/splitting-opossum-files.test.tsx. The tests
+// src/integration-tests/splitting-opossum-files.test.tsx. The tests
 // below stay e2e: they create real partitions through the native save dialog
 // stub and verify the resulting .opossum files on disk, which the
 // integration harness cannot exercise.

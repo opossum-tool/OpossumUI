@@ -81,8 +81,8 @@ export default defineConfig(({ mode }) => ({
         extends: true,
         test: {
           environment: 'happy-dom',
-          include: ['src/Frontend/integration-tests/**/*.test.{ts,tsx}'],
-          name: { label: 'INT', color: 'red' },
+          include: ['src/integration-tests/**/*.test.{ts,tsx}'],
+          name: { label: 'INT', color: 'cyan' },
           setupFiles: [
             './src/testing/setup.ts',
             './src/testing/frontend-setup.ts',
