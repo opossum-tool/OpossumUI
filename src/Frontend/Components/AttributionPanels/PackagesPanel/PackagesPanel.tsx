@@ -360,6 +360,10 @@ export const PackagesPanel = ({
   });
   const setSortingWithUnsavedCheck = useCallback(
     (sorting: SortOption) => {
+      if (sorting === filters.sorting) {
+        return;
+      }
+
       if (
         selectedAttributionId &&
         selectedAttributionIsExternal === external &&

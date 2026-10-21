@@ -580,6 +580,43 @@ describe('PackagesPanel', () => {
     );
   });
 
+  it('does not open the unsaved-changes prompt when selecting the current sorting', async () => {
+    const selectedAttribution = faker.opossum.packageInfo({
+      relation: 'resource',
+    });
+    const { store } = await renderPackagesPanel({
+      attributions: faker.opossum.attributions({
+        [selectedAttribution.id]: selectedAttribution,
+      }),
+      actions: [
+        setSelectedAttributionId(selectedAttribution.id),
+        initializePackageInfoEditing(selectedAttribution),
+        setTemporaryDisplayPackageInfo({
+          ...selectedAttribution,
+          packageName: 'changed',
+        }),
+      ],
+      useAttributionFilters: useManualAttributionFilters,
+    });
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        selectedAttribution.id,
+      );
+    });
+
+    await userEvent.click(screen.getByRole('button', { name: 'sort button' }));
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: text.sortings.name }),
+    );
+
+    expect(getOpenPopup(store.getState())).toBeNull();
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual({
+      ...selectedAttribution,
+      packageName: 'changed',
+    });
+  });
+
   it('clears the multi-selection when sorting the other panel', async () => {
     const selectedSignal = faker.opossum.packageInfo({
       relation: 'resource',
