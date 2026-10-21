@@ -100,7 +100,15 @@ Unit tests are provided for all features. The testing framework is Vitest + Test
 yarn test:unit
 ```
 
-End to end test are available and can be run using:
+Integration tests render the full app (frontend against a real, SQLite-backed backend) in a simulated browser. They sit between the
+unit and end-to-end tests: slower than unit tests, but without the startup cost of Electron. They can be run using:
+
+```bash
+yarn test:int
+```
+
+End-to-end tests launch the packaged Electron app and cover everything a renderer-only test cannot observe, e.g. native menus,
+dialogs, multi-window and file-IO behavior. They are slower and can be run using:
 
 ```bash
 yarn test:e2e

@@ -224,9 +224,10 @@ function getProjectMetadata(
     id: menuItemIds.projectMetadata,
     click: () => {
       if (isFileLoaded(getGlobalBackendState())) {
-        webContents.send(AllowedFrontendChannels.ShowProjectMetadataPopup, {
-          showProjectMetadataPopup: true,
-        });
+        webContents.send(
+          AllowedFrontendChannels.ShowProjectMetadataPopup,
+          true,
+        );
       }
     },
     enabled:
@@ -247,9 +248,10 @@ function getProjectStatistics(
     id: menuItemIds.projectStatistics,
     click: () => {
       if (isFileLoaded(getGlobalBackendState())) {
-        webContents.send(AllowedFrontendChannels.ShowProjectStatisticsPopup, {
-          showProjectStatisticsPopup: true,
-        });
+        webContents.send(
+          AllowedFrontendChannels.ShowProjectStatisticsPopup,
+          true,
+        );
       }
     },
     enabled:

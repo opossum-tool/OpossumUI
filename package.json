@@ -118,6 +118,7 @@
     "typecheck": "yarn db:generate && tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
     "test:unit": "vitest",
     "test:changed": "vitest --onlyChanged",
+    "test:int": "vitest run --project INT",
     "performance:generate": "tsx src/performance-tests/synthetic-file/generate.ts",
     "performance:measure": "cross-env RELEASE=1 PERFORMANCE_PROFILE=small playwright test -c src/performance-tests/playwright.config.ts",
     "performance:measure:large": "cross-env RELEASE=1 PERFORMANCE_PROFILE=large playwright test -c src/performance-tests/playwright.config.ts",

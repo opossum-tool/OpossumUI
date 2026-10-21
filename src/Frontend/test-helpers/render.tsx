@@ -18,7 +18,7 @@ import { theme } from '../Components/App/App.style';
 import { type Action, createAppStore } from '../state/configure-store';
 import { setDatabaseInitialized } from '../util/backendClient';
 
-function makeReactQueryClient() {
+export function makeReactQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
@@ -32,7 +32,7 @@ function ThemedChildren({ children }: { children: React.ReactNode }) {
   return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
 }
 
-function makeProviderWrapper(
+export function makeProviderWrapper(
   store: Awaited<ReturnType<typeof createTestStore>>,
   queryClient: QueryClient,
   { withVirtuosoContext = false }: { withVirtuosoContext?: boolean } = {},

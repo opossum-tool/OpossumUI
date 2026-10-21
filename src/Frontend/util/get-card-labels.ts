@@ -1,11 +1,13 @@
-// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 import { compact } from 'lodash-es';
 
-import type { PackageInfo } from '../../shared/shared-types';
+import type { PackageInfo, RawPackageInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
+
+export type PackageInfoForLabels = PackageInfo | RawPackageInfo;
 
 const PRIORITIZED_DISPLAY_PACKAGE_INFO_ATTRIBUTES = [
   'packageName',
@@ -14,11 +16,13 @@ const PRIORITIZED_DISPLAY_PACKAGE_INFO_ATTRIBUTES = [
   'licenseText',
   'comment',
   'url',
-] satisfies Array<keyof PackageInfo>;
+] satisfies Array<keyof PackageInfoForLabels>;
 
 type Attribute = (typeof PRIORITIZED_DISPLAY_PACKAGE_INFO_ATTRIBUTES)[number];
 
-export function getCardLabels(packageInfo: PackageInfo): Array<string> {
+export function getCardLabels(
+  packageInfo: PackageInfoForLabels,
+): Array<string> {
   const packageLabels: Array<string> = [];
 
   if (packageInfo.firstParty) {
@@ -36,7 +40,7 @@ export function getCardLabels(packageInfo: PackageInfo): Array<string> {
 }
 
 function addPackageLabelsFromAttribute(
-  packageInfo: PackageInfo,
+  packageInfo: PackageInfoForLabels,
   attribute: Attribute,
   packageLabels: Array<string>,
 ): void {
@@ -65,7 +69,7 @@ function addPackageLabelsFromAttribute(
 
 export function addFirstLineOfPackageLabelFromAttribute(
   attribute: Attribute,
-  packageInfo: PackageInfo,
+  packageInfo: PackageInfoForLabels,
   packageLabels: Array<string>,
 ): void {
   let firstLinePackageLabel: string;
@@ -85,7 +89,7 @@ export function addFirstLineOfPackageLabelFromAttribute(
 
 export function addSecondLineOfPackageLabelFromAttribute(
   attribute: Attribute,
-  packageInfo: PackageInfo,
+  packageInfo: PackageInfoForLabels,
   packageLabels: Array<string>,
 ): void {
   let secondLinePackageLabel: string;

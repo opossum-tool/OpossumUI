@@ -30,10 +30,16 @@ export async function installDefaultSyncDialogStubs(
 export async function getUnexpectedSyncDialogCalls(
   app: ElectronApplication,
 ): Promise<Array<string>> {
-  return app.evaluate(({ dialog }, stateKey) => {
-    const state = Reflect.get(dialog, stateKey) as DialogStubState | undefined;
-    return state?.unexpectedDialogCalls ?? [];
-  }, DIALOG_STUB_STATE_KEY);
+  try {
+    return await app.evaluate(({ dialog }, stateKey) => {
+      const state = Reflect.get(dialog, stateKey) as
+        DialogStubState | undefined;
+      return state?.unexpectedDialogCalls ?? [];
+    }, DIALOG_STUB_STATE_KEY);
+  } catch {
+    // The app has already been closed by the test (e.g. relaunched).
+    return [];
+  }
 }
 
 export async function stubOpenDialogSync(

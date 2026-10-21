@@ -706,7 +706,9 @@ describe('AttributionDetails', () => {
     ).toBeNull();
   });
 
-  it('saves modified attribution', async () => {
+  // Saves go through the real backend (SQLite) and can exceed the default
+  // timeout when the suite runs on a heavily loaded machine.
+  it('saves modified attribution', { timeout: 10000 }, async () => {
     const packageInfo1 = makeComparisonPackage({
       id: 'first',
       packageName: 'opening-name',

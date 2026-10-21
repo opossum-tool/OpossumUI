@@ -221,12 +221,46 @@ export class MenuBar {
     await this.clickEnabledMenuItem(menuItemIds.qaMode);
   }
 
-  async toggleShowClassificationOff(): Promise<void> {
+  /** Clicks a menu item even if it is currently disabled, e.g. to test click handler guards. */
+  async forceClickMenuItem(menuItemId: string): Promise<void> {
+    await clickMenuItemById(this.window.app, menuItemId);
+  }
+
+  /** Returns a reference identifying the menu item's icon, e.g. to distinguish check states. */
+  async getMenuItemIconReference(menuItemId: string): Promise<string> {
+    const item = await getMenuItemById(this.window.app, menuItemId);
+    const icon = item.icon;
+    if (typeof icon === 'string') {
+      return icon;
+    }
+    if (icon && 'dataURL' in icon) {
+      return icon.dataURL;
+    }
+    throw new Error(`Menu item ${menuItemId} has no icon`);
+  }
+
+  async toggleShowClassification(): Promise<void> {
     await this.clickEnabledMenuItem(menuItemIds.showClassifications);
   }
 
-  async toggleShowCriticalityOff(): Promise<void> {
+  async toggleShowCriticality(): Promise<void> {
     await this.clickEnabledMenuItem(menuItemIds.showCriticality);
+  }
+
+  async searchAttributions(): Promise<void> {
+    await this.clickEnabledMenuItem(menuItemIds.searchAttributions);
+  }
+
+  async searchSignals(): Promise<void> {
+    await this.clickEnabledMenuItem(menuItemIds.searchSignals);
+  }
+
+  async searchResources(): Promise<void> {
+    await this.clickEnabledMenuItem(menuItemIds.searchResources);
+  }
+
+  async searchLinkedResources(): Promise<void> {
+    await this.clickEnabledMenuItem(menuItemIds.searchLinkedResources);
   }
 
   async saveChanges(): Promise<void> {

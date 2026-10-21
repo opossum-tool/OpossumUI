@@ -50,10 +50,23 @@ import {
 
 const LOAD_TIMEOUT = 45000;
 
+// When a test relaunches the app, artifacts of the app sessions are
+// distinguished by these suffixes so that they are all kept.
+const BEFORE_RELAUNCH_ARTIFACT_SUFFIX = '.pre-relaunch';
+const AFTER_RELAUNCH_ARTIFACT_SUFFIX = '.post-relaunch';
+
 interface OpossumData {
   inputData: ParsedOpossumInputFile;
   outputData?: ParsedOpossumOutputFile;
   readonlyRules?: ReadonlyRule[];
+}
+
+/** The state needed to launch, use and close one app session. */
+interface AppSession {
+  app: ElectronApplication;
+  window: Page;
+  mainProcessLogs: Array<string>;
+  tracingActive: boolean;
 }
 
 interface FilePaths {
@@ -62,7 +75,12 @@ interface FilePaths {
 }
 
 export const test = base.extend<{
-  window: Page & { app: ElectronApplication; startupDurationMs: number | null };
+  window: Page & {
+    app: ElectronApplication;
+    startupDurationMs: number | null;
+    /** Closes the app and relaunches it with the same user data directory (no reset, no file). */
+    relaunch: () => Promise<Page & { app: ElectronApplication }>;
+  };
   /** Specify the input/output data contained in the opossum file which the app will open as part of the test. */
   data: OpossumData | undefined;
   /** Open an existing file instead of creating a test file. */
@@ -98,6 +116,8 @@ export const test = base.extend<{
   pathBar: PathBar;
   projectMetadataPopup: ProjectMetadataPopup;
   projectStatisticsPopup: ProjectStatisticsPopup;
+  /** Closes the app and relaunches it */
+  relaunch: () => Promise<Page & { app: ElectronApplication }>;
   reportView: ReportView;
   resourcesTree: ResourcesTree;
   signalsPanel: SignalsPanel;
@@ -149,99 +169,126 @@ export const test = base.extend<{
       existingFilePath ??
       (data && filePaths && (await createTestFiles({ data, filePaths })));
 
-    const [executablePath, main] = getLaunchProps(releasePathOverride);
-    const args = ['--reset', `--user-data-dir=${info.outputPath('user-data')}`];
-    if (os.platform() === 'linux') {
-      args.push('--no-sandbox');
-    }
-    if (process.env.E2E_XVFB) {
-      // The purpose of this is to allow running the tests in the background. Wayland requires a configured headless compositor for this, so force X11.
-      args.push('--ozone-platform=x11');
-    }
+    const artifactBaseName = getArtifactBaseName(data);
 
     const startupStartedAt = performance.now();
-    const app = await electron.launch({
+    let currentSession = await startAppSession({
+      appLoadTimeout,
       args: [
-        ...(main ? [main] : []),
-        ...(!opossumFilePath || !openFromCLI
-          ? args
-          : args.concat([opossumFilePath])),
-      ],
-      executablePath,
-      env: {
-        ...process.env,
-        RESET: '1',
-      },
+        '--reset',
+        `--user-data-dir=${info.outputPath('user-data')}`,
+      ].concat(opossumFilePath && openFromCLI ? [opossumFilePath] : []),
+      env: { ...process.env, RESET: '1' },
+      playwrightTracing,
+      releasePathOverride,
     });
-    await installDefaultSyncDialogStubs(app);
-
-    // Capture main process stdout/stderr for debugging
-    const mainProcessLogs: Array<string> = [];
-    app.process().stdout?.on('data', (data: Buffer) => {
-      mainProcessLogs.push(`[stdout] ${data.toString()}`);
-    });
-    app.process().stderr?.on('data', (data: Buffer) => {
-      mainProcessLogs.push(`[stderr] ${data.toString()}`);
-    });
-
-    const window = await app.firstWindow();
-    await window.setViewportSize({
-      width: 1920,
-      height: 1080,
-    });
-    await window.waitForLoadState('domcontentloaded', {
-      timeout: appLoadTimeout,
-    });
-    await window
-      .getByRole('button', { name: 'open file' })
-      .waitFor({ state: 'visible', timeout: appLoadTimeout });
     if (opossumFilePath && openFromCLI) {
-      await window.getByTestId('resources-tree').waitFor({
+      await currentSession.window.getByTestId('resources-tree').waitFor({
         state: 'visible',
         timeout: appLoadTimeout,
       });
     }
-    if (playwrightTracing) {
-      await window
-        .context()
-        .tracing.start({ screenshots: true, snapshots: true });
-    }
+
+    // Starting and closing app sessions works identically for the initially
+    // launched session and for sessions created by relaunching, so both flows
+    // behave the same. The session labels describe the session in relation to
+    // relaunches and are used prefixed in error messages; without any
+    // relaunch the label is empty.
+    const finishedSessions: Array<{
+      label: string;
+      unexpectedDialogCalls: Array<string>;
+    }> = [];
+
+    const finishCurrentAppSession = async (
+      artifactSuffix: string,
+    ): Promise<Array<string>> => {
+      const { app, window, mainProcessLogs, tracingActive } = currentSession;
+
+      // The dialog stub state must be read before the app is closed.
+      const unexpectedDialogCalls = await getUnexpectedSyncDialogCalls(app);
+
+      if (mainProcessLogs.length > 0) {
+        fs.writeFileSync(
+          info.outputPath(
+            `${artifactBaseName}${artifactSuffix}.main-process.log`,
+          ),
+          mainProcessLogs.join(''),
+        );
+      }
+
+      // The trace must be ended before the app and its browser context are
+      // closed.
+      if (tracingActive) {
+        currentSession.tracingActive = false;
+        await window.context().tracing.stop({
+          path: info.outputPath(
+            `${artifactBaseName}${artifactSuffix}.trace.zip`,
+          ),
+        });
+      }
+
+      try {
+        await app.close();
+      } catch {
+        // The app has already been closed.
+      }
+
+      return unexpectedDialogCalls;
+    };
 
     await use(
-      Object.assign(window, {
-        app,
+      Object.assign(currentSession.window, {
+        app: currentSession.app,
         startupDurationMs: measureStartup
           ? performance.now() - startupStartedAt
           : null,
+        relaunch: async (): Promise<Page & { app: ElectronApplication }> => {
+          finishedSessions.push({
+            label: 'Before relaunch',
+            unexpectedDialogCalls: await finishCurrentAppSession(
+              BEFORE_RELAUNCH_ARTIFACT_SUFFIX,
+            ),
+          });
+          currentSession = await startAppSession({
+            appLoadTimeout,
+            // The user data directory is reused so that persisted user
+            // settings are still present. Contrary to the initial launch, no
+            // reset flags are passed and no file is opened.
+            args: [`--user-data-dir=${info.outputPath('user-data')}`],
+            env: { ...process.env, RESET: '' },
+            playwrightTracing,
+            releasePathOverride,
+          });
+          return Object.assign(currentSession.window, {
+            app: currentSession.app,
+          });
+        },
       }),
     );
 
-    const unexpectedDialogCalls = await getUnexpectedSyncDialogCalls(app);
+    finishedSessions.push({
+      label: finishedSessions.length > 0 ? 'After relaunch' : '',
+      unexpectedDialogCalls: await finishCurrentAppSession(
+        finishedSessions.length > 0 ? AFTER_RELAUNCH_ARTIFACT_SUFFIX : '',
+      ),
+    });
 
-    // Write main process logs to artifacts
-    if (mainProcessLogs.length > 0) {
-      fs.writeFileSync(
-        info.outputPath(
-          `${data?.inputData.metadata.projectId || 'app'}.main-process.log`,
-        ),
-        mainProcessLogs.join(''),
-      );
-    }
-
-    if (playwrightTracing) {
-      await window.context().tracing.stop({
-        path: info.outputPath(
-          `${data?.inputData.metadata.projectId || 'app'}.trace.zip`,
-        ),
-      });
-    }
-    await app.close();
-
-    if (unexpectedDialogCalls.length > 0) {
+    const violatingSessions = finishedSessions.filter(
+      ({ unexpectedDialogCalls }) => unexpectedDialogCalls.length > 0,
+    );
+    if (violatingSessions.length > 0) {
       throw new Error(
-        `Unexpected unstubbed native dialog call${unexpectedDialogCalls.length === 1 ? '' : 's'}: ${unexpectedDialogCalls.join(', ')}`,
+        violatingSessions
+          .map(
+            ({ label, unexpectedDialogCalls }) =>
+              `${label ? `${label} - ` : ''}Unexpected unstubbed native dialog call${unexpectedDialogCalls.length === 1 ? '' : 's'}: ${unexpectedDialogCalls.join(', ')}`,
+          )
+          .join('\n'),
       );
     }
+  },
+  relaunch: async ({ window }, use) => {
+    await use(window.relaunch);
   },
   debug: async ({ window: _ }, use, info) => {
     await use(() => {
@@ -251,6 +298,9 @@ export const test = base.extend<{
   },
   modKey: async ({}, use) => {
     await use(os.platform() === 'darwin' ? 'Meta' : 'Control');
+  },
+  projectMetadataPopup: async ({ window }, use) => {
+    await use(new ProjectMetadataPopup(window));
   },
   projectStatisticsPopup: async ({ window }, use) => {
     await use(new ProjectStatisticsPopup(window));
@@ -272,9 +322,6 @@ export const test = base.extend<{
   },
   confirmReplacePopup: async ({ window }, use) => {
     await use(new ConfirmReplacePopup(window));
-  },
-  projectMetadataPopup: async ({ window }, use) => {
-    await use(new ProjectMetadataPopup(window));
   },
   menuBar: async ({ window }, use) => {
     await use(new MenuBar(window));
@@ -322,6 +369,100 @@ export const test = base.extend<{
     await use(new MergeOpossumFilesDialog(window));
   },
 });
+
+function getArtifactBaseName(data: OpossumData | undefined): string {
+  return data?.inputData.metadata.projectId || 'app';
+}
+
+function getPlatformArgs(): Array<string> {
+  const platformArgs = [];
+  if (os.platform() === 'linux') {
+    platformArgs.push('--no-sandbox');
+  }
+  if (process.env.E2E_XVFB) {
+    // The purpose of this is to allow running the tests in the background. Wayland requires a configured headless compositor for this, so force X11.
+    platformArgs.push('--ozone-platform=x11');
+  }
+  return platformArgs;
+}
+
+async function launchOpossumApp({
+  appLoadTimeout,
+  args,
+  env,
+  releasePathOverride,
+}: {
+  appLoadTimeout: number;
+  args: Array<string>;
+  env: { [key: string]: string };
+  releasePathOverride: string | null;
+}): Promise<{
+  app: ElectronApplication;
+  window: Page;
+  mainProcessLogs: Array<string>;
+}> {
+  const [executablePath, main] = getLaunchProps(releasePathOverride);
+  const app = await electron.launch({
+    args: [...(main ? [main] : []), ...args, ...getPlatformArgs()],
+    executablePath,
+    env,
+  });
+  await installDefaultSyncDialogStubs(app);
+
+  // Capture main process stdout/stderr for debugging
+  const mainProcessLogs: Array<string> = [];
+  app.process().stdout?.on('data', (data: Buffer) => {
+    mainProcessLogs.push(`[stdout] ${data.toString()}`);
+  });
+  app.process().stderr?.on('data', (data: Buffer) => {
+    mainProcessLogs.push(`[stderr] ${data.toString()}`);
+  });
+
+  const window = await app.firstWindow();
+  await window.setViewportSize({
+    width: 1920,
+    height: 1080,
+  });
+  await window.waitForLoadState('domcontentloaded', {
+    timeout: appLoadTimeout,
+  });
+  await window
+    .getByRole('button', { name: 'open file' })
+    .waitFor({ state: 'visible', timeout: appLoadTimeout });
+
+  return { app, window, mainProcessLogs };
+}
+
+async function startAppSession({
+  appLoadTimeout,
+  args,
+  env,
+  playwrightTracing,
+  releasePathOverride,
+}: {
+  appLoadTimeout: number;
+  args: Array<string>;
+  env: { [key: string]: string };
+  playwrightTracing: boolean;
+  releasePathOverride: string | null;
+}): Promise<AppSession> {
+  const { app, window, mainProcessLogs } = await launchOpossumApp({
+    appLoadTimeout,
+    args,
+    env,
+    releasePathOverride,
+  });
+
+  let tracingActive = false;
+  if (playwrightTracing) {
+    await window
+      .context()
+      .tracing.start({ screenshots: true, snapshots: true });
+    tracingActive = true;
+  }
+
+  return { app, window, mainProcessLogs, tracingActive };
+}
 
 function getLaunchProps(
   releasePathOverride: string | null,
