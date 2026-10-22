@@ -3,125 +3,112 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { fireEvent, screen } from '@testing-library/react';
-import { BrowserWindow, net } from 'electron';
 
-import { setGlobalBackendState } from '../ElectronBackend/main/globalBackendState';
-import { getHelpMenu } from '../ElectronBackend/main/menu/helpMenu';
-import { menuItemIds } from '../ElectronBackend/main/menu/menuItemIds';
-import {
-  checkForUpdates,
-  getUpdateState,
-  stopAutomaticUpdateChecks,
-} from '../ElectronBackend/main/update-service';
 import { AllowedFrontendChannels } from '../shared/ipc-channels';
+import {
+  getReleaseAssetDownloadUrl,
+  UPDATE_ASSET_NAMES,
+} from '../shared/release-assets';
 import { text } from '../shared/text';
-import { renderApp, type RenderAppResult } from './helpers/render-app';
-import { gotoReportView } from './helpers/ui';
-
-vi.mock('electron', () => ({
-  app: { isPackaged: true, runningUnderARM64Translation: false },
-  BrowserWindow: { getAllWindows: vi.fn() },
-  net: { fetch: vi.fn() },
-  nativeTheme: { shouldUseDarkColors: false },
-  default: { nativeTheme: { shouldUseDarkColors: false } },
-}));
-
-vi.mock('electron-settings', () => ({
-  default: {
-    get: vi.fn().mockResolvedValue(false),
-    set: vi.fn().mockResolvedValue(undefined),
-  },
-}));
-
-vi.mock('../commitInfo.json', () => ({
-  default: { commitInfo: 'OpossumUI-2026-10-20' },
-}));
-
-const releaseEndpoint =
-  'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest';
+import { renderApp } from './helpers/render-app';
+import { expectViewIsActive, gotoReportView } from './helpers/ui';
 
 describe('checking for updates through the Help menu', () => {
-  afterEach(() => {
-    stopAutomaticUpdateChecks();
-    vi.restoreAllMocks();
-    vi.unstubAllEnvs();
-    setGlobalBackendState({});
-  });
-
   it.each(['audit', 'report'] as const)(
     'shows and dismisses the real update failure banner in the %s view',
     async (view) => {
-      vi.stubEnv('APPIMAGE', '/app');
-      vi.stubEnv('SNAP', '');
-      vi.mocked(net.fetch).mockResolvedValue(
-        new Response('Unavailable', { status: 503 }),
-      );
-
-      const harness: {
-        sendToChannel?: RenderAppResult['sendToChannel'];
-      } = {};
-      const send = vi.fn(
-        (channel: AllowedFrontendChannels, ...args: Array<unknown>) =>
-          harness.sendToChannel?.(channel, ...args),
-      );
-      const mockedWindow = {
-        isDestroyed: () => false,
-        webContents: {
-          isDestroyed: () => false,
-          send,
+      const { sendToChannel, requestedUpdateUrls } = await renderApp({
+        updates: {
+          installedTag: 'OpossumUI-2026-10-20',
+          response: { status: 503, body: 'Unavailable' },
         },
-      } as unknown as Electron.BrowserWindow;
-      vi.mocked(BrowserWindow.getAllWindows).mockReturnValue([mockedWindow]);
-
-      vi.spyOn(window.electronAPI, 'checkForUpdates').mockImplementation(
-        checkForUpdates,
-      );
-      vi.spyOn(window.electronAPI, 'getUpdateState').mockImplementation(() =>
-        Promise.resolve(getUpdateState()),
-      );
-
-      const { sendToChannel } = await renderApp({
         userSettings: { automaticallyCheckForUpdates: false },
       });
-      harness.sendToChannel = sendToChannel;
       if (view === 'report') {
         await gotoReportView();
       }
+      await expectViewIsActive(view);
 
-      const helpMenu = await getHelpMenu(mockedWindow.webContents, vi.fn());
-      const updateItem = (
-        helpMenu.submenu as Array<Electron.MenuItemConstructorOptions>
-      ).find(({ id }) => id === menuItemIds.helpCheckForUpdates);
-      expect(updateItem).toBeDefined();
-      expect(updateItem?.enabled).toBe(true);
-      updateItem?.click?.({} as Electron.MenuItem, mockedWindow, {});
-
+      sendToChannel(AllowedFrontendChannels.CheckForUpdatesRequested);
       expect(
         await screen.findByText(text.updateApp.fetchFailed),
       ).toBeInTheDocument();
-      expect(net.fetch).toHaveBeenCalledWith(
-        releaseEndpoint,
-        expect.objectContaining({
-          headers: { Accept: 'application/vnd.github+json' },
-        }),
-      );
-      expect(net.fetch).toHaveBeenCalledTimes(1);
-      expect(send).toHaveBeenCalledWith(
-        AllowedFrontendChannels.CheckForUpdatesRequested,
-      );
-      expect(send).toHaveBeenCalledWith(
-        AllowedFrontendChannels.UpdateStateChanged,
-        { status: 'checking' },
-      );
-      expect(send).toHaveBeenCalledWith(
-        AllowedFrontendChannels.UpdateStateChanged,
-        { status: 'error' },
-      );
+
+      expect(requestedUpdateUrls).toEqual([
+        'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest',
+      ]);
 
       fireEvent.click(
         screen.getByRole('button', { name: text.updateApp.dismissed }),
       );
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(text.updateApp.fetchFailed),
+      ).not.toBeInTheDocument();
     },
   );
+
+  it('shows the failure banner when a successful response contains invalid release data', async () => {
+    const { sendToChannel, requestedUpdateUrls } = await renderApp({
+      updates: {
+        installedTag: 'OpossumUI-2026-10-20',
+        response: { status: 200, body: 'invalid JSON' },
+      },
+      userSettings: { automaticallyCheckForUpdates: false },
+    });
+    await expectViewIsActive('audit');
+
+    sendToChannel(AllowedFrontendChannels.CheckForUpdatesRequested);
+    expect(
+      await screen.findByText(text.updateApp.fetchFailed),
+    ).toBeInTheDocument();
+    expect(requestedUpdateUrls).toEqual([
+      'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest',
+    ]);
+    fireEvent.click(
+      screen.getByRole('button', { name: text.updateApp.dismissed }),
+    );
+    expect(
+      screen.queryByText(text.updateApp.fetchFailed),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows an available release from the real update service', async () => {
+    const tag = 'OpossumUI-2026-10-21';
+    const { sendToChannel, requestedUpdateUrls } = await renderApp({
+      updates: {
+        installedTag: 'OpossumUI-2026-10-20',
+        response: {
+          status: 200,
+          body: JSON.stringify({
+            tag_name: tag,
+            draft: false,
+            prerelease: false,
+            assets: Object.values(UPDATE_ASSET_NAMES).map((name) => ({
+              name,
+              browser_download_url: getReleaseAssetDownloadUrl(tag, name),
+              size: 100,
+              state: 'uploaded',
+            })),
+          }),
+        },
+      },
+      userSettings: { automaticallyCheckForUpdates: false },
+    });
+    await expectViewIsActive('audit');
+
+    sendToChannel(AllowedFrontendChannels.CheckForUpdatesRequested);
+    expect(
+      await screen.findByText(text.updateApp.available(tag)),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: text.updateApp.download }),
+    ).toBeInTheDocument();
+    expect(requestedUpdateUrls).toEqual([
+      'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest',
+    ]);
+    fireEvent.click(
+      screen.getByRole('button', { name: text.updateApp.dismissed }),
+    );
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
 });

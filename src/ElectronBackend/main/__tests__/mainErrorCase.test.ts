@@ -4,11 +4,16 @@
 // SPDX-License-Identifier: Apache-2.0
 import { dialog, ipcMain } from 'electron';
 
+import commitInfo from '../../../commitInfo.json';
 import { main } from '../main';
-import { startAutomaticUpdateChecks } from '../update-service';
+import {
+  initializeUpdateService,
+  startAutomaticUpdateChecks,
+} from '../update-service';
 import { UserSettingsService } from '../user-settings-service';
 
 vi.mock('../update-service', () => ({
+  initializeUpdateService: vi.fn(),
   startAutomaticUpdateChecks: vi.fn(),
   stopAutomaticUpdateChecks: vi.fn(),
 }));
@@ -67,6 +72,7 @@ describe('The App backend', () => {
   it('handles errors', async () => {
     await main();
 
+    expect(initializeUpdateService).toHaveBeenCalledWith(commitInfo.commitInfo);
     expect(dialog.showMessageBox).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'error',
@@ -88,5 +94,9 @@ describe('The App backend', () => {
       'automaticallyCheckForUpdates',
     );
     expect(startAutomaticUpdateChecks).toHaveBeenCalledOnce();
+    expect(initializeUpdateService).toHaveBeenCalledWith(commitInfo.commitInfo);
+    expect(initializeUpdateService).toHaveBeenCalledBefore(
+      vi.mocked(startAutomaticUpdateChecks),
+    );
   });
 });

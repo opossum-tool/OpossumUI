@@ -21,6 +21,7 @@ import type {
   ParsedFileContent,
   UserSettings,
 } from '../../shared/shared-types';
+import { setUpUpdates, type UpdatesFixture } from './updates';
 
 type IpcListener = (event: IpcRendererEvent, ...args: Array<unknown>) => void;
 
@@ -89,9 +90,12 @@ export interface RenderAppOptions {
   userSettings?: Omit<Partial<UserSettings>, 'panelSizes'> & {
     panelSizes?: Partial<UserSettings['panelSizes']>;
   };
+  /** Opt-in real update service with a release and HTTP response fixture. */
+  updates?: UpdatesFixture;
 }
 
 export interface RenderAppResult {
+  requestedUpdateUrls: string[];
   store: Awaited<ReturnType<typeof createTestStore>>;
   /**
    * Simulates the Electron main process sending an event on an IPC channel,
@@ -124,7 +128,7 @@ function mergeUserSettings(
 export async function renderApp(
   options: RenderAppOptions = {},
 ): Promise<RenderAppResult> {
-  const { data, actions, userSettings } = options;
+  const { data, actions, userSettings, updates } = options;
   const store = await createTestStore(data);
   actions?.forEach(store.dispatch);
 
@@ -156,6 +160,10 @@ export async function renderApp(
     const event = {} as IpcRendererEvent;
     listeners.forEach((listener) => listener(event, ...args));
   }
+
+  const requestedUpdateUrls = updates
+    ? setUpUpdates(updates, sendToChannel)
+    : [];
 
   render(
     <>
@@ -194,5 +202,5 @@ export async function renderApp(
     });
   }
 
-  return { store, sendToChannel };
+  return { store, sendToChannel, requestedUpdateUrls };
 }

@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { app, net } from 'electron';
 
-import commitInfo from '../../commitInfo.json';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   getReleaseAssetDownloadUrl,
@@ -53,16 +52,24 @@ interface GithubRelease {
   tag_name: string;
 }
 
-const installedTag = commitInfo.commitInfo;
-const installedVersion = parseReleaseTag(installedTag);
-const installedRelease: InstalledRelease | undefined = installedVersion
-  ? { tag: installedTag, version: installedVersion }
-  : undefined;
+let installedRelease: InstalledRelease | undefined;
 
 let currentState: UpdateState = { status: 'checking' };
 let inFlightRequest: Promise<UpdateState> | undefined;
 let checkTimeout: ReturnType<typeof setTimeout> | undefined;
 let automaticChecksEnabled = false;
+
+export function initializeUpdateService(installedTag: string): void {
+  if (inFlightRequest) {
+    throw new Error(
+      'Cannot initialize the update service during an active request.',
+    );
+  }
+  stopAutomaticUpdateChecks();
+  const version = parseReleaseTag(installedTag);
+  installedRelease = version ? { tag: installedTag, version } : undefined;
+  currentState = { status: 'checking' };
+}
 
 export function parseReleaseTag(tag: string): ParsedTag | undefined {
   const match = RELEASE_TAG.exec(tag);

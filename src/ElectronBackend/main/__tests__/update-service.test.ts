@@ -12,6 +12,7 @@ import {
   compareReleaseTags,
   evaluateRelease,
   getUpdateState,
+  initializeUpdateService,
   parseReleaseTag,
   selectRequiredAsset,
   startAutomaticUpdateChecks,
@@ -26,15 +27,13 @@ vi.mock('electron', () => ({
 vi.mock('../logger', () => ({
   default: { info: vi.fn(), warn: vi.fn() },
 }));
-vi.mock('../../../commitInfo.json', () => ({
-  default: { commitInfo: 'OpossumUI-2026-10-20' },
-}));
 
 const originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform');
 const originalArchitecture = Object.getOwnPropertyDescriptor(process, 'arch');
 
 describe('update service release tags', () => {
   beforeEach(() => {
+    initializeUpdateService('OpossumUI-2026-10-20');
     setPackaged(true);
     vi.stubEnv('APPIMAGE', '/app');
     vi.stubEnv('SNAP', '');
@@ -61,6 +60,70 @@ describe('update service release tags', () => {
     if (originalArchitecture) {
       Object.defineProperty(process, 'arch', originalArchitecture);
     }
+  });
+
+  it('clears previous state and uses a different installed release on reinitialization', async () => {
+    vi.mocked(net.fetch).mockResolvedValue(releaseResponse(readyRelease()));
+    await checkForUpdates();
+    expect(getUpdateState().status).toBe('available');
+
+    initializeUpdateService('OpossumUI-2027-01-02');
+    expect(getUpdateState()).toEqual({ status: 'checking' });
+    await expect(checkForUpdates()).resolves.toEqual({
+      status: 'up-to-date',
+      installedTag: 'OpossumUI-2027-01-02',
+    });
+  });
+
+  it('clears a previous valid installed version for an invalid tag', async () => {
+    vi.mocked(net.fetch).mockResolvedValue(releaseResponse(readyRelease()));
+    await checkForUpdates();
+    vi.mocked(net.fetch).mockClear();
+    initializeUpdateService('invalid');
+    expect(getUpdateState()).toEqual({ status: 'checking' });
+    await expect(checkForUpdates()).resolves.toEqual({
+      status: 'error',
+      reason: 'unknown-installed-version',
+    });
+    expect(net.fetch).not.toHaveBeenCalled();
+  });
+
+  it('cancels scheduled polling and keeps it disabled after a manual check', async () => {
+    vi.useFakeTimers();
+    vi.mocked(net.fetch).mockResolvedValue(releaseResponse(readyRelease()));
+    startAutomaticUpdateChecks();
+    await checkForUpdates();
+    expect(vi.getTimerCount()).toBe(1);
+
+    initializeUpdateService('OpossumUI-2026-10-21');
+    expect(vi.getTimerCount()).toBe(0);
+    await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
+    expect(net.fetch).toHaveBeenCalledTimes(1);
+    await checkForUpdates();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('rejects initialization during a request without disturbing its version or polling', async () => {
+    vi.useFakeTimers();
+    const response = Promise.withResolvers<Response>();
+    vi.mocked(net.fetch).mockReturnValue(response.promise);
+    startAutomaticUpdateChecks();
+    const pending = checkForUpdates();
+    expect(() => initializeUpdateService('invalid')).toThrow(
+      'Cannot initialize the update service during an active request.',
+    );
+    expect(getUpdateState()).toEqual({ status: 'checking' });
+    expect(checkForUpdates()).toBe(pending);
+    expect(net.fetch).toHaveBeenCalledTimes(1);
+
+    response.resolve(releaseResponse(upToDateRelease()));
+    await expect(pending).resolves.toEqual({
+      status: 'up-to-date',
+      installedTag: 'OpossumUI-2026-10-20',
+    });
+    expect(vi.getTimerCount()).toBe(1);
+    await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
+    expect(net.fetch).toHaveBeenCalledTimes(2);
   });
 
   it('recognizes valid date tags and rejects invalid or untagged versions', () => {
@@ -184,14 +247,9 @@ describe('update service release tags', () => {
   it('returns an unknown installed-version error without fetching', async () => {
     vi.stubEnv('APPIMAGE', '');
     vi.stubEnv('SNAP', '');
-    vi.doMock('../../../commitInfo.json', () => ({
-      default: { commitInfo: '44a171852' },
-    }));
-    vi.resetModules();
-    const updateService = await import('../update-service');
-    const { net: isolatedNet } = await import('electron');
+    initializeUpdateService('44a171852');
 
-    await expect(updateService.checkForUpdates()).resolves.toEqual({
+    await expect(checkForUpdates()).resolves.toEqual({
       status: 'error',
       reason: 'unknown-installed-version',
     });
@@ -201,10 +259,7 @@ describe('update service release tags', () => {
         'The installed release version cannot be determined.',
       ),
     );
-    expect(isolatedNet.fetch).not.toHaveBeenCalled();
-
-    vi.doUnmock('../../../commitInfo.json');
-    vi.resetModules();
+    expect(net.fetch).not.toHaveBeenCalled();
   });
 
   it('does not poll when the installation has no supported package format', async () => {
