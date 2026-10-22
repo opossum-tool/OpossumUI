@@ -41,6 +41,7 @@ const classes = {
     p: 2,
     gap: 2,
     display: 'flex',
+    flexShrink: 0,
     alignItems: 'center',
     minHeight: ({ spacing }: Theme) =>
       spacing(PATH_BAR_MIN_HEIGHT_IN_THEME_UNITS),

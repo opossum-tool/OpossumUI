@@ -21,6 +21,7 @@ export const menuItemIds = {
   exportSpdxYaml: 'export-spdx-yaml',
   forceUnlock: 'force-unlock',
   helpCheckForUpdates: 'help-check-for-updates',
+  helpAutomaticallyCheckForUpdates: 'help-automatically-check-for-updates',
   helpOpenLogFiles: 'help-open-log-files',
   helpUserGuide: 'help-user-guide',
   help: 'help',

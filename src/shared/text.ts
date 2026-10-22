@@ -77,6 +77,7 @@ export const text = {
     helpSubmenu: {
       openLogFiles: 'Open Log Files Folder',
       checkForUpdates: 'Check for Updates',
+      automaticallyCheckForUpdates: 'Automatically Check for Updates',
       userGuide: 'User Guide',
     },
   },
@@ -289,13 +290,19 @@ export const text = {
     invalid: 'This field contains invalid characters',
     incomplete: 'This field is required',
   },
-  updateAppPopup: {
-    fetchFailed: (message: string) =>
-      `Failed to fetch latest release information: ${message}`,
+  updateApp: {
+    fetchFailed: 'Could not check for updates. Please try again later.',
+    unsupportedInstallation:
+      'Update checks aren’t supported for this installation.',
+    unknownInstalledVersion: 'Could not determine the installed version.',
+    viewReleases: 'View releases',
     loading: 'Loading…',
-    noUpdateAvailable: 'You have the latest version of OpossumUI installed.',
+    noUpdateAvailable: 'OpossumUI is up to date.',
     title: 'Check for Updates',
-    updateAvailable: 'There is a newer version of OpossumUI available:',
+    available: (tag: string) =>
+      `A new version of OpossumUI (${tag}) is available:`,
+    dismissed: 'Dismiss update notification',
+    download: 'Download',
   },
   replaceAttributionsPopup: {
     replace: 'Replace',

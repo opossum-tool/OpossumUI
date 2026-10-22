@@ -4,7 +4,25 @@
 // SPDX-License-Identifier: Apache-2.0
 import { dialog, ipcMain } from 'electron';
 
+import commitInfo from '../../../commitInfo.json';
 import { main } from '../main';
+import {
+  initializeUpdateService,
+  startAutomaticUpdateChecks,
+} from '../update-service';
+import { UserSettingsService } from '../user-settings-service';
+
+vi.mock('../update-service', () => ({
+  initializeUpdateService: vi.fn(),
+  startAutomaticUpdateChecks: vi.fn(),
+  stopAutomaticUpdateChecks: vi.fn(),
+}));
+vi.mock('../user-settings-service', () => ({
+  UserSettingsService: {
+    init: vi.fn().mockResolvedValue(undefined),
+    get: vi.fn().mockResolvedValue(false),
+  },
+}));
 
 // Mock electron-settings before electron to prevent initialization errors
 vi.mock('electron-settings', () => ({
@@ -47,9 +65,14 @@ vi.mock('electron', async () => ({
   },
 }));
 describe('The App backend', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('handles errors', async () => {
     await main();
 
+    expect(initializeUpdateService).toHaveBeenCalledWith(commitInfo.commitInfo);
     expect(dialog.showMessageBox).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'error',
@@ -58,5 +81,22 @@ describe('The App backend', () => {
     );
 
     expect(ipcMain.handle).toHaveBeenCalledTimes(0);
+    expect(UserSettingsService.get).toHaveBeenCalledWith(
+      'automaticallyCheckForUpdates',
+    );
+    expect(startAutomaticUpdateChecks).not.toHaveBeenCalled();
+  });
+
+  it('starts update polling only when the saved preference is enabled', async () => {
+    vi.mocked(UserSettingsService.get).mockResolvedValueOnce(true as never);
+    await main();
+    expect(UserSettingsService.get).toHaveBeenCalledWith(
+      'automaticallyCheckForUpdates',
+    );
+    expect(startAutomaticUpdateChecks).toHaveBeenCalledOnce();
+    expect(initializeUpdateService).toHaveBeenCalledWith(commitInfo.commitInfo);
+    expect(initializeUpdateService).toHaveBeenCalledBefore(
+      vi.mocked(startAutomaticUpdateChecks),
+    );
   });
 });

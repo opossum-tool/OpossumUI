@@ -5,6 +5,7 @@
 import { dialog, systemPreferences } from 'electron';
 import os from 'os';
 
+import commitInfo from '../../commitInfo.json';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
   FRONTEND_TO_DB_PROCESS_PORT,
@@ -16,10 +17,16 @@ import { createMenu } from './menu';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
 import { setRuntimeMacOsOpenFileHandler } from './openFileRequests';
 import { setupIpcHandling } from './setUpIpcHandling';
+import {
+  initializeUpdateService,
+  startAutomaticUpdateChecks,
+} from './update-service';
 import { UserSettingsService } from './user-settings-service';
 
 export async function main(): Promise<void> {
   try {
+    initializeUpdateService(commitInfo.commitInfo);
+
     if (os.platform() === 'darwin') {
       systemPreferences.setUserDefault(
         'AppleShowScrollBars',
@@ -31,6 +38,9 @@ export async function main(): Promise<void> {
     const mainWindow = createWindow();
 
     await UserSettingsService.init();
+    if (await UserSettingsService.get('automaticallyCheckForUpdates')) {
+      startAutomaticUpdateChecks();
+    }
     await createMenu(mainWindow);
     const updateMenu = () => createMenu(mainWindow);
 

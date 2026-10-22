@@ -27,7 +27,9 @@ vi.mock('electron', () => {
       getAllWindows: () => {
         return [
           {
+            isDestroyed: () => false,
             webContents: {
+              isDestroyed: () => false,
               send: sendFunction,
             },
           },

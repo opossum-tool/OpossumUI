@@ -2,28 +2,22 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow } from 'electron';
 import log from 'electron-log';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import type { Log } from '../../shared/shared-types';
+import { sendToRenderers } from './send-to-renderers';
 
 class Logger {
   private sendLogToRenderer(
     message: string,
     { level }: Pick<Log, 'level'>,
   ): void {
-    // NOTE: there are situations where BrowserWindow.getAllWindows() returns a
-    // non-empty array but BrowserWindow.getFocusedWindow() returns null.
-    // Thus, using getAllWindows here is more robust than getFocusedWindow
-    BrowserWindow.getAllWindows()[0]?.webContents.send(
-      AllowedFrontendChannels.Logging,
-      {
-        date: new Date(),
-        message,
-        level,
-      } satisfies Log,
-    );
+    sendToRenderers(AllowedFrontendChannels.Logging, {
+      date: new Date(),
+      message,
+      level,
+    } satisfies Log);
   }
 
   public info(message: string): void {

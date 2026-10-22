@@ -13,6 +13,9 @@ import { text } from '../../../shared/text';
 import { setGlobalBackendState } from '../globalBackendState';
 import { createMenu } from '../menu';
 import { getFileMenu, importFileFormats } from '../menu/fileMenu';
+import { getHelpMenu } from '../menu/helpMenu';
+import { menuItemIds } from '../menu/menuItemIds';
+import * as updateService from '../update-service';
 import { UserSettingsService } from '../user-settings-service';
 
 vi.mock('electron', async () => {
@@ -105,6 +108,89 @@ describe('create menu', () => {
     );
     expect(mergeMenu?.submenu).toBeUndefined();
     expect(mergeMenu?.enabled).toBe(true);
+  });
+
+  it('requests an update check from the shared banner when the help item is clicked', async () => {
+    await UserSettingsService.init();
+    const send = vi.fn();
+    const mainWindow = {
+      webContents: { send },
+    } as unknown as BrowserWindow;
+    const helpMenu = await getHelpMenu(mainWindow.webContents, vi.fn());
+    const items = helpMenu.submenu as Array<MenuItemConstructorOptions>;
+    const checkForUpdates = items.find(
+      ({ label }) => label === text.menu.helpSubmenu.checkForUpdates,
+    );
+
+    checkForUpdates?.click?.({} as Electron.MenuItem, mainWindow, {});
+
+    expect(send).toHaveBeenCalledWith(
+      AllowedFrontendChannels.CheckForUpdatesRequested,
+    );
+  });
+
+  it('starts and stops automatic checks after saving the menu preference', async () => {
+    Object.defineProperty(BrowserWindow, 'getAllWindows', {
+      configurable: true,
+      value: vi.fn(() => []),
+    });
+    await UserSettingsService.init();
+    await UserSettingsService.update({ automaticallyCheckForUpdates: false });
+    const readPreference = vi
+      .spyOn(UserSettingsService, 'get')
+      .mockResolvedValueOnce(false as never)
+      .mockResolvedValueOnce(true as never);
+    const savePreference = vi.spyOn(UserSettingsService, 'update');
+    const start = vi.spyOn(updateService, 'startAutomaticUpdateChecks');
+    const stop = vi.spyOn(updateService, 'stopAutomaticUpdateChecks');
+    const webContents = { send: vi.fn() } as unknown as Electron.WebContents;
+    const updateMenu = vi.fn().mockResolvedValue(undefined);
+
+    const enabledMenu = await getHelpMenu(webContents, updateMenu);
+    const enabledItem = (
+      enabledMenu.submenu as Array<MenuItemConstructorOptions>
+    ).find(({ id }) => id === menuItemIds.helpAutomaticallyCheckForUpdates);
+    await (enabledItem?.click?.(
+      {} as Electron.MenuItem,
+      {} as BrowserWindow,
+      {},
+    ) as unknown as Promise<void>);
+    expect(savePreference).toHaveBeenLastCalledWith({
+      automaticallyCheckForUpdates: true,
+    });
+    expect(savePreference.mock.invocationCallOrder[0]).toBeLessThan(
+      start.mock.invocationCallOrder[0],
+    );
+    expect(start.mock.invocationCallOrder[0]).toBeLessThan(
+      updateMenu.mock.invocationCallOrder[0],
+    );
+    expect(updateMenu).toHaveBeenCalledOnce();
+    expect(start).toHaveBeenCalledOnce();
+
+    const disabledMenu = await getHelpMenu(webContents, updateMenu);
+    const disabledItem = (
+      disabledMenu.submenu as Array<MenuItemConstructorOptions>
+    ).find(({ id }) => id === menuItemIds.helpAutomaticallyCheckForUpdates);
+    await (disabledItem?.click?.(
+      {} as Electron.MenuItem,
+      {} as BrowserWindow,
+      {},
+    ) as unknown as Promise<void>);
+    expect(savePreference).toHaveBeenLastCalledWith({
+      automaticallyCheckForUpdates: false,
+    });
+    expect(stop).toHaveBeenCalledOnce();
+    expect(savePreference.mock.invocationCallOrder[1]).toBeLessThan(
+      stop.mock.invocationCallOrder[0],
+    );
+    expect(stop.mock.invocationCallOrder[0]).toBeLessThan(
+      updateMenu.mock.invocationCallOrder[1],
+    );
+    expect(updateMenu).toHaveBeenCalledTimes(2);
+    readPreference.mockRestore();
+    savePreference.mockRestore();
+    start.mockRestore();
+    stop.mockRestore();
   });
 
   it('enables merging into the current project for a loaded project', async () => {

@@ -126,7 +126,7 @@ export function ConfirmAttributionActionPopup({
           {attributionValues ? (
             <AttributionCardList attributions={attributionValues} />
           ) : (
-            <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>
+            <MuiTypography>{text.updateApp.loading}</MuiTypography>
           )}
           <MuiTypography variant={'subtitle2'}>
             {mixedAttributionCount > 0
@@ -169,7 +169,7 @@ function AttributionPreview({
   }
 
   if (!preview.attributions) {
-    return <MuiTypography>{text.updateAppPopup.loading}</MuiTypography>;
+    return <MuiTypography>{text.updateApp.loading}</MuiTypography>;
   }
 
   return (

@@ -7,7 +7,8 @@ import MuiBox from '@mui/material/Box';
 
 export const ColumnsContainer = styled(MuiBox)({
   width: '100%',
-  height: '100%',
+  flex: 1,
+  minHeight: 0,
   display: 'flex',
   overflow: 'hidden',
 });
