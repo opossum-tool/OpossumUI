@@ -21,6 +21,7 @@ export function useVirtuosoRefs<
   isListReady = true,
   selectedId,
   resultSetKey,
+  selectionRevealKey,
   scrollBehavior = 'smooth',
   viewportTopOffset = 0,
 }: {
@@ -28,6 +29,7 @@ export function useVirtuosoRefs<
   isListReady?: boolean;
   selectedId: ItemType['id'] | undefined;
   resultSetKey?: string;
+  selectionRevealKey?: string;
   scrollBehavior?: 'auto' | 'smooth';
   viewportTopOffset?: number;
 }) {
@@ -112,7 +114,13 @@ export function useVirtuosoRefs<
     if (isListReady && selectedId !== undefined && selectedIsAvailable) {
       scrollToSelection();
     }
-  }, [isListReady, resultSetKey, selectedId, selectedIsAvailable]);
+  }, [
+    isListReady,
+    resultSetKey,
+    selectedId,
+    selectedIsAvailable,
+    selectionRevealKey,
+  ]);
 
   const handleKeyDown = useCallback(
     (event: Event) => {

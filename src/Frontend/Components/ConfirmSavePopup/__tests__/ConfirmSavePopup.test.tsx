@@ -266,10 +266,11 @@ describe('AttributionFormConfirmSavePopup', () => {
     });
     const resource = faker.opossum.filePath(faker.opossum.resourceName());
 
-    await renderComponent(
+    const onClose = vi.fn();
+    const { store } = await renderComponent(
       <AttributionFormConfirmSavePopup
         open
-        onClose={noop}
+        onClose={onClose}
         selection={{
           mode: 'allMatching',
           query: {
@@ -329,6 +330,10 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
       [second.id]: { ...second, preSelected: undefined },
     });
+    await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
+    expect(
+      store.getState().variablesState['attribution-save-reveal'],
+    ).toBeUndefined();
   });
 
   it('preserves focus when a query-wide save matches an existing attribution', async () => {

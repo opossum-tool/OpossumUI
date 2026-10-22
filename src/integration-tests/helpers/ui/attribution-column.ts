@@ -102,9 +102,9 @@ export async function expectAttributionColumnButtonEnabled(
   button: AttributionColumnButton,
   enabled: boolean,
 ): Promise<void> {
-  const buttonNode = queryAttributionColumnButton(button);
-  expect(buttonNode).not.toBeNull();
   await waitFor(() => {
+    const buttonNode = queryAttributionColumnButton(button);
+    expect(buttonNode).not.toBeNull();
     if (enabled) {
       expect(isNodeEnabled(buttonNode!)).toBe(true);
     } else {

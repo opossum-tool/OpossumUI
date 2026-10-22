@@ -9,7 +9,7 @@ import {
   getSelectedAttributionId,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/resource-selectors';
-import { ConfirmSavePopup } from './ConfirmSavePopup';
+import { ConfirmSavePopup, type SaveMutationResult } from './ConfirmSavePopup';
 
 interface Props {
   selection: AttributionSelection;
@@ -17,6 +17,7 @@ interface Props {
   onClose: () => void;
   onAcceptDrafts?: () => void;
   clearSelection?: () => void;
+  onSaveComplete?: (result: SaveMutationResult) => void;
 }
 
 export function AttributionFormConfirmSavePopup({
@@ -25,6 +26,7 @@ export function AttributionFormConfirmSavePopup({
   onClose,
   onAcceptDrafts,
   clearSelection,
+  onSaveComplete,
 }: Props) {
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const temporaryDisplayPackageInfo = useAppSelector(
@@ -38,9 +40,13 @@ export function AttributionFormConfirmSavePopup({
         : undefined,
     [selectedAttributionId, temporaryDisplayPackageInfo],
   );
-  const handleSaveComplete = useCallback(() => {
-    clearSelection?.();
-  }, [clearSelection]);
+  const handleSaveComplete = useCallback(
+    (result: SaveMutationResult) => {
+      clearSelection?.();
+      onSaveComplete?.(result);
+    },
+    [clearSelection, onSaveComplete],
+  );
 
   return (
     <ConfirmSavePopup

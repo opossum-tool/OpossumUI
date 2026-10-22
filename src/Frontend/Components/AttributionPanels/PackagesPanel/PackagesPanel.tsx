@@ -53,6 +53,7 @@ import {
 } from '../../../state/variables/use-picker-mode';
 import { useUserSettings } from '../../../state/variables/use-user-setting';
 import { backend, useDatabaseInitialized } from '../../../util/backendClient';
+import { useAttributionSaveReveal } from '../../../util/use-attribution-save-reveal';
 import { useAuditAttributionsList } from '../../../util/use-audit-attributions-list';
 import { useFilterProperties } from '../../../util/use-filter-properties';
 import { usePrevious } from '../../../util/use-previous';
@@ -96,6 +97,7 @@ export interface PackagesPanelChildrenProps {
   clearSelection: () => void;
   pickerMode: PickerMode;
   resultSetKey: string;
+  selectionRevealKey?: string;
   selectedAttributionId: string;
   selectedAttributionIds: Array<string>;
   totalAttributionCount?: number;
@@ -818,7 +820,13 @@ export const PackagesPanel = ({
     selectedResourceId,
   ]);
 
+  // Read the save signal alongside the queries so the reveal uses refreshed rows.
+  const { getSelectionRevealKey } = useAttributionSaveReveal();
   const childrenProps: PackagesPanelChildrenProps = {
+    selectionRevealKey: getSelectionRevealKey(
+      selectedAttributionId,
+      selectedResourceId,
+    ),
     activeAttributionIds,
     activeRelation,
     attributionIds,

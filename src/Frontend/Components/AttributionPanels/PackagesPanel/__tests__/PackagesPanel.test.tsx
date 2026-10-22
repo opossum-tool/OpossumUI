@@ -2,8 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { notifyManager, useQuery } from '@tanstack/react-query';
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { type Ref, useImperativeHandle } from 'react';
+import type { VirtuosoHandle } from 'react-virtuoso';
 
 import type {
   Attributions,
@@ -46,8 +49,10 @@ import {
 } from '../../../../state/variables/use-filters';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../../test-helpers/render';
+import { useAttributionSaveReveal } from '../../../../util/use-attribution-save-reveal';
 import { useAuditAttributionsList } from '../../../../util/use-audit-attributions-list';
 import { useSelectedAttributionIsExternal } from '../../../../util/use-selected-attribution';
+import { useVirtuosoRefs } from '../../../../util/use-virtuoso-refs';
 import {
   PackagesPanel,
   type PackagesPanelChildrenProps,
@@ -1560,4 +1565,101 @@ describe('PackagesPanel', () => {
 
     expect(screen.queryByRole('tab')).not.toBeInTheDocument();
   });
+});
+
+test('reveals the refreshed index when query notifications are delayed until after save completion', async () => {
+  const selected = faker.opossum.packageInfo({ relation: 'resource' });
+  const other = faker.opossum.packageInfo({ relation: 'resource' });
+  const before = { [selected.id]: selected, [other.id]: other };
+  const after = { [other.id]: other, [selected.id]: selected };
+  const scrollIntoView = vi.fn();
+  const notifications: Array<() => void> = [];
+  const queryKey = ['delayed-attribution-order', before];
+  mockAttributions(before);
+  const mockList = vi.mocked(useAuditAttributionsList).getMockImplementation()!;
+  vi.mocked(useAuditAttributionsList).mockImplementation((params) => {
+    const query = useQuery({
+      queryKey,
+      queryFn: () => before,
+      initialData: before,
+      staleTime: Infinity,
+      structuralSharing: false,
+    });
+    return { ...mockList(params), attributions: query.data };
+  });
+  vi.mocked(useSelectedAttributionIsExternal).mockReturnValue(false);
+
+  function Rows({
+    activeAttributionIds,
+    selectedAttributionId,
+    selectionRevealKey,
+  }: PackagesPanelChildrenProps) {
+    const { ref } = useVirtuosoRefs({
+      data: activeAttributionIds?.map((id) => ({ id })),
+      selectedId: selectedAttributionId,
+      selectionRevealKey,
+    });
+    return <Handle ref={ref} />;
+  }
+  function Handle({ ref }: { ref: Ref<VirtuosoHandle> }) {
+    useImperativeHandle(
+      ref,
+      () => ({ scrollIntoView }) as unknown as VirtuosoHandle,
+    );
+    return null;
+  }
+  function Save() {
+    const { publishSaveCompletion } = useAttributionSaveReveal();
+    return (
+      <button
+        onClick={() =>
+          publishSaveCompletion(
+            { status: 'unchanged' },
+            selected.id,
+            '/selected',
+          )
+        }
+      >
+        Complete save
+      </button>
+    );
+  }
+  const { queryClient } = await renderComponent(
+    <>
+      <Save />
+      <PackagesPanel
+        external={false}
+        filterOptions={[]}
+        renderActions={() => null}
+        useAttributionFilters={() => [initialAttributionFilters, vi.fn()]}
+      >
+        {(props) => <Rows {...props} />}
+      </PackagesPanel>
+    </>,
+    {
+      actions: [
+        setSelectedResourceId('/selected'),
+        setSelectedAttributionId(selected.id),
+      ],
+    },
+  );
+  scrollIntoView.mockClear();
+  notifyManager.setScheduler((callback) => notifications.push(callback));
+  try {
+    await act(() => queryClient.setQueryData(queryKey, after));
+    expect(notifications.length).toBeGreaterThan(0);
+    expect(scrollIntoView).not.toHaveBeenCalled();
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Complete save' }),
+    );
+    expect(scrollIntoView).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ index: 1 }),
+    );
+    act(() => {
+      notifications.splice(0).forEach((callback) => callback());
+    });
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+  } finally {
+    notifyManager.setScheduler((callback) => setTimeout(callback, 0));
+  }
 });

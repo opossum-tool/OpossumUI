@@ -27,6 +27,7 @@ interface HookProps {
   data: ReadonlyArray<Item> | null;
   isListReady?: boolean;
   selectedId: string | undefined;
+  selectionRevealKey?: string;
   resultSetKey?: string;
   scrollBehavior?: 'auto' | 'smooth';
   viewportTopOffset?: number;
@@ -59,6 +60,7 @@ function SelectionScrollHarness({
   handle,
   isListReady,
   resultSetKey,
+  selectionRevealKey,
   selectedId,
   scrollBehavior,
   viewportTopOffset,
@@ -67,6 +69,7 @@ function SelectionScrollHarness({
     data,
     isListReady,
     resultSetKey,
+    selectionRevealKey,
     selectedId,
     scrollBehavior,
     viewportTopOffset,
@@ -447,6 +450,82 @@ describe('useVirtuosoRefs', () => {
       behavior: 'smooth',
       calculateViewLocation: expect.any(Function),
     });
+  });
+
+  it('reveals the selection when its saved data changes, but not on identical rerenders', () => {
+    const scrollIntoView = vi.fn();
+    const props: HookProps = {
+      data: [item('before'), item('selected')],
+      selectedId: 'selected',
+      selectionRevealKey: 'saved-data-v1',
+    };
+    const { rerender } = renderHarness(props, scrollIntoView);
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+
+    scrollIntoView.mockClear();
+    rerender(
+      <SelectionScrollHarness
+        {...props}
+        handle={virtuosoHandle(scrollIntoView)}
+      />,
+    );
+    expect(scrollIntoView).not.toHaveBeenCalled();
+
+    rerender(
+      <SelectionScrollHarness
+        {...props}
+        data={[item('selected'), item('before')]}
+        selectionRevealKey="saved-data-v2"
+        handle={virtuosoHandle(scrollIntoView)}
+      />,
+    );
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(scrollIntoView).toHaveBeenCalledWith({
+      index: 0,
+      align: 'center',
+      behavior: 'smooth',
+      calculateViewLocation: expect.any(Function),
+    });
+  });
+
+  it('does not reveal again when rows move the selection after a save', () => {
+    const scrollIntoView = vi.fn();
+    const props: HookProps = {
+      data: [item('before'), item('selected')],
+      selectedId: 'selected',
+    };
+    const { rerender } = renderHarness(props, scrollIntoView);
+    scrollIntoView.mockClear();
+
+    rerender(
+      <SelectionScrollHarness
+        {...props}
+        selectionRevealKey="saved-data-v1"
+        handle={virtuosoHandle(scrollIntoView)}
+      />,
+    );
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+
+    scrollIntoView.mockClear();
+    rerender(
+      <SelectionScrollHarness
+        {...props}
+        data={[item('inserted'), item('before'), item('selected')]}
+        selectionRevealKey="saved-data-v1"
+        handle={virtuosoHandle(scrollIntoView)}
+      />,
+    );
+    expect(scrollIntoView).not.toHaveBeenCalled();
+
+    rerender(
+      <SelectionScrollHarness
+        {...props}
+        data={[item('selected')]}
+        selectionRevealKey="saved-data-v1"
+        handle={virtuosoHandle(scrollIntoView)}
+      />,
+    );
+    expect(scrollIntoView).not.toHaveBeenCalled();
   });
 
   it('scrolls on A to B to A result-set changes with the same selection', () => {
