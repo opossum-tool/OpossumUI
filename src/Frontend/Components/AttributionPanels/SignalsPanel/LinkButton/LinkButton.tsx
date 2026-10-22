@@ -49,15 +49,12 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
     selection.mode === 'allMatching'
       ? (selectionSummary?.selectedCount ?? 0)
       : selectedAttributionIds.length;
-  const singleSelectedAttributionId =
-    selection.mode === 'explicit' && selectedAttributionIds.length === 1
-      ? selectedAttributionIds[0]
-      : undefined;
-  const linkStatusQuery = backend.getAttributionLinkStatus.useQuery(
-    singleSelectedAttributionId
+  const isExplicitSelection = selection.mode === 'explicit';
+  const linkStatusQuery = backend.areAttributionLinksNoOp.useQuery(
+    isExplicitSelection && selectedAttributionIds.length > 0
       ? {
           resourcePath: selectedResourceId,
-          attributionUuid: singleSelectedAttributionId,
+          attributionUuids: selectedAttributionIds,
         }
       : skipToken,
   );
@@ -98,9 +95,7 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
         selectionSummaryLoading ||
         pickerMode.isActive ||
         mutationsPending ||
-        (linkStatusQuery.isSuccess &&
-          (linkStatusQuery.data.matchingManualOnResource ||
-            linkStatusQuery.data.linkWouldBeRedundant))
+        (linkStatusQuery.isSuccess && linkStatusQuery.data.allNoOp)
       }
       loading={createOrMatch.isPending}
       size={'small'}

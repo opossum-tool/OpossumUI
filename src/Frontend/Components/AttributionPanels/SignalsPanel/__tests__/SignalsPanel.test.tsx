@@ -513,4 +513,111 @@ describe('SignalsPanel', () => {
       ).toBeEnabled(),
     );
   });
+
+  it('disables link button for a multi-selection where all signals are already matched', async () => {
+    const firstSignal = faker.opossum.packageInfo();
+    const secondSignal = faker.opossum.packageInfo();
+    const firstManualAttribution = {
+      ...firstSignal,
+      id: faker.string.uuid(),
+      preSelected: false,
+    };
+    const secondManualAttribution = {
+      ...secondSignal,
+      id: faker.string.uuid(),
+      preSelected: false,
+    };
+    const filePath = faker.system.filePath();
+    await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources([filePath]),
+        externalAttributions: {
+          [firstSignal.id]: firstSignal,
+          [secondSignal.id]: secondSignal,
+        },
+        resourcesToExternalAttributions: {
+          [filePath]: [firstSignal.id, secondSignal.id],
+        },
+        manualAttributions: {
+          [firstManualAttribution.id]: firstManualAttribution,
+          [secondManualAttribution.id]: secondManualAttribution,
+        },
+        resourcesToManualAttributions: {
+          [ROOT_PATH]: [firstManualAttribution.id, secondManualAttribution.id],
+        },
+        metadata: faker.opossum.metadata(),
+      }),
+    });
+
+    await userEvent.click(
+      within(
+        await screen.findByLabelText(
+          `package card ${firstSignal.packageName}, ${firstSignal.packageVersion}`,
+        ),
+      ).getByRole('checkbox'),
+    );
+    await userEvent.click(
+      within(
+        await screen.findByLabelText(
+          `package card ${secondSignal.packageName}, ${secondSignal.packageVersion}`,
+        ),
+      ).getByRole('checkbox'),
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', {
+          name: text.packageLists.linkAsAttribution,
+        }),
+      ).toBeDisabled(),
+    );
+  });
+
+  it('disables link button for a multi-selection where all links would be redundant', async () => {
+    const firstSignal = faker.opossum.packageInfo({
+      source: { name: 'Scanner', documentConfidence: 0 },
+    });
+    const secondSignal = {
+      ...firstSignal,
+      id: faker.string.uuid(),
+      source: { name: 'Other', documentConfidence: 0 },
+    };
+    const manualAttribution = {
+      ...firstSignal,
+      id: faker.string.uuid(),
+      preSelected: false,
+    };
+    await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources(['/root/child/file.ts']),
+        externalAttributions: {
+          [firstSignal.id]: firstSignal,
+          [secondSignal.id]: secondSignal,
+        },
+        resourcesToExternalAttributions: {
+          '/root/child/file.ts': [firstSignal.id, secondSignal.id],
+        },
+        manualAttributions: { [manualAttribution.id]: manualAttribution },
+        resourcesToManualAttributions: {
+          '/root': [manualAttribution.id],
+        },
+        metadata: faker.opossum.metadata(),
+      }),
+      actions: [setSelectedResourceId('/root/child')],
+    });
+
+    const cards = await screen.findAllByLabelText(
+      `package card ${firstSignal.packageName}, ${firstSignal.packageVersion}`,
+    );
+    await userEvent.click(within(cards[0]).getByRole('checkbox'));
+    await userEvent.click(within(cards[1]).getByRole('checkbox'));
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', {
+          name: text.packageLists.linkAsAttribution,
+        }),
+      ).toBeDisabled(),
+    );
+  });
 });

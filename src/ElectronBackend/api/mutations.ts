@@ -181,6 +181,7 @@ const MANUAL_ATTRIBUTION_INVALIDATIONS: Array<MutationInvalidation> = [
   ...MANUAL_ATTRIBUTION_STATISTICS_INVALIDATIONS,
   { queryName: 'getResourceInfoOnAttributions' },
   { queryName: 'getAttributionLinkStatus' },
+  { queryName: 'areAttributionLinksNoOp' },
 ];
 
 const mutationImplementations = {

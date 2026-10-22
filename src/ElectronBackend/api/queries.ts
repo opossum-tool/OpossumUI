@@ -721,7 +721,72 @@ export const queries = {
       },
     };
   },
+
+  async areAttributionLinksNoOp(props: {
+    resourcePath: string;
+    attributionUuids: Array<string>;
+  }) {
+    const db = getDb();
+    const resource = await getResourceOrThrow(db, props.resourcePath);
+
+    for (const attributionUuid of props.attributionUuids) {
+      if (!(await isNoOpAttributionLink(db, resource.id, attributionUuid))) {
+        return { result: { allNoOp: false } };
+      }
+    }
+
+    return { result: { allNoOp: props.attributionUuids.length > 0 } };
+  },
 } satisfies Record<string, QueryFunction>;
+
+/**
+ * Returns true if linking the given attribution to the resource would be a
+ * no-op: either the attribution (or, for a signal, its matching manual
+ * attribution) is already linked to the resource, or the link would
+ * immediately be removed again as redundant (see getLinkWouldBeRedundant).
+ */
+async function isNoOpAttributionLink(
+  db: Kysely<DB>,
+  resourceId: number,
+  attributionUuid: string,
+): Promise<boolean> {
+  const attribution = await db
+    .selectFrom('attribution')
+    .selectAll()
+    .where('uuid', '=', attributionUuid)
+    .executeTakeFirst();
+
+  if (!attribution) {
+    return false;
+  }
+
+  const linkedUuid =
+    attribution.is_external === 1
+      ? await findMatchingAttributionUuidForLink(
+          db,
+          packageInfoFromAttributionRow(attribution),
+        )
+      : attributionUuid;
+
+  if (!linkedUuid) {
+    return false;
+  }
+
+  const onResource = await db
+    .selectFrom('resource_to_attribution')
+    .select('resource_id')
+    .where('resource_id', '=', resourceId)
+    .where('attribution_uuid', '=', linkedUuid)
+    .executeTakeFirst();
+
+  if (onResource) {
+    return true;
+  }
+
+  return attribution.is_external === 1
+    ? getLinkWouldBeRedundant(db, resourceId, linkedUuid)
+    : false;
+}
 
 /**
  * Returns true if linking the matched manual attribution to the resource

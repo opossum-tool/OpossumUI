@@ -2246,3 +2246,52 @@ describe('readonly-only attribution mutations', () => {
     );
   });
 });
+
+describe('createOrMatchAttributions redundant link', () => {
+  it('is a no-op when linking a signal onto a resource that only lacks the matching inherited attribution', async () => {
+    const signalB = {
+      id: 'signal-b',
+      criticality: Criticality.None,
+      packageName: 'pkg-b',
+      licenseName: 'MIT',
+    };
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/p', '/p/child.ts']),
+      externalAttributions: {
+        attributions: { 'signal-b': signalB },
+        resourcesToAttributions: {},
+        attributionsToResources: {},
+      },
+      manualAttributions: {
+        attributions: {
+          a: {
+            id: 'a',
+            criticality: Criticality.None,
+            packageName: 'pkg-a',
+            licenseName: 'Apache-2.0',
+          },
+          b: { ...signalB, id: 'b' },
+        },
+        resourcesToAttributions: {
+          '/p': ['a', 'b'],
+          '/p/child.ts': ['a'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const { result: linkStatus } = await queries.getAttributionLinkStatus({
+      resourcePath: '/p/child.ts',
+      attributionUuid: 'signal-b',
+    });
+    expect(linkStatus.linkWouldBeRedundant).toBe(true);
+
+    await mutations.createOrMatchAttributions({
+      resourcePath: '/p/child.ts',
+      attributions: { 'signal-b': signalB },
+    });
+
+    expect(await attributionUuidsOn('/p/child.ts')).toEqual([]);
+    expect((await attributionUuidsOn('/p')).toSorted()).toEqual(['a', 'b']);
+  });
+});
