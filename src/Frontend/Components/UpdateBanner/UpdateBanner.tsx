@@ -87,17 +87,20 @@ export function UpdateBanner(): React.ReactNode {
           ...current,
           banner: { status: 'checking' },
         }));
-        void window.electronAPI.checkForUpdates().then((nextState) => {
-          if (!active || manualCheckIdRef.current !== checkId) {
-            return;
-          }
-          pendingManualCheckIdRef.current = null;
-          setState((current) =>
-            current.banner?.status === 'checking'
-              ? { ...current, banner: nextState }
-              : current,
-          );
-        });
+        void window.electronAPI
+          .checkForUpdates()
+          .catch((): UpdateState => ({ status: 'error' }))
+          .then((nextState) => {
+            if (!active || manualCheckIdRef.current !== checkId) {
+              return;
+            }
+            pendingManualCheckIdRef.current = null;
+            setState((current) =>
+              current.banner?.status === 'checking'
+                ? { ...current, banner: nextState }
+                : current,
+            );
+          });
       },
     );
     return () => {

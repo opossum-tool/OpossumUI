@@ -202,6 +202,37 @@ describe('UpdateBanner', () => {
     ).toBeInTheDocument();
   });
 
+  it.each([false, true])(
+    'recovers from a rejected manual invoke with progress dismissed: %s',
+    async (dismissed) => {
+      const check = Promise.withResolvers<UpdateState>();
+      vi.mocked(window.electronAPI.getUpdateState).mockResolvedValue(upToDate);
+      vi.mocked(window.electronAPI.checkForUpdates).mockReturnValue(
+        check.promise,
+      );
+      await renderComponent(<UpdateBanner />);
+      emit(AllowedFrontendChannels.CheckForUpdatesRequested);
+      expect(screen.getByRole('progressbar')).toBeInTheDocument();
+      if (dismissed) {
+        fireEvent.click(
+          screen.getByRole('button', { name: text.updateApp.dismissed }),
+        );
+      }
+      await act(async () => {
+        check.reject(new Error('IPC invoke failed'));
+        await check.promise.catch(() => {});
+      });
+      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+      expect(screen.queryAllByText(text.updateApp.fetchFailed)).toHaveLength(
+        dismissed ? 0 : 1,
+      );
+      emit(AllowedFrontendChannels.UpdateStateChanged, available);
+      expect(
+        screen.getByRole('link', { name: 'Download' }),
+      ).toBeInTheDocument();
+    },
+  );
+
   it('unsubscribes from IPC events when unmounted', async () => {
     const unsubscribe = vi.fn();
     vi.mocked(window.electronAPI.on).mockReturnValue(unsubscribe);
