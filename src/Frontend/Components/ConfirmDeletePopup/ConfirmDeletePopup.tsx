@@ -16,14 +16,14 @@ interface Props {
   selection: AttributionSelection;
   open: boolean;
   onClose: () => void;
-  clearSelection?: () => void;
+  clearBulkSelection?: () => void;
 }
 
 export const ConfirmDeletePopup: React.FC<Props> = ({
   selection,
   open,
   onClose,
-  clearSelection,
+  clearBulkSelection,
 }) => {
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const handleFocusedAttributionOutcome =
@@ -53,7 +53,7 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
       selection,
       focusedAttributionUuid: selectedAttributionId,
     });
-    clearSelection?.();
+    clearBulkSelection?.();
     onClose();
   };
   const handleDeleteOnResource = async () => {
@@ -62,7 +62,7 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
       selection,
       focusedAttributionUuid: selectedAttributionId,
     });
-    clearSelection?.();
+    clearBulkSelection?.();
     onClose();
   };
 

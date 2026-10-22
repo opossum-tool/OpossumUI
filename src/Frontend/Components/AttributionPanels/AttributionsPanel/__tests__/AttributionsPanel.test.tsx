@@ -354,6 +354,11 @@ describe('AttributionsPanel', () => {
         `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
       ),
     );
+    const packageCard = screen.getByLabelText(
+      `package card ${packageInfo.packageName}, ${packageInfo.packageVersion}`,
+    );
+    const selectionCheckbox = within(packageCard).getByRole('checkbox');
+    await userEvent.click(selectionCheckbox);
     act(() => {
       store.dispatch(setTemporaryDisplayPackageInfo(packageInfo));
     });
@@ -369,6 +374,8 @@ describe('AttributionsPanel', () => {
     await expectManualAttributions({
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },
     });
+    expect(getSelectedAttributionId(store.getState())).toBe(packageInfo.id);
+    expect(selectionCheckbox).not.toBeChecked();
   });
 
   it('disables confirm button when selected attribution is not pre-selected', async () => {

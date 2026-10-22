@@ -18,7 +18,7 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
   selection,
   selectionSummary,
   selectionSummaryLoading,
-  clearSelection,
+  clearBulkSelection,
 }) => {
   const [selectionForReplacement, setSelectionForReplacement] =
     useAttributionSelectionForReplacement();
@@ -49,7 +49,7 @@ export const ReplaceButton: React.FC<PackagesPanelChildrenProps> = ({
       onClick={() => {
         if (selectionForReplacement) {
           setSelectionForReplacement(null);
-          clearSelection();
+          clearBulkSelection();
           return;
         }
 

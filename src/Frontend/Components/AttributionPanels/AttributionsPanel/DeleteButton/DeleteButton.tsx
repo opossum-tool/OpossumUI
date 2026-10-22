@@ -18,7 +18,7 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
   selection,
   selectionSummary,
   selectionSummaryLoading,
-  clearSelection,
+  clearBulkSelection,
 }) => {
   const [isConfirmDeletionPopupOpen, setIsConfirmDeletionPopupOpen] =
     useState(false);
@@ -54,7 +54,7 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
         open={isConfirmDeletionPopupOpen}
         onClose={() => setIsConfirmDeletionPopupOpen(false)}
         selection={selection}
-        clearSelection={clearSelection}
+        clearBulkSelection={clearBulkSelection}
       />
     </>
   );
