@@ -80,6 +80,12 @@ Clone the OpossumUI repo. E.g. run the following command in a terminal:
 git clone git@github.com:opossum-tool/OpossumUI.git
 ```
 
+OpossumUI requires the exact node.js version pinned in the [.nvmrc](.nvmrc) file. If you use [nvm](https://github.com/nvm-sh/nvm), go to the repository root directory and run the following command to install and use this node version:
+
+```bash
+nvm install
+```
+
 To install dependencies and set up the working environment, go to the repository root directory and run:
 
 ```bash
@@ -121,7 +127,7 @@ Prettier is used as a code formatter.
 The following software is required for working on the repository:
 
 - [git](https://git-scm.com/),
-- [node.js](https://nodejs.org/) 22,
+- [node.js](https://nodejs.org/) in the exact version pinned in the [.nvmrc](.nvmrc) file (install it with `nvm install` if you use [nvm](https://github.com/nvm-sh/nvm)),
 - [yarn](https://yarnpkg.com/en/),
 - [reuse/tool](https://git.fsfe.org/reuse/tool#install) (to check that copyright information is provided, for more context see [here](https://reuse.software/)),
 - [wine](https://www.winehq.org/) (only to build the Windows version).
