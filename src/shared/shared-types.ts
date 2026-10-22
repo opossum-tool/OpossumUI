@@ -336,7 +336,10 @@ export type UpdateState =
   | { status: 'checking' }
   | { status: 'up-to-date'; installedTag: string }
   | { status: 'available'; tag: string; url: string }
-  | { status: 'error' };
+  | {
+      status: 'error';
+      reason?: 'unsupported-installation' | 'unknown-installed-version';
+    };
 
 declare global {
   interface Window {

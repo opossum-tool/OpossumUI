@@ -241,7 +241,54 @@ describe('UpdateBanner', () => {
     expect(unsubscribe).toHaveBeenCalledTimes(2);
   });
 
-  it.each<UpdateState>([available, upToDate, { status: 'error' }])(
+  it('explains unsupported installations without suggesting a retry', async () => {
+    vi.mocked(window.electronAPI.getUpdateState).mockResolvedValue(upToDate);
+    vi.mocked(window.electronAPI.checkForUpdates).mockResolvedValue({
+      status: 'error',
+      reason: 'unsupported-installation',
+    });
+    await renderComponent(<UpdateBanner />);
+    emit(AllowedFrontendChannels.CheckForUpdatesRequested);
+
+    expect(
+      await screen.findByText(text.updateApp.unsupportedInstallation),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(text.updateApp.fetchFailed),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
+  it('explains an unknown version and links to the releases page', async () => {
+    vi.mocked(window.electronAPI.getUpdateState).mockResolvedValue(upToDate);
+    vi.mocked(window.electronAPI.checkForUpdates).mockResolvedValue({
+      status: 'error',
+      reason: 'unknown-installed-version',
+    });
+    await renderComponent(<UpdateBanner />);
+    emit(AllowedFrontendChannels.CheckForUpdatesRequested);
+
+    expect(
+      await screen.findByText(text.updateApp.unknownInstalledVersion),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(text.updateApp.fetchFailed),
+    ).not.toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('link', { name: text.updateApp.viewReleases }),
+    );
+    expect(window.electronAPI.openLink).toHaveBeenCalledWith(
+      'https://github.com/opossum-tool/OpossumUI/releases',
+    );
+  });
+
+  it.each<UpdateState>([
+    available,
+    upToDate,
+    { status: 'error' },
+    { status: 'error', reason: 'unsupported-installation' },
+    { status: 'error', reason: 'unknown-installed-version' },
+  ])(
     'hides dismissed manual $status feedback without suppressing later automatic availability',
     async (result) => {
       const check = Promise.withResolvers<UpdateState>();

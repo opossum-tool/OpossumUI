@@ -125,26 +125,37 @@ describe('checking for updates in the app', () => {
     ).toBeInTheDocument();
   });
 
-  it('keeps background failures silent and preserves update availability', async () => {
-    vi.mocked(window.electronAPI.getUpdateState).mockResolvedValue(available);
-    const { sendToChannel } = await renderApp();
+  it.each<UpdateState>([
+    { status: 'error' },
+    { status: 'error', reason: 'unsupported-installation' },
+    { status: 'error', reason: 'unknown-installed-version' },
+  ])(
+    'keeps background failures silent and preserves update availability: $reason',
+    async (result) => {
+      vi.mocked(window.electronAPI.getUpdateState).mockResolvedValue(available);
+      const { sendToChannel } = await renderApp();
 
-    expect(
-      await screen.findByText(text.updateApp.available(releaseTag)),
-    ).toBeInTheDocument();
-    act(() => {
-      sendToChannel(AllowedFrontendChannels.UpdateStateChanged, {
-        status: 'error',
+      expect(
+        await screen.findByText(text.updateApp.available(releaseTag)),
+      ).toBeInTheDocument();
+      act(() => {
+        sendToChannel(AllowedFrontendChannels.UpdateStateChanged, result);
       });
-    });
 
-    expect(
-      screen.getByText(text.updateApp.available(releaseTag)),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(text.updateApp.fetchFailed),
-    ).not.toBeInTheDocument();
-  });
+      expect(
+        screen.getByText(text.updateApp.available(releaseTag)),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText(text.updateApp.fetchFailed),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(text.updateApp.unsupportedInstallation),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(text.updateApp.unknownInstalledVersion),
+      ).not.toBeInTheDocument();
+    },
+  );
 
   it('shows update and architecture warnings with independent dismissal', async () => {
     vi.mocked(window.electronAPI.getMacArchitectureMismatch).mockResolvedValue(

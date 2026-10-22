@@ -190,7 +190,17 @@ async function runAutomaticCheck(): Promise<void> {
 async function performCheck(): Promise<InternalUpdateResult> {
   try {
     if (!installedRelease) {
-      throw new Error('The installed release version cannot be determined.');
+      logger.warn(
+        'Update check failed: The installed release version cannot be determined.',
+      );
+      return { status: 'error', reason: 'unknown-installed-version' };
+    }
+    const assetName = getRequiredAsset();
+    if (!assetName) {
+      logger.warn(
+        'Update check failed: This installation has no supported update download.',
+      );
+      return { status: 'error', reason: 'unsupported-installation' };
     }
     const response = await net.fetch(API_ENDPOINT, {
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
@@ -203,7 +213,6 @@ async function performCheck(): Promise<InternalUpdateResult> {
     if (!isGithubRelease(payload)) {
       throw new Error('GitHub returned invalid release information.');
     }
-    const assetName = getRequiredAsset();
     return evaluateRelease(installedRelease, payload, assetName);
   } catch (error) {
     logger.warn(
@@ -216,7 +225,7 @@ async function performCheck(): Promise<InternalUpdateResult> {
 export function evaluateRelease(
   installed: InstalledRelease,
   release: GithubRelease,
-  requiredAsset: string | undefined,
+  requiredAsset: string,
 ): InternalUpdateResult {
   const releaseTag = parseReleaseTag(release.tag_name);
   if (!releaseTag || release.draft || release.prerelease) {
@@ -224,9 +233,6 @@ export function evaluateRelease(
   }
   if (compareReleaseTags(releaseTag, installed.version) <= 0) {
     return { status: 'up-to-date', installedTag: installed.tag };
-  }
-  if (!requiredAsset) {
-    throw new Error('This installation has no supported update download.');
   }
   const asset = release.assets.find(({ name }) => name === requiredAsset);
   if (asset?.state !== 'uploaded' || asset.size <= 0) {

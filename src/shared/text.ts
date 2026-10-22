@@ -292,6 +292,10 @@ export const text = {
   },
   updateApp: {
     fetchFailed: 'Could not check for updates. Please try again later.',
+    unsupportedInstallation:
+      'Update checks aren’t supported for this installation.',
+    unknownInstalledVersion: 'Could not determine the installed version.',
+    viewReleases: 'View releases',
     loading: 'Loading…',
     noUpdateAvailable: 'OpossumUI is up to date.',
     title: 'Check for Updates',

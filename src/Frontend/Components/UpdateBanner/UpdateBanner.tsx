@@ -7,6 +7,7 @@ import MuiLink from '@mui/material/Link';
 import { useEffect, useRef, useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
+import { OPOSSUM_UI_GITHUB_URL } from '../../../shared/shared-constants';
 import type { UpdateState } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { useUserSettings } from '../../state/variables/use-user-setting';
@@ -141,6 +142,20 @@ export function UpdateBanner(): React.ReactNode {
           </MuiBox>
         );
       case 'error':
+        if (banner.reason === 'unsupported-installation') {
+          return text.updateApp.unsupportedInstallation;
+        }
+        if (banner.reason === 'unknown-installed-version') {
+          return (
+            <>
+              {text.updateApp.unknownInstalledVersion}{' '}
+              {renderExternalLink(
+                `${OPOSSUM_UI_GITHUB_URL}/releases`,
+                text.updateApp.viewReleases,
+              )}
+            </>
+          );
+        }
         return text.updateApp.fetchFailed;
       case 'up-to-date':
         return text.updateApp.noUpdateAvailable;
@@ -148,18 +163,24 @@ export function UpdateBanner(): React.ReactNode {
         return (
           <>
             {text.updateApp.available(banner.tag)}{' '}
-            <MuiLink
-              href={'#'}
-              color={'inherit'}
-              onClick={(event) => {
-                event.preventDefault();
-                openUrl(banner.url);
-              }}
-            >
-              {text.updateApp.download}
-            </MuiLink>
+            {renderExternalLink(banner.url, text.updateApp.download)}
           </>
         );
     }
+  }
+
+  function renderExternalLink(url: string, label: string) {
+    return (
+      <MuiLink
+        href={'#'}
+        color={'inherit'}
+        onClick={(event) => {
+          event.preventDefault();
+          openUrl(url);
+        }}
+      >
+        {label}
+      </MuiLink>
+    );
   }
 }

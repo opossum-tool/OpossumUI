@@ -36,6 +36,8 @@ const originalArchitecture = Object.getOwnPropertyDescriptor(process, 'arch');
 describe('update service release tags', () => {
   beforeEach(() => {
     setPackaged(true);
+    vi.stubEnv('APPIMAGE', '/app');
+    vi.stubEnv('SNAP', '');
     Object.defineProperty(process, 'platform', {
       configurable: true,
       value: 'linux',
@@ -180,6 +182,8 @@ describe('update service release tags', () => {
   );
 
   it('returns an unknown installed-version error without fetching', async () => {
+    vi.stubEnv('APPIMAGE', '');
+    vi.stubEnv('SNAP', '');
     vi.doMock('../../../commitInfo.json', () => ({
       default: { commitInfo: '44a171852' },
     }));
@@ -189,6 +193,7 @@ describe('update service release tags', () => {
 
     await expect(updateService.checkForUpdates()).resolves.toEqual({
       status: 'error',
+      reason: 'unknown-installed-version',
     });
     expect(logger.warn).toHaveBeenCalledTimes(1);
     expect(logger.warn).toHaveBeenCalledWith(
@@ -213,12 +218,18 @@ describe('update service release tags', () => {
     expect(net.fetch).not.toHaveBeenCalled();
   });
 
-  it('logs unsupported downloads once and returns a message-free error', async () => {
+  it('reports an unsupported installation without fetching and logs once', async () => {
     vi.stubEnv('APPIMAGE', '');
     vi.stubEnv('SNAP', '');
-    vi.mocked(net.fetch).mockResolvedValue(releaseResponse(preparingRelease()));
-
-    await expect(checkForUpdates()).resolves.toEqual({ status: 'error' });
+    await expect(checkForUpdates()).resolves.toEqual({
+      status: 'error',
+      reason: 'unsupported-installation',
+    });
+    expect(getUpdateState()).toEqual({
+      status: 'error',
+      reason: 'unsupported-installation',
+    });
+    expect(net.fetch).not.toHaveBeenCalled();
 
     expect(logger.warn).toHaveBeenCalledTimes(1);
     expect(logger.warn).toHaveBeenCalledWith(
@@ -563,6 +574,7 @@ describe('update service release tags', () => {
         rosetta,
         environment,
       );
+      expect(required).toBe(selectedName);
       expect(
         evaluateRelease(
           installedRelease(),
@@ -572,7 +584,7 @@ describe('update service release tags', () => {
             prerelease: false,
             tag_name: tag,
           },
-          required,
+          selectedName,
         ),
       ).toEqual({ status: 'available', tag, url });
     },
@@ -630,21 +642,6 @@ describe('update service release tags', () => {
         'GitHub returned an invalid release asset download URL.',
       ),
     );
-  });
-
-  it('throws for an installation with no supported update download', () => {
-    expect(() =>
-      evaluateRelease(
-        installedRelease('OpossumUI-2026-08-13'),
-        {
-          assets: [],
-          draft: false,
-          prerelease: false,
-          tag_name: 'OpossumUI-2026-09-17',
-        },
-        undefined,
-      ),
-    ).toThrow('This installation has no supported update download.');
   });
 });
 
