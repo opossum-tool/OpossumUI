@@ -69,6 +69,10 @@ const precedingSignals = Array.from(
     }),
 );
 
+test.beforeEach(async ({ window }) => {
+  await window.emulateMedia({ reducedMotion: 'reduce' });
+});
+
 const resources = faker.opossum.resources({
   [resourceNames.origin]: {
     [resourceNames.target]: 1,
@@ -135,7 +139,6 @@ test.describe('selected manual attribution', () => {
   }) => {
     const updatedPackageName = 'manual-150-renamed-target';
 
-    await window.setViewportSize({ width: 1920, height: 1080 });
     await resourcesTree.goto(resourceNames.origin);
     await attributionsPanel.sortButton.click();
     await attributionsPanel.sortings.name.click();
@@ -182,7 +185,6 @@ test.describe('selected manual attribution', () => {
     attributionDetails,
     confirmSavePopup,
   }) => {
-    await window.setViewportSize({ width: 1920, height: 1080 });
     await resourcesTree.goto(resourceNames.origin);
     await attributionsPanel.sortButton.click();
     await attributionsPanel.sortings.name.click();
@@ -213,7 +215,6 @@ test.describe('selected manual attribution', () => {
   });
 
   test('reveals a save that moves the selected row beyond the loaded pages', async ({
-    window,
     resourcesTree,
     attributionsPanel,
     attributionDetails,
@@ -221,7 +222,6 @@ test.describe('selected manual attribution', () => {
   }) => {
     const selected = manualPrecedingAttributions[0][1];
     const packageName = 'zzzz-saved-beyond-loaded-pages';
-    await window.setViewportSize({ width: 1920, height: 1080 });
     await resourcesTree.goto(resourceNames.origin);
     await attributionsPanel.sortButton.click();
     await attributionsPanel.sortings.name.click();
@@ -245,7 +245,6 @@ test.describe('selected manual attribution', () => {
     attributionDetails,
     confirmSavePopup,
   }) => {
-    await window.setViewportSize({ width: 1920, height: 1080 });
     await resourcesTree.goto(resourceNames.origin);
     await attributionsPanel.sortButton.click();
     await attributionsPanel.sortings.name.click();
@@ -292,7 +291,6 @@ test.describe('selected manual attribution', () => {
     const [selectedId, selectedAttribution] = manualPrecedingAttributions[0];
     const comment = 'Saved before loading another page';
 
-    await window.setViewportSize({ width: 1920, height: 1080 });
     await resourcesTree.goto(resourceNames.origin);
     await attributionsPanel.sortButton.click();
     await attributionsPanel.sortings.name.click();
@@ -318,13 +316,11 @@ test.describe('selected manual attribution', () => {
   });
 
   test('preserves a manual attribution across linked destinations', async ({
-    window,
     resourcesTree,
     linkedResourcesTree,
     attributionsPanel,
     attributionDetails,
   }) => {
-    await window.setViewportSize({ width: 1920, height: 1080 });
     await resourcesTree.goto(resourceNames.origin);
     await attributionsPanel.sortButton.click();
     await attributionsPanel.sortings.name.click();
@@ -457,13 +453,11 @@ test.describe('selected signal', () => {
   });
 
   test('changes relation and loads an offscreen signal from a linked destination', async ({
-    window,
     resourcesTree,
     linkedResourcesTree,
     signalsPanel,
     attributionDetails,
   }) => {
-    await window.setViewportSize({ width: 1920, height: 1080 });
     await resourcesTree.goto(resourceNames.origin);
     await signalsPanel.sortButton.click();
     await signalsPanel.sortings.name.click();
@@ -525,13 +519,11 @@ test.describe('selected signal', () => {
   });
 
   test('reveals again on same-relation navigation and cached revisits', async ({
-    window,
     resourcesTree,
     linkedResourcesTree,
     signalsPanel,
     attributionDetails,
   }) => {
-    await window.setViewportSize({ width: 1920, height: 1080 });
     await resourcesTree.goto(resourceNames.origin);
     await signalsPanel.sortButton.click();
     await signalsPanel.sortings.name.click();
@@ -581,13 +573,11 @@ test.describe('selected signal', () => {
   });
 
   test('preserves deliberate tab changes and resumes selected signal reveal on navigation', async ({
-    window,
     resourcesTree,
     linkedResourcesTree,
     signalsPanel,
     attributionDetails,
   }) => {
-    await window.setViewportSize({ width: 1920, height: 1080 });
     await resourcesTree.goto(resourceNames.origin);
     await signalsPanel.sortButton.click();
     await signalsPanel.sortings.name.click();
@@ -611,13 +601,11 @@ test.describe('selected signal', () => {
   });
 
   test('recovers a parent-only signal after returning through the linked tree', async ({
-    window,
     resourcesTree,
     linkedResourcesTree,
     signalsPanel,
     attributionDetails,
   }) => {
-    await window.setViewportSize({ width: 1920, height: 1080 });
     await resourcesTree.goto(resourceNames.origin);
     await signalsPanel.sortButton.click();
     await signalsPanel.sortings.name.click();
