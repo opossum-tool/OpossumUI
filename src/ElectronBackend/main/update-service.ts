@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { app, BrowserWindow, net } from 'electron';
-import log from 'electron-log';
 
 import commitInfo from '../../commitInfo.json';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
@@ -13,6 +12,7 @@ import {
 } from '../../shared/release-assets';
 import { OPOSSUM_UI_GITHUB_URL } from '../../shared/shared-constants';
 import type { UpdateState } from '../../shared/shared-types';
+import logger from './logger';
 
 const PREPARING_RETRY_MS = 600_000;
 const CHECK_INTERVAL_MS = 3_600_000;
@@ -127,7 +127,7 @@ function getRequiredAsset(): string | undefined {
 }
 
 function emitState(state: UpdateState): void {
-  log.info('Update state changed:', state);
+  logger.info(`Update state changed: ${JSON.stringify(state)}`);
   currentState = state;
   BrowserWindow.getAllWindows().forEach((window) => {
     window.webContents.send(AllowedFrontendChannels.UpdateStateChanged, state);
@@ -172,7 +172,9 @@ function scheduleNextCheck(result: InternalUpdateResult): void {
   clearScheduledCheck();
   const delay =
     result.status === 'preparing' ? PREPARING_RETRY_MS : CHECK_INTERVAL_MS;
-  log.info('Scheduling next update check:', { status: result.status, delay });
+  logger.info(
+    `Scheduling next update check in ${delay} ms after ${result.status}.`,
+  );
   checkTimeout = setTimeout(() => {
     checkTimeout = undefined;
     void runAutomaticCheck();
@@ -205,7 +207,9 @@ async function performCheck(): Promise<InternalUpdateResult> {
     const assetName = getRequiredAsset();
     return evaluateRelease(installedRelease, payload, assetName);
   } catch (error) {
-    log.warn('Update check failed:', error);
+    logger.warn(
+      `Update check failed: ${error instanceof Error ? (error.stack ?? error.message) : String(error)}`,
+    );
     return { status: 'error' };
   }
 }

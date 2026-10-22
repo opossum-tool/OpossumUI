@@ -3,10 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { app, BrowserWindow, net } from 'electron';
-import log from 'electron-log';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
+import logger from '../logger';
 import {
   checkForUpdates,
   compareReleaseTags,
@@ -23,7 +23,7 @@ vi.mock('electron', () => ({
   BrowserWindow: { getAllWindows: vi.fn(() => []) },
   net: { fetch: vi.fn() },
 }));
-vi.mock('electron-log', () => ({
+vi.mock('../logger', () => ({
   default: { info: vi.fn(), warn: vi.fn() },
 }));
 vi.mock('../../../commitInfo.json', () => ({
@@ -46,7 +46,7 @@ describe('update service release tags', () => {
     });
     vi.mocked(net.fetch).mockReset();
     vi.mocked(BrowserWindow.getAllWindows).mockReturnValue([]);
-    vi.mocked(log.warn).mockReset();
+    vi.mocked(logger.warn).mockReset();
   });
 
   afterEach(() => {
@@ -138,27 +138,23 @@ describe('update service release tags', () => {
       status: 503,
     } as Response);
     await expect(checkForUpdates()).resolves.toEqual({ status: 'error' });
-    expect(log.warn).toHaveBeenCalledTimes(1);
-    expect(log.warn).toHaveBeenCalledWith(
-      'Update check failed:',
-      expect.objectContaining({ message: 'GitHub returned HTTP 503.' }),
+    expect(logger.warn).toHaveBeenCalledTimes(1);
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('GitHub returned HTTP 503.'),
     );
     expect(net.fetch).toHaveBeenCalledWith(
       'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest',
       expect.any(Object),
     );
-    vi.mocked(log.warn).mockClear();
+    vi.mocked(logger.warn).mockClear();
     vi.mocked(net.fetch).mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({}),
     } as Response);
     await expect(checkForUpdates()).resolves.toEqual({ status: 'error' });
-    expect(log.warn).toHaveBeenCalledTimes(1);
-    expect(log.warn).toHaveBeenCalledWith(
-      'Update check failed:',
-      expect.objectContaining({
-        message: 'GitHub returned invalid release information.',
-      }),
+    expect(logger.warn).toHaveBeenCalledTimes(1);
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('GitHub returned invalid release information.'),
     );
   });
 
@@ -173,8 +169,10 @@ describe('update service release tags', () => {
 
       await expect(checkForUpdates()).resolves.toEqual({ status: 'error' });
 
-      expect(log.warn).toHaveBeenCalledTimes(1);
-      expect(log.warn).toHaveBeenCalledWith('Update check failed:', failure);
+      expect(logger.warn).toHaveBeenCalledTimes(1);
+      expect(logger.warn).toHaveBeenCalledWith(
+        expect.stringContaining(String(failure)),
+      );
     },
   );
 
@@ -189,12 +187,11 @@ describe('update service release tags', () => {
     await expect(updateService.checkForUpdates()).resolves.toEqual({
       status: 'error',
     });
-    expect(log.warn).toHaveBeenCalledTimes(1);
-    expect(log.warn).toHaveBeenCalledWith(
-      'Update check failed:',
-      expect.objectContaining({
-        message: 'The installed release version cannot be determined.',
-      }),
+    expect(logger.warn).toHaveBeenCalledTimes(1);
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'The installed release version cannot be determined.',
+      ),
     );
     expect(isolatedNet.fetch).not.toHaveBeenCalled();
 
@@ -220,12 +217,11 @@ describe('update service release tags', () => {
 
     await expect(checkForUpdates()).resolves.toEqual({ status: 'error' });
 
-    expect(log.warn).toHaveBeenCalledTimes(1);
-    expect(log.warn).toHaveBeenCalledWith(
-      'Update check failed:',
-      expect.objectContaining({
-        message: 'This installation has no supported update download.',
-      }),
+    expect(logger.warn).toHaveBeenCalledTimes(1);
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'This installation has no supported update download.',
+      ),
     );
   });
 
@@ -622,12 +618,11 @@ describe('update service release tags', () => {
         }),
     } as Response);
     await expect(checkForUpdates()).resolves.toEqual({ status: 'error' });
-    expect(log.warn).toHaveBeenCalledTimes(1);
-    expect(log.warn).toHaveBeenCalledWith(
-      'Update check failed:',
-      expect.objectContaining({
-        message: 'GitHub returned an invalid release asset download URL.',
-      }),
+    expect(logger.warn).toHaveBeenCalledTimes(1);
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'GitHub returned an invalid release asset download URL.',
+      ),
     );
   });
 
