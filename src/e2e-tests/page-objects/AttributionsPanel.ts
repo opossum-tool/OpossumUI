@@ -4,7 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Locator, type Page } from '@playwright/test';
 
+import type { RawPackageInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
+import { scrollToBottomUntilVisible } from '../utils/scroll-to-bottom-until-visible';
 import { PackageCard } from './PackageCard';
 
 export class AttributionsPanel {
@@ -227,5 +229,12 @@ export class AttributionsPanel {
       .evaluate((scroller) => {
         scroller.scrollTo({ top: scroller.scrollHeight });
       });
+  }
+
+  async scrollToBottomUntilVisible(packageInfo: RawPackageInfo): Promise<void> {
+    await scrollToBottomUntilVisible(
+      this.node.locator('[data-virtuoso-scroller="true"]'),
+      this.packageCard.node(packageInfo),
+    );
   }
 }

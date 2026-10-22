@@ -11,6 +11,7 @@ import {
 import chroma from 'chroma-js';
 
 import { OpossumColors } from '../../Frontend/shared-styles';
+import { scrollToBottomUntilVisible } from '../utils/scroll-to-bottom-until-visible';
 
 export class Tree {
   protected readonly window: Page;
@@ -130,6 +131,12 @@ export class Tree {
   }
   async scrollToBottom(): Promise<void> {
     await this.scroller.evaluate((el) => el.scrollTo({ top: el.scrollHeight }));
+  }
+  async scrollToBottomUntilVisible(resourcePath: string): Promise<void> {
+    await scrollToBottomUntilVisible(
+      this.scroller,
+      this.getResourceByPath(resourcePath),
+    );
   }
   async search(value: string): Promise<void> {
     await this.searchField.fill(value);
