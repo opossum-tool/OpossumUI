@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { app, BrowserWindow, net } from 'electron';
+import { app, net } from 'electron';
 
 import commitInfo from '../../commitInfo.json';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
@@ -13,6 +13,7 @@ import {
 import { OPOSSUM_UI_GITHUB_URL } from '../../shared/shared-constants';
 import type { UpdateState } from '../../shared/shared-types';
 import logger from './logger';
+import { sendToRenderers } from './send-to-renderers';
 
 const PREPARING_RETRY_MS = 600_000;
 const CHECK_INTERVAL_MS = 3_600_000;
@@ -129,9 +130,7 @@ function getRequiredAsset(): string | undefined {
 function emitState(state: UpdateState): void {
   logger.info(`Update state changed: ${JSON.stringify(state)}`);
   currentState = state;
-  BrowserWindow.getAllWindows().forEach((window) => {
-    window.webContents.send(AllowedFrontendChannels.UpdateStateChanged, state);
-  });
+  sendToRenderers(AllowedFrontendChannels.UpdateStateChanged, state);
 }
 
 export function getUpdateState(): UpdateState {

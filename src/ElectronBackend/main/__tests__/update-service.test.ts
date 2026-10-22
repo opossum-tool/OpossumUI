@@ -93,7 +93,10 @@ describe('update service release tags', () => {
     const timeout = vi.spyOn(AbortSignal, 'timeout');
     const send = vi.fn();
     vi.mocked(BrowserWindow.getAllWindows).mockReturnValue([
-      { webContents: { send } } as unknown as Electron.BrowserWindow,
+      {
+        isDestroyed: () => false,
+        webContents: { isDestroyed: () => false, send },
+      } as unknown as Electron.BrowserWindow,
     ]);
     const firstCheck = checkForUpdates();
     const secondCheck = checkForUpdates();
@@ -497,7 +500,10 @@ describe('update service release tags', () => {
     vi.stubEnv('APPIMAGE', '/app');
     const send = vi.fn();
     vi.mocked(BrowserWindow.getAllWindows).mockReturnValue([
-      { webContents: { send } } as unknown as Electron.BrowserWindow,
+      {
+        isDestroyed: () => false,
+        webContents: { isDestroyed: () => false, send },
+      } as unknown as Electron.BrowserWindow,
     ]);
     vi.mocked(net.fetch).mockResolvedValue(releaseResponse(preparingRelease()));
 

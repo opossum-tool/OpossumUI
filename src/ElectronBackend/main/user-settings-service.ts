@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { BrowserWindow } from 'electron';
 import log from 'electron-log';
 import settings from 'electron-settings';
 
@@ -12,6 +11,7 @@ import type {
   UserSettings as IUserSettings,
   UserSettings,
 } from '../../shared/shared-types';
+import { sendToRenderers } from './send-to-renderers';
 
 let settingsLock: Promise<unknown> = Promise.resolve();
 
@@ -70,12 +70,10 @@ export class UserSettingsService {
         }
       }
       if (!skipNotification) {
-        BrowserWindow.getAllWindows().forEach((window) => {
-          window.webContents.send(
-            AllowedFrontendChannels.UserSettingsChanged,
-            userSettings,
-          );
-        });
+        sendToRenderers(
+          AllowedFrontendChannels.UserSettingsChanged,
+          userSettings,
+        );
       }
     });
   }
