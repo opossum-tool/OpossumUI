@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { sql } from 'kysely';
+import { type Kysely, sql } from 'kysely';
 import { omit, uniqBy } from 'lodash-es';
 
 import type {
@@ -17,6 +17,7 @@ import type {
 } from '../../shared/shared-types';
 import { packageInfoFromAttributionRow } from '../db/attributionData';
 import { getDb } from '../db/db';
+import type { DB } from '../db/generated/databaseTypes';
 import { jsonArraySelection } from '../db/json-array-selection';
 import { isProjectSplit } from '../db/split-info';
 import {
@@ -60,6 +61,7 @@ import {
 } from './statistics';
 import {
   attributionToResourceRelationship,
+  findMatchingAttributionUuidForLink,
   getClosestAncestorWithManualAttributionsBelowBreakpoint,
   getResourceOrThrow,
   removeParentFromPath,
@@ -639,8 +641,30 @@ export const queries = {
     resourcePath: string;
     attributionUuid: string;
   }) {
-    const resource = await getResourceOrThrow(getDb(), props.resourcePath);
-    const result = await getDb()
+    const db = getDb();
+    const resource = await getResourceOrThrow(db, props.resourcePath);
+    const attribution = await db
+      .selectFrom('attribution')
+      .selectAll()
+      .where('uuid', '=', props.attributionUuid)
+      .executeTakeFirst();
+
+    const matchingManualAttributionUuid =
+      attribution?.is_external === 1
+        ? await findMatchingAttributionUuidForLink(
+            db,
+            packageInfoFromAttributionRow(attribution),
+          )
+        : undefined;
+    const matchedManualUuid = matchingManualAttributionUuid ?? '';
+
+    const linkWouldBeRedundant = await getLinkWouldBeRedundant(
+      db,
+      resource.id,
+      matchedManualUuid,
+    );
+
+    const result = await db
       .selectFrom('resource')
       .select((eb) => [
         eb
@@ -662,6 +686,25 @@ export const queries = {
               .where('attribution_uuid', '=', props.attributionUuid),
           )
           .as('on_descendants'),
+        eb
+          .exists(
+            eb
+              .selectFrom('resource_to_attribution')
+              .select('resource_id')
+              .where('resource_id', '=', resource.id)
+              .where('attribution_uuid', '=', matchedManualUuid),
+          )
+          .as('matching_manual_on_resource'),
+        eb
+          .exists(
+            eb
+              .selectFrom('resource_to_attribution')
+              .select('resource_id')
+              .where('resource_id', '>', resource.id)
+              .where('resource_id', '<=', resource.max_descendant_id)
+              .where('attribution_uuid', '=', matchedManualUuid),
+          )
+          .as('matching_manual_on_descendants'),
       ])
       .where('id', '=', resource.id)
       .executeTakeFirstOrThrow();
@@ -670,10 +713,95 @@ export const queries = {
       result: {
         onResource: Boolean(result.on_resource),
         onDescendants: Boolean(result.on_descendants),
+        matchingManualOnResource: Boolean(result.matching_manual_on_resource),
+        matchingManualOnDescendants: Boolean(
+          result.matching_manual_on_descendants,
+        ),
+        linkWouldBeRedundant,
       },
     };
   },
 } satisfies Record<string, QueryFunction>;
+
+/**
+ * Returns true if linking the matched manual attribution to the resource
+ * would be a no-op: the resource has no own manual attributions, is not an
+ * attribution breakpoint itself, and its closest attributed ancestor has
+ * exactly the matched manual attribution as its only manual attribution
+ * (see removeRedundantAttributions).
+ */
+async function getLinkWouldBeRedundant(
+  db: Kysely<DB>,
+  resourceId: number,
+  matchedManualUuid: string,
+): Promise<boolean> {
+  if (matchedManualUuid === '') {
+    return false;
+  }
+
+  const closestAttributedAncestor = await db
+    .selectFrom('resource')
+    .innerJoin(
+      'closest_attributed_ancestors as parent_caa',
+      'parent_caa.resource_id',
+      'resource.parent_id',
+    )
+    .select('parent_caa.manual')
+    .where('resource.id', '=', resourceId)
+    .executeTakeFirst();
+
+  const ancestorId = closestAttributedAncestor?.manual;
+  if (ancestorId === null || ancestorId === undefined) {
+    return false;
+  }
+
+  const redundancy = await db
+    .selectFrom('resource')
+    .select((eb) => [
+      eb('is_attribution_breakpoint', '=', 0).as('not_breakpoint'),
+      eb
+        .not(
+          eb.exists(
+            eb
+              .selectFrom('resource_to_attribution')
+              .select('resource_id')
+              .where('resource_id', '=', resourceId)
+              .where('attribution_is_external', '=', 0),
+          ),
+        )
+        .as('resource_without_own_manual'),
+      eb
+        .exists(
+          eb
+            .selectFrom('resource_to_attribution')
+            .select('resource_id')
+            .where('resource_id', '=', ancestorId)
+            .where('attribution_uuid', '=', matchedManualUuid),
+        )
+        .as('match_on_ancestor'),
+      eb
+        .not(
+          eb.exists(
+            eb
+              .selectFrom('resource_to_attribution')
+              .select('resource_id')
+              .where('resource_id', '=', ancestorId)
+              .where('attribution_is_external', '=', 0)
+              .where('attribution_uuid', '!=', matchedManualUuid),
+          ),
+        )
+        .as('ancestor_only_matched'),
+    ])
+    .where('id', '=', resourceId)
+    .executeTakeFirstOrThrow();
+
+  return Boolean(
+    redundancy.not_breakpoint &&
+    redundancy.resource_without_own_manual &&
+    redundancy.match_on_ancestor &&
+    redundancy.ancestor_only_matched,
+  );
+}
 
 type Queries = typeof queries;
 export type QueryName = keyof Queries;

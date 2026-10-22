@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { Transaction } from 'kysely';
+import type { Kysely, Transaction } from 'kysely';
 
 import {
   type AttributionContent,
@@ -76,7 +76,7 @@ export async function createAttributionAiFromSource(
 }
 
 export async function updateAttributionAiHumanModified(
-  trx: Transaction<DB>,
+  trx: Kysely<DB>,
   attributionUuid: string,
   humanModified: boolean | undefined,
 ) {

@@ -15,8 +15,13 @@ describe('getAttributionLinkStatus', () => {
     await initializeDbWithTestData({
       resources: pathsToResources([
         '/root/target/file.ts',
+        '/root/target/empty-child.ts',
         '/root/sibling/file.ts',
+        '/other/child.ts',
+        '/other/bp/child.ts',
+        '/third/child.ts',
       ]),
+      attributionBreakpoints: new Set(['/other/bp']),
       externalAttributions: {
         attributions: Object.fromEntries(
           [
@@ -26,7 +31,33 @@ describe('getAttributionLinkStatus', () => {
             'ancestor',
             'unrelated',
             'unlinked',
-          ].map((id) => [id, { id, criticality: 0 }]),
+            'signal-matching-target-manual',
+            'solo-signal',
+          ].map((id) => [
+            id,
+            id === 'direct' || id === 'signal-matching-target-manual'
+              ? {
+                  id,
+                  criticality: 0,
+                  packageName: 'pkg-direct',
+                  licenseName: 'MIT',
+                }
+              : id === 'descendant'
+                ? {
+                    id,
+                    criticality: 0,
+                    packageName: 'pkg-descendant',
+                    licenseName: 'Apache-2.0',
+                  }
+                : id === 'solo-signal'
+                  ? {
+                      id,
+                      criticality: 0,
+                      packageName: 'pkg-solo',
+                      licenseName: 'MIT',
+                    }
+                  : { id, criticality: 0 },
+          ]),
         ),
         resourcesToAttributions: {
           '/root/target': ['direct', 'both'],
@@ -42,23 +73,218 @@ describe('getAttributionLinkStatus', () => {
           unrelated: ['/root/sibling'],
         },
       },
+      manualAttributions: {
+        attributions: {
+          'manual-matching-direct': {
+            id: 'manual-matching-direct',
+            criticality: 0,
+            packageName: 'pkg-direct',
+            licenseName: 'MIT',
+          },
+          'manual-matching-descendant': {
+            id: 'manual-matching-descendant',
+            criticality: 0,
+            packageName: 'pkg-descendant',
+            licenseName: 'Apache-2.0',
+          },
+          'manual-unrelated': {
+            id: 'manual-unrelated',
+            criticality: 0,
+            packageName: 'pkg-unrelated',
+            licenseName: 'MIT',
+          },
+          'manual-solo': {
+            id: 'manual-solo',
+            criticality: 0,
+            packageName: 'pkg-solo',
+            licenseName: 'MIT',
+          },
+          'manual-extra': {
+            id: 'manual-extra',
+            criticality: 0,
+            packageName: 'pkg-extra',
+            licenseName: 'Apache-2.0',
+          },
+        },
+        resourcesToAttributions: {
+          '/root/target': ['manual-matching-direct', 'manual-unrelated'],
+          '/root/target/file.ts': ['manual-matching-descendant'],
+          '/other': ['manual-solo'],
+          '/third': ['manual-solo', 'manual-extra'],
+          '/third/child.ts': ['manual-extra'],
+        },
+        attributionsToResources: {
+          'manual-matching-direct': ['/root/target'],
+          'manual-matching-descendant': ['/root/target/file.ts'],
+          'manual-unrelated': ['/root/target'],
+          'manual-solo': ['/other', '/third'],
+          'manual-extra': ['/third', '/third/child.ts'],
+        },
+      },
     });
   });
 
   it.each([
-    ['direct', { onResource: true, onDescendants: false }],
-    ['descendant', { onResource: false, onDescendants: true }],
-    ['both', { onResource: true, onDescendants: true }],
-    ['ancestor', { onResource: false, onDescendants: false }],
-    ['unrelated', { onResource: false, onDescendants: false }],
-    ['unlinked', { onResource: false, onDescendants: false }],
-    ['nonexistent', { onResource: false, onDescendants: false }],
+    [
+      'direct',
+      {
+        onResource: true,
+        onDescendants: false,
+        matchingManualOnResource: true,
+        matchingManualOnDescendants: false,
+        linkWouldBeRedundant: false,
+      },
+    ],
+    [
+      'descendant',
+      {
+        onResource: false,
+        onDescendants: true,
+        matchingManualOnResource: false,
+        matchingManualOnDescendants: true,
+        linkWouldBeRedundant: false,
+      },
+    ],
+    [
+      'both',
+      {
+        onResource: true,
+        onDescendants: true,
+        matchingManualOnResource: false,
+        matchingManualOnDescendants: false,
+        linkWouldBeRedundant: false,
+      },
+    ],
+    [
+      'ancestor',
+      {
+        onResource: false,
+        onDescendants: false,
+        matchingManualOnResource: false,
+        matchingManualOnDescendants: false,
+        linkWouldBeRedundant: false,
+      },
+    ],
+    [
+      'unrelated',
+      {
+        onResource: false,
+        onDescendants: false,
+        matchingManualOnResource: false,
+        matchingManualOnDescendants: false,
+        linkWouldBeRedundant: false,
+      },
+    ],
+    [
+      'unlinked',
+      {
+        onResource: false,
+        onDescendants: false,
+        matchingManualOnResource: false,
+        matchingManualOnDescendants: false,
+        linkWouldBeRedundant: false,
+      },
+    ],
+    [
+      'nonexistent',
+      {
+        onResource: false,
+        onDescendants: false,
+        matchingManualOnResource: false,
+        matchingManualOnDescendants: false,
+        linkWouldBeRedundant: false,
+      },
+    ],
   ])('reports relationship for %s', async (attributionUuid, expected) => {
     const { result } = await queries.getAttributionLinkStatus({
       resourcePath: '/root/target',
       attributionUuid,
     });
     expect(result).toEqual(expected);
+  });
+
+  it('reports linkWouldBeRedundant when linking would only replicate the inherited matching attribution', async () => {
+    const { result } = await queries.getAttributionLinkStatus({
+      resourcePath: '/other/child.ts',
+      attributionUuid: 'solo-signal',
+    });
+    expect(result).toEqual({
+      onResource: false,
+      onDescendants: false,
+      matchingManualOnResource: false,
+      matchingManualOnDescendants: false,
+      linkWouldBeRedundant: true,
+    });
+  });
+
+  it('reports linkWouldBeRedundant false when the resource has own manual attributions, even if linking would collapse them', async () => {
+    const { result } = await queries.getAttributionLinkStatus({
+      resourcePath: '/third/child.ts',
+      attributionUuid: 'solo-signal',
+    });
+    expect(result).toEqual({
+      onResource: false,
+      onDescendants: false,
+      matchingManualOnResource: false,
+      matchingManualOnDescendants: false,
+      linkWouldBeRedundant: false,
+    });
+  });
+
+  it('reports linkWouldBeRedundant false when the matching ancestor has additional manual attributions', async () => {
+    const { result } = await queries.getAttributionLinkStatus({
+      resourcePath: '/root/target/empty-child.ts',
+      attributionUuid: 'signal-matching-target-manual',
+    });
+    expect(result).toEqual({
+      onResource: false,
+      onDescendants: false,
+      matchingManualOnResource: false,
+      matchingManualOnDescendants: false,
+      linkWouldBeRedundant: false,
+    });
+  });
+
+  it('reports linkWouldBeRedundant false below an attribution breakpoint', async () => {
+    const { result } = await queries.getAttributionLinkStatus({
+      resourcePath: '/other/bp/child.ts',
+      attributionUuid: 'solo-signal',
+    });
+    expect(result).toEqual({
+      onResource: false,
+      onDescendants: false,
+      matchingManualOnResource: false,
+      matchingManualOnDescendants: false,
+      linkWouldBeRedundant: false,
+    });
+  });
+
+  it('reports linkWouldBeRedundant false when the matching manual attribution is on an unrelated resource', async () => {
+    const { result } = await queries.getAttributionLinkStatus({
+      resourcePath: '/root/sibling/file.ts',
+      attributionUuid: 'solo-signal',
+    });
+    expect(result).toEqual({
+      onResource: false,
+      onDescendants: false,
+      matchingManualOnResource: false,
+      matchingManualOnDescendants: false,
+      linkWouldBeRedundant: false,
+    });
+  });
+
+  it('reports linkWouldBeRedundant false for a signal without a matching manual attribution', async () => {
+    const { result } = await queries.getAttributionLinkStatus({
+      resourcePath: '/other/child.ts',
+      attributionUuid: 'unlinked',
+    });
+    expect(result).toEqual({
+      onResource: false,
+      onDescendants: false,
+      matchingManualOnResource: false,
+      matchingManualOnDescendants: false,
+      linkWouldBeRedundant: false,
+    });
   });
 });
 

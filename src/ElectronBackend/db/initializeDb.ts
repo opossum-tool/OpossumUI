@@ -810,6 +810,13 @@ async function initializeAttributionTable(
       .execute();
   }
 
+  // Index for matching signals to manual attributions when linking
+  await trx.schema
+    .createIndex('attribution_link_match_idx')
+    .on('attribution')
+    .columns(['is_external', 'package_name', 'package_version'])
+    .execute();
+
   // Index needed for the progress bar data query
   await trx.schema
     .createIndex('attribution_is_resolved_covering_idx')

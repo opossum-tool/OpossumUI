@@ -569,7 +569,7 @@ export function toSnakeCase<S extends string>(s: S): CamelToSnakeCase<S> {
 }
 
 async function computeWasPreferred(
-  trx: Transaction<DB>,
+  dbOrTrx: Kysely<DB>,
   packageInfo: PackageInfo,
 ): Promise<boolean | undefined> {
   const originalAttributionId = packageInfo.originalAttributionId;
@@ -577,7 +577,7 @@ async function computeWasPreferred(
     return packageInfo.wasPreferred;
   }
 
-  const original = await trx
+  const original = await dbOrTrx
     .selectFrom('attribution')
     .select([...ATTRIBUTION_CONTENT_COLUMNS, 'was_preferred'])
     .where('uuid', '=', originalAttributionId)
@@ -591,6 +591,32 @@ async function computeWasPreferred(
       Boolean(original.was_preferred)) ||
     undefined
   );
+}
+
+/**
+ * Returns the uuid of an existing manual attribution that the
+ * given external attribution would be matched with when linking,
+ * or undefined if linking would create a new attribution.
+ */
+export async function findMatchingAttributionUuidForLink(
+  dbOrTrx: Kysely<DB>,
+  packageInfo: PackageInfo,
+): Promise<string | undefined> {
+  const wasPreferred = await computeWasPreferred(dbOrTrx, packageInfo);
+  const { resourceAccess: _resourceAccess, ...persistedPackageInfo } =
+    packageInfo;
+
+  const dataToInsert = {
+    ...removeEmptyStrings({
+      ...persistedPackageInfo,
+      preSelected: undefined,
+    }),
+    wasPreferred,
+  };
+
+  return matchAttribution(dbOrTrx, dataToInsert, {
+    ignorePreSelected: true,
+  });
 }
 
 export function removeParentFromPath(parentPath: string, path: string) {
@@ -776,14 +802,14 @@ export async function cloneMixedAttributionsForWritableResources(
 }
 
 export async function matchAttribution(
-  trx: Transaction<DB>,
+  dbOrTrx: Kysely<DB>,
   packageInfo: PackageInfo,
   options?: { ignorePreSelected?: boolean; excludeUuids?: Array<string> },
 ): Promise<string | undefined> {
   const strippedPackageInfo = removeEmptyStrings(packageInfo);
   const excludeUuids = options?.excludeUuids;
 
-  let query = trx
+  let query = dbOrTrx
     .selectFrom('attribution')
     .select(['uuid', 'resource_access'])
     .leftJoin(
@@ -839,7 +865,7 @@ export async function matchAttribution(
     );
   }
 
-  const sourceRow = await trx
+  const sourceRow = await dbOrTrx
     .selectFrom('attribution')
     .leftJoin(
       'attribution_ai',
@@ -927,7 +953,7 @@ export async function matchAttribution(
   );
   if (humanModified !== fallbackMatch.humanModified) {
     await updateAttributionAiHumanModified(
-      trx,
+      dbOrTrx,
       fallbackMatch.uuid,
       humanModified,
     );

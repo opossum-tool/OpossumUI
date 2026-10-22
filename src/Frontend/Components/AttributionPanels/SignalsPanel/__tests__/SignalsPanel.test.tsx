@@ -350,4 +350,255 @@ describe('SignalsPanel', () => {
       screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
     ).toBeDisabled();
   });
+
+  it('disables link button when the single selected signal already has a matching manual attribution', async () => {
+    const signal = faker.opossum.packageInfo();
+    const manualAttribution = {
+      ...signal,
+      id: faker.string.uuid(),
+      preSelected: false,
+    };
+    const filePath = faker.system.filePath();
+    await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources([filePath]),
+        externalAttributions: { [signal.id]: signal },
+        resourcesToExternalAttributions: { [filePath]: [signal.id] },
+        manualAttributions: { [manualAttribution.id]: manualAttribution },
+        resourcesToManualAttributions: { [ROOT_PATH]: [manualAttribution.id] },
+        metadata: faker.opossum.metadata(),
+      }),
+    });
+
+    await userEvent.click(
+      await screen.findByText(
+        `${signal.packageName}, ${signal.packageVersion}`,
+      ),
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', {
+          name: text.packageLists.linkAsAttribution,
+        }),
+      ).toBeDisabled(),
+    );
+  });
+
+  it('disables link button when the single selected signal matches a manual attribution inherited from an ancestor', async () => {
+    const signal = faker.opossum.packageInfo();
+    const manualAttribution = {
+      ...signal,
+      id: faker.string.uuid(),
+      preSelected: false,
+    };
+    await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources(['/root/child/file.ts']),
+        externalAttributions: { [signal.id]: signal },
+        resourcesToExternalAttributions: {
+          '/root/child/file.ts': [signal.id],
+        },
+        manualAttributions: { [manualAttribution.id]: manualAttribution },
+        resourcesToManualAttributions: {
+          '/root': [manualAttribution.id],
+        },
+        metadata: faker.opossum.metadata(),
+      }),
+      actions: [setSelectedResourceId('/root/child')],
+    });
+
+    await userEvent.click(
+      await screen.findByText(
+        `${signal.packageName}, ${signal.packageVersion}`,
+      ),
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', {
+          name: text.packageLists.linkAsAttribution,
+        }),
+      ).toBeDisabled(),
+    );
+  });
+
+  it('keeps link button enabled when the matching ancestor has additional manual attributions', async () => {
+    const signal = faker.opossum.packageInfo();
+    const manualAttribution = {
+      ...signal,
+      id: faker.string.uuid(),
+      preSelected: false,
+    };
+    const otherManualAttribution = faker.opossum.packageInfo();
+    await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources(['/root/child/file.ts']),
+        externalAttributions: { [signal.id]: signal },
+        resourcesToExternalAttributions: {
+          '/root/child/file.ts': [signal.id],
+        },
+        manualAttributions: {
+          [manualAttribution.id]: manualAttribution,
+          [otherManualAttribution.id]: otherManualAttribution,
+        },
+        resourcesToManualAttributions: {
+          '/root': [manualAttribution.id, otherManualAttribution.id],
+        },
+        metadata: faker.opossum.metadata(),
+      }),
+      actions: [setSelectedResourceId('/root/child')],
+    });
+
+    await userEvent.click(
+      await screen.findByText(
+        `${signal.packageName}, ${signal.packageVersion}`,
+      ),
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', {
+          name: text.packageLists.linkAsAttribution,
+        }),
+      ).toBeEnabled(),
+    );
+  });
+
+  it('keeps link button enabled for a multi-selection with an already matched signal', async () => {
+    const matchedSignal = faker.opossum.packageInfo();
+    const unmatchedSignal = faker.opossum.packageInfo();
+    const manualAttribution = {
+      ...matchedSignal,
+      id: faker.string.uuid(),
+      preSelected: false,
+    };
+    const filePath = faker.system.filePath();
+    await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources([filePath]),
+        externalAttributions: {
+          [matchedSignal.id]: matchedSignal,
+          [unmatchedSignal.id]: unmatchedSignal,
+        },
+        resourcesToExternalAttributions: {
+          [filePath]: [matchedSignal.id, unmatchedSignal.id],
+        },
+        manualAttributions: { [manualAttribution.id]: manualAttribution },
+        resourcesToManualAttributions: { [ROOT_PATH]: [manualAttribution.id] },
+        metadata: faker.opossum.metadata(),
+      }),
+    });
+
+    await userEvent.click(
+      within(
+        await screen.findByLabelText(
+          `package card ${matchedSignal.packageName}, ${matchedSignal.packageVersion}`,
+        ),
+      ).getByRole('checkbox'),
+    );
+    await userEvent.click(
+      within(
+        await screen.findByLabelText(
+          `package card ${unmatchedSignal.packageName}, ${unmatchedSignal.packageVersion}`,
+        ),
+      ).getByRole('checkbox'),
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', {
+          name: text.packageLists.linkAsAttribution,
+        }),
+      ).toBeEnabled(),
+    );
+  });
+
+  it('disables link button when the selected signal is already matched on the resource', async () => {
+    const signal = faker.opossum.packageInfo();
+    const manualAttribution = {
+      ...signal,
+      id: faker.string.uuid(),
+      preSelected: false,
+    };
+    const filePath = faker.system.filePath();
+    await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources([filePath]),
+        externalAttributions: {
+          [signal.id]: signal,
+        },
+        resourcesToExternalAttributions: {
+          [filePath]: [signal.id],
+        },
+        manualAttributions: {
+          [manualAttribution.id]: manualAttribution,
+        },
+        resourcesToManualAttributions: {
+          [ROOT_PATH]: [manualAttribution.id],
+        },
+        metadata: faker.opossum.metadata(),
+      }),
+    });
+
+    await userEvent.click(
+      within(
+        await screen.findByLabelText(
+          `package card ${signal.packageName}, ${signal.packageVersion}`,
+        ),
+      ).getByRole('checkbox'),
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', {
+          name: text.packageLists.linkAsAttribution,
+        }),
+      ).toBeDisabled(),
+    );
+  });
+
+  it('disables link button when linking the selected signal would be redundant', async () => {
+    const signal = faker.opossum.packageInfo({
+      source: { name: 'Scanner', documentConfidence: 0 },
+    });
+    const manualAttribution = {
+      ...signal,
+      id: faker.string.uuid(),
+      preSelected: false,
+    };
+    await renderComponent(<SignalsPanel />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources(['/root/child/file.ts']),
+        externalAttributions: {
+          [signal.id]: signal,
+        },
+        resourcesToExternalAttributions: {
+          '/root/child/file.ts': [signal.id],
+        },
+        manualAttributions: { [manualAttribution.id]: manualAttribution },
+        resourcesToManualAttributions: {
+          '/root': [manualAttribution.id],
+        },
+        metadata: faker.opossum.metadata(),
+      }),
+      actions: [setSelectedResourceId('/root/child')],
+    });
+
+    await userEvent.click(
+      within(
+        await screen.findByLabelText(
+          `package card ${signal.packageName}, ${signal.packageVersion}`,
+        ),
+      ).getByRole('checkbox'),
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', {
+          name: text.packageLists.linkAsAttribution,
+        }),
+      ).toBeDisabled(),
+    );
+  });
 });
