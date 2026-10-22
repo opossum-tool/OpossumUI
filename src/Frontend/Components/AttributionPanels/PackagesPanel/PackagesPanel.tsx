@@ -53,6 +53,7 @@ import {
 } from '../../../state/variables/use-picker-mode';
 import { useUserSettings } from '../../../state/variables/use-user-setting';
 import { backend, useDatabaseInitialized } from '../../../util/backendClient';
+import { useAttributionSaveReveal } from '../../../util/use-attribution-save-reveal';
 import { useAuditAttributionsList } from '../../../util/use-audit-attributions-list';
 import { useFilterProperties } from '../../../util/use-filter-properties';
 import { usePrevious } from '../../../util/use-previous';
@@ -93,9 +94,10 @@ export interface PackagesPanelChildrenProps {
   selectionSummaryLoading: boolean;
   toggleAttributionSelection: (id: string, selected: boolean) => void;
   isAttributionSelected: (id: string) => boolean;
-  clearSelection: () => void;
+  clearBulkSelection: () => void;
   pickerMode: PickerMode;
   resultSetKey: string;
+  selectionRevealKey?: string;
   selectedAttributionId: string;
   selectedAttributionIds: Array<string>;
   totalAttributionCount?: number;
@@ -595,21 +597,21 @@ export const PackagesPanel = ({
     { selection },
     { enabled: selectionHasRows },
   );
-  const clearSelection = useCallback(() => {
+  const clearBulkSelection = useCallback(() => {
     setBulkSelection(null);
   }, []);
   useEffect(() => {
     if (!sortingChanged) {
       return;
     }
-    clearSelection();
+    clearBulkSelection();
     if (selectedAttributionId && selectedAttributionIsExternal !== external) {
       return;
     }
     preserveSelectionRef.current = false;
     dispatch(setSelectedAttributionId(''));
   }, [
-    clearSelection,
+    clearBulkSelection,
     dispatch,
     external,
     selectedAttributionId,
@@ -623,9 +625,9 @@ export const PackagesPanel = ({
       bulkSelection.excludedAttributionUuids.length >=
         activeRelationCount.editableCount
     ) {
-      clearSelection();
+      clearBulkSelection();
     }
-  }, [activeRelationCount, bulkSelection, clearSelection]);
+  }, [activeRelationCount, bulkSelection, clearBulkSelection]);
   const toggleAttributionSelection = useCallback(
     (id: string, selected: boolean) => {
       setBulkSelection((current) => {
@@ -675,10 +677,10 @@ export const PackagesPanel = ({
       !isEqual(previousSelectionQuery, selectionQuery) &&
       !pickerMode.isActive
     ) {
-      clearSelection();
+      clearBulkSelection();
     }
   }, [
-    clearSelection,
+    clearBulkSelection,
     pickerMode.isActive,
     previousSelectionQuery,
     bulkSelection,
@@ -688,13 +690,13 @@ export const PackagesPanel = ({
   // reset resource-dependent selection state when the selected resource changes
   useEffect(() => {
     if (selectedResourceId !== previousSelectedResourceId) {
-      clearSelection();
+      clearBulkSelection();
       if (external && !selectedAttributionRelation) {
         setActiveRelation('resource');
       }
     }
   }, [
-    clearSelection,
+    clearBulkSelection,
     external,
     previousSelectedResourceId,
     selectedAttributionRelation,
@@ -739,9 +741,9 @@ export const PackagesPanel = ({
   // reset selection when active relation changes and not in replacement or compare-selection mode
   useEffect(() => {
     if (!pickerMode.isActive) {
-      clearSelection();
+      clearBulkSelection();
     }
-  }, [activeRelation, clearSelection, pickerMode.isActive]);
+  }, [activeRelation, clearBulkSelection, pickerMode.isActive]);
 
   // reset active relation when active relation no longer exists
   useEffect(() => {
@@ -818,7 +820,13 @@ export const PackagesPanel = ({
     selectedResourceId,
   ]);
 
+  // Read the save signal alongside the queries so the reveal uses refreshed rows.
+  const { getSelectionRevealKey } = useAttributionSaveReveal();
   const childrenProps: PackagesPanelChildrenProps = {
+    selectionRevealKey: getSelectionRevealKey(
+      selectedAttributionId,
+      selectedResourceId,
+    ),
     activeAttributionIds,
     activeRelation,
     attributionIds,
@@ -836,7 +844,7 @@ export const PackagesPanel = ({
     selectionSummaryLoading: selectionSummaryQuery.isLoading,
     toggleAttributionSelection,
     isAttributionSelected,
-    clearSelection,
+    clearBulkSelection,
     pickerMode,
     resultSetKey,
     selectedAttributionId,
@@ -1002,7 +1010,7 @@ export const PackagesPanel = ({
           aria-label={'select all'}
           onChange={() => {
             if (areAllAttributionsSelected) {
-              clearSelection();
+              clearBulkSelection();
               return;
             }
             if (bulkSelection?.mode === 'allMatching') {

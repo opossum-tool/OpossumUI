@@ -2,7 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { expect } from '@playwright/test';
+
 import { ATTRIBUTION_PAGE_SIZE } from '../../Frontend/util/attribution-page-query';
+import { text } from '../../shared/text';
 import { faker, test } from '../utils';
 
 const packageVersion = '1.0.0';
@@ -66,6 +69,10 @@ const precedingSignals = Array.from(
     }),
 );
 
+test.beforeEach(async ({ window }) => {
+  await window.emulateMedia({ reducedMotion: 'reduce' });
+});
+
 const resources = faker.opossum.resources({
   [resourceNames.origin]: {
     [resourceNames.target]: 1,
@@ -123,14 +130,197 @@ test.describe('selected manual attribution', () => {
     },
   });
 
-  test('preserves a manual attribution across linked destinations', async ({
+  test('reveals a selected attribution after saving a changed sort value globally', async ({
     window,
+    resourcesTree,
+    attributionsPanel,
+    attributionDetails,
+    confirmSavePopup,
+  }) => {
+    const updatedPackageName = 'manual-150-renamed-target';
+
+    await resourcesTree.goto(resourceNames.origin);
+    await attributionsPanel.sortButton.click();
+    await attributionsPanel.sortings.name.click();
+    await attributionsPanel.scrollToBottom();
+    await attributionsPanel.assert.loadingIndicatorIsHidden();
+    await attributionsPanel.packageCard.click(target);
+    await attributionDetails.assert.loadingIndicatorIsHidden();
+    await attributionDetails.attributionForm.assert.matchesPackageInfo(target);
+
+    await attributionsPanel.scrollToTop();
+    await attributionsPanel.packageCard.assert.isFirstVisible(
+      manualPrecedingAttributions[0][1],
+    );
+    await attributionsPanel.packageCard.assert.isNotInViewport(target);
+    await attributionDetails.attributionForm.name.fill(updatedPackageName);
+    await attributionsPanel.packageCard.assert.isNotInViewport(target);
+
+    await attributionDetails.saveButton.click();
+    await confirmSavePopup.assert.isVisible();
+    await confirmSavePopup.saveGloballyButton.click();
+    await confirmSavePopup.assert.isHidden();
+
+    await attributionDetails.attributionForm.assert.nameIs(updatedPackageName);
+    await attributionDetails.assert.saveButtonIsDisabled();
+    const updatedTarget = { ...target, packageName: updatedPackageName };
+    await attributionsPanel.packageCard.assert.isInViewport(updatedTarget);
+    await attributionsPanel.packageCard.assert.signalAboveSecondSignal(
+      manualPrecedingAttributions[149][1],
+      updatedTarget,
+    );
+    await attributionsPanel.packageCard.assert.signalAboveSecondSignal(
+      updatedTarget,
+      manualPrecedingAttributions[150][1],
+    );
+    await expect(
+      window.getByTestId('attributions-panel').locator('[data-selected-id]'),
+    ).toHaveAttribute('data-selected-id', targetId);
+  });
+
+  test('reveals repeated comment-only saves without moving an already visible row', async ({
+    window,
+    resourcesTree,
+    attributionsPanel,
+    attributionDetails,
+    confirmSavePopup,
+  }) => {
+    await resourcesTree.goto(resourceNames.origin);
+    await attributionsPanel.sortButton.click();
+    await attributionsPanel.sortings.name.click();
+    await attributionsPanel.scrollToBottom();
+    await attributionsPanel.packageCard.click(target);
+    await attributionDetails.assert.loadingIndicatorIsHidden();
+    for (const comment of ['first comment', 'second comment']) {
+      await attributionsPanel.scrollToTop();
+      await attributionsPanel.packageCard.assert.isNotInViewport(target);
+      await attributionDetails.attributionForm.comment.fill(comment);
+      await attributionDetails.saveButton.click();
+      await confirmSavePopup.saveGloballyButton.click();
+      await confirmSavePopup.assert.isHidden();
+      await attributionsPanel.packageCard.assert.isInViewport(target);
+    }
+    const scroller = window
+      .getByTestId('attributions-panel')
+      .locator('[data-virtuoso-scroller]');
+    const scrollTop = await scroller.evaluate((element) => element.scrollTop);
+    await attributionDetails.attributionForm.comment.fill('visible comment');
+    await attributionDetails.saveButton.click();
+    await confirmSavePopup.saveGloballyButton.click();
+    await confirmSavePopup.assert.isHidden();
+    await attributionDetails.assert.saveButtonIsDisabled();
+    await expect
+      .poll(() => scroller.evaluate((element) => element.scrollTop))
+      .toBe(scrollTop);
+  });
+
+  test('reveals a save that moves the selected row beyond the loaded pages', async ({
+    resourcesTree,
+    attributionsPanel,
+    attributionDetails,
+    confirmSavePopup,
+  }) => {
+    const selected = manualPrecedingAttributions[0][1];
+    const packageName = 'zzzz-saved-beyond-loaded-pages';
+    await resourcesTree.goto(resourceNames.origin);
+    await attributionsPanel.sortButton.click();
+    await attributionsPanel.sortings.name.click();
+    await attributionsPanel.packageCard.click(selected);
+    await attributionDetails.assert.loadingIndicatorIsHidden();
+    await attributionDetails.attributionForm.name.fill(packageName);
+    await attributionDetails.saveButton.click();
+    await confirmSavePopup.saveGloballyButton.click();
+    await confirmSavePopup.assert.isHidden();
+    await attributionsPanel.packageCard.assert.isInViewport({
+      ...selected,
+      packageName,
+    });
+    await attributionDetails.assert.saveButtonIsDisabled();
+  });
+
+  test('does not reveal a selected attribution after a batch flag change', async ({
+    window,
+    resourcesTree,
+    attributionsPanel,
+    attributionDetails,
+    confirmSavePopup,
+  }) => {
+    await resourcesTree.goto(resourceNames.origin);
+    await attributionsPanel.sortButton.click();
+    await attributionsPanel.sortings.name.click();
+    await attributionsPanel.scrollToBottom();
+    await attributionsPanel.assert.loadingIndicatorIsHidden();
+    await attributionsPanel.packageCard.click(target);
+    await attributionsPanel.packageCard.checkbox(target).check();
+    const comment = 'Saved before changing review status';
+    await attributionDetails.attributionForm.comment.fill(comment);
+    await attributionDetails.saveButton.click();
+    await confirmSavePopup.assert.isVisible();
+    await confirmSavePopup.saveGloballyButton.click();
+    await confirmSavePopup.assert.isHidden();
+    await attributionDetails.assert.saveButtonIsDisabled();
+    await attributionsPanel.scrollToTop();
+    await attributionsPanel.packageCard.assert.isNotInViewport(target);
+
+    await window
+      .getByRole('button', {
+        name: text.packageLists.moreActions,
+        exact: true,
+      })
+      .click();
+    await window
+      .getByRole('menuitem', { name: 'Mark as Needs Review by QA' })
+      .click();
+
+    await expect(
+      attributionDetails.attributionForm.auditingLabels.needsReviewLabel,
+    ).toBeVisible();
+    await attributionsPanel.packageCard.assert.isNotInViewport(target);
+    await expect(
+      window.getByTestId('attributions-panel').locator('[data-selected-id]'),
+    ).toHaveAttribute('data-selected-id', targetId);
+  });
+
+  test('keeps a saved selected attribution outside the viewport while loading another page', async ({
+    window,
+    resourcesTree,
+    attributionsPanel,
+    attributionDetails,
+    confirmSavePopup,
+  }) => {
+    const [selectedId, selectedAttribution] = manualPrecedingAttributions[0];
+    const comment = 'Saved before loading another page';
+
+    await resourcesTree.goto(resourceNames.origin);
+    await attributionsPanel.sortButton.click();
+    await attributionsPanel.sortings.name.click();
+    await attributionsPanel.packageCard.click(selectedAttribution);
+    await attributionDetails.assert.loadingIndicatorIsHidden();
+    await attributionDetails.attributionForm.comment.fill(comment);
+    await attributionDetails.saveButton.click();
+    await confirmSavePopup.assert.isVisible();
+    await confirmSavePopup.saveGloballyButton.click();
+    await confirmSavePopup.assert.isHidden();
+    await attributionDetails.assert.saveButtonIsDisabled();
+
+    await attributionsPanel.scrollToBottom();
+    await attributionsPanel.packageCard.assert.isInViewport(
+      manualPrecedingAttributions[manualAttributionCount - 1][1],
+    );
+    await attributionsPanel.packageCard.assert.isNotInViewport(
+      selectedAttribution,
+    );
+    await expect(
+      window.getByTestId('attributions-panel').locator('[data-selected-id]'),
+    ).toHaveAttribute('data-selected-id', selectedId);
+  });
+
+  test('preserves a manual attribution across linked destinations', async ({
     resourcesTree,
     linkedResourcesTree,
     attributionsPanel,
     attributionDetails,
   }) => {
-    await window.setViewportSize({ width: 1920, height: 1080 });
     await resourcesTree.goto(resourceNames.origin);
     await attributionsPanel.sortButton.click();
     await attributionsPanel.sortings.name.click();
@@ -263,13 +453,11 @@ test.describe('selected signal', () => {
   });
 
   test('changes relation and loads an offscreen signal from a linked destination', async ({
-    window,
     resourcesTree,
     linkedResourcesTree,
     signalsPanel,
     attributionDetails,
   }) => {
-    await window.setViewportSize({ width: 1920, height: 1080 });
     await resourcesTree.goto(resourceNames.origin);
     await signalsPanel.sortButton.click();
     await signalsPanel.sortings.name.click();
@@ -331,13 +519,11 @@ test.describe('selected signal', () => {
   });
 
   test('reveals again on same-relation navigation and cached revisits', async ({
-    window,
     resourcesTree,
     linkedResourcesTree,
     signalsPanel,
     attributionDetails,
   }) => {
-    await window.setViewportSize({ width: 1920, height: 1080 });
     await resourcesTree.goto(resourceNames.origin);
     await signalsPanel.sortButton.click();
     await signalsPanel.sortings.name.click();
@@ -387,13 +573,11 @@ test.describe('selected signal', () => {
   });
 
   test('preserves deliberate tab changes and resumes selected signal reveal on navigation', async ({
-    window,
     resourcesTree,
     linkedResourcesTree,
     signalsPanel,
     attributionDetails,
   }) => {
-    await window.setViewportSize({ width: 1920, height: 1080 });
     await resourcesTree.goto(resourceNames.origin);
     await signalsPanel.sortButton.click();
     await signalsPanel.sortings.name.click();
@@ -417,13 +601,11 @@ test.describe('selected signal', () => {
   });
 
   test('recovers a parent-only signal after returning through the linked tree', async ({
-    window,
     resourcesTree,
     linkedResourcesTree,
     signalsPanel,
     attributionDetails,
   }) => {
-    await window.setViewportSize({ width: 1920, height: 1080 });
     await resourcesTree.goto(resourceNames.origin);
     await signalsPanel.sortButton.click();
     await signalsPanel.sortings.name.click();

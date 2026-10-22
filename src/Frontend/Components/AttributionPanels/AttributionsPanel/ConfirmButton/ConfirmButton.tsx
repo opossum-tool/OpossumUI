@@ -20,7 +20,7 @@ export const ConfirmButton: React.FC<PackagesPanelChildrenProps> = ({
   selection,
   selectionSummary,
   selectionSummaryLoading,
-  clearSelection,
+  clearBulkSelection,
 }) => {
   const [isConfirmSavePopupOpen, setIsConfirmSavePopupOpen] = useState(false);
   const preSelectedAttributionIds = selectedAttributionIds.filter(
@@ -67,7 +67,7 @@ export const ConfirmButton: React.FC<PackagesPanelChildrenProps> = ({
         selection={preSelectedSelection}
         open={isConfirmSavePopupOpen}
         onClose={() => setIsConfirmSavePopupOpen(false)}
-        clearSelection={clearSelection}
+        onSaveComplete={clearBulkSelection}
       />
     </>
   );

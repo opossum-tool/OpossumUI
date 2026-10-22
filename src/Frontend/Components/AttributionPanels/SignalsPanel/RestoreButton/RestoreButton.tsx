@@ -19,7 +19,7 @@ export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
   selection,
   selectionSummary,
   selectionSummaryLoading,
-  clearSelection,
+  clearBulkSelection,
 }) => {
   const unresolveAttributions = backend.unresolveAttributions.useMutation({
     scope: { id: 'signalsPanel' },
@@ -66,7 +66,7 @@ export const RestoreButton: React.FC<PackagesPanelChildrenProps> = ({
       size={'small'}
       onClick={async () => {
         await unresolveAttributions.mutateAsync({ selection });
-        clearSelection();
+        clearBulkSelection();
       }}
       loading={unresolveAttributions.isPending}
     >

@@ -24,10 +24,10 @@ interface Props {
   allowLocalSave?: boolean;
   action?: 'save' | 'confirm';
   onAcceptDrafts?: () => void;
-  onSaveComplete?: () => void;
+  onSaveComplete?: (result: SaveMutationResult) => void;
 }
 
-type SaveMutationResult = MutationResult<
+export type SaveMutationResult = MutationResult<
   'updateOrMatchAttributions' | 'modifyOrMatchOnlyOnOneResource'
 >;
 
@@ -85,47 +85,28 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     );
   }, [attributionOverrides, attributionsToSave, selection.mode]);
 
-  const finishSave = useCallback(() => {
-    onClose();
-    onSaveComplete?.();
-  }, [onClose, onSaveComplete]);
-
   const isConfirmAction =
     action === 'confirm' ||
     (action === undefined && actionSummary.areAllAttributionsPreselected);
 
-  const handleSaveGlobally = async () => {
+  const handleSave = async (saveLocally: boolean) => {
     if (isSaving) {
       return;
     }
     try {
-      await updateOrMatch.mutateAsync({
+      const params = {
         selection,
         attributions: resolvedAttributions,
         focusedAttributionUuid,
-      });
-      finishSave();
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : text.saveAttributionsPopup.saveFailure,
-      );
-    }
-  };
-
-  const handleSaveOnResource = async () => {
-    if (isSaving) {
-      return;
-    }
-    try {
-      await modifyOrMatchOnlyOnOneResource.mutateAsync({
-        resourcePath: selectedResourceId,
-        selection,
-        attributions: resolvedAttributions,
-        focusedAttributionUuid,
-      });
-      finishSave();
+      };
+      const result = saveLocally
+        ? await modifyOrMatchOnlyOnOneResource.mutateAsync({
+            ...params,
+            resourcePath: selectedResourceId,
+          })
+        : await updateOrMatch.mutateAsync(params);
+      onClose();
+      onSaveComplete?.(result);
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -147,7 +128,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
           ? {
               isPending: modifyOrMatchOnlyOnOneResource.isPending,
               disabled: isSaving,
-              onClick: handleSaveOnResource,
+              onClick: () => handleSave(true),
               buttonText: isConfirmAction
                 ? text.saveAttributionsPopup.confirmLocally
                 : text.saveAttributionsPopup.saveLocally,
@@ -157,7 +138,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
       globalAction={{
         isPending: updateOrMatch.isPending,
         disabled: isSaving,
-        onClick: handleSaveGlobally,
+        onClick: () => handleSave(false),
         color: 'error',
         buttonText:
           (actionSummary.linkedResourceCount ?? 0) > 1

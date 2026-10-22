@@ -45,7 +45,7 @@ describe('ReplaceButton', () => {
       selectionSummaryLoading: false,
       toggleAttributionSelection: vi.fn(),
       isAttributionSelected: () => false,
-      clearSelection: vi.fn(),
+      clearBulkSelection: vi.fn(),
       selectionSummary: {
         selectedCount: 2,
         preSelectedCount: 0,
@@ -62,9 +62,9 @@ describe('ReplaceButton', () => {
       selectedAttributionId: first.id,
       selectedAttributionIds: [first.id, second.id],
     };
-    const clearSelection = vi.fn();
+    const clearBulkSelection = vi.fn();
     const { store } = await renderComponent(
-      <ReplaceButton {...props} clearSelection={clearSelection} />,
+      <ReplaceButton {...props} clearBulkSelection={clearBulkSelection} />,
     );
 
     await userEvent.click(
@@ -73,7 +73,7 @@ describe('ReplaceButton', () => {
     expect(
       store.getState().variablesState[ATTRIBUTION_SELECTION_FOR_REPLACEMENT],
     ).toEqual(selection);
-    expect(clearSelection).not.toHaveBeenCalled();
+    expect(clearBulkSelection).not.toHaveBeenCalled();
 
     await userEvent.click(
       screen.getByRole('button', { name: text.packageLists.cancelReplace }),
@@ -81,7 +81,7 @@ describe('ReplaceButton', () => {
     expect(
       store.getState().variablesState[ATTRIBUTION_SELECTION_FOR_REPLACEMENT],
     ).toBeNull();
-    expect(clearSelection).toHaveBeenCalledOnce();
+    expect(clearBulkSelection).toHaveBeenCalledOnce();
 
     await userEvent.click(
       screen.getByRole('button', { name: text.packageLists.replace }),

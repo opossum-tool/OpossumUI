@@ -27,7 +27,7 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
   pickerMode,
   selectedAttributionIds,
   selection,
-  clearSelection,
+  clearBulkSelection,
   selectionSummary,
   selectionSummaryLoading,
 }) => {
@@ -73,7 +73,7 @@ export const LinkButton: React.FC<PackagesPanelChildrenProps> = ({
       );
     }
     dispatch(setTargetAttributionRelation('resource'));
-    clearSelection();
+    clearBulkSelection();
   };
 
   return (

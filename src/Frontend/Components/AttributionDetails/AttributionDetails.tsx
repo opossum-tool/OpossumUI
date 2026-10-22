@@ -17,6 +17,7 @@ import {
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/resource-selectors';
 import { usePickerMode } from '../../state/variables/use-picker-mode';
+import { useAttributionSaveReveal } from '../../util/use-attribution-save-reveal';
 import { AttributionForm } from '../AttributionForm/AttributionForm';
 import { AttributionFormConfirmSavePopup } from '../ConfirmSavePopup/AttributionFormConfirmSavePopup';
 import { ButtonRow } from './ButtonRow/ButtonRow';
@@ -44,6 +45,7 @@ const classes = {
 
 export function AttributionDetails() {
   const dispatch = useAppDispatch();
+  const { publishSaveCompletion } = useAttributionSaveReveal();
   const { presentation, isLoading, selectionIsPending, hasMainAttribution } =
     useAttributionDetailsPresentation();
   const temporaryDisplayPackageInfo = useAppSelector(
@@ -139,6 +141,13 @@ export function AttributionDetails() {
           }}
           open={isConfirmSavePopupOpen}
           onClose={() => setIsConfirmSavePopupOpen(false)}
+          onSaveComplete={(result) =>
+            publishSaveCompletion(
+              result.focusedAttributionOutcome,
+              saveContext.attributionId,
+              saveContext.resourceId,
+            )
+          }
           onAcceptDrafts={() => {
             dispatch(
               acceptSavedPackageInfoEditing({

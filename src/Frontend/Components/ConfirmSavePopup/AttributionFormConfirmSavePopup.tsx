@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import type { AttributionSelection } from '../../../shared/attribution-selection';
 import { useAppSelector } from '../../state/hooks';
@@ -9,14 +9,14 @@ import {
   getSelectedAttributionId,
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/resource-selectors';
-import { ConfirmSavePopup } from './ConfirmSavePopup';
+import { ConfirmSavePopup, type SaveMutationResult } from './ConfirmSavePopup';
 
 interface Props {
   selection: AttributionSelection;
   open: boolean;
   onClose: () => void;
   onAcceptDrafts?: () => void;
-  clearSelection?: () => void;
+  onSaveComplete?: (result: SaveMutationResult) => void;
 }
 
 export function AttributionFormConfirmSavePopup({
@@ -24,7 +24,7 @@ export function AttributionFormConfirmSavePopup({
   open,
   onClose,
   onAcceptDrafts,
-  clearSelection,
+  onSaveComplete,
 }: Props) {
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const temporaryDisplayPackageInfo = useAppSelector(
@@ -38,10 +38,6 @@ export function AttributionFormConfirmSavePopup({
         : undefined,
     [selectedAttributionId, temporaryDisplayPackageInfo],
   );
-  const handleSaveComplete = useCallback(() => {
-    clearSelection?.();
-  }, [clearSelection]);
-
   return (
     <ConfirmSavePopup
       selection={selection}
@@ -50,7 +46,7 @@ export function AttributionFormConfirmSavePopup({
       attributions={attributions}
       focusedAttributionUuid={selectedAttributionId || undefined}
       onAcceptDrafts={onAcceptDrafts}
-      onSaveComplete={handleSaveComplete}
+      onSaveComplete={onSaveComplete}
     />
   );
 }

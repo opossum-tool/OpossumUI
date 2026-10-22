@@ -34,6 +34,7 @@ import { usePickerMode } from '../../../state/variables/use-picker-mode';
 import { backend } from '../../../util/backendClient';
 import { getCardLabels } from '../../../util/get-card-labels';
 import { isPackageInvalid } from '../../../util/input-validation';
+import { useAttributionSaveReveal } from '../../../util/use-attribution-save-reveal';
 import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../../util/use-focused-attribution-outcome';
 import { useIpcRenderer } from '../../../util/use-ipc-renderer';
 import { ConfirmDeletePopup } from '../../ConfirmDeletePopup/ConfirmDeletePopup';
@@ -58,6 +59,7 @@ export function ButtonRow(props: Props) {
   const unresolveAttributions = backend.unresolveAttributions.useMutation();
   const handleFocusedAttributionOutcome =
     useFocusedAttributionOutcomeBeforeInvalidation();
+  const { publishSaveCompletion } = useAttributionSaveReveal();
   const linkAttribution = backend.createOrMatchAttributions.useMutation({
     onBeforeInvalidation: handleFocusedAttributionOutcome,
   });
@@ -141,21 +143,24 @@ export function ButtonRow(props: Props) {
       }
       if (hasMultipleResources) {
         onOpenSave();
-      } else if (packageInfo.id) {
-        await updateOrMatch.mutateAsync({
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-          focusedAttributionUuid: packageInfo.id,
-        });
       } else {
-        await createOrMatch.mutateAsync({
-          resourcePath: selectedResourceId,
+        const params = {
           attributions: {
             [packageInfo.id]: packageInfo,
           },
           focusedAttributionUuid: packageInfo.id,
-        });
+        };
+        const result = packageInfo.id
+          ? await updateOrMatch.mutateAsync(params)
+          : await createOrMatch.mutateAsync({
+              ...params,
+              resourcePath: selectedResourceId,
+            });
+        publishSaveCompletion(
+          result.focusedAttributionOutcome,
+          packageInfo.id,
+          selectedResourceId,
+        );
       }
     }
   }, [
@@ -167,6 +172,7 @@ export function ButtonRow(props: Props) {
     onOpenSave,
     updateOrMatch,
     createOrMatch,
+    publishSaveCompletion,
     selectedResourceId,
   ]);
 

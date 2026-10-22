@@ -266,10 +266,12 @@ describe('AttributionFormConfirmSavePopup', () => {
     });
     const resource = faker.opossum.filePath(faker.opossum.resourceName());
 
-    await renderComponent(
+    const events: Array<string> = [];
+    const { store } = await renderComponent(
       <AttributionFormConfirmSavePopup
         open
-        onClose={noop}
+        onClose={() => events.push('close')}
+        onSaveComplete={() => events.push('complete')}
         selection={{
           mode: 'allMatching',
           query: {
@@ -329,6 +331,10 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
       [second.id]: { ...second, preSelected: undefined },
     });
+    await waitFor(() => expect(events).toEqual(['close', 'complete']));
+    expect(
+      store.getState().variablesState['attribution-save-reveal'],
+    ).toBeUndefined();
   });
 
   it('preserves focus when a query-wide save matches an existing attribution', async () => {
@@ -342,10 +348,12 @@ describe('AttributionFormConfirmSavePopup', () => {
       preSelected: undefined,
     };
     const resource = faker.opossum.filePath(faker.opossum.resourceName());
+    const onSaveComplete = vi.fn();
     const { store } = await renderComponent(
       <AttributionFormConfirmSavePopup
         open
         onClose={noop}
+        onSaveComplete={onSaveComplete}
         selection={{
           mode: 'allMatching',
           query: {
@@ -389,6 +397,84 @@ describe('AttributionFormConfirmSavePopup', () => {
     await waitFor(() =>
       expect(getSelectedAttributionId(store.getState())).toBe(matching.id),
     );
+    await waitFor(() =>
+      expect(onSaveComplete).toHaveBeenCalledExactlyOnceWith(
+        expect.objectContaining({
+          focusedAttributionOutcome: {
+            status: 'remapped',
+            attributionUuid: focused.id,
+            newAttributionUuid: matching.id,
+          },
+        }),
+      ),
+    );
+  });
+
+  it('does not complete when the save popup is cancelled', async () => {
+    const attribution = faker.opossum.packageInfo();
+    const onSaveComplete = vi.fn();
+    await renderComponent(
+      <AttributionFormConfirmSavePopup
+        open
+        onClose={noop}
+        onSaveComplete={onSaveComplete}
+        selection={{ mode: 'explicit', attributionUuids: [attribution.id] }}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [attribution.id]: attribution,
+          }),
+        }),
+      },
+    );
+
+    await userEvent.click(
+      screen.getByRole('button', { name: text.buttons.cancel }),
+    );
+
+    expect(onSaveComplete).not.toHaveBeenCalled();
+  });
+
+  it('does not complete when the save mutation fails', async () => {
+    const attribution = faker.opossum.packageInfo();
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
+    const onSaveComplete = vi.fn();
+    const error = new Error('save failed');
+    vi.mocked(window.electronAPI.api).mockImplementation((command, params) =>
+      command === 'updateOrMatchAttributions'
+        ? Promise.reject(error)
+        : executeCommand(command, params as never),
+    );
+
+    await renderComponent(
+      <AttributionFormConfirmSavePopup
+        open
+        onClose={noop}
+        onSaveComplete={onSaveComplete}
+        selection={{ mode: 'explicit', attributionUuids: [attribution.id] }}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [attribution.id]: attribution,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource]: [attribution.id],
+          }),
+          resources: pathsToResources([resource]),
+        }),
+      },
+    );
+
+    const saveButton = await screen.findByRole('button', {
+      name: text.saveAttributionsPopup.save,
+    });
+    await waitFor(() => expect(saveButton).toBeEnabled());
+    await userEvent.click(saveButton);
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalled());
+    expect(onSaveComplete).not.toHaveBeenCalled();
   });
 
   it('saves attribution linked to a single resource', async () => {

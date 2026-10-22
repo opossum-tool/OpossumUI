@@ -48,7 +48,7 @@ describe('MoreActionsButton', () => {
     selectionSummaryLoading: false,
     toggleAttributionSelection: vi.fn(),
     isAttributionSelected: (id) => ['attr1', 'attr2'].includes(id),
-    clearSelection: vi.fn(),
+    clearBulkSelection: vi.fn(),
     pickerMode: { mode: 'inactive', isActive: false },
     resultSetKey: 'result-set',
     selectedAttributionId: 'attr1',
@@ -218,9 +218,12 @@ describe('MoreActionsButton', () => {
         },
       }),
     );
-    const clearSelection = vi.fn();
+    const clearBulkSelection = vi.fn();
     const { store } = await renderComponent(
-      <MoreActionsButton {...defaultProps} clearSelection={clearSelection} />,
+      <MoreActionsButton
+        {...defaultProps}
+        clearBulkSelection={clearBulkSelection}
+      />,
       { actions: [setSelectedAttributionId('attr1')] },
     );
 
@@ -229,7 +232,7 @@ describe('MoreActionsButton', () => {
     );
     await userEvent.click(screen.getByText('Mark as Needs Review by QA'));
 
-    await waitFor(() => expect(clearSelection).toHaveBeenCalledOnce());
+    await waitFor(() => expect(clearBulkSelection).toHaveBeenCalledOnce());
     expect(store.getState().resourceState.selectedAttributionId).toBe(
       'remapped-attr1',
     );
@@ -240,9 +243,12 @@ describe('MoreActionsButton', () => {
     api.mockImplementationOnce(() =>
       Promise.reject(new Error('update failed')),
     );
-    const clearSelection = vi.fn();
+    const clearBulkSelection = vi.fn();
     await renderComponent(
-      <MoreActionsButton {...defaultProps} clearSelection={clearSelection} />,
+      <MoreActionsButton
+        {...defaultProps}
+        clearBulkSelection={clearBulkSelection}
+      />,
     );
 
     const moreActionsButton = screen.getByRole('button', {
@@ -252,6 +258,6 @@ describe('MoreActionsButton', () => {
     await userEvent.click(screen.getByText('Mark as Needs Review by QA'));
 
     await waitFor(() => expect(moreActionsButton).toBeEnabled());
-    expect(clearSelection).not.toHaveBeenCalled();
+    expect(clearBulkSelection).not.toHaveBeenCalled();
   });
 });

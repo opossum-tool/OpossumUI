@@ -708,6 +708,166 @@ describe('AttributionDetails', () => {
 
   // Saves go through the real backend (SQLite) and can exceed the default
   // timeout when the suite runs on a heavily loaded machine.
+  it('reveals the remapped ID after creating an attribution from the detail form', async () => {
+    const resource = '/selected/file.ts';
+    const { store } = await renderComponent(<AttributionDetails />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources([resource]),
+      }),
+      actions: [setSelectedResourceId(resource), setSelectedAttributionId('')],
+    });
+    await waitForAttributionDetailsReady();
+    await act(() =>
+      store.dispatch(
+        setTemporaryDisplayPackageInfo({
+          ...EMPTY_DISPLAY_PACKAGE_INFO,
+          packageName: 'created package',
+        }),
+      ),
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: text.attributionColumn.save }),
+    );
+    await waitFor(() =>
+      expect(getSelectedAttributionId(store.getState())).not.toBe(''),
+    );
+    await waitFor(() =>
+      expect(
+        store.getState().variablesState['attribution-save-reveal'],
+      ).toEqual({
+        attributionUuid: getSelectedAttributionId(store.getState()),
+        resourcePath: resource,
+        revision: 1,
+      }),
+    );
+  });
+
+  it.each(['direct', 'global', 'local'] as const)(
+    'publishes repeated comment-only %s saves after completion',
+    async (mode) => {
+      const attribution = faker.opossum.packageInfo();
+      const resource = '/selected/file.ts';
+      const linkedResource = '/linked/file.ts';
+      const { store } = await renderComponent(<AttributionDetails />, {
+        data: getParsedInputFileEnrichedWithTestData({
+          resources: pathsToResources([resource, linkedResource]),
+          manualAttributions: { [attribution.id]: attribution },
+          resourcesToManualAttributions: {
+            [resource]: [attribution.id],
+            ...(mode === 'direct'
+              ? {}
+              : { [linkedResource]: [attribution.id] }),
+          },
+        }),
+        actions: [
+          setSelectedResourceId(resource),
+          setSelectedAttributionId(attribution.id),
+        ],
+      });
+      for (const revision of [1, 2]) {
+        await waitForAttributionDetailsReady();
+        await act(() =>
+          store.dispatch(
+            setTemporaryDisplayPackageInfo({
+              ...getTemporaryDisplayPackageInfo(store.getState()),
+              comment: `comment ${revision}`,
+            }),
+          ),
+        );
+        await waitFor(() =>
+          expect(
+            screen.getByRole('button', { name: text.attributionColumn.save }),
+          ).toBeEnabled(),
+        );
+        await userEvent.click(
+          screen.getByRole('button', { name: text.attributionColumn.save }),
+        );
+        // A local save unlinks this resource; subsequent saves are direct.
+        if (mode !== 'direct' && !(mode === 'local' && revision === 2)) {
+          await userEvent.click(
+            await screen.findByRole('button', {
+              name:
+                mode === 'local'
+                  ? text.saveAttributionsPopup.saveLocally
+                  : text.saveAttributionsPopup.saveGlobally,
+            }),
+          );
+        }
+        await waitFor(() =>
+          expect(
+            store.getState().variablesState['attribution-save-reveal'],
+          ).toEqual({
+            attributionUuid: getSelectedAttributionId(store.getState()),
+            resourcePath: resource,
+            revision,
+          }),
+        );
+      }
+    },
+  );
+
+  it.each(['attribution', 'resource'] as const)(
+    'does not reveal when the selected %s changes before save completion',
+    async (navigation) => {
+      const attribution = faker.opossum.packageInfo();
+      const other = faker.opossum.packageInfo();
+      const resource = '/selected/file.ts';
+      const { store } = await renderComponent(<AttributionDetails />, {
+        data: getParsedInputFileEnrichedWithTestData({
+          resources: pathsToResources([resource, '/other/file.ts']),
+          manualAttributions: {
+            [attribution.id]: attribution,
+            [other.id]: other,
+          },
+          resourcesToManualAttributions: {
+            [resource]: [attribution.id, other.id],
+            '/other/file.ts': [other.id],
+          },
+        }),
+        actions: [
+          setSelectedResourceId(resource),
+          setSelectedAttributionId(attribution.id),
+        ],
+      });
+      await waitForAttributionDetailsReady();
+      await act(() =>
+        store.dispatch(
+          setTemporaryDisplayPackageInfo({
+            ...attribution,
+            comment: 'saved comment',
+          }),
+        ),
+      );
+      const response = Promise.withResolvers<void>();
+      vi.mocked(window.electronAPI.api).mockImplementation(
+        async (command, params) => {
+          if (command === 'updateOrMatchAttributions') {
+            await response.promise;
+          }
+          return executeCommand(command, params as never);
+        },
+      );
+      await userEvent.click(
+        screen.getByRole('button', { name: text.attributionColumn.save }),
+      );
+      await act(() =>
+        store.dispatch(
+          navigation === 'attribution'
+            ? setSelectedAttributionId(other.id)
+            : setSelectedResourceId('/other/file.ts'),
+        ),
+      );
+      act(() => response.resolve());
+      await waitFor(() =>
+        expect(window.electronAPI.saveFile).toHaveBeenCalled(),
+      );
+      await waitForAttributionDetailsReady();
+      expect(
+        store.getState().variablesState['attribution-save-reveal'],
+      ).toBeUndefined();
+    },
+  );
+
   it('saves modified attribution', { timeout: 10000 }, async () => {
     const packageInfo1 = makeComparisonPackage({
       id: 'first',
@@ -1897,6 +2057,15 @@ describe('AttributionDetails', () => {
       expect(dirtyAtSelectionChange).toBe(false);
       unsubscribe();
       const remappedAttributionId = getSelectedAttributionId(store.getState());
+      await waitFor(() =>
+        expect(
+          store.getState().variablesState['attribution-save-reveal'],
+        ).toMatchObject({
+          attributionUuid: remappedAttributionId,
+          resourcePath: selectedResource,
+          revision: 1,
+        }),
+      );
       expect(remappedAttributionId).not.toBe(attribution.id);
       expect(remappedAttributionId === matchingAttribution.id).toBe(
         hasMatchingAttribution,
@@ -2051,6 +2220,9 @@ describe('AttributionDetails', () => {
     act(() => saveResponse.reject(new Error('save failed')));
 
     await waitFor(() => expect(toastError).toHaveBeenCalledWith('save failed'));
+    expect(
+      store.getState().variablesState['attribution-save-reveal'],
+    ).toBeUndefined();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(getIsPackageInfoDirty(store.getState())).toBe(true);
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(

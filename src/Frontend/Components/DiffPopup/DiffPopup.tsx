@@ -8,6 +8,9 @@ import { useState } from 'react';
 import type { Attributions } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
+import { useAppSelector } from '../../state/hooks';
+import { getSelectedResourceId } from '../../state/selectors/resource-selectors';
+import { useAttributionSaveReveal } from '../../util/use-attribution-save-reveal';
 import { useConfirmAttributionEdit } from '../AttributionDetails/use-confirm-attribution-edit';
 import { ConfirmSavePopup } from '../ConfirmSavePopup/ConfirmSavePopup';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
@@ -60,11 +63,14 @@ function DiffPopupSession({
   onClose,
   onAcceptDrafts,
 }: DiffPopupProps) {
+  const resourcePath = useAppSelector(getSelectedResourceId);
+  const { publishSaveCompletion } = useAttributionSaveReveal();
   const isBusy = useIsMutating() > 0;
   const [saveRequest, setSaveRequest] = useState<{
     acceptedAttributions: Attributions;
     mutationCandidates: Attributions;
     focusedAttributionUuid: string;
+    resourcePath: string;
   }>();
   const comparison = useComparisonState(leftItem, rightItem, isBusy);
   const leftEdit = useConfirmAttributionEdit(
@@ -84,6 +90,7 @@ function DiffPopupSession({
     }
     if (Object.keys(comparison.mutationCandidates).length > 0) {
       setSaveRequest({
+        resourcePath,
         acceptedAttributions: comparison.acceptedAttributions,
         mutationCandidates: comparison.mutationCandidates,
         focusedAttributionUuid: comparison.items.right.packageInfo.id,
@@ -162,7 +169,21 @@ function DiffPopupSession({
           onAcceptDrafts={() =>
             onAcceptDrafts?.(saveRequest.acceptedAttributions)
           }
-          onSaveComplete={onClose}
+          onSaveComplete={(result) => {
+            if (
+              Object.hasOwn(
+                saveRequest.mutationCandidates,
+                saveRequest.focusedAttributionUuid,
+              )
+            ) {
+              publishSaveCompletion(
+                result.focusedAttributionOutcome,
+                saveRequest.focusedAttributionUuid,
+                saveRequest.resourcePath,
+              );
+            }
+            onClose();
+          }}
         />
       )}
     </NotificationPopup>

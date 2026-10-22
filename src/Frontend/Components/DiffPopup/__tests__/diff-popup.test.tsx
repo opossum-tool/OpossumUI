@@ -15,6 +15,11 @@ import {
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
+import {
+  setSelectedAttributionId,
+  setSelectedResourceId,
+} from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import type { Action } from '../../../state/configure-store';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { theme } from '../../App/App.style';
@@ -68,6 +73,7 @@ async function renderPopup(
   leftItem: ComparisonItem,
   rightItem: ComparisonItem,
   options: {
+    actions?: Array<Action>;
     isOpen?: boolean;
     onClose?: () => void;
     onAcceptDrafts?: (accepted: Attributions) => void;
@@ -85,6 +91,7 @@ async function renderPopup(
       />
     </ThemeProvider>,
     {
+      actions: options.actions,
       data:
         options.data && getParsedInputFileEnrichedWithTestData(options.data),
     },
@@ -108,6 +115,87 @@ function dismissWithBackdrop() {
 describe('DiffPopup', () => {
   afterEach(() => {
     vi.mocked(window.electronAPI.api).mockImplementation(executeCommand);
+  });
+
+  it.each([true, false])(
+    'reveals only when the focused attribution is a submitted candidate (%s)',
+    async (includesFocus) => {
+      const left = packageInfo({ id: 'left', packageName: 'left' });
+      const right = packageInfo({ id: 'right', packageName: 'right' });
+      const onClose = vi.fn();
+      const { store } = await renderPopup(
+        item({ packageInfo: left }),
+        item({ packageInfo: right }),
+        {
+          onClose,
+          actions: [
+            setSelectedResourceId('/comparison'),
+            setSelectedAttributionId(right.id),
+          ],
+          data: {
+            manualAttributions: { left, right },
+            resourcesToManualAttributions: { '/comparison': ['left', 'right'] },
+            resources: pathsToResources(['/comparison']),
+          },
+        },
+      );
+      fireEvent.change(
+        screen.getByTestId(`${includesFocus ? 'right' : 'left'}-packageName`),
+        { target: { value: 'changed name' } },
+      );
+      await userEvent.click(
+        screen.getByRole('button', { name: text.diffPopup.saveChanges }),
+      );
+      await userEvent.click(
+        await screen.findByRole('button', {
+          name: text.saveAttributionsPopup.save,
+        }),
+      );
+      await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
+      expect(
+        store.getState().variablesState['attribution-save-reveal'],
+      ).toEqual(
+        includesFocus
+          ? {
+              attributionUuid: right.id,
+              resourcePath: '/comparison',
+              revision: 1,
+            }
+          : undefined,
+      );
+    },
+  );
+
+  it('accepts drafts without publishing when no backend save is needed', async () => {
+    const left = packageInfo({ id: 'left', packageName: 'left' });
+    const persisted = packageInfo({ id: 'right', packageName: 'persisted' });
+    const draft = { ...persisted, packageName: 'unsaved' };
+    const onClose = vi.fn();
+    const { store } = await renderPopup(
+      item({ packageInfo: left, isExternal: true }),
+      item({ packageInfo: draft, originalPackageInfo: persisted }),
+      {
+        onClose,
+        actions: [
+          setSelectedResourceId('/comparison'),
+          setSelectedAttributionId(persisted.id),
+        ],
+      },
+    );
+    fireEvent.change(screen.getByTestId('right-packageName'), {
+      target: { value: persisted.packageName },
+    });
+    await userEvent.click(
+      screen.getByRole('button', { name: text.diffPopup.saveChanges }),
+    );
+    expect(onClose).toHaveBeenCalledOnce();
+    expect(window.electronAPI.api).not.toHaveBeenCalledWith(
+      'updateOrMatchAttributions',
+      expect.anything(),
+    );
+    expect(
+      store.getState().variablesState['attribution-save-reveal'],
+    ).toBeUndefined();
   });
 
   it('saves only changed mutation candidates', async () => {

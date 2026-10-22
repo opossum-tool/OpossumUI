@@ -18,7 +18,7 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
   selection,
   selectionSummary,
   selectionSummaryLoading,
-  clearSelection,
+  clearBulkSelection,
 }) => {
   const resolveAttributions = backend.resolveAttributions.useMutation();
   const mutationsPending = useIsMutating() > 0;
@@ -57,7 +57,7 @@ export const DeleteButton: React.FC<PackagesPanelChildrenProps> = ({
       size={'small'}
       onClick={async () => {
         await resolveAttributions.mutateAsync({ selection });
-        clearSelection();
+        clearBulkSelection();
       }}
       loading={resolveAttributions.isPending}
     >

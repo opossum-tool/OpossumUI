@@ -60,7 +60,7 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
   selection,
   selectionSummary,
   selectionSummaryLoading,
-  clearSelection,
+  clearBulkSelection,
 }) => {
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const temporaryDisplayPackageInfo = useAppSelector(
@@ -73,7 +73,7 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
   const updateAttributionProperty =
     backend.updateAttributionProperty.useMutation({
       onBeforeInvalidation: handleFocusedAttributionOutcome,
-      onSuccess: clearSelection,
+      onSuccess: clearBulkSelection,
     });
   const mutationsPending = useIsMutating() > 0;
 

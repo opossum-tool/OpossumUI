@@ -53,6 +53,7 @@ interface ListProps<ItemType extends BaseItem> {
     props: ListItemContentProps,
   ) => React.ReactNode;
   resultSetKey?: string;
+  selectionRevealKey?: string;
   selectedId?: string;
   scrollBehavior?: 'auto' | 'smooth';
   sx?: SxProps;
@@ -68,6 +69,7 @@ export function List<ItemType extends BaseItem>({
   onRetryLoadMore,
   renderItemContent,
   resultSetKey,
+  selectionRevealKey,
   selectedId,
   scrollBehavior,
   sx,
@@ -144,6 +146,7 @@ export function List<ItemType extends BaseItem>({
     data,
     isListReady,
     resultSetKey,
+    selectionRevealKey,
     selectedId,
     scrollBehavior,
   });
