@@ -58,11 +58,9 @@ describe('UpdateBanner', () => {
   });
 
   it('does not let a stale available startup snapshot overwrite a newer release event', async () => {
-    let resolveSnapshot: ((state: UpdateState) => void) | undefined;
+    const snapshot = Promise.withResolvers<UpdateState>();
     vi.mocked(window.electronAPI.getUpdateState).mockReturnValue(
-      new Promise((resolve) => {
-        resolveSnapshot = resolve;
-      }),
+      snapshot.promise,
     );
     await renderComponent(<UpdateBanner />);
     const newerAvailable: UpdateState = {
@@ -71,8 +69,9 @@ describe('UpdateBanner', () => {
       url: assetUrl,
     };
     emit(AllowedFrontendChannels.UpdateStateChanged, newerAvailable);
-    act(() => {
-      resolveSnapshot?.(available);
+    await act(async () => {
+      snapshot.resolve(available);
+      await snapshot.promise;
     });
 
     expect(
@@ -97,50 +96,107 @@ describe('UpdateBanner', () => {
     ).toBeInTheDocument();
   });
 
-  it('does not reopen a dismissed background release when a manual check resolves', async () => {
-    let finishCheck: (result: UpdateState) => void = () => {};
+  it('ignores an older overlapping manual check result', async () => {
+    const firstCheck = Promise.withResolvers<UpdateState>();
+    const secondCheck = Promise.withResolvers<UpdateState>();
     vi.mocked(window.electronAPI.getUpdateState).mockResolvedValue(upToDate);
-    const check = new Promise<UpdateState>((resolve) => {
-      finishCheck = resolve;
-    });
-    vi.mocked(window.electronAPI.checkForUpdates).mockReturnValue(check);
+    vi.mocked(window.electronAPI.checkForUpdates)
+      .mockReturnValueOnce(firstCheck.promise)
+      .mockReturnValueOnce(secondCheck.promise);
     await renderComponent(<UpdateBanner />);
-
     emit(AllowedFrontendChannels.CheckForUpdatesRequested);
+    emit(AllowedFrontendChannels.CheckForUpdatesRequested);
+
+    await act(async () => {
+      firstCheck.resolve(available);
+      await firstCheck.promise;
+    });
     emit(AllowedFrontendChannels.UpdateStateChanged, available);
+    expect(await screen.findByRole('progressbar')).toBeInTheDocument();
+
+    await act(async () => {
+      secondCheck.resolve(available);
+      await secondCheck.promise;
+    });
+    expect(
+      await screen.findByRole('link', { name: 'Download' }),
+    ).toBeInTheDocument();
+  });
+
+  it('preserves the latest feedback when an older overlapping request resolves last', async () => {
+    const firstCheck = Promise.withResolvers<UpdateState>();
+    const secondCheck = Promise.withResolvers<UpdateState>();
+    vi.mocked(window.electronAPI.getUpdateState).mockResolvedValue(upToDate);
+    vi.mocked(window.electronAPI.checkForUpdates)
+      .mockReturnValueOnce(firstCheck.promise)
+      .mockReturnValueOnce(secondCheck.promise);
+    await renderComponent(<UpdateBanner />);
+    emit(AllowedFrontendChannels.CheckForUpdatesRequested);
+    emit(AllowedFrontendChannels.CheckForUpdatesRequested);
+
+    await act(async () => {
+      secondCheck.resolve(upToDate);
+      await secondCheck.promise;
+    });
+    expect(
+      screen.getByText(text.updateApp.noUpdateAvailable),
+    ).toBeInTheDocument();
+    await act(async () => {
+      firstCheck.resolve(available);
+      await firstCheck.promise;
+    });
+    expect(
+      screen.getByText(text.updateApp.noUpdateAvailable),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
+  it('preserves completed manual feedback when a stale startup snapshot arrives', async () => {
+    const snapshot = Promise.withResolvers<UpdateState>();
+    const check = Promise.withResolvers<UpdateState>();
+    vi.mocked(window.electronAPI.getUpdateState).mockReturnValue(
+      snapshot.promise,
+    );
+    vi.mocked(window.electronAPI.checkForUpdates).mockReturnValue(
+      check.promise,
+    );
+    await renderComponent(<UpdateBanner />);
+    emit(AllowedFrontendChannels.CheckForUpdatesRequested);
+    await act(async () => {
+      check.resolve(upToDate);
+      await check.promise;
+    });
+    expect(
+      screen.getByText(text.updateApp.noUpdateAvailable),
+    ).toBeInTheDocument();
+
+    await act(async () => {
+      snapshot.resolve(available);
+      await snapshot.promise;
+    });
+    expect(
+      screen.getByText(text.updateApp.noUpdateAvailable),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
+  it('bypasses dismissal for manual feedback while preserving background suppression', async () => {
+    await renderComponent(<UpdateBanner />);
+    await screen.findByRole('link', { name: 'Download' });
     fireEvent.click(
       screen.getByRole('button', { name: text.updateApp.dismissed }),
     );
-    await act(async () => {
-      finishCheck(available);
-      await check;
-    });
-
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-  });
-
-  it('ignores an older overlapping manual check result', async () => {
-    const finishes: Array<(state: UpdateState) => void> = [];
-    vi.mocked(window.electronAPI.getUpdateState).mockResolvedValue(upToDate);
-    vi.mocked(window.electronAPI.checkForUpdates).mockImplementation(
-      () =>
-        new Promise((resolve) => {
-          finishes.push(resolve);
-        }),
+    vi.mocked(window.electronAPI.checkForUpdates).mockResolvedValueOnce(
+      upToDate,
     );
-    await renderComponent(<UpdateBanner />);
     emit(AllowedFrontendChannels.CheckForUpdatesRequested);
+    await screen.findByText(text.updateApp.noUpdateAvailable);
+    emit(AllowedFrontendChannels.UpdateStateChanged, available);
+    expect(
+      screen.getByText(text.updateApp.noUpdateAvailable),
+    ).toBeInTheDocument();
+
     emit(AllowedFrontendChannels.CheckForUpdatesRequested);
-    expect(finishes).toHaveLength(2);
-
-    act(() => {
-      finishes[0](available);
-    });
-    expect(await screen.findByRole('progressbar')).toBeInTheDocument();
-
-    act(() => {
-      finishes[1](available);
-    });
     expect(
       await screen.findByRole('link', { name: 'Download' }),
     ).toBeInTheDocument();
@@ -154,46 +210,34 @@ describe('UpdateBanner', () => {
     expect(unsubscribe).toHaveBeenCalledTimes(2);
   });
 
-  it.each<UpdateState>([upToDate, { status: 'error' }])(
-    'keeps a closed progress banner hidden when the check returns $status',
+  it.each<UpdateState>([available, upToDate, { status: 'error' }])(
+    'hides dismissed manual $status feedback without suppressing later automatic availability',
     async (result) => {
-      let finishCheck: (state: UpdateState) => void = () => {};
+      const check = Promise.withResolvers<UpdateState>();
       vi.mocked(window.electronAPI.getUpdateState).mockResolvedValue(upToDate);
-      const check = new Promise<UpdateState>((resolve) => {
-        finishCheck = resolve;
-      });
-      vi.mocked(window.electronAPI.checkForUpdates).mockReturnValue(check);
+      vi.mocked(window.electronAPI.checkForUpdates).mockReturnValue(
+        check.promise,
+      );
       await renderComponent(<UpdateBanner />);
       emit(AllowedFrontendChannels.CheckForUpdatesRequested);
+      emit(AllowedFrontendChannels.UpdateStateChanged, available);
       expect(screen.getByRole('progressbar')).toBeInTheDocument();
+      expect(screen.queryByRole('link')).not.toBeInTheDocument();
       fireEvent.click(
         screen.getByRole('button', { name: text.updateApp.dismissed }),
       );
+      emit(AllowedFrontendChannels.UpdateStateChanged, available);
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
       await act(async () => {
-        finishCheck(result);
-        await check;
+        check.resolve(result);
+        await check.promise;
       });
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      emit(AllowedFrontendChannels.UpdateStateChanged, available);
+      expect(
+        screen.getByRole('link', { name: 'Download' }),
+      ).toBeInTheDocument();
     },
   );
-
-  it('shows availability after progress is closed', async () => {
-    let finishCheck: (state: UpdateState) => void = () => {};
-    vi.mocked(window.electronAPI.getUpdateState).mockResolvedValue(upToDate);
-    const check = new Promise<UpdateState>((resolve) => {
-      finishCheck = resolve;
-    });
-    vi.mocked(window.electronAPI.checkForUpdates).mockReturnValue(check);
-    await renderComponent(<UpdateBanner />);
-    emit(AllowedFrontendChannels.CheckForUpdatesRequested);
-    fireEvent.click(
-      screen.getByRole('button', { name: text.updateApp.dismissed }),
-    );
-    await act(async () => {
-      finishCheck(available);
-      await check;
-    });
-    expect(screen.getByRole('link', { name: 'Download' })).toBeInTheDocument();
-  });
 });

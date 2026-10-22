@@ -26,12 +26,17 @@ export function UpdateBanner(): React.ReactNode {
   });
   const [settings] = useUserSettings();
   const manualCheckIdRef = useRef(0);
+  const pendingManualCheckIdRef = useRef<number | null>(null);
   const receivedStateChangeRef = useRef(false);
 
   useEffect(() => {
     let active = true;
     void window.electronAPI.getUpdateState().then((nextState) => {
-      if (!active || receivedStateChangeRef.current) {
+      if (
+        !active ||
+        receivedStateChangeRef.current ||
+        manualCheckIdRef.current !== 0
+      ) {
         return;
       }
       if (
@@ -56,6 +61,7 @@ export function UpdateBanner(): React.ReactNode {
       (_, nextState: UpdateState) => {
         receivedStateChangeRef.current = true;
         if (
+          pendingManualCheckIdRef.current !== null ||
           nextState.status !== 'available' ||
           !settings.automaticallyCheckForUpdates
         ) {
@@ -76,25 +82,21 @@ export function UpdateBanner(): React.ReactNode {
       AllowedFrontendChannels.CheckForUpdatesRequested,
       () => {
         const checkId = ++manualCheckIdRef.current;
+        pendingManualCheckIdRef.current = checkId;
         setState((current) => ({
           ...current,
-          dismissedTag: null,
           banner: { status: 'checking' },
         }));
         void window.electronAPI.checkForUpdates().then((nextState) => {
           if (!active || manualCheckIdRef.current !== checkId) {
             return;
           }
-          setState((current) => {
-            if (nextState.status === 'available') {
-              return current.dismissedTag === nextState.tag
-                ? { ...current, banner: null }
-                : { ...current, banner: nextState };
-            }
-            return current.banner?.status === 'checking'
+          pendingManualCheckIdRef.current = null;
+          setState((current) =>
+            current.banner?.status === 'checking'
               ? { ...current, banner: nextState }
-              : current;
-          });
+              : current,
+          );
         });
       },
     );

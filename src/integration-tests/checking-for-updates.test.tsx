@@ -66,19 +66,18 @@ describe('checking for updates in the app', () => {
   ])(
     'shows explicit $status feedback while automatic checks are disabled',
     async (result) => {
-      let finishCheck: (state: UpdateState) => void = () => {};
-      const check = new Promise<UpdateState>((resolve) => {
-        finishCheck = resolve;
-      });
+      const check = Promise.withResolvers<UpdateState>();
       const { sendToChannel } = await renderApp({
         userSettings: { automaticallyCheckForUpdates: false },
       });
-      vi.mocked(window.electronAPI.checkForUpdates).mockReturnValue(check);
+      vi.mocked(window.electronAPI.checkForUpdates).mockReturnValue(
+        check.promise,
+      );
       sendToChannel(AllowedFrontendChannels.CheckForUpdatesRequested);
       expect(await screen.findByRole('progressbar')).toBeInTheDocument();
       await act(async () => {
-        finishCheck(result);
-        await check;
+        check.resolve(result);
+        await check.promise;
       });
       const message =
         result.status === 'available'
