@@ -154,10 +154,7 @@ describe('UpdateBanner', () => {
     expect(unsubscribe).toHaveBeenCalledTimes(2);
   });
 
-  it.each<UpdateState>([
-    upToDate,
-    { status: 'error', message: 'network error' },
-  ])(
+  it.each<UpdateState>([upToDate, { status: 'error' }])(
     'keeps a closed progress banner hidden when the check returns $status',
     async (result) => {
       let finishCheck: (state: UpdateState) => void = () => {};

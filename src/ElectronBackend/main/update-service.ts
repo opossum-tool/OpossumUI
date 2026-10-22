@@ -183,19 +183,13 @@ async function runAutomaticCheck(): Promise<void> {
   if (!automaticChecksEnabled) {
     return;
   }
-  const state = await checkForUpdates();
-  if (state.status === 'error') {
-    log.warn('Automatic update check failed:', state.message);
-  }
+  await checkForUpdates();
 }
 
 async function performCheck(): Promise<InternalUpdateResult> {
   try {
     if (!installedRelease) {
-      return {
-        status: 'error',
-        message: 'The installed release version cannot be determined',
-      };
+      throw new Error('The installed release version cannot be determined.');
     }
     const response = await net.fetch(API_ENDPOINT, {
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
@@ -211,10 +205,8 @@ async function performCheck(): Promise<InternalUpdateResult> {
     const assetName = getRequiredAsset();
     return evaluateRelease(installedRelease, payload, assetName);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Unknown update check error.';
-    const result: InternalUpdateResult = { status: 'error', message };
-    return result;
+    log.warn('Update check failed:', error);
+    return { status: 'error' };
   }
 }
 
@@ -231,10 +223,7 @@ export function evaluateRelease(
     return { status: 'up-to-date', installedTag: installed.tag };
   }
   if (!requiredAsset) {
-    return {
-      status: 'error',
-      message: 'This installation has no supported update download.',
-    };
+    throw new Error('This installation has no supported update download.');
   }
   const asset = release.assets.find(({ name }) => name === requiredAsset);
   if (asset?.state !== 'uploaded' || asset.size <= 0) {

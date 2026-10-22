@@ -291,13 +291,12 @@ export const text = {
     incomplete: 'This field is required',
   },
   updateApp: {
-    fetchFailed: (message: string) => `Update check failed: ${message}`,
+    fetchFailed: 'Could not check for updates. Please try again later.',
     loading: 'Loading…',
     noUpdateAvailable: 'OpossumUI is up to date.',
     title: 'Check for Updates',
     available: (tag: string) =>
       `A new version of OpossumUI (${tag}) is available:`,
-    unknownVersion: 'The installed release version cannot be determined.',
     dismissed: 'Dismiss update notification',
     download: 'Download',
   },

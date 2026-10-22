@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { app, BrowserWindow, net } from 'electron';
+import log from 'electron-log';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
@@ -45,6 +46,7 @@ describe('update service release tags', () => {
     });
     vi.mocked(net.fetch).mockReset();
     vi.mocked(BrowserWindow.getAllWindows).mockReturnValue([]);
+    vi.mocked(log.warn).mockReset();
   });
 
   afterEach(() => {
@@ -130,25 +132,51 @@ describe('update service release tags', () => {
     timeout.mockRestore();
   });
 
-  it('turns HTTP and malformed response failures into error states', async () => {
+  it('logs HTTP and malformed response failures once and returns message-free errors', async () => {
     vi.mocked(net.fetch).mockResolvedValue({
       ok: false,
       status: 503,
     } as Response);
-    await expect(checkForUpdates()).resolves.toEqual({
-      status: 'error',
-      message: 'GitHub returned HTTP 503.',
-    });
+    await expect(checkForUpdates()).resolves.toEqual({ status: 'error' });
+    expect(log.warn).toHaveBeenCalledTimes(1);
+    expect(log.warn).toHaveBeenCalledWith(
+      'Update check failed:',
+      expect.objectContaining({ message: 'GitHub returned HTTP 503.' }),
+    );
     expect(net.fetch).toHaveBeenCalledWith(
       'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest',
       expect.any(Object),
     );
+    vi.mocked(log.warn).mockClear();
     vi.mocked(net.fetch).mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({}),
     } as Response);
-    await expect(checkForUpdates()).resolves.toMatchObject({ status: 'error' });
+    await expect(checkForUpdates()).resolves.toEqual({ status: 'error' });
+    expect(log.warn).toHaveBeenCalledTimes(1);
+    expect(log.warn).toHaveBeenCalledWith(
+      'Update check failed:',
+      expect.objectContaining({
+        message: 'GitHub returned invalid release information.',
+      }),
+    );
   });
+
+  it.each([
+    new Error('network unavailable'),
+    new Error('The operation was aborted due to timeout'),
+    'non-Error failure',
+  ])(
+    'logs a rejected request once and returns a message-free error',
+    async (failure) => {
+      vi.mocked(net.fetch).mockRejectedValue(failure);
+
+      await expect(checkForUpdates()).resolves.toEqual({ status: 'error' });
+
+      expect(log.warn).toHaveBeenCalledTimes(1);
+      expect(log.warn).toHaveBeenCalledWith('Update check failed:', failure);
+    },
+  );
 
   it('returns an unknown installed-version error without fetching', async () => {
     vi.doMock('../../../commitInfo.json', () => ({
@@ -160,8 +188,14 @@ describe('update service release tags', () => {
 
     await expect(updateService.checkForUpdates()).resolves.toEqual({
       status: 'error',
-      message: 'The installed release version cannot be determined',
     });
+    expect(log.warn).toHaveBeenCalledTimes(1);
+    expect(log.warn).toHaveBeenCalledWith(
+      'Update check failed:',
+      expect.objectContaining({
+        message: 'The installed release version cannot be determined.',
+      }),
+    );
     expect(isolatedNet.fetch).not.toHaveBeenCalled();
 
     vi.doUnmock('../../../commitInfo.json');
@@ -177,6 +211,22 @@ describe('update service release tags', () => {
     await flushMicrotasks();
     await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
     expect(net.fetch).not.toHaveBeenCalled();
+  });
+
+  it('logs unsupported downloads once and returns a message-free error', async () => {
+    vi.stubEnv('APPIMAGE', '');
+    vi.stubEnv('SNAP', '');
+    vi.mocked(net.fetch).mockResolvedValue(releaseResponse(preparingRelease()));
+
+    await expect(checkForUpdates()).resolves.toEqual({ status: 'error' });
+
+    expect(log.warn).toHaveBeenCalledTimes(1);
+    expect(log.warn).toHaveBeenCalledWith(
+      'Update check failed:',
+      expect.objectContaining({
+        message: 'This installation has no supported update download.',
+      }),
+    );
   });
 
   it('does not start automatic checks in an unpackaged installation', async () => {
@@ -552,14 +602,16 @@ describe('update service release tags', () => {
     ).toThrow('GitHub returned an invalid release asset download URL.');
   });
 
-  it('uses existing error handling when selected download metadata is missing', async () => {
+  it('logs invalid selected download metadata once and returns a message-free error', async () => {
+    vi.stubEnv('APPIMAGE', '/app');
     vi.mocked(net.fetch).mockResolvedValue({
       ok: true,
       json: () =>
         Promise.resolve({
           assets: [
             {
-              name: 'OpossumUI-for-win.exe',
+              name: 'OpossumUI-for-linux.AppImage',
+              browser_download_url: 'https://example.com/download',
               size: 25,
               state: 'uploaded',
             },
@@ -569,11 +621,18 @@ describe('update service release tags', () => {
           tag_name: 'OpossumUI-2027-01-02',
         }),
     } as Response);
-    await expect(checkForUpdates()).resolves.toMatchObject({ status: 'error' });
+    await expect(checkForUpdates()).resolves.toEqual({ status: 'error' });
+    expect(log.warn).toHaveBeenCalledTimes(1);
+    expect(log.warn).toHaveBeenCalledWith(
+      'Update check failed:',
+      expect.objectContaining({
+        message: 'GitHub returned an invalid release asset download URL.',
+      }),
+    );
   });
 
-  it('does not report an unknown installation as a release still preparing', () => {
-    expect(
+  it('throws for an installation with no supported update download', () => {
+    expect(() =>
       evaluateRelease(
         installedRelease('OpossumUI-2026-08-13'),
         {
@@ -584,10 +643,7 @@ describe('update service release tags', () => {
         },
         undefined,
       ),
-    ).toEqual({
-      status: 'error',
-      message: 'This installation has no supported update download.',
-    });
+    ).toThrow('This installation has no supported update download.');
   });
 });
 

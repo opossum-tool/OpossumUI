@@ -70,7 +70,7 @@ test('checks through the native menu and displays a dismissible error banner', a
     expect(originalBounds).not.toBeNull();
 
     await menuBar.checkForUpdates();
-    await expect(banner).toContainText('Update check failed:');
+    await expect(banner).toContainText(text.updateApp.fetchFailed);
     await expect(async () => {
       const bannerBounds = await banner.boundingBox();
       const topBarBounds = await topBarLocator.boundingBox();

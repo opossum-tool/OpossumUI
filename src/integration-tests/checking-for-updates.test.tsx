@@ -62,7 +62,7 @@ describe('checking for updates in the app', () => {
   it.each<UpdateState>([
     available,
     { status: 'up-to-date', installedTag: 'OpossumUI-2030-01-02' },
-    { status: 'error', message: 'HTTP 503' },
+    { status: 'error' },
   ])(
     'shows explicit $status feedback while automatic checks are disabled',
     async (result) => {
@@ -86,7 +86,7 @@ describe('checking for updates in the app', () => {
           : result.status === 'up-to-date'
             ? text.updateApp.noUpdateAvailable
             : result.status === 'error'
-              ? text.updateApp.fetchFailed(result.message)
+              ? text.updateApp.fetchFailed
               : '';
       expect(await screen.findByText(message)).toBeInTheDocument();
     },
@@ -124,6 +124,27 @@ describe('checking for updates in the app', () => {
     expect(
       await screen.findByRole('link', { name: text.updateApp.download }),
     ).toBeInTheDocument();
+  });
+
+  it('keeps background failures silent and preserves update availability', async () => {
+    vi.mocked(window.electronAPI.getUpdateState).mockResolvedValue(available);
+    const { sendToChannel } = await renderApp();
+
+    expect(
+      await screen.findByText(text.updateApp.available(releaseTag)),
+    ).toBeInTheDocument();
+    act(() => {
+      sendToChannel(AllowedFrontendChannels.UpdateStateChanged, {
+        status: 'error',
+      });
+    });
+
+    expect(
+      screen.getByText(text.updateApp.available(releaseTag)),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(text.updateApp.fetchFailed),
+    ).not.toBeInTheDocument();
   });
 
   it('shows update and architecture warnings with independent dismissal', async () => {

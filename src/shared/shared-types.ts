@@ -336,7 +336,7 @@ export type UpdateState =
   | { status: 'checking' }
   | { status: 'up-to-date'; installedTag: string }
   | { status: 'available'; tag: string; url: string }
-  | { status: 'error'; message: string };
+  | { status: 'error' };
 
 declare global {
   interface Window {

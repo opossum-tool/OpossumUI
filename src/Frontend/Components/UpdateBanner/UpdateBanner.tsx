@@ -136,7 +136,7 @@ export function UpdateBanner(): React.ReactNode {
           </MuiBox>
         );
       case 'error':
-        return text.updateApp.fetchFailed(banner.message);
+        return text.updateApp.fetchFailed;
       case 'up-to-date':
         return text.updateApp.noUpdateAvailable;
       case 'available':
