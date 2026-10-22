@@ -33,7 +33,6 @@ describe('getAttributionLinkStatus', () => {
             'unlinked',
             'signal-matching-target-manual',
             'solo-signal',
-            'solo-signal-2',
           ].map((id) => [
             id,
             id === 'direct' || id === 'signal-matching-target-manual'
@@ -50,7 +49,7 @@ describe('getAttributionLinkStatus', () => {
                     packageName: 'pkg-descendant',
                     licenseName: 'Apache-2.0',
                   }
-                : id === 'solo-signal' || id === 'solo-signal-2'
+                : id === 'solo-signal'
                   ? {
                       id,
                       criticality: 0,
@@ -218,7 +217,7 @@ describe('getAttributionLinkStatus', () => {
     });
   });
 
-  it('reports linkWouldBeRedundant when the resource only lacks the matching inherited attribution', async () => {
+  it('reports linkWouldBeRedundant false when the resource has own manual attributions, even if linking would collapse them', async () => {
     const { result } = await queries.getAttributionLinkStatus({
       resourcePath: '/third/child.ts',
       attributionUuid: 'solo-signal',
@@ -228,7 +227,7 @@ describe('getAttributionLinkStatus', () => {
       onDescendants: false,
       matchingManualOnResource: false,
       matchingManualOnDescendants: false,
-      linkWouldBeRedundant: true,
+      linkWouldBeRedundant: false,
     });
   });
 
@@ -287,72 +286,6 @@ describe('getAttributionLinkStatus', () => {
       linkWouldBeRedundant: false,
     });
   });
-
-  it.each([
-    {
-      name: 'a single signal whose match is already on the resource',
-      attributionUuids: ['direct'],
-      resourcePath: '/root/target',
-      expectedAllNoOp: true,
-    },
-    {
-      name: 'multiple signals whose matches are already on the resource',
-      attributionUuids: ['direct', 'signal-matching-target-manual'],
-      resourcePath: '/root/target',
-      expectedAllNoOp: true,
-    },
-    {
-      name: 'a single signal whose link would be redundant',
-      attributionUuids: ['solo-signal'],
-      resourcePath: '/other/child.ts',
-      expectedAllNoOp: true,
-    },
-    {
-      name: 'multiple signals whose links would be redundant',
-      attributionUuids: ['solo-signal', 'solo-signal-2'],
-      resourcePath: '/other/child.ts',
-      expectedAllNoOp: true,
-    },
-    {
-      name: 'a selection with a signal without a matching manual attribution',
-      attributionUuids: ['solo-signal', 'unlinked'],
-      resourcePath: '/other/child.ts',
-      expectedAllNoOp: false,
-    },
-    {
-      name: 'a manual attribution that is not linked to the resource',
-      attributionUuids: ['manual-solo'],
-      resourcePath: '/other/child.ts',
-      expectedAllNoOp: false,
-    },
-    {
-      name: 'a manual attribution that is already linked to the resource',
-      attributionUuids: ['manual-solo'],
-      resourcePath: '/other',
-      expectedAllNoOp: true,
-    },
-    {
-      name: 'an unknown attribution uuid',
-      attributionUuids: ['nonexistent'],
-      resourcePath: '/other/child.ts',
-      expectedAllNoOp: false,
-    },
-    {
-      name: 'an empty selection',
-      attributionUuids: [],
-      resourcePath: '/other/child.ts',
-      expectedAllNoOp: false,
-    },
-  ])(
-    'reports allNoOp=$expectedAllNoOp for $name',
-    async ({ attributionUuids, resourcePath, expectedAllNoOp }) => {
-      const { result } = await queries.areAttributionLinksNoOp({
-        resourcePath,
-        attributionUuids,
-      });
-      expect(result.allNoOp).toBe(expectedAllNoOp);
-    },
-  );
 });
 
 describe('filterProperties', () => {

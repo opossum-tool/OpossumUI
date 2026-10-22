@@ -721,78 +721,14 @@ export const queries = {
       },
     };
   },
-
-  async areAttributionLinksNoOp(props: {
-    resourcePath: string;
-    attributionUuids: Array<string>;
-  }) {
-    const db = getDb();
-    const resource = await getResourceOrThrow(db, props.resourcePath);
-
-    for (const attributionUuid of props.attributionUuids) {
-      if (!(await isNoOpAttributionLink(db, resource.id, attributionUuid))) {
-        return { result: { allNoOp: false } };
-      }
-    }
-
-    return { result: { allNoOp: props.attributionUuids.length > 0 } };
-  },
 } satisfies Record<string, QueryFunction>;
 
 /**
- * Returns true if linking the given attribution to the resource would be a
- * no-op: either the attribution (or, for a signal, its matching manual
- * attribution) is already linked to the resource, or the link would
- * immediately be removed again as redundant (see getLinkWouldBeRedundant).
- */
-async function isNoOpAttributionLink(
-  db: Kysely<DB>,
-  resourceId: number,
-  attributionUuid: string,
-): Promise<boolean> {
-  const attribution = await db
-    .selectFrom('attribution')
-    .selectAll()
-    .where('uuid', '=', attributionUuid)
-    .executeTakeFirst();
-
-  if (!attribution) {
-    return false;
-  }
-
-  const linkedUuid =
-    attribution.is_external === 1
-      ? await findMatchingAttributionUuidForLink(
-          db,
-          packageInfoFromAttributionRow(attribution),
-        )
-      : attributionUuid;
-
-  if (!linkedUuid) {
-    return false;
-  }
-
-  const onResource = await db
-    .selectFrom('resource_to_attribution')
-    .select('resource_id')
-    .where('resource_id', '=', resourceId)
-    .where('attribution_uuid', '=', linkedUuid)
-    .executeTakeFirst();
-
-  if (onResource) {
-    return true;
-  }
-
-  return attribution.is_external === 1
-    ? getLinkWouldBeRedundant(db, resourceId, linkedUuid)
-    : false;
-}
-
-/**
  * Returns true if linking the matched manual attribution to the resource
- * would be immediately removed again as redundant, because the resource
- * would then have the same manual attributions as its closest attributed
- * ancestor (see removeRedundantAttributions). Linking is a no-op in that case.
+ * would be a no-op: the resource has no own manual attributions, is not an
+ * attribution breakpoint itself, and its closest attributed ancestor has
+ * exactly the matched manual attribution as its only manual attribution
+ * (see removeRedundantAttributions).
  */
 async function getLinkWouldBeRedundant(
   db: Kysely<DB>,
@@ -822,6 +758,18 @@ async function getLinkWouldBeRedundant(
   const redundancy = await db
     .selectFrom('resource')
     .select((eb) => [
+      eb('is_attribution_breakpoint', '=', 0).as('not_breakpoint'),
+      eb
+        .not(
+          eb.exists(
+            eb
+              .selectFrom('resource_to_attribution')
+              .select('resource_id')
+              .where('resource_id', '=', resourceId)
+              .where('attribution_is_external', '=', 0),
+          ),
+        )
+        .as('resource_without_own_manual'),
       eb
         .exists(
           eb
@@ -835,64 +783,23 @@ async function getLinkWouldBeRedundant(
         .not(
           eb.exists(
             eb
-              .selectFrom('resource_to_attribution as ancestor_attr')
-              .select('ancestor_attr.resource_id')
-              .where('ancestor_attr.resource_id', '=', ancestorId)
-              .where('ancestor_attr.attribution_is_external', '=', 0)
-              .where('ancestor_attr.attribution_uuid', '!=', matchedManualUuid)
-              .where((attrEb) =>
-                attrEb.not(
-                  attrEb.exists(
-                    attrEb
-                      .selectFrom('resource_to_attribution as resource_attr')
-                      .select('resource_attr.resource_id')
-                      .where('resource_attr.resource_id', '=', resourceId)
-                      .where('resource_attr.attribution_is_external', '=', 0)
-                      .whereRef(
-                        'resource_attr.attribution_uuid',
-                        '=',
-                        'ancestor_attr.attribution_uuid',
-                      ),
-                  ),
-                ),
-              ),
+              .selectFrom('resource_to_attribution')
+              .select('resource_id')
+              .where('resource_id', '=', ancestorId)
+              .where('attribution_is_external', '=', 0)
+              .where('attribution_uuid', '!=', matchedManualUuid),
           ),
         )
-        .as('ancestor_covered'),
-      eb
-        .not(
-          eb.exists(
-            eb
-              .selectFrom('resource_to_attribution as resource_attr')
-              .select('resource_attr.resource_id')
-              .where('resource_attr.resource_id', '=', resourceId)
-              .where('resource_attr.attribution_is_external', '=', 0)
-              .where((attrEb) =>
-                attrEb.not(
-                  attrEb.exists(
-                    attrEb
-                      .selectFrom('resource_to_attribution as ancestor_attr')
-                      .select('ancestor_attr.resource_id')
-                      .where('ancestor_attr.resource_id', '=', ancestorId)
-                      .whereRef(
-                        'ancestor_attr.attribution_uuid',
-                        '=',
-                        'resource_attr.attribution_uuid',
-                      ),
-                  ),
-                ),
-              ),
-          ),
-        )
-        .as('resource_covered'),
+        .as('ancestor_only_matched'),
     ])
     .where('id', '=', resourceId)
     .executeTakeFirstOrThrow();
 
   return Boolean(
+    redundancy.not_breakpoint &&
+    redundancy.resource_without_own_manual &&
     redundancy.match_on_ancestor &&
-    redundancy.ancestor_covered &&
-    redundancy.resource_covered,
+    redundancy.ancestor_only_matched,
   );
 }
 

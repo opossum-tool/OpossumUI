@@ -514,16 +514,10 @@ describe('SignalsPanel', () => {
     );
   });
 
-  it('disables link button for a multi-selection where all signals are already matched', async () => {
-    const firstSignal = faker.opossum.packageInfo();
-    const secondSignal = faker.opossum.packageInfo();
-    const firstManualAttribution = {
-      ...firstSignal,
-      id: faker.string.uuid(),
-      preSelected: false,
-    };
-    const secondManualAttribution = {
-      ...secondSignal,
+  it('disables link button when the selected signal is already matched on the resource', async () => {
+    const signal = faker.opossum.packageInfo();
+    const manualAttribution = {
+      ...signal,
       id: faker.string.uuid(),
       preSelected: false,
     };
@@ -532,18 +526,16 @@ describe('SignalsPanel', () => {
       data: getParsedInputFileEnrichedWithTestData({
         resources: pathsToResources([filePath]),
         externalAttributions: {
-          [firstSignal.id]: firstSignal,
-          [secondSignal.id]: secondSignal,
+          [signal.id]: signal,
         },
         resourcesToExternalAttributions: {
-          [filePath]: [firstSignal.id, secondSignal.id],
+          [filePath]: [signal.id],
         },
         manualAttributions: {
-          [firstManualAttribution.id]: firstManualAttribution,
-          [secondManualAttribution.id]: secondManualAttribution,
+          [manualAttribution.id]: manualAttribution,
         },
         resourcesToManualAttributions: {
-          [ROOT_PATH]: [firstManualAttribution.id, secondManualAttribution.id],
+          [ROOT_PATH]: [manualAttribution.id],
         },
         metadata: faker.opossum.metadata(),
       }),
@@ -552,14 +544,7 @@ describe('SignalsPanel', () => {
     await userEvent.click(
       within(
         await screen.findByLabelText(
-          `package card ${firstSignal.packageName}, ${firstSignal.packageVersion}`,
-        ),
-      ).getByRole('checkbox'),
-    );
-    await userEvent.click(
-      within(
-        await screen.findByLabelText(
-          `package card ${secondSignal.packageName}, ${secondSignal.packageVersion}`,
+          `package card ${signal.packageName}, ${signal.packageVersion}`,
         ),
       ).getByRole('checkbox'),
     );
@@ -573,17 +558,12 @@ describe('SignalsPanel', () => {
     );
   });
 
-  it('disables link button for a multi-selection where all links would be redundant', async () => {
-    const firstSignal = faker.opossum.packageInfo({
+  it('disables link button when linking the selected signal would be redundant', async () => {
+    const signal = faker.opossum.packageInfo({
       source: { name: 'Scanner', documentConfidence: 0 },
     });
-    const secondSignal = {
-      ...firstSignal,
-      id: faker.string.uuid(),
-      source: { name: 'Other', documentConfidence: 0 },
-    };
     const manualAttribution = {
-      ...firstSignal,
+      ...signal,
       id: faker.string.uuid(),
       preSelected: false,
     };
@@ -591,11 +571,10 @@ describe('SignalsPanel', () => {
       data: getParsedInputFileEnrichedWithTestData({
         resources: pathsToResources(['/root/child/file.ts']),
         externalAttributions: {
-          [firstSignal.id]: firstSignal,
-          [secondSignal.id]: secondSignal,
+          [signal.id]: signal,
         },
         resourcesToExternalAttributions: {
-          '/root/child/file.ts': [firstSignal.id, secondSignal.id],
+          '/root/child/file.ts': [signal.id],
         },
         manualAttributions: { [manualAttribution.id]: manualAttribution },
         resourcesToManualAttributions: {
@@ -606,11 +585,13 @@ describe('SignalsPanel', () => {
       actions: [setSelectedResourceId('/root/child')],
     });
 
-    const cards = await screen.findAllByLabelText(
-      `package card ${firstSignal.packageName}, ${firstSignal.packageVersion}`,
+    await userEvent.click(
+      within(
+        await screen.findByLabelText(
+          `package card ${signal.packageName}, ${signal.packageVersion}`,
+        ),
+      ).getByRole('checkbox'),
     );
-    await userEvent.click(within(cards[0]).getByRole('checkbox'));
-    await userEvent.click(within(cards[1]).getByRole('checkbox'));
 
     await waitFor(() =>
       expect(

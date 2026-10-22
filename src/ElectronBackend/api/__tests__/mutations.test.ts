@@ -2248,7 +2248,7 @@ describe('readonly-only attribution mutations', () => {
 });
 
 describe('createOrMatchAttributions redundant link', () => {
-  it('is a no-op when linking a signal onto a resource that only lacks the matching inherited attribution', async () => {
+  it('collapses the resource to inherit from its ancestor when linking makes the sets equal, changing its display (from own a to inherited a and b), so the link is not a no-op', async () => {
     const signalB = {
       id: 'signal-b',
       criticality: Criticality.None,
@@ -2284,7 +2284,7 @@ describe('createOrMatchAttributions redundant link', () => {
       resourcePath: '/p/child.ts',
       attributionUuid: 'signal-b',
     });
-    expect(linkStatus.linkWouldBeRedundant).toBe(true);
+    expect(linkStatus.linkWouldBeRedundant).toBe(false);
 
     await mutations.createOrMatchAttributions({
       resourcePath: '/p/child.ts',
