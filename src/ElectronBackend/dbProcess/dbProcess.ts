@@ -27,7 +27,10 @@ import {
 } from '../api/mergeOpossumFiles';
 import { saveFile } from '../api/saveFile';
 import { splitOpossumFile } from '../api/splitOpossumFile';
-import { refreshStatsAfterSave } from '../db/dev-db-cache';
+import {
+  invalidateCacheEntry,
+  refreshStatsAfterSave,
+} from '../db/dev-db-cache';
 import {
   loadFile,
   type LoadFileIpcResult,
@@ -188,7 +191,10 @@ async function executeDbProcessMessage(
         storedOpossumZip,
       );
       refreshStatsAfterSave(saveFileParams.opossumFilePath);
-      refreshStatsAfterSave(splitOpossumFilePath);
+      // The split destination is overwritten with new content that does not
+      // match its cached database (if any), so the entry must be invalidated
+      // rather than refreshed.
+      invalidateCacheEntry(splitOpossumFilePath);
       return undefined;
     }
     case 'mergeOpossumFiles': {

@@ -340,6 +340,23 @@ export function refreshStatsAfterSave(opossumFilePath: string): void {
 }
 
 /**
+ * Deletes the cache entry for the given file, e.g. after the file was
+ * overwritten with different content without a matching database state (such
+ * as a split destination). Unlike a save, the cached database no longer
+ * matches the file, so the entry must not be kept fresh.
+ */
+export function invalidateCacheEntry(opossumFilePath: string): void {
+  if (!isDevDbCacheEnabled()) {
+    return;
+  }
+  try {
+    fs.rmSync(getEntryDir(opossumFilePath), { recursive: true, force: true });
+  } catch {
+    // An entry that cannot be deleted simply fails the freshness checks.
+  }
+}
+
+/**
  * The .opossum file that was loaded last. Only meaningful in development;
  * the main process uses it to reopen the file after a restart.
  */

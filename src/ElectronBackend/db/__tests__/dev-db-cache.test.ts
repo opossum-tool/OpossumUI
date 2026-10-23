@@ -8,6 +8,7 @@ import path from 'path';
 import { faker } from '../../../testing/Faker';
 import {
   getLastDevFile,
+  invalidateCacheEntry,
   isDevDbCacheEnabled,
   prepareCacheEntry,
   refreshStatsAfterSave,
@@ -165,6 +166,23 @@ describe('dev-db-cache', () => {
       refreshStatsAfterSave(opossumFilePath);
 
       expect(touchAndGetFreshCacheEntry(opossumFilePath)).toBeDefined();
+    });
+
+    it('invalidating the entry prevents restoring the stale database', () => {
+      createCacheEntry(opossumFilePath);
+      // A split destination is overwritten with content that does not match
+      // the cached database.
+      writeTestFile(opossumFilePath, 'overwritten by split');
+      refreshStatsAfterSave(opossumFilePath);
+
+      invalidateCacheEntry(opossumFilePath);
+
+      expect(touchAndGetFreshCacheEntry(opossumFilePath)).toBeUndefined();
+    });
+
+    it('invalidating without an existing entry is a no-op', () => {
+      expect(() => invalidateCacheEntry(opossumFilePath)).not.toThrow();
+      expect(fs.existsSync(cacheDir)).toBe(false);
     });
 
     it('does not restore entries without a database file', () => {
