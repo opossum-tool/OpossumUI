@@ -6,7 +6,9 @@
 name: Publish release
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - test/draft-release-workflow
 
 concurrency:
   group: publish-release
@@ -109,6 +111,13 @@ jobs:
           done <<< "$RELEASE_FILES"
           gh release upload "$RELEASE_TAG" "${files[@]}" --clobber
 
+      - name: Deliberately fail the first Windows attempt
+        if: matrix.os == 'windows-latest' && github.run_attempt == 1
+        shell: bash
+        run: |
+          echo "Intentional smoke-test failure before manifest upload."
+          exit 1
+
       - name: Upload platform update manifest
         if: matrix.manifest
         shell: bash
@@ -169,7 +178,7 @@ jobs:
 
   performance:
     needs: [prepare, publish]
-    if: always() && needs.publish.result == 'success'
+    if: ${{ false }}
     uses: ./.github/workflows/performance.yml
     with:
       release-tag: ${{ needs.prepare.outputs.tag }}

@@ -74,12 +74,11 @@ export default async function prepareRelease({ github, context, core }) {
     throw new Error('Release has an invalid tag');
   }
   // Persist the draft first so retries recover after either API call fails.
-  let tagCommit;
   try {
-    ({ data: tagCommit } = await github.rest.repos.getCommit({
+    await github.rest.git.getRef({
       ...repo,
-      ref: release.tag_name,
-    }));
+      ref: `tags/${release.tag_name}`,
+    });
   } catch (error) {
     const notFound = 404;
     if (error.status !== notFound) {
@@ -90,11 +89,11 @@ export default async function prepareRelease({ github, context, core }) {
       ref: `refs/tags/${release.tag_name}`,
       sha,
     });
-    ({ data: tagCommit } = await github.rest.repos.getCommit({
-      ...repo,
-      ref: release.tag_name,
-    }));
   }
+  const { data: tagCommit } = await github.rest.repos.getCommit({
+    ...repo,
+    ref: release.tag_name,
+  });
   if (tagCommit.sha !== sha) {
     throw new Error('Release tag no longer points to the pinned commit');
   }

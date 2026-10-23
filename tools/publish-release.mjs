@@ -33,10 +33,5 @@ export default async function publishRelease({ github, context, core }) {
     throw new Error('Release tag changed');
   }
   assertNewerThanPublished(release.tag_name, releases);
-  await github.rest.repos.updateRelease({
-    ...repo,
-    release_id: release.id,
-    draft: false,
-    make_latest: 'true',
-  });
+  core.info(`Would publish ${release.tag_name}; leaving draft.`);
 }
