@@ -28,13 +28,12 @@ import {
 import { saveFile } from '../api/saveFile';
 import { splitOpossumFile } from '../api/splitOpossumFile';
 import {
-  invalidateCacheEntry,
-  refreshStatsAfterSave,
-} from '../db/dev-db-cache';
-import {
-  loadFile,
-  type LoadFileIpcResult,
-  type LoadFileProgressCallback,
+  decorateDbProcessMessageExecution,
+  loadFileWithDevCache,
+} from '../db/dev-db-cache-wiring';
+import type {
+  LoadFileIpcResult,
+  LoadFileProgressCallback,
 } from '../input/loadFile';
 
 interface LoadFileMessage {
@@ -145,7 +144,7 @@ async function executeDbProcessMessage(
   switch (msg.type) {
     case 'loadFile': {
       storedOpossumZip = undefined;
-      const loadResult = await loadFile(msg.filePath, onProgress);
+      const loadResult = await loadFileWithDevCache(msg.filePath, onProgress);
       if (loadResult.ok) {
         const { opossumZip, ...rest } = loadResult;
         storedOpossumZip = opossumZip;
@@ -159,7 +158,6 @@ async function executeDbProcessMessage(
       }
       const { id: _, type: __, ...params } = msg;
       await saveFile(params, storedOpossumZip);
-      refreshStatsAfterSave(params.opossumFilePath);
       return undefined;
     }
     case 'forceUnlock': {
@@ -168,7 +166,6 @@ async function executeDbProcessMessage(
       }
       const { id: _, type: __, ...params } = msg;
       await forceUnlockOpossumFile(params, storedOpossumZip);
-      refreshStatsAfterSave(params.opossumFilePath);
       return undefined;
     }
     case 'splitOpossumFile': {
@@ -190,11 +187,6 @@ async function executeDbProcessMessage(
         },
         storedOpossumZip,
       );
-      refreshStatsAfterSave(saveFileParams.opossumFilePath);
-      // The split destination is overwritten with new content that does not
-      // match its cached database (if any), so the entry must be invalidated
-      // rather than refreshed.
-      invalidateCacheEntry(splitOpossumFilePath);
       return undefined;
     }
     case 'mergeOpossumFiles': {
@@ -224,7 +216,7 @@ async function executeDbProcessMessage(
       if (result.status === 'error') {
         return result;
       }
-      const loadResult = await loadFile(
+      const loadResult = await loadFileWithDevCache(
         saveFileParams.opossumFilePath,
         onProgress,
       );
@@ -263,19 +255,28 @@ async function executeDbProcessMessage(
   }
 }
 
+// The dev cache maintenance is wrapped around the message execution in one
+// place (see dev-db-cache-wiring.ts); the message handlers above stay free of
+// dev-cache logic.
+const executeDbProcessMessageWithDevCacheMaintenance =
+  decorateDbProcessMessageExecution(executeDbProcessMessage);
+
 export async function handleDbProcessMessage(
   port: ResponsePort,
   msg: DbProcessRequest,
 ): Promise<void> {
   try {
-    const result = await executeDbProcessMessage(msg, (message, level) => {
-      port.postMessage({
-        id: msg.id,
-        type: 'progress',
-        message,
-        level,
-      });
-    });
+    const result = await executeDbProcessMessageWithDevCacheMaintenance(
+      msg,
+      (message, level) => {
+        port.postMessage({
+          id: msg.id,
+          type: 'progress',
+          message,
+          level,
+        });
+      },
+    );
 
     port.postMessage({ id: msg.id, type: 'success', result });
   } catch (err) {

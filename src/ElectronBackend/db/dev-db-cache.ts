@@ -37,6 +37,10 @@ import path from 'path';
  * In unbundled contexts (unit tests, tsx scripts) the constants are plain
  * environment variable reads, which fail safe (unset = disabled) and keep the
  * module testable.
+ *
+ * How this module integrates with the production flows (load, message
+ * handling, startup reopen) lives in `dev-db-cache-wiring.ts`; the production
+ * modules contain no cache branching of their own.
  */
 
 const DEV_DB_CACHE_DIR_NAME = '.opossum-dev-cache';

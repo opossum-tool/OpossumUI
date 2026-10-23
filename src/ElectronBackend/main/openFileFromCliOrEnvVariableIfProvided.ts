@@ -6,7 +6,6 @@ import type { BrowserWindow } from 'electron';
 import log from 'electron-log';
 import fs from 'fs';
 
-import { getLastDevFile } from '../db/dev-db-cache';
 import { handleOpeningFile } from './listeners';
 import {
   clearPendingMacOsOpenFilePaths,
@@ -16,7 +15,7 @@ import {
 export async function openFileFromCliOrEnvVariableIfProvided(
   mainWindow: BrowserWindow,
   updateMenu: () => Promise<void>,
-  options: { reopenLastDevFile?: boolean } = {},
+  options: { getReopenFilePath?: () => string | undefined } = {},
 ): Promise<void> {
   let inputFileName: string | null = null;
 
@@ -48,13 +47,10 @@ export async function openFileFromCliOrEnvVariableIfProvided(
     }
   }
 
-  if (!inputFileName && options.reopenLastDevFile) {
-    // Development-only convenience: after a backend code change Electron
-    // restarts and immediately restores the previously loaded file from the
-    // dev DB cache.
-    const lastDevFile = getLastDevFile();
-    if (lastDevFile?.endsWith('.opossum') && fs.existsSync(lastDevFile)) {
-      inputFileName = lastDevFile;
+  if (!inputFileName && options.getReopenFilePath) {
+    const reopenFilePath = options.getReopenFilePath();
+    if (reopenFilePath && fs.existsSync(reopenFilePath)) {
+      inputFileName = reopenFilePath;
     }
   }
 
