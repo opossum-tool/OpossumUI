@@ -14,15 +14,17 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
             build-command: yarn ship-linux
+            manifest: release/latest-linux.yml
             FILES: |
-              release/linux/OpossumUI-for-linux.AppImage
-              release/linux/OpossumUI-for-linux.snap
+              release/OpossumUI-for-linux.AppImage
+              release/OpossumUI-for-linux.snap
           - os: macos-15-intel
             build-command: yarn ship-mac:x64
             FILES: release/mac/OpossumUI-for-mac-intel.zip
@@ -31,10 +33,15 @@ jobs:
             FILES: release/mac-arm64/OpossumUI-for-mac-arm64.zip
           - os: windows-latest
             build-command: yarn ship-win
-            FILES: release/win/OpossumUI-for-win.exe
+            FILES: |
+              release/OpossumUI-for-win.exe
+              release/OpossumUI-for-win.exe.blockmap
+            manifest: release/latest.yml
 
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          ref: ${{ github.event.release.tag_name }}
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
@@ -43,12 +50,35 @@ jobs:
 
       - run: yarn install --immutable
 
+      - name: Configure release version and update feed
+        shell: bash
+        run: |
+          [[ "$RELEASE_TAG" =~ ^OpossumUI-([0-9]{4})-([0-9]{2})-([0-9]{2})(\.([0-9]{1,5}))?$ ]]
+          revision=${BASH_REMATCH[5]:-0}
+          (( 10#$revision <= 65535 ))
+          version="$((10#${BASH_REMATCH[1]})).$((10#${BASH_REMATCH[2]} * 100 + 10#${BASH_REMATCH[3]})).$((10#$revision))"
+          npm pkg set "version=$version"
+          if [[ "$RUNNER_OS" != macOS ]]; then
+            npm pkg set 'build.publish[0].provider=generic' 'build.publish[0].channel=latest' \
+              "build.publish[0].url=https://github.com/opossum-tool/OpossumUI/releases/download/$RELEASE_TAG/"
+          fi
+
       - run: ${{ matrix.build-command }}
 
-      - name: Upload release asset
+      - name: Upload distributables and blockmaps
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3
         with:
+          tag_name: ${{ github.event.release.tag_name }}
           files: ${{ matrix.FILES }}
+          fail_on_unmatched_files: true
+
+      - name: Upload platform update manifest
+        if: matrix.manifest
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: ${{ matrix.manifest }}
+          fail_on_unmatched_files: true
 
   upload-docs:
     runs-on: ubuntu-latest
