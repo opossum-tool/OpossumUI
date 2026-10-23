@@ -156,6 +156,21 @@ export const queries = {
       .where('uuid', '=', props.attributionUuid)
       .executeTakeFirstOrThrow();
 
+    const aiRow = await getDb()
+      .selectFrom('attribution_ai')
+      .select(['human_modified', 'additional_data'])
+      .where('attribution_uuid', '=', props.attributionUuid)
+      .executeTakeFirst();
+
+    let deferred: boolean | undefined;
+    if (aiRow !== undefined) {
+      const aiAdditionalData = JSON.parse(aiRow.additional_data) as Record<
+        string,
+        unknown
+      >;
+      deferred = aiAdditionalData.deferred_fields !== undefined;
+    }
+
     return {
       result: {
         packageInfo: {
@@ -166,6 +181,16 @@ export const queries = {
               : result.resource_access === AttributionResourceAccess.Readonly
                 ? 'readonly'
                 : 'writable',
+          ...(aiRow === undefined
+            ? {}
+            : {
+                aiAttributions: {
+                  ...(aiRow.human_modified === null
+                    ? {}
+                    : { humanModified: Boolean(aiRow.human_modified) }),
+                  ...(deferred ? { deferred: true } : {}),
+                },
+              }),
         } satisfies PackageInfo,
         isExternal: Boolean(result.is_external),
       },

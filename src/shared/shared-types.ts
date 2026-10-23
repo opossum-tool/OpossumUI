@@ -60,6 +60,8 @@ type AttributionResourceAccess = 'readonly' | 'writable' | 'mixed';
 
 export interface AiAttributions {
   humanModified?: boolean;
+  /** Computed by the backend from a `deferred_fields` object in the opaque AI metadata; not persisted as-is */
+  deferred?: boolean;
   [key: string]: unknown;
 }
 
