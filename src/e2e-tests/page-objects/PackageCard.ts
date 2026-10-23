@@ -25,7 +25,7 @@ export class PackageCard {
       : compact([packageName, packageVersion]).join(', ');
   }
 
-  private node(packageInfo: RawPackageInfo): Locator {
+  public node(packageInfo: RawPackageInfo): Locator {
     return this.context.getByLabel(
       `package card ${this.getCardLabel(packageInfo)}`,
     );

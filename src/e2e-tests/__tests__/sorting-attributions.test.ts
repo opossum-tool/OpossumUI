@@ -47,8 +47,7 @@ test('resets the scroll position when the attribution list is re-sorted', async 
   await attributionsPanel.packageCard.assert.isFirstVisible(firstAttribution);
 
   // Load every page of the default (alphabetical) result set.
-  await attributionsPanel.scrollToBottom();
-  await attributionsPanel.packageCard.assert.isInViewport(lastAttribution);
+  await attributionsPanel.scrollToBottomUntilVisible(lastAttribution);
 
   // Sorting away replaces the result set; the fresh order is not cached yet.
   await attributionsPanel.sortButton.click();
@@ -57,8 +56,7 @@ test('resets the scroll position when the attribution list is re-sorted', async 
   await attributionsPanel.assert.loadingIndicatorIsHidden();
 
   // Load every page of the criticality result set.
-  await attributionsPanel.scrollToBottom();
-  await attributionsPanel.packageCard.assert.isInViewport(lastAttribution);
+  await attributionsPanel.scrollToBottomUntilVisible(lastAttribution);
 
   // Sorting back hits the cached alphabetical result set: the list must not
   // keep the retained scroll offset of the previous result set.

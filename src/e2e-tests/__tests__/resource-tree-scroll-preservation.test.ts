@@ -37,7 +37,7 @@ test.use({
 test('preserves the selected resource viewport when expanding an upper folder', async ({
   resourcesTree,
 }) => {
-  await resourcesTree.scrollToBottom();
+  await resourcesTree.scrollToBottomUntilVisible(selectedResource);
   await resourcesTree.clickResource('99-selected');
   await resourcesTree.assert.resourceAtPathIsSelected(selectedResource);
 

@@ -8,9 +8,8 @@ import {
   type Locator,
   type Page,
 } from '@playwright/test';
-import chroma from 'chroma-js';
 
-import { OpossumColors } from '../../Frontend/shared-styles';
+import { scrollToBottomUntilVisible } from '../utils/scroll-to-bottom-until-visible';
 
 export class Tree {
   protected readonly window: Page;
@@ -55,24 +54,7 @@ export class Tree {
         })
         .toBe(expectedPath);
     },
-    resourceIsSelected: async (name: string): Promise<void> =>
-      expect(this.getResourceByName(name)).toHaveAttribute(
-        'aria-selected',
-        'true',
-      ),
-    searchIsFocused: async (): Promise<void> =>
-      expect(this.searchField).toBeFocused(),
-    resourceIsHighlighted: async (name: string): Promise<void> =>
-      expect(this.getRowLabel(this.getResourceByName(name), name)).toHaveCSS(
-        'background-color',
-        this.highlightColor,
-      ),
-    resourceIsNotHighlighted: async (name: string): Promise<void> =>
-      expect(
-        this.getRowLabel(this.getResourceByName(name), name),
-      ).not.toHaveCSS('background-color', this.highlightColor),
   };
-  private readonly highlightColor = `rgb(${chroma(OpossumColors.lightBlue).rgb().join(', ')})`;
 
   constructor(window: Page, rootTestId: string, headerTestId: string) {
     this.window = window;
@@ -97,9 +79,6 @@ export class Tree {
       `[data-resource-path="${normalizedPath}"], [data-resource-path="${pathWithoutTrailingSlash}"]`,
     );
   }
-  private getRowLabel(row: Locator, name: string): Locator {
-    return row.getByText(name, { exact: true }).locator('..');
-  }
   private async assertReadonly(row: Locator, readonly: boolean): Promise<void> {
     await expect(row).toBeVisible();
     const indicator = row.getByTestId('readonly-indicator');
@@ -119,17 +98,14 @@ export class Tree {
   async clickResourceAtPath(path: string): Promise<void> {
     await this.getResourceByPath(path).click();
   }
-  async focusResource(name: string): Promise<void> {
-    await this.getResourceByName(name).focus();
-  }
-  async focusResourceAtPath(path: string): Promise<void> {
-    await this.getResourceByPath(path).focus();
-  }
   async scrollToTop(): Promise<void> {
     await this.scroller.evaluate((el) => el.scrollTo({ top: 0 }));
   }
-  async scrollToBottom(): Promise<void> {
-    await this.scroller.evaluate((el) => el.scrollTo({ top: el.scrollHeight }));
+  async scrollToBottomUntilVisible(resourcePath: string): Promise<void> {
+    await scrollToBottomUntilVisible(
+      this.scroller,
+      this.getResourceByPath(resourcePath),
+    );
   }
   async search(value: string): Promise<void> {
     await this.searchField.fill(value);
@@ -147,9 +123,6 @@ export class Tree {
   }
   async expandResourceAtPath(path: string): Promise<void> {
     await this.toggleAtPath(path, true, false);
-  }
-  async collapseResourceAtPath(path: string): Promise<void> {
-    await this.toggleAtPath(path, false, false);
   }
   async ensureResourceExpanded(path: string): Promise<void> {
     await this.toggleAtPath(path, true, true);
@@ -213,12 +186,6 @@ export class Tree {
       await expect(row).toHaveAttribute('aria-selected', 'true');
       await this.waitForAuditPanel();
     }
-  }
-  async gotoAtPath(path: string): Promise<void> {
-    const row = this.getResourceByPath(path);
-    await row.click();
-    await expect(row).toHaveAttribute('aria-selected', 'true');
-    await this.waitForAuditPanel();
   }
   protected async waitForAuditPanel(): Promise<void> {
     await expect(
