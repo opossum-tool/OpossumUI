@@ -14,6 +14,7 @@ export class AttributionsPanel {
   private readonly node: Locator;
   private readonly header: Locator;
   private readonly loadingIndicator: Locator;
+  private readonly scroller: Locator;
   readonly packageCard: PackageCard;
   readonly selectAllCheckbox: Locator;
   readonly createButton: Locator;
@@ -53,6 +54,7 @@ export class AttributionsPanel {
     this.node = window.getByTestId('attributions-panel');
     this.header = window.getByTestId('attributions-panel-header');
     this.loadingIndicator = this.node.getByTestId('loading');
+    this.scroller = this.node.locator('[data-virtuoso-scroller="true"]');
     this.packageCard = new PackageCard(this.node);
     this.selectAllCheckbox = this.node.getByRole('checkbox', {
       name: 'Select all',
@@ -216,24 +218,20 @@ export class AttributionsPanel {
   }
 
   async scrollToTop(): Promise<void> {
-    await this.node
-      .locator('[data-virtuoso-scroller="true"]')
-      .evaluate((scroller) => {
-        scroller.scrollTo({ top: 0 });
-      });
+    await this.scroller.evaluate((scroller) => {
+      scroller.scrollTo({ top: 0 });
+    });
   }
 
   async scrollToBottom(): Promise<void> {
-    await this.node
-      .locator('[data-virtuoso-scroller="true"]')
-      .evaluate((scroller) => {
-        scroller.scrollTo({ top: scroller.scrollHeight });
-      });
+    await this.scroller.evaluate((scroller) => {
+      scroller.scrollTo({ top: scroller.scrollHeight });
+    });
   }
 
   async scrollToBottomUntilVisible(packageInfo: RawPackageInfo): Promise<void> {
     await scrollToBottomUntilVisible(
-      this.node.locator('[data-virtuoso-scroller="true"]'),
+      this.scroller,
       this.packageCard.node(packageInfo),
     );
   }
