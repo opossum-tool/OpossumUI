@@ -13,6 +13,7 @@ import {
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import { OpossumColors } from '../../../shared-styles';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
@@ -485,6 +486,95 @@ describe('AttributionForm', () => {
         );
         expect(classificationChip).toBeInTheDocument();
         expect(classificationChip).toHaveTextContent('C');
+      });
+    });
+
+    describe('AI generated chip', () => {
+      it('renders a chip for AI generated attributions', async () => {
+        const packageInfo = faker.opossum.packageInfo({
+          aiAttributions: {},
+        });
+
+        await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+          data: getParsedInputFileEnrichedWithTestData({}),
+        });
+
+        const aiChip = screen.getByTestId('auditing-option-ai-generated');
+        expect(aiChip).toBeInTheDocument();
+        expect(aiChip).toHaveTextContent(text.auditingOptions.aiGenerated);
+        expect(aiChip).toHaveStyle({
+          backgroundColor: OpossumColors.lightBlue,
+        });
+      });
+
+      it('renders a chip for AI generated attributions with an absent human-modified flag', async () => {
+        const packageInfo = faker.opossum.packageInfo({
+          aiAttributions: { humanModified: undefined },
+        });
+
+        await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+          data: getParsedInputFileEnrichedWithTestData({}),
+        });
+
+        const aiChip = screen.getByTestId('auditing-option-ai-generated');
+        expect(aiChip).toBeInTheDocument();
+        expect(aiChip).toHaveTextContent(text.auditingOptions.aiGenerated);
+      });
+
+      it('indicates human modification on the chip', async () => {
+        const packageInfo = faker.opossum.packageInfo({
+          aiAttributions: { humanModified: true },
+        });
+
+        await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+          data: getParsedInputFileEnrichedWithTestData({}),
+        });
+
+        const aiChip = screen.getByTestId('auditing-option-ai-generated');
+        expect(aiChip).toBeInTheDocument();
+        expect(aiChip).toHaveTextContent(
+          text.auditingOptions.humanReviewed,
+        );
+      });
+
+      it('indicates deferred fields on the chip', async () => {
+        const packageInfo = faker.opossum.packageInfo({
+          aiAttributions: { deferred: true },
+        });
+
+        await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+          data: getParsedInputFileEnrichedWithTestData({}),
+        });
+
+        const aiChip = screen.getByTestId('auditing-option-ai-generated');
+        expect(aiChip).toBeInTheDocument();
+        expect(aiChip).toHaveTextContent(text.auditingOptions.deferred);
+      });
+
+      it('prefers the deferred label over the human-modified label', async () => {
+        const packageInfo = faker.opossum.packageInfo({
+          aiAttributions: { humanModified: true, deferred: true },
+        });
+
+        await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+          data: getParsedInputFileEnrichedWithTestData({}),
+        });
+
+        const aiChip = screen.getByTestId('auditing-option-ai-generated');
+        expect(aiChip).toBeInTheDocument();
+        expect(aiChip).toHaveTextContent(text.auditingOptions.deferred);
+      });
+
+      it('does not render a chip for attributions that are not AI generated', async () => {
+        const packageInfo = faker.opossum.packageInfo();
+
+        await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+          data: getParsedInputFileEnrichedWithTestData({}),
+        });
+
+        expect(
+          screen.queryByTestId('auditing-option-ai-generated'),
+        ).not.toBeInTheDocument();
       });
     });
   });

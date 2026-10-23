@@ -82,7 +82,7 @@ export const AuditingOptions: React.FC<Props> = ({
   function renderSelectedOptions() {
     return options
       .filter(({ selected }) => selected)
-      .map(({ label, icon, onDelete, interactive, id }) => (
+      .map(({ label, icon, onDelete, interactive, id, chipSx }) => (
         <MuiChip
           label={label}
           size={'small'}
@@ -90,6 +90,7 @@ export const AuditingOptions: React.FC<Props> = ({
           onDelete={interactive ? onDelete : undefined}
           data-testid={`auditing-option-${id}`}
           key={id}
+          sx={chipSx}
           deleteIcon={<CancelIcon data-testid="CancelIcon" />}
         />
       ));

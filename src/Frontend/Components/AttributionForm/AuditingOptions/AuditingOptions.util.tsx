@@ -21,6 +21,7 @@ import { prettifySource } from '../../../util/prettify-source';
 import { useClassifications } from '../../../util/use-classifications';
 import { useCompareToOriginal } from '../../../util/use-compare-to-original';
 import {
+  AiGeneratedIcon,
   ClassificationIcon,
   CriticalityIcon,
   ExcludeFromNoticeIcon,
@@ -38,11 +39,16 @@ import type { AuditingPropertiesPatch } from './AuditingOptions.types';
 interface AuditingOption extends SelectMenuOption {
   id: string;
   interactive: boolean;
+  chipSx?: SxProps<Theme>;
 }
 
 const satisfactionIconClass = {
   width: auditingOptionIconSize,
   height: auditingOptionIconSize,
+} satisfies SxProps<Theme>;
+
+const aiGeneratedChipClass = {
+  backgroundColor: OpossumColors.lightBlue,
 } satisfies SxProps<Theme>;
 
 export function useAuditingOptions({
@@ -94,6 +100,18 @@ export function useAuditingOptions({
 
   return useMemo<Array<AuditingOption>>(
     () => [
+      {
+        id: 'ai-generated',
+        label: packageInfo.aiAttributions?.deferred
+          ? text.auditingOptions.deferred
+          : packageInfo.aiAttributions?.humanModified
+            ? text.auditingOptions.humanReviewed
+            : text.auditingOptions.aiGenerated,
+        icon: <AiGeneratedIcon noTooltip />,
+        selected: !!packageInfo.aiAttributions,
+        interactive: false,
+        chipSx: aiGeneratedChipClass,
+      },
       {
         id: 'preferred',
         label: text.auditingOptions.currentlyPreferred,
@@ -250,6 +268,7 @@ export function useAuditingOptions({
       compareToOriginal,
       isEditable,
       isPreferenceFeatureEnabled,
+      packageInfo.aiAttributions,
       packageInfo.attributionConfidence,
       packageInfo.classification,
       packageInfo.criticality,
