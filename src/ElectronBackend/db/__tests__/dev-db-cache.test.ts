@@ -102,6 +102,26 @@ describe('dev-db-cache', () => {
       expect(entry?.meta.projectTitle).toBe('My Project');
     });
 
+    it('treats paths with different separators as the same file', () => {
+      createCacheEntry(opossumFilePath);
+
+      const slashVariant = opossumFilePath.replace(/\\/g, '/');
+      expect(touchAndGetFreshCacheEntry(slashVariant)).toBeDefined();
+    });
+
+    it.skipIf(process.platform === 'linux')(
+      'treats paths differing only in case as the same file',
+      () => {
+        createCacheEntry(opossumFilePath);
+
+        const caseVariant =
+          opossumFilePath === opossumFilePath.toLowerCase()
+            ? opossumFilePath.toUpperCase()
+            : opossumFilePath.toLowerCase();
+        expect(touchAndGetFreshCacheEntry(caseVariant)).toBeDefined();
+      },
+    );
+
     it('invalidates the entry when the file changes', () => {
       createCacheEntry(opossumFilePath);
       expect(touchAndGetFreshCacheEntry(opossumFilePath)).toBeDefined();

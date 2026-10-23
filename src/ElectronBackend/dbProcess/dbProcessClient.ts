@@ -198,11 +198,7 @@ let child: Electron.UtilityProcess | null = null;
 
 function ensureUtilityProcess(): Electron.UtilityProcess {
   if (!child) {
-    // The dev DB cache flags are handled without explicit configuration: the
-    // OPOSSUM_DEV_MODE flag is baked into both bundles at build time, and the
-    // runtime opt-out (OPOSSUM_DISABLE_DEV_DB_CACHE) is inherited because
-    // utilityProcess.fork propagates the parent environment by default.
-    child = utilityProcess.fork(path.join(__dirname, 'dbProcess.js'), []);
+    child = utilityProcess.fork(path.join(__dirname, 'dbProcess.js'));
     child.on('exit', (code) => {
       console.error(`DB utility process exited with code ${code}`);
       child = null;

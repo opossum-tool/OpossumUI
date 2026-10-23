@@ -125,11 +125,27 @@ function getCacheRootDir(): string {
   );
 }
 
+/**
+ * Normalizes a path for use as a cache key, platform-agnostically:
+ *
+ * - Separators are converted to forward slashes so that paths recorded on one
+ *   platform still match on another (relevant when the cache dir is shared).
+ * - Case is folded on Windows and macOS, whose default filesystems (NTFS,
+ *   APFS/HFS+) are case-insensitive, so `C:\...`/`c:\...` and `/Users/Foo`/
+ *   `/users/foo` map to the same cache entry. Linux is case-sensitive and
+ *   keeps its case.
+ */
+function normalizePath(filePath: string): string {
+  const posixPath = path.resolve(filePath).replace(/\\/g, '/');
+  const caseInsensitivePlatform =
+    process.platform === 'win32' || process.platform === 'darwin';
+  return caseInsensitivePlatform ? posixPath.toLowerCase() : posixPath;
+}
+
 function getEntryDir(opossumFilePath: string): string {
-  const resolvedPath = path.resolve(opossumFilePath);
   const hash = crypto
     .createHash('sha256')
-    .update(resolvedPath)
+    .update(normalizePath(opossumFilePath))
     .digest('hex')
     .slice(0, HASH_LENGTH);
   return path.join(getCacheRootDir(), hash);
@@ -183,13 +199,15 @@ export function touchAndGetFreshCacheEntry(
   if (meta?.schemaVersion !== getDbSchemaVersion()) {
     return undefined;
   }
-  if (meta.absolutePath !== path.resolve(opossumFilePath)) {
+  if (meta.absolutePath !== normalizePath(opossumFilePath)) {
     return undefined;
   }
   if (!fs.existsSync(dbPath)) {
     return undefined;
   }
   const stats = statOpossumFile(opossumFilePath);
+  // Exact comparison is intentional: both values were read with statSync for
+  // the same file state, so identical state yields identical values.
   if (meta.size !== stats?.size || meta.mtimeMs !== stats.mtimeMs) {
     return undefined;
   }
@@ -244,7 +262,7 @@ export function writeCacheMeta(
     return;
   }
   const meta: DevDbCacheMeta = {
-    absolutePath: path.resolve(opossumFilePath),
+    absolutePath: normalizePath(opossumFilePath),
     size: stats.size,
     mtimeMs: stats.mtimeMs,
     schemaVersion: getDbSchemaVersion(),
