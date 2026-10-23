@@ -4,37 +4,20 @@
 // SPDX-License-Identifier: Apache-2.0
 import babel from '@rolldown/plugin-babel';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
-import crypto from 'crypto';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { defineConfig, InlineConfig, loadEnv } from 'vite';
 import electron from 'vite-plugin-electron';
 import svgrPlugin from 'vite-plugin-svgr';
-
-// The dev DB cache only restores cached databases whose schema matches the
-// current code. Hashing the schema-defining module at build time ties the
-// cache invalidation to the actual schema without a manually managed version
-// constant.
-function getDbSchemaHash(): string {
-  const initializeDbPath = path.join(
-    path.dirname(fileURLToPath(import.meta.url)),
-    'src/ElectronBackend/db/initializeDb.ts',
-  );
-  return crypto
-    .createHash('sha256')
-    .update(fs.readFileSync(initializeDbPath, 'utf-8'))
-    .digest('hex')
-    .slice(0, 16);
-}
 
 function getElectronProcessViteConfig(mode: string): InlineConfig {
   return {
     define: {
       // Baked at build time so the dev DB cache can never be enabled in
-      // production bundles, regardless of the host environment.
+      // production bundles, regardless of the host environment. The schema
+      // fingerprint used for cache invalidation is deliberately NOT baked:
+      // `dev-db-cache.ts` computes it from the sources at runtime so that it
+      // is fresh on every Electron restart (a baked hash would go stale when
+      // the schema changes while the dev server keeps running).
       'process.env.OPOSSUM_DEV_MODE': mode === 'development' ? '"1"' : '"0"',
-      'process.env.OPOSSUM_DB_SCHEMA_HASH': JSON.stringify(getDbSchemaHash()),
     },
     build: {
       minify: true,

@@ -25,15 +25,18 @@ import path from 'path';
  * - `OPOSSUM_DISABLE_DEV_DB_CACHE=1` disables the mechanism at runtime (e.g.
  *   for E2E tests, which run unpackaged).
  *
- * Cached databases are only restored if their schema matches the current code:
- * `vite.config.mts` hashes `initializeDb.ts` (which defines the entire schema)
- * at build time and bakes the hash in as `process.env.OPOSSUM_DB_SCHEMA_HASH`.
- * A cache entry recorded with a different hash is treated as stale, so changes
- * to the database schema never silently restore outdated databases.
+ * Cached databases are only restored if the import pipeline matches the
+ * current code: a fingerprint hashes the TypeScript sources of the database
+ * and input-parsing modules (see `FINGERPRINT_SOURCE_DIRS`). The fingerprint
+ * is recomputed from disk on every Electron start, so schema and parsing code
+ * changes always invalidate the cache without a manual version bump and can
+ * never restore a database built by older code. If the sources cannot be read
+ * the fingerprint is `unknown`, which fails safe (never matches a recorded
+ * fingerprint).
  *
  * In unbundled contexts (unit tests, tsx scripts) the constants are plain
- * environment variable reads, which fail safe (unset = disabled / hash computed
- * from the source file) and keep the module testable.
+ * environment variable reads, which fail safe (unset = disabled) and keep the
+ * module testable.
  */
 
 const DEV_DB_CACHE_DIR_NAME = '.opossum-dev-cache';
@@ -43,10 +46,20 @@ const LAST_FILE_NAME = 'last-file.json';
 const MAX_NUMBER_OF_CACHE_ENTRIES = 5;
 const HASH_LENGTH = 16;
 
-// Path of the schema-defining module relative to the repository root. Used to
-// compute the schema version in unbundled contexts (unit tests, tsx scripts);
-// in Electron bundles vite bakes the hash in at build time.
-const SCHEMA_SOURCE_FILE = 'src/ElectronBackend/db/initializeDb.ts';
+// Source directories that determine the contents of an imported database:
+// the schema (`db/initializeDb.ts` and its helpers) as well as the parsing
+// pipeline (`input/`, which produces the data fed into the schema). Hashing
+// whole directories (instead of an explicit file list) automatically covers
+// new pipeline files. Tests and generated code are excluded.
+const FINGERPRINT_SOURCE_DIRS = [
+  'src/ElectronBackend/db',
+  'src/ElectronBackend/input',
+];
+const FINGERPRINT_EXCLUDED_DIR_NAMES = new Set([
+  'generated',
+  '__tests__',
+  '__test__',
+]);
 const FALLBACK_SCHEMA_VERSION = 'unknown';
 
 const CACHE_DIR_ENV_VAR = 'OPOSSUM_DEV_DB_CACHE_DIR';
@@ -88,34 +101,51 @@ export function isDevDbCacheEnabled(): boolean {
 let cachedSchemaVersion: string | undefined;
 
 /**
- * A hash that changes whenever the database schema (as defined in
- * `initializeDb.ts`) changes. In Electron bundles the hash is computed at
- * build time by vite; elsewhere it is computed from the source file at
- * runtime.
+ * A fingerprint that changes whenever the code that produces the database
+ * contents changes — the schema as well as the import/parsing pipeline (see
+ * `FINGERPRINT_SOURCE_DIRS`). It is computed from the TypeScript sources on
+ * disk and therefore fresh for the running code in every process, including
+ * each Electron process spawned by the vite watcher after a code change.
+ * Memoizing per process is safe because every code change spawns new
+ * processes.
  */
 function getDbSchemaVersion(): string {
   if (cachedSchemaVersion === undefined) {
-    const bakedSchemaVersion = process.env.OPOSSUM_DB_SCHEMA_HASH;
-    if (bakedSchemaVersion) {
-      cachedSchemaVersion = bakedSchemaVersion;
-    } else {
-      try {
-        cachedSchemaVersion = crypto
-          .createHash('sha256')
-          .update(
-            fs.readFileSync(
-              path.resolve(process.cwd(), SCHEMA_SOURCE_FILE),
-              'utf-8',
-            ),
-          )
-          .digest('hex')
-          .slice(0, HASH_LENGTH);
-      } catch {
-        cachedSchemaVersion = FALLBACK_SCHEMA_VERSION;
+    try {
+      const hash = crypto.createHash('sha256');
+      for (const file of collectFingerprintFiles()) {
+        hash.update(path.relative(process.cwd(), file));
+        hash.update('\0');
+        hash.update(fs.readFileSync(file));
+        hash.update('\0');
       }
+      cachedSchemaVersion = hash.digest('hex').slice(0, HASH_LENGTH);
+    } catch {
+      cachedSchemaVersion = FALLBACK_SCHEMA_VERSION;
     }
   }
   return cachedSchemaVersion;
+}
+
+function collectFingerprintFiles(): string[] {
+  const files: string[] = [];
+  const walk = (dir: string): void => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const entryPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (!FINGERPRINT_EXCLUDED_DIR_NAMES.has(entry.name)) {
+          walk(entryPath);
+        }
+      } else if (entry.isFile() && entry.name.endsWith('.ts')) {
+        files.push(entryPath);
+      }
+    }
+  };
+  for (const sourceDir of FINGERPRINT_SOURCE_DIRS) {
+    walk(path.resolve(process.cwd(), sourceDir));
+  }
+  // Sorting makes the hash independent of the file system's readdir order.
+  return files.sort();
 }
 
 function getCacheRootDir(): string {

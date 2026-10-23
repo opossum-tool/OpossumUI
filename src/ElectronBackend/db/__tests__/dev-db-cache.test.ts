@@ -140,6 +140,9 @@ describe('dev-db-cache', () => {
       };
       expect(typeof meta.schemaVersion).toBe('string');
       expect(meta.schemaVersion.length).toBeGreaterThan(0);
+      // A real fingerprint is computed from the repository sources; 'unknown'
+      // is only the fallback for unreadable sources.
+      expect(meta.schemaVersion).not.toBe('unknown');
     });
 
     it('invalidates entries with an unknown schema version', () => {
@@ -221,6 +224,24 @@ describe('dev-db-cache', () => {
 
       expect(() => refreshStatsAfterSave(opossumFilePath)).not.toThrow();
       expect(fs.existsSync(cacheDir)).toBe(false);
+    });
+
+    it('records an unknown schema version when the sources are unreadable', async () => {
+      // A fresh module instance is needed because the schema version is
+      // memoized per module instance.
+      vi.resetModules();
+      vi.spyOn(process, 'cwd').mockReturnValue(
+        path.join(cacheDir, 'does-not-exist'),
+      );
+
+      const freshCache = await import('../dev-db-cache');
+      const dbPath = freshCache.prepareCacheEntry(opossumFilePath);
+      expect(dbPath).toBeDefined();
+      fs.writeFileSync(dbPath as string, 'db content');
+      freshCache.writeCacheMeta(opossumFilePath, { projectId: 'project-id' });
+
+      const entry = freshCache.touchAndGetFreshCacheEntry(opossumFilePath);
+      expect(entry?.meta.schemaVersion).toBe('unknown');
     });
   });
 
