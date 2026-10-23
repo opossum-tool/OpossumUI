@@ -486,14 +486,30 @@ function getReleasePath(releasePathOverride: string | null): string {
   }
 
   if (os.platform() === 'win32') {
-    return path.join(__dirname, '..', '..', '..', 'release', 'win-unpacked');
+    return path.join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      'release',
+      'win',
+      'win-unpacked',
+    );
   } else if (os.platform() === 'darwin') {
     if (os.arch() === 'arm64') {
       return path.join(__dirname, '..', '..', '..', 'release', 'mac-arm64');
     }
     return path.join(__dirname, '..', '..', '..', 'release', 'mac');
   } else if (os.platform() === 'linux') {
-    return path.join(__dirname, '..', '..', '..', 'release', 'linux-unpacked');
+    return path.join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      'release',
+      'linux',
+      'linux-unpacked',
+    );
   }
 
   throw new Error('Unsupported platform');
