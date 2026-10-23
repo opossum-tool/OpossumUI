@@ -1,6 +1,9 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "entry": ["src/ElectronBackend/{app,preload,dbProcess/dbProcess}.ts"],
+  "entry": [
+    "src/ElectronBackend/{app,preload,dbProcess/dbProcess}.ts",
+    "tools/{prepare,publish}-release.mjs"
+  ],
   "project": ["**/*.{js,cjs,mjs,jsx,ts,cts,mts,tsx}!", "!.yarn/**"],
   "ignoreIssues": {
     "src/ElectronBackend/db/generated/databaseTypes.ts": ["types"]
