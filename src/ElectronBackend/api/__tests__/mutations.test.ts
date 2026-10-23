@@ -347,6 +347,113 @@ describe('attribution resource access', () => {
     expect(result.attributions.ai).not.toHaveProperty('aiAttributions');
   });
 
+  it('exposes the AI-generated flag of the attribution_ai table via getAttributionData', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/a']),
+      manualAttributions: {
+        attributions: {
+          humanModified: packageInfo('humanModified', 'flagged', {
+            humanModified: true,
+          }),
+          notHumanModified: packageInfo('notHumanModified', 'unflagged', {
+            humanModified: false,
+          }),
+          flagAbsent: packageInfo('flagAbsent', 'absent flag', {}),
+          deferred: packageInfo('deferred', 'deferred fields', {
+            deferred_fields: { copyright: true },
+          }),
+          deferredList: packageInfo('deferredList', 'deferred list', {
+            deferred_fields: ['copyright', 'licenseText'],
+          }),
+          deferredEmptyList: packageInfo(
+            'deferredEmptyList',
+            'deferred empty list',
+            {
+              deferred_fields: [],
+            },
+          ),
+          deferredAndModified: packageInfo(
+            'deferredAndModified',
+            'deferred and modified',
+            {
+              humanModified: true,
+              deferred_fields: {},
+            },
+          ),
+          notAi: packageInfo('notAi', 'not ai'),
+        },
+        resourcesToAttributions: {
+          '/a': [
+            'humanModified',
+            'notHumanModified',
+            'flagAbsent',
+            'deferred',
+            'deferredList',
+            'deferredEmptyList',
+            'deferredAndModified',
+            'notAi',
+          ],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const humanModifiedResult = await queries.getAttributionData({
+      attributionUuid: 'humanModified',
+    });
+    expect(humanModifiedResult.result.packageInfo.aiAttributions).toEqual({
+      humanModified: true,
+    });
+
+    const notHumanModifiedResult = await queries.getAttributionData({
+      attributionUuid: 'notHumanModified',
+    });
+    expect(notHumanModifiedResult.result.packageInfo.aiAttributions).toEqual({
+      humanModified: false,
+    });
+
+    const flagAbsentResult = await queries.getAttributionData({
+      attributionUuid: 'flagAbsent',
+    });
+    expect(flagAbsentResult.result.packageInfo.aiAttributions).toEqual({});
+
+    const deferredResult = await queries.getAttributionData({
+      attributionUuid: 'deferred',
+    });
+    expect(deferredResult.result.packageInfo.aiAttributions).toEqual({
+      deferred: true,
+    });
+
+    const deferredListResult = await queries.getAttributionData({
+      attributionUuid: 'deferredList',
+    });
+    expect(deferredListResult.result.packageInfo.aiAttributions).toEqual({
+      deferred: true,
+    });
+
+    const deferredEmptyListResult = await queries.getAttributionData({
+      attributionUuid: 'deferredEmptyList',
+    });
+    expect(deferredEmptyListResult.result.packageInfo.aiAttributions).toEqual({
+      deferred: true,
+    });
+
+    const deferredAndModifiedResult = await queries.getAttributionData({
+      attributionUuid: 'deferredAndModified',
+    });
+    expect(deferredAndModifiedResult.result.packageInfo.aiAttributions).toEqual(
+      {
+        humanModified: true,
+        deferred: true,
+      },
+    );
+
+    const notAiResult = await queries.getAttributionData({
+      attributionUuid: 'notAi',
+    });
+    expect(notAiResult.result.packageInfo).not.toHaveProperty('aiAttributions');
+  });
+
   it('preserves stored AI metadata when updating a queried attribution', async () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/a']),
@@ -367,7 +474,7 @@ describe('attribution resource access', () => {
     const { result } = await queries.getAttributionData({
       attributionUuid: 'ai',
     });
-    expect(result.packageInfo).not.toHaveProperty('aiAttributions');
+    expect(result.packageInfo.aiAttributions).toStrictEqual({});
 
     await mutations.updateOrMatchAttributions({
       attributions: {

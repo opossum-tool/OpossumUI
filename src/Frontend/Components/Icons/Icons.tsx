@@ -4,6 +4,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AnnouncementIcon from '@mui/icons-material/Announcement';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CallSplitIcon from '@mui/icons-material/CallSplit';
 import DescriptionIcon from '@mui/icons-material/Description';
 import ExploreIcon from '@mui/icons-material/Explore';
@@ -84,6 +85,31 @@ export function ReadonlyIcon({
 interface LabelDetailIconProps extends IconProps {
   labelDetail?: string;
   disabled?: boolean;
+}
+
+export function AiGeneratedIcon({
+  className,
+  noTooltip,
+  sx,
+  tooltipPlacement,
+}: IconProps) {
+  return (
+    <MuiTooltip
+      title={noTooltip ? undefined : text.auditingOptions.aiGenerated}
+      placement={tooltipPlacement}
+      disableInteractive
+    >
+      <AutoAwesomeIcon
+        aria-label={'AI generated icon'}
+        sx={{
+          ...baseIcon,
+          color: `${OpossumColors.black} !important`,
+          ...sx,
+        }}
+        className={className}
+      />
+    </MuiTooltip>
+  );
 }
 
 export function FirstPartyIcon({
