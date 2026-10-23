@@ -451,9 +451,7 @@ describe('attribution resource access', () => {
     const notAiResult = await queries.getAttributionData({
       attributionUuid: 'notAi',
     });
-    expect(notAiResult.result.packageInfo).not.toHaveProperty(
-      'aiAttributions',
-    );
+    expect(notAiResult.result.packageInfo).not.toHaveProperty('aiAttributions');
   });
 
   it('preserves stored AI metadata when updating a queried attribution', async () => {

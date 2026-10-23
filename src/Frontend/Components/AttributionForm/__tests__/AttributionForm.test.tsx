@@ -532,9 +532,7 @@ describe('AttributionForm', () => {
 
         const aiChip = screen.getByTestId('auditing-option-ai-generated');
         expect(aiChip).toBeInTheDocument();
-        expect(aiChip).toHaveTextContent(
-          text.auditingOptions.humanReviewed,
-        );
+        expect(aiChip).toHaveTextContent(text.auditingOptions.humanReviewed);
       });
 
       it('indicates deferred fields on the chip', async () => {
