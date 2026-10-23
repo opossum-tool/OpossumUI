@@ -53,5 +53,5 @@ yarn-error.log*
 
 .gitconfig
 
-dev.db
-dev.db-journal
+# dev-only imported-database cache
+/.opossum-dev-cache

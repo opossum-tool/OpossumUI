@@ -151,8 +151,13 @@ const ATTRIBUTION_INDEX_COLUMNS = [
   'canonical_license_name',
 ] as const satisfies ReadonlyArray<keyof DB['attribution']>;
 
-export async function initializeDb(inputFile: DatabaseImportContent) {
-  await resetDb();
+export async function initializeDb(
+  inputFile: DatabaseImportContent,
+  { dbFilename }: { dbFilename?: string } = {},
+) {
+  // In dev mode, the database can be a cache file so that an Electron restart
+  // does not force a full re-import; otherwise a temporary database is used.
+  await resetDb(dbFilename);
   await getDb()
     .transaction()
     .execute(async (trx) => {

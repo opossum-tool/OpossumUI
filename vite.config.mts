@@ -8,8 +8,17 @@ import { defineConfig, InlineConfig, loadEnv } from 'vite';
 import electron from 'vite-plugin-electron';
 import svgrPlugin from 'vite-plugin-svgr';
 
-function getElectronProcessViteConfig(): InlineConfig {
+function getElectronProcessViteConfig(mode: string): InlineConfig {
   return {
+    define: {
+      // Baked at build time so the dev DB cache can never be enabled in
+      // production bundles, regardless of the host environment. The schema
+      // fingerprint used for cache invalidation is deliberately NOT baked:
+      // `dev-db-cache.ts` computes it from the sources at runtime so that it
+      // is fresh on every Electron restart (a baked hash would go stale when
+      // the schema changes while the dev server keeps running).
+      'process.env.OPOSSUM_DEV_MODE': mode === 'development' ? '"1"' : '"0"',
+    },
     build: {
       minify: true,
       outDir: 'build/ElectronBackend',
@@ -23,6 +32,26 @@ function getElectronProcessViteConfig(): InlineConfig {
       },
     },
   };
+}
+
+let electronStartCount = 0;
+
+/**
+ * Starts Electron and records whether this spawn is a watcher restart (e.g.
+ * after a backend code change) or the initial start of a `yarn start` run.
+ *
+ * The vite dev server process persists across Electron restarts, so a module
+ * level counter cleanly distinguishes the two cases. The flag propagates to
+ * Electron via the inherited environment and gates the dev-only last-file
+ * auto-reopen (see `main.ts`).
+ */
+function handleElectronStart({
+  startup,
+}: {
+  startup: (...args: never[]) => unknown;
+}): void {
+  process.env.OPOSSUM_ELECTRON_RESTARTED = electronStartCount++ > 0 ? '1' : '0';
+  startup();
 }
 
 export default defineConfig(({ mode }) => ({
@@ -40,15 +69,18 @@ export default defineConfig(({ mode }) => ({
       : electron([
           {
             entry: 'src/ElectronBackend/preload.ts',
-            vite: getElectronProcessViteConfig(),
+            vite: getElectronProcessViteConfig(mode),
+            onstart: handleElectronStart,
           },
           {
             entry: 'src/ElectronBackend/app.ts',
-            vite: getElectronProcessViteConfig(),
+            vite: getElectronProcessViteConfig(mode),
+            onstart: handleElectronStart,
           },
           {
             entry: 'src/ElectronBackend/dbProcess/dbProcess.ts',
-            vite: getElectronProcessViteConfig(),
+            vite: getElectronProcessViteConfig(mode),
+            onstart: handleElectronStart,
           },
         ])),
   ],

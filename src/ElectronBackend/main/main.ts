@@ -7,6 +7,7 @@ import os from 'os';
 
 import commitInfo from '../../commitInfo.json';
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
+import { openFileFromCliOrEnvVariableIfProvidedWithDevReopen } from '../db/dev-db-cache-wiring';
 import {
   FRONTEND_TO_DB_PROCESS_PORT,
   getDbProcessPort,
@@ -14,7 +15,6 @@ import {
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
 import { createWindow, loadWebApp } from './createWindow';
 import { createMenu } from './menu';
-import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
 import { setRuntimeMacOsOpenFileHandler } from './openFileRequests';
 import { setupIpcHandling } from './setUpIpcHandling';
 import {
@@ -75,7 +75,10 @@ export async function main(): Promise<void> {
 
     await loadWebApp(mainWindow);
 
-    await openFileFromCliOrEnvVariableIfProvided(mainWindow, updateMenu);
+    await openFileFromCliOrEnvVariableIfProvidedWithDevReopen(
+      mainWindow,
+      updateMenu,
+    );
 
     setRuntimeMacOsOpenFileHandler((filePath) => {
       mainWindow.webContents.send(AllowedFrontendChannels.OpenFile, filePath);

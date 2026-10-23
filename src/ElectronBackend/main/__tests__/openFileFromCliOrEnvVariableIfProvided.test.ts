@@ -3,8 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { BrowserWindow } from 'electron';
+import fs from 'fs';
 import { cloneDeep } from 'lodash-es';
+import path from 'path';
 
+import { faker } from '../../../testing/Faker';
 import { openFileFromCliOrEnvVariableIfProvided } from '../openFileFromCliOrEnvVariableIfProvided';
 import {
   queueMacOsOpenFile,
@@ -162,5 +165,72 @@ describe('openFileFromEnvVariable', () => {
       inputFileName,
       updateMenu,
     ]);
+  });
+});
+
+describe('getReopenFilePath option', () => {
+  beforeEach(() => {
+    process.argv = ['app'];
+    mockHandleOpeningFile.mockClear();
+    resetMacOsOpenFileHandlingForTests();
+  });
+
+  it('reopens the provided file if no other file was provided', async () => {
+    const lastFileName = faker.outputPath(`${faker.string.uuid()}.opossum`);
+    fs.mkdirSync(path.dirname(lastFileName), { recursive: true });
+    fs.writeFileSync(lastFileName, 'opossum');
+
+    const updateMenu = vi.fn();
+    await openFileFromCliOrEnvVariableIfProvided(
+      'mockBrowserWindow' as unknown as BrowserWindow,
+      updateMenu,
+      { getReopenFilePath: () => lastFileName },
+    );
+
+    expect(mockHandleOpeningFile).toHaveBeenCalledWith([
+      'mockBrowserWindow',
+      lastFileName,
+      updateMenu,
+    ]);
+  });
+
+  it('prefers a CLI provided file over the reopen file', async () => {
+    const reopenFileName = '/path/lastFile.opossum';
+    const inputFileName = 'path/to/file/inputfile.opossum';
+    process.argv.push(inputFileName);
+
+    const updateMenu = vi.fn();
+    await openFileFromCliOrEnvVariableIfProvided(
+      'mockBrowserWindow' as unknown as BrowserWindow,
+      updateMenu,
+      { getReopenFilePath: () => reopenFileName },
+    );
+
+    expect(mockHandleOpeningFile).toHaveBeenCalledWith([
+      'mockBrowserWindow',
+      inputFileName,
+      updateMenu,
+    ]);
+  });
+
+  it('does not reopen a non-existing file', async () => {
+    const updateMenu = vi.fn();
+    await openFileFromCliOrEnvVariableIfProvided(
+      'mockBrowserWindow' as unknown as BrowserWindow,
+      updateMenu,
+      { getReopenFilePath: () => '/path/lastFile.opossum' },
+    );
+
+    expect(mockHandleOpeningFile).not.toHaveBeenCalled();
+  });
+
+  it('does not reopen when the option is not set', async () => {
+    const updateMenu = vi.fn();
+    await openFileFromCliOrEnvVariableIfProvided(
+      'mockBrowserWindow' as unknown as BrowserWindow,
+      updateMenu,
+    );
+
+    expect(mockHandleOpeningFile).not.toHaveBeenCalled();
   });
 });
