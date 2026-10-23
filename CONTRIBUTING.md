@@ -219,3 +219,11 @@ Release runs are serialized. The workflow rejects a version that would not be ne
 If preparation, a build, or an upload fails, use **Re-run failed jobs** or **Re-run all jobs** on the original workflow run. The draft records the workflow run ID and pinned commit, so retries reuse the same tag and commit even after midnight or after the branch has moved. Keep the draft and its run marker in the release notes intact until the release is complete. Starting a new workflow run prepares a separate release.
 
 Retries can replace assets only while the release is a draft. Re-running preparation for an already published release skips builds and uploads and treats publication as complete. If only performance testing fails, retry that job; the release is already published.
+
+### Testing automatic updates on Linux and Windows
+
+To test automatic updates, set the packaged version to an old version with
+
+```sh
+yarn ship:auto -c.extraMetadata.version=2026.1020.0
+```

@@ -24,6 +24,7 @@ vi.mock('electron', () => ({
   BrowserWindow: { getAllWindows: vi.fn(() => []) },
   net: { fetch: vi.fn() },
 }));
+vi.mock('../installer-updater', () => ({ supportsInstallation: () => false }));
 vi.mock('../logger', () => ({
   default: { info: vi.fn(), warn: vi.fn() },
 }));
@@ -33,7 +34,7 @@ const originalArchitecture = Object.getOwnPropertyDescriptor(process, 'arch');
 
 describe('update service release tags', () => {
   beforeEach(() => {
-    initializeUpdateService('OpossumUI-2026-10-20');
+    initializeUpdateService('2026.1020.0');
     setPackaged(true);
     vi.stubEnv('APPIMAGE', '/app');
     vi.stubEnv('SNAP', '');
@@ -67,11 +68,11 @@ describe('update service release tags', () => {
     await checkForUpdates();
     expect(getUpdateState().status).toBe('available');
 
-    initializeUpdateService('OpossumUI-2027-01-02');
+    initializeUpdateService('2027.102.0');
     expect(getUpdateState()).toEqual({ status: 'checking' });
     await expect(checkForUpdates()).resolves.toEqual({
       status: 'up-to-date',
-      installedTag: 'OpossumUI-2027-01-02',
+      installedTag: '2027.102.0',
     });
   });
 
@@ -95,7 +96,7 @@ describe('update service release tags', () => {
     await checkForUpdates();
     expect(vi.getTimerCount()).toBe(1);
 
-    initializeUpdateService('OpossumUI-2026-10-21');
+    initializeUpdateService('2026.1021.0');
     expect(vi.getTimerCount()).toBe(0);
     await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
     expect(net.fetch).toHaveBeenCalledTimes(1);
@@ -119,7 +120,7 @@ describe('update service release tags', () => {
     response.resolve(releaseResponse(upToDateRelease()));
     await expect(pending).resolves.toEqual({
       status: 'up-to-date',
-      installedTag: 'OpossumUI-2026-10-20',
+      installedTag: '2026.1020.0',
     });
     expect(vi.getTimerCount()).toBe(1);
     await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
@@ -180,11 +181,11 @@ describe('update service release tags', () => {
     } as Response);
     await expect(firstCheck).resolves.toEqual({
       status: 'up-to-date',
-      installedTag: 'OpossumUI-2026-10-20',
+      installedTag: '2026.1020.0',
     });
     await expect(secondCheck).resolves.toEqual({
       status: 'up-to-date',
-      installedTag: 'OpossumUI-2026-10-20',
+      installedTag: '2026.1020.0',
     });
     expect(send).toHaveBeenCalledTimes(2);
     expect(send).toHaveBeenNthCalledWith(
@@ -195,7 +196,7 @@ describe('update service release tags', () => {
     expect(send).toHaveBeenNthCalledWith(
       2,
       AllowedFrontendChannels.UpdateStateChanged,
-      { status: 'up-to-date', installedTag: 'OpossumUI-2026-10-20' },
+      { status: 'up-to-date', installedTag: '2026.1020.0' },
     );
     timeout.mockRestore();
   });
@@ -575,17 +576,17 @@ describe('update service release tags', () => {
 
     await expect(checkForUpdates()).resolves.toEqual({
       status: 'up-to-date',
-      installedTag: 'OpossumUI-2026-10-20',
+      installedTag: '2026.1020.0',
     });
 
     expect(getUpdateState()).toEqual({
       status: 'up-to-date',
-      installedTag: 'OpossumUI-2026-10-20',
+      installedTag: '2026.1020.0',
     });
     expect(send).toHaveBeenNthCalledWith(
       2,
       AllowedFrontendChannels.UpdateStateChanged,
-      { status: 'up-to-date', installedTag: 'OpossumUI-2026-10-20' },
+      { status: 'up-to-date', installedTag: '2026.1020.0' },
     );
     expect(JSON.stringify(send.mock.calls)).not.toContain('preparing');
     expect(JSON.stringify(send.mock.calls)).not.toContain('2027-01-02');

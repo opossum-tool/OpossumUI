@@ -89,6 +89,9 @@ const electronAPI: ElectronAPI = {
     ipcRenderer.invoke(IpcChannel.GetMacArchitectureMismatch),
   getUpdateState: () => ipcRenderer.invoke(IpcChannel.GetUpdateState),
   checkForUpdates: () => ipcRenderer.invoke(IpcChannel.CheckForUpdates),
+  downloadUpdate: (tag: string) =>
+    ipcRenderer.invoke(IpcChannel.DownloadUpdate, tag),
+  restartAndUpdate: () => ipcRenderer.invoke(IpcChannel.RestartAndUpdate),
 };
 
 // This exposes an API to communicate from the window in the frontend with the backend

@@ -275,4 +275,15 @@ export default tseslint.config(
       'testing-library/prefer-presence-queries': 'off',
     },
   },
+  {
+    // Release scripts exceed projectService's small default-project file cap.
+    // Typecheck all tool scripts through the existing dedicated config.
+    files: ['tools/*.mjs'],
+    languageOptions: {
+      parserOptions: {
+        projectService: false,
+        project: './tsconfig.eslint.json',
+      },
+    },
+  },
 );

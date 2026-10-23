@@ -29,6 +29,8 @@ export enum IpcChannel {
   GetMacArchitectureMismatch = 'get-mac-architecture-mismatch',
   GetUpdateState = 'get-update-state',
   CheckForUpdates = 'check-for-updates',
+  DownloadUpdate = 'download-update',
+  RestartAndUpdate = 'restart-and-update',
   Quit = 'quit',
   Relaunch = 'relaunch',
 }

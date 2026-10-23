@@ -10,7 +10,9 @@ import type {
   PackageInfo,
   SplitFileResult,
 } from '../../../../shared/shared-types';
-import type { View } from '../../../enums/enums';
+import { text } from '../../../../shared/text';
+import { toast } from '../../../Components/Toaster';
+import { PopupType, type View } from '../../../enums/enums';
 import { invalidateBackendQueries } from '../../../util/backendClient';
 import {
   getIsPackageInfoDirty,
@@ -22,6 +24,7 @@ import {
   getImportFileRequest,
   getMergeOpossumFilesRequest,
   getOpenFileRequest,
+  getOpenPopup,
   getSplitFileRequest,
   getTargetView,
 } from '../../selectors/view-selector';
@@ -62,18 +65,37 @@ import {
 function withUnsavedCheck({
   executeImmediately,
   requestContinuation,
+  continuation,
 }: {
   executeImmediately: AppThunkAction;
-  requestContinuation: AppThunkAction;
+  requestContinuation?: AppThunkAction;
+  continuation?: 'restart-and-update';
 }): AppThunkAction {
   return (dispatch, getState) => {
     if (getIsPackageInfoDirty(getState())) {
-      dispatch(requestContinuation);
-      dispatch(openNotSavedPopup());
+      if (requestContinuation) {
+        dispatch(requestContinuation);
+      }
+      dispatch(openNotSavedPopup(undefined, continuation));
     } else {
       dispatch(executeImmediately);
     }
   };
+}
+
+export function restartAndUpdateOrOpenUnsavedPopup(): AppThunkAction {
+  return withUnsavedCheck({
+    executeImmediately: restartAndUpdate,
+    continuation: 'restart-and-update',
+  });
+}
+
+function restartAndUpdate(): void {
+  void window.electronAPI.restartAndUpdate().catch((error: unknown) => {
+    toast.error(
+      error instanceof Error ? error.message : text.updateApp.restartFailed,
+    );
+  });
 }
 
 export function navigateToSelectedPathOrOpenUnsavedPopup(
@@ -269,6 +291,7 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
         getState().resourceState.originalDisplayPackageInfo,
       ),
     );
+    const popup = getOpenPopup(getState());
     const targetView = getTargetView(getState());
     const openFileRequest = getOpenFileRequest(getState());
     const importFileRequest = getImportFileRequest(getState());
@@ -279,6 +302,14 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
       getTargetAttributionFilterChange(getState());
 
     dispatch(closePopup());
+
+    if (
+      popup?.popup === PopupType.NotSavedPopup &&
+      popup.continuation === 'restart-and-update'
+    ) {
+      restartAndUpdate();
+      return;
+    }
 
     if (openFileRequest) {
       if (openFileRequest.kind === 'path') {

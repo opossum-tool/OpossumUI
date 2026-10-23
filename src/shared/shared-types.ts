@@ -345,6 +345,8 @@ export interface ElectronAPI {
   getMacArchitectureMismatch: () => Promise<boolean>;
   getUpdateState: () => Promise<UpdateState>;
   checkForUpdates: () => Promise<UpdateState>;
+  downloadUpdate: (tag: string) => Promise<UpdateState>;
+  restartAndUpdate: () => Promise<void>;
   api: <C extends CommandName>(
     command: C,
     params: CommandParams<C>,
@@ -354,10 +356,15 @@ export interface ElectronAPI {
 export type UpdateState =
   | { status: 'checking' }
   | { status: 'up-to-date'; installedTag: string }
-  | { status: 'available'; tag: string; url: string }
+  | { status: 'available'; tag: string; url: string; canInstall?: boolean }
+  | { status: 'downloading'; tag: string; percent: number }
+  | { status: 'downloaded'; tag: string; error?: string }
+  | { status: 'restarting'; tag: string }
   | {
       status: 'error';
       reason?: 'unsupported-installation' | 'unknown-installed-version';
+      retry?: 'check' | 'download';
+      message?: string;
     };
 
 declare global {

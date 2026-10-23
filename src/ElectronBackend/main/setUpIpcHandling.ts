@@ -25,7 +25,12 @@ import {
 } from './listeners';
 import { getMacArchitectureMismatch } from './mac-architecture';
 import { ProcessingStatusUpdater } from './ProcessingStatusUpdater';
-import { checkForUpdates, getUpdateState } from './update-service';
+import {
+  checkForUpdates,
+  downloadUpdate,
+  getUpdateState,
+  installDownloadedUpdate,
+} from './update-service';
 import { UserSettingsService } from './user-settings-service';
 
 export function setupIpcHandling(
@@ -89,6 +94,10 @@ export function setupIpcHandling(
       app.runningUnderARM64Translation,
     ),
   );
+  ipcMain.handle(IpcChannel.RestartAndUpdate, installDownloadedUpdate);
   ipcMain.handle(IpcChannel.GetUpdateState, getUpdateState);
   ipcMain.handle(IpcChannel.CheckForUpdates, checkForUpdates);
+  ipcMain.handle(IpcChannel.DownloadUpdate, (_, tag: string) =>
+    downloadUpdate(tag),
+  );
 }

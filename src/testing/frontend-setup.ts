@@ -41,6 +41,8 @@ global.window.electronAPI = {
   getMacArchitectureMismatch: vi.fn().mockResolvedValue(false),
   getUpdateState: vi.fn().mockResolvedValue({ status: 'checking' }),
   checkForUpdates: vi.fn().mockResolvedValue({ status: 'checking' }),
+  downloadUpdate: vi.fn().mockResolvedValue({ status: 'checking' }),
+  restartAndUpdate: vi.fn().mockResolvedValue(undefined),
   api: vi.fn().mockImplementation(unexpectedBackendCall),
 } satisfies ElectronAPI;
 

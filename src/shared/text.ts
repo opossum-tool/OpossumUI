@@ -295,16 +295,26 @@ export const text = {
     incomplete: 'This field is required',
   },
   updateApp: {
+    downloading: (percent: number) =>
+      `Downloading update: ${Math.floor(percent)}%`,
+    restart: 'Restart and update',
+    ready: 'Update ready to install',
+    downloadUpdate: 'Download update',
+    downloadFailed: 'Could not start the download. Please try again.',
+    restarting: 'Restarting…',
+    restartFailed: 'Could not restart to install the update. Please try again.',
+    retry: 'Retry',
+
     fetchFailed: 'Could not check for updates. Please try again later.',
     unsupportedInstallation:
       'Update checks aren’t supported for this installation.',
     unknownInstalledVersion: 'Could not determine the installed version.',
     viewReleases: 'View releases',
-    loading: 'Loading…',
+    loading: 'Checking for updates…',
     noUpdateAvailable: 'OpossumUI is up to date.',
     title: 'Check for Updates',
     available: (tag: string) =>
-      `A new version of OpossumUI (${tag}) is available:`,
+      `OpossumUI ${tag.replace(/^OpossumUI-/, '')} is available`,
     dismissed: 'Dismiss update notification',
     download: 'Download',
   },
