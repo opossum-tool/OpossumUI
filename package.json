@@ -88,7 +88,7 @@
     "eslint-plugin-playwright": "2.12.1",
     "eslint-plugin-testing-library": "7.16.2",
     "globals": "17.13.0",
-    "happy-dom": "21.0.3",
+    "happy-dom": "21.0.4",
     "husky": "9.1.7",
     "knip": "6.42.1",
     "kysely-codegen": "0.20.0",
