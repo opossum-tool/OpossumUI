@@ -2633,10 +2633,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/chroma-js@npm:3.1.2":
-  version: 3.1.2
-  resolution: "@types/chroma-js@npm:3.1.2"
-  checksum: 10/f94b9c398d026198c2840bd5dc7243cd0f6ace7f18843b8cdb91946be909b527455da23c1ed55a3fd46f42f57f8ec8b1f304620d3444389c5cc87fb5d3f6e3c2
+"@types/chroma-js@npm:3.1.3":
+  version: 3.1.3
+  resolution: "@types/chroma-js@npm:3.1.3"
+  checksum: 10/f5f80540baea78518c2dba651b64e78bbe681c265310987f767d7f49db46c6b90b191a3b1ced321095230b07a8f1136c5baa3db0d7ad2a4ba0aadf7f9f5a62c6
   languageName: node
   linkType: hard
 
@@ -6795,7 +6795,7 @@ __metadata:
     "@trivago/prettier-plugin-sort-imports": "npm:6.0.2"
     "@types/babel__core": "npm:7.20.5"
     "@types/better-sqlite3": "npm:9.6.0"
-    "@types/chroma-js": "npm:3.1.2"
+    "@types/chroma-js": "npm:3.1.3"
     "@types/lodash-es": "npm:4.17.12"
     "@types/node": "npm:24.10.9"
     "@types/object-hash": "npm:3.0.6"
