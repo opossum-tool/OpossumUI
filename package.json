@@ -80,7 +80,7 @@
     "dotenv": "18.0.8",
     "dpdm": "4.3.0",
     "electron": "44.9.3",
-    "electron-builder": "26.15.3",
+    "electron-builder": "26.18.0",
     "electron-playwright-helpers": "3.1.2",
     "eslint": "10.13.0",
     "eslint-plugin-check-file": "3.3.2",
