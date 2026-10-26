@@ -87,6 +87,7 @@ const electronAPI: ElectronAPI = {
     ipcRenderer.invoke(IpcChannel.SetFrontendPopupOpen, open),
   getMacArchitectureMismatch: () =>
     ipcRenderer.invoke(IpcChannel.GetMacArchitectureMismatch),
+  getAppVersion: () => ipcRenderer.invoke(IpcChannel.GetAppVersion),
   getUpdateState: () => ipcRenderer.invoke(IpcChannel.GetUpdateState),
   checkForUpdates: () => ipcRenderer.invoke(IpcChannel.CheckForUpdates),
   downloadUpdate: (tag: string) =>

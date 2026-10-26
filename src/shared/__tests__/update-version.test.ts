@@ -5,12 +5,25 @@
 import { versionParts } from '../../../tools/release-version.mjs';
 import {
   compareReleaseTags,
+  formatReleaseTag,
   numericReleaseVersion,
   parseInstalledVersion,
   parseReleaseTag,
 } from '../update-version';
 
 describe('installed update versions', () => {
+  it.each([
+    ['2026.1023.0', 'OpossumUI-2026-10-23'],
+    ['2026.1023.12', 'OpossumUI-2026-10-23.12'],
+    ['2026.102.1', 'OpossumUI-2026-01-02.1'],
+  ])('formats %s as %s', (version, tag) => {
+    const parsed = parseInstalledVersion(version)!;
+
+    expect(formatReleaseTag(parsed)).toBe(tag);
+    expect(parseReleaseTag(tag)).toEqual(parsed);
+    expect(numericReleaseVersion(parsed)).toBe(version);
+  });
+
   it.each([
     '0.1.0',
     '0.0.0',

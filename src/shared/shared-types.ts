@@ -343,6 +343,7 @@ export interface ElectronAPI {
   updateUserSettings: (userSettings: Partial<UserSettings>) => Promise<void>;
   setFrontendPopupOpen: (open: boolean) => Promise<void>;
   getMacArchitectureMismatch: () => Promise<boolean>;
+  getAppVersion: () => Promise<string>;
   getUpdateState: () => Promise<UpdateState>;
   checkForUpdates: () => Promise<UpdateState>;
   downloadUpdate: (tag: string) => Promise<UpdateState>;

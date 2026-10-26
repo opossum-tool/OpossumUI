@@ -38,6 +38,16 @@ export function numericReleaseVersion(version: ReleaseVersion): string {
   return `${version.year}.${version.month * DATE_FACTOR + version.day}.${version.revision}`;
 }
 
+export function formatReleaseTag({
+  year,
+  month,
+  day,
+  revision,
+}: ReleaseVersion): string {
+  const tag = `OpossumUI-${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  return revision ? `${tag}.${revision}` : tag;
+}
+
 export function parseInstalledVersion(
   version: string,
 ): ReleaseVersion | undefined {
@@ -49,7 +59,12 @@ export function parseInstalledVersion(
   const month = Math.floor(Number(date) / DATE_FACTOR);
   const day = Number(date) % DATE_FACTOR;
   return parseReleaseTag(
-    `OpossumUI-${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}.${revision}`,
+    formatReleaseTag({
+      year: Number(year),
+      month,
+      day,
+      revision: Number(revision),
+    }),
   );
 }
 

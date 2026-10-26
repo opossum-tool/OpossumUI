@@ -6,6 +6,7 @@ import { app, type BrowserWindow, ipcMain } from 'electron';
 
 import { IpcChannel } from '../../shared/ipc-channels';
 import type { UserSettings } from '../../shared/shared-types';
+import { getAppVersion } from './app-version';
 import { getGlobalBackendState } from './globalBackendState';
 import {
   exportFileListener,
@@ -96,6 +97,7 @@ export function setupIpcHandling(
   );
   ipcMain.handle(IpcChannel.RestartAndUpdate, installDownloadedUpdate);
   ipcMain.handle(IpcChannel.GetUpdateState, getUpdateState);
+  ipcMain.handle(IpcChannel.GetAppVersion, getAppVersion);
   ipcMain.handle(IpcChannel.CheckForUpdates, checkForUpdates);
   ipcMain.handle(IpcChannel.DownloadUpdate, (_, tag: string) =>
     downloadUpdate(tag),
