@@ -6770,7 +6770,6 @@ __metadata:
     react-virtuoso: "npm:4.18.19"
     recharts: "npm:3.10.1"
     rolldown: "npm:1.2.15"
-    run-script-os: "npm:1.1.6"
     spdx-license-ids: "npm:3.0.24"
     stream-json: "npm:3.7.0"
     tsx: "npm:4.23.15"
@@ -7786,16 +7785,6 @@ __metadata:
   bin:
     rolldown: ./bin/cli.mjs
   checksum: 10/06e5ff665376c4318f441df2224a90b05af4ef3afb056b5b001c502eb54ab5b9673f916c3b7700e4285161a1d59c59b3b48150c2ea27afcc802b45cc63f8366e
-  languageName: node
-  linkType: hard
-
-"run-script-os@npm:1.1.6":
-  version: 1.1.6
-  resolution: "run-script-os@npm:1.1.6"
-  bin:
-    run-os: index.js
-    run-script-os: index.js
-  checksum: 10/b6c478ebb7aff9914eb5b9aa2aec54ea81a3a210b0dfd0fb0f4e37cd4a802fcc1dd2cd134301713fcdc4e2cf783052c0a2194da8e96e0d4aad9d4fb9317da5b5
   languageName: node
   linkType: hard
 
