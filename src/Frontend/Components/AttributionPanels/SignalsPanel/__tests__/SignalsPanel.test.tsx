@@ -79,7 +79,7 @@ describe('SignalsPanel', () => {
         metadata: faker.opossum.metadata(),
       }),
       actions: [
-        setSelectedResourceId(ROOT_PATH),
+        setSelectedResourceId(ROOT_PATH, 'auto'),
         setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
           mode: 'explicit',
           attributionUuids: [sourcePackageInfo.id],
@@ -108,7 +108,7 @@ describe('SignalsPanel', () => {
         metadata: faker.opossum.metadata(),
       }),
       actions: [
-        setSelectedResourceId(ROOT_PATH),
+        setSelectedResourceId(ROOT_PATH, 'auto'),
         setVariable(COMPARE_SELECTION_SOURCE, sourcePackageInfo.id),
       ],
     });
@@ -311,7 +311,7 @@ describe('SignalsPanel', () => {
         resources: pathsToResources([filePath]),
         metadata: faker.opossum.metadata(),
       }),
-      actions: [setSelectedResourceId(filePath)],
+      actions: [setSelectedResourceId(filePath, 'auto')],
     });
 
     await userEvent.click(
@@ -405,7 +405,7 @@ describe('SignalsPanel', () => {
         },
         metadata: faker.opossum.metadata(),
       }),
-      actions: [setSelectedResourceId('/root/child')],
+      actions: [setSelectedResourceId('/root/child', 'auto')],
     });
 
     await userEvent.click(
@@ -447,7 +447,7 @@ describe('SignalsPanel', () => {
         },
         metadata: faker.opossum.metadata(),
       }),
-      actions: [setSelectedResourceId('/root/child')],
+      actions: [setSelectedResourceId('/root/child', 'auto')],
     });
 
     await userEvent.click(
@@ -582,7 +582,7 @@ describe('SignalsPanel', () => {
         },
         metadata: faker.opossum.metadata(),
       }),
-      actions: [setSelectedResourceId('/root/child')],
+      actions: [setSelectedResourceId('/root/child', 'auto')],
     });
 
     await userEvent.click(

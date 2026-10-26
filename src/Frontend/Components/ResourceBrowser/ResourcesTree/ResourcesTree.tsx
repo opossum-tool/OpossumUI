@@ -48,7 +48,7 @@ export const ResourcesTree = ({ resources, sx, expansionFilters }: Props) => {
 
   useEffect(() => {
     if (!selectedResourceId) {
-      dispatch(setSelectedResourceId(ROOT_PATH));
+      dispatch(setSelectedResourceId(ROOT_PATH, 'auto'));
     }
   }, [dispatch, selectedResourceId]);
 

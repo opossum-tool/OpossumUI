@@ -101,7 +101,9 @@ describe('BackendCommunication', () => {
     it('keeps the resource state when the database is initialized', async () => {
       const listeners = setupListeners();
       const { store } = await renderComponent(<BackendCommunication />, {
-        actions: [setSelectedResourceId('/some/resource/in/the/current/file')],
+        actions: [
+          setSelectedResourceId('/some/resource/in/the/current/file', 'auto'),
+        ],
       });
 
       act(() => {

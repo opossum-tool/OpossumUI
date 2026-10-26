@@ -52,7 +52,6 @@ import {
   setTemporaryDisplayPackageInfo,
 } from '../../resource-actions/all-views-simple-actions';
 import {
-  setAttributionSelectionPending,
   setSelectedAttributionId,
   setSelectedResourceId,
   setTargetSelectedAttributionId,
@@ -96,9 +95,8 @@ describe.each([
     'applies %s selection and replaces pending navigation',
     (policy) => {
       const store = createAppStore();
-      store.dispatch(setSelectedResourceId('/origin/'));
+      store.dispatch(setSelectedResourceId('/origin/', 'auto'));
       store.dispatch(setSelectedAttributionId('reviewed-attribution'));
-      store.dispatch(setAttributionSelectionPending('/origin/'));
 
       store.dispatch(navigate('/', policy));
 
@@ -118,7 +116,7 @@ describe.each([
     (policy) => {
       const store = createAppStore();
       const attribution = faker.opossum.packageInfo();
-      store.dispatch(setSelectedResourceId('/origin/'));
+      store.dispatch(setSelectedResourceId('/origin/', 'preserve'));
       store.dispatch(setSelectedAttributionId(attribution.id));
       store.dispatch(initializePackageInfoEditing(attribution));
       store.dispatch(
@@ -151,7 +149,7 @@ describe.each([
     (policy) => {
       const store = createAppStore();
       const attribution = faker.opossum.packageInfo();
-      store.dispatch(setSelectedResourceId('/origin/'));
+      store.dispatch(setSelectedResourceId('/origin/', 'preserve'));
       store.dispatch(setSelectedAttributionId(attribution.id));
       store.dispatch(initializePackageInfoEditing(attribution));
       store.dispatch(
@@ -178,7 +176,7 @@ describe('mergeOpossumFilesIntoCurrentFile', () => {
       '/partitions/second.opossum',
     ];
     const testStore = createAppStore();
-    testStore.dispatch(setSelectedResourceId('/selected-resource'));
+    testStore.dispatch(setSelectedResourceId('/selected-resource', 'auto'));
     testStore.dispatch(setSelectedAttributionId('selected-attribution'));
     vi.mocked(window.electronAPI.mergeOpossumFiles).mockResolvedValue({
       status: 'success',
@@ -336,7 +334,7 @@ describe('The actions checking for unsaved changes', () => {
           }),
         );
 
-        testStore.dispatch(setSelectedResourceId('selectedResource'));
+        testStore.dispatch(setSelectedResourceId('selectedResource', 'auto'));
         testStore.dispatch(navigateToView(View.Audit));
 
         await backend.createOrMatchAttributions.mutate({
@@ -403,7 +401,7 @@ describe('The actions checking for unsaved changes', () => {
         }),
       );
 
-      testStore.dispatch(setSelectedResourceId('selectedResource'));
+      testStore.dispatch(setSelectedResourceId('selectedResource', 'auto'));
       testStore.dispatch(setSelectedAttributionId('uuid_2'));
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(
@@ -445,7 +443,7 @@ describe('The actions checking for unsaved changes', () => {
     it('opens unsaved-popup', () => {
       const testStore = createAppStore();
       testStore.dispatch(navigateToView(View.Report));
-      testStore.dispatch(setSelectedResourceId('/testId/'));
+      testStore.dispatch(setSelectedResourceId('/testId/', 'auto'));
       testStore.dispatch(
         setTemporaryDisplayPackageInfo({
           packageName: 'new Name',
@@ -519,7 +517,7 @@ describe('The actions checking for unsaved changes', () => {
           resourcesToManualAttributions: testResourcesToManualAttributions,
         }),
       );
-      testStore.dispatch(setSelectedResourceId('/root/'));
+      testStore.dispatch(setSelectedResourceId('/root/', 'auto'));
       expect(getSelectedResourceId(testStore.getState())).toBe('/root/');
       testStore.dispatch(
         setSelectedResourceIdOrOpenUnsavedPopup('/thirdParty/', 'auto'),
@@ -535,7 +533,7 @@ describe('The actions checking for unsaved changes', () => {
           resourcesToManualAttributions: testResourcesToManualAttributions,
         }),
       );
-      testStore.dispatch(setSelectedResourceId('/root/'));
+      testStore.dispatch(setSelectedResourceId('/root/', 'auto'));
       testStore.dispatch(
         setTemporaryDisplayPackageInfo({
           packageName: 'new Name',
@@ -722,7 +720,7 @@ describe('The actions checking for unsaved changes', () => {
 describe('proceedFromUnsavedPopup', () => {
   function prepareTestState(): State {
     const testStore = createAppStore();
-    testStore.dispatch(setSelectedResourceId('selectedResource'));
+    testStore.dispatch(setSelectedResourceId('selectedResource', 'auto'));
     testStore.dispatch(
       setTemporaryDisplayPackageInfo({
         packageName: 'Test',

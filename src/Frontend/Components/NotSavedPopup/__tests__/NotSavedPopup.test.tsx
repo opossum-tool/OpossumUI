@@ -46,7 +46,7 @@ describe('NotSavedPopup', () => {
       actions: [
         openPopup(PopupType.NotSavedPopup),
         setSelectedAttributionId(currentAttributionId),
-        setSelectedResourceId(currentResourceId),
+        setSelectedResourceId(currentResourceId, 'auto'),
         setTargetSelectedAttributionId(targetAttributionId),
         setTargetSelectedResourceId(targetResourceId),
         setTargetView(targetView),
@@ -80,7 +80,7 @@ describe('NotSavedPopup', () => {
       actions: [
         openPopup(PopupType.NotSavedPopup),
         setSelectedAttributionId(currentAttributionId),
-        setSelectedResourceId(currentResourceId),
+        setSelectedResourceId(currentResourceId, 'auto'),
         setTargetSelectedAttributionId(targetAttributionId),
         setTargetSelectedResourceId(targetResourceId),
         setTargetView(targetView),

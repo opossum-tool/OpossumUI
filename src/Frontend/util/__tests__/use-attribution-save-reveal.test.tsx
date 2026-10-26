@@ -15,7 +15,7 @@ import { useAttributionSaveReveal } from '../use-attribution-save-reveal';
 describe('useAttributionSaveReveal', () => {
   it('publishes a successful save for the selected attribution and resource', () => {
     const store = createAppStore();
-    store.dispatch(setSelectedResourceId('/selected-resource'));
+    store.dispatch(setSelectedResourceId('/selected-resource', 'auto'));
     store.dispatch(setSelectedAttributionId('saved-attribution'));
     const { result } = renderHook(() => useAttributionSaveReveal(), {
       wrapper: ({ children }) => <Provider store={store}>{children}</Provider>,
@@ -52,7 +52,7 @@ describe('useAttributionSaveReveal', () => {
 
   it('uses the resulting attribution ID after a save merges attributions', () => {
     const store = createAppStore();
-    store.dispatch(setSelectedResourceId('/selected-resource'));
+    store.dispatch(setSelectedResourceId('/selected-resource', 'auto'));
     store.dispatch(setSelectedAttributionId('matching-attribution'));
     const { result } = renderHook(() => useAttributionSaveReveal(), {
       wrapper: ({ children }) => <Provider store={store}>{children}</Provider>,
@@ -83,7 +83,7 @@ describe('useAttributionSaveReveal', () => {
     ['another resource', 'saved-attribution', '/other-resource'],
   ])('does not publish a save for %s', (_description, uuid, resourcePath) => {
     const store = createAppStore();
-    store.dispatch(setSelectedResourceId('/selected-resource'));
+    store.dispatch(setSelectedResourceId('/selected-resource', 'auto'));
     store.dispatch(setSelectedAttributionId('saved-attribution'));
     const { result } = renderHook(() => useAttributionSaveReveal(), {
       wrapper: ({ children }) => <Provider store={store}>{children}</Provider>,

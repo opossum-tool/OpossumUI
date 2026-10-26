@@ -28,7 +28,7 @@ describe('The load and navigation simple actions', () => {
       criticality: Criticality.None,
       id: testManualAttributionUuid_1,
     };
-    testStore.dispatch(setSelectedResourceId('/root/src/something.js'));
+    testStore.dispatch(setSelectedResourceId('/root/src/something.js', 'auto'));
     testStore.dispatch(
       setTemporaryDisplayPackageInfo(testTemporaryDisplayPackageInfo),
     );

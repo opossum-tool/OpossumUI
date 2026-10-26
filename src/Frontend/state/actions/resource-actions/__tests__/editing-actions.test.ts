@@ -27,7 +27,7 @@ describe('acceptSavedPackageInfoEditing', () => {
     };
     const resourceId = '/root/file.ts';
     const store = createAppStore();
-    store.dispatch(setSelectedResourceId(resourceId));
+    store.dispatch(setSelectedResourceId(resourceId, 'auto'));
     store.dispatch(setSelectedAttributionId(attribution.id));
     store.dispatch(initializePackageInfoEditing(attribution));
     store.dispatch(setTemporaryDisplayPackageInfo(submittedPackageInfo));
@@ -65,7 +65,7 @@ describe('acceptSavedPackageInfoEditing', () => {
       if (changedContext === 'attribution') {
         store.dispatch(setSelectedAttributionId(faker.string.uuid()));
       } else if (changedContext === 'resource') {
-        store.dispatch(setSelectedResourceId('/other/file.ts'));
+        store.dispatch(setSelectedResourceId('/other/file.ts', 'auto'));
       } else {
         store.dispatch(
           setTemporaryDisplayPackageInfo({

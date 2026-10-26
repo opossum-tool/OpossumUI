@@ -84,7 +84,7 @@ describe('AttributionsPanel', () => {
         },
         readonlyRules: [{ path: '/readonly', readonly: true }],
       }),
-      actions: [setSelectedResourceId(readonlyResource)],
+      actions: [setSelectedResourceId(readonlyResource, 'auto')],
     });
 
     const card = await screen.findByLabelText(
@@ -148,7 +148,7 @@ describe('AttributionsPanel', () => {
           [resourceId]: [packageInfo1.id, packageInfo2.id],
         },
       }),
-      actions: [setSelectedResourceId(resourceId)],
+      actions: [setSelectedResourceId(resourceId, 'auto')],
     });
 
     expect(
@@ -291,7 +291,7 @@ describe('AttributionsPanel', () => {
         },
         metadata: faker.opossum.metadata(),
       }),
-      actions: [setSelectedResourceId(filePath)],
+      actions: [setSelectedResourceId(filePath, 'auto')],
     });
 
     await userEvent.click(
@@ -321,7 +321,7 @@ describe('AttributionsPanel', () => {
         attributionBreakpoints: new Set([filePath]),
         metadata: faker.opossum.metadata(),
       }),
-      actions: [setSelectedResourceId(filePath)],
+      actions: [setSelectedResourceId(filePath, 'auto')],
     });
 
     await userEvent.click(

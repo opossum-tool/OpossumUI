@@ -18,7 +18,7 @@ describe('The PathBar', () => {
 
     const { store } = await renderComponent(<PathBar />);
     act(() => {
-      store.dispatch(setSelectedResourceId(testPath));
+      store.dispatch(setSelectedResourceId(testPath, 'auto'));
     });
 
     pathElements.forEach((element) => {
@@ -36,7 +36,7 @@ describe('The PathBar', () => {
 
     const { store } = await renderComponent(<PathBar />);
     act(() => {
-      store.dispatch(setSelectedResourceId(testPath));
+      store.dispatch(setSelectedResourceId(testPath, 'auto'));
     });
 
     fireEvent.click(screen.getByLabelText('copy path'));
@@ -48,7 +48,7 @@ describe('The PathBar', () => {
   it('opens path URL in browser', async () => {
     const testPath = '/test_path/';
     await renderComponent(<PathBar />, {
-      actions: [setSelectedResourceId(testPath)],
+      actions: [setSelectedResourceId(testPath, 'auto')],
       data: getParsedInputFileEnrichedWithTestData({
         resources: { test_path: 1 },
         baseUrlsForSources: {

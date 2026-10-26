@@ -26,7 +26,6 @@ import {
   setTemporaryDisplayPackageInfo,
 } from '../../../../state/actions/resource-actions/all-views-simple-actions';
 import {
-  setAttributionSelectionPending,
   setPendingAttributionNavigation,
   setSelectedAttributionId,
   setSelectedResourceId,
@@ -71,6 +70,7 @@ function mockAttributions(
   visibleAttributions: Attributions = attributions,
   scopeByRelation = true,
   navigationRelation: Relation = 'resource',
+  loading = false,
 ) {
   const relationCounts = Object.values(attributions).reduce<
     Partial<Record<Relation, { visibleCount: number; editableCount: number }>>
@@ -93,10 +93,10 @@ function mockAttributions(
           ),
         )
       : visibleAttributions,
-    loading: false,
+    loading,
     relationCounts,
     hasNextPage: false,
-    isFetching: false,
+    isFetching: loading,
     isFetchingNextPage: false,
     fetchNextPage: vi.fn(() => Promise.resolve()),
     nextPageError: null,
@@ -226,6 +226,61 @@ describe('PackagesPanel', () => {
     });
   });
 
+  it.each(['auto', 'preserve'] as const)(
+    'resolves delayed selection according to the latest %s navigation',
+    async (policy) => {
+      const attribution = faker.opossum.packageInfo({ relation: 'resource' });
+      const attributions = { [attribution.id]: attribution };
+      const { store, rerender } = await renderPackagesPanel({ attributions });
+      mockAttributions({}, {}, true, 'resource', true);
+
+      await act(() =>
+        store.dispatch(setSelectedResourceId('/destination', 'auto')),
+      );
+
+      expect(getAttributionSelectionPendingResourceId(store.getState())).toBe(
+        '/destination',
+      );
+      expect(store.getState().resourceState.selectedAttributionId).toBe('');
+
+      await act(() =>
+        store.dispatch(setSelectedResourceId('/destination', policy)),
+      );
+      rerenderPackagesPanel(rerender, attributions);
+
+      await waitFor(() => {
+        expect(store.getState().resourceState.selectedAttributionId).toBe(
+          policy === 'auto' ? attribution.id : '',
+        );
+        expect(
+          getAttributionSelectionPendingResourceId(store.getState()),
+        ).toBeNull();
+      });
+    },
+  );
+
+  it('selects an ancestor attribution when the resource has none', async () => {
+    const ancestorAttribution = faker.opossum.packageInfo({
+      relation: 'parents',
+    });
+    const { store } = await renderPackagesPanel({
+      attributions: { [ancestorAttribution.id]: ancestorAttribution },
+    });
+
+    await act(() =>
+      store.dispatch(setSelectedResourceId('/destination', 'auto')),
+    );
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        ancestorAttribution.id,
+      );
+      expect(
+        getAttributionSelectionPendingResourceId(store.getState()),
+      ).toBeNull();
+    });
+  });
+
   it('resumes automatic selection when remounted with a pending resource', async () => {
     const resourceAttribution = faker.opossum.packageInfo({
       relation: 'resource',
@@ -235,10 +290,7 @@ describe('PackagesPanel', () => {
       attributions: faker.opossum.attributions({
         [resourceAttribution.id]: resourceAttribution,
       }),
-      actions: [
-        setSelectedResourceId(resource),
-        setAttributionSelectionPending(resource),
-      ],
+      actions: [setSelectedResourceId(resource, 'auto')],
     });
 
     await waitFor(() => {
@@ -255,10 +307,7 @@ describe('PackagesPanel', () => {
     const resource = '/empty-resource';
     const { store } = await renderPackagesPanel({
       attributions: {},
-      actions: [
-        setSelectedResourceId(resource),
-        setAttributionSelectionPending(resource),
-      ],
+      actions: [setSelectedResourceId(resource, 'auto')],
     });
 
     await waitFor(() => {
@@ -280,8 +329,7 @@ describe('PackagesPanel', () => {
         [target.id]: target,
       }),
       actions: [
-        setSelectedResourceId(resource),
-        setAttributionSelectionPending(resource),
+        setSelectedResourceId(resource, 'auto'),
         setSelectedAttributionId(target.id),
         setPendingAttributionNavigation({
           attributionUuid: target.id,
@@ -314,7 +362,9 @@ describe('PackagesPanel', () => {
       visibleAttributions: {},
     });
 
-    await act(() => store.dispatch(setSelectedResourceId('/another-resource')));
+    await act(() =>
+      store.dispatch(setSelectedResourceId('/another-resource', 'auto')),
+    );
 
     await waitFor(() => {
       expect(store.getState().resourceState.selectedAttributionId).toBe('');
@@ -802,7 +852,9 @@ describe('PackagesPanel', () => {
       ).toHaveAttribute('aria-selected', 'true'),
     );
 
-    await act(() => store.dispatch(setSelectedResourceId('/next-resource')));
+    await act(() =>
+      store.dispatch(setSelectedResourceId('/next-resource', 'auto')),
+    );
     rerenderPackagesPanel(rerender, refreshedAttributions, {
       external: true,
       visibleAttributions: {},
@@ -1079,7 +1131,7 @@ describe('PackagesPanel', () => {
       </PackagesPanel>,
       {
         actions: [
-          setSelectedResourceId(resource),
+          setSelectedResourceId(resource, 'auto'),
           setSelectedAttributionId(selectedAttribution.id),
           setPendingAttributionNavigation({
             attributionUuid: selectedAttribution.id,
@@ -1504,7 +1556,9 @@ describe('PackagesPanel', () => {
     await userEvent.click(
       screen.getByRole('tab', { name: new RegExp(text.relations.unrelated) }),
     );
-    await act(() => store.dispatch(setSelectedResourceId('/next-resource')));
+    await act(() =>
+      store.dispatch(setSelectedResourceId('/next-resource', 'auto')),
+    );
 
     expect(
       screen.getByRole('tab', { name: new RegExp(text.relations.resource) }),
@@ -1642,7 +1696,7 @@ test('reveals the refreshed index when query notifications are delayed until aft
     </>,
     {
       actions: [
-        setSelectedResourceId('/selected'),
+        setSelectedResourceId('/selected', 'auto'),
         setSelectedAttributionId(selected.id),
       ],
     },

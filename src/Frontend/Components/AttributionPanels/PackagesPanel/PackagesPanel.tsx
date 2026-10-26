@@ -150,12 +150,6 @@ export const PackagesPanel = ({
   const originalDisplayPackageInfo = useAppSelector(
     getOriginalDisplayPackageInfo,
   );
-  const lastResourceIdWithAutoSelectionRef = useRef(
-    attributionSelectionPendingResourceId === selectedResourceId &&
-      !(pendingAttributionNavigation?.attributionUuid === selectedAttributionId)
-      ? null
-      : selectedResourceId,
-  );
   const previousSelectedResourceId = usePrevious(selectedResourceId);
   const previousSelectedAttributionId = usePrevious(selectedAttributionId);
   const selectedResourceChanged =
@@ -277,17 +271,10 @@ export const PackagesPanel = ({
       navigationRelation === null &&
       selectedResourceId !== pendingAttributionNavigation.fallbackResourcePath
     ) {
-      lastResourceIdWithAutoSelectionRef.current =
-        pendingAttributionNavigation.fallbackResourcePath;
       dispatch(
         openResourceInResourceBrowser(
           pendingAttributionNavigation.fallbackResourcePath,
           'preserve',
-        ),
-      );
-      dispatch(
-        completeAttributionSelection(
-          pendingAttributionNavigation.fallbackResourcePath,
         ),
       );
       return;
@@ -428,25 +415,12 @@ export const PackagesPanel = ({
   }, [dispatch, external, targetAttributionRelation]);
 
   useEffect(() => {
-    const isPendingRootFallback =
-      pendingAttributionNavigation &&
-      pendingNavigationMatches &&
-      !navigationLoading &&
-      navigationRelation === null &&
-      selectedResourceId !== pendingAttributionNavigation.fallbackResourcePath;
-    if (isPendingRootFallback) {
+    if (pendingNavigationMatches) {
       return;
     }
 
     const isAutoSelectionPending =
-      !external &&
-      lastResourceIdWithAutoSelectionRef.current !== selectedResourceId;
-
-    if (isAutoSelectionPending && attributionSelectionPolicy === 'preserve') {
-      lastResourceIdWithAutoSelectionRef.current = selectedResourceId;
-      dispatch(completeAttributionSelection(selectedResourceId));
-      return;
-    }
+      !external && attributionSelectionPendingResourceId === selectedResourceId;
 
     if (isAutoSelectionPending) {
       dispatch(setSelectedAttributionId(''));
@@ -457,7 +431,6 @@ export const PackagesPanel = ({
 
       const visibleAttributionIds = Object.keys(attributions);
       if (visibleAttributionIds.length > 0) {
-        lastResourceIdWithAutoSelectionRef.current = selectedResourceId;
         dispatch(setSelectedAttributionId(visibleAttributionIds[0]));
         dispatch(completeAttributionSelection(selectedResourceId));
         return;
@@ -468,7 +441,6 @@ export const PackagesPanel = ({
       );
       if (closestSelectableRelation === undefined) {
         if (relationCounts !== undefined && !isFetching) {
-          lastResourceIdWithAutoSelectionRef.current = selectedResourceId;
           dispatch(completeAttributionSelection(selectedResourceId));
         }
         return;
@@ -480,7 +452,6 @@ export const PackagesPanel = ({
       }
 
       if (!isFetching) {
-        lastResourceIdWithAutoSelectionRef.current = selectedResourceId;
         dispatch(completeAttributionSelection(selectedResourceId));
       }
       return;
@@ -499,7 +470,6 @@ export const PackagesPanel = ({
       (!navigationLoading || !databaseInitialized) &&
       replacementAttribution &&
       relationIsSettled &&
-      !pendingNavigationMatches &&
       attributionSelectionPolicy !== 'preserve' &&
       !preserveSelection
     ) {
@@ -522,14 +492,12 @@ export const PackagesPanel = ({
     selectedAttributionId,
     selectedAttributionIsExternal,
     navigationLoading,
-    pendingAttributionNavigation,
     attributionSelectionPendingResourceId,
     pendingNavigationMatches,
     selectedResourceId,
     databaseInitialized,
     attributionSelectionPolicy,
     navigationAttributions,
-    navigationRelation,
     preserveSelection,
   ]);
 

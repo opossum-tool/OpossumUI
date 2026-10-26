@@ -27,7 +27,6 @@ import {
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
   completeAttributionSelection,
-  setAttributionSelectionPending,
   setSelectedAttributionId,
   setSelectedResourceId,
 } from '../../../state/actions/resource-actions/audit-view-simple-actions';
@@ -98,7 +97,7 @@ describe('AttributionDetails', () => {
           { path: '/editable', readonly: false },
         ],
       }),
-      actions: [setSelectedResourceId('/')],
+      actions: [setSelectedResourceId('/', 'preserve')],
     });
 
     await waitFor(() => expect(container).toBeEmptyDOMElement());
@@ -115,7 +114,7 @@ describe('AttributionDetails', () => {
         readonlyRules: [{ path: '/readonly', readonly: true }],
       }),
       actions: [
-        setSelectedResourceId(resourcePath),
+        setSelectedResourceId(resourcePath, 'preserve'),
         setSelectedAttributionId(packageInfo.id),
       ],
     });
@@ -151,7 +150,7 @@ describe('AttributionDetails', () => {
         readonlyRules: [{ path: '/readonly', readonly: true }],
       }),
       actions: [
-        setSelectedResourceId(resourcePath),
+        setSelectedResourceId(resourcePath, 'preserve'),
         setSelectedAttributionId(packageInfo.id),
       ],
     });
@@ -191,7 +190,7 @@ describe('AttributionDetails', () => {
         resources: pathsToResources([firstResource, secondResource]),
       }),
       actions: [
-        setSelectedResourceId(firstResource),
+        setSelectedResourceId(firstResource, 'preserve'),
         setSelectedAttributionId(''),
       ],
     });
@@ -202,7 +201,7 @@ describe('AttributionDetails', () => {
     form.scrollTop = 123;
 
     act(() => {
-      store.dispatch(setSelectedResourceId(secondResource));
+      store.dispatch(setSelectedResourceId(secondResource, 'preserve'));
       store.dispatch(setSelectedAttributionId(second.id));
     });
     expect(
@@ -283,7 +282,7 @@ describe('AttributionDetails', () => {
         },
       }),
       actions: [
-        setSelectedResourceId(resourceId),
+        setSelectedResourceId(resourceId, 'preserve'),
         setSelectedAttributionId(packageInfo.id),
       ],
     });
@@ -291,7 +290,7 @@ describe('AttributionDetails', () => {
     await screen.findByDisplayValue(packageInfo.packageName ?? '');
 
     act(() => {
-      store.dispatch(setSelectedResourceId(nextResourceId));
+      store.dispatch(setSelectedResourceId(nextResourceId, 'preserve'));
     });
 
     expect(
@@ -313,7 +312,7 @@ describe('AttributionDetails', () => {
         manualAttributions: { [packageInfo.id]: packageInfo },
       }),
       actions: [
-        setSelectedResourceId('/resource'),
+        setSelectedResourceId('/resource', 'preserve'),
         setSelectedAttributionId(packageInfo.id),
       ],
     });
@@ -327,7 +326,7 @@ describe('AttributionDetails', () => {
     );
     vi.useFakeTimers();
     act(() => {
-      store.dispatch(setAttributionSelectionPending('/resource'));
+      store.dispatch(setSelectedResourceId('/next-resource', 'auto'));
       store.dispatch(setSelectedAttributionId(nextPackageInfo.id));
     });
 
@@ -404,7 +403,7 @@ describe('AttributionDetails', () => {
         resources: pathsToResources([firstResource, secondResource]),
       }),
       actions: [
-        setSelectedResourceId(firstResource),
+        setSelectedResourceId(firstResource, 'preserve'),
         setSelectedAttributionId(first.id),
       ],
     });
@@ -419,8 +418,7 @@ describe('AttributionDetails', () => {
     vi.useFakeTimers();
     try {
       act(() => {
-        store.dispatch(setAttributionSelectionPending(secondResource));
-        store.dispatch(setSelectedResourceId(secondResource));
+        store.dispatch(setSelectedResourceId(secondResource, 'auto'));
         store.dispatch(setSelectedAttributionId(second.id));
       });
       await act(async () => {
@@ -714,7 +712,10 @@ describe('AttributionDetails', () => {
       data: getParsedInputFileEnrichedWithTestData({
         resources: pathsToResources([resource]),
       }),
-      actions: [setSelectedResourceId(resource), setSelectedAttributionId('')],
+      actions: [
+        setSelectedResourceId(resource, 'preserve'),
+        setSelectedAttributionId(''),
+      ],
     });
     await waitForAttributionDetailsReady();
     await act(() =>
@@ -760,7 +761,7 @@ describe('AttributionDetails', () => {
           },
         }),
         actions: [
-          setSelectedResourceId(resource),
+          setSelectedResourceId(resource, 'preserve'),
           setSelectedAttributionId(attribution.id),
         ],
       });
@@ -825,7 +826,7 @@ describe('AttributionDetails', () => {
           },
         }),
         actions: [
-          setSelectedResourceId(resource),
+          setSelectedResourceId(resource, 'preserve'),
           setSelectedAttributionId(attribution.id),
         ],
       });
@@ -854,7 +855,7 @@ describe('AttributionDetails', () => {
         store.dispatch(
           navigation === 'attribution'
             ? setSelectedAttributionId(other.id)
-            : setSelectedResourceId('/other/file.ts'),
+            : setSelectedResourceId('/other/file.ts', 'preserve'),
         ),
       );
       act(() => response.resolve());
@@ -1035,7 +1036,7 @@ describe('AttributionDetails', () => {
         resources: pathsToResources([resourceId, otherResourceId]),
       }),
       actions: [
-        setSelectedResourceId(resourceId),
+        setSelectedResourceId(resourceId, 'preserve'),
         setTemporaryDisplayPackageInfo(packageInfo2),
         setSelectedAttributionId(packageInfo2.id),
       ],
@@ -1077,7 +1078,7 @@ describe('AttributionDetails', () => {
         resources: pathsToResources([resourceId, otherResourceId]),
       }),
       actions: [
-        setSelectedResourceId(resourceId),
+        setSelectedResourceId(resourceId, 'preserve'),
         setSelectedAttributionId(packageInfo2.id),
       ],
     });
@@ -1120,7 +1121,7 @@ describe('AttributionDetails', () => {
         resources: pathsToResources([resourceId]),
       }),
       actions: [
-        setSelectedResourceId(resourceId),
+        setSelectedResourceId(resourceId, 'preserve'),
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
       ],
@@ -1150,7 +1151,7 @@ describe('AttributionDetails', () => {
         resources: pathsToResources([resourceId]),
       }),
       actions: [
-        setSelectedResourceId(resourceId),
+        setSelectedResourceId(resourceId, 'preserve'),
         setTemporaryDisplayPackageInfo(packageInfo1),
         setSelectedAttributionId(packageInfo1.id),
       ],
@@ -1191,7 +1192,7 @@ describe('AttributionDetails', () => {
         resources: pathsToResources([resourceId]),
       }),
       actions: [
-        setSelectedResourceId(resourceId),
+        setSelectedResourceId(resourceId, 'preserve'),
         setSelectedAttributionId(packageInfo1.id),
       ],
     });
@@ -1238,7 +1239,7 @@ describe('AttributionDetails', () => {
         resources: pathsToResources([resourceId]),
       }),
       actions: [
-        setSelectedResourceId(resourceId),
+        setSelectedResourceId(resourceId, 'preserve'),
         setSelectedAttributionId(''),
       ],
     });
@@ -1334,7 +1335,7 @@ describe('AttributionDetails', () => {
         resources: pathsToResources([resourceId]),
       }),
       actions: [
-        setSelectedResourceId(resourceId),
+        setSelectedResourceId(resourceId, 'preserve'),
         setTemporaryDisplayPackageInfo(attribution),
         setSelectedAttributionId(attribution.id),
       ],
@@ -1381,7 +1382,7 @@ describe('AttributionDetails', () => {
         resources: pathsToResources([resourceId]),
       }),
       actions: [
-        setSelectedResourceId(resourceId),
+        setSelectedResourceId(resourceId, 'preserve'),
         setSelectedAttributionId(attribution.id),
       ],
     });
@@ -1417,7 +1418,7 @@ describe('AttributionDetails', () => {
         resources: pathsToResources([resourceId]),
       }),
       actions: [
-        setSelectedResourceId(resourceId),
+        setSelectedResourceId(resourceId, 'preserve'),
         setTemporaryDisplayPackageInfo(packageInfo),
         setSelectedAttributionId(packageInfo.id),
       ],
@@ -1464,7 +1465,7 @@ describe('AttributionDetails', () => {
         resources: pathsToResources([resourceId]),
       }),
       actions: [
-        setSelectedResourceId(resourceId),
+        setSelectedResourceId(resourceId, 'preserve'),
         setSelectedAttributionId(packageInfo.id),
       ],
     });
@@ -1498,7 +1499,7 @@ describe('AttributionDetails', () => {
         resources: pathsToResources([resourceId]),
       }),
       actions: [
-        setSelectedResourceId(resourceId),
+        setSelectedResourceId(resourceId, 'preserve'),
         setTemporaryDisplayPackageInfo(source),
         setSelectedAttributionId(source.id),
       ],
@@ -1559,7 +1560,7 @@ describe('AttributionDetails', () => {
         resources: pathsToResources([resourceId]),
       }),
       actions: [
-        setSelectedResourceId(resourceId),
+        setSelectedResourceId(resourceId, 'preserve'),
         setSelectedAttributionId(packageInfo1.id),
       ],
     });
@@ -1595,7 +1596,7 @@ describe('AttributionDetails', () => {
         resources: pathsToResources([resourceId]),
       }),
       actions: [
-        setSelectedResourceId(resourceId),
+        setSelectedResourceId(resourceId, 'preserve'),
         setSelectedAttributionId(packageInfo.id),
       ],
     });
@@ -1632,7 +1633,7 @@ describe('AttributionDetails', () => {
         resources: pathsToResources([resourceId]),
       }),
       actions: [
-        setSelectedResourceId(resourceId),
+        setSelectedResourceId(resourceId, 'preserve'),
         setSelectedAttributionId(packageInfo.id),
         setTemporaryDisplayPackageInfo({
           ...packageInfo,
@@ -1669,7 +1670,7 @@ describe('AttributionDetails', () => {
         resources: pathsToResources([resourceId]),
       }),
       actions: [
-        setSelectedResourceId(resourceId),
+        setSelectedResourceId(resourceId, 'preserve'),
         setSelectedAttributionId(packageInfo.id),
       ],
     });
@@ -1706,7 +1707,7 @@ describe('AttributionDetails', () => {
         resources: pathsToResources([resourceId]),
       }),
       actions: [
-        setSelectedResourceId(resourceId),
+        setSelectedResourceId(resourceId, 'preserve'),
         setSelectedAttributionId(packageInfo.id),
       ],
     });
@@ -1733,7 +1734,7 @@ describe('AttributionDetails', () => {
         },
       }),
       actions: [
-        setSelectedResourceId('/root'),
+        setSelectedResourceId('/root', 'preserve'),
         setSelectedAttributionId(signal.id),
       ],
     });
@@ -1766,7 +1767,7 @@ describe('AttributionDetails', () => {
         },
       }),
       actions: [
-        setSelectedResourceId('/root'),
+        setSelectedResourceId('/root', 'preserve'),
         setSelectedAttributionId(signal.id),
       ],
     });
@@ -1802,7 +1803,7 @@ describe('AttributionDetails', () => {
         },
       }),
       actions: [
-        setSelectedResourceId('/root'),
+        setSelectedResourceId('/root', 'preserve'),
         setSelectedAttributionId(signal.id),
       ],
     });
@@ -1838,7 +1839,7 @@ describe('AttributionDetails', () => {
         },
       }),
       actions: [
-        setSelectedResourceId('/root'),
+        setSelectedResourceId('/root', 'preserve'),
         setSelectedAttributionId(signal.id),
       ],
     });
@@ -1871,7 +1872,7 @@ describe('AttributionDetails', () => {
         },
       }),
       actions: [
-        setSelectedResourceId('/root/child'),
+        setSelectedResourceId('/root/child', 'preserve'),
         setSelectedAttributionId(signal.id),
       ],
     });
@@ -1911,7 +1912,7 @@ describe('AttributionDetails', () => {
         },
       }),
       actions: [
-        setSelectedResourceId('/root/child'),
+        setSelectedResourceId('/root/child', 'preserve'),
         setSelectedAttributionId(signal.id),
       ],
     });
@@ -1953,7 +1954,7 @@ describe('AttributionDetails', () => {
         },
       }),
       actions: [
-        setSelectedResourceId('/root'),
+        setSelectedResourceId('/root', 'preserve'),
         setSelectedAttributionId(signal.id),
       ],
     });
@@ -2006,7 +2007,7 @@ describe('AttributionDetails', () => {
         },
       }),
       actions: [
-        setSelectedResourceId('/root'),
+        setSelectedResourceId('/root', 'preserve'),
         setSelectedAttributionId(signal.id),
       ],
     });
@@ -2067,13 +2068,15 @@ describe('AttributionDetails', () => {
         },
       }),
       actions: [
-        setSelectedResourceId('/root'),
+        setSelectedResourceId('/root', 'preserve'),
         setSelectedAttributionId(signal.id),
       ],
     });
 
     await waitFor(() => expect(oldStatusRequested).toBe(true));
-    await act(() => store.dispatch(setSelectedResourceId('/other')));
+    await act(() =>
+      store.dispatch(setSelectedResourceId('/other', 'preserve')),
+    );
     await waitFor(() => expect(currentStatusSettled).toBe(true));
     await waitForAttributionDetailsReady();
     await waitFor(() =>
@@ -2121,7 +2124,7 @@ describe('AttributionDetails', () => {
         },
       }),
       actions: [
-        setSelectedResourceId('/root'),
+        setSelectedResourceId('/root', 'preserve'),
         setSelectedAttributionId(signal.id),
       ],
     });
@@ -2193,7 +2196,7 @@ describe('AttributionDetails', () => {
           },
         }),
         actions: [
-          setSelectedResourceId(selectedResource),
+          setSelectedResourceId(selectedResource, 'preserve'),
           setSelectedAttributionId(attribution.id),
         ],
       });
@@ -2289,7 +2292,7 @@ describe('AttributionDetails', () => {
         },
       }),
       actions: [
-        setSelectedResourceId(resource),
+        setSelectedResourceId(resource, 'preserve'),
         setSelectedAttributionId(attribution.id),
       ],
     });
@@ -2355,7 +2358,7 @@ describe('AttributionDetails', () => {
         },
       }),
       actions: [
-        setSelectedResourceId(resource),
+        setSelectedResourceId(resource, 'preserve'),
         setSelectedAttributionId(attribution.id),
       ],
     });
@@ -2393,7 +2396,10 @@ describe('AttributionDetails', () => {
     within(screen.getByRole('dialog'))
       .getAllByRole('button', { name: text.buttons.cancel })
       .forEach((button) => expect(button).toBeDisabled());
-    await act(() => store.dispatch(setAttributionSelectionPending(resource)));
+    act(() => {
+      store.dispatch(setSelectedResourceId(linkedResource, 'auto'));
+      store.dispatch(setSelectedResourceId(resource, 'auto'));
+    });
     await act(() => store.dispatch(completeAttributionSelection(resource)));
     act(() => saveResponse.reject(new Error('save failed')));
 
