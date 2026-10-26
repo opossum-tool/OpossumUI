@@ -69,7 +69,7 @@ export const ResourcesTree = ({ resources, sx, expansionFilters }: Props) => {
 
   const handleSelect = useCallback(
     (nodeId: string) => {
-      dispatch(setSelectedResourceIdOrOpenUnsavedPopup(nodeId));
+      dispatch(setSelectedResourceIdOrOpenUnsavedPopup(nodeId, 'auto'));
     },
     [dispatch],
   );

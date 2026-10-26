@@ -44,6 +44,7 @@ import {
   openResourceInResourceBrowser,
   setSelectedResourceOrAttributionIdToTargetValue,
 } from '../resource-actions/navigation-actions';
+import type { AttributionSelectionPolicy } from '../resource-actions/types';
 import {
   closePopup,
   navigateToView,
@@ -78,7 +79,7 @@ function withUnsavedCheck({
 
 export function navigateToSelectedPathOrOpenUnsavedPopup(
   resourcePath: string,
-  attributionSelectionPolicy: 'auto' | 'preserve' = 'auto',
+  attributionSelectionPolicy: AttributionSelectionPolicy,
 ): AppThunkAction {
   return withUnsavedCheck({
     executeImmediately: (dispatch) =>
@@ -143,16 +144,21 @@ export function setViewOrOpenUnsavedPopup(selectedView: View): AppThunkAction {
 
 export function setSelectedResourceIdOrOpenUnsavedPopup(
   resourceId: string,
+  attributionSelectionPolicy: AttributionSelectionPolicy,
 ): AppThunkAction {
   return withUnsavedCheck({
     executeImmediately: (dispatch, getState) => {
-      if (getSelectedResourceId(getState()) !== resourceId) {
+      if (attributionSelectionPolicy === 'preserve') {
+        dispatch(setAttributionSelectionPending(null));
+      } else if (getSelectedResourceId(getState()) !== resourceId) {
         dispatch(setAttributionSelectionPending(resourceId));
       }
-      dispatch(setSelectedResourceId(resourceId));
+      dispatch(setSelectedResourceId(resourceId, attributionSelectionPolicy));
     },
     requestContinuation: (dispatch) =>
-      dispatch(setTargetSelectedResourceId(resourceId)),
+      dispatch(
+        setTargetSelectedResourceId(resourceId, attributionSelectionPolicy),
+      ),
   });
 }
 

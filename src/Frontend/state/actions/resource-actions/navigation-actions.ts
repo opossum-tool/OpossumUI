@@ -26,6 +26,7 @@ import {
   setTargetSelectedAttributionId,
   setTargetSelectedResourceId,
 } from './audit-view-simple-actions';
+import type { AttributionSelectionPolicy } from './types';
 
 export function setSelectedResourceOrAttributionIdToTargetValue(): AppThunkAction {
   return (dispatch, getState) => {
@@ -66,7 +67,7 @@ export function resetManualAuditFiltersPreservingSort(): AppThunkAction {
 
 export function openResourceInResourceBrowser(
   resourceId: string,
-  attributionSelectionPolicy: 'auto' | 'preserve' = 'auto',
+  attributionSelectionPolicy: AttributionSelectionPolicy,
 ): AppThunkAction {
   return (dispatch, getState) => {
     if (attributionSelectionPolicy === 'preserve') {

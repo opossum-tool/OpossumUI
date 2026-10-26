@@ -282,6 +282,7 @@ export const PackagesPanel = ({
       dispatch(
         openResourceInResourceBrowser(
           pendingAttributionNavigation.fallbackResourcePath,
+          'preserve',
         ),
       );
       dispatch(

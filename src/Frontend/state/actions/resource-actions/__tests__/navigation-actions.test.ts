@@ -162,7 +162,9 @@ describe('pending attribution navigation', () => {
 describe('setSelectedResourceIdAndExpand', () => {
   it('sets the selectedResourceId', () => {
     const testStore = createAppStore();
-    testStore.dispatch(openResourceInResourceBrowser('/folder1/folder2/test'));
+    testStore.dispatch(
+      openResourceInResourceBrowser('/folder1/folder2/test', 'auto'),
+    );
     const state = testStore.getState();
     expect(getSelectedResourceId(state)).toBe('/folder1/folder2/test');
     expect(getAttributionSelectionPendingResourceId(state)).toBe(
@@ -183,7 +185,9 @@ describe('setSelectedResourceIdAndExpand', () => {
 
   it('sets the expandedIds', () => {
     const testStore = createAppStore();
-    testStore.dispatch(openResourceInResourceBrowser('/folder1/folder2/test'));
+    testStore.dispatch(
+      openResourceInResourceBrowser('/folder1/folder2/test', 'auto'),
+    );
     const state = testStore.getState();
     expect(getExpandedIds(state)).toMatchObject([
       '/',

@@ -22,10 +22,13 @@ import type { State } from '../../../../types/types';
 import { backend } from '../../../../util/backendClient';
 import { createAppStore } from '../../../configure-store';
 import {
+  getAttributionSelectionPendingResourceId,
+  getAttributionSelectionPolicy,
   getExpandedIds,
   getSelectedAttributionId,
   getSelectedResourceId,
   getTargetAttributionFilterChange,
+  getTargetAttributionSelectionPolicy,
   getTargetSelectedAttributionId,
   getTargetSelectedResourceId,
   getTemporaryDisplayPackageInfo,
@@ -49,6 +52,7 @@ import {
   setTemporaryDisplayPackageInfo,
 } from '../../resource-actions/all-views-simple-actions';
 import {
+  setAttributionSelectionPending,
   setSelectedAttributionId,
   setSelectedResourceId,
   setTargetSelectedAttributionId,
@@ -80,6 +84,92 @@ import {
   showMergeOpossumFilesDialogOrOpenUnsavedPopup,
   showSplitDialogOrOpenUnsavedPopup,
 } from '../popup-actions';
+
+describe.each([
+  ['resource selection', setSelectedResourceIdOrOpenUnsavedPopup],
+  [
+    'resource selection with expansion',
+    navigateToSelectedPathOrOpenUnsavedPopup,
+  ],
+] as const)('%s attribution selection policy', (_, navigate) => {
+  it.each(['auto', 'preserve'] as const)(
+    'applies %s selection and replaces pending navigation',
+    (policy) => {
+      const store = createAppStore();
+      store.dispatch(setSelectedResourceId('/origin/'));
+      store.dispatch(setSelectedAttributionId('reviewed-attribution'));
+      store.dispatch(setAttributionSelectionPending('/origin/'));
+
+      store.dispatch(navigate('/', policy));
+
+      expect(getSelectedResourceId(store.getState())).toBe('/');
+      expect(getSelectedAttributionId(store.getState())).toBe(
+        'reviewed-attribution',
+      );
+      expect(getAttributionSelectionPolicy(store.getState())).toBe(policy);
+      expect(getAttributionSelectionPendingResourceId(store.getState())).toBe(
+        policy === 'auto' ? '/' : null,
+      );
+    },
+  );
+
+  it.each(['auto', 'preserve'] as const)(
+    'retains %s selection policy after the unsaved-changes popup',
+    (policy) => {
+      const store = createAppStore();
+      const attribution = faker.opossum.packageInfo();
+      store.dispatch(setSelectedResourceId('/origin/'));
+      store.dispatch(setSelectedAttributionId(attribution.id));
+      store.dispatch(initializePackageInfoEditing(attribution));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo({ ...attribution, comment: 'unsaved' }),
+      );
+
+      store.dispatch(navigate('/', policy));
+
+      expect(getSelectedResourceId(store.getState())).toBe('/origin/');
+      expect(getTargetAttributionSelectionPolicy(store.getState())).toBe(
+        policy,
+      );
+      expect(getOpenPopup(store.getState())?.popup).toBe(
+        PopupType.NotSavedPopup,
+      );
+
+      store.dispatch(proceedFromUnsavedPopup());
+
+      expect(getSelectedResourceId(store.getState())).toBe('/');
+      expect(getSelectedAttributionId(store.getState())).toBe(attribution.id);
+      expect(getAttributionSelectionPolicy(store.getState())).toBe(policy);
+      expect(getAttributionSelectionPendingResourceId(store.getState())).toBe(
+        policy === 'auto' ? '/' : null,
+      );
+    },
+  );
+
+  it.each(['auto', 'preserve'] as const)(
+    'does not navigate when %s navigation is cancelled',
+    (policy) => {
+      const store = createAppStore();
+      const attribution = faker.opossum.packageInfo();
+      store.dispatch(setSelectedResourceId('/origin/'));
+      store.dispatch(setSelectedAttributionId(attribution.id));
+      store.dispatch(initializePackageInfoEditing(attribution));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo({ ...attribution, comment: 'unsaved' }),
+      );
+
+      store.dispatch(navigate('/', policy));
+      store.dispatch(closePopupAndUnsetTargets());
+
+      expect(getSelectedResourceId(store.getState())).toBe('/origin/');
+      expect(getSelectedAttributionId(store.getState())).toBe(attribution.id);
+      expect(
+        getAttributionSelectionPendingResourceId(store.getState()),
+      ).toBeNull();
+      expect(getTargetSelectedResourceId(store.getState())).toBeNull();
+    },
+  );
+});
 
 describe('mergeOpossumFilesIntoCurrentFile', () => {
   it('merges partitions and resets the resource selection', async () => {
@@ -204,7 +294,10 @@ describe('The actions checking for unsaved changes', () => {
       const testStore = createAppStore();
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(
-        navigateToSelectedPathOrOpenUnsavedPopup('/folder1/folder2/test_file'),
+        navigateToSelectedPathOrOpenUnsavedPopup(
+          '/folder1/folder2/test_file',
+          'auto',
+        ),
       );
 
       expect(getSelectedResourceId(testStore.getState())).toBe(
@@ -429,7 +522,7 @@ describe('The actions checking for unsaved changes', () => {
       testStore.dispatch(setSelectedResourceId('/root/'));
       expect(getSelectedResourceId(testStore.getState())).toBe('/root/');
       testStore.dispatch(
-        setSelectedResourceIdOrOpenUnsavedPopup('/thirdParty/'),
+        setSelectedResourceIdOrOpenUnsavedPopup('/thirdParty/', 'auto'),
       );
       expect(getSelectedResourceId(testStore.getState())).toBe('/thirdParty/');
     });
@@ -459,7 +552,7 @@ describe('The actions checking for unsaved changes', () => {
       );
       expect(getSelectedResourceId(testStore.getState())).toBe('/root/');
       testStore.dispatch(
-        setSelectedResourceIdOrOpenUnsavedPopup('/thirdParty/'),
+        setSelectedResourceIdOrOpenUnsavedPopup('/thirdParty/', 'auto'),
       );
       expect(getSelectedResourceId(testStore.getState())).toBe('/root/');
       expect(getTargetSelectedResourceId(testStore.getState())).toBe(

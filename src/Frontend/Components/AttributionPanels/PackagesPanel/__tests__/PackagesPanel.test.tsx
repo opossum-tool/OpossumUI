@@ -211,7 +211,9 @@ describe('PackagesPanel', () => {
     });
 
     act(() =>
-      store.dispatch(openResourceInResourceBrowser('/another-resource')),
+      store.dispatch(
+        openResourceInResourceBrowser('/another-resource', 'auto'),
+      ),
     );
 
     await waitFor(() => {
@@ -353,7 +355,9 @@ describe('PackagesPanel', () => {
     });
 
     act(() =>
-      store.dispatch(openResourceInResourceBrowser('/ordinary-resource')),
+      store.dispatch(
+        openResourceInResourceBrowser('/ordinary-resource', 'auto'),
+      ),
     );
 
     await waitFor(() => {
