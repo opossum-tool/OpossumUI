@@ -6500,12 +6500,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-abi@npm:4.38.0":
-  version: 4.38.0
-  resolution: "node-abi@npm:4.38.0"
+"node-abi@npm:4.39.0":
+  version: 4.39.0
+  resolution: "node-abi@npm:4.39.0"
   dependencies:
     semver: "npm:^7.6.3"
-  checksum: 10/47dd64c20faa56611301ae239d7757b7737d7e901656c49769e61c0b261656892f7115fea7bac02a4914906f8ae3b30f05d8c6bd223fedb66f42c9fe6408b5b4
+  checksum: 10/4add53fb6470de8c6d830fc3da1c6a714e48ec9cf4d4ab9e71c196a29b1361160ecf7a743953701e80b8db977379826e8965e608011722c7dffa9099d68ca618
   languageName: node
   linkType: hard
 
