@@ -146,7 +146,7 @@ export function DeferredIcon({
 }: IconProps) {
   return (
     <MuiTooltip
-      title={noTooltip ? undefined : text.auditingOptions.deferred}
+      title={noTooltip ? undefined : text.auditingOptions.deferredTooltip}
       placement={tooltipPlacement}
       disableInteractive
     >

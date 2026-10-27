@@ -274,6 +274,7 @@ export const text = {
     add: 'Add Auditing Option',
     aiGenerated: 'AI generated',
     deferred: 'Deferred',
+    deferredTooltip: 'AI marked one or more fields as needing human review.',
     humanModified: 'Human-modified',
     confidence: 'Confidence',
     confidenceOf: (value: number) => `confidence of ${value}`,

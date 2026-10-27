@@ -42,6 +42,7 @@ interface AuditingOption extends SelectMenuOption {
   id: string;
   interactive: boolean;
   chipSx?: SxProps<Theme>;
+  tooltip?: string;
 }
 
 const satisfactionIconClass = {
@@ -118,6 +119,7 @@ export function useAuditingOptions({
       {
         id: 'deferred',
         label: text.auditingOptions.deferred,
+        tooltip: text.auditingOptions.deferredTooltip,
         icon: (
           <DeferredIcon
             noTooltip

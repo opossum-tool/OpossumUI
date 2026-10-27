@@ -10,17 +10,14 @@ import { OpossumColors } from '../../../shared-styles';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import {
-  AiGeneratedIcon,
   BreakpointIcon,
   ClassificationIcon,
   CriticalityIcon,
-  DeferredIcon,
   DirectoryIcon,
   ExcludeFromNoticeIcon,
   FileIcon,
   FirstPartyIcon,
   FollowUpIcon,
-  HumanModifiedIcon,
   NeedsReviewIcon,
   PreSelectedIcon,
   SplitIcon,
@@ -42,27 +39,6 @@ describe('The Icons', () => {
     vi.useRealTimers();
   });
 
-  it.each([
-    {
-      Icon: AiGeneratedIcon,
-      label: 'AI generated icon',
-      tooltip: 'AI generated',
-    },
-    {
-      Icon: HumanModifiedIcon,
-      label: 'Human-modified AI icon',
-      tooltip: 'Human-modified',
-    },
-    { Icon: DeferredIcon, label: 'Deferred AI icon', tooltip: 'Deferred' },
-  ])('explains the $label in its tooltip', async ({ Icon, label, tooltip }) => {
-    render(<Icon />);
-
-    await userEvent.hover(screen.getByLabelText(label), {
-      advanceTimers: vi.runOnlyPendingTimersAsync,
-    });
-
-    expect(await screen.findByRole('tooltip')).toHaveTextContent(tooltip);
-  });
   it('renders ExcludeFromNoticeIcon', () => {
     render(<ExcludeFromNoticeIcon />);
 

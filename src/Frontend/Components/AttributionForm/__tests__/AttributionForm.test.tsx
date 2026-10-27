@@ -494,6 +494,27 @@ describe('AttributionForm', () => {
       });
     });
 
+    it('explains the Deferred badge when hovering its label', async () => {
+      const packageInfo = faker.opossum.packageInfo({
+        aiAttributions: { deferred: true },
+      });
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      const badge = screen.getByTestId('auditing-option-deferred');
+
+      await userEvent.hover(
+        within(badge).getByText(text.auditingOptions.deferred),
+      );
+
+      expect(await screen.findAllByRole('tooltip')).toHaveLength(1);
+      expect(screen.getByRole('tooltip')).toHaveTextContent(
+        text.auditingOptions.deferredTooltip,
+      );
+      expect(badge).toHaveAccessibleDescription(
+        text.auditingOptions.deferredTooltip,
+      );
+      expect(badge).toHaveTextContent(text.auditingOptions.deferred);
+    });
+
     it.each([
       {
         name: 'ordinary attribution',
