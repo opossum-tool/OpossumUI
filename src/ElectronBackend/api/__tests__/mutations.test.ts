@@ -22,6 +22,7 @@ import {
   mutations,
 } from '../mutations';
 import { queries } from '../queries';
+import { initializeAiAttributionFixture } from './ai-attribution-test-helpers';
 
 function packageInfo(
   id: string,
@@ -347,107 +348,66 @@ describe('attribution resource access', () => {
     expect(result.attributions.ai).not.toHaveProperty('aiAttributions');
   });
 
-  it('exposes the AI-generated flag of the attribution_ai table via getAttributionData', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources(['/a']),
-      manualAttributions: {
-        attributions: {
-          humanModified: packageInfo('humanModified', 'flagged', {
-            humanModified: true,
-          }),
-          notHumanModified: packageInfo('notHumanModified', 'unflagged', {
-            humanModified: false,
-          }),
-          flagAbsent: packageInfo('flagAbsent', 'absent flag', {}),
-          deferred: packageInfo('deferred', 'deferred fields', {
-            deferredFields: { copyright: 'Needs review' },
-          }),
-          deferredUnknown: packageInfo('deferredUnknown', 'unknown fields', {
-            deferredFields: { futureField: { arbitrary: [true] } },
-          }),
-          deferredEmpty: packageInfo('deferredEmpty', 'empty deferred fields', {
-            deferredFields: {},
-          }),
-          deferredAndModified: packageInfo(
-            'deferredAndModified',
-            'deferred and modified',
-            {
-              humanModified: true,
-              deferredFields: {},
-            },
-          ),
-          notAi: packageInfo('notAi', 'not ai'),
-        },
-        resourcesToAttributions: {
-          '/a': [
-            'humanModified',
-            'notHumanModified',
-            'flagAbsent',
-            'deferred',
-            'deferredUnknown',
-            'deferredEmpty',
-            'deferredAndModified',
-            'notAi',
-          ],
-        },
-        attributionsToResources: {},
+  it.each([
+    {
+      name: 'human-modified AI attribution',
+      aiAttributions: { humanModified: true },
+      expected: { humanModified: true },
+    },
+    {
+      name: 'unmodified AI attribution',
+      aiAttributions: { humanModified: false },
+      expected: { humanModified: false },
+    },
+    {
+      name: 'AI attribution without flags',
+      aiAttributions: {},
+      expected: {},
+    },
+    {
+      name: 'deferred fields',
+      aiAttributions: { deferredFields: { copyright: 'Needs review' } },
+      expected: { deferred: true },
+    },
+    {
+      name: 'unknown deferred fields',
+      aiAttributions: {
+        deferredFields: { futureField: { arbitrary: [true] } },
       },
-    });
-
-    const humanModifiedResult = await queries.getAttributionData({
-      attributionUuid: 'humanModified',
-    });
-    expect(humanModifiedResult.result.packageInfo.aiAttributions).toEqual({
-      humanModified: true,
-    });
-
-    const notHumanModifiedResult = await queries.getAttributionData({
-      attributionUuid: 'notHumanModified',
-    });
-    expect(notHumanModifiedResult.result.packageInfo.aiAttributions).toEqual({
-      humanModified: false,
-    });
-
-    const flagAbsentResult = await queries.getAttributionData({
-      attributionUuid: 'flagAbsent',
-    });
-    expect(flagAbsentResult.result.packageInfo.aiAttributions).toEqual({});
-
-    const deferredResult = await queries.getAttributionData({
-      attributionUuid: 'deferred',
-    });
-    expect(deferredResult.result.packageInfo.aiAttributions).toEqual({
-      deferred: true,
-    });
-
-    const deferredUnknownResult = await queries.getAttributionData({
-      attributionUuid: 'deferredUnknown',
-    });
-    expect(deferredUnknownResult.result.packageInfo.aiAttributions).toEqual({
-      deferred: true,
-    });
-
-    const deferredEmptyResult = await queries.getAttributionData({
-      attributionUuid: 'deferredEmpty',
-    });
-    expect(deferredEmptyResult.result.packageInfo.aiAttributions).toEqual({
-      deferred: true,
-    });
-
-    const deferredAndModifiedResult = await queries.getAttributionData({
-      attributionUuid: 'deferredAndModified',
-    });
-    expect(deferredAndModifiedResult.result.packageInfo.aiAttributions).toEqual(
-      {
-        humanModified: true,
-        deferred: true,
+      expected: { deferred: true },
+    },
+    {
+      name: 'empty deferred fields',
+      aiAttributions: { deferredFields: {} },
+      expected: { deferred: true },
+    },
+    {
+      name: 'human-modified attribution with deferred fields',
+      aiAttributions: { humanModified: true, deferredFields: {} },
+      expected: { humanModified: true, deferred: true },
+    },
+    {
+      name: 'ordinary attribution',
+      aiAttributions: undefined,
+      expected: undefined,
+    },
+  ])('returns AI status for $name', async ({ aiAttributions, expected }) => {
+    await initializeAiAttributionFixture({
+      resourcePaths: ['/a'],
+      attributions: {
+        attribution: packageInfo('attribution', 'package', aiAttributions),
       },
+      resourceLinks: { '/a': ['attribution'] },
+    });
+
+    const { result } = await queries.getAttributionData({
+      attributionUuid: 'attribution',
+    });
+
+    expect(result.packageInfo.aiAttributions).toEqual(expected);
+    expect(Object.hasOwn(result.packageInfo, 'aiAttributions')).toBe(
+      expected !== undefined,
     );
-
-    const notAiResult = await queries.getAttributionData({
-      attributionUuid: 'notAi',
-    });
-    expect(notAiResult.result.packageInfo).not.toHaveProperty('aiAttributions');
   });
 
   it('preserves stored AI metadata when updating a queried attribution', async () => {
