@@ -190,6 +190,43 @@ describe('parseOpossumFile', () => {
     },
   );
 
+  it.each([
+    undefined,
+    {},
+    { license: 'Needs review' },
+    { future: { nested: [1, true] } },
+  ])('preserves opaque deferredFields metadata: %j', async (deferredFields) => {
+    const output = structuredClone(correctOutput);
+    output.manualAttributions[testUuid].aiAttributions = { deferredFields };
+    const path = faker.outputPath(`${faker.string.uuid()}.opossum`);
+    await writeOpossumFile({ input: correctInput, output, path });
+
+    const parsed = (await parseOpossumFile(
+      path,
+    )) as ParsedOpossumInputAndOutput;
+    expect(parsed.output?.manualAttributions[testUuid].aiAttributions).toEqual(
+      deferredFields === undefined ? {} : { deferredFields },
+    );
+  });
+
+  it.each([null, [], 'reason', false, 1])(
+    'rejects non-object deferredFields metadata: %j',
+    async (deferredFields) => {
+      const output = {
+        ...structuredClone(correctOutput),
+        manualAttributions: {
+          [testUuid]: { aiAttributions: { deferredFields } },
+        },
+      };
+      const path = faker.outputPath(`${faker.string.uuid()}.opossum`);
+      await writeOpossumFile({ input: correctInput, output, path });
+
+      expect(await parseOpossumFile(path)).toMatchObject({
+        type: 'jsonParsingError',
+      });
+    },
+  );
+
   it('returns JSONParsingError on an incorrect .opossum file', async () => {
     const opossumFilePath = await writeOpossumFile({
       input: corruptInput,

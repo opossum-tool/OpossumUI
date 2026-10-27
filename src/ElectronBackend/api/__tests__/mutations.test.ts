@@ -360,24 +360,20 @@ describe('attribution resource access', () => {
           }),
           flagAbsent: packageInfo('flagAbsent', 'absent flag', {}),
           deferred: packageInfo('deferred', 'deferred fields', {
-            deferred_fields: { copyright: true },
+            deferredFields: { copyright: 'Needs review' },
           }),
-          deferredList: packageInfo('deferredList', 'deferred list', {
-            deferred_fields: ['copyright', 'licenseText'],
+          deferredUnknown: packageInfo('deferredUnknown', 'unknown fields', {
+            deferredFields: { futureField: { arbitrary: [true] } },
           }),
-          deferredEmptyList: packageInfo(
-            'deferredEmptyList',
-            'deferred empty list',
-            {
-              deferred_fields: [],
-            },
-          ),
+          deferredEmpty: packageInfo('deferredEmpty', 'empty deferred fields', {
+            deferredFields: {},
+          }),
           deferredAndModified: packageInfo(
             'deferredAndModified',
             'deferred and modified',
             {
               humanModified: true,
-              deferred_fields: {},
+              deferredFields: {},
             },
           ),
           notAi: packageInfo('notAi', 'not ai'),
@@ -388,8 +384,8 @@ describe('attribution resource access', () => {
             'notHumanModified',
             'flagAbsent',
             'deferred',
-            'deferredList',
-            'deferredEmptyList',
+            'deferredUnknown',
+            'deferredEmpty',
             'deferredAndModified',
             'notAi',
           ],
@@ -424,17 +420,17 @@ describe('attribution resource access', () => {
       deferred: true,
     });
 
-    const deferredListResult = await queries.getAttributionData({
-      attributionUuid: 'deferredList',
+    const deferredUnknownResult = await queries.getAttributionData({
+      attributionUuid: 'deferredUnknown',
     });
-    expect(deferredListResult.result.packageInfo.aiAttributions).toEqual({
+    expect(deferredUnknownResult.result.packageInfo.aiAttributions).toEqual({
       deferred: true,
     });
 
-    const deferredEmptyListResult = await queries.getAttributionData({
-      attributionUuid: 'deferredEmptyList',
+    const deferredEmptyResult = await queries.getAttributionData({
+      attributionUuid: 'deferredEmpty',
     });
-    expect(deferredEmptyListResult.result.packageInfo.aiAttributions).toEqual({
+    expect(deferredEmptyResult.result.packageInfo.aiAttributions).toEqual({
       deferred: true,
     });
 

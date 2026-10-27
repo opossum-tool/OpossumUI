@@ -91,6 +91,7 @@ describe('AI attribution matching', () => {
         {
           attribution_uuid: 'existing',
           additional_data: '{"origin":"target"}',
+          deferred_fields: null,
           human_modified:
             humanModified === undefined ? null : Number(humanModified),
         },

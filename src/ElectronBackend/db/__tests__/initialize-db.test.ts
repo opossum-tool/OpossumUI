@@ -12,6 +12,45 @@ import { getDb } from '../db';
 import type { Attribution } from '../generated/databaseTypes';
 
 describe('database initialization', () => {
+  it.each([
+    undefined,
+    {},
+    { license: 'Needs review' },
+    { future: { nested: [1, true] } },
+  ])(
+    'stores deferredFields separately from other AI metadata: %j',
+    async (deferredFields) => {
+      await initializeDbWithTestData({
+        manualAttributions: {
+          attributions: {
+            ai: {
+              id: 'ai',
+              criticality: Criticality.None,
+              aiAttributions: {
+                deferredFields,
+                opaque: { kept: true },
+              },
+            },
+          },
+          resourcesToAttributions: {},
+          attributionsToResources: {},
+        },
+      });
+
+      await expect(
+        getDb()
+          .selectFrom('attribution_ai')
+          .select(['deferred_fields', 'additional_data'])
+          .where('attribution_uuid', '=', 'ai')
+          .executeTakeFirstOrThrow(),
+      ).resolves.toEqual({
+        deferred_fields:
+          deferredFields === undefined ? null : JSON.stringify(deferredFields),
+        additional_data: '{"opaque":{"kept":true}}',
+      });
+    },
+  );
+
   it('constrains AI metadata rows and cascades attribution deletion', async () => {
     await initializeDbWithTestData({
       manualAttributions: {
@@ -118,6 +157,18 @@ describe('database initialization', () => {
         .values({ attribution_uuid: 'invalidJson', additional_data: '[]' })
         .execute(),
     ).rejects.toThrow();
+    for (const invalidJson of ['not JSON', 'null', '[]', '"reason"', '1']) {
+      await expect(
+        getDb()
+          .insertInto('attribution_ai')
+          .values({
+            attribution_uuid: 'invalidJson',
+            additional_data: '{}',
+            deferred_fields: invalidJson,
+          })
+          .execute(),
+      ).rejects.toThrow();
+    }
     await expect(
       getDb()
         .insertInto('attribution_ai')

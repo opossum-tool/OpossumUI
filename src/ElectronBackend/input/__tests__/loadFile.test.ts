@@ -21,6 +21,8 @@ import {
   SPLIT_INFO_FILE_NAME,
 } from '../../../shared/write-file-utils';
 import { faker } from '../../../testing/Faker';
+import { mutations } from '../../api/mutations';
+import { queries } from '../../api/queries';
 import { saveFile } from '../../api/saveFile';
 import { getDb } from '../../db/db';
 import type {
@@ -95,6 +97,75 @@ describe('loadFile', () => {
   afterEach(() => {
     vi.restoreAllMocks();
   });
+
+  it.each([{}, { license: 'Needs review', future: { nested: [1, true] } }])(
+    'preserves deferred reasons through editing, saving, and reloading: %j',
+    async (deferredFields) => {
+      const metadata = {
+        humanModified: false,
+        deferredFields,
+        opaque: { kept: true },
+        deferred: false,
+      };
+      const output: OpossumOutputFile = {
+        metadata: {
+          projectId: inputFileContent.metadata.projectId,
+          fileCreationDate: '1',
+        },
+        manualAttributions: {
+          [manualAttributionUuid]: {
+            packageName: 'before',
+            aiAttributions: metadata,
+          },
+        },
+        resourcesToAttributions: { '/a': [manualAttributionUuid] },
+        resolvedExternalAttributions: [],
+      };
+      const path = faker.outputPath(`${faker.string.uuid()}.opossum`);
+      await writeOpossumFile({ input: inputFileContent, output, path });
+      const firstLoad = (await loadFile(path)) as LoadFileSuccess;
+      expect(firstLoad.ok).toBe(true);
+      const { result: details } = await queries.getAttributionData({
+        attributionUuid: manualAttributionUuid,
+      });
+      expect(details.packageInfo.aiAttributions).toEqual({
+        humanModified: false,
+        deferred: true,
+      });
+
+      await mutations.updateOrMatchAttributions({
+        attributions: {
+          [manualAttributionUuid]: {
+            ...details.packageInfo,
+            packageName: 'after',
+          },
+        },
+      });
+      await saveFile(
+        { projectId: firstLoad.projectId, opossumFilePath: path },
+        firstLoad.opossumZip!,
+      );
+
+      const saved = JSON.parse(
+        new AdmZip(path).readAsText(OUTPUT_FILE_NAME),
+      ) as OpossumOutputFile;
+      expect(
+        saved.manualAttributions[manualAttributionUuid].aiAttributions,
+      ).toEqual({
+        ...metadata,
+        humanModified: true,
+      });
+      expect((await loadFile(path)).ok).toBe(true);
+      const { result: reloaded } = await queries.getAttributionData({
+        attributionUuid: manualAttributionUuid,
+      });
+      expect(reloaded.packageInfo.packageName).toBe('after');
+      expect(reloaded.packageInfo.aiAttributions).toEqual({
+        humanModified: true,
+        deferred: true,
+      });
+    },
+  );
 
   it('loads .opossum file without output and creates one', async () => {
     const opossumPath = faker.outputPath(`${faker.string.uuid()}.opossum`);

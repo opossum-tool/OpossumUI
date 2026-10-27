@@ -152,24 +152,21 @@ export const queries = {
   async getAttributionData(props: { attributionUuid: string }) {
     const result = await getDb()
       .selectFrom('attribution')
+      .leftJoin(
+        'attribution_ai',
+        'attribution.uuid',
+        'attribution_ai.attribution_uuid',
+      )
       .selectAll('attribution')
-      .where('uuid', '=', props.attributionUuid)
+      .select([
+        'attribution_ai.attribution_uuid as ai_attribution_uuid',
+        'attribution_ai.human_modified as ai_human_modified',
+      ])
+      .select((eb) =>
+        eb('attribution_ai.deferred_fields', 'is not', null).as('ai_deferred'),
+      )
+      .where('attribution.uuid', '=', props.attributionUuid)
       .executeTakeFirstOrThrow();
-
-    const aiRow = await getDb()
-      .selectFrom('attribution_ai')
-      .select(['human_modified', 'additional_data'])
-      .where('attribution_uuid', '=', props.attributionUuid)
-      .executeTakeFirst();
-
-    let deferred: boolean | undefined;
-    if (aiRow !== undefined) {
-      const aiAdditionalData = JSON.parse(aiRow.additional_data) as Record<
-        string,
-        unknown
-      >;
-      deferred = aiAdditionalData.deferred_fields !== undefined;
-    }
 
     return {
       result: {
@@ -181,14 +178,14 @@ export const queries = {
               : result.resource_access === AttributionResourceAccess.Readonly
                 ? 'readonly'
                 : 'writable',
-          ...(aiRow === undefined
+          ...(result.ai_attribution_uuid === null
             ? {}
             : {
                 aiAttributions: {
-                  ...(aiRow.human_modified === null
+                  ...(result.ai_human_modified === null
                     ? {}
-                    : { humanModified: Boolean(aiRow.human_modified) }),
-                  ...(deferred ? { deferred: true } : {}),
+                    : { humanModified: Boolean(result.ai_human_modified) }),
+                  ...(result.ai_deferred ? { deferred: true } : {}),
                 },
               }),
         } satisfies PackageInfo,

@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import {
   type Compilable,
+  type Expression,
   expressionBuilder,
   type Insertable,
   type ReferenceExpression,
@@ -61,6 +62,15 @@ type SourceForAttributionInsertRow = CompleteInsertRow<SourceForAttribution>;
 
 type SqliteInsertValue = null | number | string;
 
+function jsonConstraint(ref: Expression<unknown>, type: 'object' | 'array') {
+  // Column-level NOT NULL constraints determine whether SQL NULL is allowed.
+  return sql<boolean>`
+    ${ref} IS NULL OR (
+      json_valid(${ref}) = 1 AND json_type(${ref}) = ${sql.lit(type)}
+    )
+  `;
+}
+
 function createPreparedInserter<Row extends Record<string, SqliteInsertValue>>(
   buildQuery: (row: Row) => Compilable,
 ) {
@@ -100,6 +110,8 @@ export const comments: Record<string, Record<string, string>> = {
       'Additional properties kept as JSON for compatibility, including unknown and unused properties',
     human_modified:
       'Whether a person has changed this AI attribution; NULL means the flag was absent',
+    deferred_fields:
+      'Opaque deferredFields JSON object; NULL means the property was absent',
   },
   resource: {
     name: 'The name of the root resource is the empty string',
@@ -593,22 +605,6 @@ async function initializeAttributionTable(
   const attributionExpressionBuilder = expressionBuilder<DB, 'attribution'>();
   const isBoolean = (ref: ReferenceExpression<DB, 'attribution'>) =>
     attributionExpressionBuilder(ref, 'in', [sql.lit(0), sql.lit(1)]);
-  const isNullableJsonArray = (ref: ReferenceExpression<DB, 'attribution'>) =>
-    attributionExpressionBuilder.or([
-      attributionExpressionBuilder(ref, 'is', null),
-      attributionExpressionBuilder.and([
-        attributionExpressionBuilder(
-          attributionExpressionBuilder.fn<number>('json_valid', [ref]),
-          '=',
-          sql.lit(1),
-        ),
-        attributionExpressionBuilder(
-          attributionExpressionBuilder.fn<string>('json_type', [ref]),
-          '=',
-          sql.lit('array'),
-        ),
-      ]),
-    ]);
 
   await trx.schema
     .createTable('attribution')
@@ -618,22 +614,10 @@ async function initializeAttributionTable(
         .notNull()
         .defaultTo('{}')
         .check(
-          attributionExpressionBuilder.and([
-            attributionExpressionBuilder(
-              attributionExpressionBuilder.fn<number>('json_valid', [
-                'additional_data',
-              ]),
-              '=',
-              sql.lit(1),
-            ),
-            attributionExpressionBuilder(
-              attributionExpressionBuilder.fn<string>('json_type', [
-                'additional_data',
-              ]),
-              '=',
-              sql.lit('object'),
-            ),
-          ]),
+          jsonConstraint(
+            attributionExpressionBuilder.ref('additional_data'),
+            'object',
+          ),
         ),
     )
     .addColumn('is_external', 'integer', (col) =>
@@ -676,10 +660,17 @@ async function initializeAttributionTable(
     )
     .addColumn('original_attribution_source_additional_name', 'text')
     .addColumn('origin_ids', 'text', (col) =>
-      col.check(isNullableJsonArray('origin_ids')),
+      col.check(
+        jsonConstraint(attributionExpressionBuilder.ref('origin_ids'), 'array'),
+      ),
     )
     .addColumn('preferred_over_origin_ids', 'text', (col) =>
-      col.check(isNullableJsonArray('preferred_over_origin_ids')),
+      col.check(
+        jsonConstraint(
+          attributionExpressionBuilder.ref('preferred_over_origin_ids'),
+          'array',
+        ),
+      ),
     )
     .addColumn('source_name', 'text')
     .addColumn('source_document_confidence', 'integer', (col) =>
@@ -862,23 +853,19 @@ async function initializeAttributionAiTable(
       col
         .notNull()
         .check(
-          attributionAiExpressionBuilder.and([
-            attributionAiExpressionBuilder(
-              attributionAiExpressionBuilder.fn<number>('json_valid', [
-                'additional_data',
-              ]),
-              '=',
-              sql.lit(1),
-            ),
-            attributionAiExpressionBuilder(
-              attributionAiExpressionBuilder.fn<string>('json_type', [
-                'additional_data',
-              ]),
-              '=',
-              sql.lit('object'),
-            ),
-          ]),
+          jsonConstraint(
+            attributionAiExpressionBuilder.ref('additional_data'),
+            'object',
+          ),
         ),
+    )
+    .addColumn('deferred_fields', 'text', (col) =>
+      col.check(
+        jsonConstraint(
+          attributionAiExpressionBuilder.ref('deferred_fields'),
+          'object',
+        ),
+      ),
     )
     .addColumn('human_modified', 'integer', (col) =>
       col.check(
@@ -898,10 +885,13 @@ async function initializeAttributionAiTable(
   )) {
     if (attribution.aiAttributions !== undefined) {
       const aiAttributions = attribution.aiAttributions;
-      const { humanModified, ...additionalData } = aiAttributions;
+      const { humanModified, deferredFields, ...additionalData } =
+        aiAttributions;
       insertAi({
         attribution_uuid: uuid,
         additional_data: JSON.stringify(additionalData),
+        deferred_fields:
+          deferredFields === undefined ? null : JSON.stringify(deferredFields),
         human_modified:
           humanModified === undefined ? null : Number(humanModified),
       });

@@ -736,6 +736,7 @@ describe('AI attribution modifications', () => {
       {
         attribution_uuid: 'source',
         additional_data: '{"opaque":true}',
+        deferred_fields: null,
         human_modified: null,
       },
     ]);

@@ -78,6 +78,10 @@ export interface AttributionAi {
   additional_data: string;
   attribution_uuid: string;
   /**
+   * Opaque deferredFields JSON object; NULL means the property was absent
+   */
+  deferred_fields: string | null;
+  /**
    * Whether a person has changed this AI attribution; NULL means the flag was absent
    */
   human_modified: number | null;

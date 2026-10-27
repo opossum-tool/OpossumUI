@@ -21,13 +21,19 @@ export async function copyAttributionAi(
 ) {
   await trx
     .insertInto('attribution_ai')
-    .columns(['attribution_uuid', 'additional_data', 'human_modified'])
+    .columns([
+      'attribution_uuid',
+      'additional_data',
+      'deferred_fields',
+      'human_modified',
+    ])
     .expression((eb) =>
       eb
         .selectFrom('attribution_ai')
         .select([
           eb.val(targetUuid).as('attribution_uuid'),
           'additional_data',
+          'deferred_fields',
           'human_modified',
         ])
         .where('attribution_uuid', '=', sourceUuid),
@@ -50,6 +56,7 @@ export async function createAttributionAiFromSource(
     .select(ATTRIBUTION_CONTENT_COLUMNS)
     .select([
       'attribution_ai.additional_data as ai_additional_data',
+      'attribution_ai.deferred_fields',
       'attribution_ai.human_modified',
     ])
     .where('attribution.uuid', '=', sourceUuid)
@@ -69,6 +76,7 @@ export async function createAttributionAiFromSource(
     .values({
       attribution_uuid: target.id,
       additional_data: source.ai_additional_data,
+      deferred_fields: source.deferred_fields,
       human_modified:
         humanModified === undefined ? null : Number(humanModified),
     })
