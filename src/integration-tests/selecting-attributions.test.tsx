@@ -14,15 +14,21 @@ import {
   ATTRIBUTIONS_PANEL,
   clickPackageCard,
   clickPanelButton,
+  clickPathBarBreadcrumb,
+  clickPathBarHistoryButton,
   clickPopupButton,
   clickSelectAllCheckbox,
   expectAttributionFormMatchesPackageInfo,
   expectPackageCardCheckbox,
   expectPackageCards,
+  expectPathBarCrumbs,
   expectPopupHasText,
   expectPopupHidden,
   expectSelectedTabIs,
   gotoResource,
+  gotoResourceInOtherTree,
+  gotoResourceTreeRoot,
+  LINKED_RESOURCES_TREE,
   selectTab,
 } from './helpers/ui';
 
@@ -62,6 +68,44 @@ const data = getParsedInputFileEnrichedWithTestData({
 });
 
 describe('selecting attributions', () => {
+  it('keeps the reviewed attribution when returning Home from a linked resource', async () => {
+    await renderApp({ data });
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
+
+    await gotoResourceInOtherTree(LINKED_RESOURCES_TREE, resourceName1);
+    await expectAttributionFormMatchesPackageInfo(packageInfo1);
+    await gotoResourceTreeRoot();
+
+    await expectAttributionFormMatchesPackageInfo(packageInfo1);
+    await expectSelectedTabIs(ATTRIBUTIONS_PANEL, 'children');
+
+    await gotoResource(resourceName4);
+    await expectAttributionFormMatchesPackageInfo(packageInfo2);
+  });
+
+  it('keeps the reviewed attribution through breadcrumbs and history navigation', async () => {
+    await renderApp({ data });
+    await gotoResource(resourceName1, resourceName2);
+    await expectAttributionFormMatchesPackageInfo(packageInfo3);
+    await selectTab(ATTRIBUTIONS_PANEL, 'children');
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
+
+    await clickPathBarBreadcrumb(resourceName1);
+    await expectPathBarCrumbs(['Home', resourceName1], [resourceName2]);
+    await expectAttributionFormMatchesPackageInfo(packageInfo1);
+    await expectSelectedTabIs(ATTRIBUTIONS_PANEL, 'children');
+
+    await clickPathBarHistoryButton('go back');
+    await expectPathBarCrumbs(['Home', resourceName1, resourceName2]);
+    await expectAttributionFormMatchesPackageInfo(packageInfo1);
+    await expectSelectedTabIs(ATTRIBUTIONS_PANEL, 'children');
+
+    await clickPathBarHistoryButton('go forward');
+    await expectPathBarCrumbs(['Home', resourceName1], [resourceName2]);
+    await expectAttributionFormMatchesPackageInfo(packageInfo1);
+    await expectSelectedTabIs(ATTRIBUTIONS_PANEL, 'children');
+  });
+
   it('allows selecting and deselecting all attributions in the active tab', async () => {
     await renderApp({ data });
     await gotoResource(resourceName4);

@@ -106,7 +106,7 @@ describe('SplitDialog', () => {
       <SplitDialog open={true} resourcePath={resourcePath} onClose={onClose} />,
       {
         actions: [
-          setSelectedResourceId(resourcePath),
+          setSelectedResourceId(resourcePath, 'auto'),
           setExpandedIds(['/', resourcePath]),
         ],
       },

@@ -13,7 +13,7 @@ import { useIsSelectedResourceReadonly } from '../use-selected-resource';
 describe('useIsSelectedResourceReadonly', () => {
   it('identifies a readonly structural ancestor', async () => {
     const { result } = await renderHook(() => useIsSelectedResourceReadonly(), {
-      actions: [setSelectedResourceId('/')],
+      actions: [setSelectedResourceId('/', 'auto')],
       data: getParsedInputFileEnrichedWithTestData({
         resources: pathsToResources(['/editable/file.ts']),
         readonlyRules: [

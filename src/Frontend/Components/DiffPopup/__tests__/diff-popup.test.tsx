@@ -129,7 +129,7 @@ describe('DiffPopup', () => {
         {
           onClose,
           actions: [
-            setSelectedResourceId('/comparison'),
+            setSelectedResourceId('/comparison', 'auto'),
             setSelectedAttributionId(right.id),
           ],
           data: {
@@ -177,7 +177,7 @@ describe('DiffPopup', () => {
       {
         onClose,
         actions: [
-          setSelectedResourceId('/comparison'),
+          setSelectedResourceId('/comparison', 'auto'),
           setSelectedAttributionId(persisted.id),
         ],
       },

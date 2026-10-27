@@ -26,7 +26,6 @@ import {
   setTemporaryDisplayPackageInfo,
 } from '../../../../state/actions/resource-actions/all-views-simple-actions';
 import {
-  setAttributionSelectionPending,
   setPendingAttributionNavigation,
   setSelectedAttributionId,
   setSelectedResourceId,
@@ -71,6 +70,7 @@ function mockAttributions(
   visibleAttributions: Attributions = attributions,
   scopeByRelation = true,
   navigationRelation: Relation = 'resource',
+  loading = false,
 ) {
   const relationCounts = Object.values(attributions).reduce<
     Partial<Record<Relation, { visibleCount: number; editableCount: number }>>
@@ -93,10 +93,10 @@ function mockAttributions(
           ),
         )
       : visibleAttributions,
-    loading: false,
+    loading,
     relationCounts,
     hasNextPage: false,
-    isFetching: false,
+    isFetching: loading,
     isFetchingNextPage: false,
     fetchNextPage: vi.fn(() => Promise.resolve()),
     nextPageError: null,
@@ -211,12 +211,75 @@ describe('PackagesPanel', () => {
     });
 
     act(() =>
-      store.dispatch(openResourceInResourceBrowser('/another-resource')),
+      store.dispatch(
+        openResourceInResourceBrowser('/another-resource', 'auto'),
+      ),
     );
 
     await waitFor(() => {
       expect(store.getState().resourceState.selectedAttributionId).toBe(
         resourceAttribution.id,
+      );
+      expect(
+        getAttributionSelectionPendingResourceId(store.getState()),
+      ).toBeNull();
+    });
+  });
+
+  it.each([
+    { policy: 'auto', expectedSelectedId: 'attribution-id' },
+    { policy: 'preserve', expectedSelectedId: '' },
+  ] as const)(
+    'resolves delayed selection according to the latest $policy navigation',
+    async ({ policy, expectedSelectedId }) => {
+      const attribution = faker.opossum.packageInfo({
+        id: 'attribution-id',
+        relation: 'resource',
+      });
+      const attributions = { [attribution.id]: attribution };
+      const { store, rerender } = await renderPackagesPanel({ attributions });
+      mockAttributions({}, {}, true, 'resource', true);
+
+      await act(() =>
+        store.dispatch(setSelectedResourceId('/destination', 'auto')),
+      );
+
+      expect(getAttributionSelectionPendingResourceId(store.getState())).toBe(
+        '/destination',
+      );
+      expect(store.getState().resourceState.selectedAttributionId).toBe('');
+
+      await act(() =>
+        store.dispatch(setSelectedResourceId('/destination', policy)),
+      );
+      rerenderPackagesPanel(rerender, attributions);
+
+      await waitFor(() => {
+        expect(store.getState().resourceState.selectedAttributionId).toBe(
+          expectedSelectedId,
+        );
+        expect(
+          getAttributionSelectionPendingResourceId(store.getState()),
+        ).toBeNull();
+      });
+    },
+  );
+
+  it('selects an ancestor attribution when the resource has none', async () => {
+    const ancestorAttribution = faker.opossum.packageInfo({
+      relation: 'parents',
+    });
+    const { store } = await renderPackagesPanel({
+      attributions: { [ancestorAttribution.id]: ancestorAttribution },
+    });
+
+    await act(() =>
+      store.dispatch(setSelectedResourceId('/destination', 'auto')),
+    );
+
+    await waitFor(() => {
+      expect(store.getState().resourceState.selectedAttributionId).toBe(
+        ancestorAttribution.id,
       );
       expect(
         getAttributionSelectionPendingResourceId(store.getState()),
@@ -233,10 +296,7 @@ describe('PackagesPanel', () => {
       attributions: faker.opossum.attributions({
         [resourceAttribution.id]: resourceAttribution,
       }),
-      actions: [
-        setSelectedResourceId(resource),
-        setAttributionSelectionPending(resource),
-      ],
+      actions: [setSelectedResourceId(resource, 'auto')],
     });
 
     await waitFor(() => {
@@ -253,10 +313,7 @@ describe('PackagesPanel', () => {
     const resource = '/empty-resource';
     const { store } = await renderPackagesPanel({
       attributions: {},
-      actions: [
-        setSelectedResourceId(resource),
-        setAttributionSelectionPending(resource),
-      ],
+      actions: [setSelectedResourceId(resource, 'auto')],
     });
 
     await waitFor(() => {
@@ -278,8 +335,7 @@ describe('PackagesPanel', () => {
         [target.id]: target,
       }),
       actions: [
-        setSelectedResourceId(resource),
-        setAttributionSelectionPending(resource),
+        setSelectedResourceId(resource, 'auto'),
         setSelectedAttributionId(target.id),
         setPendingAttributionNavigation({
           attributionUuid: target.id,
@@ -312,7 +368,9 @@ describe('PackagesPanel', () => {
       visibleAttributions: {},
     });
 
-    await act(() => store.dispatch(setSelectedResourceId('/another-resource')));
+    await act(() =>
+      store.dispatch(setSelectedResourceId('/another-resource', 'auto')),
+    );
 
     await waitFor(() => {
       expect(store.getState().resourceState.selectedAttributionId).toBe('');
@@ -353,7 +411,9 @@ describe('PackagesPanel', () => {
     });
 
     act(() =>
-      store.dispatch(openResourceInResourceBrowser('/ordinary-resource')),
+      store.dispatch(
+        openResourceInResourceBrowser('/ordinary-resource', 'auto'),
+      ),
     );
 
     await waitFor(() => {
@@ -798,7 +858,9 @@ describe('PackagesPanel', () => {
       ).toHaveAttribute('aria-selected', 'true'),
     );
 
-    await act(() => store.dispatch(setSelectedResourceId('/next-resource')));
+    await act(() =>
+      store.dispatch(setSelectedResourceId('/next-resource', 'auto')),
+    );
     rerenderPackagesPanel(rerender, refreshedAttributions, {
       external: true,
       visibleAttributions: {},
@@ -1075,7 +1137,7 @@ describe('PackagesPanel', () => {
       </PackagesPanel>,
       {
         actions: [
-          setSelectedResourceId(resource),
+          setSelectedResourceId(resource, 'auto'),
           setSelectedAttributionId(selectedAttribution.id),
           setPendingAttributionNavigation({
             attributionUuid: selectedAttribution.id,
@@ -1500,7 +1562,9 @@ describe('PackagesPanel', () => {
     await userEvent.click(
       screen.getByRole('tab', { name: new RegExp(text.relations.unrelated) }),
     );
-    await act(() => store.dispatch(setSelectedResourceId('/next-resource')));
+    await act(() =>
+      store.dispatch(setSelectedResourceId('/next-resource', 'auto')),
+    );
 
     expect(
       screen.getByRole('tab', { name: new RegExp(text.relations.resource) }),
@@ -1638,7 +1702,7 @@ test('reveals the refreshed index when query notifications are delayed until aft
     </>,
     {
       actions: [
-        setSelectedResourceId('/selected'),
+        setSelectedResourceId('/selected', 'auto'),
         setSelectedAttributionId(selected.id),
       ],
     },

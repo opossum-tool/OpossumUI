@@ -32,7 +32,7 @@ describe('The GoToLinkButton', () => {
     'navigates to correct link for %s',
     async (path: string, expected_link: string) => {
       await renderComponent(<GoToLinkButton />, {
-        actions: [setSelectedResourceId(path)],
+        actions: [setSelectedResourceId(path, 'auto')],
         data: getParsedInputFileEnrichedWithTestData({
           resources: {
             parent_directory: {
@@ -59,7 +59,7 @@ describe('The GoToLinkButton', () => {
   it('does not show link if base url of parent is null', async () => {
     const parentPath = '/parent_directory/';
     await renderComponent(<GoToLinkButton />, {
-      actions: [setSelectedResourceId(parentPath)],
+      actions: [setSelectedResourceId(parentPath, 'auto')],
       data: getParsedInputFileEnrichedWithTestData({
         resources: { parent_directory: 1 },
         baseUrlsForSources: { [parentPath]: null },

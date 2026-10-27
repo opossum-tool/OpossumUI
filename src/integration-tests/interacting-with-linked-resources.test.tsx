@@ -11,6 +11,7 @@ import { renderApp } from './helpers/render-app';
 import {
   clearTreeSearch,
   clickPackageCard,
+  expectAttributionFormMatchesPackageInfo,
   expectLinkedResourcesTreeVisibility,
   expectPackageCards,
   expectPathBarCrumbs,
@@ -78,6 +79,10 @@ describe('interacting with linked resources', () => {
     await expectPathBarCrumbs([resourceName1]);
     await expectSelectedTabIs('signals-panel', 'resource');
     await expectPackageCards('signals-panel', [externalPackageInfo], []);
+
+    await gotoResourceTreeRoot();
+    await expectAttributionFormMatchesPackageInfo(externalPackageInfo);
+    await expectSelectedTabIs('signals-panel', 'children');
   });
 
   it('shows only linked resources matching search', async () => {

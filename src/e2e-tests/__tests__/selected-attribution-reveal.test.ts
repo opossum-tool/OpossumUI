@@ -130,8 +130,33 @@ test.describe('selected manual attribution', () => {
     },
   });
 
+  test('reveals the selected attribution when returning Home from a linked resource', async ({
+    linkedResourcesTree,
+    attributionsPanel,
+    attributionDetails,
+    pathBar,
+  }) => {
+    await attributionsPanel.sortButton.click();
+    await attributionsPanel.sortings.name.click();
+    await attributionsPanel.assert.selectedTabIs('onChildren');
+    await attributionsPanel.packageCard.assert.isNotInViewport(target);
+    await attributionsPanel.scrollToBottomUntilVisible(target);
+    await attributionsPanel.packageCard.click(target);
+    await attributionDetails.attributionForm.assert.matchesPackageInfo(target);
+
+    await linkedResourcesTree.clickResource(resourceNames.destination);
+    await attributionsPanel.packageCard.assert.isInViewport(target);
+    await attributionDetails.attributionForm.assert.matchesPackageInfo(target);
+
+    await pathBar.clickOnBreadcrumb('Home');
+
+    await attributionsPanel.assert.selectedTabIs('onChildren');
+    await attributionsPanel.packageCard.assert.isInViewport(target);
+    await attributionDetails.attributionForm.assert.matchesPackageInfo(target);
+    await attributionsPanel.assert.selectedAttributionIs(targetId);
+  });
+
   test('reveals a selected attribution after saving a changed sort value globally', async ({
-    window,
     resourcesTree,
     attributionsPanel,
     attributionDetails,
@@ -172,9 +197,7 @@ test.describe('selected manual attribution', () => {
       updatedTarget,
       manualPrecedingAttributions[150][1],
     );
-    await expect(
-      window.getByTestId('attributions-panel').locator('[data-selected-id]'),
-    ).toHaveAttribute('data-selected-id', targetId);
+    await attributionsPanel.assert.selectedAttributionIs(targetId);
   });
 
   test('reveals repeated comment-only saves without moving an already visible row', async ({
@@ -274,13 +297,10 @@ test.describe('selected manual attribution', () => {
       attributionDetails.attributionForm.auditingLabels.needsReviewLabel,
     ).toBeVisible();
     await attributionsPanel.packageCard.assert.isNotInViewport(target);
-    await expect(
-      window.getByTestId('attributions-panel').locator('[data-selected-id]'),
-    ).toHaveAttribute('data-selected-id', targetId);
+    await attributionsPanel.assert.selectedAttributionIs(targetId);
   });
 
   test('keeps a saved selected attribution outside the viewport while loading another page', async ({
-    window,
     resourcesTree,
     attributionsPanel,
     attributionDetails,
@@ -307,9 +327,7 @@ test.describe('selected manual attribution', () => {
     await attributionsPanel.packageCard.assert.isNotInViewport(
       selectedAttribution,
     );
-    await expect(
-      window.getByTestId('attributions-panel').locator('[data-selected-id]'),
-    ).toHaveAttribute('data-selected-id', selectedId);
+    await attributionsPanel.assert.selectedAttributionIs(selectedId);
   });
 
   test('preserves a manual attribution across linked destinations', async ({

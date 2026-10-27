@@ -48,7 +48,7 @@ export const ResourcesTree = ({ resources, sx, expansionFilters }: Props) => {
 
   useEffect(() => {
     if (!selectedResourceId) {
-      dispatch(setSelectedResourceId(ROOT_PATH));
+      dispatch(setSelectedResourceId(ROOT_PATH, 'auto'));
     }
   }, [dispatch, selectedResourceId]);
 
@@ -69,7 +69,7 @@ export const ResourcesTree = ({ resources, sx, expansionFilters }: Props) => {
 
   const handleSelect = useCallback(
     (nodeId: string) => {
-      dispatch(setSelectedResourceIdOrOpenUnsavedPopup(nodeId));
+      dispatch(setSelectedResourceIdOrOpenUnsavedPopup(nodeId, 'auto'));
     },
     [dispatch],
   );

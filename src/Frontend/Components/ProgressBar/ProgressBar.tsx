@@ -76,7 +76,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     if (!resourcePath) {
       return;
     }
-    dispatch(navigateToSelectedPathOrOpenUnsavedPopup(resourcePath));
+    dispatch(navigateToSelectedPathOrOpenUnsavedPopup(resourcePath, 'auto'));
   }
 
   async function goToNextResource(refetch: NextResourceRefetch) {

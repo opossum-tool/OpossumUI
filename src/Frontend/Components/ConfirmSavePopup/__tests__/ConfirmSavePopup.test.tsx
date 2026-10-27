@@ -300,7 +300,7 @@ describe('AttributionFormConfirmSavePopup', () => {
         }),
         actions: [
           setSelectedAttributionId(first.id),
-          setSelectedResourceId(resource),
+          setSelectedResourceId(resource, 'auto'),
           setTemporaryDisplayPackageInfo({
             ...first,
             packageName: 'edited-first',
@@ -383,7 +383,7 @@ describe('AttributionFormConfirmSavePopup', () => {
         actions: [
           setTemporaryDisplayPackageInfo(focused),
           setSelectedAttributionId(focused.id),
-          setSelectedResourceId(resource),
+          setSelectedResourceId(resource, 'auto'),
         ],
       },
     );
@@ -587,7 +587,7 @@ describe('AttributionFormConfirmSavePopup', () => {
         actions: [
           setTemporaryDisplayPackageInfo(packageInfo2),
           setSelectedAttributionId(packageInfo1.id),
-          setSelectedResourceId(resource1),
+          setSelectedResourceId(resource1, 'auto'),
         ],
       },
     );
@@ -720,7 +720,7 @@ describe('AttributionFormConfirmSavePopup', () => {
         actions: [
           setTemporaryDisplayPackageInfo(packageInfo),
           setSelectedAttributionId(packageInfo.id),
-          setSelectedResourceId(resource1),
+          setSelectedResourceId(resource1, 'auto'),
         ],
       },
     );

@@ -22,10 +22,13 @@ import type { State } from '../../../../types/types';
 import { backend } from '../../../../util/backendClient';
 import { createAppStore } from '../../../configure-store';
 import {
+  getAttributionSelectionPendingResourceId,
+  getAttributionSelectionPolicy,
   getExpandedIds,
   getSelectedAttributionId,
   getSelectedResourceId,
   getTargetAttributionFilterChange,
+  getTargetAttributionSelectionPolicy,
   getTargetSelectedAttributionId,
   getTargetSelectedResourceId,
   getTemporaryDisplayPackageInfo,
@@ -81,6 +84,97 @@ import {
   showSplitDialogOrOpenUnsavedPopup,
 } from '../popup-actions';
 
+describe.each([
+  ['resource selection', setSelectedResourceIdOrOpenUnsavedPopup],
+  [
+    'resource selection with expansion',
+    navigateToSelectedPathOrOpenUnsavedPopup,
+  ],
+] as const)('%s attribution selection policy', (_, navigate) => {
+  it.each([
+    { policy: 'auto', expectedPendingResourceId: '/' },
+    { policy: 'preserve', expectedPendingResourceId: null },
+  ] as const)(
+    'applies $policy selection and replaces pending navigation',
+    ({ policy, expectedPendingResourceId }) => {
+      const store = createAppStore();
+      store.dispatch(setSelectedResourceId('/origin/', 'auto'));
+      store.dispatch(setSelectedAttributionId('reviewed-attribution'));
+
+      store.dispatch(navigate('/', policy));
+
+      expect(getSelectedResourceId(store.getState())).toBe('/');
+      expect(getSelectedAttributionId(store.getState())).toBe(
+        'reviewed-attribution',
+      );
+      expect(getAttributionSelectionPolicy(store.getState())).toBe(policy);
+      expect(getAttributionSelectionPendingResourceId(store.getState())).toBe(
+        expectedPendingResourceId,
+      );
+    },
+  );
+
+  it.each([
+    { policy: 'auto', expectedPendingResourceId: '/' },
+    { policy: 'preserve', expectedPendingResourceId: null },
+  ] as const)(
+    'retains $policy selection policy after the unsaved-changes popup',
+    ({ policy, expectedPendingResourceId }) => {
+      const store = createAppStore();
+      const attribution = faker.opossum.packageInfo();
+      store.dispatch(setSelectedResourceId('/origin/', 'preserve'));
+      store.dispatch(setSelectedAttributionId(attribution.id));
+      store.dispatch(initializePackageInfoEditing(attribution));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo({ ...attribution, comment: 'unsaved' }),
+      );
+
+      store.dispatch(navigate('/', policy));
+
+      expect(getSelectedResourceId(store.getState())).toBe('/origin/');
+      expect(getTargetAttributionSelectionPolicy(store.getState())).toBe(
+        policy,
+      );
+      expect(getOpenPopup(store.getState())?.popup).toBe(
+        PopupType.NotSavedPopup,
+      );
+
+      store.dispatch(proceedFromUnsavedPopup());
+
+      expect(getSelectedResourceId(store.getState())).toBe('/');
+      expect(getSelectedAttributionId(store.getState())).toBe(attribution.id);
+      expect(getAttributionSelectionPolicy(store.getState())).toBe(policy);
+      expect(getAttributionSelectionPendingResourceId(store.getState())).toBe(
+        expectedPendingResourceId,
+      );
+    },
+  );
+
+  it.each(['auto', 'preserve'] as const)(
+    'does not navigate when %s navigation is cancelled',
+    (policy) => {
+      const store = createAppStore();
+      const attribution = faker.opossum.packageInfo();
+      store.dispatch(setSelectedResourceId('/origin/', 'preserve'));
+      store.dispatch(setSelectedAttributionId(attribution.id));
+      store.dispatch(initializePackageInfoEditing(attribution));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo({ ...attribution, comment: 'unsaved' }),
+      );
+
+      store.dispatch(navigate('/', policy));
+      store.dispatch(closePopupAndUnsetTargets());
+
+      expect(getSelectedResourceId(store.getState())).toBe('/origin/');
+      expect(getSelectedAttributionId(store.getState())).toBe(attribution.id);
+      expect(
+        getAttributionSelectionPendingResourceId(store.getState()),
+      ).toBeNull();
+      expect(getTargetSelectedResourceId(store.getState())).toBeNull();
+    },
+  );
+});
+
 describe('mergeOpossumFilesIntoCurrentFile', () => {
   it('merges partitions and resets the resource selection', async () => {
     const partitionPaths = [
@@ -88,7 +182,7 @@ describe('mergeOpossumFilesIntoCurrentFile', () => {
       '/partitions/second.opossum',
     ];
     const testStore = createAppStore();
-    testStore.dispatch(setSelectedResourceId('/selected-resource'));
+    testStore.dispatch(setSelectedResourceId('/selected-resource', 'auto'));
     testStore.dispatch(setSelectedAttributionId('selected-attribution'));
     vi.mocked(window.electronAPI.mergeOpossumFiles).mockResolvedValue({
       status: 'success',
@@ -204,7 +298,10 @@ describe('The actions checking for unsaved changes', () => {
       const testStore = createAppStore();
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(
-        navigateToSelectedPathOrOpenUnsavedPopup('/folder1/folder2/test_file'),
+        navigateToSelectedPathOrOpenUnsavedPopup(
+          '/folder1/folder2/test_file',
+          'auto',
+        ),
       );
 
       expect(getSelectedResourceId(testStore.getState())).toBe(
@@ -243,7 +340,7 @@ describe('The actions checking for unsaved changes', () => {
           }),
         );
 
-        testStore.dispatch(setSelectedResourceId('selectedResource'));
+        testStore.dispatch(setSelectedResourceId('selectedResource', 'auto'));
         testStore.dispatch(navigateToView(View.Audit));
 
         await backend.createOrMatchAttributions.mutate({
@@ -310,7 +407,7 @@ describe('The actions checking for unsaved changes', () => {
         }),
       );
 
-      testStore.dispatch(setSelectedResourceId('selectedResource'));
+      testStore.dispatch(setSelectedResourceId('selectedResource', 'auto'));
       testStore.dispatch(setSelectedAttributionId('uuid_2'));
       testStore.dispatch(navigateToView(View.Audit));
       testStore.dispatch(
@@ -352,7 +449,7 @@ describe('The actions checking for unsaved changes', () => {
     it('opens unsaved-popup', () => {
       const testStore = createAppStore();
       testStore.dispatch(navigateToView(View.Report));
-      testStore.dispatch(setSelectedResourceId('/testId/'));
+      testStore.dispatch(setSelectedResourceId('/testId/', 'auto'));
       testStore.dispatch(
         setTemporaryDisplayPackageInfo({
           packageName: 'new Name',
@@ -426,10 +523,10 @@ describe('The actions checking for unsaved changes', () => {
           resourcesToManualAttributions: testResourcesToManualAttributions,
         }),
       );
-      testStore.dispatch(setSelectedResourceId('/root/'));
+      testStore.dispatch(setSelectedResourceId('/root/', 'auto'));
       expect(getSelectedResourceId(testStore.getState())).toBe('/root/');
       testStore.dispatch(
-        setSelectedResourceIdOrOpenUnsavedPopup('/thirdParty/'),
+        setSelectedResourceIdOrOpenUnsavedPopup('/thirdParty/', 'auto'),
       );
       expect(getSelectedResourceId(testStore.getState())).toBe('/thirdParty/');
     });
@@ -442,7 +539,7 @@ describe('The actions checking for unsaved changes', () => {
           resourcesToManualAttributions: testResourcesToManualAttributions,
         }),
       );
-      testStore.dispatch(setSelectedResourceId('/root/'));
+      testStore.dispatch(setSelectedResourceId('/root/', 'auto'));
       testStore.dispatch(
         setTemporaryDisplayPackageInfo({
           packageName: 'new Name',
@@ -459,7 +556,7 @@ describe('The actions checking for unsaved changes', () => {
       );
       expect(getSelectedResourceId(testStore.getState())).toBe('/root/');
       testStore.dispatch(
-        setSelectedResourceIdOrOpenUnsavedPopup('/thirdParty/'),
+        setSelectedResourceIdOrOpenUnsavedPopup('/thirdParty/', 'auto'),
       );
       expect(getSelectedResourceId(testStore.getState())).toBe('/root/');
       expect(getTargetSelectedResourceId(testStore.getState())).toBe(
@@ -629,7 +726,7 @@ describe('The actions checking for unsaved changes', () => {
 describe('proceedFromUnsavedPopup', () => {
   function prepareTestState(): State {
     const testStore = createAppStore();
-    testStore.dispatch(setSelectedResourceId('selectedResource'));
+    testStore.dispatch(setSelectedResourceId('selectedResource', 'auto'));
     testStore.dispatch(
       setTemporaryDisplayPackageInfo({
         packageName: 'Test',

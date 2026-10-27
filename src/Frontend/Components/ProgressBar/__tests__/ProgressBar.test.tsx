@@ -13,7 +13,11 @@ import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../../testing/global-test-helpers';
-import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
+import {
+  getAttributionSelectionPendingResourceId,
+  getAttributionSelectionPolicy,
+  getSelectedResourceId,
+} from '../../../state/selectors/resource-selectors';
 import { createTestStore, renderComponent } from '../../../test-helpers/render';
 import type { SelectedProgressBar } from '../../../types/types';
 import { setDatabaseInitialized } from '../../../util/backendClient';
@@ -160,6 +164,10 @@ describe('ProgressBar', () => {
     expect(getSelectedResourceId(store.getState())).toBe('/');
     await clickOnAttributionProgressBar();
     expect(getSelectedResourceId(store.getState())).toBe('/a');
+    expect(getAttributionSelectionPolicy(store.getState())).toBe('auto');
+    expect(getAttributionSelectionPendingResourceId(store.getState())).toBe(
+      '/a',
+    );
     await clickOnAttributionProgressBar();
     expect(getSelectedResourceId(store.getState())).toBe('/b');
   });

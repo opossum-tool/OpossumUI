@@ -8,7 +8,6 @@ import {
   ACTION_COMPLETE_ATTRIBUTION_SELECTION,
   ACTION_INITIALIZE_PACKAGE_INFO_EDITING,
   ACTION_RESET_RESOURCE_STATE,
-  ACTION_SET_ATTRIBUTION_SELECTION_PENDING,
   ACTION_SET_EXPANDED_IDS,
   ACTION_SET_PENDING_ATTRIBUTION_NAVIGATION,
   ACTION_SET_SELECTED_ATTRIBUTION_ID,
@@ -73,23 +72,26 @@ export const resourceState = (
         originalDisplayPackageInfo: action.payload,
         temporaryDisplayPackageInfo: action.payload,
       };
-    case ACTION_SET_SELECTED_RESOURCE_ID:
+    case ACTION_SET_SELECTED_RESOURCE_ID: {
+      const { resourceId, attributionSelectionPolicy } = action.payload;
       return {
         ...state,
-        selectedResourceId: action.payload.resourceId,
-        attributionSelectionPolicy: action.payload.attributionSelectionPolicy,
+        selectedResourceId: resourceId,
+        attributionSelectionPolicy,
+        attributionSelectionPendingResourceId:
+          attributionSelectionPolicy === 'preserve'
+            ? null
+            : resourceId !== state.selectedResourceId
+              ? resourceId
+              : state.attributionSelectionPendingResourceId,
       };
+    }
     case ACTION_SET_TARGET_SELECTED_RESOURCE_ID:
       return {
         ...state,
         targetSelectedResourceId: action.payload?.resourceId ?? null,
         targetAttributionSelectionPolicy:
           action.payload?.attributionSelectionPolicy ?? 'auto',
-      };
-    case ACTION_SET_ATTRIBUTION_SELECTION_PENDING:
-      return {
-        ...state,
-        attributionSelectionPendingResourceId: action.payload,
       };
     case ACTION_COMPLETE_ATTRIBUTION_SELECTION:
       return action.payload === state.attributionSelectionPendingResourceId

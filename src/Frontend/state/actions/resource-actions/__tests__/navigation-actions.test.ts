@@ -22,7 +22,6 @@ import { setVariable } from '../../variables-actions/variables-actions';
 import { navigateToView, setTargetView } from '../../view-actions/view-actions';
 import {
   completeAttributionSelection,
-  setAttributionSelectionPending,
   setPendingAttributionNavigation,
   setSelectedAttributionId,
   setSelectedResourceId,
@@ -87,7 +86,7 @@ describe('setSelectedResourceOrAttributionIdToTargetValue', () => {
     const testStore = createAppStore();
     testStore.dispatch(navigateToView(View.Audit));
     testStore.dispatch(setTargetView(View.Report));
-    testStore.dispatch(setSelectedResourceId('previousResourceId'));
+    testStore.dispatch(setSelectedResourceId('previousResourceId', 'auto'));
     testStore.dispatch(setTargetSelectedResourceId('newResourceId'));
 
     testStore.dispatch(setSelectedResourceOrAttributionIdToTargetValue());
@@ -162,7 +161,9 @@ describe('pending attribution navigation', () => {
 describe('setSelectedResourceIdAndExpand', () => {
   it('sets the selectedResourceId', () => {
     const testStore = createAppStore();
-    testStore.dispatch(openResourceInResourceBrowser('/folder1/folder2/test'));
+    testStore.dispatch(
+      openResourceInResourceBrowser('/folder1/folder2/test', 'auto'),
+    );
     const state = testStore.getState();
     expect(getSelectedResourceId(state)).toBe('/folder1/folder2/test');
     expect(getAttributionSelectionPendingResourceId(state)).toBe(
@@ -172,8 +173,8 @@ describe('setSelectedResourceIdAndExpand', () => {
 
   it('does not let an older completion clear a newer navigation', () => {
     const testStore = createAppStore();
-    testStore.dispatch(setAttributionSelectionPending('/first'));
-    testStore.dispatch(setAttributionSelectionPending('/second'));
+    testStore.dispatch(setSelectedResourceId('/first', 'auto'));
+    testStore.dispatch(setSelectedResourceId('/second', 'auto'));
     testStore.dispatch(completeAttributionSelection('/first'));
 
     expect(getAttributionSelectionPendingResourceId(testStore.getState())).toBe(
@@ -183,7 +184,9 @@ describe('setSelectedResourceIdAndExpand', () => {
 
   it('sets the expandedIds', () => {
     const testStore = createAppStore();
-    testStore.dispatch(openResourceInResourceBrowser('/folder1/folder2/test'));
+    testStore.dispatch(
+      openResourceInResourceBrowser('/folder1/folder2/test', 'auto'),
+    );
     const state = testStore.getState();
     expect(getExpandedIds(state)).toMatchObject([
       '/',

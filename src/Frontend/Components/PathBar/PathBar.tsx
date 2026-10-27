@@ -76,6 +76,7 @@ export function PathBar() {
       dispatch(
         setSelectedResourceIdOrOpenUnsavedPopup(
           history.stack[history.activeIndex - 1],
+          'preserve',
         ),
       );
     }
@@ -87,6 +88,7 @@ export function PathBar() {
       dispatch(
         setSelectedResourceIdOrOpenUnsavedPopup(
           history.stack[history.activeIndex + 1],
+          'preserve',
         ),
       );
     }
@@ -209,6 +211,7 @@ export function PathBar() {
                         element === ROOT_PATH
                           ? element
                           : getResourceId(element),
+                        'preserve',
                       ),
                     );
                   }
