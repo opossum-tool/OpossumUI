@@ -223,12 +223,6 @@ export class AttributionsPanel {
     });
   }
 
-  async scrollToBottom(): Promise<void> {
-    await this.scroller.evaluate((scroller) => {
-      scroller.scrollTo({ top: scroller.scrollHeight });
-    });
-  }
-
   async scrollToBottomUntilVisible(packageInfo: RawPackageInfo): Promise<void> {
     await scrollToBottomUntilVisible(
       this.scroller,

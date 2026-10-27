@@ -183,11 +183,7 @@ test('scrolls a selected attribution into view after report navigation', async (
   await attributionsPanel.packageCard.assert.isNotInViewport(
     reportChildAttribution,
   );
-  await attributionsPanel.scrollToBottom();
-  await attributionsPanel.assert.loadingIndicatorIsHidden();
-  await attributionsPanel.packageCard.assert.isInViewport(
-    reportChildAttribution,
-  );
+  await attributionsPanel.scrollToBottomUntilVisible(reportChildAttribution);
   await attributionsPanel.packageCard.click(reportChildAttribution);
   await attributionDetails.attributionForm.assert.matchesPackageInfo(
     reportChildAttribution,

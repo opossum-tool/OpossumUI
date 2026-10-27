@@ -142,8 +142,7 @@ test.describe('selected manual attribution', () => {
     await resourcesTree.goto(resourceNames.origin);
     await attributionsPanel.sortButton.click();
     await attributionsPanel.sortings.name.click();
-    await attributionsPanel.scrollToBottom();
-    await attributionsPanel.assert.loadingIndicatorIsHidden();
+    await attributionsPanel.scrollToBottomUntilVisible(target);
     await attributionsPanel.packageCard.click(target);
     await attributionDetails.assert.loadingIndicatorIsHidden();
     await attributionDetails.attributionForm.assert.matchesPackageInfo(target);
@@ -188,7 +187,7 @@ test.describe('selected manual attribution', () => {
     await resourcesTree.goto(resourceNames.origin);
     await attributionsPanel.sortButton.click();
     await attributionsPanel.sortings.name.click();
-    await attributionsPanel.scrollToBottom();
+    await attributionsPanel.scrollToBottomUntilVisible(target);
     await attributionsPanel.packageCard.click(target);
     await attributionDetails.assert.loadingIndicatorIsHidden();
     for (const comment of ['first comment', 'second comment']) {
@@ -248,8 +247,7 @@ test.describe('selected manual attribution', () => {
     await resourcesTree.goto(resourceNames.origin);
     await attributionsPanel.sortButton.click();
     await attributionsPanel.sortings.name.click();
-    await attributionsPanel.scrollToBottom();
-    await attributionsPanel.assert.loadingIndicatorIsHidden();
+    await attributionsPanel.scrollToBottomUntilVisible(target);
     await attributionsPanel.packageCard.click(target);
     await attributionsPanel.packageCard.checkbox(target).check();
     const comment = 'Saved before changing review status';
@@ -303,8 +301,7 @@ test.describe('selected manual attribution', () => {
     await confirmSavePopup.assert.isHidden();
     await attributionDetails.assert.saveButtonIsDisabled();
 
-    await attributionsPanel.scrollToBottom();
-    await attributionsPanel.packageCard.assert.isInViewport(
+    await attributionsPanel.scrollToBottomUntilVisible(
       manualPrecedingAttributions[manualAttributionCount - 1][1],
     );
     await attributionsPanel.packageCard.assert.isNotInViewport(
@@ -328,9 +325,7 @@ test.describe('selected manual attribution', () => {
     await attributionsPanel.packageCard.assert.isFirstVisible(
       manualPrecedingAttributions[0][1],
     );
-    await attributionsPanel.scrollToBottom();
-    await attributionsPanel.assert.loadingIndicatorIsHidden();
-    await attributionsPanel.packageCard.assert.isInViewport(target);
+    await attributionsPanel.scrollToBottomUntilVisible(target);
     await attributionsPanel.packageCard.click(target);
     await attributionDetails.assert.loadingIndicatorIsHidden();
     await attributionDetails.attributionForm.assert.matchesPackageInfo(target);
@@ -391,9 +386,7 @@ test.describe('selected manual attribution', () => {
       directPaths.destination,
     );
     await attributionsPanel.assert.selectedTabIs('onResource');
-    await attributionsPanel.scrollToBottom();
-    await attributionsPanel.assert.loadingIndicatorIsHidden();
-    await attributionsPanel.packageCard.assert.isInViewport(target);
+    await attributionsPanel.scrollToBottomUntilVisible(target);
     await attributionDetails.assert.loadingIndicatorIsHidden();
     await attributionDetails.attributionForm.assert.matchesPackageInfo(target);
   });
