@@ -2,17 +2,61 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { Kysely, Transaction } from 'kysely';
+import type { Kysely, Selectable, SqlBool, Transaction } from 'kysely';
 
 import {
   type AttributionContent,
   getEffectiveHumanModified,
 } from '../../shared/attribution-comparison';
+import type { PackageInfo } from '../../shared/shared-types';
 import {
   ATTRIBUTION_CONTENT_COLUMNS,
   attributionContentFromRow,
+  packageInfoFromAttributionRow,
 } from './attributionData';
-import type { DB } from './generated/databaseTypes';
+import type { Attribution, DB } from './generated/databaseTypes';
+
+export type AttributionWithAiStatus = Selectable<Attribution> & {
+  ai_attribution_uuid: string | null;
+  ai_human_modified: number | null;
+  ai_deferred: SqlBool;
+};
+
+export function selectAttributionsWithAiStatus(db: Kysely<DB>) {
+  return db
+    .selectFrom('attribution')
+    .leftJoin(
+      'attribution_ai',
+      'attribution.uuid',
+      'attribution_ai.attribution_uuid',
+    )
+    .selectAll('attribution')
+    .select([
+      'attribution_ai.attribution_uuid as ai_attribution_uuid',
+      'attribution_ai.human_modified as ai_human_modified',
+    ])
+    .select((eb) =>
+      eb('attribution_ai.deferred_fields', 'is not', null).as('ai_deferred'),
+    );
+}
+
+export function packageInfoWithAiStatusFromRow(
+  row: AttributionWithAiStatus,
+): PackageInfo {
+  return {
+    ...packageInfoFromAttributionRow(row),
+    ...(row.ai_attribution_uuid === null
+      ? {}
+      : {
+          aiAttributions: {
+            ...(row.ai_human_modified === null
+              ? {}
+              : { humanModified: Boolean(row.ai_human_modified) }),
+            ...(row.ai_deferred ? { deferred: true } : {}),
+          },
+        }),
+  };
+}
 
 export async function copyAttributionAi(
   trx: Transaction<DB>,

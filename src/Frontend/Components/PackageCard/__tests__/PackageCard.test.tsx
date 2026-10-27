@@ -6,12 +6,103 @@ import { screen } from '@testing-library/react';
 
 import { Criticality, RawCriticality } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
+import { OpossumColors } from '../../../shared-styles';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { PackageCard } from '../PackageCard';
 
 describe('The PackageCard', () => {
+  it.each([
+    { name: 'ordinary attribution', aiAttributions: undefined, expected: [] },
+    {
+      name: 'AI attribution without flags',
+      aiAttributions: {},
+      expected: ['AI generated icon'],
+    },
+    {
+      name: 'unmodified AI attribution',
+      aiAttributions: { humanModified: false, deferred: false },
+      expected: ['AI generated icon'],
+    },
+    {
+      name: 'human-modified AI attribution',
+      aiAttributions: { humanModified: true },
+      expected: ['AI generated icon', 'Human-modified AI icon'],
+    },
+    {
+      name: 'deferred attribution',
+      aiAttributions: { deferred: true },
+      expected: ['Deferred AI icon'],
+    },
+    {
+      name: 'unmodified deferred attribution',
+      aiAttributions: { humanModified: false, deferred: true },
+      expected: ['Deferred AI icon'],
+    },
+    {
+      name: 'human-modified deferred attribution',
+      aiAttributions: { humanModified: true, deferred: true },
+      expected: ['Deferred AI icon', 'Human-modified AI icon'],
+    },
+  ])(
+    'renders AI status symbols for $name',
+    async ({ aiAttributions, expected }) => {
+      await renderComponent(
+        <PackageCard
+          packageInfo={faker.opossum.packageInfo({ aiAttributions })}
+        />,
+      );
+
+      const icons = screen.queryAllByLabelText(
+        /^(AI generated|Human-modified AI|Deferred AI) icon$/,
+      );
+      expect(icons.map((icon) => icon.getAttribute('aria-label'))).toEqual(
+        expected,
+      );
+    },
+  );
+
+  it('uses the deferred palette color for the deferred symbol', async () => {
+    await renderComponent(
+      <PackageCard
+        packageInfo={faker.opossum.packageInfo({
+          aiAttributions: { deferred: true },
+        })}
+      />,
+    );
+
+    expect(screen.getByLabelText('Deferred AI icon')).toHaveStyle({
+      color: OpossumColors.mediumOrange,
+    });
+  });
+
+  it('uses the dark blue palette color for the AI generated symbol', async () => {
+    await renderComponent(
+      <PackageCard
+        packageInfo={faker.opossum.packageInfo({ aiAttributions: {} })}
+      />,
+    );
+
+    expect(screen.getByLabelText('AI generated icon')).toHaveStyle({
+      color: OpossumColors.darkBlue,
+    });
+  });
+
+  it('uses the dark blue palette color for the human-modified symbol', async () => {
+    await renderComponent(
+      <PackageCard
+        packageInfo={faker.opossum.packageInfo({
+          aiAttributions: { humanModified: true },
+        })}
+      />,
+    );
+
+    expect(screen.getByLabelText('Human-modified AI icon')).toHaveStyle({
+      color: OpossumColors.darkBlue,
+    });
+  });
+
   it('renders with preferred icon', async () => {
     await renderComponent(
       <PackageCard

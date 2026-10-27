@@ -5,11 +5,14 @@
 import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import {
+  AiGeneratedIcon,
   ClassificationIcon,
   CriticalityIcon,
+  DeferredIcon,
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
   FollowUpIcon,
+  HumanModifiedIcon,
   IncompleteIcon,
   ModifiedPreferredIcon,
   NeedsReviewIcon,
@@ -25,6 +28,16 @@ export function getRightIcons(
   showCriticality: boolean,
 ) {
   const rightIcons: Array<React.ReactElement> = [];
+  const aiAttributions = cardConfig.aiAttributions;
+
+  if (aiAttributions?.deferred) {
+    rightIcons.push(<DeferredIcon key={'deferred-icon'} />);
+  } else if (aiAttributions) {
+    rightIcons.push(<AiGeneratedIcon key={'ai-generated-icon'} />);
+  }
+  if (aiAttributions?.humanModified) {
+    rightIcons.push(<HumanModifiedIcon key={'human-modified-icon'} />);
+  }
 
   if (cardConfig.preferred) {
     rightIcons.push(<PreferredIcon key={'preferred-icon'} />);

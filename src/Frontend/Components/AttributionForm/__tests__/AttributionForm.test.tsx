@@ -513,7 +513,10 @@ describe('AttributionForm', () => {
       {
         name: 'human-modified attribution without deferred fields',
         aiAttributions: { humanModified: true, deferred: false },
-        expected: [text.auditingOptions.humanModified],
+        expected: [
+          text.auditingOptions.aiGenerated,
+          text.auditingOptions.humanModified,
+        ],
       },
       {
         name: 'deferred attribution without a human-modified flag',
@@ -529,8 +532,8 @@ describe('AttributionForm', () => {
         name: 'human-modified attribution with deferred fields',
         aiAttributions: { humanModified: true, deferred: true },
         expected: [
-          text.auditingOptions.humanModified,
           text.auditingOptions.deferred,
+          text.auditingOptions.humanModified,
         ],
       },
     ])(
@@ -547,9 +550,37 @@ describe('AttributionForm', () => {
         expect(badges.map((badge) => badge.textContent)).toEqual(expected);
         for (const badge of badges) {
           expect(badge).toHaveStyle({
-            backgroundColor: OpossumColors.lightBlue,
+            backgroundColor:
+              badge.dataset.testid === 'auditing-option-deferred'
+                ? OpossumColors.mediumOrange
+                : OpossumColors.lightBlue,
+          });
+          const icon = within(badge).getByLabelText(
+            badge.dataset.testid === 'auditing-option-deferred'
+              ? 'Deferred AI icon'
+              : badge.dataset.testid === 'auditing-option-human-modified'
+                ? 'Human-modified AI icon'
+                : 'AI generated icon',
+          );
+          expect(icon).toHaveStyle({
+            color:
+              badge.dataset.testid === 'auditing-option-deferred'
+                ? OpossumColors.black
+                : OpossumColors.darkBlue,
           });
         }
+        expect(
+          screen.queryAllByLabelText('Human-modified AI icon'),
+        ).toHaveLength(
+          expected.some((label) => label === text.auditingOptions.humanModified)
+            ? 1
+            : 0,
+        );
+        expect(screen.queryAllByLabelText('Deferred AI icon')).toHaveLength(
+          expected.some((label) => label === text.auditingOptions.deferred)
+            ? 1
+            : 0,
+        );
       },
     );
   });

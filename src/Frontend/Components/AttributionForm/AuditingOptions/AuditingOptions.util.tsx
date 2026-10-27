@@ -24,8 +24,10 @@ import {
   AiGeneratedIcon,
   ClassificationIcon,
   CriticalityIcon,
+  DeferredIcon,
   ExcludeFromNoticeIcon,
   FollowUpIcon,
+  HumanModifiedIcon,
   ModifiedPreferredIcon,
   NeedsReviewIcon,
   PreferredIcon,
@@ -49,6 +51,10 @@ const satisfactionIconClass = {
 
 const aiAttributionChipClass = {
   backgroundColor: OpossumColors.lightBlue,
+} satisfies SxProps<Theme>;
+
+const deferredChipClass = {
+  backgroundColor: OpossumColors.mediumOrange,
 } satisfies SxProps<Theme>;
 
 export function useAuditingOptions({
@@ -105,25 +111,28 @@ export function useAuditingOptions({
         label: text.auditingOptions.aiGenerated,
         icon: <AiGeneratedIcon noTooltip />,
         selected:
-          !!packageInfo.aiAttributions &&
-          !packageInfo.aiAttributions.humanModified &&
-          !packageInfo.aiAttributions.deferred,
-        interactive: false,
-        chipSx: aiAttributionChipClass,
-      },
-      {
-        id: 'human-modified',
-        label: text.auditingOptions.humanModified,
-        icon: <AiGeneratedIcon noTooltip />,
-        selected: !!packageInfo.aiAttributions?.humanModified,
+          !!packageInfo.aiAttributions && !packageInfo.aiAttributions.deferred,
         interactive: false,
         chipSx: aiAttributionChipClass,
       },
       {
         id: 'deferred',
         label: text.auditingOptions.deferred,
-        icon: <AiGeneratedIcon noTooltip />,
+        icon: (
+          <DeferredIcon
+            noTooltip
+            sx={{ color: `${OpossumColors.black} !important` }}
+          />
+        ),
         selected: !!packageInfo.aiAttributions?.deferred,
+        interactive: false,
+        chipSx: deferredChipClass,
+      },
+      {
+        id: 'human-modified',
+        label: text.auditingOptions.humanModified,
+        icon: <HumanModifiedIcon noTooltip />,
+        selected: !!packageInfo.aiAttributions?.humanModified,
         interactive: false,
         chipSx: aiAttributionChipClass,
       },

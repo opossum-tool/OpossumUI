@@ -13,6 +13,7 @@ import FolderOutlinedIcon from '@mui/icons-material/Folder';
 import LinkIcon from '@mui/icons-material/Link';
 import LocalParkingIcon from '@mui/icons-material/LocalParking';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import PersonIcon from '@mui/icons-material/Person';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import ReplayIcon from '@mui/icons-material/Replay';
@@ -103,7 +104,57 @@ export function AiGeneratedIcon({
         aria-label={'AI generated icon'}
         sx={{
           ...baseIcon,
-          color: `${OpossumColors.black} !important`,
+          color: `${OpossumColors.darkBlue} !important`,
+          ...sx,
+        }}
+        className={className}
+      />
+    </MuiTooltip>
+  );
+}
+
+export function HumanModifiedIcon({
+  className,
+  noTooltip,
+  sx,
+  tooltipPlacement,
+}: IconProps) {
+  return (
+    <MuiTooltip
+      title={noTooltip ? undefined : text.auditingOptions.humanModified}
+      placement={tooltipPlacement}
+      disableInteractive
+    >
+      <PersonIcon
+        aria-label={'Human-modified AI icon'}
+        sx={{
+          ...baseIcon,
+          color: `${OpossumColors.darkBlue} !important`,
+          ...sx,
+        }}
+        className={className}
+      />
+    </MuiTooltip>
+  );
+}
+
+export function DeferredIcon({
+  className,
+  noTooltip,
+  sx,
+  tooltipPlacement,
+}: IconProps) {
+  return (
+    <MuiTooltip
+      title={noTooltip ? undefined : text.auditingOptions.deferred}
+      placement={tooltipPlacement}
+      disableInteractive
+    >
+      <AutoAwesomeIcon
+        aria-label={'Deferred AI icon'}
+        sx={{
+          ...baseIcon,
+          color: `${OpossumColors.mediumOrange} !important`,
           ...sx,
         }}
         className={className}

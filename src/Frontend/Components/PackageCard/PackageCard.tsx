@@ -10,7 +10,11 @@ import MuiTypography from '@mui/material/Typography';
 import type { SxProps } from '@mui/system';
 import { memo, useEffect, useMemo, useRef } from 'react';
 
-import type { Criticality, PackageInfo } from '../../../shared/shared-types';
+import type {
+  AiAttributions,
+  Criticality,
+  PackageInfo,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import {
   occurrenceChipMinWidth,
@@ -116,6 +120,7 @@ const classes = {
 } satisfies SxProps<Theme>;
 
 export interface PackageCardConfig {
+  aiAttributions?: AiAttributions;
   criticality: Criticality;
   classification?: number;
   excludeFromNotice?: boolean;
@@ -162,6 +167,7 @@ export const PackageCard = memo(
     );
     const effectiveCardConfig = useMemo<PackageCardConfig>(
       () => ({
+        aiAttributions: packageInfo.aiAttributions,
         criticality: packageInfo.criticality,
         classification: packageInfo.classification,
         excludeFromNotice: packageInfo.excludeFromNotice,

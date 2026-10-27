@@ -15,6 +15,10 @@ import type {
   ProjectMetadata,
   RawClassificationsConfig,
 } from '../../shared/shared-types';
+import {
+  packageInfoWithAiStatusFromRow,
+  selectAttributionsWithAiStatus,
+} from '../db/attribution-ai';
 import { packageInfoFromAttributionRow } from '../db/attributionData';
 import { getDb } from '../db/db';
 import type { DB } from '../db/generated/databaseTypes';
@@ -150,44 +154,20 @@ export const queries = {
   licenseTable,
 
   async getAttributionData(props: { attributionUuid: string }) {
-    const result = await getDb()
-      .selectFrom('attribution')
-      .leftJoin(
-        'attribution_ai',
-        'attribution.uuid',
-        'attribution_ai.attribution_uuid',
-      )
-      .selectAll('attribution')
-      .select([
-        'attribution_ai.attribution_uuid as ai_attribution_uuid',
-        'attribution_ai.human_modified as ai_human_modified',
-      ])
-      .select((eb) =>
-        eb('attribution_ai.deferred_fields', 'is not', null).as('ai_deferred'),
-      )
+    const result = await selectAttributionsWithAiStatus(getDb())
       .where('attribution.uuid', '=', props.attributionUuid)
       .executeTakeFirstOrThrow();
 
     return {
       result: {
         packageInfo: {
-          ...packageInfoFromAttributionRow(result),
+          ...packageInfoWithAiStatusFromRow(result),
           resourceAccess:
             result.resource_access === AttributionResourceAccess.Mixed
               ? 'mixed'
               : result.resource_access === AttributionResourceAccess.Readonly
                 ? 'readonly'
                 : 'writable',
-          ...(result.ai_attribution_uuid === null
-            ? {}
-            : {
-                aiAttributions: {
-                  ...(result.ai_human_modified === null
-                    ? {}
-                    : { humanModified: Boolean(result.ai_human_modified) }),
-                  ...(result.ai_deferred ? { deferred: true } : {}),
-                },
-              }),
         } satisfies PackageInfo,
         isExternal: Boolean(result.is_external),
       },

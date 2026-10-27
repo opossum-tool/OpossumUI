@@ -345,7 +345,7 @@ describe('attribution resource access', () => {
       limit: 200,
     });
 
-    expect(result.attributions.ai).not.toHaveProperty('aiAttributions');
+    expect(result.attributions.ai.aiAttributions).toEqual({});
   });
 
   it.each([
@@ -400,14 +400,40 @@ describe('attribution resource access', () => {
       resourceLinks: { '/a': ['attribution'] },
     });
 
-    const { result } = await queries.getAttributionData({
-      attributionUuid: 'attribution',
-    });
+    const [details, page, batch, relatedBatch] = await Promise.all([
+      queries.getAttributionData({ attributionUuid: 'attribution' }),
+      listAttributionsPage({
+        external: false,
+        filters: [],
+        search: '',
+        valueFilters: {},
+        resourcePathForRelationships: '/a',
+        showResolved: true,
+        excludeUnrelated: false,
+        scope: { mode: 'all' },
+        sort: 'alphabetically',
+        includeReadonly: true,
+        offset: 0,
+        limit: 200,
+      }),
+      queries.getAttributions({ attributionUuids: ['attribution'] }),
+      queries.getAttributions({
+        attributionUuids: ['attribution'],
+        resourcePathForRelationships: '/a',
+      }),
+    ]);
 
-    expect(result.packageInfo.aiAttributions).toEqual(expected);
-    expect(Object.hasOwn(result.packageInfo, 'aiAttributions')).toBe(
-      expected !== undefined,
-    );
+    for (const result of [
+      details.result.packageInfo,
+      page.result.attributions.attribution,
+      batch.result.attribution,
+      relatedBatch.result.attribution,
+    ]) {
+      expect(result.aiAttributions).toEqual(expected);
+      expect(Object.hasOwn(result, 'aiAttributions')).toBe(
+        expected !== undefined,
+      );
+    }
   });
 
   it('preserves stored AI metadata when updating a queried attribution', async () => {
