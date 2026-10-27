@@ -22,7 +22,7 @@ if (!selected) {
   throw new Error(`No script found for ${script} on ${platform}/${arch}`);
 }
 
-const yarnVersion = packageManager.replace(/^yarn@/, '');
+const yarnVersion = packageManager.replace(/^yarn@/, '').replace(/\+.*$/, '');
 const yarnPath = resolve(`.yarn/releases/yarn-${yarnVersion}.cjs`);
 const child = spawn(
   process.execPath,
