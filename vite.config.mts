@@ -4,9 +4,26 @@
 // SPDX-License-Identifier: Apache-2.0
 import babel from '@rolldown/plugin-babel';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
-import { defineConfig, InlineConfig, loadEnv } from 'vite';
+import { defineConfig, InlineConfig, loadEnv, type Plugin } from 'vite';
 import electron from 'vite-plugin-electron';
 import svgrPlugin from 'vite-plugin-svgr';
+
+// @vitejs/plugin-react injects its react-refresh preamble as an inline
+// script during development, which the Content-Security-Policy in
+// index.html (script-src 'self') blocks. Relax the CSP for the dev
+// server only; production builds keep serving the strict policy.
+function allowInlineScriptsInDevServer(): Plugin {
+  return {
+    name: 'allow-inline-scripts-in-dev-server',
+    apply: 'serve',
+    transformIndexHtml(html) {
+      return html.replace(
+        `content="script-src 'self';`,
+        `content="script-src 'self' 'unsafe-inline';`,
+      );
+    },
+  };
+}
 
 function getElectronProcessViteConfig(): InlineConfig {
   return {
@@ -34,6 +51,7 @@ export default defineConfig(({ mode }) => ({
       : babel({
           presets: [reactCompilerPreset()],
         }),
+    allowInlineScriptsInDevServer(),
     svgrPlugin(),
     ...(mode === 'e2e' || mode === 'test'
       ? []
