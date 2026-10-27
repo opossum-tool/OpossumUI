@@ -6,12 +6,12 @@
 import { isEmpty } from 'lodash-es';
 
 import type {
-  Attributions,
   AttributionsToResources,
   BaseUrlsForSources,
   ExternalAttributionSources,
   FrequentLicenses,
   ParsedFileContent,
+  PersistedAttributions,
   ProjectMetadata,
   RawProjectConfig,
   ReadonlyRule,
@@ -49,9 +49,9 @@ const EMPTY_PARSED_FILE_CONTENT: ParsedFileContent = {
 export function getParsedInputFileEnrichedWithTestData(testData: {
   resources?: Resources;
   config?: RawProjectConfig;
-  manualAttributions?: Attributions;
+  manualAttributions?: PersistedAttributions;
   resourcesToManualAttributions?: ResourcesToAttributions;
-  externalAttributions?: Attributions;
+  externalAttributions?: PersistedAttributions;
   resourcesToExternalAttributions?: ResourcesToAttributions;
   resolvedExternalAttributions?: Set<string>;
   attributionBreakpoints?: Set<string>;
@@ -121,7 +121,7 @@ function getResourceIdOfRoot(resources: Resources): string {
 }
 
 function getResourcesToAttributions(
-  attributions: Attributions | undefined,
+  attributions: PersistedAttributions | undefined,
   resourcesToAttributions: ResourcesToAttributions | undefined,
   resourceIdOfRoot: string,
 ): ResourcesToAttributions {

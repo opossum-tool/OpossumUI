@@ -22,6 +22,7 @@ describe('deferred fields', () => {
           future: { nested: [1, true] },
         },
         opaque: { kept: true },
+        deferred: { opaque: [true] },
       };
       await initializeAiAttributionFixture({
         resourcePaths: ['/source', '/other'],
@@ -62,7 +63,7 @@ describe('deferred fields', () => {
       const { result: details } = await queries.getAttributionData({
         attributionUuid: copyUuid,
       });
-      expect(details.packageInfo.aiAttributions).toEqual({
+      expect(details.packageInfo.aiStatus).toEqual({
         deferred: true,
         humanModified: true,
       });
@@ -118,6 +119,7 @@ describe('deferred fields', () => {
               humanModified: true,
               deferredFields: source,
               opaque: { kept: true },
+              deferred: { opaque: [true] },
             },
           }),
           target: attributionFixture('target', {
@@ -126,6 +128,7 @@ describe('deferred fields', () => {
               humanModified: true,
               deferredFields: target,
               opaque: { kept: true },
+              deferred: { opaque: [true] },
             },
           }),
         },

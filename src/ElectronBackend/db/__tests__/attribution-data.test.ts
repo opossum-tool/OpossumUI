@@ -17,6 +17,7 @@ describe('attribution persistence conversion', () => {
   it('persists typed fields and reconstructs additional data', () => {
     const attribution: PackageInfo & { extra: { preserved: boolean } } = {
       id: 'id',
+      aiStatus: { deferred: true, humanModified: false },
       criticality: Criticality.High,
       classification: 0,
       attributionConfidence: 0,

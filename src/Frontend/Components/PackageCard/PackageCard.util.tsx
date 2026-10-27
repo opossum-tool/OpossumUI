@@ -28,14 +28,14 @@ export function getRightIcons(
   showCriticality: boolean,
 ) {
   const rightIcons: Array<React.ReactElement> = [];
-  const aiAttributions = cardConfig.aiAttributions;
+  const aiStatus = cardConfig.aiStatus;
 
-  if (aiAttributions?.deferred) {
+  if (aiStatus?.deferred) {
     rightIcons.push(<DeferredIcon key={'deferred-icon'} />);
-  } else if (aiAttributions) {
+  } else if (aiStatus) {
     rightIcons.push(<AiGeneratedIcon key={'ai-generated-icon'} />);
   }
-  if (aiAttributions?.humanModified) {
+  if (aiStatus?.humanModified) {
     rightIcons.push(<HumanModifiedIcon key={'human-modified-icon'} />);
   }
 

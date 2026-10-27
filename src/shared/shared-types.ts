@@ -61,8 +61,6 @@ type AttributionResourceAccess = 'readonly' | 'writable' | 'mixed';
 export interface AiAttributions {
   humanModified?: boolean;
   deferredFields?: Record<string, unknown>;
-  /** Frontend status derived from the presence of deferredFields; not added to file metadata. */
-  deferred?: boolean;
   [key: string]: unknown;
 }
 
@@ -85,8 +83,7 @@ export interface EphemeralPackageInfoProps {
   synthetic?: boolean;
 }
 
-export interface PackageInfo extends EphemeralPackageInfoProps {
-  aiAttributions?: AiAttributions;
+export interface CommonPackageInfo extends EphemeralPackageInfoProps {
   attributionConfidence?: number;
   classification?: Classification;
   comment?: string;
@@ -114,8 +111,25 @@ export interface PackageInfo extends EphemeralPackageInfoProps {
   wasPreferred?: boolean;
 }
 
+export interface AiAttributionStatus {
+  deferred: boolean;
+  humanModified?: boolean;
+}
+
+export interface PersistedPackageInfo extends CommonPackageInfo {
+  aiAttributions?: AiAttributions;
+}
+
+export interface PackageInfo extends CommonPackageInfo {
+  aiStatus?: AiAttributionStatus;
+}
+
+export interface PersistedAttributions {
+  [uuid: string]: PersistedPackageInfo;
+}
+
 export interface RawPackageInfo extends Never<
-  Omit<Omit<PackageInfo, 'followUp'>, 'criticality'>,
+  Omit<Omit<PersistedPackageInfo, 'followUp'>, 'criticality'>,
   keyof EphemeralPackageInfoProps
 > {
   originId?: string;
@@ -146,12 +160,14 @@ export interface ResourcesWithAttributedChildren {
 }
 
 export interface InputFileAttributionData {
-  attributions: Attributions;
+  attributions: PersistedAttributions;
   resourcesToAttributions: ResourcesToAttributions;
   attributionsToResources: AttributionsToResources;
 }
 
-export interface AttributionData extends InputFileAttributionData {
+export interface AttributionData {
+  attributions: Attributions;
+  resourcesToAttributions: ResourcesToAttributions;
   attributionsToResources: AttributionsToResources;
   resourcesWithAttributedChildren: ResourcesWithAttributedChildren;
 }
@@ -229,7 +245,7 @@ export type SplitFileResult =
   | { status: 'error'; message: string };
 
 export interface SaveFileArgs {
-  manualAttributions: Attributions;
+  manualAttributions: PersistedAttributions;
   resourcesToAttributions: ResourcesToAttributions;
   resolvedExternalAttributions: Set<string>;
 }

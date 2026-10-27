@@ -496,7 +496,7 @@ describe('AttributionForm', () => {
 
     it('explains the Deferred badge when hovering its label', async () => {
       const packageInfo = faker.opossum.packageInfo({
-        aiAttributions: { deferred: true },
+        aiStatus: { deferred: true },
       });
       await renderComponent(<AttributionForm packageInfo={packageInfo} />);
       const badge = screen.getByTestId('auditing-option-deferred');
@@ -518,22 +518,22 @@ describe('AttributionForm', () => {
     it.each([
       {
         name: 'ordinary attribution',
-        aiAttributions: undefined,
+        aiStatus: undefined,
         expected: [],
       },
       {
         name: 'AI attribution without flags',
-        aiAttributions: {},
+        aiStatus: { deferred: false },
         expected: [text.auditingOptions.aiGenerated],
       },
       {
         name: 'unmodified AI attribution without deferred fields',
-        aiAttributions: { humanModified: false, deferred: false },
+        aiStatus: { humanModified: false, deferred: false },
         expected: [text.auditingOptions.aiGenerated],
       },
       {
         name: 'human-modified attribution without deferred fields',
-        aiAttributions: { humanModified: true, deferred: false },
+        aiStatus: { humanModified: true, deferred: false },
         expected: [
           text.auditingOptions.aiGenerated,
           text.auditingOptions.humanModified,
@@ -541,17 +541,17 @@ describe('AttributionForm', () => {
       },
       {
         name: 'deferred attribution without a human-modified flag',
-        aiAttributions: { deferred: true },
+        aiStatus: { deferred: true },
         expected: [text.auditingOptions.deferred],
       },
       {
         name: 'unmodified attribution with deferred fields',
-        aiAttributions: { humanModified: false, deferred: true },
+        aiStatus: { humanModified: false, deferred: true },
         expected: [text.auditingOptions.deferred],
       },
       {
         name: 'human-modified attribution with deferred fields',
-        aiAttributions: { humanModified: true, deferred: true },
+        aiStatus: { humanModified: true, deferred: true },
         expected: [
           text.auditingOptions.deferred,
           text.auditingOptions.humanModified,
@@ -559,8 +559,8 @@ describe('AttributionForm', () => {
       },
     ])(
       'shows the expected AI badges for $name',
-      async ({ aiAttributions, expected }) => {
-        const packageInfo = faker.opossum.packageInfo({ aiAttributions });
+      async ({ aiStatus, expected }) => {
+        const packageInfo = faker.opossum.packageInfo({ aiStatus });
         await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
           data: getParsedInputFileEnrichedWithTestData({}),
         });

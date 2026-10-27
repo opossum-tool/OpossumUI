@@ -14,60 +14,55 @@ import { PackageCard } from '../PackageCard';
 
 describe('The PackageCard', () => {
   it.each([
-    { name: 'ordinary attribution', aiAttributions: undefined, expected: [] },
+    { name: 'ordinary attribution', aiStatus: undefined, expected: [] },
     {
       name: 'AI attribution without flags',
-      aiAttributions: {},
+      aiStatus: { deferred: false },
       expected: ['AI generated icon'],
     },
     {
       name: 'unmodified AI attribution',
-      aiAttributions: { humanModified: false, deferred: false },
+      aiStatus: { humanModified: false, deferred: false },
       expected: ['AI generated icon'],
     },
     {
       name: 'human-modified AI attribution',
-      aiAttributions: { humanModified: true },
+      aiStatus: { humanModified: true, deferred: false },
       expected: ['AI generated icon', 'Human-modified AI icon'],
     },
     {
       name: 'deferred attribution',
-      aiAttributions: { deferred: true },
+      aiStatus: { deferred: true },
       expected: ['Deferred AI icon'],
     },
     {
       name: 'unmodified deferred attribution',
-      aiAttributions: { humanModified: false, deferred: true },
+      aiStatus: { humanModified: false, deferred: true },
       expected: ['Deferred AI icon'],
     },
     {
       name: 'human-modified deferred attribution',
-      aiAttributions: { humanModified: true, deferred: true },
+      aiStatus: { humanModified: true, deferred: true },
       expected: ['Deferred AI icon', 'Human-modified AI icon'],
     },
-  ])(
-    'renders AI status symbols for $name',
-    async ({ aiAttributions, expected }) => {
-      await renderComponent(
-        <PackageCard
-          packageInfo={faker.opossum.packageInfo({ aiAttributions })}
-        />,
-      );
+  ])('renders AI status symbols for $name', async ({ aiStatus, expected }) => {
+    await renderComponent(
+      <PackageCard packageInfo={faker.opossum.packageInfo({ aiStatus })} />,
+    );
 
-      const icons = screen.queryAllByLabelText(
-        /^(AI generated|Human-modified AI|Deferred AI) icon$/,
-      );
-      expect(icons.map((icon) => icon.getAttribute('aria-label'))).toEqual(
-        expected,
-      );
-    },
-  );
+    const icons = screen.queryAllByLabelText(
+      /^(AI generated|Human-modified AI|Deferred AI) icon$/,
+    );
+    expect(icons.map((icon) => icon.getAttribute('aria-label'))).toEqual(
+      expected,
+    );
+  });
 
   it('uses the deferred palette color for the deferred symbol', async () => {
     await renderComponent(
       <PackageCard
         packageInfo={faker.opossum.packageInfo({
-          aiAttributions: { deferred: true },
+          aiStatus: { deferred: true },
         })}
       />,
     );
@@ -80,7 +75,9 @@ describe('The PackageCard', () => {
   it('uses the dark blue palette color for the AI generated symbol', async () => {
     await renderComponent(
       <PackageCard
-        packageInfo={faker.opossum.packageInfo({ aiAttributions: {} })}
+        packageInfo={faker.opossum.packageInfo({
+          aiStatus: { deferred: false },
+        })}
       />,
     );
 
@@ -93,7 +90,7 @@ describe('The PackageCard', () => {
     await renderComponent(
       <PackageCard
         packageInfo={faker.opossum.packageInfo({
-          aiAttributions: { humanModified: true },
+          aiStatus: { humanModified: true, deferred: false },
         })}
       />,
     );

@@ -8,8 +8,8 @@ import fs from 'fs';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import {
-  type Attributions,
   Criticality,
+  type PersistedAttributions,
   RawCriticality,
   type ReadonlyRule,
   type ResourcesToAttributions,
@@ -110,7 +110,7 @@ describe('loadFile', () => {
         humanModified: false,
         ...(deferredFields === undefined ? {} : { deferredFields }),
         opaque: { kept: true },
-        deferred: false,
+        deferred: { opaque: [true] },
       };
       const output: OpossumOutputFile = {
         metadata: {
@@ -133,9 +133,9 @@ describe('loadFile', () => {
       const { result: details } = await queries.getAttributionData({
         attributionUuid: manualAttributionUuid,
       });
-      expect(details.packageInfo.aiAttributions).toEqual({
+      expect(details.packageInfo.aiStatus).toEqual({
         humanModified: false,
-        ...(deferredFields === undefined ? {} : { deferred: true }),
+        deferred: deferredFields !== undefined,
       });
 
       await mutations.updateOrMatchAttributions({
@@ -154,6 +154,9 @@ describe('loadFile', () => {
       const saved = JSON.parse(
         new AdmZip(path).readAsText(OUTPUT_FILE_NAME),
       ) as OpossumOutputFile;
+      expect(
+        saved.manualAttributions[manualAttributionUuid],
+      ).not.toHaveProperty('aiStatus');
       expect(saved.manualAttributions[manualAttributionUuid].packageName).toBe(
         'after',
       );
@@ -168,9 +171,9 @@ describe('loadFile', () => {
         attributionUuid: manualAttributionUuid,
       });
       expect(reloaded.packageInfo.packageName).toBe('after');
-      expect(reloaded.packageInfo.aiAttributions).toEqual({
+      expect(reloaded.packageInfo.aiStatus).toEqual({
         humanModified: true,
-        ...(deferredFields === undefined ? {} : { deferred: true }),
+        deferred: deferredFields !== undefined,
       });
       const { result: reloadedSaveArgs } = await getSaveFileArgs();
       expect(
@@ -439,7 +442,7 @@ describe('loadFile', () => {
   });
 
   it('creates no manual attributions when none are preselected', () => {
-    const externalAttributions: Attributions = {
+    const externalAttributions: PersistedAttributions = {
       unselected: {
         id: 'unselected',
         criticality: Criticality.None,
@@ -472,7 +475,7 @@ describe('loadFile', () => {
       enumerable: true,
       get: getUnselectedMetadata,
     });
-    const externalAttributions: Attributions = {
+    const externalAttributions: PersistedAttributions = {
       selected: {
         id: 'selected',
         criticality: Criticality.None,
@@ -521,7 +524,7 @@ describe('loadFile', () => {
   });
 
   it('creates manual output for all selected attributions', () => {
-    const externalAttributions: Attributions = {
+    const externalAttributions: PersistedAttributions = {
       selected: {
         id: 'selected',
         criticality: Criticality.None,

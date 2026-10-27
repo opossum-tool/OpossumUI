@@ -3,10 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  type Attributions,
   Criticality,
-  type PackageInfo,
   type ParsedFileContent,
+  type PersistedAttributions,
+  type PersistedPackageInfo,
 } from '../../../shared/shared-types';
 import {
   initializeDbWithTestData,
@@ -14,15 +14,17 @@ import {
 } from '../../../testing/global-test-helpers';
 import { getDb } from '../../db/db';
 
-type AttributionFields = Partial<Omit<PackageInfo, 'id' | 'criticality'>>;
+type AttributionFields = Partial<
+  Omit<PersistedPackageInfo, 'id' | 'criticality'>
+>;
 
 type ResourceLinks = Record<string, Array<string>>;
 
 interface AiAttributionFixture {
   resourcePaths: Array<string>;
-  attributions?: Attributions;
+  attributions?: PersistedAttributions;
   resourceLinks?: ResourceLinks;
-  externalAttributions?: Attributions;
+  externalAttributions?: PersistedAttributions;
   externalResourceLinks?: ResourceLinks;
   readonlyRules?: ParsedFileContent['readonlyRules'];
 }
@@ -30,7 +32,7 @@ interface AiAttributionFixture {
 export function attributionFixture(
   id: string,
   overrides: AttributionFields = {},
-): PackageInfo {
+): PersistedPackageInfo {
   return {
     id,
     criticality: Criticality.None,

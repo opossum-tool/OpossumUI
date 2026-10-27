@@ -4,8 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { EMPTY_PROJECT_CONFIG } from '../../../Frontend/shared-constants';
 import type {
-  Attributions,
-  PackageInfo,
+  PersistedAttributions,
+  PersistedPackageInfo,
   RawClassificationsConfig,
   RawProjectConfig,
 } from '../../../shared/shared-types';
@@ -15,13 +15,13 @@ import { refineConfiguration } from '../refineConfiguration';
 
 function fakePackagesWithClassifications(
   ...classificationIds: Array<number>
-): Attributions {
-  const attributions: Attributions = {};
+): PersistedAttributions {
+  const attributions: PersistedAttributions = {};
   classificationIds
     .map((classificationId) =>
-      faker.opossum.packageInfo({ classification: classificationId }),
+      faker.opossum.persistedPackageInfo({ classification: classificationId }),
     )
-    .forEach((packageInfo: PackageInfo, index: number) => {
+    .forEach((packageInfo: PersistedPackageInfo, index: number) => {
       attributions[`id${index}`] = packageInfo;
     });
   return attributions;

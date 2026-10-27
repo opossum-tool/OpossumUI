@@ -11,7 +11,7 @@ import type { SxProps } from '@mui/system';
 import { memo, useEffect, useMemo, useRef } from 'react';
 
 import type {
-  AiAttributions,
+  AiAttributionStatus,
   Criticality,
   PackageInfo,
 } from '../../../shared/shared-types';
@@ -120,7 +120,7 @@ const classes = {
 } satisfies SxProps<Theme>;
 
 export interface PackageCardConfig {
-  aiAttributions?: AiAttributions;
+  aiStatus?: AiAttributionStatus;
   criticality: Criticality;
   classification?: number;
   excludeFromNotice?: boolean;
@@ -167,7 +167,7 @@ export const PackageCard = memo(
     );
     const effectiveCardConfig = useMemo<PackageCardConfig>(
       () => ({
-        aiAttributions: packageInfo.aiAttributions,
+        aiStatus: packageInfo.aiStatus,
         criticality: packageInfo.criticality,
         classification: packageInfo.classification,
         excludeFromNotice: packageInfo.excludeFromNotice,

@@ -3,17 +3,17 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { compact, groupBy, min, sortBy } from 'lodash-es';
+import { compact, groupBy, min, omit, sortBy } from 'lodash-es';
 import objectHash from 'object-hash';
 
 import {
-  type Attributions,
   type AttributionsToResources,
   type BaseUrlsForSources,
   Criticality,
   DiscreteConfidence,
   type FrequentLicenses,
-  type PackageInfo,
+  type PersistedAttributions,
+  type PersistedPackageInfo,
   type RawAttributions,
   RawCriticality,
   type ResourcesToAttributions,
@@ -51,10 +51,13 @@ export const HASH_EXCLUDE_KEYS = [
   'originalAttributionWasPreferred',
   'preSelected',
   'wasPreferred',
-] satisfies Array<keyof PackageInfo>;
+] satisfies Array<keyof PersistedPackageInfo>;
 
-export function mergePackageInfos(a: PackageInfo, b: PackageInfo): PackageInfo {
-  const diff: Pick<PackageInfo, (typeof HASH_EXCLUDE_KEYS)[number]> = {
+export function mergePackageInfos(
+  a: PersistedPackageInfo,
+  b: PersistedPackageInfo,
+): PersistedPackageInfo {
+  const diff: Pick<PersistedPackageInfo, (typeof HASH_EXCLUDE_KEYS)[number]> = {
     attributionConfidence:
       min([a.attributionConfidence, b.attributionConfidence]) ??
       DiscreteConfidence.High,
@@ -80,19 +83,19 @@ export function mergeAttributions({
   resourcesToAttributions,
   attributionsToResources,
 }: {
-  attributions: Attributions;
+  attributions: PersistedAttributions;
   resourcesToAttributions: ResourcesToAttributions;
   attributionsToResources: AttributionsToResources;
-}): [Attributions, ResourcesToAttributions] {
+}): [PersistedAttributions, ResourcesToAttributions] {
   const attributionsWithResources = Object.values(
     attributions,
-  ).map<PackageInfo>((attribution) => ({
+  ).map<PersistedPackageInfo>((attribution) => ({
     ...attribution,
     resources: sortBy(attributionsToResources[attribution.id]),
   }));
 
   const groups = Object.values(
-    groupBy<PackageInfo>(attributionsWithResources, (attribution) =>
+    groupBy<PersistedPackageInfo>(attributionsWithResources, (attribution) =>
       objectHash(attribution, {
         excludeKeys: (key) =>
           HASH_EXCLUDE_KEYS.some((excludeKey) => excludeKey === key),
@@ -100,7 +103,7 @@ export function mergeAttributions({
     ),
   );
 
-  return groups.reduce<[Attributions, ResourcesToAttributions]>(
+  return groups.reduce<[PersistedAttributions, ResourcesToAttributions]>(
     ([attributions, resourcesToAttributions], group) => {
       const groupIds = group.map(({ id }) => id);
       const { resources, ...attribution } = group
@@ -137,13 +140,13 @@ export function mergeAttributions({
 
 export function deserializeAttributions(
   rawAttributions: RawAttributions,
-  originalAttributions?: Attributions,
-): Attributions {
+  originalAttributions?: PersistedAttributions,
+): PersistedAttributions {
   const firstOriginalAttributionByOriginId = originalAttributions
     ? indexOriginalAttributions(originalAttributions)
     : undefined;
 
-  return Object.entries(rawAttributions).reduce<Attributions>(
+  return Object.entries(rawAttributions).reduce<PersistedAttributions>(
     (
       attributions,
       [
@@ -183,12 +186,12 @@ export function deserializeAttributions(
 }
 
 type IndexedOriginalAttribution = {
-  attribution: PackageInfo;
+  attribution: PersistedPackageInfo;
   originalOrder: number;
 };
 
 function indexOriginalAttributions(
-  originalAttributions: Attributions,
+  originalAttributions: PersistedAttributions,
 ): Map<string, IndexedOriginalAttribution> {
   const index = new Map<string, IndexedOriginalAttribution>();
 
@@ -207,7 +210,7 @@ function indexOriginalAttributions(
 function findOriginalAttribution(
   originIds: Array<string> | undefined,
   index: Map<string, IndexedOriginalAttribution>,
-): PackageInfo | undefined {
+): PersistedPackageInfo | undefined {
   if (!originIds) {
     return undefined;
   }
@@ -238,7 +241,7 @@ function deserializeCriticality(criticality: string | undefined): Criticality {
 }
 
 export function serializeAttributions(
-  attributions: Attributions,
+  attributions: PersistedAttributions,
 ): RawAttributions {
   return Object.entries(attributions).reduce<RawAttributions>(
     (
@@ -264,7 +267,7 @@ export function serializeAttributions(
       ],
     ) => {
       rawAttributions[attributionId] = {
-        ...attribution,
+        ...omit(attribution, 'aiStatus'),
         ...(followUp && { followUp: 'FOLLOW_UP' }),
         criticality: RawCriticality[criticality],
       };

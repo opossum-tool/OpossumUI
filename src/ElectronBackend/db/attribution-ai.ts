@@ -48,11 +48,11 @@ export function packageInfoWithAiStatusFromRow(
     ...(row.ai_attribution_uuid === null
       ? {}
       : {
-          aiAttributions: {
+          aiStatus: {
             ...(row.ai_human_modified === null
               ? {}
               : { humanModified: Boolean(row.ai_human_modified) }),
-            ...(row.ai_deferred ? { deferred: true } : {}),
+            deferred: Boolean(row.ai_deferred),
           },
         }),
   };

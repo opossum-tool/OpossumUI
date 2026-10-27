@@ -4,8 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { EMPTY_RAW_PROJECT_CONFIG } from '../../Frontend/shared-constants';
 import type {
-  Attributions,
-  PackageInfo,
+  PersistedAttributions,
+  PersistedPackageInfo,
   RawClassificationsConfig,
   RawProjectConfig,
 } from '../../shared/shared-types';
@@ -16,11 +16,11 @@ interface Logger {
 
 function addUnconfiguredClassifications(
   classifications: RawClassificationsConfig,
-  externalAttributions: Attributions,
+  externalAttributions: PersistedAttributions,
   processingStatusUpdater: Logger,
 ) {
   const configuredAttributionKeys = Object.keys(classifications).map(Number);
-  const getUnconfiguredClassification = (packageInfo: PackageInfo) =>
+  const getUnconfiguredClassification = (packageInfo: PersistedPackageInfo) =>
     packageInfo.classification &&
     !configuredAttributionKeys.includes(packageInfo.classification)
       ? [packageInfo.classification]
@@ -44,7 +44,7 @@ function addUnconfiguredClassifications(
 
 export function refineConfiguration(
   rawConfig: RawProjectConfig = EMPTY_RAW_PROJECT_CONFIG,
-  externalAttributions: Attributions,
+  externalAttributions: PersistedAttributions,
   processingStatusUpdater: Logger,
 ): RawProjectConfig {
   rawConfig.classifications = addUnconfiguredClassifications(

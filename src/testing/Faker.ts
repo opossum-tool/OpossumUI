@@ -41,11 +41,13 @@ import {
   type AttributionsToResources,
   type BaseUrlsForSources,
   type ClassificationEntry,
+  type CommonPackageInfo,
   Criticality,
   DiscreteConfidence,
   type ExternalAttributionSource,
   type ExternalAttributionSources,
   type PackageInfo,
+  type PersistedPackageInfo,
   type ProjectMetadata,
   type RawAttributions,
   type RawPackageInfo,
@@ -135,7 +137,7 @@ class OpossumModule {
     };
   }
 
-  public static packageInfo(props: Partial<PackageInfo> = {}): PackageInfo {
+  private static commonPackageInfo(): CommonPackageInfo {
     return {
       attributionConfidence: faker.number.int({
         min: DiscreteConfidence.Low + 1,
@@ -149,8 +151,17 @@ class OpossumModule {
       packageType: faker.commerce.productMaterial().toLowerCase(),
       packageVersion: faker.system.semver(),
       url: faker.internet.url(),
-      ...props,
     };
+  }
+
+  public static packageInfo(props: Partial<PackageInfo> = {}): PackageInfo {
+    return { ...OpossumModule.commonPackageInfo(), ...props };
+  }
+
+  public static persistedPackageInfo(
+    props: Partial<PersistedPackageInfo> = {},
+  ): PersistedPackageInfo {
+    return { ...OpossumModule.commonPackageInfo(), ...props };
   }
 
   public static rawAttribution(

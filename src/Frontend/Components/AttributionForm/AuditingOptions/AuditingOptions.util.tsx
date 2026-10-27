@@ -111,8 +111,7 @@ export function useAuditingOptions({
         id: 'ai-generated',
         label: text.auditingOptions.aiGenerated,
         icon: <AiGeneratedIcon noTooltip />,
-        selected:
-          !!packageInfo.aiAttributions && !packageInfo.aiAttributions.deferred,
+        selected: !!packageInfo.aiStatus && !packageInfo.aiStatus.deferred,
         interactive: false,
         chipSx: aiAttributionChipClass,
       },
@@ -126,7 +125,7 @@ export function useAuditingOptions({
             sx={{ color: `${OpossumColors.black} !important` }}
           />
         ),
-        selected: !!packageInfo.aiAttributions?.deferred,
+        selected: !!packageInfo.aiStatus?.deferred,
         interactive: false,
         chipSx: deferredChipClass,
       },
@@ -134,7 +133,7 @@ export function useAuditingOptions({
         id: 'human-modified',
         label: text.auditingOptions.humanModified,
         icon: <HumanModifiedIcon noTooltip />,
-        selected: !!packageInfo.aiAttributions?.humanModified,
+        selected: !!packageInfo.aiStatus?.humanModified,
         interactive: false,
         chipSx: aiAttributionChipClass,
       },
@@ -294,7 +293,7 @@ export function useAuditingOptions({
       compareToOriginal,
       isEditable,
       isPreferenceFeatureEnabled,
-      packageInfo.aiAttributions,
+      packageInfo.aiStatus,
       packageInfo.attributionConfidence,
       packageInfo.classification,
       packageInfo.criticality,

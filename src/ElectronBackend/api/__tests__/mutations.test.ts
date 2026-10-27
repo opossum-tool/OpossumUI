@@ -6,7 +6,7 @@ import {
   type AiAttributions,
   type Attributions,
   Criticality,
-  type PackageInfo,
+  type PersistedPackageInfo,
 } from '../../../shared/shared-types';
 import {
   initializeDbWithTestData,
@@ -28,7 +28,7 @@ function packageInfo(
   id: string,
   packageName: string,
   aiAttributions?: AiAttributions,
-): PackageInfo {
+): PersistedPackageInfo {
   return {
     id,
     packageName,
@@ -64,6 +64,18 @@ const metadataMatchingCases: Array<{
   candidateMetadata?: Record<string, unknown>;
   expectedToMatch: boolean;
 }> = [
+  {
+    name: 'equal opaque deferred properties',
+    sourceMetadata: { deferred: { opaque: [true] } },
+    candidateMetadata: { deferred: { opaque: [true] } },
+    expectedToMatch: true,
+  },
+  {
+    name: 'different opaque deferred properties',
+    sourceMetadata: { deferred: { opaque: [true] } },
+    candidateMetadata: { deferred: { opaque: [false] } },
+    expectedToMatch: false,
+  },
   {
     name: 'different unknown properties',
     sourceMetadata: { known: true, sourceOnly: 1 },
@@ -345,24 +357,24 @@ describe('attribution resource access', () => {
       limit: 200,
     });
 
-    expect(result.attributions.ai.aiAttributions).toEqual({});
+    expect(result.attributions.ai.aiStatus).toEqual({ deferred: false });
   });
 
   it.each([
     {
       name: 'human-modified AI attribution',
       aiAttributions: { humanModified: true },
-      expected: { humanModified: true },
+      expected: { humanModified: true, deferred: false },
     },
     {
       name: 'unmodified AI attribution',
       aiAttributions: { humanModified: false },
-      expected: { humanModified: false },
+      expected: { humanModified: false, deferred: false },
     },
     {
       name: 'AI attribution without flags',
       aiAttributions: {},
-      expected: {},
+      expected: { deferred: false },
     },
     {
       name: 'deferred fields',
@@ -429,10 +441,9 @@ describe('attribution resource access', () => {
       batch.result.attribution,
       relatedBatch.result.attribution,
     ]) {
-      expect(result.aiAttributions).toEqual(expected);
-      expect(Object.hasOwn(result, 'aiAttributions')).toBe(
-        expected !== undefined,
-      );
+      expect(result.aiStatus).toEqual(expected);
+      expect(result).not.toHaveProperty('aiAttributions');
+      expect(Object.hasOwn(result, 'aiStatus')).toBe(expected !== undefined);
     }
   });
 
@@ -456,7 +467,7 @@ describe('attribution resource access', () => {
     const { result } = await queries.getAttributionData({
       attributionUuid: 'ai',
     });
-    expect(result.packageInfo.aiAttributions).toStrictEqual({});
+    expect(result.packageInfo.aiStatus).toStrictEqual({ deferred: false });
 
     await mutations.updateOrMatchAttributions({
       attributions: {

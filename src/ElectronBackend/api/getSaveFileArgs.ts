@@ -5,7 +5,7 @@
 import { type Kysely, sql } from 'kysely';
 
 import type {
-  Attributions,
+  PersistedAttributions,
   ResourcesToAttributions,
   SaveFileArgs,
 } from '../../shared/shared-types';
@@ -138,7 +138,7 @@ export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
       };
     });
 
-  const manualAttributions: Attributions = Object.fromEntries(
+  const manualAttributions: PersistedAttributions = Object.fromEntries(
     queryResults.manualAttributionsResult.map((row) => {
       const packageInfo = packageInfoFromAttributionRow(row);
       if (row.ai_additional_data === null) {
