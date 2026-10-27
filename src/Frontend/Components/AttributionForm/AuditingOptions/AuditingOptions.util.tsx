@@ -182,12 +182,12 @@ export function useAuditingOptions({
         id: 'classification',
         label:
           classifications[packageInfo.classification ?? 0]?.description || '',
-        icon: (
+        icon: packageInfo.classification ? (
           <ClassificationIcon
             noTooltip
             classification={packageInfo.classification}
           />
-        ),
+        ) : undefined,
         selected: !!packageInfo.classification && showClassifications,
         interactive: false,
       },

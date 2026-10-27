@@ -6,6 +6,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { Criticality } from '../../../../shared/shared-types';
+import { OpossumColors } from '../../../shared-styles';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import {
@@ -81,16 +82,17 @@ describe('The Icons', () => {
     expect(screen.getByLabelText('Criticality icon')).toBeInTheDocument();
   });
   describe('classification icon', () => {
-    it('does not render CriticalClassificationIcon for classification 0', async () => {
+    it('renders a grey classification icon for classification 0', async () => {
       await renderComponent(<ClassificationIcon classification={0} />, {
         data: getParsedInputFileEnrichedWithTestData({
-          config: { classifications: { 1: 'GOOD' } },
+          config: { classifications: { 0: 'GOOD' } },
         }),
       });
 
-      expect(
-        screen.queryByLabelText('Classification icon'),
-      ).not.toBeInTheDocument();
+      expect(screen.getByLabelText('Classification icon')).toBeVisible();
+      expect(screen.getByLabelText('Classification icon')).toHaveStyle({
+        color: OpossumColors.grey,
+      });
     });
 
     it('renders CriticalClassificationIcon for larger classifications', async () => {
@@ -150,23 +152,14 @@ describe('The Icons', () => {
   });
 });
 
-describe('The SignalIcon', () => {
+describe('CriticalityIcon', () => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
-  it('renders high criticality SignalIcon', () => {
-    render(<CriticalityIcon criticality={Criticality.High} />);
+  it.each([Criticality.High, Criticality.Medium, Criticality.None])(
+    'renders criticality %s',
+    (criticality) => {
+      render(<CriticalityIcon criticality={criticality} />);
 
-    expect(screen.getByLabelText('Criticality icon')).toBeInTheDocument();
-  });
-
-  it('renders medium criticality SignalIcon', () => {
-    render(<CriticalityIcon criticality={Criticality.Medium} />);
-
-    expect(screen.getByLabelText('Criticality icon')).toBeInTheDocument();
-  });
-
-  it('renders no criticality SignalIcon', () => {
-    render(<CriticalityIcon criticality={Criticality.None} />);
-
-    expect(screen.queryByLabelText('Criticality icon')).not.toBeInTheDocument();
-  });
+      expect(screen.getByLabelText('Criticality icon')).toBeInTheDocument();
+    },
+  );
 });

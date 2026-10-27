@@ -46,6 +46,8 @@ export type MissingAttribute = Exclude<
 >;
 
 export type AttributionValueFilters = {
+  classification?: number;
+  criticality?: number;
   license?: string;
   incompleteCoordinates?: IncompleteCoordinateFilterValue;
   incompleteLegal?: IncompleteLegalFilterValue;

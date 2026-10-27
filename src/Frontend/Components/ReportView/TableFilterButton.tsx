@@ -28,7 +28,10 @@ export const TableFilterButton: React.FC<{
     setFilters: setFilteredAttributions,
   });
   const isFilterActive =
-    !!attributionFilters.length || Object.values(valueFilters).some(Boolean);
+    !!attributionFilters.length ||
+    Object.values(valueFilters).some(
+      (value) => value !== undefined && value !== '',
+    );
 
   return (
     <FilterButton

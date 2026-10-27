@@ -116,12 +116,14 @@ export function ResourcesTreeNode({ resource }: TreeNode) {
         ) : (
           <SignalIcon />
         ))}
-      {showClassifications && resource.hasUnresolvedExternalAttribution && (
-        <ClassificationIcon
-          classification={resource.classification ?? undefined}
-          tooltipPlacement={'right'}
-        />
-      )}
+      {showClassifications &&
+        !!resource.classification &&
+        resource.hasUnresolvedExternalAttribution && (
+          <ClassificationIcon
+            classification={resource.classification}
+            tooltipPlacement={'right'}
+          />
+        )}
     </MuiBox>
   );
 }

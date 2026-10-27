@@ -436,18 +436,23 @@ describe('AttributionForm', () => {
         expect(classificationChip).not.toBeInTheDocument();
       });
 
-      it('Does not render a chip for items with classification 0', async () => {
-        const packageInfo = faker.opossum.packageInfo({
-          classification: 0,
-        });
+      it.each([0, undefined])(
+        'does not render a chip for classification %s',
+        async (classification) => {
+          const packageInfo = faker.opossum.packageInfo({
+            classification,
+          });
 
-        await renderComponent(<AttributionForm packageInfo={packageInfo} />);
+          await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+            actions: [setUserSetting({ showClassifications: true })],
+          });
 
-        const classificationChip = screen.queryByTestId(
-          'auditing-option-classification',
-        );
-        expect(classificationChip).not.toBeInTheDocument();
-      });
+          const classificationChip = screen.queryByTestId(
+            'auditing-option-classification',
+          );
+          expect(classificationChip).not.toBeInTheDocument();
+        },
+      );
 
       it('shows the correct text if configured', async () => {
         const packageInfo = faker.opossum.packageInfo({

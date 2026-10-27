@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 
 import { deserializeAttributions } from '../ElectronBackend/input/parseInputData';
+import { MANUAL_ATTRIBUTION_FILTERS_AUDIT } from '../Frontend/state/variables/use-filters';
 import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers/general-test-helpers';
 import { text } from '../shared/text';
 import { faker } from '../testing/Faker';
@@ -58,6 +59,106 @@ const data = getParsedInputFileEnrichedWithTestData({
 });
 
 describe('filtering attributions', () => {
+  it('keeps classification IDs distinct when descriptions are duplicated', async () => {
+    await renderApp({
+      data: {
+        ...data,
+        config: {
+          classifications: { 1: 'Same description', 2: 'Same description' },
+        },
+        manualAttributions: {
+          ...data.manualAttributions,
+          attributions: deserializeAttributions({
+            [attributionId1]: { ...packageInfo1, classification: 1 },
+            [attributionId2]: { ...packageInfo2, classification: 2 },
+            [attributionId3]: { ...packageInfo3, classification: 1 },
+          }),
+        },
+      },
+      userSettings: { showClassifications: true },
+    });
+    await clickFilterMenuButton(screen.getByTestId(ATTRIBUTIONS_PANEL));
+    await userEvent.click(await screen.findByLabelText('classification'));
+    const options = await screen.findAllByRole('option', {
+      name: 'Same description',
+    });
+    await userEvent.click(options[1]);
+
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [packageInfo2],
+      [packageInfo1, packageInfo3],
+    );
+    expect(screen.getByLabelText('classification')).toHaveValue(
+      'Same description',
+    );
+
+    await userEvent.click(
+      within(screen.getByRole('menu')).getByRole('button', {
+        name: 'clear button',
+      }),
+    );
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [packageInfo1, packageInfo2, packageInfo3],
+      [],
+    );
+  });
+
+  it('selects and clears classification zero and criticality None', async () => {
+    const { store } = await renderApp({
+      data: {
+        ...data,
+        config: { classifications: { 0: 'Zero', 1: 'One' } },
+      },
+      userSettings: { showClassifications: true, showCriticality: true },
+    });
+    await clickFilterMenuButton(screen.getByTestId(ATTRIBUTIONS_PANEL));
+
+    await userEvent.click(await screen.findByLabelText('classification'));
+    await userEvent.click(await screen.findByRole('option', { name: 'Zero' }));
+    expect(
+      within(screen.getByRole('menu')).getByLabelText('Classification icon'),
+    ).toBeVisible();
+    expect(
+      (
+        store.getState() as {
+          variablesState: Record<
+            string,
+            { valueFilters: { classification?: number } }
+          >;
+        }
+      ).variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT]?.valueFilters
+        .classification,
+    ).toBe(0);
+
+    await userEvent.click(await screen.findByLabelText('criticality'));
+    await userEvent.click(await screen.findByRole('option', { name: 'None' }));
+    expect(
+      (
+        store.getState() as {
+          variablesState: Record<
+            string,
+            { valueFilters: { criticality?: number } }
+          >;
+        }
+      ).variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT]?.valueFilters
+        .criticality,
+    ).toBe(0);
+
+    await clickClearFiltersMenuItem();
+    expect(
+      (
+        store.getState() as {
+          variablesState: Record<
+            string,
+            { valueFilters: { classification?: number; criticality?: number } }
+          >;
+        }
+      ).variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT]?.valueFilters,
+    ).toEqual({});
+  });
+
   it('filters attributions in audit view', async () => {
     await renderApp({ data });
     await expectPackageCards(
@@ -161,6 +262,31 @@ describe('filtering attributions', () => {
     await expectFormFieldValues({
       name: packageInfo1.packageName ?? null,
     });
+  });
+
+  it('keeps a zero criticality filter clearable in audit and report views', async () => {
+    await renderApp({ data });
+    await clickFilterMenuButton(screen.getByTestId(ATTRIBUTIONS_PANEL));
+    await userEvent.click(await screen.findByLabelText('criticality'));
+    await userEvent.click(await screen.findByRole('option', { name: 'None' }));
+    await clickClearFiltersMenuItem();
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [packageInfo1, packageInfo2, packageInfo3],
+      [],
+    );
+
+    await closeFilterMenu();
+    await gotoReportView();
+    await clickFilterMenuButton(getReportView());
+    await userEvent.click(await screen.findByLabelText('criticality'));
+    await userEvent.click(await screen.findByRole('option', { name: 'None' }));
+    await clickFilterMenuButton(getReportView());
+    await clickClearFiltersMenuItem();
+    await expectReportAttributionVisibility(
+      [attributionId1, attributionId2, attributionId3],
+      [],
+    );
   });
 
   it('filters attributions in report view', async () => {

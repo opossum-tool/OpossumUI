@@ -14,6 +14,7 @@ interface Props {
   disabled?: boolean;
   options: Array<string>;
   placeholder: string;
+  getOptionLabel?: (value: string) => string;
   getSelectedValueLabel?: (value: string) => string;
   inputRef?: React.Ref<HTMLInputElement>;
   inputReadOnly?: boolean;
@@ -27,6 +28,7 @@ export const ValueFilterAutocomplete: React.FC<Props> = ({
   disabled,
   options,
   placeholder,
+  getOptionLabel = String,
   getSelectedValueLabel,
   inputRef,
   inputReadOnly,
@@ -46,7 +48,8 @@ export const ValueFilterAutocomplete: React.FC<Props> = ({
       variant={'filled'}
       placeholder={placeholder}
       options={selectedValue ? [selectedValue] : options}
-      getOptionLabel={getSelectedValueLabel}
+      getOptionKey={(option) => option}
+      getOptionLabel={getSelectedValueLabel ?? getOptionLabel}
       optionText={{
         sx: {
           background: OpossumColors.lightestBlue,
@@ -54,7 +57,7 @@ export const ValueFilterAutocomplete: React.FC<Props> = ({
             background: OpossumColors.lightestBlueOnHover,
           },
         },
-        primary: (option) => option,
+        primary: getOptionLabel,
       }}
       startAdornment={startAdornment}
       hidePopupIndicator={!!selectedValue}
