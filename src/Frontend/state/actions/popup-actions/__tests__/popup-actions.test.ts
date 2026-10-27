@@ -91,9 +91,12 @@ describe.each([
     navigateToSelectedPathOrOpenUnsavedPopup,
   ],
 ] as const)('%s attribution selection policy', (_, navigate) => {
-  it.each(['auto', 'preserve'] as const)(
-    'applies %s selection and replaces pending navigation',
-    (policy) => {
+  it.each([
+    { policy: 'auto', expectedPendingResourceId: '/' },
+    { policy: 'preserve', expectedPendingResourceId: null },
+  ] as const)(
+    'applies $policy selection and replaces pending navigation',
+    ({ policy, expectedPendingResourceId }) => {
       const store = createAppStore();
       store.dispatch(setSelectedResourceId('/origin/', 'auto'));
       store.dispatch(setSelectedAttributionId('reviewed-attribution'));
@@ -106,14 +109,17 @@ describe.each([
       );
       expect(getAttributionSelectionPolicy(store.getState())).toBe(policy);
       expect(getAttributionSelectionPendingResourceId(store.getState())).toBe(
-        policy === 'auto' ? '/' : null,
+        expectedPendingResourceId,
       );
     },
   );
 
-  it.each(['auto', 'preserve'] as const)(
-    'retains %s selection policy after the unsaved-changes popup',
-    (policy) => {
+  it.each([
+    { policy: 'auto', expectedPendingResourceId: '/' },
+    { policy: 'preserve', expectedPendingResourceId: null },
+  ] as const)(
+    'retains $policy selection policy after the unsaved-changes popup',
+    ({ policy, expectedPendingResourceId }) => {
       const store = createAppStore();
       const attribution = faker.opossum.packageInfo();
       store.dispatch(setSelectedResourceId('/origin/', 'preserve'));
@@ -139,7 +145,7 @@ describe.each([
       expect(getSelectedAttributionId(store.getState())).toBe(attribution.id);
       expect(getAttributionSelectionPolicy(store.getState())).toBe(policy);
       expect(getAttributionSelectionPendingResourceId(store.getState())).toBe(
-        policy === 'auto' ? '/' : null,
+        expectedPendingResourceId,
       );
     },
   );

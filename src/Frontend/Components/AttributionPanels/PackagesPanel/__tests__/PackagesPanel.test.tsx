@@ -226,10 +226,16 @@ describe('PackagesPanel', () => {
     });
   });
 
-  it.each(['auto', 'preserve'] as const)(
-    'resolves delayed selection according to the latest %s navigation',
-    async (policy) => {
-      const attribution = faker.opossum.packageInfo({ relation: 'resource' });
+  it.each([
+    { policy: 'auto', expectedSelectedId: 'attribution-id' },
+    { policy: 'preserve', expectedSelectedId: '' },
+  ] as const)(
+    'resolves delayed selection according to the latest $policy navigation',
+    async ({ policy, expectedSelectedId }) => {
+      const attribution = faker.opossum.packageInfo({
+        id: 'attribution-id',
+        relation: 'resource',
+      });
       const attributions = { [attribution.id]: attribution };
       const { store, rerender } = await renderPackagesPanel({ attributions });
       mockAttributions({}, {}, true, 'resource', true);
@@ -250,7 +256,7 @@ describe('PackagesPanel', () => {
 
       await waitFor(() => {
         expect(store.getState().resourceState.selectedAttributionId).toBe(
-          policy === 'auto' ? attribution.id : '',
+          expectedSelectedId,
         );
         expect(
           getAttributionSelectionPendingResourceId(store.getState()),
