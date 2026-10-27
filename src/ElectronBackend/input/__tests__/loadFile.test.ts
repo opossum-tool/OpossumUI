@@ -21,6 +21,7 @@ import {
   SPLIT_INFO_FILE_NAME,
 } from '../../../shared/write-file-utils';
 import { faker } from '../../../testing/Faker';
+import { getSaveFileArgs } from '../../api/getSaveFileArgs';
 import { mutations } from '../../api/mutations';
 import { queries } from '../../api/queries';
 import { saveFile } from '../../api/saveFile';
@@ -98,12 +99,16 @@ describe('loadFile', () => {
     vi.restoreAllMocks();
   });
 
-  it.each([{}, { license: 'Needs review', future: { nested: [1, true] } }])(
-    'preserves deferred reasons through editing, saving, and reloading: %j',
+  it.each([
+    undefined,
+    {},
+    { license: 'Needs review', future: { nested: [1, true] } },
+  ])(
+    'preserves AI metadata through editing, saving, and reloading with deferred fields: %j',
     async (deferredFields) => {
       const metadata = {
         humanModified: false,
-        deferredFields,
+        ...(deferredFields === undefined ? {} : { deferredFields }),
         opaque: { kept: true },
         deferred: false,
       };
@@ -130,7 +135,7 @@ describe('loadFile', () => {
       });
       expect(details.packageInfo.aiAttributions).toEqual({
         humanModified: false,
-        deferred: true,
+        ...(deferredFields === undefined ? {} : { deferred: true }),
       });
 
       await mutations.updateOrMatchAttributions({
@@ -149,6 +154,9 @@ describe('loadFile', () => {
       const saved = JSON.parse(
         new AdmZip(path).readAsText(OUTPUT_FILE_NAME),
       ) as OpossumOutputFile;
+      expect(saved.manualAttributions[manualAttributionUuid].packageName).toBe(
+        'after',
+      );
       expect(
         saved.manualAttributions[manualAttributionUuid].aiAttributions,
       ).toEqual({
@@ -162,8 +170,13 @@ describe('loadFile', () => {
       expect(reloaded.packageInfo.packageName).toBe('after');
       expect(reloaded.packageInfo.aiAttributions).toEqual({
         humanModified: true,
-        deferred: true,
+        ...(deferredFields === undefined ? {} : { deferred: true }),
       });
+      const { result: reloadedSaveArgs } = await getSaveFileArgs();
+      expect(
+        reloadedSaveArgs.manualAttributions[manualAttributionUuid]
+          .aiAttributions,
+      ).toEqual({ ...metadata, humanModified: true });
     },
   );
 
