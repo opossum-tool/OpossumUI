@@ -47,7 +47,7 @@ const satisfactionIconClass = {
   height: auditingOptionIconSize,
 } satisfies SxProps<Theme>;
 
-const aiGeneratedChipClass = {
+const aiAttributionChipClass = {
   backgroundColor: OpossumColors.lightBlue,
 } satisfies SxProps<Theme>;
 
@@ -102,15 +102,30 @@ export function useAuditingOptions({
     () => [
       {
         id: 'ai-generated',
-        label: packageInfo.aiAttributions?.deferred
-          ? text.auditingOptions.deferred
-          : packageInfo.aiAttributions?.humanModified
-            ? text.auditingOptions.humanReviewed
-            : text.auditingOptions.aiGenerated,
+        label: text.auditingOptions.aiGenerated,
         icon: <AiGeneratedIcon noTooltip />,
-        selected: !!packageInfo.aiAttributions,
+        selected:
+          !!packageInfo.aiAttributions &&
+          !packageInfo.aiAttributions.humanModified &&
+          !packageInfo.aiAttributions.deferred,
         interactive: false,
-        chipSx: aiGeneratedChipClass,
+        chipSx: aiAttributionChipClass,
+      },
+      {
+        id: 'human-modified',
+        label: text.auditingOptions.humanModified,
+        icon: <AiGeneratedIcon noTooltip />,
+        selected: !!packageInfo.aiAttributions?.humanModified,
+        interactive: false,
+        chipSx: aiAttributionChipClass,
+      },
+      {
+        id: 'deferred',
+        label: text.auditingOptions.deferred,
+        icon: <AiGeneratedIcon noTooltip />,
+        selected: !!packageInfo.aiAttributions?.deferred,
+        interactive: false,
+        chipSx: aiAttributionChipClass,
       },
       {
         id: 'preferred',

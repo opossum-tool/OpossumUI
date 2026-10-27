@@ -494,92 +494,64 @@ describe('AttributionForm', () => {
       });
     });
 
-    describe('AI generated chip', () => {
-      it('renders a chip for AI generated attributions', async () => {
-        const packageInfo = faker.opossum.packageInfo({
-          aiAttributions: {},
-        });
-
+    it.each([
+      {
+        name: 'ordinary attribution',
+        aiAttributions: undefined,
+        expected: [],
+      },
+      {
+        name: 'AI attribution without flags',
+        aiAttributions: {},
+        expected: [text.auditingOptions.aiGenerated],
+      },
+      {
+        name: 'unmodified AI attribution without deferred fields',
+        aiAttributions: { humanModified: false, deferred: false },
+        expected: [text.auditingOptions.aiGenerated],
+      },
+      {
+        name: 'human-modified attribution without deferred fields',
+        aiAttributions: { humanModified: true, deferred: false },
+        expected: [text.auditingOptions.humanModified],
+      },
+      {
+        name: 'deferred attribution without a human-modified flag',
+        aiAttributions: { deferred: true },
+        expected: [text.auditingOptions.deferred],
+      },
+      {
+        name: 'unmodified attribution with deferred fields',
+        aiAttributions: { humanModified: false, deferred: true },
+        expected: [text.auditingOptions.deferred],
+      },
+      {
+        name: 'human-modified attribution with deferred fields',
+        aiAttributions: { humanModified: true, deferred: true },
+        expected: [
+          text.auditingOptions.humanModified,
+          text.auditingOptions.deferred,
+        ],
+      },
+    ])(
+      'shows the expected AI badges for $name',
+      async ({ aiAttributions, expected }) => {
+        const packageInfo = faker.opossum.packageInfo({ aiAttributions });
         await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
           data: getParsedInputFileEnrichedWithTestData({}),
         });
 
-        const aiChip = screen.getByTestId('auditing-option-ai-generated');
-        expect(aiChip).toBeInTheDocument();
-        expect(aiChip).toHaveTextContent(text.auditingOptions.aiGenerated);
-        expect(aiChip).toHaveStyle({
-          backgroundColor: OpossumColors.lightBlue,
-        });
-      });
-
-      it('renders a chip for AI generated attributions with an absent human-modified flag', async () => {
-        const packageInfo = faker.opossum.packageInfo({
-          aiAttributions: { humanModified: undefined },
-        });
-
-        await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
-          data: getParsedInputFileEnrichedWithTestData({}),
-        });
-
-        const aiChip = screen.getByTestId('auditing-option-ai-generated');
-        expect(aiChip).toBeInTheDocument();
-        expect(aiChip).toHaveTextContent(text.auditingOptions.aiGenerated);
-      });
-
-      it('indicates human modification on the chip', async () => {
-        const packageInfo = faker.opossum.packageInfo({
-          aiAttributions: { humanModified: true },
-        });
-
-        await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
-          data: getParsedInputFileEnrichedWithTestData({}),
-        });
-
-        const aiChip = screen.getByTestId('auditing-option-ai-generated');
-        expect(aiChip).toBeInTheDocument();
-        expect(aiChip).toHaveTextContent(text.auditingOptions.humanReviewed);
-      });
-
-      it('indicates deferred fields on the chip', async () => {
-        const packageInfo = faker.opossum.packageInfo({
-          aiAttributions: { deferred: true },
-        });
-
-        await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
-          data: getParsedInputFileEnrichedWithTestData({}),
-        });
-
-        const aiChip = screen.getByTestId('auditing-option-ai-generated');
-        expect(aiChip).toBeInTheDocument();
-        expect(aiChip).toHaveTextContent(text.auditingOptions.deferred);
-      });
-
-      it('prefers the deferred label over the human-modified label', async () => {
-        const packageInfo = faker.opossum.packageInfo({
-          aiAttributions: { humanModified: true, deferred: true },
-        });
-
-        await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
-          data: getParsedInputFileEnrichedWithTestData({}),
-        });
-
-        const aiChip = screen.getByTestId('auditing-option-ai-generated');
-        expect(aiChip).toBeInTheDocument();
-        expect(aiChip).toHaveTextContent(text.auditingOptions.deferred);
-      });
-
-      it('does not render a chip for attributions that are not AI generated', async () => {
-        const packageInfo = faker.opossum.packageInfo();
-
-        await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
-          data: getParsedInputFileEnrichedWithTestData({}),
-        });
-
-        expect(
-          screen.queryByTestId('auditing-option-ai-generated'),
-        ).not.toBeInTheDocument();
-      });
-    });
+        const badges = screen.queryAllByTestId(
+          /^auditing-option-(ai-generated|human-modified|deferred)$/,
+        );
+        expect(badges.map((badge) => badge.textContent)).toEqual(expected);
+        for (const badge of badges) {
+          expect(badge).toHaveStyle({
+            backgroundColor: OpossumColors.lightBlue,
+          });
+        }
+      },
+    );
   });
 
   describe('url handling', () => {

@@ -274,7 +274,7 @@ export const text = {
     add: 'Add Auditing Option',
     aiGenerated: 'AI generated',
     deferred: 'Deferred',
-    humanReviewed: 'Human-modified',
+    humanModified: 'Human-modified',
     confidence: 'Confidence',
     confidenceOf: (value: number) => `confidence of ${value}`,
     currentlyPreferred: 'Currently Preferred',
