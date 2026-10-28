@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiLink from '@mui/material/Link';
 import { type Theme, useTheme } from '@mui/material/styles';
 import {
   Cell as RcCell,
@@ -42,6 +43,7 @@ function getLegendIconStyle(
     backgroundColor,
     borderRadius: theme.shape.borderRadiusMedium,
     height: LEGEND_SWATCH_SIZE,
+    flexShrink: 0,
     width: LEGEND_SWATCH_SIZE,
     marginRight,
   };
@@ -58,17 +60,18 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
   const legendTextStyle: React.CSSProperties = {
     fontFamily: 'sans-serif',
     fontSize: theme.typography.caption.fontSize,
-    width: '95%',
+    lineHeight: theme.typography.caption.lineHeight,
+    textAlign: 'left',
+    flex: 1,
+    minWidth: 0,
+    overflowWrap: 'anywhere',
   };
 
   const pieChartColors = props.segments.map(
-    ({ name }, i) =>
+    ({ name, color }, i) =>
+      color ??
       props.colorMap?.[name] ??
       defaultPieChartColors[i % defaultPieChartColors.length],
-  );
-
-  const nameToIndex = Object.fromEntries(
-    props.segments.map((prop, index) => [prop.name, index]),
   );
 
   return (
@@ -83,8 +86,13 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           isAnimationActive={false}
           stroke="none"
         >
-          {pieChartColors.map((record, index) => (
-            <RcCell key={`cell-${index}`} fill={record} />
+          {props.segments.map((item, index) => (
+            <RcCell
+              key={item.id ?? index}
+              fill={pieChartColors[index]}
+              onClick={item.onActivate}
+              cursor={item.onActivate ? 'pointer' : undefined}
+            />
           ))}
         </RcPie>
         <RcTooltip
@@ -92,28 +100,36 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           itemStyle={chartTooltipTextStyle}
         />
         <RcLegend
-          content={({ payload }) => (
+          content={() => (
             <div>
-              {payload
-                ?.toSorted(
-                  (a, b) =>
-                    (a.value &&
-                      b.value &&
-                      nameToIndex[a.value] - nameToIndex[b.value]) ||
-                    0,
-                )
-                .map((entry, index) => (
-                  <div style={{ display: 'flex' }} key={`item-${index}`}>
-                    <div
-                      style={getLegendIconStyle(
-                        theme,
-                        entry.color ?? '',
-                        theme.spacing(1),
-                      )}
-                    />
-                    <div style={legendTextStyle}>{entry.value}</div>
-                  </div>
-                ))}
+              {props.segments.map((item, index) => (
+                <div
+                  style={{ display: 'flex', alignItems: 'center' }}
+                  key={item.id ?? index}
+                >
+                  <div
+                    style={getLegendIconStyle(
+                      theme,
+                      pieChartColors[index],
+                      theme.spacing(1),
+                    )}
+                  />
+                  {item.onActivate ? (
+                    <MuiLink
+                      component={'button'}
+                      type={'button'}
+                      variant={'inherit'}
+                      underline={'hover'}
+                      onClick={item.onActivate}
+                      style={legendTextStyle}
+                    >
+                      {item.name}
+                    </MuiLink>
+                  ) : (
+                    <div style={legendTextStyle}>{item.name}</div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
           verticalAlign="middle"

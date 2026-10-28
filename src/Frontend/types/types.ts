@@ -62,4 +62,7 @@ export type PopupInfo =
 export interface ChartDataItem extends Record<string, unknown> {
   name: string;
   count: number;
+  id?: string | number;
+  color?: string;
+  onActivate?: () => void;
 }

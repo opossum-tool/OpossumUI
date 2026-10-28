@@ -10,15 +10,12 @@ import MuiTypography from '@mui/material/Typography';
 import MuiBox from '@mui/system/Box';
 import { type PropsWithChildren, useState } from 'react';
 
-import { Criticality } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { criticalityColor, OpossumColors, Sizing } from '../../shared-styles';
+import { navigateFromStatistics } from '../../state/actions/popup-actions/popup-actions';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
-import {
-  initialAttributionFilters,
-  useExternalAttributionFilters,
-} from '../../state/variables/use-filters';
+import { initialAttributionFilters } from '../../state/variables/use-filters';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { backend } from '../../util/backendClient';
 import { useClassifications } from '../../util/use-classifications';
@@ -33,11 +30,8 @@ import {
   transformName,
 } from './ProjectStatisticsPopup.util';
 
-const CRITICALITY_COLORS = {
-  [CRITICALITY_LABEL[Criticality.High]]: criticalityColor[Criticality.High],
-  [CRITICALITY_LABEL[Criticality.Medium]]: criticalityColor[Criticality.Medium],
-  [CRITICALITY_LABEL[Criticality.None]]: criticalityColor[Criticality.None],
-};
+const criticalityLabels: Record<number, string> = CRITICALITY_LABEL;
+const criticalityColors: Record<number, string> = criticalityColor;
 
 // Popup size floor for both width and height, fixed px (not spacing-scaled);
 // the viewport terms in the calc() strings stay fluid.
@@ -52,8 +46,6 @@ export const ProjectStatisticsPopup: React.FC = () => {
     backend.manualAttributionStatistics.useQuery();
   const externalAttributionStatistics =
     backend.externalAttributionStatistics.useQuery();
-
-  const [_, setFilteredAttributions] = useExternalAttributionFilters();
 
   const statistics =
     manualAttributionStatistics.data && externalAttributionStatistics.data
@@ -70,13 +62,15 @@ export const ProjectStatisticsPopup: React.FC = () => {
   }
 
   function handleLicenseClick(licenseName: string): void {
-    setFilteredAttributions(() => ({
-      ...initialAttributionFilters,
-      valueFilters: {
-        license: licenseName,
-      },
-    }));
-    close();
+    dispatch(
+      navigateFromStatistics({
+        external: true,
+        filters: {
+          ...initialAttributionFilters,
+          valueFilters: { license: licenseName },
+        },
+      }),
+    );
   }
 
   const [userSettings, updateUserSettings] = useUserSettings();
@@ -127,13 +121,32 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 {text.projectStatisticsPopup.charts.attributionProperties.title}
               </MuiTypography>
               <BarChart
-                data={transformName(
-                  statistics.attributionsOverview,
-                  (key) =>
-                    text.projectStatisticsPopup.charts.attributionProperties[
-                      key
-                    ],
-                )}
+                data={statistics.attributionsOverview.map((item) => ({
+                  ...item,
+                  id: item.name,
+                  name: text.projectStatisticsPopup.charts
+                    .attributionProperties[item.name],
+                  onActivate:
+                    item.name === 'incomplete'
+                      ? undefined
+                      : () =>
+                          dispatch(
+                            navigateFromStatistics({
+                              external: false,
+                              filters: {
+                                ...initialAttributionFilters,
+                                filters:
+                                  item.name === 'total'
+                                    ? []
+                                    : [
+                                        item.name === 'followUp'
+                                          ? 'needsFollowUp'
+                                          : item.name,
+                                      ],
+                              },
+                            }),
+                          ),
+                }))}
               />
             </ChartGridItem>
             <ChartGridItem
@@ -148,7 +161,15 @@ export const ProjectStatisticsPopup: React.FC = () => {
                     .mostFrequentLicenseCountPieChart
                 }
               </MuiTypography>
-              <PieChart segments={statistics.mostFrequentLicenses} />
+              <PieChart
+                segments={statistics.mostFrequentLicenses.map((item) => ({
+                  ...item,
+                  id: item.isOther ? 'aggregate-other' : `license:${item.name}`,
+                  onActivate: item.isOther
+                    ? undefined
+                    : () => handleLicenseClick(item.name),
+                }))}
+              />
             </ChartGridItem>
             <ChartGridItem
               shouldRender={
@@ -164,18 +185,33 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 }
               </MuiTypography>
               <PieChart
-                segments={transformName<Criticality | null, string>(
-                  statistics.signalsByCriticality,
-                  (k) =>
-                    k === null
+                segments={statistics.signalsByCriticality.map((item) => ({
+                  ...item,
+                  id: item.name ?? 'no-license',
+                  name:
+                    item.name === null
                       ? text.projectStatisticsPopup.charts.noLicense
-                      : CRITICALITY_LABEL[k],
-                )}
-                colorMap={{
-                  ...CRITICALITY_COLORS,
-                  [text.projectStatisticsPopup.charts.noLicense]:
-                    OpossumColors.lightGrey,
-                }}
+                      : criticalityLabels[item.name],
+                  color:
+                    item.name === null
+                      ? OpossumColors.lightGrey
+                      : criticalityColors[item.name],
+                  onActivate:
+                    item.name === null
+                      ? undefined
+                      : () =>
+                          dispatch(
+                            navigateFromStatistics({
+                              external: true,
+                              filters: {
+                                ...initialAttributionFilters,
+                                valueFilters: {
+                                  criticality: item.name ?? undefined,
+                                },
+                              },
+                            }),
+                          ),
+                }))}
               />
             </ChartGridItem>
             <ChartGridItem
@@ -192,23 +228,33 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 }
               </MuiTypography>
               <PieChart
-                segments={transformName(
-                  statistics.signalsByClassification,
-                  (s) =>
-                    s === null
+                segments={statistics.signalsByClassification.map((item) => ({
+                  ...item,
+                  id: item.name ?? 'no-license',
+                  name:
+                    item.name === null
                       ? text.projectStatisticsPopup.charts.noLicense
-                      : classifications[s].description,
-                )}
-                colorMap={{
-                  ...Object.fromEntries(
-                    Object.values(classifications).map((c) => [
-                      c.description,
-                      c.color,
-                    ]),
-                  ),
-                  [text.projectStatisticsPopup.charts.noLicense]:
-                    OpossumColors.lightGrey,
-                }}
+                      : classifications[item.name].description,
+                  color:
+                    item.name === null
+                      ? OpossumColors.lightGrey
+                      : classifications[item.name].color,
+                  onActivate:
+                    item.name === null
+                      ? undefined
+                      : () =>
+                          dispatch(
+                            navigateFromStatistics({
+                              external: true,
+                              filters: {
+                                ...initialAttributionFilters,
+                                valueFilters: {
+                                  classification: item.name ?? undefined,
+                                },
+                              },
+                            }),
+                          ),
+                }))}
               />
             </ChartGridItem>
             <ChartGridItem

@@ -106,6 +106,7 @@ export async function externalAttributionStatistics() {
       eb
         .selectFrom('attributions_per_license')
         .select(['license_name as name', 'count'])
+        .select((eb) => eb.val(0).as('isOther'))
         .limit(LICENSE_LIMIT)
         .as('top_licenses'),
     )
@@ -124,6 +125,7 @@ export async function externalAttributionStatistics() {
         .select((eb) => [
           eb.val('Other').as('name'),
           eb.fn.sum<number>('count').as('count'),
+          eb.val(1).as('isOther'),
         ]),
     )
     .execute()
