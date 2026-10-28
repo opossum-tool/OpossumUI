@@ -370,6 +370,8 @@ export const text = {
   },
   filters: {
     any: 'Any',
+    classification: 'Classification',
+    criticality: 'Criticality',
     currentlyPreferred: 'Currently Preferred',
     excludedFromNotice: 'Excluded from Notice',
     firstParty: 'First Party',

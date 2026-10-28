@@ -149,6 +149,14 @@ export function getValueFilterExpression(
   const eb = expressionBuilder<DB, 'attribution'>();
   const expressions: Array<OperandExpression<SqlBool>> = [];
 
+  if (filters.classification !== undefined) {
+    expressions.push(eb('classification', '=', filters.classification));
+  }
+
+  if (filters.criticality !== undefined) {
+    expressions.push(eb('criticality', '=', filters.criticality));
+  }
+
   if (filters.license) {
     expressions.push(
       eb(

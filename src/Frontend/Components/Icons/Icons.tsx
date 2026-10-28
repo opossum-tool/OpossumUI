@@ -247,10 +247,6 @@ export function CriticalityIcon({
   criticality: Criticality;
   tooltip?: string;
 }) {
-  if (criticality === Criticality.None) {
-    return null;
-  }
-
   return (
     <MuiTooltip
       title={noTooltip ? undefined : tooltip}
@@ -261,7 +257,7 @@ export function CriticalityIcon({
         aria-label={'Criticality icon'}
         sx={{
           ...baseIcon,
-          color: `${criticalityColor[criticality]} !important`,
+          color: `${criticality === Criticality.None ? OpossumColors.grey : criticalityColor[criticality]} !important`,
           ...sx,
         }}
         className={className}
@@ -272,18 +268,17 @@ export function CriticalityIcon({
 
 export function ClassificationIcon(
   props: IconProps & {
-    classification?: number;
+    classification: number;
   },
 ) {
   const classificationsConfig = useClassifications();
 
-  if (!props.classification) {
-    return null;
-  }
-
   const tooltip = classificationsConfig?.[props.classification]?.description;
   const color =
-    classificationsConfig?.[props.classification]?.color ?? OpossumColors.red;
+    props.classification === 0
+      ? OpossumColors.grey
+      : (classificationsConfig?.[props.classification]?.color ??
+        OpossumColors.red);
 
   return (
     <MuiTooltip

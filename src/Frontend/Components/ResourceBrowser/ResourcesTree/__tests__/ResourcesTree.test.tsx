@@ -365,28 +365,35 @@ describe('ResourcesTree', () => {
     expectIconToExist(screen, 'Signal icon', 'src', true);
   });
 
-  it('renders classification icon when showClassifications is enabled', async () => {
-    const resources = [
-      ROOT_TREE_NODE,
-      makeResourceTreeNode({
-        id: '/src/',
-        isExpandable: true,
-        isExpanded: false,
-        canHaveChildren: true,
-        isFile: false,
-        hasExternalAttribution: true,
-        hasUnresolvedExternalAttribution: true,
-        classification: 1,
-      }),
-    ];
+  it.each([
+    { classification: 0, visible: false },
+    { classification: 1, visible: true },
+    { classification: null, visible: false },
+  ])(
+    'shows classification badges only for positive values ($classification)',
+    async ({ classification, visible }) => {
+      const resources = [
+        ROOT_TREE_NODE,
+        makeResourceTreeNode({
+          id: '/src/',
+          isExpandable: true,
+          isExpanded: false,
+          canHaveChildren: true,
+          isFile: false,
+          hasExternalAttribution: true,
+          hasUnresolvedExternalAttribution: true,
+          classification,
+        }),
+      ];
 
-    await renderComponent(<ResourcesTree resources={resources} />, {
-      data: defaultData,
-      actions: [setUserSetting({ showClassifications: true })],
-    });
+      await renderComponent(<ResourcesTree resources={resources} />, {
+        data: defaultData,
+        actions: [setUserSetting({ showClassifications: true })],
+      });
 
-    expectIconToExist(screen, 'Classification icon', 'src', true);
-  });
+      expectIconToExist(screen, 'Classification icon', 'src', visible);
+    },
+  );
 
   it('hides classification icon when showClassifications is disabled', async () => {
     const resources = [

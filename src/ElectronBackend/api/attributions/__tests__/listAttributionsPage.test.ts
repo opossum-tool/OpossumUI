@@ -504,6 +504,59 @@ describe('listAttributionsPage', () => {
     expect(Object.keys(result.result.attributions)).toEqual(scenario.expected);
   });
 
+  it.each([
+    { valueFilters: { classification: 0 }, expected: ['zero'] },
+    { valueFilters: { classification: 2 }, expected: ['high', 'positive'] },
+    {
+      valueFilters: { criticality: Criticality.None },
+      expected: ['missing', 'zero'],
+    },
+    {
+      valueFilters: { criticality: Criticality.Medium },
+      expected: ['positive'],
+    },
+    { valueFilters: { criticality: Criticality.High }, expected: ['high'] },
+    {
+      valueFilters: { classification: 2, criticality: Criticality.High },
+      expected: ['high'],
+    },
+    {
+      valueFilters: { classification: 2, license: 'MIT' },
+      expected: ['positive'],
+    },
+  ])(
+    'matches numeric value filters $valueFilters',
+    async ({ valueFilters, expected }) => {
+      const attributions = {
+        zero: { id: 'zero', classification: 0, criticality: Criticality.None },
+        missing: { id: 'missing', criticality: Criticality.None },
+        positive: {
+          id: 'positive',
+          classification: 2,
+          criticality: Criticality.Medium,
+          licenseName: 'MIT',
+        },
+        high: { id: 'high', classification: 2, criticality: Criticality.High },
+      } satisfies Record<string, PackageInfo>;
+      await initializeDbWithTestData({
+        resources: pathsToResources(['/resource']),
+        manualAttributions: {
+          attributions,
+          resourcesToAttributions: { '/resource': Object.keys(attributions) },
+          attributionsToResources: {},
+        },
+      });
+      const result = await allPage({
+        external: false,
+        valueFilters,
+        resourcePathForRelationships: '/resource',
+      });
+      expect(Object.keys(result.result.attributions).sort()).toEqual(
+        expected.sort(),
+      );
+    },
+  );
+
   it('applies shared filters and sorting in a relation scope', async () => {
     const attributions = {
       selected: {
