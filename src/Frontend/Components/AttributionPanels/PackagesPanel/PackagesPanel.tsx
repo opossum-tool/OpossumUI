@@ -43,9 +43,10 @@ import {
   getSelectedResourceId,
   getTargetAttributionRelation,
 } from '../../../state/selectors/resource-selectors';
-import type {
-  AttributionFilters,
-  UseAttributionFilters,
+import {
+  type AttributionFilters,
+  toAttributionValueFilters,
+  type UseAttributionFilters,
 } from '../../../state/variables/use-filters';
 import {
   type PickerMode,
@@ -177,7 +178,7 @@ export const PackagesPanel = ({
       ? 'resource'
       : activeRelation;
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const { filterProps } = useFilterProperties({
+  const { filterProps, licenses, licenseOptionsLoading } = useFilterProperties({
     mode: external ? 'external' : 'manual',
     enabled: isFilterOpen,
     relation: relationForCurrentResource,
@@ -205,7 +206,7 @@ export const PackagesPanel = ({
       external,
       filters: attributionFilters,
       search: filters.search,
-      valueFilters,
+      valueFilters: toAttributionValueFilters(valueFilters),
       resourcePathForRelationships: selectedResourceId,
       showResolved: areHiddenSignalsVisible && external,
       excludeUnrelated: external || isSelectedResourceReadonly,
@@ -346,6 +347,8 @@ export const PackagesPanel = ({
   const menuFilterOptions = useAttributionFilterOptions({
     filterOptions,
     filterProps,
+    licenses,
+    licenseOptionsLoading,
     filters,
     setFilters: setFiltersWithUnsavedCheck,
   });
@@ -387,8 +390,8 @@ export const PackagesPanel = ({
   );
   const isFilterActive =
     !!attributionFilters.length ||
-    Object.values(valueFilters).some(
-      (value) => value !== undefined && value !== '',
+    Object.values(valueFilters).some((value) =>
+      Array.isArray(value) ? value.length > 0 : value !== undefined,
     );
   const pickerMode = usePickerMode();
 

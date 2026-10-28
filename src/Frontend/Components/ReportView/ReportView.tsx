@@ -120,10 +120,6 @@ export const ReportView: React.FC = () => {
     }
   }, [isListReady, selectedIndex]);
 
-  if (!packageInfos) {
-    return null;
-  }
-
   return (
     <TableVirtuoso<ReportTableData>
       aria-label={'report view'}
@@ -132,7 +128,7 @@ export const ReportView: React.FC = () => {
       style={{ overflowAnchor: 'none' }}
       components={TABLE_COMPONENTS}
       fixedHeaderContent={() => (
-        <ReportTableHeader empty={packageInfos.length === 0} />
+        <ReportTableHeader empty={loadedPackageInfos.length === 0} />
       )}
       fixedFooterContent={() => (
         <ReportTableFooter

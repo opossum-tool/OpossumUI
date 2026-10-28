@@ -52,7 +52,7 @@ describe('ReportView', () => {
     expect(screen.getByText('License')).toBeInTheDocument();
 
     expect(screen.getByText('Version')).toBeInTheDocument();
-    expect(screen.getByText('1.0')).toBeInTheDocument();
+    expect(await screen.findByText('1.0')).toBeInTheDocument();
 
     expect(screen.getAllByText('Name')).toHaveLength(1);
     expect(screen.getByText('React')).toBeInTheDocument();

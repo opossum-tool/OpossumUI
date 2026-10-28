@@ -166,6 +166,7 @@ export const MoreActionsButton: React.FC<PackagesPanelChildrenProps> = ({
   const menuOptions = useMemo<Array<SelectMenuOption>>(
     () =>
       menuItemConfigs.map((config) => ({
+        kind: 'toggle' as const,
         id: config.property,
         label: getMenuItemText(config.property),
         icon: config.icon,

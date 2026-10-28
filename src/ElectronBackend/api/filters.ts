@@ -16,7 +16,6 @@ import {
 } from '../../shared/attribution-filters';
 import { isAiDeferred } from '../db/attribution-ai';
 import type { DB } from '../db/generated/databaseTypes';
-import { toCanonicalLicenseName } from './utils';
 
 const LOW_CONFIDENCE_THRESHOLD = 60;
 
@@ -159,14 +158,8 @@ export function getValueFilterExpression(
     expressions.push(eb('criticality', '=', filters.criticality));
   }
 
-  if (filters.license) {
-    expressions.push(
-      eb(
-        'canonical_license_name',
-        '=',
-        toCanonicalLicenseName(filters.license),
-      ),
-    );
+  if (filters.licenseIds?.length) {
+    expressions.push(eb('canonical_license_name', 'in', filters.licenseIds));
   }
 
   if (filters.incompleteCoordinates) {

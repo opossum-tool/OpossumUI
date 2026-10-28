@@ -270,7 +270,7 @@ describe('attribution filtering', () => {
     const licensed = await getResourceTree({
       expandedNodes: 'expandAll',
       onAttributionUuids: [FILTER_EXTERNAL_UUID, FILTER_SECOND_EXTERNAL_UUID],
-      licenseFilter: { licenseName: 'MIT', external: true },
+      licenseFilter: { licenseIds: ['mit'], external: true },
     });
     expect(licensed.result.count).toBe(4);
     expect(licensed.result.treeNodes.map((node) => node.id)).not.toContain(
@@ -393,7 +393,7 @@ describe('resource tree AI-deferred filter', () => {
     expect(searched.result).toBe(0);
 
     const licensed = await getResourceTreeAiDeferredCount({
-      licenseFilter: { licenseName: 'MIT', external: false },
+      licenseFilter: { licenseIds: ['mit'], external: false },
     });
     expect(licensed.result).toBe(AI_DEFERRED_FILES.length);
   });
@@ -418,7 +418,7 @@ describe('resource tree AI-deferred filter', () => {
 
   it('conjoins the tree filters with license filters', async () => {
     const mitLicenseFilter = {
-      licenseFilter: { licenseName: 'MIT', external: false },
+      licenseFilter: { licenseIds: ['mit'], external: false },
     };
 
     const unreviewedMit = await getResourceTreeUnreviewedCount({
@@ -1282,7 +1282,7 @@ describe('getResourceTree', () => {
       const { result } = await getResourceTree({
         expandedNodes: 'expandAll',
         licenseFilter: {
-          licenseName: 'MIT',
+          licenseIds: ['mit'],
           external: true,
         },
       });
@@ -1293,6 +1293,35 @@ describe('getResourceTree', () => {
       expect(labels).toContain('file.ts');
       expect(labels).not.toContain('unlinked');
       expect(labels).not.toContain('other.ts');
+
+      const combined = await getResourceTree({
+        expandedNodes: 'expandAll',
+        licenseFilter: { licenseIds: ['mit', 'apache2.0'], external: true },
+      });
+      expect(combined.result.count).toBe(2);
+      expect(combined.result.treeNodes.map((node) => node.labelText)).toEqual([
+        '/',
+        'linked',
+        'file.ts',
+        'unlinked',
+        'other.ts',
+      ]);
+      const searched = await getResourceTree({
+        expandedNodes: 'expandAll',
+        search: 'other',
+        licenseFilter: { licenseIds: ['mit', 'apache2.0'], external: true },
+      });
+      expect(searched.result.count).toBe(1);
+      expect(searched.result.treeNodes.map((node) => node.labelText)).toEqual([
+        '/',
+        'unlinked',
+        'other.ts',
+      ]);
+      const unrestricted = await getResourceTree({
+        expandedNodes: 'expandAll',
+        licenseFilter: { licenseIds: [], external: true },
+      });
+      expect(unrestricted.result.count).toBe(5);
     });
 
     it('filters resources by manual attribution license when requested', async () => {
@@ -1328,7 +1357,7 @@ describe('getResourceTree', () => {
       const { result } = await getResourceTree({
         expandedNodes: 'expandAll',
         licenseFilter: {
-          licenseName: 'MIT',
+          licenseIds: ['mit'],
           external: false,
         },
       });
@@ -1570,7 +1599,7 @@ describe('getResourceTree', () => {
       const { result } = await getResourceTree({
         expandedNodes: 'expandAll',
         licenseFilter: {
-          licenseName: 'MIT',
+          licenseIds: ['mit'],
           external: true,
         },
         onlyUnreviewedFiles: true,
@@ -1637,7 +1666,7 @@ describe('getResourceTree', () => {
       await expect(
         getResourceTreeUnreviewedCount({
           licenseFilter: {
-            licenseName: 'MIT',
+            licenseIds: ['mit'],
             external: true,
           },
         }),
@@ -1646,7 +1675,7 @@ describe('getResourceTree', () => {
       await expect(
         getResourceTreeUnreviewedCount({
           licenseFilter: {
-            licenseName: 'MIT',
+            licenseIds: ['mit'],
             external: false,
           },
         }),

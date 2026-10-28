@@ -11,7 +11,11 @@ import { useCallback, useMemo, useState } from 'react';
 
 import type { QueryResult } from '../../../ElectronBackend/api/queries';
 import { DEFAULT_USER_SETTINGS } from '../../../shared/shared-constants';
-import type { Order, TableOrdering } from '../../../shared/shared-types';
+import type {
+  LicenseOption,
+  Order,
+  TableOrdering,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import {
@@ -32,7 +36,7 @@ const classes = {
 
 export interface AttributionCountPerSourcePerLicenseTableProps {
   tableData: QueryResult<'licenseTable'>;
-  setSelectedLicense?: (license: string) => void;
+  setSelectedLicense?: (license: LicenseOption) => void;
 }
 
 export const AttributionCountPerSourcePerLicenseTable: React.FC<
@@ -192,11 +196,13 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
                 columnConfig={columnConfig}
                 signalCountsPerSource={row.perSource}
                 licenseName={row.licenseName ?? '-'}
+                licenseOption={row.licenseOption}
                 licenseCriticality={row.criticality}
                 licenseClassification={row.classification}
                 totalSignalCount={row.total}
                 setSelectedLicense={setSelectedLicense}
                 key={JSON.stringify([
+                  row.licenseOption.id,
                   row.licenseName,
                   row.criticality,
                   row.classification,

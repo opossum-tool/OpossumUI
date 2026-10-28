@@ -9,6 +9,7 @@ import MuiTableRow from '@mui/material/TableRow';
 import {
   type Classification,
   Criticality,
+  type LicenseOption,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { OpossumColors, tableClasses } from '../../../shared-styles';
@@ -25,11 +26,12 @@ interface AttributionCountPerSourcePerLicenseTableRowProps {
   columnConfig: ColumnConfig;
   signalCountsPerSource: { [sourceName: string]: number };
   licenseName: string;
+  licenseOption: LicenseOption;
   licenseCriticality: Criticality;
   licenseClassification: Classification | undefined;
   totalSignalCount: number;
   rowIndex: number;
-  setSelectedLicense?: (license: string) => void;
+  setSelectedLicense?: (license: LicenseOption) => void;
 }
 
 export const AttributionCountPerSourcePerLicenseTableRow: React.FC<
@@ -56,6 +58,7 @@ export const AttributionCountPerSourcePerLicenseTableRow: React.FC<
             <RowCellContent
               signalCountsPerSource={props.signalCountsPerSource}
               licenseName={props.licenseName}
+              licenseOption={props.licenseOption}
               licenseCriticality={props.licenseCriticality}
               licenseClassification={props.licenseClassification}
               totalSignalCount={props.totalSignalCount}
@@ -72,11 +75,12 @@ export const AttributionCountPerSourcePerLicenseTableRow: React.FC<
 interface RowCellContentProps {
   signalCountsPerSource: { [sourceName: string]: number };
   licenseName: string;
+  licenseOption: LicenseOption;
   licenseCriticality: Criticality;
   licenseClassification: Classification | undefined;
   totalSignalCount: number;
   column: Column;
-  setSelectedLicense?: (license: string) => void;
+  setSelectedLicense?: (license: LicenseOption) => void;
 }
 
 const RowCellContent: React.FC<RowCellContentProps> = (props) => {
@@ -99,7 +103,7 @@ const RowCellContent: React.FC<RowCellContentProps> = (props) => {
           variant={'inherit'}
           underline="hover"
           onClick={() => {
-            props.setSelectedLicense?.(props.licenseName);
+            props.setSelectedLicense?.(props.licenseOption);
           }}
           sx={{ cursor: 'pointer', textAlign: 'inherit' }}
         >

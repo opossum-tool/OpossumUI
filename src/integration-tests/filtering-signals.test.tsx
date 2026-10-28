@@ -12,24 +12,35 @@ import { text } from '../shared/text';
 import { faker } from '../testing/Faker';
 import { renderApp, type RenderAppResult } from './helpers/render-app';
 import {
+  clickFilterMenuButton,
+  clickLicenseTableCell,
   clickPackageCard,
+  clickProjectStatisticsTab,
+  closeFilterMenu,
   expectPackageCards,
+  fillLicenseFilter,
+  gotoResource,
+  openProjectStatisticsPopup,
   pressSearchShortcut,
+  selectFilterLicenseName,
 } from './helpers/ui';
 
 const [resourceName1, resourceName2, resourceName3, resourceName4] =
   faker.opossum.resourceNames({ count: 4 });
 const [attributionId1, packageInfo1] = faker.opossum.rawAttribution({
+  licenseName: 'MIT',
   followUp: 'FOLLOW_UP',
   wasPreferred: true,
   preSelected: true,
   packageVersion: undefined,
 });
 const [attributionId2, packageInfo2] = faker.opossum.rawAttribution({
+  licenseName: 'Apache-2.0',
   preSelected: true,
   packageVersion: undefined,
 });
 const [attributionId3, packageInfo3] = faker.opossum.rawAttribution({
+  licenseName: 'BSD-3-Clause',
   firstParty: true,
   preSelected: true,
   packageVersion: undefined,
@@ -68,12 +79,13 @@ async function applyValueFilter(
   );
 }
 
-async function renderFixture(): Promise<RenderAppResult> {
+async function renderFixture(equivalent = false): Promise<RenderAppResult> {
   return renderApp({
     userSettings: {
       panelSizes: { signalsPanelHeight: 1200 },
     },
     data: getParsedInputFileEnrichedWithTestData({
+      config: faker.opossum.inputData().config,
       resources: faker.opossum.resources({
         [resourceName1]: {
           [resourceName2]: { [resourceName3]: 1 },
@@ -82,7 +94,9 @@ async function renderFixture(): Promise<RenderAppResult> {
       }),
       externalAttributions: deserializeAttributions({
         [attributionId1]: packageInfo1,
-        [attributionId2]: packageInfo2,
+        [attributionId2]: equivalent
+          ? { ...packageInfo2, licenseName: 'M-IT' }
+          : packageInfo2,
         [attributionId3]: packageInfo3,
       }),
       resourcesToExternalAttributions: faker.opossum.resourcesToAttributions({
@@ -99,6 +113,124 @@ async function renderFixture(): Promise<RenderAppResult> {
 }
 
 describe('filtering signals', () => {
+  it('reopens after selecting BSD and adds another license', async () => {
+    await renderFixture();
+    await clickFilterMenuButton(screen.getByTestId('signals-panel'));
+    await selectFilterLicenseName('BSD-3-Clause');
+    await closeFilterMenu();
+    await expectPackageCards(
+      'signals-panel',
+      [packageInfo3],
+      [packageInfo1, packageInfo2],
+    );
+
+    await clickFilterMenuButton(screen.getByTestId('signals-panel'));
+    await selectFilterLicenseName('Apache-2.0');
+    await closeFilterMenu();
+    await expectPackageCards(
+      'signals-panel',
+      [packageInfo2, packageInfo3],
+      [packageInfo1],
+    );
+  });
+
+  it('keeps a selection with no resource matches removable without an availability warning', async () => {
+    await renderFixture();
+    await gotoResource(resourceName1, resourceName2, resourceName3);
+    await clickFilterMenuButton(screen.getByTestId('signals-panel'));
+    await selectFilterLicenseName('MIT');
+    await closeFilterMenu();
+    await gotoResource(resourceName4);
+    await expectPackageCards(
+      'signals-panel',
+      [],
+      [packageInfo1, packageInfo2, packageInfo3],
+    );
+
+    await clickFilterMenuButton(screen.getByTestId('signals-panel'));
+    await fillLicenseFilter('MIT');
+    const selectedOption = await screen.findByRole('option', {
+      name: 'MIT',
+    });
+    expect(selectedOption).toHaveAttribute('aria-selected', 'true');
+    await userEvent.click(screen.getByRole('tab', { name: 'Selected (1)' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Remove MIT' }));
+    await closeFilterMenu();
+    await expectPackageCards(
+      'signals-panel',
+      [packageInfo2],
+      [packageInfo1, packageInfo3],
+    );
+  });
+
+  it('broadens signal license matches and preserves other filters on clear', async () => {
+    await renderFixture();
+    await clickFilterMenuButton(screen.getByTestId('signals-panel'));
+    await selectFilterLicenseName('MIT');
+    await selectFilterLicenseName('Apache-2.0');
+    await closeFilterMenu();
+    await expectPackageCards(
+      'signals-panel',
+      [packageInfo1, packageInfo2],
+      [packageInfo3],
+    );
+    await applyValueFilter('previouslyPreferred');
+    await expectPackageCards(
+      'signals-panel',
+      [packageInfo1],
+      [packageInfo2, packageInfo3],
+    );
+    await clickFilterMenuButton(screen.getByTestId('signals-panel'));
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: '2 licenses selected' }),
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Clear licenses' }),
+    );
+    await closeFilterMenu();
+    await expectPackageCards(
+      'signals-panel',
+      [packageInfo1],
+      [packageInfo2, packageInfo3],
+    );
+  });
+
+  it('retains identity across resource spelling changes and statistics quicklinks', async () => {
+    const { sendToChannel } = await renderFixture(true);
+    await gotoResource(resourceName1, resourceName2, resourceName3);
+    await clickFilterMenuButton(screen.getByTestId('signals-panel'));
+    await selectFilterLicenseName('MIT');
+    await closeFilterMenu();
+    await gotoResource(resourceName4);
+    await expectPackageCards(
+      'signals-panel',
+      [{ ...packageInfo2, licenseName: 'M-IT' }],
+      [packageInfo1, packageInfo3],
+    );
+    await clickFilterMenuButton(screen.getByTestId('signals-panel'));
+    await userEvent.click(
+      await screen.findByRole('menuitem', { name: 'M-IT' }),
+    );
+    await userEvent.type(
+      screen.getByRole('textbox', { name: 'Search licenses' }),
+      'M-IT',
+    );
+    expect(await screen.findByRole('option', { name: 'M-IT' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    expect(screen.getByRole('tab', { name: 'Selected (1)' })).toBeVisible();
+    await closeFilterMenu();
+    await openProjectStatisticsPopup(sendToChannel);
+    await clickProjectStatisticsTab('details');
+    await clickLicenseTableCell('MIT');
+    await expectPackageCards(
+      'signals-panel',
+      [packageInfo1, { ...packageInfo2, licenseName: 'M-IT' }],
+      [packageInfo3],
+    );
+  });
+
   it('filters signals', async () => {
     await renderFixture();
     await expectPackageCards(

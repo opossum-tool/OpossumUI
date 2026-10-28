@@ -35,10 +35,10 @@ import {
   SourceIcon,
   WasPreferredIcon,
 } from '../../Icons/Icons';
-import type { SelectMenuOption } from '../../SelectMenu/SelectMenu';
+import type { ToggleMenuOption } from '../../SelectMenu/SelectMenu';
 import type { AuditingPropertiesPatch } from './AuditingOptions.types';
 
-interface AuditingOption extends SelectMenuOption {
+interface AuditingOption extends ToggleMenuOption {
   id: string;
   interactive: boolean;
   chipSx?: SxProps<Theme>;
@@ -108,6 +108,7 @@ export function useAuditingOptions({
   return useMemo<Array<AuditingOption>>(
     () => [
       {
+        kind: 'toggle',
         id: 'ai-generated',
         label: text.auditingOptions.aiGenerated,
         icon: <AiGeneratedIcon noTooltip />,
@@ -116,6 +117,7 @@ export function useAuditingOptions({
         chipSx: aiAttributionChipClass,
       },
       {
+        kind: 'toggle',
         id: 'deferred',
         label: text.auditingOptions.deferred,
         tooltip: text.auditingOptions.deferredTooltip,
@@ -130,6 +132,7 @@ export function useAuditingOptions({
         chipSx: deferredChipClass,
       },
       {
+        kind: 'toggle',
         id: 'human-modified',
         label: text.auditingOptions.humanModified,
         icon: <HumanModifiedIcon noTooltip />,
@@ -138,6 +141,7 @@ export function useAuditingOptions({
         chipSx: aiAttributionChipClass,
       },
       {
+        kind: 'toggle',
         id: 'preferred',
         label: text.auditingOptions.currentlyPreferred,
         icon: <PreferredIcon noTooltip />,
@@ -147,6 +151,7 @@ export function useAuditingOptions({
         interactive: !!isPreferenceFeatureEnabled && qaMode && isEditable,
       },
       {
+        kind: 'toggle',
         id: 'was-preferred',
         label: text.auditingOptions.previouslyPreferred,
         icon: <WasPreferredIcon noTooltip />,
@@ -158,6 +163,7 @@ export function useAuditingOptions({
         interactive: false,
       },
       {
+        kind: 'toggle',
         id: 'is-modified-preferred',
         label: text.auditingOptions.modifiedPreferred,
         icon: <ModifiedPreferredIcon noTooltip />,
@@ -168,6 +174,7 @@ export function useAuditingOptions({
         interactive: false,
       },
       {
+        kind: 'toggle',
         id: 'pre-selected',
         label: text.auditingOptions.preselected,
         icon: <PreSelectedIcon noTooltip />,
@@ -175,6 +182,7 @@ export function useAuditingOptions({
         interactive: false,
       },
       {
+        kind: 'toggle',
         id: 'follow-up',
         label: text.auditingOptions.followUp,
         icon: <FollowUpIcon noTooltip />,
@@ -184,6 +192,7 @@ export function useAuditingOptions({
         interactive: isEditable,
       },
       {
+        kind: 'toggle',
         id: 'needs-review',
         label: text.auditingOptions.needsReview,
         icon: <NeedsReviewIcon noTooltip />,
@@ -193,6 +202,7 @@ export function useAuditingOptions({
         interactive: isEditable,
       },
       {
+        kind: 'toggle',
         id: 'excluded-from-notice',
         label: text.auditingOptions.excludedFromNotice,
         icon: <ExcludeFromNoticeIcon noTooltip />,
@@ -202,6 +212,7 @@ export function useAuditingOptions({
         interactive: isEditable,
       },
       {
+        kind: 'toggle',
         id: 'source',
         label: `${source.fromOrigin ? text.attributionColumn.originallyFrom : ''}${prettySources}`,
         icon: <SourceIcon noTooltip />,
@@ -209,6 +220,7 @@ export function useAuditingOptions({
         interactive: false,
       },
       {
+        kind: 'toggle',
         id: 'criticality',
         label:
           packageInfo.criticality === Criticality.None
@@ -222,6 +234,7 @@ export function useAuditingOptions({
         interactive: false,
       },
       {
+        kind: 'toggle',
         id: 'classification',
         label:
           classifications[packageInfo.classification ?? 0]?.description || '',
@@ -235,6 +248,7 @@ export function useAuditingOptions({
         interactive: false,
       },
       {
+        kind: 'toggle',
         id: 'confidence',
         label: text.auditingOptions.confidence,
         icon: (

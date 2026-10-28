@@ -289,7 +289,10 @@ describe('getAttributionLinkStatus', () => {
 });
 
 describe('filterProperties', () => {
-  async function setupDb(options?: { resolved?: Array<string> }) {
+  async function setupDb(options?: {
+    resolved?: Array<string>;
+    alternateSpelling?: boolean;
+  }) {
     await initializeDbWithTestData({
       resources: pathsToResources(['/parent/target/child', '/parent/sibling']),
       manualAttributions: {
@@ -318,7 +321,7 @@ describe('filterProperties', () => {
           'ext-unrelated': {
             id: 'ext-unrelated',
             criticality: 0,
-            licenseName: 'MIT',
+            licenseName: options?.alternateSpelling ? 'M-IT' : 'MIT',
           },
         },
         resourcesToAttributions: {
@@ -354,16 +357,24 @@ describe('filterProperties', () => {
     expect(result.all.total).toBe(4);
     expect(result.sameOrDescendant.total).toBe(2);
 
-    expect(result.same?.licenses).toEqual(['MIT']);
-    expect(result.descendant?.licenses).toEqual(['Apache-2.0']);
+    expect(result.same?.licenses).toEqual([{ id: 'mit', label: 'MIT' }]);
+    expect(result.descendant?.licenses).toEqual([
+      { id: 'apache2.0', label: 'Apache-2.0' },
+    ]);
     expect(result.ancestor?.licenses).toEqual([]);
-    expect(result.unrelated?.licenses).toEqual(['MIT']);
+    expect(result.unrelated?.licenses).toEqual([{ id: 'mit', label: 'MIT' }]);
     expect(result.all.licenses).toEqual(
-      expect.arrayContaining(['MIT', 'Apache-2.0']),
+      expect.arrayContaining([
+        { id: 'mit', label: 'MIT' },
+        { id: 'apache2.0', label: 'Apache-2.0' },
+      ]),
     );
     expect(result.all.licenses).toHaveLength(2);
     expect(result.sameOrDescendant.licenses).toEqual(
-      expect.arrayContaining(['MIT', 'Apache-2.0']),
+      expect.arrayContaining([
+        { id: 'mit', label: 'MIT' },
+        { id: 'apache2.0', label: 'Apache-2.0' },
+      ]),
     );
     expect(result.sameOrDescendant.licenses).toHaveLength(2);
 
@@ -376,6 +387,88 @@ describe('filterProperties', () => {
 
     expect(withoutUnrelated.result.unrelated).toBeUndefined();
     expect(withoutUnrelated.result.all.total).toBe(3);
+  });
+
+  it('offers a nonempty license label whose canonical ID is empty', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/file']),
+      externalAttributions: {
+        attributions: {
+          punctuation: { id: 'punctuation', criticality: 0, licenseName: '-' },
+          unnamed: { id: 'unnamed', criticality: 0 },
+        },
+        resourcesToAttributions: { '/file': ['punctuation', 'unnamed'] },
+        attributionsToResources: { punctuation: ['/file'], unnamed: ['/file'] },
+      },
+    });
+
+    const { result } = await queries.filterProperties({
+      external: true,
+      filters: [],
+      resourcePathForRelationships: '/',
+    });
+
+    expect(result.all.licenses).toEqual([{ id: '', label: '-' }]);
+  });
+
+  it('shares canonical IDs across spellings and resource contexts', async () => {
+    await setupDb({ alternateSpelling: true });
+    const props = {
+      external: true,
+      filters: [],
+      resourcePathForRelationships: '/',
+    };
+    const root = await queries.filterProperties(props);
+    const left = await queries.filterProperties({
+      ...props,
+      resourcePathForRelationships: '/parent/target',
+      excludeUnrelated: true,
+    });
+    const right = await queries.filterProperties({
+      ...props,
+      resourcePathForRelationships: '/parent/sibling',
+      excludeUnrelated: true,
+    });
+    expect(
+      root.result.all.licenses.filter((option) => option.id === 'mit'),
+    ).toHaveLength(1);
+    expect(left.result.all.licenses).toContainEqual({
+      id: 'mit',
+      label: 'MIT',
+    });
+    expect(right.result.all.licenses).toContainEqual({
+      id: 'mit',
+      label: 'M-IT',
+    });
+    const filtered = await queries.filterProperties({
+      ...props,
+      valueFilters: { licenseIds: ['mit'] },
+    });
+    expect(filtered.result.all.total).toBe(2);
+  });
+
+  it('combines selected licenses and treats an empty selection as unrestricted', async () => {
+    await setupDb();
+    const props = {
+      external: true,
+      filters: [],
+      resourcePathForRelationships: '/parent/target',
+    };
+    const combined = await queries.filterProperties({
+      ...props,
+      valueFilters: { licenseIds: ['mit', 'apache2.0'] },
+    });
+    expect(combined.result.all.total).toBe(3);
+    expect(combined.result.sameOrDescendant.total).toBe(2);
+    expect(combined.result.all.licenses).toEqual([
+      { id: 'apache2.0', label: 'Apache-2.0' },
+      { id: 'mit', label: 'MIT' },
+    ]);
+    const unrestricted = await queries.filterProperties({
+      ...props,
+      valueFilters: { licenseIds: [] },
+    });
+    expect(unrestricted.result.all.total).toBe(4);
   });
 
   it('counts filter matches correctly', async () => {
@@ -440,23 +533,23 @@ describe('filterProperties', () => {
 
     expect(result.all.total).toBe(1);
     expect(result.same?.total).toBe(1);
-    expect(result.all.licenses).toEqual(['MIT']);
+    expect(result.all.licenses).toEqual([{ id: 'mit', label: 'MIT' }]);
   });
 
-  it('filters by license name', async () => {
+  it('filters by license ID', async () => {
     await setupDb();
 
     const { result } = await queries.filterProperties({
       external: true,
       filters: [],
       resourcePathForRelationships: '/parent/target',
-      license: 'MIT',
+      valueFilters: { licenseIds: ['mit'] },
     });
 
     expect(result.all.total).toBe(2);
     expect(result.same?.total).toBe(1);
     expect(result.unrelated?.total).toBe(1);
-    expect(result.all.licenses).toEqual(['MIT']);
+    expect(result.all.licenses).toEqual([{ id: 'mit', label: 'MIT' }]);
   });
 
   it('filters by search term in package name', async () => {
@@ -471,7 +564,9 @@ describe('filterProperties', () => {
 
     expect(result.all.total).toBe(1);
     expect(result.descendant?.total).toBe(1);
-    expect(result.all.licenses).toEqual(['Apache-2.0']);
+    expect(result.all.licenses).toEqual([
+      { id: 'apache2.0', label: 'Apache-2.0' },
+    ]);
   });
 
   it('excludes resolved attributions by default', async () => {
@@ -486,7 +581,10 @@ describe('filterProperties', () => {
     expect(result.all.total).toBe(3);
     expect(result.unrelated).toBeUndefined();
     expect(result.all.licenses).toEqual(
-      expect.arrayContaining(['MIT', 'Apache-2.0']),
+      expect.arrayContaining([
+        { id: 'mit', label: 'MIT' },
+        { id: 'apache2.0', label: 'Apache-2.0' },
+      ]),
     );
     expect(result.all.licenses).toHaveLength(2);
   });
@@ -504,7 +602,10 @@ describe('filterProperties', () => {
     expect(result.all.total).toBe(4);
     expect(result.unrelated?.total).toBe(1);
     expect(result.all.licenses).toEqual(
-      expect.arrayContaining(['MIT', 'Apache-2.0']),
+      expect.arrayContaining([
+        { id: 'mit', label: 'MIT' },
+        { id: 'apache2.0', label: 'Apache-2.0' },
+      ]),
     );
     expect(result.all.licenses).toHaveLength(2);
   });

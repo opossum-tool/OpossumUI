@@ -3,14 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { compact, max } from 'lodash-es';
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 
 import type { FilterProperties } from '../../../ElectronBackend/api/queries';
 import {
   INCOMPLETE_COORDINATE_FILTER_VALUES,
   INCOMPLETE_LEGAL_FILTER_VALUES,
 } from '../../../shared/attribution-filters';
-import { Criticality } from '../../../shared/shared-types';
+import { Criticality, type LicenseOption } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import type { AttributionFilters } from '../../state/variables/use-filters';
 import { useUserSettings } from '../../state/variables/use-user-setting';
@@ -21,8 +21,8 @@ import {
   CriticalityIcon,
   IncompleteIcon,
 } from '../Icons/Icons';
-import type { SelectMenuOption } from '../SelectMenu/SelectMenu';
-import { LicenseAutocomplete } from './LicenseAutocomplete/LicenseAutocomplete';
+import type { FilterOption } from './FilterButton';
+import { createLicenseFilterOption } from './license-editor';
 import { ValueFilterAutocomplete } from './ValueFilterAutocomplete/ValueFilterAutocomplete';
 
 const incompleteCoordinateLabels = {
@@ -64,15 +64,18 @@ type SetFilters = (filters: AttributionFilters) => void;
 export function useAttributionFilterOptions({
   filterOptions,
   filterProps,
+  licenses,
+  licenseOptionsLoading,
   filters,
   setFilters,
 }: {
   filterOptions: Array<AttributionFilterOption>;
   filterProps: FilterProperties | null;
+  licenses: Array<LicenseOption>;
+  licenseOptionsLoading?: boolean;
   filters: AttributionFilters;
   setFilters: SetFilters;
-}): Array<SelectMenuOption> {
-  const licenseInputRef = useRef<HTMLInputElement>(null);
+}): Array<FilterOption> {
   const classificationFilterOption = useClassificationFilterOption({
     filters,
     setFilters,
@@ -88,6 +91,7 @@ export function useAttributionFilterOptions({
           const count = filterProps?.[key];
 
           return {
+            kind: 'toggle' as const,
             id: key,
             selected: filters.filters.includes(key),
             faded: !count,
@@ -111,9 +115,9 @@ export function useAttributionFilterOptions({
           };
         }),
         getLicenseFilterOption({
-          filterProps,
+          licenses,
+          licenseOptionsLoading,
           filters,
-          licenseInputRef,
           setFilters,
         }),
         getIncompleteCoordinatesFilterOption({ filters, setFilters }),
@@ -124,6 +128,8 @@ export function useAttributionFilterOptions({
     [
       filterOptions,
       filterProps,
+      licenses,
+      licenseOptionsLoading,
       filters,
       setFilters,
       classificationFilterOption,
@@ -133,37 +139,29 @@ export function useAttributionFilterOptions({
 }
 
 function getLicenseFilterOption({
-  filterProps,
+  licenses,
+  licenseOptionsLoading,
   filters,
-  licenseInputRef,
   setFilters,
 }: {
-  filterProps: FilterProperties | null;
+  licenses: Array<LicenseOption>;
+  licenseOptionsLoading?: boolean;
   filters: AttributionFilters;
-  licenseInputRef: React.RefObject<HTMLInputElement | null>;
   setFilters: SetFilters;
-}): SelectMenuOption {
-  return {
-    id: 'license',
-    selected: false,
-    focusContent: () => licenseInputRef.current?.focus(),
-    label: (
-      <LicenseAutocomplete
-        inputRef={licenseInputRef}
-        licenses={filterProps?.licenses ?? []}
-        selectedLicense={filters.valueFilters.license ?? ''}
-        setSelectedLicense={(value) =>
-          setFilters({
-            ...filters,
-            valueFilters: {
-              ...filters.valueFilters,
-              license: value ?? undefined,
-            },
-          })
-        }
-      />
-    ),
-  };
+}): FilterOption {
+  return createLicenseFilterOption({
+    licenses,
+    licensesLoading: licenseOptionsLoading,
+    selectedLicenses: filters.valueFilters.license ?? [],
+    setSelectedLicenses: (value) =>
+      setFilters({
+        ...filters,
+        valueFilters: {
+          ...filters.valueFilters,
+          license: value.length ? value : undefined,
+        },
+      }),
+  });
 }
 
 function getIncompleteCoordinatesFilterOption({
@@ -172,8 +170,9 @@ function getIncompleteCoordinatesFilterOption({
 }: {
   filters: AttributionFilters;
   setFilters: SetFilters;
-}): SelectMenuOption {
+}): FilterOption {
   return {
+    kind: 'embedded',
     id: 'incompleteCoordinates',
     selected: false,
     label: (
@@ -223,8 +222,9 @@ function getIncompleteLegalFilterOption({
 }: {
   filters: AttributionFilters;
   setFilters: SetFilters;
-}): SelectMenuOption {
+}): FilterOption {
   return {
+    kind: 'embedded',
     id: 'incompleteLegal',
     selected: false,
     label: (
@@ -271,7 +271,7 @@ function useClassificationFilterOption({
 }: {
   filters: AttributionFilters;
   setFilters: SetFilters;
-}): SelectMenuOption | undefined {
+}): FilterOption | undefined {
   const classifications = useClassifications();
   const [userSettings] = useUserSettings();
 
@@ -314,7 +314,7 @@ function useCriticalityFilterOption({
 }: {
   filters: AttributionFilters;
   setFilters: SetFilters;
-}): SelectMenuOption | undefined {
+}): FilterOption | undefined {
   const [userSettings] = useUserSettings();
 
   return useMemo(() => {
@@ -352,10 +352,11 @@ function getValueFilterOption({
   options: Array<{ value: number; label: string }>;
   filters: AttributionFilters;
   setFilters: SetFilters;
-}): SelectMenuOption {
+}): FilterOption {
   const selected = filters.valueFilters[field];
 
   return {
+    kind: 'embedded',
     id: field,
     selected: false,
     label: (

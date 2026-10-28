@@ -72,6 +72,7 @@ export const SortButton: React.FC<Props> = ({
           const Icon = entry.icon;
           const sortOption: SortOption = key as SortOption;
           return {
+            kind: 'toggle' as const,
             id: sortOption,
             label: entry.label,
             selected: sortOption === sorting,

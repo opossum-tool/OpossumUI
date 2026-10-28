@@ -148,11 +148,9 @@ export async function runMutationWorkflows({
         resourcesTree,
         signalsPanel,
       });
-      await signalsPanel.filterButton.click();
-      await signalsPanel.selectLicenseName(
+      await signalsPanel.filterByLicense(
         model.scenarios.denseSignals.licenseName,
       );
-      await signalsPanel.closeFilterMenu();
       await signalsPanel.selectAllCheckbox.click();
       await attributionsPanel.assert.onResourceCountIs(
         denseSignalResourceInitialAttributionCount,

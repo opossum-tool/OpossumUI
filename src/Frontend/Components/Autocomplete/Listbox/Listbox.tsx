@@ -81,6 +81,7 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
   renderOptionEndIcon,
   renderOptionStartIcon,
   ref,
+  style,
   ...listboxProps
 }: ListboxProps<Value, FreeSolo>) => {
   const [height, setHeight] = useState<number>(Number.MAX_SAFE_INTEGER); // will result in max-height
@@ -104,7 +105,14 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
   }, [getOptionProps, groupBy, options]);
 
   return (
-    <MuiPaper {...listboxProps} ref={ref} elevation={4} square role={'listbox'}>
+    <MuiPaper
+      ref={ref}
+      role={'presentation'}
+      style={style}
+      elevation={4}
+      square
+      onMouseDown={(event) => event.preventDefault()}
+    >
       {groups ? renderGroupedList(groups) : renderList(options)}
     </MuiPaper>
   );
@@ -117,6 +125,7 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
   }: Groups<Value>) {
     return (
       <GroupedVirtuoso
+        {...listboxProps}
         ref={virtuosoRef}
         style={{
           ...styles.virtuoso,
@@ -127,10 +136,12 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
         }}
         increaseViewportBy={LIST_OVERSCAN}
         initialTopMostItemIndex={
-          ~firstSelectedIndex && {
-            index: firstSelectedIndex,
-            align: 'center',
-          }
+          firstSelectedIndex > 0
+            ? {
+                index: firstSelectedIndex,
+                align: 'center',
+              }
+            : 0
         }
         totalListHeightChanged={setHeight}
         groupCounts={groupCounts}
@@ -156,6 +167,7 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
   function renderList(options: Array<Value>) {
     return (
       <Virtuoso
+        {...listboxProps}
         ref={virtuosoRef}
         style={{
           ...styles.virtuoso,
@@ -196,13 +208,8 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
           primary={optionText.primary(option)}
           secondary={optionText.secondary?.(option)}
           slotProps={{
-            primary: {
-              sx: { ...styles.overflowEllipsis },
-            },
-            secondary: {
-              variant: 'caption',
-              sx: styles.overflowEllipsis,
-            },
+            primary: { sx: styles.overflowEllipsis },
+            secondary: { variant: 'caption', sx: styles.overflowEllipsis },
           }}
         />
         {renderOptionEndIcon?.(option, { closePopper })}

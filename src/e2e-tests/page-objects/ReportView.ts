@@ -18,7 +18,6 @@ export class ReportView {
     readonly needsReviewByQA: Locator;
     readonly preferred: Locator;
     readonly preSelected: Locator;
-    readonly license: Locator;
   };
 
   constructor(window: Page) {
@@ -45,7 +44,6 @@ export class ReportView {
       preSelected: window.getByRole('menuitem', {
         name: text.filters.preSelected,
       }),
-      license: window.getByLabel('license names'),
     };
   }
 
@@ -86,16 +84,24 @@ export class ReportView {
     });
   }
 
-  async closeFilterMenu() {
-    if (await this.filterMenu.isVisible()) {
-      await this.filterMenu.press('Escape');
-    }
-  }
-
-  async selectLicenseName(licenseName: string) {
-    await this.filters.license.fill(licenseName);
-    await this.window
-      .getByRole('option', { name: licenseName, exact: true })
-      .click();
+  async filterByLicense(licenseName: string) {
+    await this.filterButton.click();
+    await this.filterMenu.locator('[aria-haspopup="dialog"]').click();
+    const editor = this.window.getByRole('dialog', {
+      name: text.licenseEditor.title,
+    });
+    const search = editor.getByRole('textbox', {
+      name: text.licenseEditor.search,
+    });
+    await search.fill(licenseName);
+    const option = editor.getByRole('option', {
+      name: licenseName,
+      exact: true,
+    });
+    await option.click();
+    await expect(option).toHaveAttribute('aria-selected', 'true');
+    await search.press('Escape');
+    await this.filterMenu.press('Escape');
+    await expect(this.filterMenu).toBeHidden();
   }
 }

@@ -14,7 +14,7 @@ export const TableFilterButton: React.FC<{
   empty: boolean;
 }> = ({ empty }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const { filterProps } = useFilterProperties({
+  const { filterProps, licenses, licenseOptionsLoading } = useFilterProperties({
     mode: 'reportTable',
     enabled: isFilterOpen,
   });
@@ -24,13 +24,15 @@ export const TableFilterButton: React.FC<{
   const filterOptions = useAttributionFilterOptions({
     filterOptions: attributionFilterOptions,
     filterProps,
+    licenses,
+    licenseOptionsLoading,
     filters,
     setFilters: setFilteredAttributions,
   });
   const isFilterActive =
     !!attributionFilters.length ||
-    Object.values(valueFilters).some(
-      (value) => value !== undefined && value !== '',
+    Object.values(valueFilters).some((value) =>
+      Array.isArray(value) ? value.length > 0 : value !== undefined,
     );
 
   return (

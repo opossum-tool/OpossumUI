@@ -3,25 +3,45 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import type { SxProps, Theme } from '@mui/material';
+import { Paper, Popper, type SxProps, type Theme } from '@mui/material';
 import MuiBadge, { type BadgeProps } from '@mui/material/Badge';
 import { useTheme } from '@mui/material/styles';
 import MuiTooltip from '@mui/material/Tooltip';
-import { type CSSProperties, useMemo, useState } from 'react';
+import {
+  type CSSProperties,
+  useCallback,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { text } from '../../../shared/text';
+import { Sizing } from '../../shared-styles';
+import { MenuContainer } from '../SelectMenu/menu-container';
 import {
-  SelectMenu,
+  type PanelMenuOption,
+  renderSelectMenuItems,
   type SelectMenuOption,
   type SelectMenuProps,
 } from '../SelectMenu/SelectMenu';
 import { ClearMenuIcon, IconButton } from './FilterButton.style';
 
+export type FilterOption =
+  | Exclude<SelectMenuOption, PanelMenuOption>
+  | (Omit<PanelMenuOption, 'submenu'> & {
+      renderPanel: (props: {
+        id: string;
+        onClose: () => void;
+        initialFocusRef: (element: HTMLElement | null) => void;
+      }) => React.ReactNode;
+    });
+
 interface Props extends Pick<
   SelectMenuProps,
   'anchorArrow' | 'anchorPosition'
 > {
-  options: Array<SelectMenuOption>;
+  options: Array<FilterOption>;
   isActive: boolean;
   onClear?: () => void;
   onOpenChange?: (open: boolean) => void;
@@ -50,17 +70,54 @@ export function FilterButton({
   const theme = useTheme();
   const BADGE_SIZE = theme.spacing(2);
   const BADGE_OFFSET = theme.spacing(1);
+  const [panel, setPanel] = useState<{
+    optionId: string;
+    anchorEl: HTMLElement;
+  }>();
+  const focusTargetRef = useRef<HTMLElement | null>(null);
+  const initialFocusRef = useCallback((element: HTMLElement | null) => {
+    focusTargetRef.current = element;
+    element?.focus();
+  }, []);
+  const submenuId = useId();
+  const closePanel = useCallback(() => {
+    setPanel(undefined);
+    panel?.anchorEl.focus();
+  }, [panel]);
+  const panelOption = options.find((option) => option.id === panel?.optionId);
+  const view =
+    panelOption?.kind === 'panel' ? panelOption.renderPanel : undefined;
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
   const handleSetAnchorEl = (nextAnchorEl: HTMLElement | undefined) => {
     setAnchorEl(nextAnchorEl);
+    setPanel(undefined);
     onOpenChange?.(nextAnchorEl !== undefined);
   };
   const menuOptions = useMemo<Array<SelectMenuOption>>(
     () => [
-      ...options,
+      ...options.map((option) =>
+        option.kind === 'panel'
+          ? {
+              ...option,
+              submenu: {
+                id: submenuId,
+                open: panel?.optionId === option.id,
+                onOpen: (anchor: HTMLElement) => {
+                  if (panel?.optionId === option.id) {
+                    focusTargetRef.current?.focus();
+                  } else {
+                    setPanel({ optionId: option.id, anchorEl: anchor });
+                  }
+                },
+                onClose: closePanel,
+              },
+            }
+          : option,
+      ),
       ...(isActive && onClear
         ? [
             {
+              kind: 'toggle' as const,
               id: 'clear-filters',
               selected: false,
               label: text.packageLists.clearFilters,
@@ -70,7 +127,7 @@ export function FilterButton({
           ]
         : []),
     ],
-    [isActive, onClear, options],
+    [isActive, onClear, options, panel, submenuId, closePanel],
   );
 
   const content = (
@@ -114,16 +171,77 @@ export function FilterButton({
       >
         {content}
       </IconButton>
-      <SelectMenu
-        anchorArrow={anchorArrow}
+      <MenuContainer
         anchorEl={anchorEl}
+        anchorArrow={anchorArrow}
         anchorPosition={anchorPosition}
-        multiple
-        options={menuOptions}
-        setAnchorEl={handleSetAnchorEl}
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 84 theme spacing units (= 336px)
-        width={theme.spacing(84)}
-      />
+        onClose={() => handleSetAnchorEl(undefined)}
+        width="336px"
+        adjacentContent={
+          <Popper
+            open={!!view && !!panel}
+            anchorEl={panel?.anchorEl}
+            placement="right-start"
+            disablePortal
+            modifiers={[
+              {
+                name: 'offset',
+                options: {
+                  offset: [0, parseFloat(theme.spacing(Sizing.Tiny))],
+                },
+              },
+              {
+                name: 'flip',
+                options: {
+                  fallbackPlacements: ['left-start'],
+                  padding: 16,
+                  boundary: [],
+                  altBoundary: false,
+                },
+              },
+              {
+                name: 'preventOverflow',
+                options: {
+                  padding: 16,
+                  altAxis: true,
+                  tether: false,
+                  boundary: [],
+                  altBoundary: false,
+                },
+              },
+            ]}
+          >
+            {view && (
+              <Paper
+                elevation={2}
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape') {
+                    event.stopPropagation();
+                    closePanel();
+                  }
+                }}
+              >
+                {view({
+                  id: submenuId,
+                  onClose: closePanel,
+                  initialFocusRef,
+                })}
+              </Paper>
+            )}
+          </Popper>
+        }
+      >
+        {renderSelectMenuItems({
+          multiple: true,
+          onOptionActivate: (id) => {
+            if (panel && panel.optionId !== id) {
+              setPanel(undefined);
+            }
+          },
+          options: menuOptions,
+          setAnchorEl: handleSetAnchorEl,
+        })}
+      </MenuContainer>
     </>
   );
 }

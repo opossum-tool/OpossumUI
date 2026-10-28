@@ -11,6 +11,7 @@ import type {
 } from '../../shared/attribution-filters';
 import type {
   ExternalAttributionSources,
+  LicenseOption,
   PackageInfo,
   ProjectMetadata,
   RawClassificationsConfig,
@@ -73,7 +74,6 @@ import {
   removeTrailingSlash,
   type ResourceRelationship,
   resourcesToExpand,
-  toCanonicalLicenseName,
   toSnakeCase,
 } from './utils';
 
@@ -92,7 +92,7 @@ type AutocompleteOptions = Record<
 
 export type FilterProperties = {
   total: number;
-  licenses: Array<string>;
+  licenses: Array<LicenseOption>;
 } & Partial<Record<AttributionFilterKey, number>>;
 
 export type FilterPropertiesWithCanonicalLicenseNames = Omit<
@@ -211,7 +211,6 @@ export const queries = {
     filters: Array<AttributionFilterKey>;
     valueFilters?: AttributionValueFilters;
     resourcePathForRelationships: string;
-    license?: string;
     search?: string;
     showResolved?: boolean;
     includeReadonly?: boolean;
@@ -303,14 +302,6 @@ export const queries = {
       query = query.where(valueFilterExpression);
     }
 
-    if (props.license) {
-      query = query.where(
-        'canonical_license_name',
-        '=',
-        toCanonicalLicenseName(props.license),
-      );
-    }
-
     if (props.search) {
       const search = props.search;
       query = query.where(getSearchExpression(search));
@@ -356,9 +347,9 @@ export const queries = {
         count.licenses,
         (l) => l.canonical_name,
       )
-        .map((l) => l.name)
-        .filter(Boolean)
-        .toSorted();
+        .filter((l) => l.canonical_name !== null && !!l.name)
+        .map((l) => ({ id: l.canonical_name, label: l.name }))
+        .toSorted((a, b) => a.label.localeCompare(b.label));
       deduplicatedByRelationship[relationship] = {
         ...count,
         licenses: deduplicatedLicenses,

@@ -2,12 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { keepPreviousData } from '@tanstack/react-query';
+import { keepPreviousData, skipToken } from '@tanstack/react-query';
 
 import { ROOT_PATH } from '../shared-constants';
 import { useAppSelector } from '../state/hooks';
 import { getSelectedResourceId } from '../state/selectors/resource-selectors';
 import {
+  toAttributionValueFilters,
   useAttributionFiltersInReportView,
   useExternalAttributionFilters,
   useManualAttributionFilters,
@@ -55,20 +56,31 @@ export function useFilterProperties({
   const [userSettings] = useUserSettings();
   const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
 
-  const filterPropsQuery = backend.filterProperties.useQuery(
-    {
-      external: mode === 'external',
-      filters,
-      search: mode === 'reportTable' ? undefined : search,
-      valueFilters,
-      resourcePathForRelationships:
-        mode === 'reportTable' ? ROOT_PATH : selectedResourceId,
-      showResolved: mode === 'external' ? areHiddenSignalsVisible : undefined,
-      includeReadonly: mode !== 'reportTable',
-      excludeUnrelated:
-        mode === 'external' ||
-        (mode !== 'reportTable' && isSelectedResourceReadonly),
-    },
+  const queryProps = {
+    external: mode === 'external',
+    filters,
+    search: mode === 'reportTable' ? undefined : search,
+    valueFilters: toAttributionValueFilters(valueFilters),
+    resourcePathForRelationships:
+      mode === 'reportTable' ? ROOT_PATH : selectedResourceId,
+    showResolved: mode === 'external' ? areHiddenSignalsVisible : undefined,
+    includeReadonly: mode !== 'reportTable',
+    excludeUnrelated:
+      mode === 'external' ||
+      (mode !== 'reportTable' && isSelectedResourceReadonly),
+  };
+  const filterPropsQuery = backend.filterProperties.useQuery(queryProps, {
+    enabled,
+    placeholderData: keepPreviousData,
+  });
+  const hasSelectedLicenses = !!queryProps.valueFilters.licenseIds?.length;
+  const licenseOptionsQuery = backend.filterProperties.useQuery(
+    hasSelectedLicenses
+      ? {
+          ...queryProps,
+          valueFilters: { ...queryProps.valueFilters, licenseIds: undefined },
+        }
+      : skipToken,
     { enabled, placeholderData: keepPreviousData },
   );
 
@@ -88,8 +100,16 @@ export function useFilterProperties({
 
   const filterProps = filterPropsQuery.data?.[shownRelation] ?? null;
   const loading = filterPropsQuery.isLoading;
+  const licenseQuery = hasSelectedLicenses
+    ? licenseOptionsQuery
+    : filterPropsQuery;
 
-  return { filterProps, loading };
+  return {
+    filterProps,
+    licenses: licenseQuery.data?.[shownRelation]?.licenses ?? [],
+    loading,
+    licenseOptionsLoading: licenseQuery.isFetching,
+  };
 }
 
 export function useResourceTreeFilterProperties({
@@ -110,7 +130,7 @@ export function useResourceTreeFilterProperties({
   );
 
   return {
-    filterProps: filterPropsQuery.data?.all ?? null,
-    loading: filterPropsQuery.isLoading,
+    licenses: filterPropsQuery.data?.all.licenses ?? [],
+    licenseOptionsLoading: filterPropsQuery.isFetching,
   };
 }

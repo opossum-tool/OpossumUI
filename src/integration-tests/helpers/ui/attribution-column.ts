@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -199,7 +199,8 @@ export async function selectLicenseExpressionOption(
   // mounted with opacity 0 after an input change closed it; in that state a
   // click would re-close it instead of opening it. Toggle only when hidden.
   const listbox = screen.queryByRole('listbox');
-  const isOpen = listbox !== null && parseFloat(listbox.style.opacity) !== 0;
+  const paper = listbox?.closest<HTMLElement>('.MuiPaper-root');
+  const isOpen = !!paper && parseFloat(paper.style.opacity) !== 0;
   if (!isOpen) {
     await clickFormField('licenseExpression');
   }
@@ -392,6 +393,7 @@ export async function openAuditingOptionsMenu(): Promise<void> {
 }
 
 export async function closeAuditingOptionsMenu(): Promise<void> {
+  screen.getByRole('menu').focus();
   await userEvent.keyboard('{Escape}');
   await waitFor(() => {
     expect(screen.queryByRole('menu')).toBeNull();

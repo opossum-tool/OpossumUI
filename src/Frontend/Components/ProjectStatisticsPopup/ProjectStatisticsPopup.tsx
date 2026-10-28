@@ -10,6 +10,7 @@ import MuiTypography from '@mui/material/Typography';
 import MuiBox from '@mui/system/Box';
 import { type PropsWithChildren, useState } from 'react';
 
+import type { LicenseOption } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { criticalityColor, OpossumColors, Sizing } from '../../shared-styles';
 import { navigateFromStatistics } from '../../state/actions/popup-actions/popup-actions';
@@ -61,13 +62,13 @@ export const ProjectStatisticsPopup: React.FC = () => {
     dispatch(closePopup());
   }
 
-  function handleLicenseClick(licenseName: string): void {
+  function handleLicenseClick(licenseOption: LicenseOption): void {
     dispatch(
       navigateFromStatistics({
         external: true,
         filters: {
           ...initialAttributionFilters,
-          valueFilters: { license: licenseName },
+          valueFilters: { license: [licenseOption] },
         },
       }),
     );
@@ -166,16 +167,26 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 }
               </MuiTypography>
               <PieChart
-                segments={statistics.mostFrequentLicenses.map((item) => ({
-                  ...item,
-                  id: item.isOther ? 'aggregate-other' : `license:${item.name}`,
-                  actionDescription: item.isOther
-                    ? undefined
-                    : text.projectStatisticsPopup.actions.signals,
-                  onActivate: item.isOther
-                    ? undefined
-                    : () => handleLicenseClick(item.name),
-                }))}
+                segments={statistics.mostFrequentLicenses.map((item) => {
+                  const licenseId = item.licenseId;
+                  return {
+                    ...item,
+                    id: item.isOther
+                      ? 'aggregate-other'
+                      : `license:${licenseId}`,
+                    actionDescription: item.isOther
+                      ? undefined
+                      : text.projectStatisticsPopup.actions.signals,
+                    onActivate:
+                      licenseId === null
+                        ? undefined
+                        : () =>
+                            handleLicenseClick({
+                              id: licenseId,
+                              label: item.name,
+                            }),
+                  };
+                })}
               />
             </ChartGridItem>
             <ChartGridItem

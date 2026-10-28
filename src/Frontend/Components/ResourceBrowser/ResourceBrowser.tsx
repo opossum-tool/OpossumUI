@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { keepPreviousData } from '@tanstack/react-query';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
@@ -19,7 +19,7 @@ import { backend } from '../../util/backendClient';
 import { useDebouncedInput } from '../../util/use-debounced-input';
 import { useResourceTreeFilterProperties } from '../../util/use-filter-properties';
 import { FilterButton } from '../FilterButton/FilterButton';
-import { LicenseAutocomplete } from '../FilterButton/LicenseAutocomplete/LicenseAutocomplete';
+import { createLicenseFilterOption } from '../FilterButton/license-editor';
 import { DeferredIcon, UnreviewedIcon } from '../Icons/Icons';
 import { LoadingIndicator } from '../LoadingIndicator/loading-indicator';
 import { ResizePanels } from '../ResizePanels/ResizePanels';
@@ -34,7 +34,6 @@ const IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS = true;
 
 export function ResourceBrowser() {
   const { panelSizes, setPanelSizes } = usePanelSizes();
-  const licenseInputRef = useRef<HTMLInputElement>(null);
 
   const setWidth = useCallback(
     (width: number) => setPanelSizes({ resourceBrowserWidth: width }),
@@ -56,7 +55,7 @@ export function ResourceBrowser() {
     {
       onlyUnreviewedFiles,
       onlyWithAiDeferredAttributions,
-      selectedLicense: resourceTreeSelectedLicense,
+      selectedLicenses: resourceTreeSelectedLicenses,
     },
     setResourceTreeFilters,
   ] = useResourceTreeFilters();
@@ -65,9 +64,9 @@ export function ResourceBrowser() {
   const expandedIdsAll = useAppSelector(getExpandedIds);
   const allResourceTreeFilters = useMemo(
     () => ({
-      licenseFilter: resourceTreeSelectedLicense
+      licenseFilter: resourceTreeSelectedLicenses.length
         ? {
-            licenseName: resourceTreeSelectedLicense,
+            licenseIds: resourceTreeSelectedLicenses.map((option) => option.id),
             external: IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS,
           }
         : undefined,
@@ -79,7 +78,7 @@ export function ResourceBrowser() {
       debouncedSearchAll,
       onlyWithAiDeferredAttributions,
       onlyUnreviewedFiles,
-      resourceTreeSelectedLicense,
+      resourceTreeSelectedLicenses,
     ],
   );
   const [isResourceTreeFilterOpen, setIsResourceTreeFilterOpen] =
@@ -118,14 +117,14 @@ export function ResourceBrowser() {
       },
       { enabled: isResourceTreeFilterOpen, placeholderData: keepPreviousData },
     );
-  const { filterProps } = useResourceTreeFilterProperties({
+  const { licenses, licenseOptionsLoading } = useResourceTreeFilterProperties({
     external: IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS,
     enabled: isResourceTreeFilterOpen,
   });
   const isResourceTreeFilterActive =
     onlyUnreviewedFiles ||
     onlyWithAiDeferredAttributions ||
-    !!resourceTreeSelectedLicense;
+    !!resourceTreeSelectedLicenses.length;
   // Linked resources
   const [searchLinked, setSearchLinked] = useVariable(
     LINKED_RESOURCES_SEARCH,
@@ -160,6 +159,7 @@ export function ResourceBrowser() {
             <FilterButton
               options={[
                 {
+                  kind: 'toggle',
                   id: 'unreviewed',
                   selected: onlyUnreviewedFiles,
                   faded: !unreviewedFileCountQuery.data,
@@ -180,6 +180,7 @@ export function ResourceBrowser() {
                     })),
                 },
                 {
+                  kind: 'toggle',
                   id: 'aiDeferred',
                   selected: onlyWithAiDeferredAttributions,
                   faded: !aiDeferredResourceCountQuery.data,
@@ -199,24 +200,16 @@ export function ResourceBrowser() {
                       onlyWithAiDeferredAttributions: false,
                     })),
                 },
-                {
-                  id: 'license',
-                  selected: false,
-                  focusContent: () => licenseInputRef.current?.focus(),
-                  label: (
-                    <LicenseAutocomplete
-                      inputRef={licenseInputRef}
-                      licenses={filterProps?.licenses ?? []}
-                      selectedLicense={resourceTreeSelectedLicense}
-                      setSelectedLicense={(license) =>
-                        setResourceTreeFilters((prev) => ({
-                          ...prev,
-                          selectedLicense: license || '',
-                        }))
-                      }
-                    />
-                  ),
-                },
+                createLicenseFilterOption({
+                  licenses,
+                  licensesLoading: licenseOptionsLoading,
+                  selectedLicenses: resourceTreeSelectedLicenses,
+                  setSelectedLicenses: (licenses) =>
+                    setResourceTreeFilters((prev) => ({
+                      ...prev,
+                      selectedLicenses: licenses,
+                    })),
+                }),
               ]}
               isActive={isResourceTreeFilterActive}
               onOpenChange={setIsResourceTreeFilterOpen}
@@ -225,7 +218,7 @@ export function ResourceBrowser() {
                   ...prev,
                   onlyUnreviewedFiles: false,
                   onlyWithAiDeferredAttributions: false,
-                  selectedLicense: '',
+                  selectedLicenses: [],
                 }))
               }
               anchorPosition={'right'}

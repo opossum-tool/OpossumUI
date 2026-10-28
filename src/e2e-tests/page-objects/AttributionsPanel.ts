@@ -24,6 +24,10 @@ export class AttributionsPanel {
   readonly deleteButton: Locator;
   readonly filterButton: Locator;
   readonly filterMenu: Locator;
+  readonly licenseTrigger: Locator;
+  readonly licenseEditor: Locator;
+  readonly licenseSearch: Locator;
+  readonly licenseList: Locator;
   readonly sortButton: Locator;
   readonly sortings: {
     readonly name: Locator;
@@ -38,7 +42,6 @@ export class AttributionsPanel {
     readonly preferred: Locator;
     readonly preSelected: Locator;
     readonly incompleteCoordinates: Locator;
-    readonly license: Locator;
   };
   readonly tabs: {
     readonly onResource: Locator;
@@ -73,6 +76,16 @@ export class AttributionsPanel {
     });
     this.filterButton = this.node.getByLabel('filter button', { exact: true });
     this.filterMenu = window.getByRole('menu');
+    this.licenseTrigger = this.filterMenu.locator('[aria-haspopup="dialog"]');
+    this.licenseEditor = window.getByRole('dialog', {
+      name: text.licenseEditor.title,
+    });
+    this.licenseSearch = this.licenseEditor.getByRole('textbox', {
+      name: text.licenseEditor.search,
+    });
+    this.licenseList = this.licenseEditor.getByRole('listbox', {
+      name: text.licenseEditor.names,
+    });
     this.sortButton = this.node.getByLabel('sort button', { exact: true });
     this.createButton = this.node.getByRole('button', {
       name: text.packageLists.create,
@@ -115,7 +128,6 @@ export class AttributionsPanel {
       incompleteCoordinates: window.getByLabel(
         'incomplete component coordinates',
       ),
-      license: window.getByLabel('license names'),
     };
     this.tabs = {
       onResource: this.node.getByRole('tab', {
@@ -133,6 +145,10 @@ export class AttributionsPanel {
     };
     this.searchField = this.header.getByRole('searchbox');
     this.clearSearchButton = this.header.getByLabel('clear search');
+  }
+
+  licenseOption(name: string): Locator {
+    return this.licenseList.getByRole('option', { name, exact: true });
   }
 
   public assert = {
@@ -196,20 +212,58 @@ export class AttributionsPanel {
     createButtonIsEnabled: async () => {
       await expect(this.createButton).toBeEnabled();
     },
+    licenseOptionIsActiveAndInView: async (name: string) => {
+      const option = this.licenseOption(name);
+      await expect(option).toBeVisible();
+      await expect(this.licenseList).toHaveAttribute(
+        'aria-activedescendant',
+        (await option.getAttribute('id'))!,
+      );
+      await expect
+        .poll(() =>
+          option.evaluate((element) => {
+            const bounds = element.getBoundingClientRect();
+            const listBounds = element
+              .closest('[role="listbox"]')!
+              .getBoundingClientRect();
+            return (
+              bounds.top >= listBounds.top - 1 &&
+              bounds.bottom <= listBounds.bottom + 1
+            );
+          }),
+        )
+        .toBe(true);
+    },
   };
+
+  async openLicenseEditor() {
+    await this.filterButton.click();
+    await expect(this.filterMenu).toBeVisible();
+    // Let the menu finish growing before the virtualized picker measures its rows.
+    await this.filterMenu.locator('..').evaluate(async (paper) => {
+      await Promise.allSettled(
+        paper.getAnimations().map((animation) => animation.finished),
+      );
+    });
+    await this.licenseTrigger.click();
+    await expect(this.licenseSearch).toBeFocused();
+  }
+
+  async filterByLicense(licenseName: string) {
+    await this.openLicenseEditor();
+    await this.licenseSearch.fill(licenseName);
+    const option = this.licenseOption(licenseName);
+    await option.click();
+    await expect(option).toHaveAttribute('aria-selected', 'true');
+    await this.licenseSearch.press('Escape');
+    await this.filterMenu.press('Escape');
+    await expect(this.filterMenu).toBeHidden();
+  }
 
   async closeFilterMenu() {
     if (await this.filterMenu.isVisible()) {
       await this.filterMenu.press('Escape');
     }
-  }
-
-  async selectLicenseName(licenseName: string) {
-    await this.filters.license.fill(licenseName);
-    await this.window
-      .getByRole('option', { name: licenseName, exact: true })
-      .click();
-    await expect(this.filters.license).toHaveValue(licenseName);
   }
 
   async selectIncompleteCoordinates(value: string) {

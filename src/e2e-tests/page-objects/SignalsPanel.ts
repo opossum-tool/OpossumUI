@@ -32,7 +32,6 @@ export class SignalsPanel {
     readonly thirdParty: Locator;
     readonly firstParty: Locator;
     readonly previouslyPreferred: Locator;
-    readonly license: Locator;
   };
   readonly tabs: {
     readonly onResource: Locator;
@@ -97,7 +96,6 @@ export class SignalsPanel {
       previouslyPreferred: window.getByRole('menuitem', {
         name: text.filters.previouslyPreferred,
       }),
-      license: window.getByLabel('license names'),
     };
     this.tabs = {
       onResource: this.node.getByRole('tab', {
@@ -132,7 +130,7 @@ export class SignalsPanel {
     },
     criticalityFilterIs: async (criticality: string) => {
       await expect(
-        this.filterMenu.getByRole('textbox', { name: 'criticality' }),
+        this.filterMenu.getByRole('combobox', { name: 'criticality' }),
       ).toHaveValue(criticality);
     },
     onResourceCountIs: async (count: number) => {
@@ -177,6 +175,27 @@ export class SignalsPanel {
     },
   };
 
+  async filterByLicense(licenseName: string) {
+    await this.filterButton.click();
+    await this.filterMenu.locator('[aria-haspopup="dialog"]').click();
+    const editor = this.window.getByRole('dialog', {
+      name: text.licenseEditor.title,
+    });
+    const search = editor.getByRole('textbox', {
+      name: text.licenseEditor.search,
+    });
+    await search.fill(licenseName);
+    const option = editor.getByRole('option', {
+      name: licenseName,
+      exact: true,
+    });
+    await option.click();
+    await expect(option).toHaveAttribute('aria-selected', 'true');
+    await search.press('Escape');
+    await this.filterMenu.press('Escape');
+    await expect(this.filterMenu).toBeHidden();
+  }
+
   async closeFilterMenu() {
     if (await this.filterMenu.isVisible()) {
       await this.filterMenu.press('Escape');
@@ -186,14 +205,6 @@ export class SignalsPanel {
   async openSortMenu() {
     await this.sortButton.click();
     await this.sortings.occurrence.click({ trial: true });
-  }
-
-  async selectLicenseName(licenseName: string) {
-    await this.filters.license.fill(licenseName);
-    await this.window
-      .getByRole('option', { name: licenseName, exact: true })
-      .click();
-    await expect(this.filters.license).toHaveValue(licenseName);
   }
 
   async clearFilters() {

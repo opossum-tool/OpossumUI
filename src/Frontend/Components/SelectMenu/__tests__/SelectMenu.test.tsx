@@ -7,10 +7,11 @@ import userEvent from '@testing-library/user-event';
 
 import { faker } from '../../../../testing/Faker';
 import { renderComponent } from '../../../test-helpers/render';
-import { SelectMenu, type SelectMenuOption } from '../SelectMenu';
+import { SelectMenu, type ToggleMenuOption } from '../SelectMenu';
 
-function createOption(props: Partial<SelectMenuOption> = {}): SelectMenuOption {
+function createOption(props: Partial<ToggleMenuOption> = {}): ToggleMenuOption {
   return {
+    kind: 'toggle',
     id: faker.string.uuid(),
     label: faker.company.name(),
     selected: false,

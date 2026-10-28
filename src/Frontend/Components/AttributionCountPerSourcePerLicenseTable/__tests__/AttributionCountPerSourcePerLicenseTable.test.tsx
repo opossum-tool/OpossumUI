@@ -17,6 +17,7 @@ const props: AttributionCountPerSourcePerLicenseTableProps = {
     perLicense: [
       {
         licenseName: 'licenseA',
+        licenseOption: { id: 'licenseA', label: 'licenseA' },
         criticality: Criticality.High,
         classification: 2,
         perSource: { sourceA: 1, sourceB: 3 },
@@ -24,6 +25,7 @@ const props: AttributionCountPerSourcePerLicenseTableProps = {
       },
       {
         licenseName: 'licenseB',
+        licenseOption: { id: 'licenseB', label: 'licenseB' },
         criticality: Criticality.Medium,
         classification: 3,
         perSource: { sourceB: 2 },
@@ -50,6 +52,49 @@ function getHeaderTexts(screen: Screen): Array<string> {
 }
 
 describe('Attribution count per source per license table', () => {
+  it('keeps equivalent spellings from different sources as distinct rows when sorting', async () => {
+    const consoleError = vi.spyOn(console, 'error');
+    const rows: AttributionCountPerSourcePerLicenseTableProps['tableData']['perLicense'] =
+      [
+        {
+          licenseName: 'Apache-2.0',
+          licenseOption: { id: 'apache2.0', label: 'Apache-2.0' },
+          criticality: Criticality.None,
+          classification: 0,
+          perSource: { ScanCode: 1 },
+          total: 1,
+        },
+        {
+          licenseName: 'apache 2.0',
+          licenseOption: { id: 'apache2.0', label: 'apache 2.0' },
+          criticality: Criticality.None,
+          classification: 0,
+          perSource: { REUSE: 1 },
+          total: 1,
+        },
+      ];
+    try {
+      await renderComponent(
+        <AttributionCountPerSourcePerLicenseTable
+          tableData={{
+            perLicense: rows,
+            totals: { perSource: { ScanCode: 1, REUSE: 1 }, total: 2 },
+          }}
+        />,
+      );
+      fireEvent.click(screen.getByText('Name'));
+      expect(screen.getByText('Apache-2.0')).toBeVisible();
+      expect(screen.getByText('apache 2.0')).toBeVisible();
+      expect(
+        consoleError.mock.calls.some((args) =>
+          String(args[0]).includes('same key'),
+        ),
+      ).toBe(false);
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
+
   it('shows by default criticality and classification columns', async () => {
     await renderComponent(
       <AttributionCountPerSourcePerLicenseTable {...props} />,

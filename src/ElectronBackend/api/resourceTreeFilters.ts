@@ -16,12 +16,12 @@ import {
   getOnlyExternalFilesQuery,
   getOnlyPreSelectedManualFilesQuery,
 } from './progressBarUtils';
-import { removeTrailingSlash, toCanonicalLicenseName } from './utils';
+import { removeTrailingSlash } from './utils';
 
 export type FilteredTable = {
   filtered_resources: { cache_id: number; id: number };
 };
-export type LicenseFilter = { licenseName: string; external: boolean };
+export type LicenseFilter = { licenseIds: Array<string>; external: boolean };
 export type ResourceTreeFilters = {
   search?: string;
   onlyUnreviewedFiles?: boolean;
@@ -33,7 +33,7 @@ export type ResourceTreeFilters = {
 
 function hasActiveNonSearchFilters(filters: ResourceTreeFilters) {
   return Boolean(
-    filters.licenseFilter ||
+    filters.licenseFilter?.licenseIds.length ||
     filters.onAttributionUuids ||
     filters.onlyUnreviewedFiles ||
     filters.onlyWithAiDeferredAttributions ||
@@ -134,7 +134,7 @@ export function getFilteredResourcesQuery(
   if (search) {
     query = query.where('r.path', 'like', `%${removeTrailingSlash(search)}%`);
   }
-  if (licenseFilter) {
+  if (licenseFilter?.licenseIds.length) {
     query = query.where('r.id', 'in', (eb) =>
       eb
         .selectFrom('attribution as a')
@@ -145,11 +145,7 @@ export function getFilteredResourcesQuery(
         )
         .select('rta.resource_id')
         .where('a.is_external', '=', Number(licenseFilter.external))
-        .where(
-          'a.canonical_license_name',
-          '=',
-          toCanonicalLicenseName(licenseFilter.licenseName),
-        ),
+        .where('a.canonical_license_name', 'in', licenseFilter.licenseIds),
     );
   }
   if (onAttributionUuids) {

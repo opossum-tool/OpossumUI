@@ -9,6 +9,7 @@ import {
   type SqlBool,
 } from 'kysely';
 
+import type { LicenseOption } from '../../shared/shared-types';
 import { getDb } from '../db/db';
 import type { DB } from '../db/generated/databaseTypes';
 import { EDITABLE_ATTRIBUTION_RESOURCE_ACCESS } from '../types/types';
@@ -106,6 +107,7 @@ export async function externalAttributionStatistics() {
       eb
         .selectFrom('attributions_per_license')
         .select(['license_name as name', 'count'])
+        .select((eb) => eb.ref('stripped').as('licenseId'))
         .select((eb) => eb.val(0).as('isOther'))
         .limit(LICENSE_LIMIT)
         .as('top_licenses'),
@@ -125,6 +127,7 @@ export async function externalAttributionStatistics() {
         .select((eb) => [
           eb.val('Other').as('name'),
           eb.fn.sum<number>('count').as('count'),
+          eb.val(null).as('licenseId'),
           eb.val(1).as('isOther'),
         ]),
     )
@@ -190,6 +193,7 @@ export async function externalAttributionStatistics() {
 
 export type LicenseTableRow = {
   licenseName: string | null;
+  licenseOption: LicenseOption;
   criticality: number;
   classification: number;
   perSource: { [key: string]: number };
@@ -211,6 +215,7 @@ export async function licenseTable() {
     )
     .select((eb) => [
       'license_name',
+      'canonical_license_name',
       'criticality',
       'classification',
       eb.fn
@@ -256,6 +261,10 @@ export async function licenseTable() {
     ) {
       currentRow = {
         licenseName,
+        licenseOption: {
+          id: queryRow.canonical_license_name ?? '',
+          label: licenseName ?? '-',
+        },
         criticality,
         classification,
         perSource: {},

@@ -425,3 +425,5 @@ export interface UserSettings {
 }
 
 export type PanelSizes = UserSettings['panelSizes'];
+
+export type LicenseOption = { id: string; label: string };

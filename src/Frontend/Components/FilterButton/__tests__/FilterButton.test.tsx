@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
@@ -10,6 +10,25 @@ import { renderComponent } from '../../../test-helpers/render';
 import { FilterButton } from '../FilterButton';
 
 describe('FilterButton', () => {
+  it.each([false, true])(
+    'dismisses on Tab (shift: %s) and restores focus',
+    async (shift) => {
+      const onOpenChange = vi.fn();
+      await renderFilterButton({ onOpenChange });
+      const trigger = screen.getByRole('button', { name: 'filter button' });
+      await userEvent.click(trigger);
+
+      await userEvent.tab({ shift });
+
+      await waitFor(() =>
+        expect(screen.queryByRole('menu')).not.toBeInTheDocument(),
+      );
+      expect(trigger).toHaveFocus();
+      expect(onOpenChange).toHaveBeenCalledTimes(2);
+      expect(onOpenChange).toHaveBeenLastCalledWith(false);
+    },
+  );
+
   it('adds a filter', async () => {
     const onAdd = vi.fn();
     await renderFilterButton({ onAdd });
@@ -99,7 +118,14 @@ async function renderFilterButton({
   return renderComponent(
     <FilterButton
       options={[
-        { id: 'test-filter', label: 'test filter', selected, onAdd, onDelete },
+        {
+          kind: 'toggle',
+          id: 'test-filter',
+          label: 'test filter',
+          selected,
+          onAdd,
+          onDelete,
+        },
       ]}
       isActive={isActive}
       onClear={onClear}

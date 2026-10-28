@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { screen } from '@testing-library/react';
 import { describe, it } from 'vitest';
 
 import { deserializeAttributions } from '../ElectronBackend/input/parseInputData';
@@ -14,9 +15,11 @@ import {
   clickTreeFilterMenuButton,
   closeFilterMenu,
   expandTreeResourceAtPath,
+  expectLicenseFilterOption,
   expectResourceAtPathVisibility,
   expectResourceVisibility,
   expectTreeResourceCountIs,
+  fillLicenseFilter,
   searchTree,
   selectFilterLicenseName,
 } from './helpers/ui';
@@ -96,6 +99,24 @@ const data = getParsedInputFileEnrichedWithTestData({
   }),
 });
 
+const multiLicenseData = getParsedInputFileEnrichedWithTestData({
+  resources: data.resources,
+  manualAttributions: data.manualAttributions.attributions,
+  resourcesToManualAttributions:
+    data.manualAttributions.resourcesToAttributions,
+  externalAttributions: deserializeAttributions({
+    [externalAttributionId]: externalPackageInfo,
+    'apache-signal': reviewedApachePackageInfo,
+    'resolved-signal': { ...externalPackageInfo, licenseName: 'Zlib' },
+  }),
+  resourcesToExternalAttributions: {
+    ...data.externalAttributions.resourcesToAttributions,
+    [faker.opossum.filePath(reviewedApacheResourceName)]: ['apache-signal'],
+    [faker.opossum.filePath(reviewedMitResourceName)]: ['resolved-signal'],
+  },
+  resolvedExternalAttributions: new Set(['resolved-signal']),
+});
+
 describe('filtering resources', () => {
   it('filters the resource tree to unreviewed files', async () => {
     await renderApp({ data });
@@ -143,6 +164,65 @@ describe('filtering resources', () => {
       [deferredResourceName, aiNotDeferredResourceName, plainResourceName],
       [],
     );
+  });
+
+  it('combines multiple licenses in the resource tree while retaining unreviewed filtering', async () => {
+    await renderApp({ data: multiLicenseData });
+    await clickTreeFilterMenuButton();
+    await selectFilterLicenseName('MIT');
+    await selectFilterLicenseName('Apache-2.0');
+    await closeFilterMenu();
+    await expectResourceVisibility(
+      [externalResourceName, reviewedApacheResourceName],
+      [preselectedResourceName, reviewedMitResourceName],
+    );
+    await clickTreeFilterMenuButton();
+    await clickFilterMenuItem('Unreviewed');
+    await closeFilterMenu();
+    await expectResourceVisibility(
+      [externalResourceName],
+      [
+        preselectedResourceName,
+        reviewedMitResourceName,
+        reviewedApacheResourceName,
+      ],
+    );
+  });
+
+  it.each(['search', 'Unreviewed'])(
+    'keeps unselected project licenses offered when the tree is filtered by %s',
+    async (filter) => {
+      await renderApp({ data: multiLicenseData });
+      if (filter === 'search') {
+        await searchTree(externalResourceName, 'resources-tree-header');
+      } else {
+        await clickTreeFilterMenuButton();
+        await clickFilterMenuItem('Unreviewed');
+        await closeFilterMenu();
+      }
+      await expectResourceVisibility(
+        [externalResourceName],
+        [reviewedApacheResourceName],
+      );
+
+      await clickTreeFilterMenuButton();
+      await fillLicenseFilter('Apache-2.0');
+      await expectLicenseFilterOption('Apache-2.0', true);
+      expect(
+        screen.getByRole('option', { name: 'Apache-2.0' }),
+      ).toHaveAttribute('aria-selected', 'false');
+      await closeFilterMenu();
+    },
+  );
+
+  it('excludes licenses found only on resolved signals from the tree picker', async () => {
+    await renderApp({ data: multiLicenseData });
+    await clickTreeFilterMenuButton();
+    await fillLicenseFilter('MIT');
+    await expectLicenseFilterOption('MIT', true);
+    await fillLicenseFilter('Zlib');
+    await expectLicenseFilterOption('Zlib', false);
+    await closeFilterMenu();
   });
 
   it('expands the complete visible chain after filtering', async () => {
