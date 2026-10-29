@@ -1445,6 +1445,85 @@ describe('mixed attribution mutations', () => {
     ).resolves.toEqual({ human_modified: 0 });
   });
 
+  it('replaces with the writable clone when confirming a mixed pre-selected attribution', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources([
+        '/readonly/target.ts',
+        '/writable/target.ts',
+        '/readonly/replacement.ts',
+        '/writable/replacement.ts',
+      ]),
+      manualAttributions: {
+        attributions: {
+          target: {
+            id: 'target',
+            criticality: Criticality.None,
+            packageName: 'target',
+          },
+          replacement: {
+            id: 'replacement',
+            criticality: Criticality.None,
+            packageName: 'replacement',
+          },
+        },
+        resourcesToAttributions: {
+          '/readonly/target.ts': ['target'],
+          '/writable/target.ts': ['target'],
+          '/readonly/replacement.ts': ['replacement'],
+          '/writable/replacement.ts': ['replacement'],
+        },
+        attributionsToResources: {},
+      },
+      readonlyRules: [{ path: '/readonly', readonly: true }],
+    });
+    await getDb()
+      .updateTable('attribution')
+      .set({ pre_selected: 1 })
+      .where('uuid', '=', 'replacement')
+      .execute();
+
+    const { result } = await mutations.replaceAttributions({
+      selection: { mode: 'explicit', attributionUuids: ['target'] },
+      attributionUuidToReplaceWith: 'replacement',
+      attributions: {
+        replacement: packageInfo('replacement', 'replacement'),
+      },
+      focusedAttributionUuid: 'replacement',
+    });
+
+    expect(result).toEqual({
+      focusedAttributionOutcome: {
+        status: 'remapped',
+        attributionUuid: 'replacement',
+        newAttributionUuid: expect.any(String),
+      },
+    });
+    if (result.focusedAttributionOutcome.status !== 'remapped') {
+      throw new Error('Expected focused attribution to be remapped');
+    }
+    const cloneUuid = result.focusedAttributionOutcome.newAttributionUuid;
+    expect(await attributionUuidsOn('/readonly/replacement.ts')).toEqual([
+      'replacement',
+    ]);
+    expect(await attributionUuidsOn('/writable/replacement.ts')).toEqual([
+      cloneUuid,
+    ]);
+    expect(await attributionUuidsOn('/writable/target.ts')).toEqual([
+      cloneUuid,
+    ]);
+    expect(await attributionUuidsOn('/readonly/target.ts')).toEqual(['target']);
+    await expect(
+      getDb()
+        .selectFrom('attribution')
+        .select(['uuid', 'pre_selected'])
+        .where('package_name', '=', 'replacement')
+        .execute(),
+    ).resolves.toEqual([
+      { uuid: 'replacement', pre_selected: 1 },
+      { uuid: cloneUuid, pre_selected: 0 },
+    ]);
+  });
+
   it('matches mixed attribution edits using the writable clone metadata', async () => {
     await initializeMixedAttribution();
     await getDb()
@@ -1553,6 +1632,63 @@ describe('bulk attribution mutations', () => {
         .where('r.path', '=', '/parent/child.ts')
         .execute(),
     ).toEqual([{ attribution_uuid: 'replacement' }]);
+  });
+
+  it('confirms a pre-selected replacement and replaces in one operation', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/writable/file.ts', '/writable/other.ts']),
+      manualAttributions: {
+        attributions: {
+          target: { id: 'target', criticality: Criticality.None },
+          replacement: {
+            id: 'replacement',
+            criticality: Criticality.None,
+            packageName: 'replacement',
+            needsReview: true,
+          },
+        },
+        resourcesToAttributions: {
+          '/writable/file.ts': ['target', 'replacement'],
+          '/writable/other.ts': ['replacement'],
+        },
+        attributionsToResources: {},
+      },
+    });
+    await getDb()
+      .updateTable('attribution')
+      .set({ pre_selected: 1 })
+      .where('uuid', '=', 'replacement')
+      .execute();
+
+    const { result } = await mutations.replaceAttributions({
+      selection: { mode: 'explicit', attributionUuids: ['target'] },
+      attributionUuidToReplaceWith: 'replacement',
+      attributions: {
+        replacement: packageInfo('replacement', 'replacement-confirmed'),
+      },
+      focusedAttributionUuid: 'replacement',
+    });
+
+    expect(result).toEqual({
+      focusedAttributionOutcome: { status: 'unchanged' },
+    });
+    await expect(
+      getDb()
+        .selectFrom('attribution')
+        .select(['pre_selected', 'package_name', 'needs_review'])
+        .where('uuid', '=', 'replacement')
+        .executeTakeFirstOrThrow(),
+    ).resolves.toEqual({
+      pre_selected: 0,
+      package_name: 'replacement-confirmed',
+      needs_review: 0,
+    });
+    expect(await attributionUuidsOn('/writable/file.ts')).toEqual([
+      'replacement',
+    ]);
+    expect(await attributionUuidsOn('/writable/other.ts')).toEqual([
+      'replacement',
+    ]);
   });
 
   it('applies a query-wide property update with exclusions', async () => {

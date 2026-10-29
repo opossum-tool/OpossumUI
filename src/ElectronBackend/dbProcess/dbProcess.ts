@@ -19,6 +19,7 @@ import {
   type CommandParams,
   type CommandReturn,
   executeCommand,
+  isMutationCommand,
 } from '../api/commands';
 import { exportFile } from '../api/exportCommands';
 import { forceUnlockOpossumFile } from '../api/forceUnlock';
@@ -31,6 +32,7 @@ import {
 import { saveFile } from '../api/saveFile';
 import { splitOpossumFile } from '../api/splitOpossumFile';
 import { loadFile, type LoadFileIpcResult } from '../input/loadFile';
+import { type SaveResult, SaveWorker } from './save-worker';
 
 interface LoadFileMessage {
   type: 'loadFile';
@@ -79,6 +81,10 @@ interface ExecuteCommandMessage {
   params: CommandParams<CommandName>;
 }
 
+interface WaitForPendingSavesMessage {
+  type: 'waitForPendingSaves';
+}
+
 export type DbProcessPayload =
   | LoadFileMessage
   | SaveFileMessage
@@ -87,7 +93,8 @@ export type DbProcessPayload =
   | MergeOpossumFilesMessage
   | MergeOpossumFilesFromPathsMessage
   | ExportFileMessage
-  | ExecuteCommandMessage;
+  | ExecuteCommandMessage
+  | WaitForPendingSavesMessage;
 
 export type DbProcessRequest = DbProcessPayload & { id: number };
 
@@ -96,6 +103,7 @@ type SuccessPayload =
   | Awaited<CommandReturn<CommandName>>
   | MergeOpossumFilesResult
   | boolean
+  | SaveResult
   | undefined;
 
 interface SuccessResponse {
@@ -126,6 +134,23 @@ type ResponsePort = {
 };
 
 let storedOpossumZip: AdmZip | undefined;
+let saveTarget: { projectId: string; opossumFilePath: string } | undefined;
+
+async function writeCurrentProject(): Promise<void> {
+  const target = saveTarget;
+  const opossumZip = storedOpossumZip;
+  if (target === undefined || opossumZip === undefined) {
+    // No project is loaded, so there is no file to write to.
+    return;
+  }
+  await saveFile(target, opossumZip);
+}
+
+function createSaveWorker(): SaveWorker {
+  return new SaveWorker({ writeCurrentProject });
+}
+
+let saveWorker = createSaveWorker();
 
 async function executeDbProcessMessage(
   msg: DbProcessRequest,
@@ -134,10 +159,15 @@ async function executeDbProcessMessage(
   switch (msg.type) {
     case 'loadFile': {
       storedOpossumZip = undefined;
+      saveWorker.resetSaveOutcome();
       const loadResult = await loadFile(msg.filePath, onProgress);
       if (loadResult.ok) {
         const { opossumZip, ...rest } = loadResult;
         storedOpossumZip = opossumZip;
+        saveTarget = {
+          projectId: rest.projectId,
+          opossumFilePath: msg.filePath,
+        };
         return rest;
       }
       return loadResult;
@@ -146,22 +176,23 @@ async function executeDbProcessMessage(
       if (!storedOpossumZip) {
         throw new Error('Cannot save: no input file loaded');
       }
-      const { id: _, type: __, ...params } = msg;
-      await saveFile(params, storedOpossumZip);
+      await saveWorker.save();
       return undefined;
     }
     case 'forceUnlock': {
       if (!storedOpossumZip) {
         throw new Error('Cannot force unlock: no input file loaded');
       }
+      const opossumZip = storedOpossumZip;
       const { id: _, type: __, ...params } = msg;
-      await forceUnlockOpossumFile(params, storedOpossumZip);
+      await saveWorker.run(() => forceUnlockOpossumFile(params, opossumZip));
       return undefined;
     }
     case 'splitOpossumFile': {
       if (!storedOpossumZip) {
         throw new Error('Cannot split: no .opossum file is loaded');
       }
+      const opossumZip = storedOpossumZip;
       const {
         id: _,
         type: __,
@@ -169,13 +200,16 @@ async function executeDbProcessMessage(
         splitOpossumFilePath,
         ...saveFileParams
       } = msg;
-      await splitOpossumFile(
-        {
-          saveFileParams,
-          selectedFolderPaths,
-          splitOpossumFilePath,
-        },
-        storedOpossumZip,
+      // splitOpossumFile rewrites the source file as part of the split.
+      await saveWorker.run(() =>
+        splitOpossumFile(
+          {
+            saveFileParams,
+            selectedFolderPaths,
+            splitOpossumFilePath,
+          },
+          opossumZip,
+        ),
       );
       return undefined;
     }
@@ -188,38 +222,49 @@ async function executeDbProcessMessage(
         };
       }
       const { id: _, type: __, params } = msg;
-      const result = await mergeOpossumFiles(
-        params,
-        storedOpossumZip,
-        onProgress,
-      );
-      if (result.status === 'error') {
+      const opossumZip = storedOpossumZip;
+      return saveWorker.run(async () => {
+        const result = await mergeOpossumFiles(params, opossumZip, onProgress);
+        if (result.status === 'error') {
+          return result;
+        }
+        const loadResult = await loadFile(
+          params.saveFileParams.opossumFilePath,
+          onProgress,
+        );
+        if (!loadResult.ok) {
+          return {
+            errorMessage: `Could not reload merged archive: ${loadResult.error.message}`,
+            errorType: MergeOpossumFilesErrorType.Unknown,
+            status: 'error',
+          };
+        }
+        storedOpossumZip = loadResult.opossumZip;
         return result;
-      }
-      const loadResult = await loadFile(
-        params.saveFileParams.opossumFilePath,
-        onProgress,
-      );
-      if (!loadResult.ok) {
-        return {
-          errorMessage: `Could not reload merged archive: ${loadResult.error.message}`,
-          errorType: MergeOpossumFilesErrorType.Unknown,
-          status: 'error',
-        };
-      }
-      storedOpossumZip = loadResult.opossumZip;
-      return result;
+      });
     }
     case 'mergeOpossumFilesFromPaths': {
       const { id: _, type: __, params } = msg;
-      return mergeOpossumFilesFromPaths(params, onProgress);
+      return saveWorker.run(() =>
+        mergeOpossumFilesFromPaths(params, onProgress),
+      );
     }
     case 'exportFile': {
-      await exportFile(msg.exportType, msg.filePath);
+      await saveWorker.run(() => exportFile(msg.exportType, msg.filePath));
       return undefined;
     }
     case 'executeCommand': {
+      if (isMutationCommand(msg.command)) {
+        return saveWorker.run(
+          (): Promise<SuccessPayload> =>
+            executeCommand(msg.command, msg.params),
+          { saveInBackground: true },
+        );
+      }
       return executeCommand(msg.command, msg.params);
+    }
+    case 'waitForPendingSaves': {
+      return saveWorker.waitForPendingSaves();
     }
   }
 }
@@ -249,14 +294,24 @@ export async function handleDbProcessMessage(
   }
 }
 
-process.parentPort.on('message', (event) => {
-  const msg = event.data as { type: string };
+export function resetDbProcessStateForTesting(): void {
+  storedOpossumZip = undefined;
+  saveTarget = undefined;
+  saveWorker = createSaveWorker();
+}
 
-  if (msg.type === 'port') {
-    const port = event.ports[0];
-    port.on('message', (portEvent: Electron.MessageEvent) => {
-      void handleDbProcessMessage(port, portEvent.data as DbProcessRequest);
-    });
-    port.start();
-  }
-});
+// Guarded so that the module can be imported in tests, where
+// process.parentPort does not exist.
+if (process.parentPort) {
+  process.parentPort.on('message', (event) => {
+    const msg = event.data as { type: string };
+
+    if (msg.type === 'port') {
+      const port = event.ports[0];
+      port.on('message', (portEvent: Electron.MessageEvent) => {
+        void handleDbProcessMessage(port, portEvent.data as DbProcessRequest);
+      });
+      port.start();
+    }
+  });
+}

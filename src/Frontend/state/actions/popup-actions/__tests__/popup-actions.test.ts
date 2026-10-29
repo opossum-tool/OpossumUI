@@ -25,6 +25,7 @@ import {
   getAttributionSelectionPendingResourceId,
   getAttributionSelectionPolicy,
   getExpandedIds,
+  getIsPackageInfoDirty,
   getSelectedAttributionId,
   getSelectedResourceId,
   getTargetAttributionFilterChange,
@@ -36,10 +37,12 @@ import {
 import {
   getExportFileRequest,
   getImportFileRequest,
+  getIsSavingBeforeQuit,
   getMergeOpossumFilesRequest,
   getOpenFileRequest,
   getOpenPopup,
   getOpenPopups,
+  getQuitAppRequested,
   getSelectedView,
   getSplitFileRequest,
   getTargetView,
@@ -79,6 +82,7 @@ import {
   navigateToSelectedPathOrOpenUnsavedPopup,
   openFileOrOpenUnsavedPopup,
   proceedFromUnsavedPopup,
+  quitAppOrOpenUnsavedPopup,
   setSelectedResourceIdOrOpenUnsavedPopup,
   setViewOrOpenUnsavedPopup,
   showImportDialogOrOpenUnsavedPopup,
@@ -141,7 +145,7 @@ describe.each([
         PopupType.NotSavedPopup,
       );
 
-      store.dispatch(
+      void store.dispatch(
         proceedFromUnsavedPopup(getOpenPopups(store.getState()).at(-1)!.id),
       );
 
@@ -292,7 +296,7 @@ describe('The actions checking for unsaved changes', () => {
         PopupType.NotSavedPopup,
       );
 
-      testStore.dispatch(
+      void testStore.dispatch(
         proceedFromUnsavedPopup(getOpenPopups(testStore.getState()).at(-1)!.id),
       );
 
@@ -744,7 +748,7 @@ describe('proceedFromUnsavedPopup', () => {
     store.dispatch(openPopup(PopupType.NotSavedPopup));
     const originalEntries = getOpenPopups(store.getState());
 
-    store.dispatch(proceedFromUnsavedPopup('removed-popup'));
+    void store.dispatch(proceedFromUnsavedPopup('removed-popup'));
 
     expect(getOpenPopups(store.getState())).toEqual(originalEntries);
     expect(getOpenFileRequest(store.getState())).toEqual({ kind: 'dialog' });
@@ -765,7 +769,7 @@ describe('proceedFromUnsavedPopup', () => {
     testStore.dispatch(setTargetView(View.Audit));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(setTargetSelectedResourceId('newSelectedResource'));
-    testStore.dispatch(
+    void testStore.dispatch(
       proceedFromUnsavedPopup(getOpenPopups(testStore.getState()).at(-1)!.id),
     );
     return testStore.getState();
@@ -797,18 +801,22 @@ describe('proceedFromUnsavedPopup', () => {
     expect(window.electronAPI.saveFile).not.toHaveBeenCalled();
   });
 
-  it('proceeds with open file request', () => {
+  it('proceeds with open file request after the backend has settled', async () => {
     vi.spyOn(window.electronAPI, 'openFile').mockResolvedValue({});
 
     const testStore = createAppStore();
     testStore.dispatch(setOpenFileRequest({ kind: 'dialog' }));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
-    testStore.dispatch(
+    void testStore.dispatch(
       proceedFromUnsavedPopup(getOpenPopups(testStore.getState()).at(-1)!.id),
     );
 
-    expect(window.electronAPI.openFile).toHaveBeenCalledWith();
     expect(getOpenFileRequest(testStore.getState())).toBeNull();
+    await vi.waitFor(() =>
+      expect(window.electronAPI.openFile).toHaveBeenCalledWith(),
+    );
+    expect(window.electronAPI.whenBackendIdle).toHaveBeenCalled();
+    expect(getIsSavingBeforeQuit(testStore.getState())).toBe(false);
   });
 
   it('proceeds with import file request', () => {
@@ -825,7 +833,7 @@ describe('proceedFromUnsavedPopup', () => {
       }),
     );
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
-    testStore.dispatch(
+    void testStore.dispatch(
       proceedFromUnsavedPopup(getOpenPopups(testStore.getState()).at(-1)!.id),
     );
 
@@ -847,7 +855,7 @@ describe('proceedFromUnsavedPopup', () => {
       }),
     );
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
-    testStore.dispatch(
+    void testStore.dispatch(
       proceedFromUnsavedPopup(getOpenPopups(testStore.getState()).at(-1)!.id),
     );
 
@@ -865,7 +873,7 @@ describe('proceedFromUnsavedPopup', () => {
     const testStore = createAppStore();
     testStore.dispatch(setExportFileRequest(ExportType.FollowUp));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
-    testStore.dispatch(
+    void testStore.dispatch(
       proceedFromUnsavedPopup(getOpenPopups(testStore.getState()).at(-1)!.id),
     );
 
@@ -881,7 +889,7 @@ describe('proceedFromUnsavedPopup', () => {
     testStore.dispatch(setSplitFileRequest({ resourcePath }));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
 
-    testStore.dispatch(
+    void testStore.dispatch(
       proceedFromUnsavedPopup(getOpenPopups(testStore.getState()).at(-1)!.id),
     );
 
@@ -1064,4 +1072,142 @@ describe('statistics navigation', () => {
       );
     },
   );
+});
+
+describe('quitAppOrOpenUnsavedPopup', () => {
+  it('confirms the quit when there are no unsaved changes', async () => {
+    const testStore = createAppStore();
+
+    testStore.dispatch(quitAppOrOpenUnsavedPopup());
+    await vi.waitFor(() =>
+      expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
+    );
+
+    expect(getOpenPopup(testStore.getState())).toBeNull();
+    expect(getQuitAppRequested(testStore.getState())).toBe(false);
+    expect(getIsSavingBeforeQuit(testStore.getState())).toBe(true);
+  });
+
+  it('opens the unsaved-changes popup when there are unsaved changes', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo({
+        packageName: 'dirty',
+        criticality: Criticality.None,
+        id: faker.string.uuid(),
+      }),
+    );
+
+    testStore.dispatch(quitAppOrOpenUnsavedPopup());
+
+    expect(window.electronAPI.confirmQuit).not.toHaveBeenCalled();
+    expect(getOpenPopup(testStore.getState())?.popup).toBe(
+      PopupType.NotSavedPopup,
+    );
+    expect(getQuitAppRequested(testStore.getState())).toBe(true);
+  });
+
+  it('confirms the quit after the unsaved changes are discarded', async () => {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo({
+        packageName: 'dirty',
+        criticality: Criticality.None,
+        id: faker.string.uuid(),
+      }),
+    );
+    testStore.dispatch(quitAppOrOpenUnsavedPopup());
+    void testStore.dispatch(
+      proceedFromUnsavedPopup(getOpenPopups(testStore.getState()).at(-1)!.id),
+    );
+
+    await vi.waitFor(() =>
+      expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
+    );
+    expect(getQuitAppRequested(testStore.getState())).toBe(false);
+    expect(getIsSavingBeforeQuit(testStore.getState())).toBe(true);
+    expect(getOpenPopup(testStore.getState())).toBeNull();
+    expect(getIsPackageInfoDirty(testStore.getState())).toBe(false);
+  });
+
+  it('does not confirm the quit when the unsaved-changes popup is cancelled', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo({
+        packageName: 'dirty',
+        criticality: Criticality.None,
+        id: faker.string.uuid(),
+      }),
+    );
+    testStore.dispatch(quitAppOrOpenUnsavedPopup());
+
+    testStore.dispatch(
+      closePopupAndUnsetTargets(getOpenPopups(testStore.getState()).at(-1)!.id),
+    );
+
+    expect(window.electronAPI.confirmQuit).not.toHaveBeenCalled();
+    expect(getQuitAppRequested(testStore.getState())).toBe(false);
+    expect(getIsSavingBeforeQuit(testStore.getState())).toBe(false);
+    expect(getOpenPopup(testStore.getState())).toBeNull();
+  });
+
+  it('discards pending targets when quitting', async () => {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo({
+        packageName: 'dirty',
+        criticality: Criticality.None,
+        id: faker.string.uuid(),
+      }),
+    );
+    testStore.dispatch(quitAppOrOpenUnsavedPopup());
+    testStore.dispatch(setOpenFileRequest({ kind: 'dialog' }));
+    testStore.dispatch(setTargetView(View.Audit));
+    void testStore.dispatch(
+      proceedFromUnsavedPopup(getOpenPopups(testStore.getState()).at(-1)!.id),
+    );
+
+    await vi.waitFor(() =>
+      expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
+    );
+    expect(window.electronAPI.openFile).not.toHaveBeenCalled();
+    expect(getOpenFileRequest(testStore.getState())).toBeNull();
+    expect(getTargetView(testStore.getState())).toBeNull();
+  });
+
+  it('keeps the unsaved-changes popup open until the backend has no pending mutations', async () => {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo({
+        packageName: 'dirty',
+        criticality: Criticality.None,
+        id: faker.string.uuid(),
+      }),
+    );
+    testStore.dispatch(quitAppOrOpenUnsavedPopup());
+
+    let resolveWhenBackendIdle!: () => void;
+    vi.mocked(window.electronAPI.whenBackendIdle).mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        resolveWhenBackendIdle = resolve;
+      }),
+    );
+
+    void testStore.dispatch(
+      proceedFromUnsavedPopup(getOpenPopups(testStore.getState()).at(-1)!.id),
+    );
+
+    expect(getOpenPopup(testStore.getState())?.popup).toBe(
+      PopupType.NotSavedPopup,
+    );
+    expect(window.electronAPI.confirmQuit).not.toHaveBeenCalled();
+
+    resolveWhenBackendIdle();
+    await vi.waitFor(() =>
+      expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
+    );
+    expect(getOpenPopup(testStore.getState())).toBeNull();
+    expect(getQuitAppRequested(testStore.getState())).toBe(false);
+    expect(getIsSavingBeforeQuit(testStore.getState())).toBe(true);
+  });
 });

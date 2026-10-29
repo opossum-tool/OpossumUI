@@ -45,12 +45,10 @@ export const ConfirmReplacePopup = ({
 
   const handleFocusedAttributionOutcome =
     useFocusedAttributionOutcomeBeforeInvalidation();
-  const updateAttributions = backend.updateAttributions.useMutation({
+  const replaceAttributions = backend.replaceAttributions.useMutation({
     onBeforeInvalidation: handleFocusedAttributionOutcome,
   });
-  const replaceAttributions = backend.replaceAttributions.useMutation();
-  const isReplacing =
-    updateAttributions.isPending || replaceAttributions.isPending;
+  const isReplacing = replaceAttributions.isPending;
   const replacementPreview = backend.getAttributionPreview.useQuery(
     open && !isReplacing
       ? { attributionUuids: [selectedAttribution.id] }
@@ -108,32 +106,31 @@ export const ConfirmReplacePopup = ({
       return;
     }
 
-    let replacementAttribution = selectedAttribution;
-    if (selectedAttribution.preSelected) {
-      const { focusedAttributionOutcome } =
-        await updateAttributions.mutateAsync({
-          attributions: {
-            [selectedAttribution.id]: {
-              ...selectedAttribution,
-              preSelected: undefined,
-            },
-          },
-          focusedAttributionUuid: selectedAttribution.id,
-        });
-      const replacementId =
+    const { focusedAttributionOutcome } = await replaceAttributions.mutateAsync(
+      {
+        selection: selectionForConfirmation ?? selectionForReplacement,
+        attributionUuidToReplaceWith: selectedAttribution.id,
+        ...(selectedAttribution.preSelected
+          ? {
+              attributions: {
+                [selectedAttribution.id]: {
+                  ...selectedAttribution,
+                  preSelected: undefined,
+                },
+              },
+              focusedAttributionUuid: selectedAttribution.id,
+            }
+          : {}),
+      },
+    );
+    const replacementAttribution = {
+      ...selectedAttribution,
+      id:
         focusedAttributionOutcome.status === 'remapped'
           ? focusedAttributionOutcome.newAttributionUuid
-          : selectedAttribution.id;
-      replacementAttribution = {
-        ...selectedAttribution,
-        id: replacementId,
-        preSelected: undefined,
-      };
-    }
-    await replaceAttributions.mutateAsync({
-      selection: selectionForConfirmation ?? selectionForReplacement,
-      attributionUuidToReplaceWith: replacementAttribution.id,
-    });
+          : selectedAttribution.id,
+      preSelected: undefined,
+    };
     setSelectionForReplacement(null);
     dispatch(
       changeSelectedAttributionOrOpenUnsavedPopup(replacementAttribution),

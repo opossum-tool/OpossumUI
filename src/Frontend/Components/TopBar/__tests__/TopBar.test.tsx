@@ -31,7 +31,9 @@ describe('TopBar', () => {
     fireEvent.click(screen.getByLabelText('open file'));
 
     expect(store.getState().resourceState).toMatchObject(initialResourceState);
-    expect(window.electronAPI.openFile).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() =>
+      expect(window.electronAPI.openFile).toHaveBeenCalledTimes(1),
+    );
   });
 
   it('switches between views', async () => {

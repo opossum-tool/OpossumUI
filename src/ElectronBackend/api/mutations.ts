@@ -251,33 +251,70 @@ const mutationImplementations = {
   async replaceAttributions(params: {
     selection: AttributionSelection;
     attributionUuidToReplaceWith: string;
+    attributions?: Attributions;
+    focusedAttributionUuid?: string;
   }) {
-    await getDb()
+    const result = await getDb()
       .transaction()
       .execute(async (trx) => {
+        let attributionUuidToReplaceWith = params.attributionUuidToReplaceWith;
+        let focusedAttributionOutcome: FocusedAttributionOutcome = {
+          status: 'unchanged',
+        };
+        const attributionOverrides = params.attributions ?? {};
+
+        if (Object.keys(attributionOverrides).length > 0) {
+          const oldUuidsToNewUuids =
+            await cloneMixedAttributionsForWritableResources(
+              trx,
+              Object.keys(attributionOverrides),
+            );
+          for (const [attributionUuid, attributionData] of Object.entries(
+            attributionOverrides,
+          )) {
+            const writableAttributionUuid = oldUuidsToNewUuids[attributionUuid];
+            await updateAttribution(trx, writableAttributionUuid, {
+              ...attributionData,
+              id: writableAttributionUuid,
+            });
+          }
+          focusedAttributionOutcome = getFocusedAttributionRemappingOutcome(
+            params.focusedAttributionUuid,
+            oldUuidsToNewUuids,
+          );
+          if (
+            params.focusedAttributionUuid !== undefined &&
+            params.attributionUuidToReplaceWith ===
+              params.focusedAttributionUuid
+          ) {
+            attributionUuidToReplaceWith =
+              oldUuidsToNewUuids[params.focusedAttributionUuid];
+          }
+        }
+
         const selection = excludeAttributionFromAllMatchingSelection(
           params.selection,
-          params.attributionUuidToReplaceWith,
+          attributionUuidToReplaceWith,
         );
         const attributionUuidsToReplace = await resolveAttributionSelection(
           trx,
           selection,
         );
-        if (
-          attributionUuidsToReplace.includes(
-            params.attributionUuidToReplaceWith,
-          )
-        ) {
+        if (attributionUuidsToReplace.includes(attributionUuidToReplaceWith)) {
           throw new Error('An attribution cannot replace itself.');
         }
         await replaceAttributions(trx, {
           attributionUuidsToReplace,
-          attributionUuidToReplaceWith: params.attributionUuidToReplaceWith,
+          attributionUuidToReplaceWith,
         });
+        return focusedAttributionOutcome;
       });
 
     return {
       invalidates: MANUAL_ATTRIBUTION_INVALIDATIONS,
+      result: {
+        focusedAttributionOutcome: result,
+      },
     };
   },
 

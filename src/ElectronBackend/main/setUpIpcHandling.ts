@@ -30,6 +30,11 @@ import {
 import { getMacArchitectureMismatch } from './mac-architecture';
 import { ProcessingStatusUpdater } from './ProcessingStatusUpdater';
 import {
+  acknowledgeQuitRequest,
+  confirmQuit,
+  handleWindowClose,
+} from './quit-handling';
+import {
   checkForUpdates,
   downloadUpdate,
   getUpdateState,
@@ -41,9 +46,9 @@ export function setupIpcHandling(
   window: BrowserWindow,
   updateMenu: () => Promise<void>,
 ) {
-  ipcMain.handle(IpcChannel.Quit, () => {
-    window.close();
-  });
+  ipcMain.handle(IpcChannel.ConfirmQuit, () => confirmQuit());
+  ipcMain.handle(IpcChannel.QuitRequestHandled, () => acknowledgeQuitRequest());
+  window.on('close', (event) => handleWindowClose(window, event));
   ipcMain.handle(IpcChannel.Relaunch, () => {
     window.reload();
   });
