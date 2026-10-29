@@ -5,7 +5,12 @@
 import type { Selectable } from 'kysely';
 
 import type { AttributionContent } from '../../shared/attribution-comparison';
-import type { PackageInfo, Source } from '../../shared/shared-types';
+import type {
+  CommonPackageInfo,
+  PackageInfo,
+  PersistedPackageInfo,
+  Source,
+} from '../../shared/shared-types';
 import type { Attribution } from './generated/databaseTypes';
 
 type AttributionRow = Selectable<Attribution>;
@@ -42,9 +47,10 @@ export function attributionContentFromRow(
   };
 }
 
-const knownKeys = new Set([
+const knownKeys = new Set<string>([
   'id',
   'aiAttributions',
+  'aiStatus',
   'source',
   'originalAttributionSource',
   'resourceAccess',
@@ -77,13 +83,11 @@ const knownKeys = new Set([
   'originIds',
   'preferredOverOriginIds',
   'comment',
-] satisfies Array<keyof PackageInfo>);
+] satisfies Array<keyof PackageInfo | keyof PersistedPackageInfo>);
 
-export function getAttributionExtensionData(attribution: PackageInfo) {
+export function getAttributionExtensionData(attribution: CommonPackageInfo) {
   return Object.fromEntries(
-    Object.entries(attribution).filter(
-      ([key]) => !knownKeys.has(key as keyof PackageInfo),
-    ),
+    Object.entries(attribution).filter(([key]) => !knownKeys.has(key)),
   );
 }
 
@@ -126,7 +130,9 @@ function removeUndefinedProperties<T extends object>(value: T): T {
   ) as T;
 }
 
-export function getAttributionPersistenceValues(attribution: PackageInfo) {
+export function getAttributionPersistenceValues(
+  attribution: CommonPackageInfo,
+) {
   const additionalData = getAttributionExtensionData(attribution);
   const source = sourceColumnValues(attribution.source);
   const originalAttributionSource = sourceColumnValues(
@@ -213,7 +219,7 @@ function sourceColumnValues(source: Source | undefined): {
 
 export function packageInfoFromAttributionRow(
   row: AttributionRow,
-): PackageInfo {
+): CommonPackageInfo {
   const additionalData = JSON.parse(row.additional_data) as Record<
     string,
     unknown

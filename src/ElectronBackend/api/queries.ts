@@ -15,6 +15,10 @@ import type {
   ProjectMetadata,
   RawClassificationsConfig,
 } from '../../shared/shared-types';
+import {
+  packageInfoWithAiStatusFromRow,
+  selectAttributionsWithAiStatus,
+} from '../db/attribution-ai';
 import { packageInfoFromAttributionRow } from '../db/attributionData';
 import { getDb } from '../db/db';
 import type { DB } from '../db/generated/databaseTypes';
@@ -150,16 +154,14 @@ export const queries = {
   licenseTable,
 
   async getAttributionData(props: { attributionUuid: string }) {
-    const result = await getDb()
-      .selectFrom('attribution')
-      .selectAll('attribution')
-      .where('uuid', '=', props.attributionUuid)
+    const result = await selectAttributionsWithAiStatus(getDb())
+      .where('attribution.uuid', '=', props.attributionUuid)
       .executeTakeFirstOrThrow();
 
     return {
       result: {
         packageInfo: {
-          ...packageInfoFromAttributionRow(result),
+          ...packageInfoWithAiStatusFromRow(result),
           resourceAccess:
             result.resource_access === AttributionResourceAccess.Mixed
               ? 'mixed'

@@ -5,7 +5,7 @@
 import { type Kysely, sql } from 'kysely';
 
 import type {
-  Attributions,
+  PersistedAttributions,
   ResourcesToAttributions,
   SaveFileArgs,
 } from '../../shared/shared-types';
@@ -102,6 +102,7 @@ export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
         .selectAll('attribution')
         .select([
           'attribution_ai.additional_data as ai_additional_data',
+          'attribution_ai.deferred_fields',
           'attribution_ai.human_modified as ai_human_modified',
         ])
         .where('attribution.is_external', '=', 0)
@@ -137,7 +138,7 @@ export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
       };
     });
 
-  const manualAttributions: Attributions = Object.fromEntries(
+  const manualAttributions: PersistedAttributions = Object.fromEntries(
     queryResults.manualAttributionsResult.map((row) => {
       const packageInfo = packageInfoFromAttributionRow(row);
       if (row.ai_additional_data === null) {
@@ -149,6 +150,9 @@ export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
       >;
       if (row.ai_human_modified !== null) {
         aiAttributions.humanModified = Boolean(row.ai_human_modified);
+      }
+      if (row.deferred_fields !== null) {
+        aiAttributions.deferredFields = JSON.parse(row.deferred_fields);
       }
       return [row.uuid, { ...packageInfo, aiAttributions }];
     }),

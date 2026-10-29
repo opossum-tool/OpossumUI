@@ -6,6 +6,7 @@ import AddIcon from '@mui/icons-material/Add';
 import CancelIcon from '@mui/icons-material/Cancel';
 import MuiBox from '@mui/material/Box';
 import MuiChip from '@mui/material/Chip';
+import MuiTooltip from '@mui/material/Tooltip';
 import type { SxProps, Theme } from '@mui/system';
 import { useLayoutEffect, useState } from 'react';
 
@@ -82,16 +83,18 @@ export const AuditingOptions: React.FC<Props> = ({
   function renderSelectedOptions() {
     return options
       .filter(({ selected }) => selected)
-      .map(({ label, icon, onDelete, interactive, id }) => (
-        <MuiChip
-          label={label}
-          size={'small'}
-          icon={icon}
-          onDelete={interactive ? onDelete : undefined}
-          data-testid={`auditing-option-${id}`}
-          key={id}
-          deleteIcon={<CancelIcon data-testid="CancelIcon" />}
-        />
+      .map(({ label, icon, onDelete, interactive, id, chipSx, tooltip }) => (
+        <MuiTooltip key={id} title={tooltip} describeChild>
+          <MuiChip
+            label={label}
+            size={'small'}
+            icon={icon}
+            onDelete={interactive ? onDelete : undefined}
+            data-testid={`auditing-option-${id}`}
+            sx={chipSx}
+            deleteIcon={<CancelIcon data-testid="CancelIcon" />}
+          />
+        </MuiTooltip>
       ));
   }
 };

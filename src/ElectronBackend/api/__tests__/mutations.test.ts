@@ -6,7 +6,7 @@ import {
   type AiAttributions,
   type Attributions,
   Criticality,
-  type PackageInfo,
+  type PersistedPackageInfo,
 } from '../../../shared/shared-types';
 import {
   initializeDbWithTestData,
@@ -22,12 +22,13 @@ import {
   mutations,
 } from '../mutations';
 import { queries } from '../queries';
+import { initializeAiAttributionFixture } from './ai-attribution-test-helpers';
 
 function packageInfo(
   id: string,
   packageName: string,
   aiAttributions?: AiAttributions,
-): PackageInfo {
+): PersistedPackageInfo {
   return {
     id,
     packageName,
@@ -63,6 +64,18 @@ const metadataMatchingCases: Array<{
   candidateMetadata?: Record<string, unknown>;
   expectedToMatch: boolean;
 }> = [
+  {
+    name: 'equal opaque deferred properties',
+    sourceMetadata: { deferred: { opaque: [true] } },
+    candidateMetadata: { deferred: { opaque: [true] } },
+    expectedToMatch: true,
+  },
+  {
+    name: 'different opaque deferred properties',
+    sourceMetadata: { deferred: { opaque: [true] } },
+    candidateMetadata: { deferred: { opaque: [false] } },
+    expectedToMatch: false,
+  },
   {
     name: 'different unknown properties',
     sourceMetadata: { known: true, sourceOnly: 1 },
@@ -344,7 +357,94 @@ describe('attribution resource access', () => {
       limit: 200,
     });
 
-    expect(result.attributions.ai).not.toHaveProperty('aiAttributions');
+    expect(result.attributions.ai.aiStatus).toEqual({ deferred: false });
+  });
+
+  it.each([
+    {
+      name: 'human-modified AI attribution',
+      aiAttributions: { humanModified: true },
+      expected: { humanModified: true, deferred: false },
+    },
+    {
+      name: 'unmodified AI attribution',
+      aiAttributions: { humanModified: false },
+      expected: { humanModified: false, deferred: false },
+    },
+    {
+      name: 'AI attribution without flags',
+      aiAttributions: {},
+      expected: { deferred: false },
+    },
+    {
+      name: 'deferred fields',
+      aiAttributions: { deferredFields: { copyright: 'Needs review' } },
+      expected: { deferred: true },
+    },
+    {
+      name: 'unknown deferred fields',
+      aiAttributions: {
+        deferredFields: { futureField: { arbitrary: [true] } },
+      },
+      expected: { deferred: true },
+    },
+    {
+      name: 'empty deferred fields',
+      aiAttributions: { deferredFields: {} },
+      expected: { deferred: true },
+    },
+    {
+      name: 'human-modified attribution with deferred fields',
+      aiAttributions: { humanModified: true, deferredFields: {} },
+      expected: { humanModified: true, deferred: true },
+    },
+    {
+      name: 'ordinary attribution',
+      aiAttributions: undefined,
+      expected: undefined,
+    },
+  ])('returns AI status for $name', async ({ aiAttributions, expected }) => {
+    await initializeAiAttributionFixture({
+      resourcePaths: ['/a'],
+      attributions: {
+        attribution: packageInfo('attribution', 'package', aiAttributions),
+      },
+      resourceLinks: { '/a': ['attribution'] },
+    });
+
+    const [details, page, batch, relatedBatch] = await Promise.all([
+      queries.getAttributionData({ attributionUuid: 'attribution' }),
+      listAttributionsPage({
+        external: false,
+        filters: [],
+        search: '',
+        valueFilters: {},
+        resourcePathForRelationships: '/a',
+        showResolved: true,
+        excludeUnrelated: false,
+        scope: { mode: 'all' },
+        sort: 'alphabetically',
+        includeReadonly: true,
+        offset: 0,
+        limit: 200,
+      }),
+      queries.getAttributions({ attributionUuids: ['attribution'] }),
+      queries.getAttributions({
+        attributionUuids: ['attribution'],
+        resourcePathForRelationships: '/a',
+      }),
+    ]);
+
+    for (const result of [
+      details.result.packageInfo,
+      page.result.attributions.attribution,
+      batch.result.attribution,
+      relatedBatch.result.attribution,
+    ]) {
+      expect(result.aiStatus).toEqual(expected);
+      expect(result).not.toHaveProperty('aiAttributions');
+      expect(Object.hasOwn(result, 'aiStatus')).toBe(expected !== undefined);
+    }
   });
 
   it('preserves stored AI metadata when updating a queried attribution', async () => {
@@ -367,7 +467,7 @@ describe('attribution resource access', () => {
     const { result } = await queries.getAttributionData({
       attributionUuid: 'ai',
     });
-    expect(result.packageInfo).not.toHaveProperty('aiAttributions');
+    expect(result.packageInfo.aiStatus).toStrictEqual({ deferred: false });
 
     await mutations.updateOrMatchAttributions({
       attributions: {

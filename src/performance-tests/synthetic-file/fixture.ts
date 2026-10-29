@@ -432,7 +432,21 @@ function getSyntheticPackageInfo(
           documentConfidence: 50 + (identityIndex % 51),
         }
       : undefined,
-    ...(isAi ? { aiAttributions: { humanModified: false } } : {}),
+    ...(isAi
+      ? {
+          aiAttributions: {
+            humanModified: false,
+            ...(isHighFanout || index % 2 === 0
+              ? {
+                  deferredFields: {
+                    license: 'License requires manual verification.',
+                    copyright: 'Copyright requires manual verification.',
+                  },
+                }
+              : {}),
+          },
+        }
+      : {}),
   };
 
   if (external) {

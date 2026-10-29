@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type Kysely, type Selectable, sql } from 'kysely';
+import { type Kysely, sql } from 'kysely';
 
 import type {
   AttributionNavigationRequest,
@@ -14,9 +14,13 @@ import type {
   PackageInfo,
   Relation,
 } from '../../../shared/shared-types';
-import { packageInfoFromAttributionRow } from '../../db/attributionData';
+import {
+  type AttributionWithAiStatus,
+  packageInfoWithAiStatusFromRow,
+  selectAttributionsWithAiStatus,
+} from '../../db/attribution-ai';
 import { getDb } from '../../db/db';
-import type { Attribution, DB } from '../../db/generated/databaseTypes';
+import type { DB } from '../../db/generated/databaseTypes';
 import { jsonArraySelection } from '../../db/json-array-selection';
 import { AttributionResourceAccess } from '../../types/types';
 import {
@@ -34,8 +38,6 @@ import {
 } from './attribution-list-query-utils';
 
 const DEFAULT_PAGE_SIZE = 200;
-
-type PageDetailRow = Selectable<Attribution>;
 
 type AttributionPageExecutionProps = AttributionPageRequest & {
   excludedAttributionUuids?: Array<string>;
@@ -76,9 +78,12 @@ function getCount(row: PageQueryRow) {
   return row.resource_count ?? 0;
 }
 
-function toPackageInfo(detail: PageDetailRow, row: PageQueryRow): PackageInfo {
+function toPackageInfo(
+  detail: AttributionWithAiStatus,
+  row: PageQueryRow,
+): PackageInfo {
   return {
-    ...packageInfoFromAttributionRow(detail),
+    ...packageInfoWithAiStatusFromRow(detail),
     resourceAccess: toResourceAccess(detail.resource_access),
     relation: backendToFrontendRelationship[row.relationship],
     count: getCount(row),
@@ -95,10 +100,8 @@ async function hydrateAttributionRows(
     return {};
   }
 
-  const details = await trx
-    .selectFrom('attribution')
-    .selectAll()
-    .where('uuid', 'in', jsonArraySelection(uuids))
+  const details = await selectAttributionsWithAiStatus(trx)
+    .where('attribution.uuid', 'in', jsonArraySelection(uuids))
     .execute();
   const detailsByUuid = new Map(details.map((detail) => [detail.uuid, detail]));
   const resourceCounts = await getResourceCounts(trx, uuids, resource);
@@ -153,10 +156,8 @@ export async function hydrateAttributionsByUuid(
   resourcePathForRelationships?: string,
 ): Promise<Attributions> {
   if (!resourcePathForRelationships) {
-    const details = await trx
-      .selectFrom('attribution')
-      .selectAll()
-      .where('uuid', 'in', jsonArraySelection(uuids))
+    const details = await selectAttributionsWithAiStatus(trx)
+      .where('attribution.uuid', 'in', jsonArraySelection(uuids))
       .execute();
     const detailsByUuid = new Map(
       details.map((detail) => [detail.uuid, detail]),
@@ -169,7 +170,7 @@ export async function hydrateAttributionsByUuid(
               [
                 uuid,
                 {
-                  ...packageInfoFromAttributionRow(detail),
+                  ...packageInfoWithAiStatusFromRow(detail),
                   resourceAccess: toResourceAccess(detail.resource_access),
                 },
               ],

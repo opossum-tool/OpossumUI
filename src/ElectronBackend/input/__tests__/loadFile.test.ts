@@ -8,9 +8,10 @@ import fs from 'fs';
 
 import { EMPTY_PROJECT_METADATA } from '../../../Frontend/shared-constants';
 import {
-  type Attributions,
   Criticality,
+  type PersistedAttributions,
   RawCriticality,
+  type RawPackageInfo,
   type ReadonlyRule,
   type ResourcesToAttributions,
 } from '../../../shared/shared-types';
@@ -21,6 +22,9 @@ import {
   SPLIT_INFO_FILE_NAME,
 } from '../../../shared/write-file-utils';
 import { faker } from '../../../testing/Faker';
+import { getSaveFileArgs } from '../../api/getSaveFileArgs';
+import { mutations } from '../../api/mutations';
+import { queries } from '../../api/queries';
 import { saveFile } from '../../api/saveFile';
 import { getDb } from '../../db/db';
 import type {
@@ -91,9 +95,136 @@ const inputFileContent: ParsedOpossumInputFile = {
   },
 };
 
+async function writeFileWithManualAttribution(
+  attribution: RawPackageInfo,
+): Promise<string> {
+  const path = faker.outputPath(`${faker.string.uuid()}.opossum`);
+  await writeOpossumFile({
+    path,
+    input: inputFileContent,
+    output: {
+      metadata: {
+        projectId: inputFileContent.metadata.projectId,
+        fileCreationDate: '1',
+      },
+      manualAttributions: { [manualAttributionUuid]: attribution },
+      resourcesToAttributions: { '/a': [manualAttributionUuid] },
+      resolvedExternalAttributions: [],
+    },
+  });
+  return path;
+}
+
+async function loadFileSuccessfully(path: string): Promise<LoadFileSuccess> {
+  const result = await loadFile(path);
+  expect(result.ok).toBe(true);
+  return result as LoadFileSuccess;
+}
+
 describe('loadFile', () => {
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  describe.each([
+    {
+      name: 'without deferred fields',
+      deferredFields: undefined,
+      expectedDeferred: false,
+    },
+    {
+      name: 'with empty deferred fields',
+      deferredFields: {},
+      expectedDeferred: true,
+    },
+    {
+      name: 'with nested deferred fields',
+      deferredFields: {
+        license: 'Needs review',
+        future: { nested: [1, true] },
+      },
+      expectedDeferred: true,
+    },
+  ])('AI metadata $name', ({ deferredFields, expectedDeferred }) => {
+    const metadata = {
+      humanModified: false,
+      deferredFields,
+      opaque: { kept: true },
+      deferred: { opaque: [true] },
+    };
+    const expectedSavedMetadata = { ...metadata, humanModified: true };
+    let path: string;
+
+    beforeEach(async () => {
+      path = await writeFileWithManualAttribution({
+        packageName: 'before',
+        aiAttributions: metadata,
+      });
+    });
+
+    async function editAndSaveAttribution(loadedFile: LoadFileSuccess) {
+      const { result } = await queries.getAttributionData({
+        attributionUuid: manualAttributionUuid,
+      });
+      await mutations.updateOrMatchAttributions({
+        attributions: {
+          [manualAttributionUuid]: {
+            ...result.packageInfo,
+            packageName: 'after',
+          },
+        },
+      });
+      await saveFile(
+        { projectId: loadedFile.projectId, opossumFilePath: path },
+        loadedFile.opossumZip!,
+      );
+    }
+
+    it('exposes the original AI status', async () => {
+      await loadFileSuccessfully(path);
+
+      const { result } = await queries.getAttributionData({
+        attributionUuid: manualAttributionUuid,
+      });
+
+      expect(result.packageInfo.aiStatus).toEqual({
+        humanModified: false,
+        deferred: expectedDeferred,
+      });
+    });
+
+    it('saves edited metadata without UI-only status', async () => {
+      const loadedFile = await loadFileSuccessfully(path);
+      await editAndSaveAttribution(loadedFile);
+
+      const saved = JSON.parse(
+        new AdmZip(path).readAsText(OUTPUT_FILE_NAME),
+      ) as OpossumOutputFile;
+      const attribution = saved.manualAttributions[manualAttributionUuid];
+      expect(attribution.packageName).toBe('after');
+      expect(attribution.aiAttributions).toEqual(expectedSavedMetadata);
+      expect(attribution).not.toHaveProperty('aiStatus');
+    });
+
+    it('restores edited status and full metadata after reloading', async () => {
+      const loadedFile = await loadFileSuccessfully(path);
+      await editAndSaveAttribution(loadedFile);
+
+      await loadFileSuccessfully(path);
+
+      const { result } = await queries.getAttributionData({
+        attributionUuid: manualAttributionUuid,
+      });
+      expect(result.packageInfo.packageName).toBe('after');
+      expect(result.packageInfo.aiStatus).toEqual({
+        humanModified: true,
+        deferred: expectedDeferred,
+      });
+      const { result: saveArgs } = await getSaveFileArgs();
+      expect(
+        saveArgs.manualAttributions[manualAttributionUuid].aiAttributions,
+      ).toEqual(expectedSavedMetadata);
+    });
   });
 
   it('loads .opossum file without output and creates one', async () => {
@@ -355,7 +486,7 @@ describe('loadFile', () => {
   });
 
   it('creates no manual attributions when none are preselected', () => {
-    const externalAttributions: Attributions = {
+    const externalAttributions: PersistedAttributions = {
       unselected: {
         id: 'unselected',
         criticality: Criticality.None,
@@ -388,7 +519,7 @@ describe('loadFile', () => {
       enumerable: true,
       get: getUnselectedMetadata,
     });
-    const externalAttributions: Attributions = {
+    const externalAttributions: PersistedAttributions = {
       selected: {
         id: 'selected',
         criticality: Criticality.None,
@@ -437,7 +568,7 @@ describe('loadFile', () => {
   });
 
   it('creates manual output for all selected attributions', () => {
-    const externalAttributions: Attributions = {
+    const externalAttributions: PersistedAttributions = {
       selected: {
         id: 'selected',
         criticality: Criticality.None,

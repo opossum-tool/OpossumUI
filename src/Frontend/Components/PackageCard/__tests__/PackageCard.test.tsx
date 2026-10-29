@@ -12,6 +12,51 @@ import { renderComponent } from '../../../test-helpers/render';
 import { PackageCard } from '../PackageCard';
 
 describe('The PackageCard', () => {
+  it.each([
+    { name: 'ordinary attribution', aiStatus: undefined, expected: [] },
+    {
+      name: 'AI attribution without flags',
+      aiStatus: { deferred: false },
+      expected: ['AI generated icon'],
+    },
+    {
+      name: 'unmodified AI attribution',
+      aiStatus: { humanModified: false, deferred: false },
+      expected: ['AI generated icon'],
+    },
+    {
+      name: 'human-modified AI attribution',
+      aiStatus: { humanModified: true, deferred: false },
+      expected: ['AI generated icon', 'Human-modified AI icon'],
+    },
+    {
+      name: 'deferred attribution',
+      aiStatus: { deferred: true },
+      expected: ['Deferred AI icon'],
+    },
+    {
+      name: 'unmodified deferred attribution',
+      aiStatus: { humanModified: false, deferred: true },
+      expected: ['Deferred AI icon'],
+    },
+    {
+      name: 'human-modified deferred attribution',
+      aiStatus: { humanModified: true, deferred: true },
+      expected: ['Deferred AI icon', 'Human-modified AI icon'],
+    },
+  ])('renders AI status symbols for $name', async ({ aiStatus, expected }) => {
+    await renderComponent(
+      <PackageCard packageInfo={faker.opossum.packageInfo({ aiStatus })} />,
+    );
+
+    const icons = screen.queryAllByLabelText(
+      /^(AI generated|Human-modified AI|Deferred AI) icon$/,
+    );
+    expect(icons.map((icon) => icon.getAttribute('aria-label'))).toEqual(
+      expected,
+    );
+  });
+
   it('renders with preferred icon', async () => {
     await renderComponent(
       <PackageCard

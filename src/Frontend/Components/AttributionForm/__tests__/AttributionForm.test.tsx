@@ -13,6 +13,7 @@ import {
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import { OpossumColors } from '../../../shared-styles';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
@@ -492,6 +493,135 @@ describe('AttributionForm', () => {
         expect(classificationChip).toHaveTextContent('C');
       });
     });
+
+    it('explains the Deferred badge when hovering its label', async () => {
+      const packageInfo = faker.opossum.packageInfo({
+        aiStatus: { deferred: true },
+      });
+      await renderComponent(<AttributionForm packageInfo={packageInfo} />);
+      const badge = screen.getByTestId('auditing-option-deferred');
+
+      await userEvent.hover(
+        within(badge).getByText(text.auditingOptions.deferred),
+      );
+
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(
+        text.auditingOptions.deferredTooltip,
+      );
+      expect(badge).toHaveAccessibleDescription(
+        text.auditingOptions.deferredTooltip,
+      );
+    });
+
+    it.each([
+      {
+        name: 'ordinary attribution',
+        aiStatus: undefined,
+        expected: [],
+        expectedIcons: [],
+      },
+      {
+        name: 'AI attribution without flags',
+        aiStatus: { deferred: false },
+        expected: [text.auditingOptions.aiGenerated],
+        expectedIcons: ['AI generated icon'],
+      },
+      {
+        name: 'unmodified AI attribution without deferred fields',
+        aiStatus: { humanModified: false, deferred: false },
+        expected: [text.auditingOptions.aiGenerated],
+        expectedIcons: ['AI generated icon'],
+      },
+      {
+        name: 'human-modified attribution without deferred fields',
+        aiStatus: { humanModified: true, deferred: false },
+        expected: [
+          text.auditingOptions.aiGenerated,
+          text.auditingOptions.humanModified,
+        ],
+        expectedIcons: ['AI generated icon', 'Human-modified AI icon'],
+      },
+      {
+        name: 'deferred attribution without a human-modified flag',
+        aiStatus: { deferred: true },
+        expected: [text.auditingOptions.deferred],
+        expectedIcons: ['Deferred AI icon'],
+      },
+      {
+        name: 'unmodified attribution with deferred fields',
+        aiStatus: { humanModified: false, deferred: true },
+        expected: [text.auditingOptions.deferred],
+        expectedIcons: ['Deferred AI icon'],
+      },
+      {
+        name: 'human-modified attribution with deferred fields',
+        aiStatus: { humanModified: true, deferred: true },
+        expected: [
+          text.auditingOptions.deferred,
+          text.auditingOptions.humanModified,
+        ],
+        expectedIcons: ['Deferred AI icon', 'Human-modified AI icon'],
+      },
+    ])(
+      'shows the expected AI badges for $name',
+      async ({ aiStatus, expected, expectedIcons }) => {
+        const packageInfo = faker.opossum.packageInfo({ aiStatus });
+        await renderComponent(<AttributionForm packageInfo={packageInfo} />, {
+          data: getParsedInputFileEnrichedWithTestData({}),
+        });
+
+        const badges = screen.queryAllByTestId(
+          /^auditing-option-(ai-generated|human-modified|deferred)$/,
+        );
+        expect(badges.map((badge) => badge.textContent)).toEqual(expected);
+        const icons = screen.queryAllByLabelText(
+          /^(AI generated|Human-modified AI|Deferred AI) icon$/,
+        );
+        expect(icons.map((icon) => icon.getAttribute('aria-label'))).toEqual(
+          expectedIcons,
+        );
+      },
+    );
+
+    it.each([
+      {
+        id: 'ai-generated',
+        aiStatus: { deferred: false },
+        iconLabel: 'AI generated icon',
+        backgroundColor: OpossumColors.lightBlue,
+        iconColor: OpossumColors.darkBlue,
+      },
+      {
+        id: 'human-modified',
+        aiStatus: { humanModified: true, deferred: false },
+        iconLabel: 'Human-modified AI icon',
+        backgroundColor: OpossumColors.lightBlue,
+        iconColor: OpossumColors.darkBlue,
+      },
+      {
+        id: 'deferred',
+        aiStatus: { deferred: true },
+        iconLabel: 'Deferred AI icon',
+        backgroundColor: OpossumColors.mediumOrange,
+        iconColor: OpossumColors.black,
+      },
+    ])(
+      'uses the expected colors and icon for the $id badge',
+      async ({ id, aiStatus, iconLabel, backgroundColor, iconColor }) => {
+        await renderComponent(
+          <AttributionForm
+            packageInfo={faker.opossum.packageInfo({ aiStatus })}
+          />,
+          { data: getParsedInputFileEnrichedWithTestData({}) },
+        );
+
+        const badge = screen.getByTestId(`auditing-option-${id}`);
+        expect(badge).toHaveStyle({ backgroundColor });
+        expect(within(badge).getByLabelText(iconLabel)).toHaveStyle({
+          color: iconColor,
+        });
+      },
+    );
   });
 
   describe('url handling', () => {

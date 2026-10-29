@@ -5,10 +5,10 @@
 import { pickBy } from 'lodash-es';
 
 import {
-  type Attributions,
   type BaseUrlsForSources,
   Criticality,
   type FrequentLicenses,
+  type PersistedAttributions,
   type RawAttributions,
   RawCriticality,
   type ResourcesToAttributions,
@@ -33,7 +33,9 @@ describe('deserializeAttributions', () => {
       },
     };
 
-    expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
+    expect(
+      deserializeAttributions(rawAttributions),
+    ).toEqual<PersistedAttributions>({
       id: {
         id: 'id',
         criticality: Criticality.None,
@@ -52,7 +54,9 @@ describe('deserializeAttributions', () => {
       },
     };
 
-    expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
+    expect(
+      deserializeAttributions(rawAttributions),
+    ).toEqual<PersistedAttributions>({
       id: {
         id: 'id',
         criticality: Criticality.None,
@@ -70,7 +74,9 @@ describe('deserializeAttributions', () => {
       },
     };
 
-    expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
+    expect(
+      deserializeAttributions(rawAttributions),
+    ).toEqual<PersistedAttributions>({
       id: {
         id: 'id',
         criticality: Criticality.None,
@@ -89,7 +95,9 @@ describe('deserializeAttributions', () => {
       },
     };
 
-    expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
+    expect(
+      deserializeAttributions(rawAttributions),
+    ).toEqual<PersistedAttributions>({
       id: {
         id: 'id',
         criticality: Criticality.None,
@@ -107,7 +115,9 @@ describe('deserializeAttributions', () => {
       },
     };
 
-    expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
+    expect(
+      deserializeAttributions(rawAttributions),
+    ).toEqual<PersistedAttributions>({
       id: {
         id: 'id',
         criticality: Criticality.High,
@@ -125,7 +135,9 @@ describe('deserializeAttributions', () => {
       },
     };
 
-    expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
+    expect(
+      deserializeAttributions(rawAttributions),
+    ).toEqual<PersistedAttributions>({
       id: {
         id: 'id',
         originalAttributionId: 'id',
@@ -163,7 +175,9 @@ describe('deserializeAttributions', () => {
       },
     };
 
-    expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
+    expect(
+      deserializeAttributions(rawAttributions),
+    ).toEqual<PersistedAttributions>({
       uuid: {
         originIds: ['abc'],
         id: 'uuid',
@@ -182,7 +196,9 @@ describe('deserializeAttributions', () => {
       },
     };
 
-    expect(deserializeAttributions(rawAttributions)).toEqual<Attributions>({
+    expect(
+      deserializeAttributions(rawAttributions),
+    ).toEqual<PersistedAttributions>({
       uuid: {
         originIds: ['abc', 'cde'],
         id: 'uuid',
@@ -204,7 +220,7 @@ describe('deserializeAttributions', () => {
         originIds: [originId],
       },
     };
-    const originalAttributions: Attributions = {
+    const originalAttributions: PersistedAttributions = {
       [originalAttributionId]: {
         packageName: faker.word.noun(),
         wasPreferred: true,
@@ -217,7 +233,7 @@ describe('deserializeAttributions', () => {
 
     expect(
       deserializeAttributions(rawAttributions, originalAttributions),
-    ).toEqual<Attributions>({
+    ).toEqual<PersistedAttributions>({
       [attributionId]: {
         packageName: rawAttributions[attributionId].packageName,
         originIds: [originId],
@@ -238,7 +254,7 @@ describe('deserializeAttributions', () => {
         originIds: ['second-origin', 'first-origin'],
       },
     };
-    const originalAttributions: Attributions = {
+    const originalAttributions: PersistedAttributions = {
       first: {
         id: 'first',
         originIds: ['first-origin', 'shared-origin'],
@@ -262,7 +278,7 @@ describe('deserializeAttributions', () => {
         originIds: ['shared-origin'],
       },
     };
-    const originalAttributions: Attributions = {
+    const originalAttributions: PersistedAttributions = {
       first: {
         id: 'first',
         originIds: ['shared-origin'],
@@ -282,8 +298,22 @@ describe('deserializeAttributions', () => {
 });
 
 describe('serializeAttributions', () => {
+  it('excludes derived status while preserving opaque AI metadata', () => {
+    const aiAttributions = { deferred: { opaque: true }, model: 'kept' };
+    const attribution = faker.opossum.persistedPackageInfo({ aiAttributions });
+    const serialized = serializeAttributions({
+      [attribution.id]: {
+        ...attribution,
+        ...{ aiStatus: { deferred: true, humanModified: true } },
+      },
+    })[attribution.id];
+
+    expect(serialized.aiAttributions).toEqual(aiAttributions);
+    expect(serialized).not.toHaveProperty('aiStatus');
+  });
+
   it('removes source', () => {
-    const attributions: Attributions = {
+    const attributions: PersistedAttributions = {
       id: {
         id: 'id',
         source: faker.opossum.source(),
@@ -381,8 +411,8 @@ describe('parseFrequentLicenses', () => {
 
 describe('mergeAttributions', () => {
   it('merges attributions that are similar and attached to the same resources', () => {
-    const packageInfo1 = faker.opossum.packageInfo();
-    const packageInfo2 = faker.opossum.packageInfo({
+    const packageInfo1 = faker.opossum.persistedPackageInfo();
+    const packageInfo2 = faker.opossum.persistedPackageInfo({
       ...packageInfo1,
       attributionConfidence: faker.number.int(100),
       comment: faker.lorem.sentence(),
@@ -410,21 +440,21 @@ describe('mergeAttributions', () => {
       resourcesToAttributions,
     });
 
-    expect(mergedAttributions).toEqual<[Attributions, ResourcesToAttributions]>(
-      [
-        {
-          [packageInfo1.id]: mergePackageInfos(packageInfo1, packageInfo2),
-        },
-        {
-          [filePath]: [packageInfo1.id],
-        },
-      ],
-    );
+    expect(mergedAttributions).toEqual<
+      [PersistedAttributions, ResourcesToAttributions]
+    >([
+      {
+        [packageInfo1.id]: mergePackageInfos(packageInfo1, packageInfo2),
+      },
+      {
+        [filePath]: [packageInfo1.id],
+      },
+    ]);
   });
 
   it('does not merge attributions that are similar but attached to different resources', () => {
-    const packageInfo1 = faker.opossum.packageInfo();
-    const packageInfo2 = faker.opossum.packageInfo({
+    const packageInfo1 = faker.opossum.persistedPackageInfo();
+    const packageInfo2 = faker.opossum.persistedPackageInfo({
       ...packageInfo1,
       attributionConfidence: faker.number.int(100),
       comment: faker.lorem.sentence(),
@@ -454,14 +484,14 @@ describe('mergeAttributions', () => {
       resourcesToAttributions,
     });
 
-    expect(mergedAttributions).toEqual<[Attributions, ResourcesToAttributions]>(
-      [attributions, resourcesToAttributions],
-    );
+    expect(mergedAttributions).toEqual<
+      [PersistedAttributions, ResourcesToAttributions]
+    >([attributions, resourcesToAttributions]);
   });
 
   it('does not merge attributions that are not similar but attached to the same resources', () => {
-    const packageInfo1 = faker.opossum.packageInfo();
-    const packageInfo2 = faker.opossum.packageInfo();
+    const packageInfo1 = faker.opossum.persistedPackageInfo();
+    const packageInfo2 = faker.opossum.persistedPackageInfo();
     const filePath = faker.system.filePath();
     const attributionsToResources = faker.opossum.attributionsToResources({
       [packageInfo1.id]: [filePath],
@@ -481,18 +511,18 @@ describe('mergeAttributions', () => {
       resourcesToAttributions,
     });
 
-    expect(mergedAttributions).toEqual<[Attributions, ResourcesToAttributions]>(
-      [attributions, resourcesToAttributions],
-    );
+    expect(mergedAttributions).toEqual<
+      [PersistedAttributions, ResourcesToAttributions]
+    >([attributions, resourcesToAttributions]);
   });
 });
 
 describe('mergePackageInfos', () => {
   it('chooses lower confidence', () => {
-    const packageInfo1 = faker.opossum.packageInfo({
+    const packageInfo1 = faker.opossum.persistedPackageInfo({
       attributionConfidence: faker.number.int(100),
     });
-    const packageInfo2 = faker.opossum.packageInfo({
+    const packageInfo2 = faker.opossum.persistedPackageInfo({
       attributionConfidence: packageInfo1.attributionConfidence! + 1,
     });
 
@@ -502,10 +532,10 @@ describe('mergePackageInfos', () => {
   });
 
   it('handles undefined confidence', () => {
-    const packageInfo1 = faker.opossum.packageInfo({
+    const packageInfo1 = faker.opossum.persistedPackageInfo({
       attributionConfidence: undefined,
     });
-    const packageInfo2 = faker.opossum.packageInfo({
+    const packageInfo2 = faker.opossum.persistedPackageInfo({
       attributionConfidence: faker.number.int(100),
     });
 
@@ -515,10 +545,10 @@ describe('mergePackageInfos', () => {
   });
 
   it('concatenates comments', () => {
-    const packageInfo1 = faker.opossum.packageInfo({
+    const packageInfo1 = faker.opossum.persistedPackageInfo({
       comment: faker.lorem.sentence(),
     });
-    const packageInfo2 = faker.opossum.packageInfo({
+    const packageInfo2 = faker.opossum.persistedPackageInfo({
       comment: faker.lorem.sentence(),
     });
 
@@ -528,10 +558,10 @@ describe('mergePackageInfos', () => {
   });
 
   it('concatenates origin IDs', () => {
-    const packageInfo1 = faker.opossum.packageInfo({
+    const packageInfo1 = faker.opossum.persistedPackageInfo({
       originIds: [faker.string.uuid()],
     });
-    const packageInfo2 = faker.opossum.packageInfo({
+    const packageInfo2 = faker.opossum.persistedPackageInfo({
       originIds: [faker.string.uuid()],
     });
 
@@ -543,10 +573,10 @@ describe('mergePackageInfos', () => {
 
   it('deduplicates origin IDs', () => {
     const originId = faker.string.uuid();
-    const packageInfo1 = faker.opossum.packageInfo({
+    const packageInfo1 = faker.opossum.persistedPackageInfo({
       originIds: [originId],
     });
-    const packageInfo2 = faker.opossum.packageInfo({
+    const packageInfo2 = faker.opossum.persistedPackageInfo({
       originIds: [originId],
     });
 
@@ -557,10 +587,10 @@ describe('mergePackageInfos', () => {
 
   it('handles undefined origin IDs', () => {
     const originId = faker.string.uuid();
-    const packageInfo1 = faker.opossum.packageInfo({
+    const packageInfo1 = faker.opossum.persistedPackageInfo({
       originIds: undefined,
     });
-    const packageInfo2 = faker.opossum.packageInfo({
+    const packageInfo2 = faker.opossum.persistedPackageInfo({
       originIds: [originId],
     });
 
@@ -570,10 +600,10 @@ describe('mergePackageInfos', () => {
   });
 
   it('makes merged package info pre-selected if at least one input package info is pre-selected', () => {
-    const packageInfo1 = faker.opossum.packageInfo({
+    const packageInfo1 = faker.opossum.persistedPackageInfo({
       preSelected: true,
     });
-    const packageInfo2 = faker.opossum.packageInfo({
+    const packageInfo2 = faker.opossum.persistedPackageInfo({
       preSelected: false,
     });
 
@@ -583,10 +613,10 @@ describe('mergePackageInfos', () => {
   });
 
   it('does not make merged package info pre-selected if no input package info is pre-selected', () => {
-    const packageInfo1 = faker.opossum.packageInfo({
+    const packageInfo1 = faker.opossum.persistedPackageInfo({
       preSelected: undefined,
     });
-    const packageInfo2 = faker.opossum.packageInfo({
+    const packageInfo2 = faker.opossum.persistedPackageInfo({
       preSelected: false,
     });
 
@@ -596,10 +626,10 @@ describe('mergePackageInfos', () => {
   });
 
   it('makes merged package info previously-preferred if at least one input package info is previously-preferred', () => {
-    const packageInfo1 = faker.opossum.packageInfo({
+    const packageInfo1 = faker.opossum.persistedPackageInfo({
       wasPreferred: true,
     });
-    const packageInfo2 = faker.opossum.packageInfo({
+    const packageInfo2 = faker.opossum.persistedPackageInfo({
       wasPreferred: false,
     });
 
@@ -609,10 +639,10 @@ describe('mergePackageInfos', () => {
   });
 
   it('does not make merged package info previously-preferred if no input package info is previously-preferred', () => {
-    const packageInfo1 = faker.opossum.packageInfo({
+    const packageInfo1 = faker.opossum.persistedPackageInfo({
       wasPreferred: undefined,
     });
-    const packageInfo2 = faker.opossum.packageInfo({
+    const packageInfo2 = faker.opossum.persistedPackageInfo({
       wasPreferred: false,
     });
 
@@ -622,8 +652,8 @@ describe('mergePackageInfos', () => {
   });
 
   it('takes attribute value from first candidate for all keys that are relevant for uniqueness', () => {
-    const packageInfo1 = faker.opossum.packageInfo();
-    const packageInfo2 = faker.opossum.packageInfo();
+    const packageInfo1 = faker.opossum.persistedPackageInfo();
+    const packageInfo2 = faker.opossum.persistedPackageInfo();
 
     expect(
       pickBy(

@@ -38,6 +38,7 @@ describe('The Icons', () => {
     vi.runOnlyPendingTimers();
     vi.useRealTimers();
   });
+
   it('renders ExcludeFromNoticeIcon', () => {
     render(<ExcludeFromNoticeIcon />);
 

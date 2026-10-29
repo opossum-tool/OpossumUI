@@ -2,17 +2,61 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { Kysely, Transaction } from 'kysely';
+import type { Kysely, Selectable, SqlBool, Transaction } from 'kysely';
 
 import {
   type AttributionContent,
   getEffectiveHumanModified,
 } from '../../shared/attribution-comparison';
+import type { PackageInfo } from '../../shared/shared-types';
 import {
   ATTRIBUTION_CONTENT_COLUMNS,
   attributionContentFromRow,
+  packageInfoFromAttributionRow,
 } from './attributionData';
-import type { DB } from './generated/databaseTypes';
+import type { Attribution, DB } from './generated/databaseTypes';
+
+export type AttributionWithAiStatus = Selectable<Attribution> & {
+  ai_attribution_uuid: string | null;
+  ai_human_modified: number | null;
+  ai_deferred: SqlBool;
+};
+
+export function selectAttributionsWithAiStatus(db: Kysely<DB>) {
+  return db
+    .selectFrom('attribution')
+    .leftJoin(
+      'attribution_ai',
+      'attribution.uuid',
+      'attribution_ai.attribution_uuid',
+    )
+    .selectAll('attribution')
+    .select([
+      'attribution_ai.attribution_uuid as ai_attribution_uuid',
+      'attribution_ai.human_modified as ai_human_modified',
+    ])
+    .select((eb) =>
+      eb('attribution_ai.deferred_fields', 'is not', null).as('ai_deferred'),
+    );
+}
+
+export function packageInfoWithAiStatusFromRow(
+  row: AttributionWithAiStatus,
+): PackageInfo {
+  return {
+    ...packageInfoFromAttributionRow(row),
+    ...(row.ai_attribution_uuid === null
+      ? {}
+      : {
+          aiStatus: {
+            ...(row.ai_human_modified === null
+              ? {}
+              : { humanModified: Boolean(row.ai_human_modified) }),
+            deferred: Boolean(row.ai_deferred),
+          },
+        }),
+  };
+}
 
 export async function copyAttributionAi(
   trx: Transaction<DB>,
@@ -21,13 +65,19 @@ export async function copyAttributionAi(
 ) {
   await trx
     .insertInto('attribution_ai')
-    .columns(['attribution_uuid', 'additional_data', 'human_modified'])
+    .columns([
+      'attribution_uuid',
+      'additional_data',
+      'deferred_fields',
+      'human_modified',
+    ])
     .expression((eb) =>
       eb
         .selectFrom('attribution_ai')
         .select([
           eb.val(targetUuid).as('attribution_uuid'),
           'additional_data',
+          'deferred_fields',
           'human_modified',
         ])
         .where('attribution_uuid', '=', sourceUuid),
@@ -50,6 +100,7 @@ export async function createAttributionAiFromSource(
     .select(ATTRIBUTION_CONTENT_COLUMNS)
     .select([
       'attribution_ai.additional_data as ai_additional_data',
+      'attribution_ai.deferred_fields',
       'attribution_ai.human_modified',
     ])
     .where('attribution.uuid', '=', sourceUuid)
@@ -69,6 +120,7 @@ export async function createAttributionAiFromSource(
     .values({
       attribution_uuid: target.id,
       additional_data: source.ai_additional_data,
+      deferred_fields: source.deferred_fields,
       human_modified:
         humanModified === undefined ? null : Number(humanModified),
     })

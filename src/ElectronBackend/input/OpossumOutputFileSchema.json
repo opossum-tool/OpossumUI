@@ -32,7 +32,12 @@
             "type": "object",
             "description": "Opaque AI attribution metadata preserved when the file is loaded and saved.",
             "properties": {
-              "humanModified": { "type": "boolean" }
+              "humanModified": { "type": "boolean" },
+              "deferredFields": {
+                "type": "object",
+                "description": "Opaque metadata describing deferred fields.",
+                "additionalProperties": true
+              }
             },
             "additionalProperties": true
           },

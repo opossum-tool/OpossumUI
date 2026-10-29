@@ -21,10 +21,13 @@ import { prettifySource } from '../../../util/prettify-source';
 import { useClassifications } from '../../../util/use-classifications';
 import { useCompareToOriginal } from '../../../util/use-compare-to-original';
 import {
+  AiGeneratedIcon,
   ClassificationIcon,
   CriticalityIcon,
+  DeferredIcon,
   ExcludeFromNoticeIcon,
   FollowUpIcon,
+  HumanModifiedIcon,
   ModifiedPreferredIcon,
   NeedsReviewIcon,
   PreferredIcon,
@@ -38,11 +41,21 @@ import type { AuditingPropertiesPatch } from './AuditingOptions.types';
 interface AuditingOption extends SelectMenuOption {
   id: string;
   interactive: boolean;
+  chipSx?: SxProps<Theme>;
+  tooltip?: string;
 }
 
 const satisfactionIconClass = {
   width: auditingOptionIconSize,
   height: auditingOptionIconSize,
+} satisfies SxProps<Theme>;
+
+const aiAttributionChipClass = {
+  backgroundColor: OpossumColors.lightBlue,
+} satisfies SxProps<Theme>;
+
+const deferredChipClass = {
+  backgroundColor: OpossumColors.mediumOrange,
 } satisfies SxProps<Theme>;
 
 export function useAuditingOptions({
@@ -94,6 +107,36 @@ export function useAuditingOptions({
 
   return useMemo<Array<AuditingOption>>(
     () => [
+      {
+        id: 'ai-generated',
+        label: text.auditingOptions.aiGenerated,
+        icon: <AiGeneratedIcon noTooltip />,
+        selected: !!packageInfo.aiStatus && !packageInfo.aiStatus.deferred,
+        interactive: false,
+        chipSx: aiAttributionChipClass,
+      },
+      {
+        id: 'deferred',
+        label: text.auditingOptions.deferred,
+        tooltip: text.auditingOptions.deferredTooltip,
+        icon: (
+          <DeferredIcon
+            noTooltip
+            sx={{ color: `${OpossumColors.black} !important` }}
+          />
+        ),
+        selected: !!packageInfo.aiStatus?.deferred,
+        interactive: false,
+        chipSx: deferredChipClass,
+      },
+      {
+        id: 'human-modified',
+        label: text.auditingOptions.humanModified,
+        icon: <HumanModifiedIcon noTooltip />,
+        selected: !!packageInfo.aiStatus?.humanModified,
+        interactive: false,
+        chipSx: aiAttributionChipClass,
+      },
       {
         id: 'preferred',
         label: text.auditingOptions.currentlyPreferred,
@@ -250,6 +293,7 @@ export function useAuditingOptions({
       compareToOriginal,
       isEditable,
       isPreferenceFeatureEnabled,
+      packageInfo.aiStatus,
       packageInfo.attributionConfidence,
       packageInfo.classification,
       packageInfo.criticality,

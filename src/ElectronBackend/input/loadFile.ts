@@ -8,7 +8,7 @@ import { cloneDeep } from 'lodash-es';
 import { v4 as uuid4 } from 'uuid';
 
 import type {
-  Attributions,
+  PersistedAttributions,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { saveFile } from '../api/saveFile';
@@ -186,7 +186,7 @@ function mergeExternalAttributions(
   parsedInputData: ParsedOpossumInputFile,
   reportProgress: LoadFileProgressCallback,
 ): {
-  externalAttributions: Attributions;
+  externalAttributions: PersistedAttributions;
   resourcesToExternalAttributions: ResourcesToAttributions;
 } {
   reportProgress('Deserializing signals');
@@ -213,11 +213,11 @@ function mergeExternalAttributions(
 }
 
 export function createOpossumOutputFile(
-  externalAttributions: Attributions,
+  externalAttributions: PersistedAttributions,
   resourcesToExternalAttributions: ResourcesToAttributions,
   projectId: string,
 ): OpossumOutputFile {
-  const manualAttributions: Attributions = {};
+  const manualAttributions: PersistedAttributions = {};
   const manualAttributionIdsToExternalAttributionIds: {
     [attributionId: string]: string;
   } = {};

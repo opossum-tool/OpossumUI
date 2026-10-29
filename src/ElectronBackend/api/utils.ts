@@ -820,6 +820,7 @@ export async function matchAttribution(
     .select([
       'attribution_ai.additional_data as ai_additional_data',
       'attribution_ai.human_modified as ai_human_modified',
+      'attribution_ai.deferred_fields',
     ])
     .where('is_external', '=', 0)
     .$if(!options?.ignorePreSelected, (eb) => eb.where('pre_selected', '=', 0))
@@ -876,12 +877,16 @@ export async function matchAttribution(
       ...ATTRIBUTION_CONTENT_COLUMNS,
       'attribution_ai.additional_data as ai_additional_data',
       'attribution_ai.human_modified',
+      'attribution_ai.deferred_fields',
     ])
     .where('attribution.uuid', '=', packageInfo.id)
     .executeTakeFirst();
   const sourceIsAi = Boolean(sourceRow?.ai_additional_data);
   const sourceOpaqueMetadata = sourceRow?.ai_additional_data
     ? JSON.parse(sourceRow.ai_additional_data)
+    : undefined;
+  const sourceDeferredFields = sourceRow?.deferred_fields
+    ? JSON.parse(sourceRow.deferred_fields)
     : undefined;
   const effectiveHumanModified = sourceRow?.ai_additional_data
     ? getEffectiveHumanModified(
@@ -910,6 +915,12 @@ export async function matchAttribution(
       !isDeepStrictEqual(
         sourceOpaqueMetadata,
         JSON.parse(matchingAttribution.ai_additional_data!),
+      ) ||
+      !isDeepStrictEqual(
+        sourceDeferredFields,
+        matchingAttribution.deferred_fields === null
+          ? undefined
+          : JSON.parse(matchingAttribution.deferred_fields),
       )
     ) {
       continue;
