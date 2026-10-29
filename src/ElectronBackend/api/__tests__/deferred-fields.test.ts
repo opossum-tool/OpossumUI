@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { Attributions } from '../../../shared/shared-types';
 import { getSaveFileArgs } from '../getSaveFileArgs';
 import { mutations } from '../mutations';
 import { queries } from '../queries';
@@ -12,9 +13,25 @@ import {
 } from './ai-attribution-test-helpers';
 
 describe('deferred fields', () => {
-  it.each(['local save', 'mixed attribution edit'])(
-    'preserves reasons when copying metadata for a %s',
-    async (operation) => {
+  it.each([
+    {
+      name: 'local save',
+      readonlyRules: [],
+      modify: (attributions: Attributions) =>
+        mutations.modifyOrMatchOnlyOnOneResource({
+          resourcePath: '/source',
+          attributions,
+        }),
+    },
+    {
+      name: 'mixed attribution edit',
+      readonlyRules: [{ path: '/other', readonly: true }],
+      modify: (attributions: Attributions) =>
+        mutations.updateAttributions({ attributions }),
+    },
+  ])(
+    'preserves reasons when copying metadata for a $name',
+    async ({ readonlyRules, modify }) => {
       const metadata = {
         humanModified: false,
         deferredFields: {
@@ -33,23 +50,13 @@ describe('deferred fields', () => {
           }),
         },
         resourceLinks: { '/source': ['shared'], '/other': ['shared'] },
-        readonlyRules:
-          operation === 'mixed attribution edit'
-            ? [{ path: '/other', readonly: true }]
-            : [],
+        readonlyRules,
       });
       const attributions = {
         shared: attributionFixture('shared', { packageName: 'after' }),
       };
 
-      if (operation === 'local save') {
-        await mutations.modifyOrMatchOnlyOnOneResource({
-          resourcePath: '/source',
-          attributions,
-        });
-      } else {
-        await mutations.updateAttributions({ attributions });
-      }
+      await modify(attributions);
 
       const [copyUuid] = await linkedAttributionIds('/source');
       expect(copyUuid).not.toBe('shared');
@@ -75,41 +82,41 @@ describe('deferred fields', () => {
       name: 'equivalent objects with reordered keys',
       source: { license: 'Review license', name: 'Review name' },
       target: { name: 'Review name', license: 'Review license' },
-      matches: true,
+      expectedSourceLinks: ['target'],
     },
     {
       name: 'different reasons',
       source: { license: 'First reason' },
       target: { license: 'Second reason' },
-      matches: false,
+      expectedSourceLinks: ['source'],
     },
     {
       name: 'different unknown nested contents',
       source: { future: { nested: [1, true] } },
       target: { future: { nested: [2, true] } },
-      matches: false,
+      expectedSourceLinks: ['source'],
     },
     {
       name: 'absent source and empty target',
       source: undefined,
       target: {},
-      matches: false,
+      expectedSourceLinks: ['source'],
     },
     {
       name: 'empty source and absent target',
       source: {},
       target: undefined,
-      matches: false,
+      expectedSourceLinks: ['source'],
     },
     {
       name: 'two empty objects',
       source: {},
       target: {},
-      matches: true,
+      expectedSourceLinks: ['target'],
     },
   ])(
     'matches attributions correctly for $name',
-    async ({ source, target, matches }) => {
+    async ({ source, target, expectedSourceLinks }) => {
       await initializeAiAttributionFixture({
         resourcePaths: ['/source', '/target'],
         attributions: {
@@ -141,9 +148,9 @@ describe('deferred fields', () => {
         },
       });
 
-      expect(await linkedAttributionIds('/source')).toEqual([
-        matches ? 'target' : 'source',
-      ]);
+      expect(await linkedAttributionIds('/source')).toEqual(
+        expectedSourceLinks,
+      );
       expect(await linkedAttributionIds('/target')).toEqual(['target']);
     },
   );

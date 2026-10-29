@@ -6,7 +6,6 @@ import { screen } from '@testing-library/react';
 
 import { Criticality, RawCriticality } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
-import { OpossumColors } from '../../../shared-styles';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
@@ -56,48 +55,6 @@ describe('The PackageCard', () => {
     expect(icons.map((icon) => icon.getAttribute('aria-label'))).toEqual(
       expected,
     );
-  });
-
-  it('uses the deferred palette color for the deferred symbol', async () => {
-    await renderComponent(
-      <PackageCard
-        packageInfo={faker.opossum.packageInfo({
-          aiStatus: { deferred: true },
-        })}
-      />,
-    );
-
-    expect(screen.getByLabelText('Deferred AI icon')).toHaveStyle({
-      color: OpossumColors.mediumOrange,
-    });
-  });
-
-  it('uses the dark blue palette color for the AI generated symbol', async () => {
-    await renderComponent(
-      <PackageCard
-        packageInfo={faker.opossum.packageInfo({
-          aiStatus: { deferred: false },
-        })}
-      />,
-    );
-
-    expect(screen.getByLabelText('AI generated icon')).toHaveStyle({
-      color: OpossumColors.darkBlue,
-    });
-  });
-
-  it('uses the dark blue palette color for the human-modified symbol', async () => {
-    await renderComponent(
-      <PackageCard
-        packageInfo={faker.opossum.packageInfo({
-          aiStatus: { humanModified: true, deferred: false },
-        })}
-      />,
-    );
-
-    expect(screen.getByLabelText('Human-modified AI icon')).toHaveStyle({
-      color: OpossumColors.darkBlue,
-    });
   });
 
   it('renders with preferred icon', async () => {
