@@ -11,6 +11,7 @@ import { PopupType } from '../../enums/enums';
 import {
   exportFileOrOpenUnsavedPopup,
   openFileOrOpenUnsavedPopup,
+  quitAppOrOpenUnsavedPopup,
   showImportDialogOrOpenUnsavedPopup,
   showMergeOpossumFilesDialogOrOpenUnsavedPopup,
   showSplitDialogOrOpenUnsavedPopup,
@@ -23,6 +24,7 @@ import {
   type ExportFileRequestListener,
   type LoggingListener,
   type OpenFileListener,
+  type RequestQuitApprovalListener,
   type SetBaseURLForRootListener,
   type SetDatabaseInitializedListener,
   type ShowImportDialogListener,
@@ -132,6 +134,14 @@ export const BackendCommunication: React.FC = () => {
   useIpcRenderer(
     AllowedFrontendChannels.ShowForceUnlockDialog,
     () => dispatch(openPopup(PopupType.ForceUnlockPopup)),
+    [dispatch],
+  );
+  useIpcRenderer<RequestQuitApprovalListener>(
+    AllowedFrontendChannels.RequestQuitApproval,
+    () => {
+      window.electronAPI.quitRequestHandled();
+      void dispatch(quitAppOrOpenUnsavedPopup());
+    },
     [dispatch],
   );
 

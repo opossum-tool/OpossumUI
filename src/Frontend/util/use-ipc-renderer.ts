@@ -67,6 +67,8 @@ export type SetDatabaseInitializedListener = (
   databaseInitialized: boolean,
 ) => void;
 
+export type RequestQuitApprovalListener = (event: IpcRendererEvent) => void;
+
 type Listener =
   | SetStateListener
   | LoggingListener
@@ -78,7 +80,8 @@ type Listener =
   | ShowMergeOpossumFilesDialogListener
   | ShowSplitDialog
   | UserSettingsChangedListener
-  | SetDatabaseInitializedListener;
+  | SetDatabaseInitializedListener
+  | RequestQuitApprovalListener;
 
 export function useIpcRenderer<T extends Listener>(
   channel: AllowedFrontendChannels,

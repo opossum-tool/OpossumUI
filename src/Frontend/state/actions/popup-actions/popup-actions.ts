@@ -11,6 +11,7 @@ import type {
   SplitFileResult,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
+import { queryClient } from '../../../Components/AppContainer/queryClient';
 import { toast } from '../../../Components/Toaster';
 import { PopupType, type View } from '../../../enums/enums';
 import { invalidateBackendQueries } from '../../../util/backendClient';
@@ -25,6 +26,7 @@ import {
   getMergeOpossumFilesRequest,
   getOpenFileRequest,
   getOpenPopup,
+  getQuitAppRequested,
   getSplitFileRequest,
   getTargetView,
 } from '../../selectors/view-selector';
@@ -58,9 +60,35 @@ import {
   setImportFileRequest,
   setMergeOpossumFilesRequest,
   setOpenFileRequest,
+  setQuitAppRequest,
   setSplitFileRequest,
   setTargetView,
 } from '../view-actions/view-actions';
+
+/**
+ * Resolves once no TanStack Query mutation is pending anymore. Mutations are
+ * executed in the DB process via the renderer's own connection, which the
+ * main process cannot observe; waiting here ensures the DB process state is
+ * settled before the app quits.
+ */
+async function waitForMutationsToSettle(): Promise<void> {
+  if (queryClient.isMutating() === 0) {
+    return;
+  }
+  await new Promise<void>((resolve) => {
+    const unsubscribe = queryClient.getMutationCache().subscribe(() => {
+      if (queryClient.isMutating() === 0) {
+        unsubscribe();
+        resolve();
+      }
+    });
+  });
+}
+
+async function confirmQuitAfterMutationsSettle(): Promise<void> {
+  await waitForMutationsToSettle();
+  void window.electronAPI.confirmQuit();
+}
 
 function withUnsavedCheck({
   executeImmediately,
@@ -250,6 +278,13 @@ export function showSplitDialogOrOpenUnsavedPopup(
   });
 }
 
+export function quitAppOrOpenUnsavedPopup(): AppThunkAction {
+  return withUnsavedCheck({
+    executeImmediately: () => confirmQuitAfterMutationsSettle(),
+    requestContinuation: (dispatch) => dispatch(setQuitAppRequest(true)),
+  });
+}
+
 export function createSplit(
   selectedResourcePaths: Array<string>,
   destinationPath: string,
@@ -300,6 +335,24 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     const splitFileRequest = getSplitFileRequest(getState());
     const targetAttributionFilterChange =
       getTargetAttributionFilterChange(getState());
+    const quitAppRequested = getQuitAppRequested(getState());
+
+    if (quitAppRequested) {
+      // Quitting discards the changes and any pending action targets.
+      dispatch(closePopup());
+      dispatch(setTargetView(null));
+      dispatch(setTargetSelectedResourceId(null));
+      dispatch(setTargetSelectedAttributionId(null));
+      dispatch(setTargetAttributionFilterChange(null));
+      dispatch(setOpenFileRequest(null));
+      dispatch(setImportFileRequest(null));
+      dispatch(setMergeOpossumFilesRequest(null));
+      dispatch(setExportFileRequest(null));
+      dispatch(setSplitFileRequest(null));
+      dispatch(setQuitAppRequest(false));
+      void confirmQuitAfterMutationsSettle();
+      return;
+    }
 
     dispatch(closePopup());
 
@@ -387,6 +440,7 @@ export function closePopupAndUnsetTargets(): AppThunkAction {
     dispatch(setMergeOpossumFilesRequest(null));
     dispatch(setExportFileRequest(null));
     dispatch(setSplitFileRequest(null));
+    dispatch(setQuitAppRequest(false));
     window.electronAPI.stopLoading();
   };
 }

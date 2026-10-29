@@ -25,6 +25,7 @@ import {
   getAttributionSelectionPendingResourceId,
   getAttributionSelectionPolicy,
   getExpandedIds,
+  getIsPackageInfoDirty,
   getSelectedAttributionId,
   getSelectedResourceId,
   getTargetAttributionFilterChange,
@@ -39,6 +40,7 @@ import {
   getMergeOpossumFilesRequest,
   getOpenFileRequest,
   getOpenPopup,
+  getQuitAppRequested,
   getSelectedView,
   getSplitFileRequest,
   getTargetView,
@@ -77,6 +79,7 @@ import {
   navigateToSelectedPathOrOpenUnsavedPopup,
   openFileOrOpenUnsavedPopup,
   proceedFromUnsavedPopup,
+  quitAppOrOpenUnsavedPopup,
   setSelectedResourceIdOrOpenUnsavedPopup,
   setViewOrOpenUnsavedPopup,
   showImportDialogOrOpenUnsavedPopup,
@@ -948,5 +951,98 @@ describe('closePopupAndUnsetTargets', () => {
     expect(getTargetView(testStore.getState())).toBeNull();
     expect(getTargetSelectedResourceId(testStore.getState())).toBeNull();
     expect(getTargetSelectedAttributionId(testStore.getState())).toBeNull();
+  });
+});
+
+describe('quitAppOrOpenUnsavedPopup', () => {
+  it('confirms the quit when there are no unsaved changes', async () => {
+    const testStore = createAppStore();
+
+    testStore.dispatch(quitAppOrOpenUnsavedPopup());
+    await vi.waitFor(() =>
+      expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
+    );
+
+    expect(getOpenPopup(testStore.getState())).toBeNull();
+    expect(getQuitAppRequested(testStore.getState())).toBe(false);
+  });
+
+  it('opens the unsaved-changes popup when there are unsaved changes', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo({
+        packageName: 'dirty',
+        criticality: Criticality.None,
+        id: faker.string.uuid(),
+      }),
+    );
+
+    testStore.dispatch(quitAppOrOpenUnsavedPopup());
+
+    expect(window.electronAPI.confirmQuit).not.toHaveBeenCalled();
+    expect(getOpenPopup(testStore.getState())?.popup).toBe(
+      PopupType.NotSavedPopup,
+    );
+    expect(getQuitAppRequested(testStore.getState())).toBe(true);
+  });
+
+  it('confirms the quit after the unsaved changes are discarded', async () => {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo({
+        packageName: 'dirty',
+        criticality: Criticality.None,
+        id: faker.string.uuid(),
+      }),
+    );
+    testStore.dispatch(quitAppOrOpenUnsavedPopup());
+    testStore.dispatch(proceedFromUnsavedPopup());
+
+    await vi.waitFor(() =>
+      expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
+    );
+    expect(getQuitAppRequested(testStore.getState())).toBe(false);
+    expect(getOpenPopup(testStore.getState())).toBeNull();
+    expect(getIsPackageInfoDirty(testStore.getState())).toBe(false);
+  });
+
+  it('does not confirm the quit when the unsaved-changes popup is cancelled', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo({
+        packageName: 'dirty',
+        criticality: Criticality.None,
+        id: faker.string.uuid(),
+      }),
+    );
+    testStore.dispatch(quitAppOrOpenUnsavedPopup());
+
+    testStore.dispatch(closePopupAndUnsetTargets());
+
+    expect(window.electronAPI.confirmQuit).not.toHaveBeenCalled();
+    expect(getQuitAppRequested(testStore.getState())).toBe(false);
+    expect(getOpenPopup(testStore.getState())).toBeNull();
+  });
+
+  it('discards pending targets when quitting', async () => {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo({
+        packageName: 'dirty',
+        criticality: Criticality.None,
+        id: faker.string.uuid(),
+      }),
+    );
+    testStore.dispatch(quitAppOrOpenUnsavedPopup());
+    testStore.dispatch(setOpenFileRequest({ kind: 'dialog' }));
+    testStore.dispatch(setTargetView(View.Audit));
+    testStore.dispatch(proceedFromUnsavedPopup());
+
+    await vi.waitFor(() =>
+      expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
+    );
+    expect(window.electronAPI.openFile).not.toHaveBeenCalled();
+    expect(getOpenFileRequest(testStore.getState())).toBeNull();
+    expect(getTargetView(testStore.getState())).toBeNull();
   });
 });

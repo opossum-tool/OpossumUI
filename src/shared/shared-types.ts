@@ -301,7 +301,8 @@ export interface SelectSaveFileOptions {
 type Listener = (event: IpcRendererEvent, ...args: Array<any>) => void;
 
 export interface ElectronAPI {
-  quit: () => void;
+  confirmQuit: () => Promise<void>;
+  quitRequestHandled: () => void;
   relaunch: () => void;
   openLink: (link: string) => Promise<unknown>;
   openFile: (filePath?: string) => Promise<unknown>;
