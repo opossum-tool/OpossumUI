@@ -8,6 +8,7 @@ import { EventEmitter } from 'node:events';
 
 import { getReleaseAssetDownloadUrl } from '../../../shared/release-assets';
 import { createInstallerUpdater } from '../installer-updater';
+import { ReleaseUpdateProvider } from '../release-update-provider';
 import {
   checkForUpdates,
   downloadUpdate,
@@ -110,13 +111,14 @@ test('refuses download requests without discovery or for a different release', a
   expect(fake.downloadUpdate).not.toHaveBeenCalled();
 });
 
-test('pins the generic feed to discovery, validates before download, and never installs on normal quit', async () => {
+test('pins the release feed to discovery, validates before download, and never installs on normal quit', async () => {
   await checkForUpdates();
   await downloadUpdate(tag);
   await settle();
   expect(fake.setFeedURL).toHaveBeenCalledWith(
     expect.objectContaining({
-      provider: 'generic',
+      provider: 'custom',
+      updateProvider: ReleaseUpdateProvider,
       url: getReleaseAssetDownloadUrl(tag, ''),
       channel: 'latest',
     }),

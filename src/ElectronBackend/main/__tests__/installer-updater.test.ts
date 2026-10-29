@@ -59,7 +59,7 @@ test.each(['win32', 'linux'])(
       autoInstallOnAppQuit: false,
       allowDowngrade: false,
       disableWebInstaller: true,
-      disableDifferentialDownload: true,
+      disableDifferentialDownload: false,
     });
     expect(
       platform === 'win32' ? NsisUpdater : AppImageUpdater,

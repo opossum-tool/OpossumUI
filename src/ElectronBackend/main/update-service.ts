@@ -23,6 +23,7 @@ import {
   supportsInstallation,
 } from './installer-updater';
 import logger from './logger';
+import { ReleaseUpdateProvider } from './release-update-provider';
 import { sendToRenderers } from './send-to-renderers';
 
 export {
@@ -436,7 +437,7 @@ export function validateInstallerManifest(
   const base = getReleaseAssetDownloadUrl(release.tag_name, '');
   const expectedUrl = getReleaseAssetDownloadUrl(release.tag_name, assetName);
   // Reject alternate hosts, other releases, extra payloads, and legacy references
-  // disagreeing with files. Full downloads avoid unvalidated old blockmaps.
+  // disagreeing with files.
   if (
     !asset ||
     new URL(file.url, base).href !== expectedUrl ||
@@ -462,7 +463,12 @@ function startDownload(release: GithubRelease): void {
     .then(async () => {
       const installer = getInstaller();
       installer.setFeedURL({
-        provider: 'generic',
+        ...(process.platform === 'win32'
+          ? {
+              provider: 'custom' as const,
+              updateProvider: ReleaseUpdateProvider,
+            }
+          : { provider: 'generic' as const }),
         url: getReleaseAssetDownloadUrl(release.tag_name, ''),
         channel: 'latest',
         useMultipleRangeRequest: false,

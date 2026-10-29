@@ -24,8 +24,7 @@ export function createInstallerUpdater(): AppUpdater {
   updater.autoInstallOnAppQuit = false;
   updater.allowDowngrade = false;
   updater.disableWebInstaller = true;
-  // Fixed artifact names do not identify an older release's blockmap.
-  updater.disableDifferentialDownload = true;
+  updater.disableDifferentialDownload = false;
   return updater;
 }
 
