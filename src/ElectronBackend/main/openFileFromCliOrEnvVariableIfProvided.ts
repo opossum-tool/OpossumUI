@@ -15,7 +15,7 @@ import {
 export async function openFileFromCliOrEnvVariableIfProvided(
   mainWindow: BrowserWindow,
   updateMenu: () => Promise<void>,
-  options: { getReopenFilePath?: () => string | undefined } = {},
+  options: { reopenFilePath?: string } = {},
 ): Promise<void> {
   let inputFileName: string | null = null;
 
@@ -47,10 +47,9 @@ export async function openFileFromCliOrEnvVariableIfProvided(
     }
   }
 
-  if (!inputFileName && options.getReopenFilePath) {
-    const reopenFilePath = options.getReopenFilePath();
-    if (reopenFilePath && fs.existsSync(reopenFilePath)) {
-      inputFileName = reopenFilePath;
+  if (!inputFileName && options.reopenFilePath) {
+    if (fs.existsSync(options.reopenFilePath)) {
+      inputFileName = options.reopenFilePath;
     }
   }
 

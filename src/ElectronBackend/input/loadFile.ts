@@ -44,7 +44,7 @@ export interface LoadFileError {
   error: ParsingError;
 }
 
-export type LoadFileResult = LoadFileSuccess | LoadFileError;
+type LoadFileResult = LoadFileSuccess | LoadFileError;
 
 export type LoadFileIpcResult =
   Omit<LoadFileSuccess, 'opossumZip'> | LoadFileError;
@@ -73,7 +73,6 @@ function isParsingError(parsingResult: unknown): parsingResult is ParsingError {
 export async function loadFile(
   filePath: string,
   reportProgress: LoadFileProgressCallback = () => {},
-  { getDbFilename }: { getDbFilename?: () => string | undefined } = {},
 ): Promise<LoadFileResult> {
   if (!fs.existsSync(filePath)) {
     return {
@@ -162,10 +161,7 @@ export async function loadFile(
   } satisfies DatabaseImportContent;
 
   reportProgress('Loading into database');
-  // By default the database is a temporary one; the optional hook lets
-  // callers (e.g. the dev cache integration) import it into a specific file.
-  const dbFilename = getDbFilename?.();
-  await initializeDb(parsedFileContent, { dbFilename });
+  await initializeDb(parsedFileContent);
 
   if (createdOutputNeedsPersisting) {
     reportProgress('Writing output file');

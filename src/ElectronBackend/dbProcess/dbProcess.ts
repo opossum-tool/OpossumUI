@@ -28,12 +28,9 @@ import {
 import { saveFile } from '../api/saveFile';
 import { splitOpossumFile } from '../api/splitOpossumFile';
 import {
-  decorateDbProcessMessageExecution,
-  loadFileWithDevCache,
-} from '../db/dev-db-cache-wiring';
-import type {
-  LoadFileIpcResult,
-  LoadFileProgressCallback,
+  loadFile,
+  type LoadFileIpcResult,
+  type LoadFileProgressCallback,
 } from '../input/loadFile';
 
 interface LoadFileMessage {
@@ -144,7 +141,7 @@ async function executeDbProcessMessage(
   switch (msg.type) {
     case 'loadFile': {
       storedOpossumZip = undefined;
-      const loadResult = await loadFileWithDevCache(msg.filePath, onProgress);
+      const loadResult = await loadFile(msg.filePath, onProgress);
       if (loadResult.ok) {
         const { opossumZip, ...rest } = loadResult;
         storedOpossumZip = opossumZip;
@@ -216,7 +213,7 @@ async function executeDbProcessMessage(
       if (result.status === 'error') {
         return result;
       }
-      const loadResult = await loadFileWithDevCache(
+      const loadResult = await loadFile(
         saveFileParams.opossumFilePath,
         onProgress,
       );
@@ -255,28 +252,19 @@ async function executeDbProcessMessage(
   }
 }
 
-// The dev cache maintenance is wrapped around the message execution in one
-// place (see dev-db-cache-wiring.ts); the message handlers above stay free of
-// dev-cache logic.
-const executeDbProcessMessageWithDevCacheMaintenance =
-  decorateDbProcessMessageExecution(executeDbProcessMessage);
-
 export async function handleDbProcessMessage(
   port: ResponsePort,
   msg: DbProcessRequest,
 ): Promise<void> {
   try {
-    const result = await executeDbProcessMessageWithDevCacheMaintenance(
-      msg,
-      (message, level) => {
-        port.postMessage({
-          id: msg.id,
-          type: 'progress',
-          message,
-          level,
-        });
-      },
-    );
+    const result = await executeDbProcessMessage(msg, (message, level) => {
+      port.postMessage({
+        id: msg.id,
+        type: 'progress',
+        message,
+        level,
+      });
+    });
 
     port.postMessage({ id: msg.id, type: 'success', result });
   } catch (err) {

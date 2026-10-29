@@ -115,7 +115,6 @@
     "build": "yarn generate-notice && vite build",
     "circular-import-check": "git ls-files -z --cached --others --exclude-standard -- src/ | xargs -0 dpdm --circular -T --tree false --warning false --exit-code circular:1",
     "db:generate": "npx tsx ./src/ElectronBackend/db/generate.ts",
-    "clear-dev-cache": "node -e \"const fs = require('node:fs'); const dir = process.env.OPOSSUM_DEV_DB_CACHE_DIR ?? '.opossum-dev-cache'; fs.rmSync(dir, { recursive: true, force: true }); console.log('Cleared dev DB cache at ' + dir);\"",
     "typecheck": "yarn db:generate && tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
     "test:unit": "vitest",
     "test:changed": "vitest --onlyChanged",

@@ -94,13 +94,8 @@ updates after changes to the frontend, execute:
 yarn start
 ```
 
-While developing, the imported database is cached in `.opossum-dev-cache/` so that Electron restarts (triggered by backend code
-changes) do not force a full re-import of the loaded file. The cache is invalidated automatically whenever schema or parsing code
-changes; if it ever misbehaves, you can delete it with:
-
-```bash
-yarn clear-dev-cache
-```
+While developing, restarting Electron (triggered by backend code changes) reopens the file that was open before the
+restart, so that you do not have to pick it again. A fresh `yarn start` does not open a file on its own.
 
 Unit tests are provided for all features. The testing framework is Vitest + Testing Library. They can be run by executing:
 

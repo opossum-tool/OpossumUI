@@ -10,15 +10,6 @@ import svgrPlugin from 'vite-plugin-svgr';
 
 function getElectronProcessViteConfig(mode: string): InlineConfig {
   return {
-    define: {
-      // Baked at build time so the dev DB cache can never be enabled in
-      // production bundles, regardless of the host environment. The schema
-      // fingerprint used for cache invalidation is deliberately NOT baked:
-      // `dev-db-cache.ts` computes it from the sources at runtime so that it
-      // is fresh on every Electron restart (a baked hash would go stale when
-      // the schema changes while the dev server keeps running).
-      'process.env.OPOSSUM_DEV_MODE': mode === 'development' ? '"1"' : '"0"',
-    },
     build: {
       minify: true,
       outDir: 'build/ElectronBackend',
@@ -42,8 +33,8 @@ let electronStartCount = 0;
  *
  * The vite dev server process persists across Electron restarts, so a module
  * level counter cleanly distinguishes the two cases. The flag propagates to
- * Electron via the inherited environment and gates the dev-only last-file
- * auto-reopen (see `main.ts`).
+ * Electron via the inherited environment and gates the dev-only reopening of
+ * the last opened file (see `reopen-last-dev-file.ts`).
  */
 function handleElectronStart({
   startup,

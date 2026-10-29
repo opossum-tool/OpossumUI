@@ -6,7 +6,6 @@ import { dialog, systemPreferences } from 'electron';
 import os from 'os';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
-import { openFileFromCliOrEnvVariableIfProvidedWithDevReopen } from '../db/dev-db-cache-wiring';
 import {
   FRONTEND_TO_DB_PROCESS_PORT,
   getDbProcessPort,
@@ -14,7 +13,9 @@ import {
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
 import { createWindow, loadWebApp } from './createWindow';
 import { createMenu } from './menu';
+import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
 import { setRuntimeMacOsOpenFileHandler } from './openFileRequests';
+import { getDevReopenFilePath } from './reopen-last-dev-file';
 import { setupIpcHandling } from './setUpIpcHandling';
 import { UserSettingsService } from './user-settings-service';
 
@@ -65,10 +66,9 @@ export async function main(): Promise<void> {
 
     await loadWebApp(mainWindow);
 
-    await openFileFromCliOrEnvVariableIfProvidedWithDevReopen(
-      mainWindow,
-      updateMenu,
-    );
+    await openFileFromCliOrEnvVariableIfProvided(mainWindow, updateMenu, {
+      reopenFilePath: await getDevReopenFilePath(),
+    });
 
     setRuntimeMacOsOpenFileHandler((filePath) => {
       mainWindow.webContents.send(AllowedFrontendChannels.OpenFile, filePath);

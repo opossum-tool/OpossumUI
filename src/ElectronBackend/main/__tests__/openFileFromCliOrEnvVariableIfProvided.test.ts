@@ -168,7 +168,7 @@ describe('openFileFromEnvVariable', () => {
   });
 });
 
-describe('getReopenFilePath option', () => {
+describe('reopenFilePath option', () => {
   beforeEach(() => {
     process.argv = ['app'];
     mockHandleOpeningFile.mockClear();
@@ -184,7 +184,7 @@ describe('getReopenFilePath option', () => {
     await openFileFromCliOrEnvVariableIfProvided(
       'mockBrowserWindow' as unknown as BrowserWindow,
       updateMenu,
-      { getReopenFilePath: () => lastFileName },
+      { reopenFilePath: lastFileName },
     );
 
     expect(mockHandleOpeningFile).toHaveBeenCalledWith([
@@ -203,7 +203,7 @@ describe('getReopenFilePath option', () => {
     await openFileFromCliOrEnvVariableIfProvided(
       'mockBrowserWindow' as unknown as BrowserWindow,
       updateMenu,
-      { getReopenFilePath: () => reopenFileName },
+      { reopenFilePath: reopenFileName },
     );
 
     expect(mockHandleOpeningFile).toHaveBeenCalledWith([
@@ -218,7 +218,7 @@ describe('getReopenFilePath option', () => {
     await openFileFromCliOrEnvVariableIfProvided(
       'mockBrowserWindow' as unknown as BrowserWindow,
       updateMenu,
-      { getReopenFilePath: () => '/path/lastFile.opossum' },
+      { reopenFilePath: '/path/lastFile.opossum' },
     );
 
     expect(mockHandleOpeningFile).not.toHaveBeenCalled();
