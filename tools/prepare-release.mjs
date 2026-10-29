@@ -22,6 +22,13 @@ export default async function prepareRelease({ github, context, core }) {
   }
   let release = matches[0];
   if (!release) {
+    const warnings = new Set();
+    const warnOnce = (message) => {
+      if (!warnings.has(message)) {
+        warnings.add(message);
+        core.warning(message);
+      }
+    };
     const prefix = `OpossumUI-${new Date().toISOString().split('T')[0]}`;
     const tags = await github.paginate(github.rest.repos.listTags, {
       ...repo,
@@ -33,7 +40,7 @@ export default async function prepareRelease({ github, context, core }) {
     ];
     const revisions = occupied
       .filter((tag) => tag === prefix || tag.startsWith(`${prefix}.`))
-      .map(versionParts)
+      .map((tag) => versionParts(tag, warnOnce))
       .filter(Boolean)
       .map((parts) => parts[2]);
     const revision = revisions.length ? Math.max(...revisions) + 1 : 0;
@@ -41,13 +48,13 @@ export default async function prepareRelease({ github, context, core }) {
       throw new Error('Daily release revision limit reached');
     }
     const tag = `${prefix}${revision ? `.${revision}` : ''}`;
-    assertNewerThanPublished(tag, releases);
+    assertNewerThanPublished(tag, releases, warnOnce);
 
     const previousStable = releases
       .filter((item) => !item.draft && !item.prerelease)
       .map((item) => ({
         tag: item.tag_name,
-        version: versionParts(item.tag_name),
+        version: versionParts(item.tag_name, warnOnce),
       }))
       .filter((item) => item.version)
       .sort((left, right) => compareVersions(right.version, left.version))[0];
@@ -72,7 +79,7 @@ export default async function prepareRelease({ github, context, core }) {
   }
   const version = versionParts(release.tag_name);
   if (!version) {
-    throw new Error('Release has an invalid tag');
+    throw new Error(`Release has an invalid tag: ${release.tag_name}`);
   }
   // Persist the draft first so retries recover after either API call fails.
   let tagCommit;

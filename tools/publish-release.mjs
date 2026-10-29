@@ -33,7 +33,7 @@ export default async function publishRelease({ github, context, core }) {
   if (commit.sha !== process.env.RELEASE_SHA) {
     throw new Error('Release tag changed');
   }
-  assertNewerThanPublished(release.tag_name, releases);
+  assertNewerThanPublished(release.tag_name, releases, core.warning);
   await github.rest.repos.updateRelease({
     ...repo,
     release_id: release.id,
