@@ -8,6 +8,7 @@ import { EventEmitter } from 'node:events';
 
 import { getReleaseAssetDownloadUrl } from '../../../shared/release-assets';
 import { createInstallerUpdater } from '../installer-updater';
+import logger from '../logger';
 import { ReleaseUpdateProvider } from '../release-update-provider';
 import {
   checkForUpdates,
@@ -129,7 +130,7 @@ test('pins the release feed to discovery, validates before download, and never i
 });
 
 test.each(['latest.yml', assetName, `${assetName}.blockmap`])(
-  'waits for uploaded, nonempty %s',
+  'reports a check error for missing, uploading, or empty %s',
   async (name) => {
     for (const incomplete of [{ size: 0 }, { state: 'uploading' }]) {
       const selected = release();
@@ -141,15 +142,16 @@ test.each(['latest.yml', assetName, `${assetName}.blockmap`])(
         new Response(JSON.stringify(selected)),
       );
       await expect(checkForUpdates()).resolves.toMatchObject({
-        status: 'up-to-date',
+        status: 'error',
       });
+      expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining(name));
     }
     const selected = release();
     selected.assets = selected.assets.filter((asset) => asset.name !== name);
     vi.mocked(net.fetch).mockResolvedValue(
       new Response(JSON.stringify(selected)),
     );
-    await checkForUpdates();
+    await expect(checkForUpdates()).resolves.toEqual({ status: 'error' });
     expect(fake.downloadUpdate).not.toHaveBeenCalled();
   },
 );
@@ -322,7 +324,7 @@ test('requires the AppImage manifest and pins Linux downloads to the discovered 
     ),
   );
   await expect(checkForUpdates()).resolves.toMatchObject({
-    status: 'up-to-date',
+    status: 'error',
   });
   expect(fake.downloadUpdate).not.toHaveBeenCalled();
   vi.mocked(net.fetch).mockResolvedValue(

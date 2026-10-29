@@ -350,7 +350,7 @@ describe('update service release tags', () => {
     expect(net.fetch).toHaveBeenCalledTimes(1);
 
     stopAutomaticUpdateChecks();
-    finishResponse?.(releaseResponse(preparingRelease()));
+    finishResponse?.(releaseResponse(incompleteRelease()));
     await flushMicrotasks();
     expect(vi.getTimerCount()).toBe(0);
   });
@@ -373,47 +373,50 @@ describe('update service release tags', () => {
     await flushMicrotasks();
     expect(net.fetch).toHaveBeenCalledTimes(1);
 
-    finishResponse?.(releaseResponse(preparingRelease()));
+    finishResponse?.(releaseResponse(incompleteRelease()));
     await flushMicrotasks();
     expect(vi.getTimerCount()).toBe(1);
-    await vi.advanceTimersByTimeAsync(10 * 60 * 1000 - 1);
+    await vi.advanceTimersByTimeAsync(60 * 60 * 1000 - 1);
     expect(net.fetch).toHaveBeenCalledTimes(1);
     await vi.advanceTimersByTimeAsync(1);
     await flushMicrotasks();
     expect(net.fetch).toHaveBeenCalledTimes(2);
   });
 
-  it('retries preparation every ten minutes until the asset is ready', async () => {
+  it('retries incomplete releases hourly', async () => {
     vi.useFakeTimers();
     vi.stubEnv('APPIMAGE', '/app');
-    vi.mocked(net.fetch).mockResolvedValue(releaseResponse(preparingRelease()));
+    vi.mocked(net.fetch).mockResolvedValue(
+      releaseResponse(incompleteRelease()),
+    );
 
     startAutomaticUpdateChecks();
     await flushMicrotasks();
     expect(net.fetch).toHaveBeenCalledTimes(1);
+    expect(getUpdateState()).toEqual({ status: 'error' });
 
-    await vi.advanceTimersByTimeAsync(10 * 60 * 1000 - 1);
+    await vi.advanceTimersByTimeAsync(60 * 60 * 1000 - 1);
     expect(net.fetch).toHaveBeenCalledTimes(1);
     await vi.advanceTimersByTimeAsync(1);
     await flushMicrotasks();
     expect(net.fetch).toHaveBeenCalledTimes(2);
 
-    await vi.advanceTimersByTimeAsync(10 * 60 * 1000);
+    await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
     await flushMicrotasks();
     expect(net.fetch).toHaveBeenCalledTimes(3);
   });
 
-  it('switches from preparation retries to hourly polling after availability', async () => {
+  it('keeps hourly polling when an incomplete release becomes available', async () => {
     vi.useFakeTimers();
     vi.stubEnv('APPIMAGE', '/test/app');
     vi.mocked(net.fetch)
-      .mockResolvedValueOnce(releaseResponse(preparingRelease()))
+      .mockResolvedValueOnce(releaseResponse(incompleteRelease()))
       .mockResolvedValueOnce(releaseResponse(readyRelease()))
       .mockResolvedValue(releaseResponse(readyRelease()));
 
     startAutomaticUpdateChecks();
     await flushMicrotasks();
-    await vi.advanceTimersByTimeAsync(10 * 60 * 1000);
+    await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
     await flushMicrotasks();
     expect(net.fetch).toHaveBeenCalledTimes(2);
 
@@ -472,10 +475,12 @@ describe('update service release tags', () => {
     },
   );
 
-  it('replaces the pending preparation retry after a manual check', async () => {
+  it('replaces the pending error retry after a manual check', async () => {
     vi.useFakeTimers();
     vi.stubEnv('APPIMAGE', '/app');
-    vi.mocked(net.fetch).mockResolvedValue(releaseResponse(preparingRelease()));
+    vi.mocked(net.fetch).mockResolvedValue(
+      releaseResponse(incompleteRelease()),
+    );
 
     startAutomaticUpdateChecks();
     await flushMicrotasks();
@@ -483,7 +488,7 @@ describe('update service release tags', () => {
     await checkForUpdates();
     expect(net.fetch).toHaveBeenCalledTimes(2);
 
-    await vi.advanceTimersByTimeAsync(10 * 60 * 1000 - 1);
+    await vi.advanceTimersByTimeAsync(60 * 60 * 1000 - 1);
     expect(net.fetch).toHaveBeenCalledTimes(2);
     await vi.advanceTimersByTimeAsync(1);
     await flushMicrotasks();
@@ -517,7 +522,7 @@ describe('update service release tags', () => {
     );
   });
 
-  it('reports preparing until the matching asset is uploaded with a nonzero size', () => {
+  it('rejects incomplete assets until the matching asset is uploaded with a nonzero size', () => {
     const release = {
       assets: [
         {
@@ -534,26 +539,20 @@ describe('update service release tags', () => {
     };
     const installed = installedRelease();
     const required = 'OpossumUI-for-linux.snap';
-    expect(
-      evaluateRelease(installed, { ...release, assets: [] }, required).status,
-    ).toBe('preparing');
-    expect(
+    expect(() =>
       evaluateRelease(installed, { ...release, assets: [] }, required),
-    ).toEqual({ status: 'preparing', installedTag: installed.tag });
-    expect(
-      evaluateRelease(
-        installed,
-        { ...release, assets: [{ ...release.assets[0], size: 0 }] },
-        'OpossumUI-for-linux.AppImage',
-      ).status,
-    ).toBe('preparing');
-    expect(
-      evaluateRelease(
-        installed,
-        { ...release, assets: [{ ...release.assets[0], state: 'uploading' }] },
-        'OpossumUI-for-linux.AppImage',
-      ).status,
-    ).toBe('preparing');
+    ).toThrow(`missing or invalid required asset: ${required}`);
+    for (const incomplete of [{ size: 0 }, { state: 'uploading' }]) {
+      expect(() =>
+        evaluateRelease(
+          installed,
+          { ...release, assets: [{ ...release.assets[0], ...incomplete }] },
+          'OpossumUI-for-linux.AppImage',
+        ),
+      ).toThrow(
+        'missing or invalid required asset: OpossumUI-for-linux.AppImage',
+      );
+    }
     expect(
       evaluateRelease(installed, release, 'OpossumUI-for-linux.AppImage'),
     ).toEqual({
@@ -563,7 +562,7 @@ describe('update service release tags', () => {
     });
   });
 
-  it('returns and publishes a neutral state when the matching asset is still uploading', async () => {
+  it('returns and publishes a check error when the matching asset is still uploading', async () => {
     vi.stubEnv('APPIMAGE', '/app');
     const send = vi.fn();
     vi.mocked(BrowserWindow.getAllWindows).mockReturnValue([
@@ -572,23 +571,27 @@ describe('update service release tags', () => {
         webContents: { isDestroyed: () => false, send },
       } as unknown as Electron.BrowserWindow,
     ]);
-    vi.mocked(net.fetch).mockResolvedValue(releaseResponse(preparingRelease()));
+    vi.mocked(net.fetch).mockResolvedValue(
+      releaseResponse(incompleteRelease()),
+    );
 
     await expect(checkForUpdates()).resolves.toEqual({
-      status: 'up-to-date',
-      installedTag: '2026.1020.0',
+      status: 'error',
     });
 
     expect(getUpdateState()).toEqual({
-      status: 'up-to-date',
-      installedTag: '2026.1020.0',
+      status: 'error',
     });
     expect(send).toHaveBeenNthCalledWith(
       2,
       AllowedFrontendChannels.UpdateStateChanged,
-      { status: 'up-to-date', installedTag: '2026.1020.0' },
+      { status: 'error' },
     );
-    expect(JSON.stringify(send.mock.calls)).not.toContain('preparing');
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'Release OpossumUI-2027-01-02 has a missing or invalid required asset: OpossumUI-for-linux.AppImage.',
+      ),
+    );
     expect(JSON.stringify(send.mock.calls)).not.toContain('2027-01-02');
   });
 
@@ -729,7 +732,7 @@ function releaseResponse(release: object): Response {
   } as Response;
 }
 
-function preparingRelease() {
+function incompleteRelease() {
   return {
     assets: [],
     draft: false,
@@ -750,7 +753,7 @@ function readyRelease() {
   }
   const tag = 'OpossumUI-2027-01-02';
   return {
-    ...preparingRelease(),
+    ...incompleteRelease(),
     assets: [
       {
         name: assetName,

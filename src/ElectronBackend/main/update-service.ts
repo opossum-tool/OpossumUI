@@ -31,17 +31,10 @@ export {
   parseReleaseTag,
 } from '../../shared/update-version';
 
-const PREPARING_RETRY_MS = 600_000;
 const CHECK_INTERVAL_MS = 3_600_000;
 const REQUEST_TIMEOUT_MS = 30_000;
 const API_ENDPOINT =
   'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest';
-type InternalUpdateResult =
-  | Exclude<UpdateState, { status: 'checking' }>
-  | {
-      status: 'preparing';
-      installedTag: string;
-    };
 
 interface InstalledRelease {
   tag: string;
@@ -149,8 +142,7 @@ export function checkForUpdates(): Promise<UpdateState> {
   const request = performCheck()
     .then((result) => {
       scheduleNextCheck(result);
-      const state = toPublicUpdateState(result);
-      emitState(state);
+      emitState(result);
       return currentState;
     })
     .finally(() => {
@@ -191,20 +183,18 @@ function clearScheduledCheck(): void {
   }
 }
 
-function scheduleNextCheck(result: InternalUpdateResult): void {
+function scheduleNextCheck(result: UpdateState): void {
   if (!automaticChecksEnabled) {
     return;
   }
   clearScheduledCheck();
-  const delay =
-    result.status === 'preparing' ? PREPARING_RETRY_MS : CHECK_INTERVAL_MS;
   logger.info(
-    `Scheduling next update check in ${delay} ms after ${result.status}.`,
+    `Scheduling next update check in ${CHECK_INTERVAL_MS} ms after ${result.status}.`,
   );
   checkTimeout = setTimeout(() => {
     checkTimeout = undefined;
     void runAutomaticCheck();
-  }, delay);
+  }, CHECK_INTERVAL_MS);
 }
 
 async function runAutomaticCheck(): Promise<void> {
@@ -214,7 +204,7 @@ async function runAutomaticCheck(): Promise<void> {
   await checkForUpdates();
 }
 
-async function performCheck(): Promise<InternalUpdateResult> {
+async function performCheck(): Promise<UpdateState> {
   try {
     if (!installedRelease) {
       logger.warn(
@@ -243,9 +233,9 @@ async function performCheck(): Promise<InternalUpdateResult> {
     const result = evaluateRelease(installedRelease, payload, assetName);
     if (result.status === 'available' && supportsInstallation()) {
       const names = requiredInstallerAssets(assetName);
-      if (
-        !names.every((name) =>
-          payload.assets.some(
+      const incompleteAssets = names.filter(
+        (name) =>
+          !payload.assets.some(
             (asset) =>
               asset.name === name &&
               asset.state === 'uploaded' &&
@@ -257,9 +247,12 @@ async function performCheck(): Promise<InternalUpdateResult> {
                 name,
               ),
           ),
-        )
-      ) {
-        return { status: 'preparing', installedTag: installedRelease.tag };
+      );
+      if (incompleteAssets.length) {
+        logger.warn(
+          `Update check failed: Release ${payload.tag_name} has missing or invalid required assets: ${incompleteAssets.join(', ')}.`,
+        );
+        return { status: 'error' };
       }
       selectedRelease = payload;
       return { ...result, canInstall: true };
@@ -277,7 +270,7 @@ export function evaluateRelease(
   installed: InstalledRelease,
   release: GithubRelease,
   requiredAsset: string,
-): InternalUpdateResult {
+): UpdateState {
   const releaseTag = parseReleaseTag(release.tag_name);
   if (!releaseTag) {
     throw new Error('GitHub returned an unsupported release.');
@@ -287,10 +280,9 @@ export function evaluateRelease(
   }
   const asset = release.assets.find(({ name }) => name === requiredAsset);
   if (asset?.state !== 'uploaded' || asset.size <= 0) {
-    return {
-      status: 'preparing',
-      installedTag: installed.tag,
-    };
+    throw new Error(
+      `Release ${release.tag_name} has a missing or invalid required asset: ${requiredAsset}.`,
+    );
   }
   if (
     !isValidAssetDownloadUrl(
@@ -306,12 +298,6 @@ export function evaluateRelease(
     tag: release.tag_name,
     url: asset.browser_download_url,
   };
-}
-
-function toPublicUpdateState(result: InternalUpdateResult): UpdateState {
-  return result.status === 'preparing'
-    ? { status: 'up-to-date', installedTag: result.installedTag }
-    : result;
 }
 
 function isGithubRelease(value: unknown): value is GithubRelease {
