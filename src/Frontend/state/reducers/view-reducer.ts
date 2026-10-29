@@ -14,6 +14,7 @@ import {
   ACTION_SET_IMPORT_FILE_REQUEST,
   ACTION_SET_MERGE_OPOSSUM_FILES_REQUEST,
   ACTION_SET_OPEN_FILE_REQUEST,
+  ACTION_SET_QUIT_APP_REQUEST,
   ACTION_SET_SPLIT_FILE_REQUEST,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
@@ -33,6 +34,7 @@ export interface ViewState {
   mergeOpossumFilesRequest: MergeOpossumFilesRequest | null;
   exportFileRequest: ExportType | null;
   splitFileRequest: SplitFileRequest | null;
+  quitAppRequest: boolean;
 }
 
 const initialViewState: ViewState = {
@@ -44,6 +46,7 @@ const initialViewState: ViewState = {
   mergeOpossumFilesRequest: null,
   exportFileRequest: null,
   splitFileRequest: null,
+  quitAppRequest: false,
 };
 
 export function viewState(
@@ -101,6 +104,11 @@ export function viewState(
       return {
         ...state,
         splitFileRequest: action.payload,
+      };
+    case ACTION_SET_QUIT_APP_REQUEST:
+      return {
+        ...state,
+        quitAppRequest: action.payload,
       };
     default:
       return state;

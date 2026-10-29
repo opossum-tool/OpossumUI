@@ -40,7 +40,7 @@ export const ErrorFallback: React.FC<FallbackProps> = ({
           <MuiButton
             color={'secondary'}
             onClick={() => {
-              window.electronAPI.quit();
+              void window.electronAPI.confirmQuit();
             }}
           >
             {text.errorBoundary.quit}

@@ -7,18 +7,22 @@ import {
   closePopupAndUnsetTargets,
   proceedFromUnsavedPopup,
 } from '../../state/actions/popup-actions/popup-actions';
-import { useAppDispatch } from '../../state/hooks';
+import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { getQuitAppRequested } from '../../state/selectors/view-selector';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 export function NotSavedPopup() {
   const dispatch = useAppDispatch();
+  const quitAppRequested = useAppSelector(getQuitAppRequested);
 
   return (
     <NotificationPopup
       header={text.unsavedChangesPopup.title}
       leftButtonConfig={{
         onClick: () => dispatch(proceedFromUnsavedPopup()),
-        buttonText: text.unsavedChangesPopup.discard,
+        buttonText: quitAppRequested
+          ? text.unsavedChangesPopup.discardAndQuit
+          : text.unsavedChangesPopup.discard,
         color: 'secondary',
       }}
       rightButtonConfig={{
