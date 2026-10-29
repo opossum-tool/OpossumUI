@@ -100,7 +100,7 @@
     "rolldown": "1.2.15",
     "tsx": "4.23.15",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.72.0",
+    "typescript-eslint": "8.72.1",
     "vite": "8.3.5",
     "vite-plugin-electron": "1.1.2",
     "vite-plugin-svgr": "5.2.0",
