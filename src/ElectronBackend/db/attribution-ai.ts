@@ -2,7 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { Kysely, Selectable, SqlBool, Transaction } from 'kysely';
+import type {
+  AliasableExpression,
+  ExpressionBuilder,
+  Kysely,
+  Selectable,
+  SqlBool,
+  Transaction,
+} from 'kysely';
 
 import {
   type AttributionContent,
@@ -22,6 +29,23 @@ export type AttributionWithAiStatus = Selectable<Attribution> & {
   ai_deferred: SqlBool;
 };
 
+/**
+ * An attribution is AI-deferred if it has AI metadata with deferred fields.
+ * Single source of truth for the `aiStatus.deferred` flag and the
+ * `aiDeferred` attribution filter.
+ */
+export function isAiDeferred(
+  eb: ExpressionBuilder<DB, 'attribution'>,
+): AliasableExpression<SqlBool> {
+  return eb.exists(
+    eb
+      .selectFrom('attribution_ai')
+      .select('attribution_uuid')
+      .whereRef('attribution_ai.attribution_uuid', '=', 'attribution.uuid')
+      .where('deferred_fields', 'is not', null),
+  );
+}
+
 export function selectAttributionsWithAiStatus(db: Kysely<DB>) {
   return db
     .selectFrom('attribution')
@@ -35,9 +59,7 @@ export function selectAttributionsWithAiStatus(db: Kysely<DB>) {
       'attribution_ai.attribution_uuid as ai_attribution_uuid',
       'attribution_ai.human_modified as ai_human_modified',
     ])
-    .select((eb) =>
-      eb('attribution_ai.deferred_fields', 'is not', null).as('ai_deferred'),
-    );
+    .select((eb) => isAiDeferred(eb).as('ai_deferred'));
 }
 
 export function packageInfoWithAiStatusFromRow(

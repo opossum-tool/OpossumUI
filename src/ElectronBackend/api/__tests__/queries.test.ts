@@ -392,6 +392,43 @@ describe('filterProperties', () => {
     expect(result.all.needsFollowUp).toBe(1);
   });
 
+  it('counts AI-deferred attributions correctly', async () => {
+    await setupDb();
+
+    const external = await queries.filterProperties({
+      external: true,
+      filters: [],
+      resourcePathForRelationships: '/parent/target',
+    });
+    expect(external.result.all.aiDeferred).toBe(0);
+
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/target']),
+      manualAttributions: {
+        attributions: {
+          deferred: {
+            id: 'deferred',
+            criticality: Criticality.None,
+            aiAttributions: { deferredFields: { copyright: true } },
+          },
+          ordinary: { id: 'ordinary', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/parent': ['deferred', 'ordinary'],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const manual = await queries.filterProperties({
+      external: false,
+      filters: [],
+      resourcePathForRelationships: '/parent/target',
+    });
+    expect(manual.result.all.total).toBe(2);
+    expect(manual.result.all.aiDeferred).toBe(1);
+  });
+
   it('applies active filters to narrow results', async () => {
     await setupDb();
 

@@ -10,6 +10,7 @@ import type { AttributionFilterKey } from '../../../shared/attribution-filters';
 import { text } from '../../../shared/text';
 import { baseIcon, OpossumColors } from '../../shared-styles';
 import {
+  DeferredIcon,
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
   FollowUpIcon,
@@ -64,6 +65,11 @@ export const attributionFilterOptions: Array<AttributionFilterOption> = [
     key: 'needsReview',
     label: text.filters.needsReview,
     icon: <NeedsReviewIcon noTooltip />,
+  },
+  {
+    key: 'aiDeferred',
+    label: text.filters.aiDeferred,
+    icon: <DeferredIcon noTooltip />,
   },
   {
     key: 'preSelected',

@@ -338,6 +338,50 @@ describe('filtering attributions', () => {
     );
   });
 
+  it('filters AI-deferred attributions in audit view', async () => {
+    const [deferredId, deferredAttribution] = faker.opossum.rawAttribution({
+      aiAttributions: { deferredFields: { copyright: true } },
+    });
+    const [otherId, otherAttribution] = faker.opossum.rawAttribution();
+    const resourceName = faker.opossum.resourceNames({ count: 1 })[0];
+    const filePath = faker.opossum.filePath(resourceName);
+
+    await renderApp({
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: faker.opossum.resources({ [resourceName]: 1 }),
+        manualAttributions: deserializeAttributions({
+          [deferredId]: deferredAttribution,
+          [otherId]: otherAttribution,
+        }),
+        resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+          [filePath]: [deferredId, otherId],
+        }),
+      }),
+    });
+
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [deferredAttribution, otherAttribution],
+      [],
+    );
+
+    await applyPanelFilter(ATTRIBUTIONS_PANEL, 'aiDeferred');
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [deferredAttribution],
+      [otherAttribution],
+    );
+
+    await clickFilterMenuButton(screen.getByTestId(ATTRIBUTIONS_PANEL));
+    await clickClearFiltersMenuItem();
+    await closeFilterMenu();
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [deferredAttribution, otherAttribution],
+      [],
+    );
+  });
+
   it('only displays attributions matching search term', async () => {
     await renderApp({ data });
     await expectPackageCards(

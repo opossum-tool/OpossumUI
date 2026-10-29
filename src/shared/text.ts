@@ -373,6 +373,7 @@ export const text = {
         : `${count} attributions are linked to both editable and read-only resources. They will be removed from the affected editable resources but remain on the read-only resources.`,
   },
   filters: {
+    aiDeferred: 'AI-deferred attributions',
     any: 'Any',
     classification: 'Classification',
     criticality: 'Criticality',

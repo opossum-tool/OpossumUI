@@ -13,6 +13,7 @@ const FILTER_MENU_LABELS = {
   needsFollowUp: text.filters.needsFollowUp,
   firstParty: text.filters.firstParty,
   thirdParty: text.filters.thirdParty,
+  aiDeferred: text.filters.aiDeferred,
   unreviewed: text.filters.unreviewed,
 } as const;
 
