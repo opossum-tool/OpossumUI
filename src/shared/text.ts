@@ -380,6 +380,7 @@ export const text = {
     currentlyPreferred: 'Currently Preferred',
     excludedFromNotice: 'Excluded from Notice',
     firstParty: 'First Party',
+    hasAiDeferredAttribution: 'Has AI-deferred attribution',
     highConfidence: 'High Confidence',
     licenses: 'Licenses',
     incompleteCoordinates: 'Incomplete Component Coordinates',

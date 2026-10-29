@@ -382,6 +382,56 @@ describe('filtering attributions', () => {
     );
   });
 
+  it('scopes filter counts to the attributions displayed for the selected resource', async () => {
+    const [deferredId, deferredAttribution] = faker.opossum.rawAttribution({
+      aiAttributions: { deferredFields: { copyright: true } },
+    });
+    const [plainId, plainAttribution] = faker.opossum.rawAttribution();
+    const [aiId, aiAttribution] = faker.opossum.rawAttribution({
+      aiAttributions: { humanModified: false },
+    });
+    const [deferredFileName, plainFileName] = faker.opossum.resourceNames({
+      count: 2,
+    });
+
+    await renderApp({
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: faker.opossum.resources({
+          [deferredFileName]: 1,
+          [plainFileName]: 1,
+        }),
+        manualAttributions: deserializeAttributions({
+          [deferredId]: deferredAttribution,
+          [plainId]: plainAttribution,
+          [aiId]: aiAttribution,
+        }),
+        resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+          [faker.opossum.filePath(deferredFileName)]: [deferredId],
+          [faker.opossum.filePath(plainFileName)]: [plainId, aiId],
+        }),
+      }),
+    });
+
+    async function expectAiDeferredMenuCount(expected: string): Promise<void> {
+      await clickFilterMenuButton(screen.getByTestId(ATTRIBUTIONS_PANEL));
+      const item = screen.getByRole('menuitem', {
+        name: new RegExp(`^${text.filters.aiDeferred}`),
+      });
+      await waitFor(() => {
+        expect(item.textContent).toBe(
+          `${text.filters.aiDeferred}${expected ? ` (${expected})` : ''}`,
+        );
+      });
+      await closeFilterMenu();
+    }
+
+    await gotoResource(deferredFileName);
+    await expectAiDeferredMenuCount('1');
+
+    await gotoResource(plainFileName);
+    await expectAiDeferredMenuCount('0');
+  });
+
   it('only displays attributions matching search term', async () => {
     await renderApp({ data });
     await expectPackageCards(

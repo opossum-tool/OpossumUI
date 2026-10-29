@@ -25,6 +25,7 @@ export interface AttributionFilters {
 
 export interface ResourceTreeFilters {
   onlyUnreviewedFiles: boolean;
+  onlyWithAiDeferredAttributions: boolean;
   selectedLicense: string;
 }
 
@@ -37,6 +38,7 @@ export const initialAttributionFilters: AttributionFilters = {
 
 const initialResourceTreeFilters: ResourceTreeFilters = {
   onlyUnreviewedFiles: false,
+  onlyWithAiDeferredAttributions: false,
   selectedLicense: '',
 };
 

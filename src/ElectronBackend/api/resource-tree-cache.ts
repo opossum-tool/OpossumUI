@@ -29,6 +29,7 @@ function getFilterKey(filters: ResourceTreeFilters) {
     filters.search,
     filters.licenseFilter,
     filters.onlyUnreviewedFiles,
+    filters.onlyWithAiDeferredAttributions,
     filters.onAttributionUuids,
     filters.onlyWritable,
   ]);

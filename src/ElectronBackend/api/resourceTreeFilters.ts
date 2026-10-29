@@ -10,6 +10,7 @@ import {
   type Transaction,
 } from 'kysely';
 
+import { isAiDeferred } from '../db/attribution-ai';
 import type { DB } from '../db/generated/databaseTypes';
 import { jsonArraySelection } from '../db/json-array-selection';
 import {
@@ -25,6 +26,7 @@ export type LicenseFilter = { licenseName: string; external: boolean };
 export type ResourceTreeFilters = {
   search?: string;
   onlyUnreviewedFiles?: boolean;
+  onlyWithAiDeferredAttributions?: boolean;
   licenseFilter?: LicenseFilter;
   onAttributionUuids?: Array<string>;
   onlyWritable?: boolean;
@@ -35,6 +37,7 @@ function hasActiveNonSearchFilters(filters: ResourceTreeFilters) {
     filters.licenseFilter ||
     filters.onAttributionUuids ||
     filters.onlyUnreviewedFiles ||
+    filters.onlyWithAiDeferredAttributions ||
     filters.onlyWritable,
   );
 }
@@ -122,6 +125,7 @@ export function getFilteredResourcesQuery(
   {
     licenseFilter,
     onlyUnreviewedFiles,
+    onlyWithAiDeferredAttributions,
     onAttributionUuids,
     search,
     onlyWritable,
@@ -179,6 +183,20 @@ export function getFilteredResourcesQuery(
       )
       .where('r.is_file', '=', 1)
       .where('r.is_readonly', '=', 0);
+  }
+  if (onlyWithAiDeferredAttributions) {
+    const attributionEb = expressionBuilder<DB, 'attribution'>();
+    query = query.where('r.id', 'in', (eb) =>
+      eb
+        .selectFrom('attribution')
+        .innerJoin(
+          'resource_to_attribution',
+          'resource_to_attribution.attribution_uuid',
+          'attribution.uuid',
+        )
+        .select('resource_to_attribution.resource_id')
+        .where(isAiDeferred(attributionEb)),
+    );
   }
   if (onlyWritable) {
     query = query.where('r.is_readonly', '=', 0);

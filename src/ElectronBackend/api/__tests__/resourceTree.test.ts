@@ -6,6 +6,7 @@ import {
   type Attributions,
   type AttributionsToResources,
   Criticality,
+  type PersistedAttributions,
   type Resources,
   type ResourcesToAttributions,
 } from '../../../shared/shared-types';
@@ -14,6 +15,7 @@ import { getDb } from '../../db/db';
 import {
   getLinkedResourceTree,
   getResourceTree,
+  getResourceTreeAiDeferredCount,
   getResourceTreeUnreviewedCount,
 } from '../resourceTree';
 import { getNodePathsToExpand } from '../resourceTreeExpansion';
@@ -299,6 +301,87 @@ describe('attribution filtering', () => {
       '/src/external.ts',
       '/src/writable.ts',
     ]);
+  });
+});
+
+describe('resource tree AI-deferred filter', () => {
+  const DEFERRED_UUID = 'ai-deferred-uuid';
+  const AI_NOT_DEFERRED_UUID = 'ai-not-deferred-uuid';
+  const PLAIN_UUID = 'plain-uuid';
+
+  beforeEach(async () => {
+    const attributions: PersistedAttributions = {
+      [DEFERRED_UUID]: {
+        id: DEFERRED_UUID,
+        criticality: Criticality.None,
+        packageName: 'deferred-package',
+        licenseName: 'MIT',
+        aiAttributions: { deferredFields: { copyright: true } },
+      },
+      [AI_NOT_DEFERRED_UUID]: {
+        id: AI_NOT_DEFERRED_UUID,
+        criticality: Criticality.None,
+        packageName: 'ai-not-deferred-package',
+        aiAttributions: { humanModified: false },
+      },
+      [PLAIN_UUID]: {
+        id: PLAIN_UUID,
+        criticality: Criticality.None,
+        packageName: 'plain-package',
+      },
+    };
+    const resourcesToAttributions: ResourcesToAttributions = {
+      '/src/deferred.ts': [DEFERRED_UUID],
+      '/src/folder/plain-child.ts': [AI_NOT_DEFERRED_UUID, PLAIN_UUID],
+    };
+    const attributionsToResources: AttributionsToResources = {};
+    for (const [resource, uuids] of Object.entries(resourcesToAttributions)) {
+      for (const uuid of uuids) {
+        (attributionsToResources[uuid] ??= []).push(resource);
+      }
+    }
+
+    await initializeDbWithTestData({
+      resources: {
+        src: {
+          'deferred.ts': 1,
+          folder: { 'plain-child.ts': 1 },
+        },
+      },
+      manualAttributions: {
+        attributions,
+        resourcesToAttributions,
+        attributionsToResources,
+      },
+    });
+  });
+
+  it('shows only resources with AI-deferred attributions and their ancestors', async () => {
+    const deferred = await getResourceTree({
+      expandedNodes: 'expandAll',
+      onlyWithAiDeferredAttributions: true,
+    });
+    expect(deferred.result.count).toBe(1);
+    expect(deferred.result.treeNodes.map((node) => node.id)).toEqual([
+      '/',
+      '/src/',
+      '/src/deferred.ts',
+    ]);
+  });
+
+  it('counts matching resources combined with search and license filters', async () => {
+    const all = await getResourceTreeAiDeferredCount({});
+    expect(all.result).toBe(1);
+
+    const searched = await getResourceTreeAiDeferredCount({
+      search: 'plain-child',
+    });
+    expect(searched.result).toBe(0);
+
+    const licensed = await getResourceTreeAiDeferredCount({
+      licenseFilter: { licenseName: 'MIT', external: false },
+    });
+    expect(licensed.result).toBe(1);
   });
 });
 
