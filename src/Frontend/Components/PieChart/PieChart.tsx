@@ -64,12 +64,16 @@ interface PieChartLegendProps {
   segments: Array<ChartDataItem>;
   colors: Array<string>;
   onTooltipOpenChange: (open: boolean) => void;
+  onHoverChange: (index: number | null) => void;
+  onFocusChange: (index: number | null) => void;
 }
 
 function PieChartLegend({
   segments,
   colors,
   onTooltipOpenChange,
+  onHoverChange,
+  onFocusChange,
 }: PieChartLegendProps) {
   const theme = useTheme();
   const legendTextStyle: React.CSSProperties = {
@@ -88,6 +92,10 @@ function PieChartLegend({
         <div
           style={{ display: 'flex', alignItems: 'center' }}
           key={item.id ?? index}
+          onMouseEnter={() => onHoverChange(index)}
+          onMouseLeave={() => onHoverChange(null)}
+          onFocus={() => onFocusChange(index)}
+          onBlur={() => onFocusChange(null)}
         >
           <div
             style={getLegendIconStyle(theme, colors[index], theme.spacing(1))}
@@ -120,6 +128,13 @@ function PieChartLegend({
 export const PieChart: React.FC<PieChartProps> = (props) => {
   const theme = useTheme();
   const [actionTooltipOpen, setActionTooltipOpen] = useState(false);
+  const [hoveredLegendIndex, setHoveredLegendIndex] = useState<number | null>(
+    null,
+  );
+  const [focusedLegendIndex, setFocusedLegendIndex] = useState<number | null>(
+    null,
+  );
+  const activeLegendIndex = hoveredLegendIndex ?? focusedLegendIndex;
 
   const pieChartColors = props.segments.map(
     ({ name, color }, i) =>
@@ -130,19 +145,23 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
 
   function renderSector(sectorProps: PieSectorShapeProps) {
     const item = props.segments[sectorProps.index];
+    const isActive =
+      activeLegendIndex === null
+        ? sectorProps.isActive
+        : sectorProps.index === activeLegendIndex;
     return (
       <>
         <RcSector
           {...sectorProps}
           style={{
-            filter: sectorProps.isActive ? 'brightness(0.9)' : undefined,
+            filter: isActive ? 'brightness(0.9)' : undefined,
           }}
           onClick={item?.onActivate}
           cursor={item?.onActivate ? 'pointer' : undefined}
         />
         {/* Keep the foreground layer mounted while the active slice changes. */}
         <RcZIndexLayer zIndex={DefaultZIndexes.line}>
-          {sectorProps.isActive && (
+          {isActive && (
             <RcSector
               {...sectorProps}
               fill={'none'}
@@ -176,7 +195,9 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           shape={renderSector}
         />
         <RcTooltip
-          active={actionTooltipOpen ? false : undefined}
+          active={
+            actionTooltipOpen || activeLegendIndex !== null ? false : undefined
+          }
           wrapperStyle={{ zIndex: 1 }}
           contentStyle={chartTooltipContentStyle(theme)}
           itemStyle={chartTooltipTextStyle}
@@ -194,6 +215,8 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
               segments={props.segments}
               colors={pieChartColors}
               onTooltipOpenChange={setActionTooltipOpen}
+              onHoverChange={setHoveredLegendIndex}
+              onFocusChange={setFocusedLegendIndex}
             />
           }
           position="right"
