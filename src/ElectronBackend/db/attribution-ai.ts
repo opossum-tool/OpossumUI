@@ -30,9 +30,12 @@ export type AttributionWithAiStatus = Selectable<Attribution> & {
 };
 
 /**
- * An attribution is AI-deferred if it has AI metadata with deferred fields.
- * Single source of truth for the `aiStatus.deferred` flag and the
- * `aiDeferred` attribution filter.
+ * An attribution is AI-deferred if it has AI metadata with deferred fields
+ * (`deferred_fields IS NOT NULL`, so an empty object counts as deferred).
+ * Use this in query contexts that do not already join `attribution_ai`;
+ * when the join exists, check `deferred_fields` directly (see
+ * selectAttributionsWithAiStatus) to avoid the redundant exists subquery.
+ * Both places must stay semantically identical.
  */
 export function isAiDeferred(
   eb: ExpressionBuilder<DB, 'attribution'>,
@@ -59,7 +62,9 @@ export function selectAttributionsWithAiStatus(db: Kysely<DB>) {
       'attribution_ai.attribution_uuid as ai_attribution_uuid',
       'attribution_ai.human_modified as ai_human_modified',
     ])
-    .select((eb) => isAiDeferred(eb).as('ai_deferred'));
+    .select((eb) =>
+      eb('attribution_ai.deferred_fields', 'is not', null).as('ai_deferred'),
+    );
 }
 
 export function packageInfoWithAiStatusFromRow(

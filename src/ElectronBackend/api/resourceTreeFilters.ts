@@ -10,7 +10,6 @@ import {
   type Transaction,
 } from 'kysely';
 
-import { isAiDeferred } from '../db/attribution-ai';
 import type { DB } from '../db/generated/databaseTypes';
 import { jsonArraySelection } from '../db/json-array-selection';
 import {
@@ -185,17 +184,16 @@ export function getFilteredResourcesQuery(
       .where('r.is_readonly', '=', 0);
   }
   if (onlyWithAiDeferredAttributions) {
-    const attributionEb = expressionBuilder<DB, 'attribution'>();
     query = query.where('r.id', 'in', (eb) =>
       eb
-        .selectFrom('attribution')
+        .selectFrom('resource_to_attribution')
         .innerJoin(
-          'resource_to_attribution',
+          'attribution_ai',
+          'attribution_ai.attribution_uuid',
           'resource_to_attribution.attribution_uuid',
-          'attribution.uuid',
         )
         .select('resource_to_attribution.resource_id')
-        .where(isAiDeferred(attributionEb)),
+        .where('deferred_fields', 'is not', null),
     );
   }
   if (onlyWritable) {
