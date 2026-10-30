@@ -818,6 +818,52 @@ describe('getResourcePathsAndParentsForAttributions', () => {
 
     expect(result).toContain('/src/linked/');
   });
+
+  it('expands directly linked folders by default', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/folder/child/inner.ts']),
+      externalAttributions: {
+        attributions: {
+          uuid1: { id: 'uuid1', criticality: 0 },
+        },
+        resourcesToAttributions: { '/folder': ['uuid1'] },
+        attributionsToResources: { uuid1: ['/folder'] },
+      },
+    });
+
+    const { result } = await queries.getResourcePathsAndParentsForAttributions({
+      attributionUuids: ['uuid1'],
+    });
+
+    expect(result).toContain('/folder/');
+  });
+
+  it('only expands ancestors of linked resources when requested', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources([
+        '/linked/file.ts',
+        '/folder/child/inner.ts',
+      ]),
+      externalAttributions: {
+        attributions: {
+          uuid1: { id: 'uuid1', criticality: 0 },
+        },
+        resourcesToAttributions: {
+          '/linked/file.ts': ['uuid1'],
+          '/folder': ['uuid1'],
+        },
+        attributionsToResources: { uuid1: ['/linked/file.ts', '/folder'] },
+      },
+    });
+
+    const { result } = await queries.getResourcePathsAndParentsForAttributions({
+      attributionUuids: ['uuid1'],
+      onlyExpandAncestorsOfLinkedResources: true,
+    });
+
+    expect(result).toContain('/linked/');
+    expect(result).not.toContain('/folder/');
+  });
 });
 
 describe('getProgressBarData', () => {

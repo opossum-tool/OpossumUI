@@ -5,6 +5,7 @@
 import MuiAlert from '@mui/material/Alert';
 import MuiButton, { type ButtonProps } from '@mui/material/Button';
 import MuiTypography from '@mui/material/Typography';
+import type { ReactNode } from 'react';
 
 import type {
   AllMatchingAttributionSelection,
@@ -36,7 +37,7 @@ interface Props {
   onClose: () => void;
   header: string;
   ariaLabel: string;
-  description: string;
+  description: ReactNode;
   mixedWarning: string;
   attributions: Attributions | undefined;
   localAction?: Action;
@@ -129,9 +130,17 @@ export function ConfirmAttributionActionPopup({
             <MuiTypography>{text.updateApp.loading}</MuiTypography>
           )}
           <MuiTypography variant={'subtitle2'}>
-            {mixedAttributionCount > 0
-              ? text.confirmAttributionActionPopup.editableLinkedResources
-              : text.confirmAttributionActionPopup.linkedResources}
+            {linkedResourcesTreeState
+              ? text.confirmAttributionActionPopup.withTreeCounts(
+                  mixedAttributionCount > 0
+                    ? text.confirmAttributionActionPopup.editableLinkedResources
+                    : text.confirmAttributionActionPopup.linkedResources,
+                  linkedResourcesTreeState.treeNodes.length,
+                  linkedResourcesTreeState.count,
+                )
+              : mixedAttributionCount > 0
+                ? text.confirmAttributionActionPopup.editableLinkedResources
+                : text.confirmAttributionActionPopup.linkedResources}
           </MuiTypography>
           {linkedResourcesTreeState && (
             <LinkedResourcesTree
