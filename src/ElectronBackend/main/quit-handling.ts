@@ -89,6 +89,14 @@ export function acknowledgeQuitRequest(): void {
  * Awaits all pending requests of the DB process (in particular pending
  * background writes of the .opossum file) and writes the current state of
  * the loaded project to file before quitting.
+ *
+ * The final saveFile is a deliberate flush, not a redundant write: file
+ * writes normally happen fire-and-forget after each renderer mutation
+ * (window.electronAPI.saveFile()), but the DB process serves both ports
+ * concurrently, so such a save can race with later mutations and its
+ * failure is never surfaced. This is the only save that is ordered after
+ * all pending work (renderer mutations settled, main connection idle) and
+ * whose failure keeps the app open instead of losing data on quit.
  */
 export async function confirmQuit(
   window: BrowserWindow,
@@ -115,10 +123,17 @@ export async function confirmQuit(
         return;
       }
       // The final write failed; keep the app open so that the user can
-      // retry closing it.
+      // retry closing it. Tell the renderer so it can clear its
+      // saving-before-quit indicator.
       quitApproved = false;
       quitRequestSentAt = null;
       quitRequestHandled = false;
+      if (
+        !window.webContents.isDestroyed() &&
+        !window.webContents.isCrashed()
+      ) {
+        window.webContents.send(AllowedFrontendChannels.QuitSaveFailed);
+      }
       await showListenerErrorInMessageBox(window, error);
       return;
     }

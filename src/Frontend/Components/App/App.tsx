@@ -15,6 +15,7 @@ import { ErrorFallback } from '../ErrorFallback/ErrorFallback';
 import { GlobalPopup } from '../GlobalPopup/GlobalPopup';
 import { MacArchitectureWarning } from '../MacArchitectureWarning/mac-architecture-warning';
 import { ProcessPopup } from '../ProcessPopup/ProcessPopup';
+import { QuitSaveIndicator } from '../QuitSaveIndicator/QuitSaveIndicator';
 import { ReportView } from '../ReportView/ReportView';
 import { TopBar } from '../TopBar/TopBar';
 import { UpdateBanner } from '../UpdateBanner/UpdateBanner';
@@ -37,6 +38,7 @@ export function App() {
         <ProcessPopup />
         <TopBar />
         <NotificationRegion>
+          <QuitSaveIndicator />
           <UpdateBanner />
           <MacArchitectureWarning />
         </NotificationRegion>

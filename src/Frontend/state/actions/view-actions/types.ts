@@ -21,6 +21,8 @@ export const ACTION_SET_MERGE_OPOSSUM_FILES_REQUEST =
 export const ACTION_SET_EXPORT_FILE_REQUEST = 'ACTION_SET_EXPORT_FILE_REQUEST';
 export const ACTION_SET_SPLIT_FILE_REQUEST = 'ACTION_SET_SPLIT_FILE_REQUEST';
 export const ACTION_SET_QUIT_APP_REQUEST = 'ACTION_SET_QUIT_APP_REQUEST';
+export const ACTION_SET_IS_SAVING_BEFORE_QUIT =
+  'ACTION_SET_IS_SAVING_BEFORE_QUIT';
 
 export type OpenFileRequest =
   { kind: 'dialog' } | { kind: 'path'; filePath: string };
@@ -46,7 +48,8 @@ export type ViewAction =
   | SetMergeOpossumFilesRequestAction
   | SetExportFileRequestAction
   | SetSplitFileRequestAction
-  | SetQuitAppRequestAction;
+  | SetQuitAppRequestAction
+  | SetIsSavingBeforeQuitAction;
 
 export interface ResetViewStateAction {
   type: typeof ACTION_RESET_VIEW_STATE;
@@ -102,5 +105,10 @@ export interface SetSplitFileRequestAction {
 
 export interface SetQuitAppRequestAction {
   type: typeof ACTION_SET_QUIT_APP_REQUEST;
+  payload: boolean;
+}
+
+export interface SetIsSavingBeforeQuitAction {
+  type: typeof ACTION_SET_IS_SAVING_BEFORE_QUIT;
   payload: boolean;
 }
