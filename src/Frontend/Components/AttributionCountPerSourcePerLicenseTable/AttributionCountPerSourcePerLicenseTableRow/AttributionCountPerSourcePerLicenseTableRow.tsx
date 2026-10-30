@@ -13,6 +13,7 @@ import {
 import { text } from '../../../../shared/text';
 import { OpossumColors, tableClasses } from '../../../shared-styles';
 import { useClassifications } from '../../../util/use-classifications';
+import { ChartActionTooltip } from '../../ChartContainer/chart-action-tooltip';
 import { CriticalityIcon } from '../../Icons/Icons';
 import {
   type Column,
@@ -85,15 +86,26 @@ const RowCellContent: React.FC<RowCellContentProps> = (props) => {
 
   if (props.column.columnType === SingleColumn.NAME) {
     return (
-      <MuiLink
-        underline="hover"
-        onClick={() => {
-          props.setSelectedLicense?.(props.licenseName);
-        }}
-        sx={{ cursor: 'pointer' }}
+      <ChartActionTooltip
+        description={
+          props.setSelectedLicense
+            ? text.projectStatisticsPopup.actions.license(props.licenseName)
+            : undefined
+        }
       >
-        {props.licenseName}
-      </MuiLink>
+        <MuiLink
+          component={'button'}
+          type={'button'}
+          variant={'inherit'}
+          underline="hover"
+          onClick={() => {
+            props.setSelectedLicense?.(props.licenseName);
+          }}
+          sx={{ cursor: 'pointer', textAlign: 'inherit' }}
+        >
+          {props.licenseName}
+        </MuiLink>
+      </ChartActionTooltip>
     );
   } else if (props.column.columnType === SingleColumn.CRITICALITY) {
     return props.licenseCriticality === Criticality.None ? (

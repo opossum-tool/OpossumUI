@@ -74,6 +74,7 @@ import {
   createSplit,
   exportFileOrOpenUnsavedPopup,
   mergeOpossumFilesIntoCurrentFile,
+  navigateFromStatistics,
   navigateToSelectedPathOrOpenUnsavedPopup,
   openFileOrOpenUnsavedPopup,
   proceedFromUnsavedPopup,
@@ -949,4 +950,52 @@ describe('closePopupAndUnsetTargets', () => {
     expect(getTargetSelectedResourceId(testStore.getState())).toBeNull();
     expect(getTargetSelectedAttributionId(testStore.getState())).toBeNull();
   });
+});
+
+describe('statistics navigation', () => {
+  it.each(['cancel', 'discard'] as const)(
+    'preserves state until %s',
+    (choice) => {
+      const store = createAppStore();
+      const attribution = faker.opossum.packageInfo();
+      const filters: AttributionFilters = {
+        filters: ['needsReview'],
+        search: '',
+        valueFilters: {},
+        sorting: 'alphabetically',
+      };
+      store.dispatch(navigateToView(View.Report));
+      store.dispatch(setSelectedResourceId('/nested/', 'preserve'));
+      store.dispatch(initializePackageInfoEditing(attribution));
+      store.dispatch(
+        setTemporaryDisplayPackageInfo({ ...attribution, comment: 'unsaved' }),
+      );
+      store.dispatch(navigateFromStatistics({ external: false, filters }));
+      expect(getOpenPopup(store.getState())?.popup).toBe(
+        PopupType.NotSavedPopup,
+      );
+      expect(getSelectedResourceId(store.getState())).toBe('/nested/');
+      expect(getSelectedView(store.getState())).toBe(View.Report);
+      expect(
+        store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+      ).toBeUndefined();
+      store.dispatch(
+        choice === 'cancel'
+          ? closePopupAndUnsetTargets()
+          : proceedFromUnsavedPopup(),
+      );
+      expect(getSelectedResourceId(store.getState())).toBe(
+        choice === 'cancel' ? '/nested/' : '/',
+      );
+      expect(getSelectedView(store.getState())).toBe(
+        choice === 'cancel' ? View.Report : View.Audit,
+      );
+      expect(
+        store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+      ).toEqual(choice === 'cancel' ? undefined : filters);
+      expect(getTemporaryDisplayPackageInfo(store.getState()).comment).toBe(
+        choice === 'cancel' ? 'unsaved' : attribution.comment,
+      );
+    },
+  );
 });

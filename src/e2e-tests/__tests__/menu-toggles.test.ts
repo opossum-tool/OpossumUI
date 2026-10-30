@@ -5,6 +5,7 @@
 import { expect } from '@playwright/test';
 
 import { menuItemIds } from '../../ElectronBackend/main/menu/menuItemIds';
+import { text } from '../../shared/text';
 import { faker, test } from '../utils';
 
 const metadata = faker.opossum.metadata();
@@ -165,4 +166,23 @@ test('toggles QA mode, classification, and criticality, and opens project metada
   await expect
     .poll(() => menuBar.getMenuItemIconReference(menuItemIds.qaMode))
     .toBe(qaModeIconUnchecked);
+});
+
+test('clicking a rendered criticality slice filters signals', async ({
+  menuBar,
+  projectStatisticsPopup,
+  signalsPanel,
+}) => {
+  await menuBar.openProjectStatistics();
+  await projectStatisticsPopup.assert.titleIsVisible();
+  const category =
+    text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
+      .highlyCritical;
+  await projectStatisticsPopup.clickCriticalitySlice(category);
+  await projectStatisticsPopup.assert.titleIsHidden();
+  await signalsPanel.filterButton.click();
+  await signalsPanel.assert.criticalityFilterIs('High');
+  await signalsPanel.closeFilterMenu();
+  await signalsPanel.packageCard.assert.isVisible(packageInfo2);
+  await signalsPanel.packageCard.assert.isHidden(packageInfo1);
 });
