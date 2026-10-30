@@ -319,8 +319,8 @@ export function mergeOpossumFilesIntoCurrentFile(
   };
 }
 
-export function proceedFromUnsavedPopup(): AppThunkAction {
-  return (dispatch, getState) => {
+export function proceedFromUnsavedPopup(): AppThunkAction<Promise<void>> {
+  return async (dispatch, getState) => {
     dispatch(
       initializePackageInfoEditing(
         getState().resourceState.originalDisplayPackageInfo,
@@ -338,7 +338,10 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     const quitAppRequested = getQuitAppRequested(getState());
 
     if (quitAppRequested) {
-      // Quitting discards the changes and any pending action targets.
+      // Quitting discards the changes and any pending action targets. The
+      // popup stays open (with a spinning button) until pending mutations
+      // have settled, so that the final quit cannot silently lose writes.
+      await waitForMutationsToSettle();
       dispatch(closePopup());
       dispatch(setTargetView(null));
       dispatch(setTargetSelectedResourceId(null));
@@ -350,7 +353,7 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
       dispatch(setExportFileRequest(null));
       dispatch(setSplitFileRequest(null));
       dispatch(setQuitAppRequest(false));
-      void confirmQuitAfterMutationsSettle();
+      void window.electronAPI.confirmQuit();
       return;
     }
 

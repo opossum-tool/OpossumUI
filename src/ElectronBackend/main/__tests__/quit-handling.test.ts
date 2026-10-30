@@ -229,4 +229,41 @@ describe('confirmQuit', () => {
     expect(quitMock).toHaveBeenCalledTimes(1);
     expect(showMessageBoxMock).not.toHaveBeenCalled();
   });
+
+  it('ignores close attempts while the final save is in flight', async () => {
+    setGlobalBackendState({
+      projectId: 'uuid_1',
+      opossumFilePath: '/some/path.opossum',
+    });
+    let resolveWhenIdle!: () => void;
+    whenIdleMock.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveWhenIdle = resolve;
+      }),
+    );
+
+    const quitPromise = confirmQuit(createWindowMock().window);
+
+    const midSave = createWindowMock();
+    closeWindow(midSave.window, midSave.preventDefault);
+    expect(midSave.preventDefault).toHaveBeenCalledTimes(1);
+    expect(midSave.send).not.toHaveBeenCalled();
+
+    resolveWhenIdle();
+    await quitPromise;
+  });
+
+  it('lets the window close once quit is finalized', async () => {
+    setGlobalBackendState({
+      projectId: 'uuid_1',
+      opossumFilePath: '/some/path.opossum',
+    });
+
+    await confirmQuit(createWindowMock().window);
+    expect(quitMock).toHaveBeenCalledTimes(1);
+
+    const { preventDefault } = createWindowMock();
+    closeWindow(createWindowMock().window, preventDefault);
+    expect(preventDefault).not.toHaveBeenCalled();
+  });
 });
