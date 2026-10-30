@@ -5,9 +5,9 @@
 import MuiLink from '@mui/material/Link';
 import { useTheme } from '@mui/material/styles';
 import {
+  type BarShapeProps,
   Bar as RcBar,
   BarChart as RcBarChart,
-  Cell as RcCell,
   Label as RcLabel,
   Rectangle as RcRectangle,
   ResponsiveContainer as RcResponsiveContainer,
@@ -41,6 +41,17 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
     fontFamily: 'sans-serif',
     fontSize: theme.typography.caption.fontSize,
   } satisfies React.SVGProps<SVGTextElement>;
+
+  function renderRectangle(rectangleProps: BarShapeProps) {
+    const item = props.data[rectangleProps.originalDataIndex];
+    return (
+      <RcRectangle
+        {...rectangleProps}
+        onClick={item?.onActivate}
+        cursor={item?.onActivate ? 'pointer' : undefined}
+      />
+    );
+  }
 
   return (
     <RcResponsiveContainer width={'100%'} height={'100%'}>
@@ -125,19 +136,12 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
           dataKey={'count'}
           fill={OpossumColors.darkBlue}
           isAnimationActive={false}
-          onClick={(_, index) => props.data[index]?.onActivate?.()}
           // Keep zero-count entries so they also get clickable backgrounds.
-          shape={<RcRectangle />}
-          background={{ fill: 'transparent' }}
-        >
-          {props.data.map((item, index) => (
-            <RcCell
-              key={item.id ?? index}
-              onClick={item.onActivate}
-              cursor={item.onActivate ? 'pointer' : undefined}
-            />
-          ))}
-        </RcBar>
+          shape={renderRectangle}
+          background={(rectangleProps: BarShapeProps) =>
+            renderRectangle({ ...rectangleProps, fill: 'transparent' })
+          }
+        />
       </RcBarChart>
     </RcResponsiveContainer>
   );

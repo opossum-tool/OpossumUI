@@ -5,11 +5,12 @@
 import MuiLink from '@mui/material/Link';
 import { type Theme, useTheme } from '@mui/material/styles';
 import {
-  Cell as RcCell,
+  type PieSectorShapeProps,
   Legend as RcLegend,
   Pie as RcPie,
   PieChart as RcPieChart,
   ResponsiveContainer as RcResponsiveContainer,
+  Sector as RcSector,
   Tooltip as RcTooltip,
 } from 'recharts';
 
@@ -74,27 +75,33 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
       defaultPieChartColors[i % defaultPieChartColors.length],
   );
 
+  function renderSector(sectorProps: PieSectorShapeProps) {
+    const item = props.segments[sectorProps.index];
+    return (
+      <RcSector
+        {...sectorProps}
+        onClick={item?.onActivate}
+        cursor={item?.onActivate ? 'pointer' : undefined}
+      />
+    );
+  }
+
   return (
     <RcResponsiveContainer width={'100%'} height={'100%'}>
       <RcPieChart>
         <RcPie
-          data={props.segments}
+          data={props.segments.map((item, index) => ({
+            ...item,
+            fill: pieChartColors[index],
+          }))}
           dataKey="count"
           nameKey="name"
           minAngle={15}
           outerRadius={PIE_RADIUS}
           isAnimationActive={false}
           stroke="none"
-        >
-          {props.segments.map((item, index) => (
-            <RcCell
-              key={item.id ?? index}
-              fill={pieChartColors[index]}
-              onClick={item.onActivate}
-              cursor={item.onActivate ? 'pointer' : undefined}
-            />
-          ))}
-        </RcPie>
+          shape={renderSector}
+        />
         <RcTooltip
           contentStyle={chartTooltipContentStyle(theme)}
           itemStyle={chartTooltipTextStyle}
