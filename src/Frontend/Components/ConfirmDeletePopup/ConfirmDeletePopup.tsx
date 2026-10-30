@@ -11,6 +11,7 @@ import { maybePluralize } from '../../util/maybe-pluralize';
 import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../util/use-focused-attribution-outcome';
 import { useLinkedAttributionActionData } from '../AttributionAction/useLinkedAttributionActionData';
 import { ConfirmAttributionActionPopup } from '../ConfirmAttributionActionPopup/ConfirmAttributionActionPopup';
+import { DirectlyLinkedResourcesText } from '../ConfirmAttributionActionPopup/DirectlyLinkedResourcesText';
 
 interface Props {
   selection: AttributionSelection;
@@ -86,17 +87,20 @@ export const ConfirmDeletePopup: React.FC<Props> = ({
       }}
       attributions={attributionsToDelete}
       onClose={onClose}
-      description={text.deleteAttributionsPopup.deleteAttributions({
-        attributions: maybePluralize(
-          actionSummary.selectedAttributionCount,
-          text.packageLists.attribution,
-        ),
-        resources: maybePluralize(
-          actionSummary.linkedResourceCount ?? 1,
-          text.deleteAttributionsPopup.resource,
-          { showOne: true },
-        ),
-      })}
+      description={
+        <>
+          {text.deleteAttributionsPopup.deleteAttributions({
+            attributions: maybePluralize(
+              actionSummary.selectedAttributionCount,
+              text.packageLists.attribution,
+            ),
+          })}{' '}
+          <DirectlyLinkedResourcesText
+            count={actionSummary.linkedResourceCount ?? 1}
+            noun={text.deleteAttributionsPopup.resource}
+          />
+        </>
+      }
       mixedWarning={text.deleteAttributionsPopup.mixedWarning(
         actionSummary.mixedAttributionCount,
       )}

@@ -328,6 +328,15 @@ export const text = {
   confirmAttributionActionPopup: {
     linkedResources: 'Linked resources',
     editableLinkedResources: 'Editable linked resources',
+    withTreeCounts: (
+      title: string,
+      shownCount: number,
+      directlyLinkedCount: number,
+      readAccessSplit?: { editableCount: number; readonlyCount: number },
+    ) =>
+      readAccessSplit
+        ? `${title} (${new Intl.NumberFormat().format(shownCount)} shown, ${new Intl.NumberFormat().format(readAccessSplit.editableCount + readAccessSplit.readonlyCount)} directly linked (${new Intl.NumberFormat().format(readAccessSplit.editableCount)} editable, ${new Intl.NumberFormat().format(readAccessSplit.readonlyCount)} read-only))`
+        : `${title} (${new Intl.NumberFormat().format(shownCount)} shown, ${new Intl.NumberFormat().format(directlyLinkedCount)} directly linked)`,
     mixedWarning: (count: number) =>
       count === 1
         ? '1 attribution is linked to both editable and read-only resources. It will be cloned and changes will affect only the new attribution.'
@@ -337,22 +346,10 @@ export const text = {
     ariaLabel: 'confirm save popup',
     titleSave: 'Save Attributions',
     titleConfirm: 'Confirm Attributions',
-    saveAttributions: ({
-      attributions,
-      resources,
-    }: {
-      attributions: string;
-      resources: string;
-    }) =>
-      `This action will save the following ${attributions} on ${resources}:`,
-    confirmAttributions: ({
-      attributions,
-      resources,
-    }: {
-      attributions: string;
-      resources: string;
-    }) =>
-      `This action will confirm the following ${attributions} on ${resources}:`,
+    saveAttributions: ({ attributions }: { attributions: string }) =>
+      `This action will save the following ${attributions} on`,
+    confirmAttributions: ({ attributions }: { attributions: string }) =>
+      `This action will confirm the following ${attributions} on`,
     saveGlobally: 'Save on All',
     confirmGlobally: 'Confirm on All',
     saveLocally: 'Save only on Selected',
@@ -365,14 +362,8 @@ export const text = {
   deleteAttributionsPopup: {
     ariaLabel: 'confirm delete popup',
     title: 'Delete Attributions',
-    deleteAttributions: ({
-      attributions,
-      resources,
-    }: {
-      attributions: string;
-      resources: string;
-    }) =>
-      `This action will permanently remove the following ${attributions} from ${resources}:`,
+    deleteAttributions: ({ attributions }: { attributions: string }) =>
+      `This action will permanently remove the following ${attributions} from`,
     deleteGlobally: 'Delete on All',
     deleteLocally: 'Delete only on Selected',
     delete: 'Delete',

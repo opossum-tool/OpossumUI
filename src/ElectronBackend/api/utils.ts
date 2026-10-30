@@ -358,6 +358,7 @@ export async function resourcesToExpand(
     aboveAttributionUuids?: Array<string>;
     aboveResourceId?: number;
     limit?: number;
+    onlyExpandAncestorsOfLinkedResources?: boolean;
   },
 ) {
   // Recursively descend the resource tree, expanding all nodes that fit the filters
@@ -397,11 +398,20 @@ export async function resourcesToExpand(
                   .selectFrom('resource_to_attribution as rta')
                   .selectAll()
                   .where((eb) =>
-                    eb.between(
-                      'rta.resource_id',
-                      eb.ref('child.id'),
-                      eb.ref('child.max_descendant_id'),
-                    ),
+                    props.onlyExpandAncestorsOfLinkedResources
+                      ? eb.and([
+                          eb('rta.resource_id', '>', eb.ref('child.id')),
+                          eb(
+                            'rta.resource_id',
+                            '<=',
+                            eb.ref('child.max_descendant_id'),
+                          ),
+                        ])
+                      : eb.between(
+                          'rta.resource_id',
+                          eb.ref('child.id'),
+                          eb.ref('child.max_descendant_id'),
+                        ),
                   )
                   .where(
                     'attribution_uuid',

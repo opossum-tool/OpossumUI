@@ -67,6 +67,7 @@ export function useLinkedAttributionActionData({
       areAttributionsReady &&
       !isQueryWideSelection,
     onlyWritable: true,
+    onlyExpandAncestorsOfLinkedResources: true,
   });
 
   const actionSummary = isQueryWideSelection

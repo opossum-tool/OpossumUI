@@ -50,6 +50,7 @@ type ResourceTreeResult<T> = {
     treeNodes: Array<T>;
     count: number;
     belowSelectedResource?: number;
+    readonlyLinkedResourceCount?: number;
   };
 };
 
@@ -192,6 +193,22 @@ async function getResourceTreeWithProjection(
     const resourceIdsTable = filtersAreActive
       ? 'filtered_resources'
       : 'resource';
+    const readonlyLinkedResourceCount = onAttributionUuids?.length
+      ? (
+          await trx
+            .selectFrom('resource_to_attribution as rta')
+            .innerJoin('resource as r', 'r.id', 'rta.resource_id')
+            .select(sql<number>`count(distinct rta.resource_id)`.as('count'))
+            .where(
+              'rta.attribution_uuid',
+              'in',
+              jsonArraySelection(onAttributionUuids),
+            )
+            .where('r.is_readonly', '=', 1)
+            .executeTakeFirstOrThrow()
+        ).count
+      : undefined;
+
     const total = (
       await trx
         .$extendTables<FilteredTable>()
@@ -231,7 +248,7 @@ async function getResourceTreeWithProjection(
 
     if (total === 0) {
       return {
-        result: { treeNodes: [], count: 0 },
+        result: { treeNodes: [], count: 0, readonlyLinkedResourceCount },
         expandedNodeSet,
       };
     }
@@ -386,6 +403,7 @@ async function getResourceTreeWithProjection(
         treeNodes,
         count: total,
         belowSelectedResource: belowSelectedResourceTotal,
+        readonlyLinkedResourceCount,
       },
       expandedNodeSet,
     };

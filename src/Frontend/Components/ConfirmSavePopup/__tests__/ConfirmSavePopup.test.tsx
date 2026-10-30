@@ -314,11 +314,13 @@ describe('AttributionFormConfirmSavePopup', () => {
     });
     expect(
       await screen.findByText(
-        text.saveAttributionsPopup.confirmAttributions({
+        `${text.saveAttributionsPopup.confirmAttributions({
           attributions: '2 attributions',
-          resources: '1 resource',
-        }),
+        })} 1 resource:`,
       ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(text.resourceBrowser.directlyLinked),
     ).toBeInTheDocument();
     await waitFor(() => expect(confirmButton).toBeEnabled());
     await userEvent.click(confirmButton);
@@ -475,6 +477,38 @@ describe('AttributionFormConfirmSavePopup', () => {
 
     await waitFor(() => expect(toast.error).toHaveBeenCalled());
     expect(onSaveComplete).not.toHaveBeenCalled();
+  });
+
+  it('does not expand directly linked folders in the linked resources tree', async () => {
+    const attribution = faker.opossum.packageInfo();
+    const linkedFolder = '/folder';
+    const childResource = '/folder/child/inner.ts';
+
+    await renderComponent(
+      <ConfirmSavePopup
+        open
+        onClose={noop}
+        selection={{ mode: 'explicit', attributionUuids: [attribution.id] }}
+        attributions={{ [attribution.id]: attribution }}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [attribution.id]: attribution,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [linkedFolder]: [attribution.id],
+          }),
+          resources: pathsToResources([childResource]),
+        }),
+        actions: [setSelectedResourceId(linkedFolder, 'auto')],
+      },
+    );
+
+    await screen.findByTestId('linked-resources-tree-node-/folder/');
+    expect(
+      screen.queryByTestId('linked-resources-tree-node-/folder/child/'),
+    ).not.toBeInTheDocument();
   });
 
   it('saves attribution linked to a single resource', async () => {

@@ -61,11 +61,13 @@ describe('ConfirmDeletePopup', () => {
     });
     expect(
       await screen.findByText(
-        text.deleteAttributionsPopup.deleteAttributions({
+        `${text.deleteAttributionsPopup.deleteAttributions({
           attributions: 'attribution',
-          resources: '1 resource',
-        }),
+        })} 1 resource:`,
       ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(text.resourceBrowser.directlyLinked),
     ).toBeInTheDocument();
     await waitFor(() => expect(deleteButton).toBeEnabled());
     await userEvent.click(deleteButton);
@@ -107,14 +109,94 @@ describe('ConfirmDeletePopup', () => {
 
     expect(
       await screen.findByText(
-        text.deleteAttributionsPopup.deleteAttributions({
+        `${text.deleteAttributionsPopup.deleteAttributions({
           attributions: '2 attributions',
-          resources: '2 resources',
-        }),
+        })} 2 resources:`,
       ),
     ).toBeInTheDocument();
     expect(
+      screen.getAllByLabelText(text.resourceBrowser.directlyLinked).length,
+    ).toBeGreaterThanOrEqual(1);
+    expect(
       screen.getByText(text.deleteAttributionsPopup.title),
+    ).toBeInTheDocument();
+  });
+
+  it('mentions the number of resources shown in the tree', async () => {
+    const attribution = faker.opossum.packageInfo();
+    const resource = faker.opossum.filePath(faker.opossum.resourceName());
+
+    await renderComponent(
+      <ConfirmDeletePopup
+        open
+        onClose={noop}
+        selection={{ mode: 'explicit', attributionUuids: [attribution.id] }}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [attribution.id]: attribution,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource]: [attribution.id],
+          }),
+          resources: pathsToResources([resource]),
+        }),
+        actions: [setSelectedAttributionId(attribution.id)],
+      },
+    );
+
+    expect(
+      await screen.findByText(
+        text.confirmAttributionActionPopup.withTreeCounts(
+          text.confirmAttributionActionPopup.linkedResources,
+          2,
+          1,
+        ),
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('shows the split of editable and read-only linked resources', async () => {
+    const attribution = faker.opossum.packageInfo();
+    const editableResource = faker.opossum.filePath(
+      faker.opossum.resourceName(),
+    );
+    const readonlyResource = faker.opossum.filePath(
+      faker.opossum.resourceName(),
+    );
+
+    await renderComponent(
+      <ConfirmDeletePopup
+        open
+        onClose={noop}
+        selection={{ mode: 'explicit', attributionUuids: [attribution.id] }}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [attribution.id]: attribution,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [editableResource]: [attribution.id],
+            [readonlyResource]: [attribution.id],
+          }),
+          resources: pathsToResources([editableResource, readonlyResource]),
+          readonlyRules: [{ path: readonlyResource, readonly: true }],
+        }),
+        actions: [setSelectedAttributionId(attribution.id)],
+      },
+    );
+
+    expect(
+      await screen.findByText(
+        text.confirmAttributionActionPopup.withTreeCounts(
+          text.confirmAttributionActionPopup.editableLinkedResources,
+          2,
+          1,
+          { editableCount: 1, readonlyCount: 1 },
+        ),
+      ),
     ).toBeInTheDocument();
   });
 
