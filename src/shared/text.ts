@@ -258,6 +258,9 @@ export const text = {
     discard: 'Discard and Proceed',
     discardAndQuit: 'Discard and Quit',
   },
+  quitSaveIndicator: {
+    saving: 'Saving project before quitting…',
+  },
   resourceBrowser: {
     allResources: (selectedResources: number, totalCount: number) =>
       `Resources (${new Intl.NumberFormat().format(selectedResources)} / ${new Intl.NumberFormat().format(totalCount)})`,

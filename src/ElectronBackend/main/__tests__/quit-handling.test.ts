@@ -199,15 +199,19 @@ describe('confirmQuit', () => {
     expect(quitMock).toHaveBeenCalledTimes(1);
   });
 
-  it('keeps the app open and shows the error when the final write fails', async () => {
+  it('keeps the app open, notifies the renderer and shows the error when the final write fails', async () => {
     setGlobalBackendState({
       projectId: 'uuid_1',
       opossumFilePath: '/some/path.opossum',
     });
     saveFileMock.mockRejectedValue(new Error('write failed'));
+    const { window, send } = createWindowMock();
 
-    await confirmQuit(createWindowMock().window);
+    await confirmQuit(window);
 
+    expect(send).toHaveBeenCalledExactlyOnceWith(
+      AllowedFrontendChannels.QuitSaveFailed,
+    );
     expect(showMessageBoxMock).toHaveBeenCalledTimes(1);
     expect(quitMock).not.toHaveBeenCalled();
 

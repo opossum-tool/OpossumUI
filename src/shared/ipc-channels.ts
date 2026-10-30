@@ -61,4 +61,5 @@ export enum AllowedFrontendChannels {
   ProcessingStateChanged = 'processing-state-changed',
   SetDatabaseInitialized = 'set-database-initialized',
   RequestQuitApproval = 'request-quit-approval',
+  QuitSaveFailed = 'quit-save-failed',
 }

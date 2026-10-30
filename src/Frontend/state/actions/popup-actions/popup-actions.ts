@@ -58,6 +58,7 @@ import {
   openSplitDialog,
   setExportFileRequest,
   setImportFileRequest,
+  setIsSavingBeforeQuit,
   setMergeOpossumFilesRequest,
   setOpenFileRequest,
   setQuitAppRequest,
@@ -85,9 +86,20 @@ async function waitForMutationsToSettle(): Promise<void> {
   });
 }
 
-async function confirmQuitAfterMutationsSettle(): Promise<void> {
-  await waitForMutationsToSettle();
-  void window.electronAPI.confirmQuit();
+/**
+ * Confirms the quit in the main process once no TanStack Query mutation is
+ * pending anymore. Mutations are executed in the DB process via the
+ * renderer's own connection, which the main process cannot observe; waiting
+ * here ensures the DB process state is settled before the app quits. The
+ * saving indicator is shown from here on, covering the final save performed
+ * by the main process.
+ */
+function confirmQuitAfterMutationsSettle(): AppThunkAction<Promise<void>> {
+  return async (dispatch) => {
+    await waitForMutationsToSettle();
+    dispatch(setIsSavingBeforeQuit(true));
+    void window.electronAPI.confirmQuit();
+  };
 }
 
 function withUnsavedCheck({
@@ -280,7 +292,8 @@ export function showSplitDialogOrOpenUnsavedPopup(
 
 export function quitAppOrOpenUnsavedPopup(): AppThunkAction {
   return withUnsavedCheck({
-    executeImmediately: () => confirmQuitAfterMutationsSettle(),
+    executeImmediately: (dispatch) =>
+      void dispatch(confirmQuitAfterMutationsSettle()),
     requestContinuation: (dispatch) => dispatch(setQuitAppRequest(true)),
   });
 }
@@ -353,7 +366,7 @@ export function proceedFromUnsavedPopup(): AppThunkAction<Promise<void>> {
       dispatch(setExportFileRequest(null));
       dispatch(setSplitFileRequest(null));
       dispatch(setQuitAppRequest(false));
-      void window.electronAPI.confirmQuit();
+      void dispatch(confirmQuitAfterMutationsSettle());
       return;
     }
 

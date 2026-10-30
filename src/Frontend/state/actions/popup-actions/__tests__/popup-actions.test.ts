@@ -39,6 +39,7 @@ import {
 import {
   getExportFileRequest,
   getImportFileRequest,
+  getIsSavingBeforeQuit,
   getMergeOpossumFilesRequest,
   getOpenFileRequest,
   getOpenPopup,
@@ -967,6 +968,7 @@ describe('quitAppOrOpenUnsavedPopup', () => {
 
     expect(getOpenPopup(testStore.getState())).toBeNull();
     expect(getQuitAppRequested(testStore.getState())).toBe(false);
+    expect(getIsSavingBeforeQuit(testStore.getState())).toBe(true);
   });
 
   it('opens the unsaved-changes popup when there are unsaved changes', () => {
@@ -1004,6 +1006,7 @@ describe('quitAppOrOpenUnsavedPopup', () => {
       expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
     );
     expect(getQuitAppRequested(testStore.getState())).toBe(false);
+    expect(getIsSavingBeforeQuit(testStore.getState())).toBe(true);
     expect(getOpenPopup(testStore.getState())).toBeNull();
     expect(getIsPackageInfoDirty(testStore.getState())).toBe(false);
   });
@@ -1023,6 +1026,7 @@ describe('quitAppOrOpenUnsavedPopup', () => {
 
     expect(window.electronAPI.confirmQuit).not.toHaveBeenCalled();
     expect(getQuitAppRequested(testStore.getState())).toBe(false);
+    expect(getIsSavingBeforeQuit(testStore.getState())).toBe(false);
     expect(getOpenPopup(testStore.getState())).toBeNull();
   });
 
@@ -1082,6 +1086,7 @@ describe('quitAppOrOpenUnsavedPopup', () => {
     );
     expect(getOpenPopup(testStore.getState())).toBeNull();
     expect(getQuitAppRequested(testStore.getState())).toBe(false);
+    expect(getIsSavingBeforeQuit(testStore.getState())).toBe(true);
 
     observer.reset();
   });
