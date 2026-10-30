@@ -14,6 +14,7 @@ import { backend } from '../../../util/backendClient';
 export type LinkedResourcesTreeState = {
   belowSelectedResource?: number;
   count: number;
+  readonlyLinkedResourceCount?: number;
   expandedIds: Array<string>;
   setExpandedIds: (values: Array<string>) => void;
   treeNodes: Array<LinkedResourceTreeNodeData>;

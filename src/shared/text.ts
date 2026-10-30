@@ -322,8 +322,11 @@ export const text = {
       title: string,
       shownCount: number,
       directlyLinkedCount: number,
+      readAccessSplit?: { editableCount: number; readonlyCount: number },
     ) =>
-      `${title} (${new Intl.NumberFormat().format(shownCount)} shown, ${new Intl.NumberFormat().format(directlyLinkedCount)} directly linked)`,
+      readAccessSplit
+        ? `${title} (${new Intl.NumberFormat().format(shownCount)} shown, ${new Intl.NumberFormat().format(readAccessSplit.editableCount + readAccessSplit.readonlyCount)} directly linked (${new Intl.NumberFormat().format(readAccessSplit.editableCount)} editable, ${new Intl.NumberFormat().format(readAccessSplit.readonlyCount)} read-only))`
+        : `${title} (${new Intl.NumberFormat().format(shownCount)} shown, ${new Intl.NumberFormat().format(directlyLinkedCount)} directly linked)`,
     mixedWarning: (count: number) =>
       count === 1
         ? '1 attribution is linked to both editable and read-only resources. It will be cloned and changes will affect only the new attribution.'

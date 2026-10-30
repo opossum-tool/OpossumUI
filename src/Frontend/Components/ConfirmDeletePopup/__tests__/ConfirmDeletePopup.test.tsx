@@ -157,6 +157,49 @@ describe('ConfirmDeletePopup', () => {
     ).toBeInTheDocument();
   });
 
+  it('shows the split of editable and read-only linked resources', async () => {
+    const attribution = faker.opossum.packageInfo();
+    const editableResource = faker.opossum.filePath(
+      faker.opossum.resourceName(),
+    );
+    const readonlyResource = faker.opossum.filePath(
+      faker.opossum.resourceName(),
+    );
+
+    await renderComponent(
+      <ConfirmDeletePopup
+        open
+        onClose={noop}
+        selection={{ mode: 'explicit', attributionUuids: [attribution.id] }}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [attribution.id]: attribution,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [editableResource]: [attribution.id],
+            [readonlyResource]: [attribution.id],
+          }),
+          resources: pathsToResources([editableResource, readonlyResource]),
+          readonlyRules: [{ path: readonlyResource, readonly: true }],
+        }),
+        actions: [setSelectedAttributionId(attribution.id)],
+      },
+    );
+
+    expect(
+      await screen.findByText(
+        text.confirmAttributionActionPopup.withTreeCounts(
+          text.confirmAttributionActionPopup.editableLinkedResources,
+          2,
+          1,
+          { editableCount: 1, readonlyCount: 1 },
+        ),
+      ),
+    ).toBeInTheDocument();
+  });
+
   it('deletes attributions', async () => {
     const attribution1 = faker.opossum.packageInfo();
     const attribution2 = faker.opossum.packageInfo();

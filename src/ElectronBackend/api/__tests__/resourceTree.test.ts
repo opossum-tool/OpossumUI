@@ -172,6 +172,29 @@ describe('attribution filtering', () => {
     ).toHaveLength(1);
   });
 
+  it('reports read-only linked resources alongside the writable count', async () => {
+    const writableOnly = await getLinkedResourceTree({
+      expandedNodes: 'expandAll',
+      onAttributionUuids: [FILTER_EXTERNAL_UUID],
+      onlyWritable: true,
+    });
+    expect(writableOnly.result.count).toBe(3);
+    expect(writableOnly.result.readonlyLinkedResourceCount).toBe(1);
+
+    const includingReadonly = await getLinkedResourceTree({
+      expandedNodes: 'expandAll',
+      onAttributionUuids: [FILTER_EXTERNAL_UUID],
+    });
+    expect(includingReadonly.result.count).toBe(4);
+    expect(includingReadonly.result.readonlyLinkedResourceCount).toBe(1);
+
+    const withoutUuids = await getLinkedResourceTree({
+      expandedNodes: 'expandAll',
+      onAttributionUuids: [],
+    });
+    expect(withoutUuids.result.readonlyLinkedResourceCount).toBeUndefined();
+  });
+
   it('marks only resources directly linked to any requested UUID', async () => {
     const linkedTree = await getLinkedResourceTree({
       expandedNodes: 'expandAll',

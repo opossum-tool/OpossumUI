@@ -137,6 +137,15 @@ export function ConfirmAttributionActionPopup({
                     : text.confirmAttributionActionPopup.linkedResources,
                   linkedResourcesTreeState.treeNodes.length,
                   linkedResourcesTreeState.count,
+                  mixedAttributionCount > 0 &&
+                    linkedResourcesTreeState.readonlyLinkedResourceCount !==
+                      undefined
+                    ? {
+                        editableCount: linkedResourcesTreeState.count,
+                        readonlyCount:
+                          linkedResourcesTreeState.readonlyLinkedResourceCount,
+                      }
+                    : undefined,
                 )
               : mixedAttributionCount > 0
                 ? text.confirmAttributionActionPopup.editableLinkedResources
