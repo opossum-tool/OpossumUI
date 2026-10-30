@@ -5,13 +5,14 @@
 import MuiLink from '@mui/material/Link';
 import { type Theme, useTheme } from '@mui/material/styles';
 import {
+  DefaultZIndexes,
   type PieSectorShapeProps,
   Legend as RcLegend,
   Pie as RcPie,
   PieChart as RcPieChart,
-  ResponsiveContainer as RcResponsiveContainer,
   Sector as RcSector,
   Tooltip as RcTooltip,
+  ZIndexLayer as RcZIndexLayer,
 } from 'recharts';
 
 import {
@@ -20,6 +21,7 @@ import {
   OpossumColors,
 } from '../../shared-styles';
 import type { ChartDataItem } from '../../types/types';
+import { ChartContainer } from '../ChartContainer/chart-container';
 
 // Chart geometry in px, consumed numerically by recharts
 const PIE_RADIUS = 70;
@@ -78,16 +80,36 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
   function renderSector(sectorProps: PieSectorShapeProps) {
     const item = props.segments[sectorProps.index];
     return (
-      <RcSector
-        {...sectorProps}
-        onClick={item?.onActivate}
-        cursor={item?.onActivate ? 'pointer' : undefined}
-      />
+      <>
+        <RcSector
+          {...sectorProps}
+          style={{
+            filter: sectorProps.isActive ? 'brightness(0.9)' : undefined,
+          }}
+          onClick={item?.onActivate}
+          cursor={item?.onActivate ? 'pointer' : undefined}
+        />
+        {/* Keep the foreground layer mounted while the active slice changes. */}
+        <RcZIndexLayer zIndex={DefaultZIndexes.line}>
+          {sectorProps.isActive && (
+            <RcSector
+              {...sectorProps}
+              fill={'none'}
+              stroke={OpossumColors.grey}
+              strokeWidth={1}
+              strokeLinejoin={'round'}
+              pointerEvents={'none'}
+              tabIndex={undefined}
+              aria-hidden
+            />
+          )}
+        </RcZIndexLayer>
+      </>
     );
   }
 
   return (
-    <RcResponsiveContainer width={'100%'} height={'100%'}>
+    <ChartContainer width={'100%'} height={'100%'}>
       <RcPieChart>
         <RcPie
           data={props.segments.map((item, index) => ({
@@ -145,6 +167,6 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           width={LEGEND_WIDTH}
         />
       </RcPieChart>
-    </RcResponsiveContainer>
+    </ChartContainer>
   );
 };

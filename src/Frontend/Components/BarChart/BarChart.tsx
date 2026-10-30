@@ -10,7 +10,6 @@ import {
   BarChart as RcBarChart,
   Label as RcLabel,
   Rectangle as RcRectangle,
-  ResponsiveContainer as RcResponsiveContainer,
   Tooltip as RcTooltip,
   XAxis as RcXAxis,
   YAxis as RcYAxis,
@@ -24,6 +23,7 @@ import {
   OpossumColors,
 } from '../../shared-styles';
 import type { ChartDataItem } from '../../types/types';
+import { ChartContainer } from '../ChartContainer/chart-container';
 
 // Chart plot-area geometry in px, consumed numerically by recharts
 const MARGIN_LEFT = 8;
@@ -53,27 +53,17 @@ function BarChartLabel({
     >
       <div
         style={{
-          position: 'relative',
           display: 'flex',
           alignItems: 'center',
+          justifyContent: 'flex-end',
           height: '100%',
           textAlign: 'right',
         }}
       >
-        {/* Measure words independently of the visible label's wrapping width. */}
-        <span
-          aria-hidden
+        <div
           className={tick.className}
-          style={{
-            position: 'absolute',
-            visibility: 'hidden',
-            pointerEvents: 'none',
-            width: 'min-content',
-          }}
+          style={{ width: 'min-content', flexShrink: 0 }}
         >
-          {item?.name}
-        </span>
-        <div style={{ width: '100%' }}>
           {item?.onActivate ? (
             <MuiLink
               component={'button'}
@@ -91,7 +81,7 @@ function BarChartLabel({
               {item.name}
             </MuiLink>
           ) : (
-            <span aria-label={item?.name}>{item?.name}</span>
+            <span>{item?.name}</span>
           )}
         </div>
       </div>
@@ -123,7 +113,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
   }
 
   return (
-    <RcResponsiveContainer width={'100%'} height={'100%'}>
+    <ChartContainer width={'100%'} height={'100%'}>
       <RcBarChart
         layout={'vertical'}
         data={props.data}
@@ -171,6 +161,6 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
           }
         />
       </RcBarChart>
-    </RcResponsiveContainer>
+    </ChartContainer>
   );
 };
