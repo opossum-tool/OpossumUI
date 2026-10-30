@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ComponentProps } from 'react';
 import type * as Recharts from 'recharts';
@@ -102,6 +102,44 @@ async function openStatistics(): Promise<void> {
 }
 
 describe('statistics navigation', () => {
+  it.each([
+    ['mostFrequentLicenseCountPieChart', 'MIT'],
+    ['attributionBarChart', 'Needs Review'],
+  ])(
+    'shows only one tooltip for %s on hover and keyboard focus',
+    async (chartId, label) => {
+      await openStatistics();
+      const chart = within(screen.getByTestId(chartId));
+      act(() => chart.getByRole('application').focus());
+      await userEvent.keyboard('{ArrowRight}');
+      expect(await chart.findByRole('status')).toBeVisible();
+      const button = chart.getByRole('button', {
+        name: label,
+      });
+      await userEvent.hover(button);
+      expect(await screen.findByRole('tooltip')).toBeVisible();
+      expect(button).toHaveAccessibleName(label);
+      expect(chart.queryByRole('status')).not.toBeInTheDocument();
+      await userEvent.unhover(button);
+      await waitFor(() =>
+        expect(screen.queryByRole('tooltip')).not.toBeInTheDocument(),
+      );
+      await userEvent.tab();
+      act(() => button.focus());
+      expect(await screen.findByRole('tooltip')).toBeVisible();
+      expect(chart.queryByRole('status')).not.toBeInTheDocument();
+    },
+  );
+
+  it('shows a tooltip without changing the license button accessible name', async () => {
+    await openStatistics();
+    await userEvent.click(screen.getByRole('tab', { name: 'Licenses' }));
+    const button = screen.getByRole('button', { name: 'MIT' });
+    await userEvent.hover(button);
+    expect(await screen.findByRole('tooltip')).toBeVisible();
+    expect(button).toHaveAccessibleName('MIT');
+  });
+
   it('opens Audit at the root with only the selected criticality filter', async () => {
     const highId = 'high-navigation-signal';
     const highSignal = {

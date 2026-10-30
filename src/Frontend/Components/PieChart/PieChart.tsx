@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiLink from '@mui/material/Link';
 import { type Theme, useTheme } from '@mui/material/styles';
+import { useState } from 'react';
 import {
   DefaultZIndexes,
   type PieSectorShapeProps,
@@ -21,7 +22,9 @@ import {
   OpossumColors,
 } from '../../shared-styles';
 import type { ChartDataItem } from '../../types/types';
+import { ChartActionTooltip } from '../ChartContainer/chart-action-tooltip';
 import { ChartContainer } from '../ChartContainer/chart-container';
+import { ChartTooltipContent } from '../ChartContainer/chart-tooltip-content';
 
 // Chart geometry in px, consumed numerically by recharts
 const PIE_RADIUS = 70;
@@ -59,6 +62,7 @@ interface PieChartProps {
 
 export const PieChart: React.FC<PieChartProps> = (props) => {
   const theme = useTheme();
+  const [actionTooltipOpen, setActionTooltipOpen] = useState(false);
 
   const legendTextStyle: React.CSSProperties = {
     fontFamily: 'sans-serif',
@@ -125,11 +129,20 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
           shape={renderSector}
         />
         <RcTooltip
+          active={actionTooltipOpen ? false : undefined}
+          wrapperStyle={{ zIndex: 1 }}
           contentStyle={chartTooltipContentStyle(theme)}
           itemStyle={chartTooltipTextStyle}
+          content={(tooltipProps) => (
+            <ChartTooltipContent
+              item={props.segments[Number(tooltipProps.activeIndex)]}
+              announce={tooltipProps.accessibilityLayer}
+              style={{ ...tooltipProps.contentStyle, ...chartTooltipTextStyle }}
+            />
+          )}
         />
         <RcLegend
-          content={() => (
+          content={
             <div>
               {props.segments.map((item, index) => (
                 <div
@@ -144,23 +157,28 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
                     )}
                   />
                   {item.onActivate ? (
-                    <MuiLink
-                      component={'button'}
-                      type={'button'}
-                      variant={'inherit'}
-                      underline={'hover'}
-                      onClick={item.onActivate}
-                      style={legendTextStyle}
+                    <ChartActionTooltip
+                      description={item.actionDescription}
+                      onOpenChange={setActionTooltipOpen}
                     >
-                      {item.name}
-                    </MuiLink>
+                      <MuiLink
+                        component={'button'}
+                        type={'button'}
+                        variant={'inherit'}
+                        underline={'hover'}
+                        onClick={item.onActivate}
+                        style={legendTextStyle}
+                      >
+                        {item.name}
+                      </MuiLink>
+                    </ChartActionTooltip>
                   ) : (
                     <div style={legendTextStyle}>{item.name}</div>
                   )}
                 </div>
               ))}
             </div>
-          )}
+          }
           verticalAlign="middle"
           align="right"
           layout="vertical"

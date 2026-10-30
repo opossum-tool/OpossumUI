@@ -126,6 +126,10 @@ export const ProjectStatisticsPopup: React.FC = () => {
                   id: item.name,
                   name: text.projectStatisticsPopup.charts
                     .attributionProperties[item.name],
+                  actionDescription:
+                    item.name === 'incomplete'
+                      ? undefined
+                      : text.projectStatisticsPopup.actions.attributions,
                   onActivate:
                     item.name === 'incomplete'
                       ? undefined
@@ -165,6 +169,9 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 segments={statistics.mostFrequentLicenses.map((item) => ({
                   ...item,
                   id: item.isOther ? 'aggregate-other' : `license:${item.name}`,
+                  actionDescription: item.isOther
+                    ? undefined
+                    : text.projectStatisticsPopup.actions.signals,
                   onActivate: item.isOther
                     ? undefined
                     : () => handleLicenseClick(item.name),
@@ -188,6 +195,10 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 segments={statistics.signalsByCriticality.map((item) => ({
                   ...item,
                   id: item.name ?? 'no-license',
+                  actionDescription:
+                    item.name === null
+                      ? undefined
+                      : text.projectStatisticsPopup.actions.signals,
                   name:
                     item.name === null
                       ? text.projectStatisticsPopup.charts.noLicense
@@ -231,6 +242,10 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 segments={statistics.signalsByClassification.map((item) => ({
                   ...item,
                   id: item.name ?? 'no-license',
+                  actionDescription:
+                    item.name === null
+                      ? undefined
+                      : text.projectStatisticsPopup.actions.signals,
                   name:
                     item.name === null
                       ? text.projectStatisticsPopup.charts.noLicense

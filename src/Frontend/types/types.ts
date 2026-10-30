@@ -65,4 +65,5 @@ export interface ChartDataItem extends Record<string, unknown> {
   id?: string | number;
   color?: string;
   onActivate?: () => void;
+  actionDescription?: string;
 }

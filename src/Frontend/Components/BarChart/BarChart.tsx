@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiLink from '@mui/material/Link';
 import { useTheme } from '@mui/material/styles';
+import { useState } from 'react';
 import {
   type BarShapeProps,
   Bar as RcBar,
@@ -23,7 +24,9 @@ import {
   OpossumColors,
 } from '../../shared-styles';
 import type { ChartDataItem } from '../../types/types';
+import { ChartActionTooltip } from '../ChartContainer/chart-action-tooltip';
 import { ChartContainer } from '../ChartContainer/chart-container';
+import { ChartTooltipContent } from '../ChartContainer/chart-tooltip-content';
 
 // Chart plot-area geometry in px, consumed numerically by recharts
 const MARGIN_LEFT = 8;
@@ -35,10 +38,12 @@ function BarChartLabel({
   tick,
   item,
   style,
+  onTooltipOpenChange,
 }: {
   tick: YAxisTickContentProps;
   item: ChartDataItem | undefined;
   style: React.CSSProperties;
+  onTooltipOpenChange: (open: boolean) => void;
 }) {
   const rowHeight =
     Number(tick.height ?? 0) / Math.max(1, tick.visibleTicksCount);
@@ -65,21 +70,26 @@ function BarChartLabel({
           style={{ width: 'min-content', flexShrink: 0 }}
         >
           {item?.onActivate ? (
-            <MuiLink
-              component={'button'}
-              type={'button'}
-              variant={'caption'}
-              underline={'hover'}
-              onClick={item.onActivate}
-              style={{
-                ...style,
-                lineHeight: 'inherit',
-                textAlign: 'right',
-                maxWidth: '100%',
-              }}
+            <ChartActionTooltip
+              description={item.actionDescription}
+              onOpenChange={onTooltipOpenChange}
             >
-              {item.name}
-            </MuiLink>
+              <MuiLink
+                component={'button'}
+                type={'button'}
+                variant={'caption'}
+                underline={'hover'}
+                onClick={item.onActivate}
+                style={{
+                  ...style,
+                  lineHeight: 'inherit',
+                  textAlign: 'right',
+                  maxWidth: '100%',
+                }}
+              >
+                {item.name}
+              </MuiLink>
+            </ChartActionTooltip>
           ) : (
             <span>{item?.name}</span>
           )}
@@ -95,6 +105,7 @@ interface BarChartProps {
 
 export const BarChart: React.FC<BarChartProps> = (props) => {
   const theme = useTheme();
+  const [actionTooltipOpen, setActionTooltipOpen] = useState(false);
 
   const tickStyle = {
     fontFamily: 'sans-serif',
@@ -140,14 +151,23 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
               tick={tick}
               item={props.data[tick.index]}
               style={tickStyle}
+              onTooltipOpenChange={setActionTooltipOpen}
             />
           )}
         />
         <RcTooltip
+          active={actionTooltipOpen ? false : undefined}
           cursor={{ fill: OpossumColors.lighterBlue }}
           contentStyle={chartTooltipContentStyle(theme)}
           itemStyle={chartTooltipTextStyle}
           labelStyle={chartTooltipTextStyle}
+          content={(tooltipProps) => (
+            <ChartTooltipContent
+              item={props.data[Number(tooltipProps.activeIndex)]}
+              announce={tooltipProps.accessibilityLayer}
+              style={{ ...tooltipProps.contentStyle, ...chartTooltipTextStyle }}
+            />
+          )}
         />
         <RcBar
           name={text.projectStatisticsPopup.charts.count}
