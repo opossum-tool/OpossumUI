@@ -337,7 +337,7 @@ describe('statistics navigation', () => {
     expect(chart.getByText('Complete Attributions')).toBeVisible();
     expect(chart.queryByRole('button')).not.toBeInTheDocument();
     const overview = within(screen.getByTestId('attributionBarChart'));
-    expect(overview.getByText('Incomplete Attributions')).toBeVisible();
+    expect(overview.getByLabelText('Incomplete Attributions')).toBeVisible();
     expect(
       overview.queryByRole('button', { name: 'Incomplete Attributions' }),
     ).not.toBeInTheDocument();

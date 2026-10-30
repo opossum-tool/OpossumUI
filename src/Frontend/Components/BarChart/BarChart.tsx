@@ -14,6 +14,7 @@ import {
   Tooltip as RcTooltip,
   XAxis as RcXAxis,
   YAxis as RcYAxis,
+  type YAxisTickContentProps,
 } from 'recharts';
 
 import { text } from '../../../shared/text';
@@ -29,6 +30,74 @@ const MARGIN_LEFT = 8;
 const MARGIN_RIGHT = 10;
 const MARGIN_BOTTOM = 4;
 const X_AXIS_LABEL_OFFSET = 3;
+
+function BarChartLabel({
+  tick,
+  item,
+  style,
+}: {
+  tick: YAxisTickContentProps;
+  item: ChartDataItem | undefined;
+  style: React.CSSProperties;
+}) {
+  const rowHeight =
+    Number(tick.height ?? 0) / Math.max(1, tick.visibleTicksCount);
+
+  return (
+    <foreignObject
+      x={MARGIN_LEFT}
+      y={Number(tick.y) - rowHeight / 2}
+      width={Math.max(0, Number(tick.x) - MARGIN_LEFT)}
+      height={rowHeight}
+      style={{ ...style, lineHeight: '1em', color: tick.fill }}
+    >
+      <div
+        style={{
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          height: '100%',
+          textAlign: 'right',
+        }}
+      >
+        {/* Measure words independently of the visible label's wrapping width. */}
+        <span
+          aria-hidden
+          className={tick.className}
+          style={{
+            position: 'absolute',
+            visibility: 'hidden',
+            pointerEvents: 'none',
+            width: 'min-content',
+          }}
+        >
+          {item?.name}
+        </span>
+        <div style={{ width: '100%' }}>
+          {item?.onActivate ? (
+            <MuiLink
+              component={'button'}
+              type={'button'}
+              variant={'caption'}
+              underline={'hover'}
+              onClick={item.onActivate}
+              style={{
+                ...style,
+                lineHeight: 'inherit',
+                textAlign: 'right',
+                maxWidth: '100%',
+              }}
+            >
+              {item.name}
+            </MuiLink>
+          ) : (
+            <span aria-label={item?.name}>{item?.name}</span>
+          )}
+        </div>
+      </div>
+    </foreignObject>
+  );
+}
 
 interface BarChartProps {
   data: Array<ChartDataItem>;
@@ -76,54 +145,13 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
           dataKey={'name'}
           type={'category'}
           width={'auto'}
-          tick={(tick) => {
-            const item = props.data[tick.index];
-            return (
-              <foreignObject
-                x={0}
-                y={tick.y}
-                width={Number(tick.x)}
-                style={{
-                  ...tickStyle,
-                  lineHeight: theme.typography.caption.lineHeight,
-                  height: '2lh',
-                  transform: 'translateY(-50%)',
-                  transformBox: 'fill-box',
-                }}
-              >
-                <div
-                  style={{
-                    ...tickStyle,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'flex-end',
-                    height: '100%',
-                    textAlign: 'right',
-                  }}
-                >
-                  <div
-                    className={tick.className}
-                    style={{ width: 'min-content', flexShrink: 0 }}
-                  >
-                    {item?.onActivate ? (
-                      <MuiLink
-                        component={'button'}
-                        type={'button'}
-                        variant={'caption'}
-                        underline={'hover'}
-                        onClick={item.onActivate}
-                        style={{ ...tickStyle, textAlign: 'right' }}
-                      >
-                        {item.name}
-                      </MuiLink>
-                    ) : (
-                      <span>{item?.name}</span>
-                    )}
-                  </div>
-                </div>
-              </foreignObject>
-            );
-          }}
+          tick={(tick) => (
+            <BarChartLabel
+              tick={tick}
+              item={props.data[tick.index]}
+              style={tickStyle}
+            />
+          )}
         />
         <RcTooltip
           cursor={{ fill: OpossumColors.lighterBlue }}
