@@ -11,11 +11,13 @@ import { PopupType } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
+import { setIsSavingBeforeQuit } from '../../../state/actions/view-actions/view-actions';
 import {
   getSelectedResourceId,
   getTemporaryDisplayPackageInfo,
 } from '../../../state/selectors/resource-selectors';
 import {
+  getIsSavingBeforeQuit,
   getOpenFileRequest,
   getOpenPopup,
 } from '../../../state/selectors/view-selector';
@@ -116,6 +118,23 @@ describe('BackendCommunication', () => {
       expect(getSelectedResourceId(store.getState())).toBe(
         '/some/resource/in/the/current/file',
       );
+    });
+  });
+
+  describe('QuitSaveFailed', () => {
+    it('clears the saving-before-quit indicator when the final save fails', async () => {
+      const listeners = setupListeners();
+      const { store } = await renderComponent(<BackendCommunication />, {
+        actions: [setIsSavingBeforeQuit(true)],
+      });
+
+      act(() => {
+        listeners.get(AllowedFrontendChannels.QuitSaveFailed)?.(
+          {} as IpcRendererEvent,
+        );
+      });
+
+      expect(getIsSavingBeforeQuit(store.getState())).toBe(false);
     });
   });
 });

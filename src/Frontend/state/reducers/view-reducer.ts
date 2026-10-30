@@ -12,8 +12,10 @@ import {
   ACTION_RESET_VIEW_STATE,
   ACTION_SET_EXPORT_FILE_REQUEST,
   ACTION_SET_IMPORT_FILE_REQUEST,
+  ACTION_SET_IS_SAVING_BEFORE_QUIT,
   ACTION_SET_MERGE_OPOSSUM_FILES_REQUEST,
   ACTION_SET_OPEN_FILE_REQUEST,
+  ACTION_SET_QUIT_APP_REQUEST,
   ACTION_SET_SPLIT_FILE_REQUEST,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
@@ -33,6 +35,8 @@ export interface ViewState {
   mergeOpossumFilesRequest: MergeOpossumFilesRequest | null;
   exportFileRequest: ExportType | null;
   splitFileRequest: SplitFileRequest | null;
+  quitAppRequest: boolean;
+  isSavingBeforeQuit: boolean;
 }
 
 const initialViewState: ViewState = {
@@ -44,6 +48,8 @@ const initialViewState: ViewState = {
   mergeOpossumFilesRequest: null,
   exportFileRequest: null,
   splitFileRequest: null,
+  quitAppRequest: false,
+  isSavingBeforeQuit: false,
 };
 
 export function viewState(
@@ -101,6 +107,16 @@ export function viewState(
       return {
         ...state,
         splitFileRequest: action.payload,
+      };
+    case ACTION_SET_QUIT_APP_REQUEST:
+      return {
+        ...state,
+        quitAppRequest: action.payload,
+      };
+    case ACTION_SET_IS_SAVING_BEFORE_QUIT:
+      return {
+        ...state,
+        isSavingBeforeQuit: action.payload,
       };
     default:
       return state;

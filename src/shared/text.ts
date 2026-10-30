@@ -256,6 +256,10 @@ export const text = {
     title: 'Unsaved Changes',
     message: 'You have unsaved changes. What would you like to do?',
     discard: 'Discard and Proceed',
+    discardAndQuit: 'Discard and Quit',
+  },
+  quitSaveIndicator: {
+    saving: 'Saving project before quitting…',
   },
   resourceBrowser: {
     allResources: (selectedResources: number, totalCount: number) =>
