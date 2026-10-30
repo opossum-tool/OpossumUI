@@ -60,10 +60,18 @@ interface PieChartProps {
   colorMap?: { [segmentName: string]: string };
 }
 
-export const PieChart: React.FC<PieChartProps> = (props) => {
-  const theme = useTheme();
-  const [actionTooltipOpen, setActionTooltipOpen] = useState(false);
+interface PieChartLegendProps {
+  segments: Array<ChartDataItem>;
+  colors: Array<string>;
+  onTooltipOpenChange: (open: boolean) => void;
+}
 
+function PieChartLegend({
+  segments,
+  colors,
+  onTooltipOpenChange,
+}: PieChartLegendProps) {
+  const theme = useTheme();
   const legendTextStyle: React.CSSProperties = {
     fontFamily: 'sans-serif',
     fontSize: theme.typography.caption.fontSize,
@@ -73,6 +81,45 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
     minWidth: 0,
     overflowWrap: 'anywhere',
   };
+
+  return (
+    <div>
+      {segments.map((item, index) => (
+        <div
+          style={{ display: 'flex', alignItems: 'center' }}
+          key={item.id ?? index}
+        >
+          <div
+            style={getLegendIconStyle(theme, colors[index], theme.spacing(1))}
+          />
+          {item.onActivate ? (
+            <ChartActionTooltip
+              description={item.actionDescription}
+              onOpenChange={onTooltipOpenChange}
+            >
+              <MuiLink
+                component={'button'}
+                type={'button'}
+                variant={'inherit'}
+                underline={'hover'}
+                onClick={item.onActivate}
+                style={legendTextStyle}
+              >
+                {item.name}
+              </MuiLink>
+            </ChartActionTooltip>
+          ) : (
+            <div style={legendTextStyle}>{item.name}</div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export const PieChart: React.FC<PieChartProps> = (props) => {
+  const theme = useTheme();
+  const [actionTooltipOpen, setActionTooltipOpen] = useState(false);
 
   const pieChartColors = props.segments.map(
     ({ name, color }, i) =>
@@ -143,46 +190,14 @@ export const PieChart: React.FC<PieChartProps> = (props) => {
         />
         <RcLegend
           content={
-            <div>
-              {props.segments.map((item, index) => (
-                <div
-                  style={{ display: 'flex', alignItems: 'center' }}
-                  key={item.id ?? index}
-                >
-                  <div
-                    style={getLegendIconStyle(
-                      theme,
-                      pieChartColors[index],
-                      theme.spacing(1),
-                    )}
-                  />
-                  {item.onActivate ? (
-                    <ChartActionTooltip
-                      description={item.actionDescription}
-                      onOpenChange={setActionTooltipOpen}
-                    >
-                      <MuiLink
-                        component={'button'}
-                        type={'button'}
-                        variant={'inherit'}
-                        underline={'hover'}
-                        onClick={item.onActivate}
-                        style={legendTextStyle}
-                      >
-                        {item.name}
-                      </MuiLink>
-                    </ChartActionTooltip>
-                  ) : (
-                    <div style={legendTextStyle}>{item.name}</div>
-                  )}
-                </div>
-              ))}
-            </div>
+            <PieChartLegend
+              segments={props.segments}
+              colors={pieChartColors}
+              onTooltipOpenChange={setActionTooltipOpen}
+            />
           }
-          verticalAlign="middle"
-          align="right"
-          layout="vertical"
-          width={LEGEND_WIDTH}
+          position="right"
+          wrapperStyle={{ width: LEGEND_WIDTH }}
         />
       </RcPieChart>
     </ChartContainer>
