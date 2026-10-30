@@ -20,7 +20,7 @@ import { useDebouncedInput } from '../../util/use-debounced-input';
 import { useResourceTreeFilterProperties } from '../../util/use-filter-properties';
 import { FilterButton } from '../FilterButton/FilterButton';
 import { LicenseAutocomplete } from '../FilterButton/LicenseAutocomplete/LicenseAutocomplete';
-import { UnreviewedIcon } from '../Icons/Icons';
+import { DeferredIcon, UnreviewedIcon } from '../Icons/Icons';
 import { LoadingIndicator } from '../LoadingIndicator/loading-indicator';
 import { ResizePanels } from '../ResizePanels/ResizePanels';
 import { LinkedResourcesTree } from './LinkedResourcesTree/LinkedResourcesTree';
@@ -53,7 +53,11 @@ export function ResourceBrowser() {
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   // All resources
   const [
-    { onlyUnreviewedFiles, selectedLicense: resourceTreeSelectedLicense },
+    {
+      onlyUnreviewedFiles,
+      onlyWithAiDeferredAttributions,
+      selectedLicense: resourceTreeSelectedLicense,
+    },
     setResourceTreeFilters,
   ] = useResourceTreeFilters();
   const [searchAll, setSearchAll] = useVariable(ALL_RESOURCES_SEARCH, '');
@@ -68,9 +72,15 @@ export function ResourceBrowser() {
           }
         : undefined,
       onlyUnreviewedFiles,
+      onlyWithAiDeferredAttributions,
       search: debouncedSearchAll,
     }),
-    [debouncedSearchAll, onlyUnreviewedFiles, resourceTreeSelectedLicense],
+    [
+      debouncedSearchAll,
+      onlyWithAiDeferredAttributions,
+      onlyUnreviewedFiles,
+      resourceTreeSelectedLicense,
+    ],
   );
   const [isResourceTreeFilterOpen, setIsResourceTreeFilterOpen] =
     useState(false);
@@ -93,6 +103,17 @@ export function ResourceBrowser() {
     backend.getResourceTreeUnreviewedCount.useQuery(
       {
         licenseFilter: allResourceTreeFilters.licenseFilter,
+        onlyWithAiDeferredAttributions:
+          allResourceTreeFilters.onlyWithAiDeferredAttributions,
+        search: allResourceTreeFilters.search,
+      },
+      { enabled: isResourceTreeFilterOpen, placeholderData: keepPreviousData },
+    );
+  const aiDeferredResourceCountQuery =
+    backend.getResourceTreeAiDeferredCount.useQuery(
+      {
+        licenseFilter: allResourceTreeFilters.licenseFilter,
+        onlyUnreviewedFiles: allResourceTreeFilters.onlyUnreviewedFiles,
         search: allResourceTreeFilters.search,
       },
       { enabled: isResourceTreeFilterOpen, placeholderData: keepPreviousData },
@@ -102,7 +123,9 @@ export function ResourceBrowser() {
     enabled: isResourceTreeFilterOpen,
   });
   const isResourceTreeFilterActive =
-    onlyUnreviewedFiles || !!resourceTreeSelectedLicense;
+    onlyUnreviewedFiles ||
+    onlyWithAiDeferredAttributions ||
+    !!resourceTreeSelectedLicense;
   // Linked resources
   const [searchLinked, setSearchLinked] = useVariable(
     LINKED_RESOURCES_SEARCH,
@@ -157,6 +180,26 @@ export function ResourceBrowser() {
                     })),
                 },
                 {
+                  id: 'aiDeferred',
+                  selected: onlyWithAiDeferredAttributions,
+                  faded: !aiDeferredResourceCountQuery.data,
+                  label:
+                    aiDeferredResourceCountQuery.data === undefined
+                      ? text.filters.hasAiDeferredAttribution
+                      : `${text.filters.hasAiDeferredAttribution} (${new Intl.NumberFormat().format(aiDeferredResourceCountQuery.data)})`,
+                  icon: <DeferredIcon noTooltip />,
+                  onAdd: () =>
+                    setResourceTreeFilters((prev) => ({
+                      ...prev,
+                      onlyWithAiDeferredAttributions: true,
+                    })),
+                  onDelete: () =>
+                    setResourceTreeFilters((prev) => ({
+                      ...prev,
+                      onlyWithAiDeferredAttributions: false,
+                    })),
+                },
+                {
                   id: 'license',
                   selected: false,
                   focusContent: () => licenseInputRef.current?.focus(),
@@ -181,6 +224,7 @@ export function ResourceBrowser() {
                 setResourceTreeFilters((prev) => ({
                   ...prev,
                   onlyUnreviewedFiles: false,
+                  onlyWithAiDeferredAttributions: false,
                   selectedLicense: '',
                 }))
               }

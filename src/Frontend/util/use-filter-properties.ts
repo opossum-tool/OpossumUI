@@ -18,12 +18,28 @@ import { useIsSelectedResourceReadonly } from './use-selected-resource';
 
 export type FilterPropsMode = 'external' | 'manual' | 'reportTable';
 
+type FilterPropertiesRelation =
+  'same' | 'descendant' | 'ancestor' | 'unrelated' | 'all' | 'sameOrDescendant';
+
+const RELATION_TO_FILTER_PROPERTIES_RELATION: Record<
+  'resource' | 'children' | 'parents' | 'unrelated',
+  FilterPropertiesRelation
+> = {
+  resource: 'same',
+  children: 'descendant',
+  parents: 'ancestor',
+  unrelated: 'unrelated',
+};
+
 export function useFilterProperties({
   mode,
   enabled,
+  relation,
 }: {
   mode: FilterPropsMode;
   enabled?: boolean;
+  /** The relation the panel currently displays; counts are scoped to it. */
+  relation?: 'resource' | 'children' | 'parents' | 'unrelated';
 }) {
   const useFilters = {
     manual: useManualAttributionFilters,
@@ -56,13 +72,19 @@ export function useFilterProperties({
     { enabled, placeholderData: keepPreviousData },
   );
 
-  const shownRelation = (
-    {
-      manual: 'all',
-      external: 'sameOrDescendant',
-      reportTable: 'all',
-    } as const
-  )[mode];
+  // The report table lists every attribution in the project, so 'all' matches
+  // what it displays. The audit panels display one relation at a time; scope
+  // their counts to the displayed relation so menu counts match the list.
+  const shownRelation: FilterPropertiesRelation =
+    mode === 'manual' && relation
+      ? RELATION_TO_FILTER_PROPERTIES_RELATION[relation]
+      : (
+          {
+            manual: 'all',
+            external: 'sameOrDescendant',
+            reportTable: 'all',
+          } as const
+        )[mode];
 
   const filterProps = filterPropsQuery.data?.[shownRelation] ?? null;
   const loading = filterPropsQuery.isLoading;

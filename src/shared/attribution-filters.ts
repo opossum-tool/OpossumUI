@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 export const ATTRIBUTION_FILTER_KEYS = [
+  'aiDeferred',
   'currentlyPreferred',
   'excludedFromNotice',
   'firstParty',
