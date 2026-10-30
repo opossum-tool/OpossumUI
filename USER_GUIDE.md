@@ -31,7 +31,13 @@ SPDX-License-Identifier: CC0-1.0
 
 Download the latest release for your OS from [GitHub](https://github.com/opossum-tool/OpossumUI/releases/latest).
 
-To check if your installation is up-to-date, open the `Help` menu and select `Check for updates`.
+To check if your installation is up-to-date, open the `Help` menu and select `Check for Updates`.
+
+Windows installations and Linux AppImages offer **Download update** when a newer release is found. Downloading starts only when you click this button. The banner shows download progress, then offers **Restart and update**. Installation requires this explicit action; ordinary quitting and dismissing the banner do not install the download. If a download fails, use **Retry**.
+
+Restarting uses the usual unsaved-changes prompt. Choose **Discard** to continue or **Cancel** to keep editing. To save your changes, cancel, save in the editor, then choose **Restart and update** again. The installer handles installation and application exit.
+
+The automatic-check preference controls checks at startup and hourly in the background. Turning it off still allows a manual check and downloading an update by clicking **Download update**. macOS and Snap installations continue to offer a download link.
 
 ### Running the app
 

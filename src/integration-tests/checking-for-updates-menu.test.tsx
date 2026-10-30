@@ -19,7 +19,7 @@ describe('checking for updates through the Help menu', () => {
     async (view) => {
       const { sendToChannel, requestedUpdateUrls } = await renderApp({
         updates: {
-          installedTag: 'OpossumUI-2026-10-20',
+          installedVersion: '2026.1020.0',
           response: { status: 503, body: 'Unavailable' },
         },
         userSettings: { automaticallyCheckForUpdates: false },
@@ -47,10 +47,49 @@ describe('checking for updates through the Help menu', () => {
     },
   );
 
+  it('keeps a server failure visible after the manual check completes and lets the user retry', async () => {
+    const response = { status: 503, body: 'Unavailable' };
+    const { sendToChannel, requestedUpdateUrls } = await renderApp({
+      updates: {
+        installedVersion: '2026.1020.0',
+        response,
+      },
+      userSettings: { automaticallyCheckForUpdates: false },
+    });
+    sendToChannel(AllowedFrontendChannels.CheckForUpdatesRequested);
+    expect(
+      await screen.findByText(text.updateApp.fetchFailed),
+    ).toBeInTheDocument();
+    // A final event delivered after the invoke reply must not hide the error.
+    sendToChannel(AllowedFrontendChannels.UpdateStateChanged, {
+      status: 'error',
+    });
+    expect(screen.getByText(text.updateApp.fetchFailed)).toBeInTheDocument();
+
+    response.status = 200;
+    response.body = JSON.stringify({
+      tag_name: 'OpossumUI-2026-10-20',
+      draft: false,
+      prerelease: false,
+      assets: [],
+    });
+    fireEvent.click(screen.getByRole('button', { name: text.updateApp.retry }));
+    expect(
+      await screen.findByText(text.updateApp.noUpdateAvailable),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(text.updateApp.fetchFailed),
+    ).not.toBeInTheDocument();
+    expect(requestedUpdateUrls).toEqual([
+      'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest',
+      'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest',
+    ]);
+  });
+
   it('shows the failure banner when a successful response contains invalid release data', async () => {
     const { sendToChannel, requestedUpdateUrls } = await renderApp({
       updates: {
-        installedTag: 'OpossumUI-2026-10-20',
+        installedVersion: '2026.1020.0',
         response: { status: 200, body: 'invalid JSON' },
       },
       userSettings: { automaticallyCheckForUpdates: false },
@@ -76,7 +115,7 @@ describe('checking for updates through the Help menu', () => {
     const tag = 'OpossumUI-2026-10-21';
     const { sendToChannel, requestedUpdateUrls } = await renderApp({
       updates: {
-        installedTag: 'OpossumUI-2026-10-20',
+        installedVersion: '2026.1020.0',
         response: {
           status: 200,
           body: JSON.stringify({

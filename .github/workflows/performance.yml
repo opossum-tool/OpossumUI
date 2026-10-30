@@ -7,8 +7,12 @@ name: Performance Test
 
 on:
   workflow_dispatch:
-  release:
-    types: [published]
+  workflow_call:
+    inputs:
+      release-tag:
+        description: Published release to measure
+        required: true
+        type: string
   schedule:
     - cron: '0 2 * * *'
 
@@ -25,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
-          ref: ${{ github.event.release.tag_name || github.sha }}
+          ref: ${{ inputs.release-tag || github.sha }}
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
@@ -74,7 +78,7 @@ jobs:
         id: release-baseline
         env:
           GH_TOKEN: ${{ github.token }}
-          CURRENT_RELEASE_TAG: ${{ github.event.release.tag_name }}
+          CURRENT_RELEASE_TAG: ${{ inputs.release-tag }}
         run: |
           release_list_json="$(gh release list \
             --exclude-drafts \
@@ -129,7 +133,7 @@ jobs:
         env:
           PERFORMANCE_BASELINE_PATH: ${{ steps.baseline.outputs.run_id != '' && 'performance-baseline/performance-summary.json' || '' }}
           PERFORMANCE_RELEASE_BASELINE_PATH: ${{ steps.release-baseline.outputs.run_id != '' && 'performance-release-baseline/performance-summary.json' || '' }}
-          PERFORMANCE_RELEASE_BASELINE_LABEL: ${{ github.event_name == 'release' && 'the previous release' || 'the latest release' }}
+          PERFORMANCE_RELEASE_BASELINE_LABEL: ${{ inputs.release-tag != '' && 'the previous release' || 'the latest release' }}
           PERFORMANCE_RELEASE_TAG: ${{ steps.release-baseline.outputs.tag }}
 
       - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
@@ -146,4 +150,4 @@ jobs:
           name: performance-summary
           path: performance-artifacts/current/performance-summary.json
           if-no-files-found: error
-          retention-days: ${{ github.event_name == 'release' && 90 || 30 }}
+          retention-days: ${{ inputs.release-tag != '' && 90 || 30 }}

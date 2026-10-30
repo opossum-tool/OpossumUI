@@ -201,15 +201,29 @@ Note: You will need the "maintain" role in order to create a new release.
    1. Check that the layout does not break at lower resolutions (you can use View → Zoom in OpossumUI and resize the window, don't need to change resolution).
    1. Check that the performance of the save operation is good.
    1. Check that the notices for the app itself and chromium are accessible via the menu.
-1. **Create** the release via UI (see next section for details).
+1. **Start** the Publish release workflow (see next section for details).
 1. Optional: Notify users about a new release.
    1. Wait until all the artifacts are shown on Github before sending a message.
    1. Briefly mention the most important changes.
 
 ### Creating a release
 
-1. Go to the [GitHub releases page](https://github.com/opossum-tool/OpossumUI/releases/new) and use the UI to create a new release.
-1. The tag should have the format "OpossumUI-2023-$MONTH-$DAY" (in case of an Nth release on the same day "OpossumUI-2023-$MONTH-$DAY.N").
-1. The title of the release equals the tag.
-1. Click the button "Generate release notes" to get the description for the release. Then, remove all the contributions from @renovate which are just dependency upgrades.
-1. Click "Publish release". This will trigger the CI/CD pipeline which will build the release for all three OSs and upload the artifacts to the release.
+1. Open [Actions → Publish release](https://github.com/opossum-tool/OpossumUI/actions/workflows/publish-release.yml).
+1. Click **Run workflow**, select the branch or tag to release (normally `main`), and confirm **Run workflow**.
+1. Wait for the workflow to publish the release. It pins the selected ref to its commit SHA, chooses a UTC date tag such as `OpossumUI-2026-10-23` (then `.1`, `.2`, etc. for additional releases that day), and creates a draft with automatically generated notes excluding Renovate. All platform downloads, update manifests, the user guide, and the SPDX document are uploaded before publication. Performance testing runs after publication and reports separately; its result does not gate publication.
+
+Release runs are serialized. The workflow rejects a version that would not be newer than an already published release and checks again before publication.
+
+### Retrying a release
+
+If preparation, a build, or an upload fails, use **Re-run failed jobs** or **Re-run all jobs** on the original workflow run. The draft records the workflow run ID and pinned commit, so retries reuse the same tag and commit even after midnight or after the branch has moved. Keep the draft and its run marker in the release notes intact until the release is complete. Starting a new workflow run prepares a separate release.
+
+Retries can replace assets only while the release is a draft. Re-running preparation for an already published release skips builds and uploads and treats publication as complete. If only performance testing fails, retry that job; the release is already published.
+
+### Testing automatic updates on Linux and Windows
+
+To test automatic updates, set the packaged version to an old version with
+
+```sh
+yarn ship:auto -c.extraMetadata.version=2026.1020.0
+```

@@ -6,20 +6,53 @@
 name: Publish release
 
 on:
-  release:
-    types: [published]
+  workflow_dispatch:
+
+concurrency:
+  group: publish-release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: read
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
+      version: ${{ steps.release.outputs.version }}
+      sha: ${{ steps.release.outputs.sha }}
+      published: ${{ steps.release.outputs.published }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Prepare or recover draft release
+        id: release
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const { default: prepareRelease } = await import(`${process.env.GITHUB_WORKSPACE}/tools/prepare-release.mjs`);
+            await prepareRelease({ github, context, core });
+
   publish-release:
+    needs: prepare
+    if: needs.prepare.outputs.published != 'true'
     runs-on: ${{ matrix.os }}
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+      RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
             build-command: yarn ship-linux
+            manifest: release/linux/latest-linux.yml
             FILES: |
               release/linux/OpossumUI-for-linux.AppImage
               release/linux/OpossumUI-for-linux.snap
@@ -31,10 +64,15 @@ jobs:
             FILES: release/mac-arm64/OpossumUI-for-mac-arm64.zip
           - os: windows-latest
             build-command: yarn ship-win
-            FILES: release/win/OpossumUI-for-win.exe
+            FILES: |
+              release/win/OpossumUI-for-win.exe
+              release/win/OpossumUI-for-win.exe.blockmap
+            manifest: release/win/latest.yml
 
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
@@ -43,17 +81,49 @@ jobs:
 
       - run: yarn install --immutable
 
+      - name: Configure release version and update feed
+        shell: bash
+        run: |
+          npm pkg set "version=$RELEASE_VERSION"
+          if [[ "$RUNNER_OS" != macOS ]]; then
+            npm pkg set 'build.publish[0].provider=generic' 'build.publish[0].channel=latest' \
+              "build.publish[0].url=https://github.com/opossum-tool/OpossumUI/releases/download/$RELEASE_TAG/"
+          fi
+
       - run: ${{ matrix.build-command }}
 
-      - name: Upload release asset
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3
-        with:
-          files: ${{ matrix.FILES }}
+      - name: Upload distributables and blockmaps
+        shell: bash
+        env:
+          RELEASE_FILES: ${{ matrix.FILES }}
+        run: |
+          [[ "$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft)" == true ]]
+          files=()
+          while IFS= read -r file; do
+            [[ -z "$file" ]] || files+=("$file")
+          done <<< "$RELEASE_FILES"
+          gh release upload "$RELEASE_TAG" "${files[@]}" --clobber
+
+      - name: Upload platform update manifest
+        if: matrix.manifest
+        shell: bash
+        env:
+          MANIFEST: ${{ matrix.manifest }}
+        run: |
+          [[ "$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft)" == true ]]
+          gh release upload "$RELEASE_TAG" "$MANIFEST" --clobber
 
   upload-docs:
+    needs: prepare
+    if: needs.prepare.outputs.published != 'true'
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
@@ -66,8 +136,35 @@ jobs:
         run: yarn spdx
 
       - name: Upload user guide and SPDX document
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3
+        run: |
+          [[ "$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft)" == true ]]
+          gh release upload "$RELEASE_TAG" USER_GUIDE.md opossum-ui.spdx.json --clobber
+
+  publish:
+    needs: [prepare, publish-release, upload-docs]
+    if: >-
+      always() && needs.prepare.result == 'success' &&
+      (needs.prepare.outputs.published == 'true' ||
+      (needs.publish-release.result == 'success' && needs.upload-docs.result == 'success'))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
-          files: |
-            USER_GUIDE.md
-            opossum-ui.spdx.json
+          ref: ${{ github.sha }}
+
+      - name: Publish completed draft
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+          RELEASE_SHA: ${{ needs.prepare.outputs.sha }}
+        with:
+          script: |
+            const { default: publishRelease } = await import(`${process.env.GITHUB_WORKSPACE}/tools/publish-release.mjs`);
+            await publishRelease({ github, context, core });
+
+  performance:
+    needs: [prepare, publish]
+    if: always() && needs.publish.result == 'success'
+    uses: ./.github/workflows/performance.yml
+    with:
+      release-tag: ${{ needs.prepare.outputs.tag }}

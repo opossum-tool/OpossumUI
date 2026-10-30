@@ -42,7 +42,11 @@ export type PopupWithoutPayload =
 
 export type PopupInfo =
   | { popup: PopupWithoutPayload }
-  | { popup: PopupType.NotSavedPopup; attributionId?: string }
+  | {
+      popup: PopupType.NotSavedPopup;
+      attributionId?: string;
+      continuation?: 'restart-and-update';
+    }
   | {
       popup: PopupType.ImportDialog;
       fileFormat: FileFormatInfo;

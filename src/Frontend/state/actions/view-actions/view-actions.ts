@@ -94,10 +94,17 @@ export function openPopup(
   };
 }
 
-export function openNotSavedPopup(attributionId?: string): OpenPopupAction {
+export function openNotSavedPopup(
+  attributionId?: string,
+  continuation?: 'restart-and-update',
+): OpenPopupAction {
   return {
     type: ACTION_OPEN_POPUP,
-    payload: { popup: PopupType.NotSavedPopup, attributionId },
+    payload: {
+      popup: PopupType.NotSavedPopup,
+      attributionId,
+      ...(continuation && { continuation }),
+    },
   };
 }
 

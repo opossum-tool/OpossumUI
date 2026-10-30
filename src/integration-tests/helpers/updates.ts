@@ -17,12 +17,15 @@ vi.mock('electron', () => ({
   app: { isPackaged: true, runningUnderARM64Translation: false },
   net: { fetch: vi.fn() },
 }));
+vi.mock('../../ElectronBackend/main/installer-updater', () => ({
+  supportsInstallation: () => false,
+}));
 vi.mock('../../ElectronBackend/main/send-to-renderers', () => ({
   sendToRenderers: vi.fn(),
 }));
 
 export interface UpdatesFixture {
-  installedTag: string;
+  installedVersion: string;
   response: { status: number; body?: string };
 }
 
@@ -38,7 +41,7 @@ export function setUpUpdates(
   if (cleanupUpdates) {
     throw new Error('An update fixture is already active');
   }
-  initializeUpdateService(fixture.installedTag);
+  initializeUpdateService(fixture.installedVersion);
   const previousAppImage = process.env.APPIMAGE;
   const previousSnap = process.env.SNAP;
   const check = vi.mocked(window.electronAPI.checkForUpdates);
@@ -49,8 +52,8 @@ export function setUpUpdates(
   const previousGetState = getState.getMockImplementation();
   const previousFetch = fetch.getMockImplementation();
   const previousSend = send.getMockImplementation();
-  process.env.APPIMAGE = '/test/OpossumUI.AppImage';
-  delete process.env.SNAP;
+  delete process.env.APPIMAGE;
+  process.env.SNAP = '/snap/test';
 
   const requestedUrls: string[] = [];
   fetch.mockImplementation((url) => {

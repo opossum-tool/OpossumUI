@@ -15,6 +15,16 @@ import { renderComponent } from '../../../test-helpers/render';
 import { TopBar } from '../TopBar';
 
 describe('TopBar', () => {
+  it('displays the version provided by the main process', async () => {
+    vi.mocked(window.electronAPI.getAppVersion).mockResolvedValueOnce(
+      'OpossumUI-2026-10-20.2',
+    );
+
+    await renderComponent(<TopBar />);
+
+    expect(await screen.findByText('OpossumUI-2026-10-20.2')).toBeVisible();
+  });
+
   it('renders an open file icon', async () => {
     const { store } = await renderComponent(<TopBar />);
 

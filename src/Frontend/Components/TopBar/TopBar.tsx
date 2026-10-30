@@ -10,8 +10,8 @@ import type { Theme } from '@mui/material/styles';
 import MuiToggleButton from '@mui/material/ToggleButton';
 import MuiToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import MuiTypography from '@mui/material/Typography';
+import { useQuery } from '@tanstack/react-query';
 
-import commitInfo from '../../../commitInfo.json';
 import { text } from '../../../shared/text';
 import { View } from '../../enums/enums';
 import {
@@ -86,6 +86,12 @@ const classes = {
 export const TopBar: React.FC = () => {
   const selectedView = useAppSelector(getSelectedView);
   const dispatch = useAppDispatch();
+  const { data: appVersion } = useQuery({
+    queryKey: ['appVersion'],
+    queryFn: () => window.electronAPI.getAppVersion(),
+    staleTime: Infinity,
+    retry: false,
+  });
 
   function handleClick(
     _: React.MouseEvent<HTMLElement>,
@@ -140,7 +146,7 @@ export const TopBar: React.FC = () => {
       </MuiToggleButtonGroup>
       <MuiBox sx={classes.versionInfo}>
         <MuiTypography variant={'subtitle2'} sx={classes.commitDisplay}>
-          {commitInfo.commitInfo}
+          {appVersion}
         </MuiTypography>
       </MuiBox>
     </MuiBox>

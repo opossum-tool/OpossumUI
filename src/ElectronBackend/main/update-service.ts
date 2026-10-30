@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { app, net } from 'electron';
+import type { AppUpdater, UpdateInfo } from 'electron-updater';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import {
@@ -11,33 +12,33 @@ import {
 } from '../../shared/release-assets';
 import { OPOSSUM_UI_GITHUB_URL } from '../../shared/shared-constants';
 import type { UpdateState } from '../../shared/shared-types';
+import {
+  compareReleaseTags,
+  numericReleaseVersion,
+  parseInstalledVersion,
+  parseReleaseTag,
+} from '../../shared/update-version';
+import {
+  createInstallerUpdater,
+  supportsInstallation,
+} from './installer-updater';
 import logger from './logger';
+import { ReleaseUpdateProvider } from './release-update-provider';
 import { sendToRenderers } from './send-to-renderers';
 
-const PREPARING_RETRY_MS = 600_000;
+export {
+  compareReleaseTags,
+  parseReleaseTag,
+} from '../../shared/update-version';
+
 const CHECK_INTERVAL_MS = 3_600_000;
 const REQUEST_TIMEOUT_MS = 30_000;
 const API_ENDPOINT =
   'https://api.github.com/repos/opossum-tool/OpossumUI/releases/latest';
-const RELEASE_TAG = /^OpossumUI-(\d{4})-(\d{2})-(\d{2})(?:\.(\d+))?$/;
-
-interface ParsedTag {
-  day: number;
-  month: number;
-  revision: number;
-  year: number;
-}
-
-type InternalUpdateResult =
-  | Exclude<UpdateState, { status: 'checking' }>
-  | {
-      status: 'preparing';
-      installedTag: string;
-    };
 
 interface InstalledRelease {
   tag: string;
-  version: ParsedTag;
+  version: NonNullable<ReturnType<typeof parseReleaseTag>>;
 }
 
 interface GithubRelease {
@@ -52,6 +53,12 @@ interface GithubRelease {
   tag_name: string;
 }
 
+let updater: AppUpdater | undefined;
+let selectedRelease: GithubRelease | undefined;
+let transfer: Promise<void> | undefined;
+let transferActive = false;
+let transferError: Error | undefined;
+
 let installedRelease: InstalledRelease | undefined;
 
 let currentState: UpdateState = { status: 'checking' };
@@ -59,45 +66,19 @@ let inFlightRequest: Promise<UpdateState> | undefined;
 let checkTimeout: ReturnType<typeof setTimeout> | undefined;
 let automaticChecksEnabled = false;
 
-export function initializeUpdateService(installedTag: string): void {
-  if (inFlightRequest) {
+export function initializeUpdateService(installedVersion: string): void {
+  if (inFlightRequest || transfer) {
     throw new Error(
       'Cannot initialize the update service during an active request.',
     );
   }
   stopAutomaticUpdateChecks();
-  const version = parseReleaseTag(installedTag);
-  installedRelease = version ? { tag: installedTag, version } : undefined;
+  const version = parseInstalledVersion(installedVersion);
+  installedRelease = version
+    ? { tag: numericReleaseVersion(version), version }
+    : undefined;
+  selectedRelease = undefined;
   currentState = { status: 'checking' };
-}
-
-export function parseReleaseTag(tag: string): ParsedTag | undefined {
-  const match = RELEASE_TAG.exec(tag);
-  if (!match) {
-    return undefined;
-  }
-  const [, yearValue, monthValue, dayValue, revisionValue] = match;
-  const year = Number(yearValue);
-  const month = Number(monthValue);
-  const day = Number(dayValue);
-  const date = new Date(Date.UTC(year, month - 1, day));
-  if (
-    date.getUTCFullYear() !== year ||
-    date.getUTCMonth() !== month - 1 ||
-    date.getUTCDate() !== day
-  ) {
-    return undefined;
-  }
-  return { year, month, day, revision: Number(revisionValue ?? 0) };
-}
-
-export function compareReleaseTags(left: ParsedTag, right: ParsedTag): number {
-  return (
-    left.year - right.year ||
-    left.month - right.month ||
-    left.day - right.day ||
-    left.revision - right.revision
-  );
 }
 
 export function selectRequiredAsset(
@@ -145,6 +126,14 @@ export function getUpdateState(): UpdateState {
 }
 
 export function checkForUpdates(): Promise<UpdateState> {
+  if (
+    transfer ||
+    currentState.status === 'downloading' ||
+    currentState.status === 'downloaded' ||
+    currentState.status === 'restarting'
+  ) {
+    return Promise.resolve(currentState);
+  }
   if (inFlightRequest) {
     return inFlightRequest;
   }
@@ -153,15 +142,38 @@ export function checkForUpdates(): Promise<UpdateState> {
   const request = performCheck()
     .then((result) => {
       scheduleNextCheck(result);
-      const state = toPublicUpdateState(result);
-      emitState(state);
-      return state;
+      emitState(result);
+      return currentState;
     })
     .finally(() => {
       inFlightRequest = undefined;
     });
   inFlightRequest = request;
   return request;
+}
+
+export function downloadUpdate(tag: string): Promise<UpdateState> {
+  if (!supportsInstallation() || selectedRelease?.tag_name !== tag) {
+    return Promise.reject(
+      new Error('This update is no longer available. Check for updates again.'),
+    );
+  }
+  if (
+    currentState.status === 'downloading' ||
+    currentState.status === 'downloaded' ||
+    currentState.status === 'restarting'
+  ) {
+    return Promise.resolve(currentState);
+  }
+  if (
+    currentState.status !== 'available' &&
+    !(currentState.status === 'error' && currentState.retry === 'download')
+  ) {
+    return Promise.reject(new Error('Check for updates before downloading.'));
+  }
+  clearScheduledCheck();
+  startDownload(selectedRelease);
+  return Promise.resolve(currentState);
 }
 
 function clearScheduledCheck(): void {
@@ -171,20 +183,18 @@ function clearScheduledCheck(): void {
   }
 }
 
-function scheduleNextCheck(result: InternalUpdateResult): void {
+function scheduleNextCheck(result: UpdateState): void {
   if (!automaticChecksEnabled) {
     return;
   }
   clearScheduledCheck();
-  const delay =
-    result.status === 'preparing' ? PREPARING_RETRY_MS : CHECK_INTERVAL_MS;
   logger.info(
-    `Scheduling next update check in ${delay} ms after ${result.status}.`,
+    `Scheduling next update check in ${CHECK_INTERVAL_MS} ms after ${result.status}.`,
   );
   checkTimeout = setTimeout(() => {
     checkTimeout = undefined;
     void runAutomaticCheck();
-  }, delay);
+  }, CHECK_INTERVAL_MS);
 }
 
 async function runAutomaticCheck(): Promise<void> {
@@ -194,7 +204,7 @@ async function runAutomaticCheck(): Promise<void> {
   await checkForUpdates();
 }
 
-async function performCheck(): Promise<InternalUpdateResult> {
+async function performCheck(): Promise<UpdateState> {
   try {
     if (!installedRelease) {
       logger.warn(
@@ -220,7 +230,34 @@ async function performCheck(): Promise<InternalUpdateResult> {
     if (!isGithubRelease(payload)) {
       throw new Error('GitHub returned invalid release information.');
     }
-    return evaluateRelease(installedRelease, payload, assetName);
+    const result = evaluateRelease(installedRelease, payload, assetName);
+    if (result.status === 'available' && supportsInstallation()) {
+      const names = requiredInstallerAssets(assetName);
+      const incompleteAssets = names.filter(
+        (name) =>
+          !payload.assets.some(
+            (asset) =>
+              asset.name === name &&
+              asset.state === 'uploaded' &&
+              Number.isFinite(asset.size) &&
+              asset.size > 0 &&
+              isValidAssetDownloadUrl(
+                asset.browser_download_url,
+                payload.tag_name,
+                name,
+              ),
+          ),
+      );
+      if (incompleteAssets.length) {
+        logger.warn(
+          `Update check failed: Release ${payload.tag_name} has missing or invalid required assets: ${incompleteAssets.join(', ')}.`,
+        );
+        return { status: 'error' };
+      }
+      selectedRelease = payload;
+      return { ...result, canInstall: true };
+    }
+    return result;
   } catch (error) {
     logger.warn(
       `Update check failed: ${error instanceof Error ? (error.stack ?? error.message) : String(error)}`,
@@ -233,9 +270,9 @@ export function evaluateRelease(
   installed: InstalledRelease,
   release: GithubRelease,
   requiredAsset: string,
-): InternalUpdateResult {
+): UpdateState {
   const releaseTag = parseReleaseTag(release.tag_name);
-  if (!releaseTag || release.draft || release.prerelease) {
+  if (!releaseTag) {
     throw new Error('GitHub returned an unsupported release.');
   }
   if (compareReleaseTags(releaseTag, installed.version) <= 0) {
@@ -243,10 +280,9 @@ export function evaluateRelease(
   }
   const asset = release.assets.find(({ name }) => name === requiredAsset);
   if (asset?.state !== 'uploaded' || asset.size <= 0) {
-    return {
-      status: 'preparing',
-      installedTag: installed.tag,
-    };
+    throw new Error(
+      `Release ${release.tag_name} has a missing or invalid required asset: ${requiredAsset}.`,
+    );
   }
   if (
     !isValidAssetDownloadUrl(
@@ -262,12 +298,6 @@ export function evaluateRelease(
     tag: release.tag_name,
     url: asset.browser_download_url,
   };
-}
-
-function toPublicUpdateState(result: InternalUpdateResult): UpdateState {
-  return result.status === 'preparing'
-    ? { status: 'up-to-date', installedTag: result.installedTag }
-    : result;
 }
 
 function isGithubRelease(value: unknown): value is GithubRelease {
@@ -332,4 +362,166 @@ export function startAutomaticUpdateChecks(): void {
 export function stopAutomaticUpdateChecks(): void {
   automaticChecksEnabled = false;
   clearScheduledCheck();
+}
+
+function requiredInstallerAssets(asset: string): Array<string> {
+  return process.platform === 'win32'
+    ? [asset, `${asset}.blockmap`, 'latest.yml']
+    : [asset, 'latest-linux.yml'];
+}
+
+function getInstaller(): AppUpdater {
+  if (!updater) {
+    updater = createInstallerUpdater();
+    updater.on('download-progress', ({ percent }) => {
+      if (
+        transferActive &&
+        currentState.status === 'downloading' &&
+        !transferError &&
+        selectedRelease &&
+        Number.isFinite(percent)
+      ) {
+        emitState({
+          status: 'downloading',
+          tag: selectedRelease.tag_name,
+          percent: Math.max(currentState.percent, Math.min(100, percent)),
+        });
+      }
+    });
+    // Completion is committed by the download promise after validation, not by
+    // uncorrelated update-available/update-downloaded events.
+    updater.on('error', (error) => {
+      logger.warn(`Installer update failed: ${error.message}`);
+      if (transferActive) {
+        transferError = error;
+      }
+      if (currentState.status === 'restarting') {
+        restoreDownloadedUpdate(error);
+      }
+    });
+  }
+  return updater;
+}
+
+export function validateInstallerManifest(
+  info: UpdateInfo,
+  release: GithubRelease,
+  assetName: string,
+): void {
+  const parsed = parseReleaseTag(release.tag_name);
+  if (
+    !parsed ||
+    info.version !== numericReleaseVersion(parsed) ||
+    !Array.isArray(info.files) ||
+    info.files.length !== 1 ||
+    ('packages' in info && info.packages)
+  ) {
+    throw new Error('The update manifest does not match the selected release.');
+  }
+  const asset = release.assets.find(({ name }) => name === assetName);
+  const file = info.files[0];
+  const base = getReleaseAssetDownloadUrl(release.tag_name, '');
+  const expectedUrl = getReleaseAssetDownloadUrl(release.tag_name, assetName);
+  // Reject alternate hosts, other releases, extra payloads, and legacy references
+  // disagreeing with files.
+  if (
+    !asset ||
+    new URL(file.url, base).href !== expectedUrl ||
+    (info.path && new URL(info.path, base).href !== expectedUrl) ||
+    file.size !== asset.size ||
+    !file.sha512
+  ) {
+    throw new Error(
+      'The update manifest references unexpected release assets.',
+    );
+  }
+}
+
+function startDownload(release: GithubRelease): void {
+  if (transfer) {
+    return;
+  }
+  emitState({ status: 'downloading', tag: release.tag_name, percent: 0 });
+  transferError = undefined;
+  transferActive = true;
+  // Defer to ensure transfer is assigned before any synchronous adapter errors.
+  transfer = Promise.resolve()
+    .then(async () => {
+      const installer = getInstaller();
+      installer.setFeedURL({
+        ...(process.platform === 'win32'
+          ? {
+              provider: 'custom' as const,
+              updateProvider: ReleaseUpdateProvider,
+            }
+          : { provider: 'generic' as const }),
+        url: getReleaseAssetDownloadUrl(release.tag_name, ''),
+        channel: 'latest',
+        useMultipleRangeRequest: false,
+      });
+      const result = await installer.checkForUpdates();
+      if (!result?.isUpdateAvailable) {
+        throw new Error(
+          'The installer did not find the selected newer release.',
+        );
+      }
+      validateInstallerManifest(
+        result.updateInfo,
+        release,
+        getRequiredAsset()!,
+      );
+      if (transferError) {
+        throw transferError;
+      }
+      const files = await installer.downloadUpdate();
+      if (transferError) {
+        throw transferError;
+      }
+      if (!files.length) {
+        throw new Error('No installer was downloaded.');
+      }
+      emitState({ status: 'downloaded', tag: release.tag_name });
+    })
+    .catch((error: unknown) => {
+      logger.warn(`Update download failed: ${String(error)}`);
+      emitState({
+        status: 'error',
+        retry: 'download',
+        message: error instanceof Error ? error.message : String(error),
+      });
+    })
+    .finally(() => {
+      transferActive = false;
+      transfer = undefined;
+      if (currentState.status === 'error') {
+        scheduleNextCheck(currentState);
+      }
+    });
+}
+
+/** Installation and application exit are owned by electron-updater. */
+export function installDownloadedUpdate(): void {
+  if (currentState.status === 'restarting') {
+    return;
+  }
+  if (currentState.status !== 'downloaded' || !updater) {
+    throw new Error('No downloaded update is ready.');
+  }
+  emitState({ status: 'restarting', tag: currentState.tag });
+  try {
+    updater.quitAndInstall(false, true);
+  } catch (error) {
+    restoreDownloadedUpdate(error);
+    throw error;
+  }
+}
+
+function restoreDownloadedUpdate(error: unknown): void {
+  if (selectedRelease) {
+    emitState({
+      status: 'downloaded',
+      tag: selectedRelease.tag_name,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
 }

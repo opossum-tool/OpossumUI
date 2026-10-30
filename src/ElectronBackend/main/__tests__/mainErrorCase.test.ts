@@ -2,9 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { dialog, ipcMain } from 'electron';
+import { app, dialog, ipcMain } from 'electron';
 
-import commitInfo from '../../../commitInfo.json';
 import { main } from '../main';
 import {
   initializeUpdateService,
@@ -72,7 +71,7 @@ describe('The App backend', () => {
   it('handles errors', async () => {
     await main();
 
-    expect(initializeUpdateService).toHaveBeenCalledWith(commitInfo.commitInfo);
+    expect(initializeUpdateService).toHaveBeenCalledWith(app.getVersion());
     expect(dialog.showMessageBox).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'error',
@@ -94,7 +93,7 @@ describe('The App backend', () => {
       'automaticallyCheckForUpdates',
     );
     expect(startAutomaticUpdateChecks).toHaveBeenCalledOnce();
-    expect(initializeUpdateService).toHaveBeenCalledWith(commitInfo.commitInfo);
+    expect(initializeUpdateService).toHaveBeenCalledWith(app.getVersion());
     expect(initializeUpdateService).toHaveBeenCalledBefore(
       vi.mocked(startAutomaticUpdateChecks),
     );

@@ -91,6 +91,45 @@ describe('checking for updates in the app', () => {
     },
   );
 
+  it('waits for Download update before starting a transfer, then offers an explicit restart', async () => {
+    vi.mocked(window.electronAPI.checkForUpdates).mockResolvedValue({
+      ...available,
+      canInstall: true,
+    });
+    vi.mocked(window.electronAPI.downloadUpdate).mockResolvedValue({
+      status: 'downloading',
+      tag: releaseTag,
+      percent: 0,
+    });
+    const { sendToChannel } = await renderApp({
+      userSettings: { automaticallyCheckForUpdates: false },
+    });
+    sendToChannel(AllowedFrontendChannels.CheckForUpdatesRequested);
+    const download = await screen.findByRole('button', {
+      name: text.updateApp.downloadUpdate,
+    });
+    expect(window.electronAPI.downloadUpdate).not.toHaveBeenCalled();
+    expect(
+      screen.queryByRole('link', { name: text.updateApp.download }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(download);
+    expect(window.electronAPI.downloadUpdate).toHaveBeenCalledExactlyOnceWith(
+      releaseTag,
+    );
+    expect(
+      await screen.findByText(text.updateApp.downloading(0)),
+    ).toBeInTheDocument();
+    sendToChannel(AllowedFrontendChannels.UpdateStateChanged, {
+      status: 'downloaded',
+      tag: releaseTag,
+    });
+    expect(await screen.findByText(text.updateApp.ready)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: text.updateApp.restart }),
+    ).toBeInTheDocument();
+    expect(window.electronAPI.restartAndUpdate).not.toHaveBeenCalled();
+  });
+
   it('applies automatic-check preference changes received from the main process', async () => {
     const { sendToChannel } = await renderApp({
       userSettings: { automaticallyCheckForUpdates: true },
@@ -130,7 +169,7 @@ describe('checking for updates in the app', () => {
     { status: 'error', reason: 'unsupported-installation' },
     { status: 'error', reason: 'unknown-installed-version' },
   ])(
-    'keeps background failures silent and preserves update availability: $reason',
+    'keeps availability visible after a background failure: $reason',
     async (result) => {
       vi.mocked(window.electronAPI.getUpdateState).mockResolvedValue(available);
       const { sendToChannel } = await renderApp();
@@ -145,6 +184,7 @@ describe('checking for updates in the app', () => {
       expect(
         screen.getByText(text.updateApp.available(releaseTag)),
       ).toBeInTheDocument();
+      expect(screen.getByRole('alert')).toBeInTheDocument();
       expect(
         screen.queryByText(text.updateApp.fetchFailed),
       ).not.toBeInTheDocument();
