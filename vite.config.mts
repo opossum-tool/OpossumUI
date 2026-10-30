@@ -8,7 +8,7 @@ import { defineConfig, InlineConfig, loadEnv } from 'vite';
 import electron from 'vite-plugin-electron';
 import svgrPlugin from 'vite-plugin-svgr';
 
-function getElectronProcessViteConfig(): InlineConfig {
+function getElectronProcessViteConfig(mode: string): InlineConfig {
   return {
     build: {
       minify: true,
@@ -23,6 +23,26 @@ function getElectronProcessViteConfig(): InlineConfig {
       },
     },
   };
+}
+
+let electronStartCount = 0;
+
+/**
+ * Starts Electron and records whether this spawn is a watcher restart (e.g.
+ * after a backend code change) or the initial start of a `yarn start` run.
+ *
+ * The vite dev server process persists across Electron restarts, so a module
+ * level counter cleanly distinguishes the two cases. The flag propagates to
+ * Electron via the inherited environment and gates the dev-only reopening of
+ * the last opened file (see `reopen-last-dev-file.ts`).
+ */
+function handleElectronStart({
+  startup,
+}: {
+  startup: (...args: never[]) => unknown;
+}): void {
+  process.env.OPOSSUM_ELECTRON_RESTARTED = electronStartCount++ > 0 ? '1' : '0';
+  startup();
 }
 
 export default defineConfig(({ mode }) => ({
@@ -40,15 +60,18 @@ export default defineConfig(({ mode }) => ({
       : electron([
           {
             entry: 'src/ElectronBackend/preload.ts',
-            vite: getElectronProcessViteConfig(),
+            vite: getElectronProcessViteConfig(mode),
+            onstart: handleElectronStart,
           },
           {
             entry: 'src/ElectronBackend/app.ts',
-            vite: getElectronProcessViteConfig(),
+            vite: getElectronProcessViteConfig(mode),
+            onstart: handleElectronStart,
           },
           {
             entry: 'src/ElectronBackend/dbProcess/dbProcess.ts',
-            vite: getElectronProcessViteConfig(),
+            vite: getElectronProcessViteConfig(mode),
+            onstart: handleElectronStart,
           },
         ])),
   ],

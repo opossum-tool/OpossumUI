@@ -16,6 +16,7 @@ import { createWindow, loadWebApp } from './createWindow';
 import { createMenu } from './menu';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
 import { setRuntimeMacOsOpenFileHandler } from './openFileRequests';
+import { getDevReopenFilePath } from './reopen-last-dev-file';
 import { setupIpcHandling } from './setUpIpcHandling';
 import {
   initializeUpdateService,
@@ -75,7 +76,9 @@ export async function main(): Promise<void> {
 
     await loadWebApp(mainWindow);
 
-    await openFileFromCliOrEnvVariableIfProvided(mainWindow, updateMenu);
+    await openFileFromCliOrEnvVariableIfProvided(mainWindow, updateMenu, {
+      reopenFilePath: await getDevReopenFilePath(),
+    });
 
     setRuntimeMacOsOpenFileHandler((filePath) => {
       mainWindow.webContents.send(AllowedFrontendChannels.OpenFile, filePath);
