@@ -3,6 +3,8 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { MutationObserver } from '@tanstack/react-query';
+
 import {
   type Attributions,
   Criticality,
@@ -143,7 +145,7 @@ describe.each([
         PopupType.NotSavedPopup,
       );
 
-      store.dispatch(proceedFromUnsavedPopup());
+      void store.dispatch(proceedFromUnsavedPopup());
 
       expect(getSelectedResourceId(store.getState())).toBe('/');
       expect(getSelectedAttributionId(store.getState())).toBe(attribution.id);
@@ -285,7 +287,7 @@ describe('The actions checking for unsaved changes', () => {
         PopupType.NotSavedPopup,
       );
 
-      testStore.dispatch(proceedFromUnsavedPopup());
+      void testStore.dispatch(proceedFromUnsavedPopup());
 
       expect(
         testStore.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
@@ -742,7 +744,7 @@ describe('proceedFromUnsavedPopup', () => {
     testStore.dispatch(setTargetView(View.Audit));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(setTargetSelectedResourceId('newSelectedResource'));
-    testStore.dispatch(proceedFromUnsavedPopup());
+    void testStore.dispatch(proceedFromUnsavedPopup());
     return testStore.getState();
   }
 
@@ -778,7 +780,7 @@ describe('proceedFromUnsavedPopup', () => {
     const testStore = createAppStore();
     testStore.dispatch(setOpenFileRequest({ kind: 'dialog' }));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
-    testStore.dispatch(proceedFromUnsavedPopup());
+    void testStore.dispatch(proceedFromUnsavedPopup());
 
     expect(window.electronAPI.openFile).toHaveBeenCalledWith();
     expect(getOpenFileRequest(testStore.getState())).toBeNull();
@@ -798,7 +800,7 @@ describe('proceedFromUnsavedPopup', () => {
       }),
     );
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
-    testStore.dispatch(proceedFromUnsavedPopup());
+    void testStore.dispatch(proceedFromUnsavedPopup());
 
     expect(getOpenPopup(testStore.getState())).toStrictEqual({
       popup: PopupType.ImportDialog,
@@ -818,7 +820,7 @@ describe('proceedFromUnsavedPopup', () => {
       }),
     );
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
-    testStore.dispatch(proceedFromUnsavedPopup());
+    void testStore.dispatch(proceedFromUnsavedPopup());
 
     expect(getOpenPopup(testStore.getState())).toStrictEqual({
       popup: PopupType.MergeOpossumFilesDialog,
@@ -834,7 +836,7 @@ describe('proceedFromUnsavedPopup', () => {
     const testStore = createAppStore();
     testStore.dispatch(setExportFileRequest(ExportType.FollowUp));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
-    testStore.dispatch(proceedFromUnsavedPopup());
+    void testStore.dispatch(proceedFromUnsavedPopup());
 
     expect(window.electronAPI.exportFile).toHaveBeenCalledWith(
       ExportType.FollowUp,
@@ -848,7 +850,7 @@ describe('proceedFromUnsavedPopup', () => {
     testStore.dispatch(setSplitFileRequest({ resourcePath }));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
 
-    testStore.dispatch(proceedFromUnsavedPopup());
+    void testStore.dispatch(proceedFromUnsavedPopup());
 
     expect(getOpenPopup(testStore.getState())).toStrictEqual({
       popup: PopupType.SplitDialog,
@@ -1045,7 +1047,7 @@ describe('quitAppOrOpenUnsavedPopup', () => {
       }),
     );
     testStore.dispatch(quitAppOrOpenUnsavedPopup());
-    testStore.dispatch(proceedFromUnsavedPopup());
+    void testStore.dispatch(proceedFromUnsavedPopup());
 
     await vi.waitFor(() =>
       expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
@@ -1085,7 +1087,7 @@ describe('quitAppOrOpenUnsavedPopup', () => {
     testStore.dispatch(quitAppOrOpenUnsavedPopup());
     testStore.dispatch(setOpenFileRequest({ kind: 'dialog' }));
     testStore.dispatch(setTargetView(View.Audit));
-    testStore.dispatch(proceedFromUnsavedPopup());
+    void testStore.dispatch(proceedFromUnsavedPopup());
 
     await vi.waitFor(() =>
       expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
@@ -1093,5 +1095,43 @@ describe('quitAppOrOpenUnsavedPopup', () => {
     expect(window.electronAPI.openFile).not.toHaveBeenCalled();
     expect(getOpenFileRequest(testStore.getState())).toBeNull();
     expect(getTargetView(testStore.getState())).toBeNull();
+  });
+
+  it('keeps the unsaved-changes popup open until pending mutations have settled', async () => {
+    const testStore = createAppStore();
+    testStore.dispatch(
+      setTemporaryDisplayPackageInfo({
+        packageName: 'dirty',
+        criticality: Criticality.None,
+        id: faker.string.uuid(),
+      }),
+    );
+    testStore.dispatch(quitAppOrOpenUnsavedPopup());
+
+    let resolveMutation!: () => void;
+    const observer = new MutationObserver(queryClient, {
+      mutationFn: () =>
+        new Promise<void>((resolve) => {
+          resolveMutation = resolve;
+        }),
+    });
+    void observer.mutate();
+    await vi.waitFor(() => expect(queryClient.isMutating()).toBe(1));
+
+    void testStore.dispatch(proceedFromUnsavedPopup());
+
+    expect(getOpenPopup(testStore.getState())?.popup).toBe(
+      PopupType.NotSavedPopup,
+    );
+    expect(window.electronAPI.confirmQuit).not.toHaveBeenCalled();
+
+    resolveMutation();
+    await vi.waitFor(() =>
+      expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
+    );
+    expect(getOpenPopup(testStore.getState())).toBeNull();
+    expect(getQuitAppRequested(testStore.getState())).toBe(false);
+
+    observer.reset();
   });
 });

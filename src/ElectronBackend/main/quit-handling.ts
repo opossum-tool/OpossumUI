@@ -17,6 +17,7 @@ import logger from './logger';
 const QUIT_REQUEST_UNRESPONSIVE_TIMEOUT_MS = 10000;
 
 let quitApproved = false;
+let quitFinalized = false;
 let quitRequestSentAt: number | null = null;
 let quitRequestHandled = false;
 
@@ -40,7 +41,16 @@ function canRendererHandleQuitRequest(window: BrowserWindow): boolean {
  * get stuck.
  */
 export function handleWindowClose(window: BrowserWindow, event: Event): void {
-  if (quitApproved || !canRendererHandleQuitRequest(window)) {
+  if (quitApproved) {
+    if (!quitFinalized) {
+      // The quit is confirmed but the final save is still in flight; ignore
+      // duplicate close attempts so that the window cannot close mid-write.
+      event.preventDefault();
+      logger.info('Quit is already in progress; ignoring close attempt.');
+    }
+    return;
+  }
+  if (!canRendererHandleQuitRequest(window)) {
     return;
   }
 
@@ -100,6 +110,7 @@ export async function confirmQuit(
       });
     } catch (error) {
       if (force) {
+        quitFinalized = true;
         app.quit();
         return;
       }
@@ -113,11 +124,13 @@ export async function confirmQuit(
     }
   }
 
+  quitFinalized = true;
   app.quit();
 }
 
 export function resetQuitStateForTesting(): void {
   quitApproved = false;
+  quitFinalized = false;
   quitRequestSentAt = null;
   quitRequestHandled = false;
 }

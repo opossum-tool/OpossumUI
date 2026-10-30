@@ -535,7 +535,9 @@ describe('PackagesPanel', () => {
       'alphabetically',
     );
 
-    act(() => store.dispatch(proceedFromUnsavedPopup()));
+    await act(async () => {
+      await store.dispatch(proceedFromUnsavedPopup());
+    });
 
     expect(getOpenPopup(store.getState())).toBeNull();
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
@@ -598,7 +600,9 @@ describe('PackagesPanel', () => {
       'alphabetically',
     );
 
-    act(() => store.dispatch(proceedFromUnsavedPopup()));
+    await act(async () => {
+      await store.dispatch(proceedFromUnsavedPopup());
+    });
 
     expect(getOpenPopup(store.getState())).toBeNull();
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
