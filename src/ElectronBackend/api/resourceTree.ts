@@ -435,10 +435,12 @@ function mapCommonNode(
 
 export async function getResourceTreeUnreviewedCount({
   licenseFilter,
+  onlyWithAiDeferredAttributions,
   onAttributionUuids,
   search,
 }: {
   licenseFilter?: LicenseFilter;
+  onlyWithAiDeferredAttributions?: boolean;
   onAttributionUuids?: Array<string>;
   search?: string;
 }) {
@@ -450,6 +452,7 @@ export async function getResourceTreeUnreviewedCount({
           getFilteredResourcesQuery(trx, {
             licenseFilter,
             onlyUnreviewedFiles: true,
+            onlyWithAiDeferredAttributions,
             onAttributionUuids,
             search,
           }).as('filtered_resources'),
@@ -463,10 +466,12 @@ export async function getResourceTreeUnreviewedCount({
 
 export async function getResourceTreeAiDeferredCount({
   licenseFilter,
+  onlyUnreviewedFiles,
   onAttributionUuids,
   search,
 }: {
   licenseFilter?: LicenseFilter;
+  onlyUnreviewedFiles?: boolean;
   onAttributionUuids?: Array<string>;
   search?: string;
 }) {
@@ -477,6 +482,7 @@ export async function getResourceTreeAiDeferredCount({
         .selectFrom(
           getFilteredResourcesQuery(trx, {
             licenseFilter,
+            onlyUnreviewedFiles,
             onlyWithAiDeferredAttributions: true,
             onAttributionUuids,
             search,

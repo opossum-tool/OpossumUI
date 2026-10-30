@@ -306,6 +306,7 @@ describe('attribution filtering', () => {
 
 describe('resource tree AI-deferred filter', () => {
   const DEFERRED_UUID = 'ai-deferred-uuid';
+  const PRESELECTED_DEFERRED_UUID = 'ai-preselected-deferred-uuid';
   const AI_NOT_DEFERRED_UUID = 'ai-not-deferred-uuid';
   const PLAIN_UUID = 'plain-uuid';
 
@@ -316,6 +317,14 @@ describe('resource tree AI-deferred filter', () => {
         criticality: Criticality.None,
         packageName: 'deferred-package',
         licenseName: 'MIT',
+        aiAttributions: { deferredFields: { copyright: true } },
+      },
+      [PRESELECTED_DEFERRED_UUID]: {
+        id: PRESELECTED_DEFERRED_UUID,
+        criticality: Criticality.None,
+        packageName: 'preselected-deferred-package',
+        licenseName: 'MIT',
+        preSelected: true,
         aiAttributions: { deferredFields: { copyright: true } },
       },
       [AI_NOT_DEFERRED_UUID]: {
@@ -332,6 +341,7 @@ describe('resource tree AI-deferred filter', () => {
     };
     const resourcesToAttributions: ResourcesToAttributions = {
       '/src/deferred.ts': [DEFERRED_UUID],
+      '/src/preselected-deferred.ts': [PRESELECTED_DEFERRED_UUID],
       '/src/folder/plain-child.ts': [AI_NOT_DEFERRED_UUID, PLAIN_UUID],
     };
     const attributionsToResources: AttributionsToResources = {};
@@ -345,6 +355,7 @@ describe('resource tree AI-deferred filter', () => {
       resources: {
         src: {
           'deferred.ts': 1,
+          'preselected-deferred.ts': 1,
           folder: { 'plain-child.ts': 1 },
         },
       },
@@ -361,17 +372,18 @@ describe('resource tree AI-deferred filter', () => {
       expandedNodes: 'expandAll',
       onlyWithAiDeferredAttributions: true,
     });
-    expect(deferred.result.count).toBe(1);
+    expect(deferred.result.count).toBe(2);
     expect(deferred.result.treeNodes.map((node) => node.id)).toEqual([
       '/',
       '/src/',
       '/src/deferred.ts',
+      '/src/preselected-deferred.ts',
     ]);
   });
 
   it('counts matching resources combined with search and license filters', async () => {
     const all = await getResourceTreeAiDeferredCount({});
-    expect(all.result).toBe(1);
+    expect(all.result).toBe(2);
 
     const searched = await getResourceTreeAiDeferredCount({
       search: 'plain-child',
@@ -381,7 +393,25 @@ describe('resource tree AI-deferred filter', () => {
     const licensed = await getResourceTreeAiDeferredCount({
       licenseFilter: { licenseName: 'MIT', external: false },
     });
-    expect(licensed.result).toBe(1);
+    expect(licensed.result).toBe(2);
+  });
+
+  it('conjoins the two tree filters in the count queries', async () => {
+    const unreviewed = await getResourceTreeUnreviewedCount({});
+    expect(unreviewed.result).toBe(1);
+
+    const unreviewedAndDeferred = await getResourceTreeUnreviewedCount({
+      onlyWithAiDeferredAttributions: true,
+    });
+    expect(unreviewedAndDeferred.result).toBe(1);
+
+    const deferred = await getResourceTreeAiDeferredCount({});
+    expect(deferred.result).toBe(2);
+
+    const deferredAndUnreviewed = await getResourceTreeAiDeferredCount({
+      onlyUnreviewedFiles: true,
+    });
+    expect(deferredAndUnreviewed.result).toBe(1);
   });
 });
 

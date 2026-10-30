@@ -103,6 +103,8 @@ export function ResourceBrowser() {
     backend.getResourceTreeUnreviewedCount.useQuery(
       {
         licenseFilter: allResourceTreeFilters.licenseFilter,
+        onlyWithAiDeferredAttributions:
+          allResourceTreeFilters.onlyWithAiDeferredAttributions,
         search: allResourceTreeFilters.search,
       },
       { enabled: isResourceTreeFilterOpen, placeholderData: keepPreviousData },
@@ -111,6 +113,7 @@ export function ResourceBrowser() {
     backend.getResourceTreeAiDeferredCount.useQuery(
       {
         licenseFilter: allResourceTreeFilters.licenseFilter,
+        onlyUnreviewedFiles: allResourceTreeFilters.onlyUnreviewedFiles,
         search: allResourceTreeFilters.search,
       },
       { enabled: isResourceTreeFilterOpen, placeholderData: keepPreviousData },
