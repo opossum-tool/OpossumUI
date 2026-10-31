@@ -6790,7 +6790,7 @@ __metadata:
     react-hot-toast: "npm:2.6.1"
     react-hotkeys-hook: "npm:5.3.3"
     react-is: "npm:19.3.1"
-    react-redux: "npm:9.3.0"
+    react-redux: "npm:9.3.1"
     react-virtuoso: "npm:4.18.19"
     recharts: "npm:3.10.1"
     rolldown: "npm:1.2.15"
@@ -7488,9 +7488,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-redux@npm:8.x.x || 9.x.x, react-redux@npm:9.3.0":
-  version: 9.3.0
-  resolution: "react-redux@npm:9.3.0"
+"react-redux@npm:8.x.x || 9.x.x, react-redux@npm:9.3.1":
+  version: 9.3.1
+  resolution: "react-redux@npm:9.3.1"
   dependencies:
     "@types/use-sync-external-store": "npm:^0.0.6"
     use-sync-external-store: "npm:^1.4.0"
@@ -7503,7 +7503,7 @@ __metadata:
       optional: true
     redux:
       optional: true
-  checksum: 10/3384e98e382ddb2f2a8f35bc7145fabd60f2fb0ccd999df5587bd926de9590f52cd3a29c4a01fe191d710a9c8f9d7293efff8d5fc32debc84de25c911b70fc45
+  checksum: 10/bcb978b6374722327014fe57d9df34e8f6388ea4d21f442dbf879bc2389f968297e5b5ddc637c73f1c3611eb5398231567f2d6b5014324113c1a9fb9431570a9
   languageName: node
   linkType: hard
 
