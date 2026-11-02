@@ -429,6 +429,31 @@ describe('resource tree AI-deferred filter', () => {
     });
     expect(deferredAndUnreviewed.result).toBe(1);
   });
+
+  it('intersects unreviewed, AI-deferred and license filters', async () => {
+    // All filters together must keep exactly one resource:
+    // - /src/deferred.ts is AI-deferred but reviewed (drops out via unreviewed)
+    // - /src/preselected.ts is unreviewed but not AI-deferred (drops out via deferred)
+    // - /src/folder/plain-child.ts is neither (drops out via both)
+    const filters = {
+      onlyUnreviewedFiles: true,
+      onlyWithAiDeferredAttributions: true,
+      licenseFilter: { licenseName: 'MIT', external: false },
+    };
+    const tree = await getResourceTree({
+      expandedNodes: 'expandAll',
+      ...filters,
+    });
+    expect(tree.result.count).toBe(1);
+    expect(tree.result.treeNodes.map((node) => node.id)).toEqual([
+      '/',
+      '/src/',
+      '/src/preselected-deferred.ts',
+    ]);
+
+    expect((await getResourceTreeUnreviewedCount(filters)).result).toBe(1);
+    expect((await getResourceTreeAiDeferredCount(filters)).result).toBe(1);
+  });
 });
 
 describe('getResourceTree', () => {

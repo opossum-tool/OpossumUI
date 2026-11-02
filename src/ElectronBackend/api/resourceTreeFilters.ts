@@ -184,16 +184,22 @@ export function getFilteredResourcesQuery(
       .where('r.is_readonly', '=', 0);
   }
   if (onlyWithAiDeferredAttributions) {
-    query = query.where('r.id', 'in', (eb) =>
-      eb
-        .selectFrom('resource_to_attribution')
-        .innerJoin(
-          'attribution_ai',
-          'attribution_ai.attribution_uuid',
-          'resource_to_attribution.attribution_uuid',
-        )
-        .select('resource_to_attribution.resource_id')
-        .where('deferred_fields', 'is not', null),
+    // A correlated exists probes resource_to_attribution and attribution_ai by
+    // primary key. Expressing this filter as a materialized `in` subquery makes
+    // SQLite pick a pathological plan when combined with the other tree filters.
+    query = query.where((eb) =>
+      eb.exists(
+        eb
+          .selectFrom('resource_to_attribution')
+          .innerJoin(
+            'attribution_ai',
+            'attribution_ai.attribution_uuid',
+            'resource_to_attribution.attribution_uuid',
+          )
+          .select('deferred_fields')
+          .whereRef('resource_to_attribution.resource_id', '=', 'r.id')
+          .where('deferred_fields', 'is not', null),
+      ),
     );
   }
   if (onlyWritable) {
