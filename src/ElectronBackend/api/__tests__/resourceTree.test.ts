@@ -309,6 +309,7 @@ describe('resource tree AI-deferred filter', () => {
   const PRESELECTED_DEFERRED_UUID = 'ai-preselected-deferred-uuid';
   const AI_NOT_DEFERRED_UUID = 'ai-not-deferred-uuid';
   const PLAIN_UUID = 'plain-uuid';
+  const PRESELECTED_NOT_DEFERRED_UUID = 'preselected-not-deferred-uuid';
 
   beforeEach(async () => {
     const attributions: PersistedAttributions = {
@@ -338,11 +339,22 @@ describe('resource tree AI-deferred filter', () => {
         criticality: Criticality.None,
         packageName: 'plain-package',
       },
+      [PRESELECTED_NOT_DEFERRED_UUID]: {
+        id: PRESELECTED_NOT_DEFERRED_UUID,
+        criticality: Criticality.None,
+        packageName: 'preselected-not-deferred-package',
+        preSelected: true,
+      },
     };
     const resourcesToAttributions: ResourcesToAttributions = {
+      // unreviewed and AI-deferred
       '/src/deferred.ts': [DEFERRED_UUID],
+      // unreviewed and AI-deferred (preselected)
       '/src/preselected-deferred.ts': [PRESELECTED_DEFERRED_UUID],
+      // reviewed, not AI-deferred
       '/src/folder/plain-child.ts': [AI_NOT_DEFERRED_UUID, PLAIN_UUID],
+      // unreviewed but not AI-deferred (preselected)
+      '/src/preselected.ts': [PRESELECTED_NOT_DEFERRED_UUID],
     };
     const attributionsToResources: AttributionsToResources = {};
     for (const [resource, uuids] of Object.entries(resourcesToAttributions)) {
@@ -356,6 +368,7 @@ describe('resource tree AI-deferred filter', () => {
         src: {
           'deferred.ts': 1,
           'preselected-deferred.ts': 1,
+          'preselected.ts': 1,
           folder: { 'plain-child.ts': 1 },
         },
       },
@@ -397,14 +410,17 @@ describe('resource tree AI-deferred filter', () => {
   });
 
   it('conjoins the two tree filters in the count queries', async () => {
+    // unreviewed: /src/preselected-deferred.ts and /src/preselected.ts
     const unreviewed = await getResourceTreeUnreviewedCount({});
-    expect(unreviewed.result).toBe(1);
+    expect(unreviewed.result).toBe(2);
 
+    // only /src/preselected-deferred.ts is both unreviewed and AI-deferred
     const unreviewedAndDeferred = await getResourceTreeUnreviewedCount({
       onlyWithAiDeferredAttributions: true,
     });
     expect(unreviewedAndDeferred.result).toBe(1);
 
+    // AI-deferred: /src/deferred.ts and /src/preselected-deferred.ts
     const deferred = await getResourceTreeAiDeferredCount({});
     expect(deferred.result).toBe(2);
 
