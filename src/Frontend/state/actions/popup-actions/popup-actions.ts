@@ -12,7 +12,8 @@ import type {
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { toast } from '../../../Components/Toaster';
-import { PopupType, type View } from '../../../enums/enums';
+import { PopupType, View } from '../../../enums/enums';
+import { ROOT_PATH } from '../../../shared-constants';
 import { invalidateBackendQueries } from '../../../util/backendClient';
 import {
   getIsPackageInfoDirty,
@@ -29,6 +30,10 @@ import {
   getTargetView,
 } from '../../selectors/view-selector';
 import type { AppThunkAction } from '../../types';
+import {
+  STATISTICS_DESTINATION,
+  type StatisticsDestination,
+} from '../../variables/statistics-destination';
 import type { AttributionFilters } from '../../variables/use-filters';
 import {
   initializePackageInfoEditing,
@@ -47,6 +52,8 @@ import {
   setSelectedResourceOrAttributionIdToTargetValue,
 } from '../resource-actions/navigation-actions';
 import type { AttributionSelectionPolicy } from '../resource-actions/types';
+import { setUserSetting } from '../user-settings-actions/user-settings-actions';
+import { setVariable } from '../variables-actions/variables-actions';
 import {
   closePopup,
   navigateToView,
@@ -96,6 +103,37 @@ function restartAndUpdate(): void {
       error instanceof Error ? error.message : text.updateApp.restartFailed,
     );
   });
+}
+
+function executeStatisticsDestination(
+  destination: StatisticsDestination,
+): AppThunkAction {
+  return (dispatch) => {
+    dispatch(navigateToView(View.Audit));
+    dispatch(setSelectedResourceId(ROOT_PATH, 'auto'));
+    setAttributionFilters(dispatch, destination.external, destination.filters);
+    if (destination.external) {
+      dispatch(setUserSetting({ areHiddenSignalsVisible: false }));
+      void window.electronAPI.updateUserSettings({
+        areHiddenSignalsVisible: false,
+      });
+    }
+  };
+}
+
+export function navigateFromStatistics(
+  destination: StatisticsDestination,
+): AppThunkAction {
+  return (dispatch) => {
+    dispatch(closePopup());
+    dispatch(
+      withUnsavedCheck({
+        executeImmediately: executeStatisticsDestination(destination),
+        requestContinuation: (dispatch) =>
+          dispatch(setVariable(STATISTICS_DESTINATION, destination)),
+      }),
+    );
+  };
 }
 
 export function navigateToSelectedPathOrOpenUnsavedPopup(
@@ -301,7 +339,14 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     const targetAttributionFilterChange =
       getTargetAttributionFilterChange(getState());
 
+    const statisticsDestination = getState().variablesState[
+      STATISTICS_DESTINATION
+    ] as StatisticsDestination | null | undefined;
     dispatch(closePopup());
+    if (statisticsDestination) {
+      dispatch(setVariable(STATISTICS_DESTINATION, null));
+      dispatch(executeStatisticsDestination(statisticsDestination));
+    }
 
     if (
       popup?.popup === PopupType.NotSavedPopup &&
@@ -381,6 +426,7 @@ export function closePopupAndUnsetTargets(): AppThunkAction {
     dispatch(setTargetSelectedResourceId(null));
     dispatch(setTargetSelectedAttributionId(null));
     dispatch(setTargetAttributionFilterChange(null));
+    dispatch(setVariable(STATISTICS_DESTINATION, null));
     dispatch(closePopup());
     dispatch(setOpenFileRequest(null));
     dispatch(setImportFileRequest(null));

@@ -2,14 +2,18 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiLink from '@mui/material/Link';
 import { type Theme, useTheme } from '@mui/material/styles';
+import { useState } from 'react';
 import {
-  Cell as RcCell,
+  DefaultZIndexes,
+  type PieSectorShapeProps,
   Legend as RcLegend,
   Pie as RcPie,
   PieChart as RcPieChart,
-  ResponsiveContainer as RcResponsiveContainer,
+  Sector as RcSector,
   Tooltip as RcTooltip,
+  ZIndexLayer as RcZIndexLayer,
 } from 'recharts';
 
 import {
@@ -18,6 +22,9 @@ import {
   OpossumColors,
 } from '../../shared-styles';
 import type { ChartDataItem } from '../../types/types';
+import { ChartActionTooltip } from '../ChartContainer/chart-action-tooltip';
+import { ChartContainer } from '../ChartContainer/chart-container';
+import { ChartTooltipContent } from '../ChartContainer/chart-tooltip-content';
 
 // Chart geometry in px, consumed numerically by recharts
 const PIE_RADIUS = 70;
@@ -42,6 +49,7 @@ function getLegendIconStyle(
     backgroundColor,
     borderRadius: theme.shape.borderRadiusMedium,
     height: LEGEND_SWATCH_SIZE,
+    flexShrink: 0,
     width: LEGEND_SWATCH_SIZE,
     marginRight,
   };
@@ -52,76 +60,169 @@ interface PieChartProps {
   colorMap?: { [segmentName: string]: string };
 }
 
-export const PieChart: React.FC<PieChartProps> = (props) => {
-  const theme = useTheme();
+interface PieChartLegendProps {
+  segments: Array<ChartDataItem>;
+  colors: Array<string>;
+  onTooltipOpenChange: (open: boolean) => void;
+  onHoverChange: (index: number | null) => void;
+  onFocusChange: (index: number | null) => void;
+}
 
+function PieChartLegend({
+  segments,
+  colors,
+  onTooltipOpenChange,
+  onHoverChange,
+  onFocusChange,
+}: PieChartLegendProps) {
+  const theme = useTheme();
   const legendTextStyle: React.CSSProperties = {
     fontFamily: 'sans-serif',
     fontSize: theme.typography.caption.fontSize,
-    width: '95%',
+    lineHeight: theme.typography.caption.lineHeight,
+    textAlign: 'left',
+    flex: 1,
+    minWidth: 0,
+    overflowWrap: 'anywhere',
   };
 
+  return (
+    <div>
+      {segments.map((item, index) => (
+        <div
+          style={{ display: 'flex', alignItems: 'center' }}
+          key={item.id ?? index}
+          onMouseEnter={() => onHoverChange(index)}
+          onMouseLeave={() => onHoverChange(null)}
+          onFocus={() => onFocusChange(index)}
+          onBlur={() => onFocusChange(null)}
+        >
+          <div
+            style={getLegendIconStyle(theme, colors[index], theme.spacing(1))}
+          />
+          {item.onActivate ? (
+            <ChartActionTooltip
+              description={item.actionDescription}
+              onOpenChange={onTooltipOpenChange}
+            >
+              <MuiLink
+                component={'button'}
+                type={'button'}
+                variant={'inherit'}
+                underline={'hover'}
+                onClick={item.onActivate}
+                style={legendTextStyle}
+              >
+                {item.name}
+              </MuiLink>
+            </ChartActionTooltip>
+          ) : (
+            <div style={legendTextStyle}>{item.name}</div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export const PieChart: React.FC<PieChartProps> = (props) => {
+  const theme = useTheme();
+  const [actionTooltipOpen, setActionTooltipOpen] = useState(false);
+  const [hoveredLegendIndex, setHoveredLegendIndex] = useState<number | null>(
+    null,
+  );
+  const [focusedLegendIndex, setFocusedLegendIndex] = useState<number | null>(
+    null,
+  );
+  const activeLegendIndex = hoveredLegendIndex ?? focusedLegendIndex;
+
   const pieChartColors = props.segments.map(
-    ({ name }, i) =>
+    ({ name, color }, i) =>
+      color ??
       props.colorMap?.[name] ??
       defaultPieChartColors[i % defaultPieChartColors.length],
   );
 
-  const nameToIndex = Object.fromEntries(
-    props.segments.map((prop, index) => [prop.name, index]),
-  );
+  function renderSector(sectorProps: PieSectorShapeProps) {
+    const item = props.segments[sectorProps.index];
+    const isActive =
+      activeLegendIndex === null
+        ? sectorProps.isActive
+        : sectorProps.index === activeLegendIndex;
+    return (
+      <>
+        <RcSector
+          {...sectorProps}
+          style={{
+            filter: isActive ? 'brightness(0.9)' : undefined,
+          }}
+          onClick={item?.onActivate}
+          cursor={item?.onActivate ? 'pointer' : undefined}
+        />
+        {/* Keep the foreground layer mounted while the active slice changes. */}
+        <RcZIndexLayer zIndex={DefaultZIndexes.line}>
+          {isActive && (
+            <RcSector
+              {...sectorProps}
+              fill={'none'}
+              stroke={OpossumColors.grey}
+              strokeWidth={1}
+              strokeLinejoin={'round'}
+              pointerEvents={'none'}
+              tabIndex={undefined}
+              aria-hidden
+            />
+          )}
+        </RcZIndexLayer>
+      </>
+    );
+  }
 
   return (
-    <RcResponsiveContainer width={'100%'} height={'100%'}>
+    <ChartContainer width={'100%'} height={'100%'}>
       <RcPieChart>
         <RcPie
-          data={props.segments}
+          data={props.segments.map((item, index) => ({
+            ...item,
+            fill: pieChartColors[index],
+          }))}
           dataKey="count"
           nameKey="name"
           minAngle={15}
           outerRadius={PIE_RADIUS}
           isAnimationActive={false}
           stroke="none"
-        >
-          {pieChartColors.map((record, index) => (
-            <RcCell key={`cell-${index}`} fill={record} />
-          ))}
-        </RcPie>
+          shape={renderSector}
+        />
         <RcTooltip
+          active={
+            actionTooltipOpen || activeLegendIndex !== null ? false : undefined
+          }
+          wrapperStyle={{ zIndex: 1 }}
           contentStyle={chartTooltipContentStyle(theme)}
           itemStyle={chartTooltipTextStyle}
+          content={(tooltipProps) => (
+            <ChartTooltipContent
+              item={props.segments[Number(tooltipProps.activeIndex)]}
+              announce={tooltipProps.accessibilityLayer}
+              style={{ ...tooltipProps.contentStyle, ...chartTooltipTextStyle }}
+            />
+          )}
         />
         <RcLegend
-          content={({ payload }) => (
-            <div>
-              {payload
-                ?.toSorted(
-                  (a, b) =>
-                    (a.value &&
-                      b.value &&
-                      nameToIndex[a.value] - nameToIndex[b.value]) ||
-                    0,
-                )
-                .map((entry, index) => (
-                  <div style={{ display: 'flex' }} key={`item-${index}`}>
-                    <div
-                      style={getLegendIconStyle(
-                        theme,
-                        entry.color ?? '',
-                        theme.spacing(1),
-                      )}
-                    />
-                    <div style={legendTextStyle}>{entry.value}</div>
-                  </div>
-                ))}
-            </div>
-          )}
-          verticalAlign="middle"
-          align="right"
-          layout="vertical"
-          width={LEGEND_WIDTH}
+          content={
+            <PieChartLegend
+              segments={props.segments}
+              colors={pieChartColors}
+              onTooltipOpenChange={setActionTooltipOpen}
+              onHoverChange={setHoveredLegendIndex}
+              onFocusChange={setFocusedLegendIndex}
+            />
+          }
+          position="right"
+          wrapperStyle={{ width: LEGEND_WIDTH }}
         />
       </RcPieChart>
-    </RcResponsiveContainer>
+    </ChartContainer>
   );
 };

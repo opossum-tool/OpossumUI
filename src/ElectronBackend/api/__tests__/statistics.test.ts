@@ -308,10 +308,42 @@ describe('externalAttributionStatistics', () => {
       const { result } = await externalAttributionStatistics();
 
       expect(result.mostFrequentLicenses).toEqual([
-        { name: 'Apache-2.0', count: 3 },
-        { name: 'MIT', count: 2 },
-        { name: 'BSD', count: 1 },
+        { name: 'Apache-2.0', count: 3, isOther: 0 },
+        { name: 'MIT', count: 2, isOther: 0 },
+        { name: 'BSD', count: 1, isOther: 0 },
       ]);
+    });
+
+    it('distinguishes a license named Other from the aggregate', async () => {
+      await initializeDbWithTestData({
+        externalAttributions: {
+          attributions: Object.fromEntries(
+            ['Other', 'MIT', 'BSD', 'ISC', 'MPL', 'Apache'].map(
+              (licenseName, index) => [
+                String(index),
+                {
+                  id: String(index),
+                  criticality: Criticality.None,
+                  licenseName,
+                },
+              ],
+            ),
+          ),
+          resourcesToAttributions: {},
+          attributionsToResources: {},
+        },
+      });
+      const { result } = await externalAttributionStatistics();
+      expect(result.mostFrequentLicenses).toContainEqual({
+        name: 'Other',
+        count: 1,
+        isOther: 0,
+      });
+      expect(result.mostFrequentLicenses).toContainEqual({
+        name: 'Other',
+        count: 1,
+        isOther: 1,
+      });
     });
 
     it('groups licenses by canonical name (case-insensitive, ignoring dashes and spaces)', async () => {
@@ -366,7 +398,9 @@ describe('externalAttributionStatistics', () => {
 
       const { result } = await externalAttributionStatistics();
 
-      expect(result.mostFrequentLicenses).toEqual([{ name: 'MIT', count: 1 }]);
+      expect(result.mostFrequentLicenses).toEqual([
+        { name: 'MIT', count: 1, isOther: 0 },
+      ]);
     });
 
     it('excludes attributions with no license name', async () => {
@@ -388,7 +422,9 @@ describe('externalAttributionStatistics', () => {
 
       const { result } = await externalAttributionStatistics();
 
-      expect(result.mostFrequentLicenses).toEqual([{ name: 'MIT', count: 1 }]);
+      expect(result.mostFrequentLicenses).toEqual([
+        { name: 'MIT', count: 1, isOther: 0 },
+      ]);
     });
 
     it('does not count manual attributions', async () => {
@@ -468,6 +504,7 @@ describe('externalAttributionStatistics', () => {
       expect(result.mostFrequentLicenses.at(-1)).toEqual({
         name: 'Other',
         count: 2,
+        isOther: 1,
       });
     });
   });

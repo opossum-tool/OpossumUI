@@ -130,6 +130,11 @@ export class SignalsPanel {
     selectedTabIs: async (tab: keyof typeof this.tabs) => {
       await expect(this.tabs[tab]).toHaveAttribute('aria-selected', 'true');
     },
+    criticalityFilterIs: async (criticality: string) => {
+      await expect(
+        this.filterMenu.getByRole('textbox', { name: 'criticality' }),
+      ).toHaveValue(criticality);
+    },
     onResourceCountIs: async (count: number) => {
       await expect(this.tabs.onResource).toHaveAccessibleName(
         `${text.relations.resource} (${new Intl.NumberFormat().format(count)})`,

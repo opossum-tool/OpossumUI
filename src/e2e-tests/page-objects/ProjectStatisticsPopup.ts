@@ -127,6 +127,12 @@ export class ProjectStatisticsPopup {
     await this.detailsTab.click();
     await this.licenseTable.assert.isVisible();
   }
+
+  async clickCriticalitySlice(category: string): Promise<void> {
+    await this.signalsByCriticalityChart
+      .locator(`.recharts-pie-sector path[name="${category}"]`)
+      .click();
+  }
 }
 
 class ProjectStatisticsPopupLicenseTable {
