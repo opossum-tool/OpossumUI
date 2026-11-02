@@ -32,7 +32,6 @@ export enum IpcChannel {
   CheckForUpdates = 'check-for-updates',
   DownloadUpdate = 'download-update',
   RestartAndUpdate = 'restart-and-update',
-  Quit = 'quit',
   ConfirmQuit = 'confirm-quit',
   QuitRequestHandled = 'quit-request-handled',
   Relaunch = 'relaunch',

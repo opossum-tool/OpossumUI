@@ -90,13 +90,14 @@ export function acknowledgeQuitRequest(): void {
  * background writes of the .opossum file) and writes the current state of
  * the loaded project to file before quitting.
  *
- * The final saveFile is a deliberate flush, not a redundant write: file
- * writes normally happen fire-and-forget after each renderer mutation
- * (window.electronAPI.saveFile()), but the DB process serves both ports
- * concurrently, so such a save can race with later mutations and its
- * failure is never surfaced. This is the only save that is ordered after
- * all pending work (renderer mutations settled, main connection idle) and
- * whose failure keeps the app open instead of losing data on quit.
+ * The DB process tracks whether the file on disk is up to date (see
+ * dbProcess.ts): renderer mutations mark the file as stale, every file
+ * write clears the flag, and saveFile skips serialization while the file
+ * is fresh. The renderer already saves after each of its mutations, so
+ * this final saveFile is usually a no-op; it only serializes when the file
+ * is actually stale (e.g. the last automatic save failed). Unlike the
+ * renderer's fire-and-forget save triggers, this save is awaited and its
+ * failure keeps the app open instead of losing data on quit.
  */
 export async function confirmQuit(
   window: BrowserWindow,

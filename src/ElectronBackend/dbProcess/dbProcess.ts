@@ -18,6 +18,7 @@ import {
   type CommandParams,
   type CommandReturn,
   executeCommand,
+  isMutationCommand,
 } from '../api/commands';
 import { exportFile } from '../api/exportCommands';
 import { forceUnlockOpossumFile } from '../api/forceUnlock';
@@ -134,6 +135,26 @@ type ResponsePort = {
 
 let storedOpossumZip: AdmZip | undefined;
 
+// The DB process is the single funnel through which all ports' traffic
+// flows, so it is the place to track whether the .opossum file on disk is
+// up to date with the database state. Mutations arriving over any port
+// mark the file as stale.
+let hasUnsavedChanges = false;
+// Monotonically bumped on every change and every file rewrite. A save
+// captures the generation when it starts and only clears the flag if no
+// change arrived while it was writing.
+let changeGeneration = 0;
+
+function markUnsavedChanges(): void {
+  hasUnsavedChanges = true;
+  changeGeneration++;
+}
+
+function markFileSaved(): void {
+  hasUnsavedChanges = false;
+  changeGeneration++;
+}
+
 async function executeDbProcessMessage(
   msg: DbProcessRequest,
   onProgress?: LoadFileProgressCallback,
@@ -145,6 +166,9 @@ async function executeDbProcessMessage(
       if (loadResult.ok) {
         const { opossumZip, ...rest } = loadResult;
         storedOpossumZip = opossumZip;
+        // loadFile writes the (normalized) file back to disk right after
+        // loading, so the file is fresh at this point.
+        markFileSaved();
         return rest;
       }
       return loadResult;
@@ -153,8 +177,15 @@ async function executeDbProcessMessage(
       if (!storedOpossumZip) {
         throw new Error('Cannot save: no input file loaded');
       }
+      if (!hasUnsavedChanges) {
+        return undefined;
+      }
       const { id: _, type: __, ...params } = msg;
+      const generation = changeGeneration;
       await saveFile(params, storedOpossumZip);
+      if (changeGeneration === generation) {
+        hasUnsavedChanges = false;
+      }
       return undefined;
     }
     case 'forceUnlock': {
@@ -163,6 +194,7 @@ async function executeDbProcessMessage(
       }
       const { id: _, type: __, ...params } = msg;
       await forceUnlockOpossumFile(params, storedOpossumZip);
+      markFileSaved();
       return undefined;
     }
     case 'splitOpossumFile': {
@@ -184,6 +216,8 @@ async function executeDbProcessMessage(
         },
         storedOpossumZip,
       );
+      // splitOpossumFile rewrites the source file as part of the split.
+      markFileSaved();
       return undefined;
     }
     case 'mergeOpossumFiles': {
@@ -225,6 +259,8 @@ async function executeDbProcessMessage(
         };
       }
       storedOpossumZip = loadResult.opossumZip;
+      // The merge rewrote the output file and it was reloaded from disk.
+      markFileSaved();
       return result;
     }
     case 'mergeOpossumFilesFromPaths': {
@@ -247,6 +283,11 @@ async function executeDbProcessMessage(
       return undefined;
     }
     case 'executeCommand': {
+      // Mark the file as stale before running the mutation so that even a
+      // save racing this mutation cannot mark the file as saved.
+      if (isMutationCommand(msg.command)) {
+        markUnsavedChanges();
+      }
       return executeCommand(msg.command, msg.params);
     }
   }
@@ -277,14 +318,18 @@ export async function handleDbProcessMessage(
   }
 }
 
-process.parentPort.on('message', (event) => {
-  const msg = event.data as { type: string };
+// Guarded so that the module can be imported in tests, where
+// process.parentPort does not exist.
+if (process.parentPort) {
+  process.parentPort.on('message', (event) => {
+    const msg = event.data as { type: string };
 
-  if (msg.type === 'port') {
-    const port = event.ports[0];
-    port.on('message', (portEvent: Electron.MessageEvent) => {
-      void handleDbProcessMessage(port, portEvent.data as DbProcessRequest);
-    });
-    port.start();
-  }
-});
+    if (msg.type === 'port') {
+      const port = event.ports[0];
+      port.on('message', (portEvent: Electron.MessageEvent) => {
+        void handleDbProcessMessage(port, portEvent.data as DbProcessRequest);
+      });
+      port.start();
+    }
+  });
+}
