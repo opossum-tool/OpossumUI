@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { keepPreviousData, skipToken } from '@tanstack/react-query';
+import { keepPreviousData } from '@tanstack/react-query';
 
 import { ROOT_PATH } from '../shared-constants';
 import { useAppSelector } from '../state/hooks';
@@ -73,17 +73,6 @@ export function useFilterProperties({
     enabled,
     placeholderData: keepPreviousData,
   });
-  const hasSelectedLicenses = !!queryProps.valueFilters.licenseIds?.length;
-  const licenseOptionsQuery = backend.filterProperties.useQuery(
-    hasSelectedLicenses
-      ? {
-          ...queryProps,
-          valueFilters: { ...queryProps.valueFilters, licenseIds: undefined },
-        }
-      : skipToken,
-    { enabled, placeholderData: keepPreviousData },
-  );
-
   // The report table lists every attribution in the project, so 'all' matches
   // what it displays. The audit panels display one relation at a time; scope
   // their counts to the displayed relation so menu counts match the list.
@@ -98,17 +87,23 @@ export function useFilterProperties({
           } as const
         )[mode];
 
+  const licenseOptionsQuery = backend.licenseOptions.useQuery(
+    {
+      ...queryProps,
+      relationship: shownRelation,
+      valueFilters: { ...queryProps.valueFilters, licenseIds: undefined },
+    },
+    { enabled, placeholderData: keepPreviousData },
+  );
+
   const filterProps = filterPropsQuery.data?.[shownRelation] ?? null;
   const loading = filterPropsQuery.isLoading;
-  const licenseQuery = hasSelectedLicenses
-    ? licenseOptionsQuery
-    : filterPropsQuery;
 
   return {
     filterProps,
-    licenses: licenseQuery.data?.[shownRelation]?.licenses ?? [],
+    licenses: licenseOptionsQuery.data ?? [],
     loading,
-    licenseOptionsLoading: licenseQuery.isFetching,
+    licenseOptionsLoading: licenseOptionsQuery.isFetching,
   };
 }
 
@@ -119,9 +114,10 @@ export function useResourceTreeFilterProperties({
   enabled?: boolean;
   external: boolean;
 }) {
-  const filterPropsQuery = backend.filterProperties.useQuery(
+  const licenseOptionsQuery = backend.licenseOptions.useQuery(
     {
       external,
+      relationship: 'all',
       filters: [],
       resourcePathForRelationships: ROOT_PATH,
       includeReadonly: true,
@@ -130,7 +126,7 @@ export function useResourceTreeFilterProperties({
   );
 
   return {
-    licenses: filterPropsQuery.data?.all.licenses ?? [],
-    licenseOptionsLoading: filterPropsQuery.isFetching,
+    licenses: licenseOptionsQuery.data ?? [],
+    licenseOptionsLoading: licenseOptionsQuery.isFetching,
   };
 }

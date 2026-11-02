@@ -79,5 +79,10 @@ export function toAttributionValueFilters(
   filters: AttributionFilters['valueFilters'],
 ): AttributionValueFilters {
   const { license, ...rest } = filters;
-  return { ...rest, licenseIds: license?.map((option) => option.id) };
+  return {
+    ...rest,
+    licenseIds: license?.length
+      ? license.map((option) => option.id)
+      : undefined,
+  };
 }

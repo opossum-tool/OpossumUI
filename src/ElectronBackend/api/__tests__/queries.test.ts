@@ -289,6 +289,26 @@ describe('getAttributionLinkStatus', () => {
 });
 
 describe('filterProperties', () => {
+  async function filterPropertiesWithOptionParity(
+    props: Parameters<typeof queries.filterProperties>[0],
+  ) {
+    const counts = await queries.filterProperties(props);
+    for (const relationship of [
+      'all',
+      'sameOrDescendant',
+      'same',
+      'descendant',
+      'ancestor',
+      'unrelated',
+    ] as const) {
+      const options = await queries.licenseOptions({ ...props, relationship });
+      expect(options.result).toEqual(
+        counts.result[relationship]?.licenses ?? [],
+      );
+    }
+    return counts;
+  }
+
   async function setupDb(options?: {
     resolved?: Array<string>;
     alternateSpelling?: boolean;
@@ -341,10 +361,45 @@ describe('filterProperties', () => {
     });
   }
 
+  it('preserves readonly access and empty results in license options', async () => {
+    expect.hasAssertions();
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/readonly/file', '/other/file']),
+      readonlyRules: [{ path: '/readonly', readonly: true }],
+      externalAttributions: {
+        attributions: {
+          readonly: { id: 'readonly', criticality: 0, licenseName: 'MIT' },
+          other: { id: 'other', criticality: 0, licenseName: 'Apache-2.0' },
+        },
+        resourcesToAttributions: {
+          '/readonly/file': ['readonly'],
+          '/other/file': ['other'],
+        },
+        attributionsToResources: {
+          readonly: ['/readonly/file'],
+          other: ['/other/file'],
+        },
+      },
+    });
+    for (const includeReadonly of [true, false]) {
+      for (const resourcePathForRelationships of ['/readonly/', '/other/']) {
+        for (const search of [undefined, 'no-matching-license']) {
+          await filterPropertiesWithOptionParity({
+            external: true,
+            filters: [],
+            includeReadonly,
+            resourcePathForRelationships,
+            search,
+          });
+        }
+      }
+    }
+  });
+
   it('classifies attributions by relationship to selected resource', async () => {
     await setupDb();
 
-    const { result } = await queries.filterProperties({
+    const { result } = await filterPropertiesWithOptionParity({
       external: true,
       filters: [],
       resourcePathForRelationships: '/parent/target',
@@ -378,7 +433,7 @@ describe('filterProperties', () => {
     );
     expect(result.sameOrDescendant.licenses).toHaveLength(2);
 
-    const withoutUnrelated = await queries.filterProperties({
+    const withoutUnrelated = await filterPropertiesWithOptionParity({
       external: true,
       filters: [],
       resourcePathForRelationships: '/parent/target',
@@ -402,7 +457,7 @@ describe('filterProperties', () => {
       },
     });
 
-    const { result } = await queries.filterProperties({
+    const { result } = await filterPropertiesWithOptionParity({
       external: true,
       filters: [],
       resourcePathForRelationships: '/',
@@ -418,13 +473,13 @@ describe('filterProperties', () => {
       filters: [],
       resourcePathForRelationships: '/',
     };
-    const root = await queries.filterProperties(props);
-    const left = await queries.filterProperties({
+    const root = await filterPropertiesWithOptionParity(props);
+    const left = await filterPropertiesWithOptionParity({
       ...props,
       resourcePathForRelationships: '/parent/target',
       excludeUnrelated: true,
     });
-    const right = await queries.filterProperties({
+    const right = await filterPropertiesWithOptionParity({
       ...props,
       resourcePathForRelationships: '/parent/sibling',
       excludeUnrelated: true,
@@ -440,7 +495,7 @@ describe('filterProperties', () => {
       id: 'mit',
       label: 'M-IT',
     });
-    const filtered = await queries.filterProperties({
+    const filtered = await filterPropertiesWithOptionParity({
       ...props,
       valueFilters: { licenseIds: ['mit'] },
     });
@@ -454,7 +509,7 @@ describe('filterProperties', () => {
       filters: [],
       resourcePathForRelationships: '/parent/target',
     };
-    const combined = await queries.filterProperties({
+    const combined = await filterPropertiesWithOptionParity({
       ...props,
       valueFilters: { licenseIds: ['mit', 'apache2.0'] },
     });
@@ -464,7 +519,7 @@ describe('filterProperties', () => {
       { id: 'apache2.0', label: 'Apache-2.0' },
       { id: 'mit', label: 'MIT' },
     ]);
-    const unrestricted = await queries.filterProperties({
+    const unrestricted = await filterPropertiesWithOptionParity({
       ...props,
       valueFilters: { licenseIds: [] },
     });
@@ -474,7 +529,7 @@ describe('filterProperties', () => {
   it('counts filter matches correctly', async () => {
     await setupDb();
 
-    const { result } = await queries.filterProperties({
+    const { result } = await filterPropertiesWithOptionParity({
       external: true,
       filters: [],
       resourcePathForRelationships: '/parent/target',
@@ -525,7 +580,7 @@ describe('filterProperties', () => {
   it('applies active filters to narrow results', async () => {
     await setupDb();
 
-    const { result } = await queries.filterProperties({
+    const { result } = await filterPropertiesWithOptionParity({
       external: true,
       filters: ['firstParty'],
       resourcePathForRelationships: '/parent/target',
@@ -539,7 +594,7 @@ describe('filterProperties', () => {
   it('filters by license ID', async () => {
     await setupDb();
 
-    const { result } = await queries.filterProperties({
+    const { result } = await filterPropertiesWithOptionParity({
       external: true,
       filters: [],
       resourcePathForRelationships: '/parent/target',
@@ -555,7 +610,7 @@ describe('filterProperties', () => {
   it('filters by search term in package name', async () => {
     await setupDb();
 
-    const { result } = await queries.filterProperties({
+    const { result } = await filterPropertiesWithOptionParity({
       external: true,
       filters: [],
       resourcePathForRelationships: '/parent/target',
@@ -572,7 +627,7 @@ describe('filterProperties', () => {
   it('excludes resolved attributions by default', async () => {
     await setupDb({ resolved: ['ext-unrelated'] });
 
-    const { result } = await queries.filterProperties({
+    const { result } = await filterPropertiesWithOptionParity({
       external: true,
       filters: [],
       resourcePathForRelationships: '/parent/target',
@@ -592,7 +647,7 @@ describe('filterProperties', () => {
   it('includes resolved attributions when showResolved is true', async () => {
     await setupDb({ resolved: ['ext-unrelated'] });
 
-    const { result } = await queries.filterProperties({
+    const { result } = await filterPropertiesWithOptionParity({
       external: true,
       filters: [],
       resourcePathForRelationships: '/parent/target',
@@ -613,7 +668,7 @@ describe('filterProperties', () => {
   it('only counts attributions matching the external flag', async () => {
     await setupDb();
 
-    const { result } = await queries.filterProperties({
+    const { result } = await filterPropertiesWithOptionParity({
       external: false,
       filters: [],
       resourcePathForRelationships: '/parent/target',
