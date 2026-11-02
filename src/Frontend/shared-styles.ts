@@ -153,10 +153,6 @@ export const treeItemClasses = {
     fontWeight: 'bold',
     color: OpossumColors.grey,
   },
-  directlyLinkedHighlight: {
-    backgroundColor: OpossumColors.lightBlue,
-    borderRadius: ({ shape }: Theme) => shape.borderRadiusSmall,
-  },
   hasSignal: {
     color: OpossumColors.pastelRed,
   },

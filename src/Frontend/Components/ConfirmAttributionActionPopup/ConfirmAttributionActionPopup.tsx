@@ -138,7 +138,6 @@ export function ConfirmAttributionActionPopup({
             <LinkedResourcesTree
               readOnly
               disableHighlightSelected={!isLocalActionAvailable}
-              highlightDirectlyLinked
               state={linkedResourcesTreeState}
               sx={{
                 minHeight: MIN_CONTENT_HEIGHT,

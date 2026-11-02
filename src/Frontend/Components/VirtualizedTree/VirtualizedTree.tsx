@@ -25,7 +25,6 @@ interface VirtualizedTreeProps<T extends ResourceTreeNodeBase> {
   onToggle: (nodeIdsToExpand: Array<string>) => void;
   contextMenuNodeId?: string;
   expansionFilters?: ResourceTreeFilters;
-  highlightDirectlyLinked?: boolean;
   readOnly?: boolean;
   selectedNodeId?: string;
   sx?: SxProps;
@@ -41,7 +40,6 @@ export function VirtualizedTree<
   onToggle,
   contextMenuNodeId,
   expansionFilters,
-  highlightDirectlyLinked,
   readOnly,
   resources,
   selectedNodeId,
@@ -62,7 +60,6 @@ export function VirtualizedTree<
           selected={selected}
           highlighted={selected || resource.id === contextMenuNodeId}
           focused={focused}
-          highlightDirectlyLinked={highlightDirectlyLinked}
           resource={resource}
           expansionFilters={expansionFilters}
         />

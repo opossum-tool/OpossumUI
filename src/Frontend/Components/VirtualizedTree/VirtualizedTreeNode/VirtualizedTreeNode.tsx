@@ -77,7 +77,6 @@ export interface TreeNode<
   T extends ResourceTreeNodeBase = ResourceTreeNodeData,
 > {
   resource: T;
-  highlightDirectlyLinked?: boolean;
 }
 
 interface VirtualizedTreeNodeProps<
@@ -99,7 +98,6 @@ export function VirtualizedTreeNode<
 >({
   TreeNodeLabel,
   resource,
-  highlightDirectlyLinked,
   onSelect,
   onContextMenu,
   onToggle,
@@ -176,10 +174,7 @@ export function VirtualizedTreeNode<
           cursor: handleClick ? 'pointer' : 'default',
         }}
       >
-        <TreeNodeLabel
-          resource={resource}
-          highlightDirectlyLinked={highlightDirectlyLinked}
-        />
+        <TreeNodeLabel resource={resource} />
       </MuiBox>
       <MuiBox />
       <MuiBox
