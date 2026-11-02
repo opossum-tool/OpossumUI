@@ -91,13 +91,14 @@ export function acknowledgeQuitRequest(): void {
  * the loaded project to file before quitting.
  *
  * The DB process tracks whether the file on disk is up to date (see
- * dbProcess.ts): renderer mutations mark the file as stale, every file
- * write clears the flag, and saveFile skips serialization while the file
- * is fresh. The renderer already saves after each of its mutations, so
- * this final saveFile is usually a no-op; it only serializes when the file
- * is actually stale (e.g. the last automatic save failed). Unlike the
- * renderer's fire-and-forget save triggers, this save is awaited and its
- * failure keeps the app open instead of losing data on quit.
+ * dbProcess.ts): mutations mark the file as stale and the DB process
+ * automatically schedules a background write after each mutating command.
+ * Every file write clears the flag, and saveFile skips serialization while
+ * the file is fresh. This final saveFile is usually a no-op; it only
+ * serializes when the file is actually stale (e.g. the last automatic save
+ * failed). Unlike the DB process's fire-and-forget background writes, this
+ * save is awaited and its failure keeps the app open instead of losing
+ * data on quit.
  */
 export async function confirmQuit(
   window: BrowserWindow,
@@ -106,6 +107,9 @@ export async function confirmQuit(
   quitApproved = true;
   const client = getMainDbClient();
   await client.whenIdle();
+  if (!client.isDead()) {
+    await client.whenBackgroundWorkIdle();
+  }
 
   const globalBackendState = getGlobalBackendState();
   const projectIsLoaded = Boolean(

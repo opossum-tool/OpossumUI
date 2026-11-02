@@ -87,6 +87,10 @@ interface ExecuteCommandMessage {
   params: CommandParams<CommandName>;
 }
 
+interface WhenIdleMessage {
+  type: 'whenIdle';
+}
+
 export type DbProcessPayload =
   | LoadFileMessage
   | SaveFileMessage
@@ -95,7 +99,8 @@ export type DbProcessPayload =
   | MergeOpossumFilesMessage
   | MergeOpossumFilesFromPathsMessage
   | ExportFileMessage
-  | ExecuteCommandMessage;
+  | ExecuteCommandMessage
+  | WhenIdleMessage;
 
 export type DbProcessRequest = DbProcessPayload & { id: number };
 
@@ -145,6 +150,10 @@ let hasUnsavedChanges = false;
 // change arrived while it was writing.
 let changeGeneration = 0;
 
+let saveTarget: { projectId: string; opossumFilePath: string } | undefined;
+let backgroundSaveInFlight = false;
+const backgroundSaveIdleResolvers: Array<() => void> = [];
+
 function markUnsavedChanges(): void {
   hasUnsavedChanges = true;
   changeGeneration++;
@@ -153,6 +162,68 @@ function markUnsavedChanges(): void {
 function markFileSaved(): void {
   hasUnsavedChanges = false;
   changeGeneration++;
+}
+
+/**
+ * Schedules a background write of the .opossum file for the currently
+ * loaded project. Coalesces with an in-flight write: the running loop
+ * keeps writing as long as the file is stale, so mutations arriving while
+ * a write is running do not start a second concurrent loop.
+ */
+function scheduleSave(): void {
+  if (backgroundSaveInFlight) {
+    return;
+  }
+  backgroundSaveInFlight = true;
+  void runScheduledSaves();
+}
+
+async function runScheduledSaves(): Promise<void> {
+  try {
+    while (
+      hasUnsavedChanges &&
+      saveTarget !== undefined &&
+      storedOpossumZip !== undefined
+    ) {
+      const generation = changeGeneration;
+      try {
+        await saveFile(saveTarget, storedOpossumZip);
+        if (changeGeneration === generation) {
+          hasUnsavedChanges = false;
+        }
+      } catch (error) {
+        console.error('Automatic save of the .opossum file failed.', error);
+        break;
+      }
+    }
+  } finally {
+    backgroundSaveInFlight = false;
+    const resolvers = backgroundSaveIdleResolvers.splice(
+      0,
+      backgroundSaveIdleResolvers.length,
+    );
+    for (const resolve of resolvers) {
+      resolve();
+    }
+  }
+}
+
+function awaitBackgroundSaveIdle(): Promise<void> {
+  if (!backgroundSaveInFlight) {
+    return Promise.resolve();
+  }
+  return new Promise<void>((resolve) => {
+    backgroundSaveIdleResolvers.push(resolve);
+  });
+}
+
+function responseDeclaresSave(result: unknown): boolean {
+  return (
+    typeof result === 'object' &&
+    result !== null &&
+    'savesFile' in result &&
+    (result as { savesFile?: unknown }).savesFile === true
+  );
 }
 
 async function executeDbProcessMessage(
@@ -166,6 +237,10 @@ async function executeDbProcessMessage(
       if (loadResult.ok) {
         const { opossumZip, ...rest } = loadResult;
         storedOpossumZip = opossumZip;
+        saveTarget = {
+          projectId: rest.projectId,
+          opossumFilePath: msg.filePath,
+        };
         // loadFile writes the (normalized) file back to disk right after
         // loading, so the file is fresh at this point.
         markFileSaved();
@@ -288,7 +363,15 @@ async function executeDbProcessMessage(
       if (isMutationCommand(msg.command)) {
         markUnsavedChanges();
       }
-      return executeCommand(msg.command, msg.params);
+      const result = await executeCommand(msg.command, msg.params);
+      if (responseDeclaresSave(result)) {
+        scheduleSave();
+      }
+      return result;
+    }
+    case 'whenIdle': {
+      await awaitBackgroundSaveIdle();
+      return undefined;
     }
   }
 }
@@ -316,6 +399,15 @@ export async function handleDbProcessMessage(
       stack: err instanceof Error ? err.stack : undefined,
     });
   }
+}
+
+export function resetDbProcessStateForTesting(): void {
+  storedOpossumZip = undefined;
+  saveTarget = undefined;
+  hasUnsavedChanges = false;
+  changeGeneration = 0;
+  backgroundSaveInFlight = false;
+  backgroundSaveIdleResolvers.length = 0;
 }
 
 // Guarded so that the module can be imported in tests, where

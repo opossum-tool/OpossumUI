@@ -200,6 +200,7 @@ describe('MoreActionsButton', () => {
     resolveMutation({
       invalidates: [],
       result: { focusedAttributionOutcome: { status: 'unchanged' } },
+      savesFile: true,
     });
     await waitFor(() => expect(screen.queryByRole('progressbar')).toBeNull());
   });

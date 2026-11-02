@@ -14,6 +14,7 @@ import {
 } from '../quit-handling';
 
 const whenIdleMock = vi.hoisted(() => vi.fn());
+const whenBackgroundWorkIdleMock = vi.hoisted(() => vi.fn());
 const saveFileMock = vi.hoisted(() => vi.fn());
 const isDeadMock = vi.hoisted(() => vi.fn());
 const showMessageBoxMock = vi.hoisted(() => vi.fn());
@@ -26,6 +27,7 @@ vi.mock('electron', () => ({
 vi.mock('../../dbProcess/dbProcessClient', () => ({
   getMainDbClient: () => ({
     whenIdle: whenIdleMock,
+    whenBackgroundWorkIdle: whenBackgroundWorkIdleMock,
     saveFile: saveFileMock,
     isDead: isDeadMock,
   }),
@@ -81,6 +83,7 @@ describe('handleWindowClose', () => {
     resetQuitStateForTesting();
     currentTimestamp = 0;
     whenIdleMock.mockReset().mockResolvedValue(undefined);
+    whenBackgroundWorkIdleMock.mockReset().mockResolvedValue(undefined);
     saveFileMock.mockReset().mockResolvedValue(undefined);
     isDeadMock.mockReset().mockReturnValue(false);
     showMessageBoxMock.mockReset().mockResolvedValue(undefined);
@@ -147,6 +150,7 @@ describe('confirmQuit', () => {
     resetQuitStateForTesting();
     setGlobalBackendState({});
     whenIdleMock.mockReset().mockResolvedValue(undefined);
+    whenBackgroundWorkIdleMock.mockReset().mockResolvedValue(undefined);
     saveFileMock.mockReset().mockResolvedValue(undefined);
     isDeadMock.mockReset().mockReturnValue(false);
     showMessageBoxMock.mockReset().mockResolvedValue(undefined);

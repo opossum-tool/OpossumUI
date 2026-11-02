@@ -129,7 +129,10 @@ export type MutationInvalidation = {
 export type MutationResponse = {
   invalidates?: ReadonlyArray<MutationInvalidation>;
   result?: unknown;
+  savesFile?: boolean;
 };
+
+const SAVES_FILE = { savesFile: true } as const;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type MutationFunction = (params?: any) => Promise<MutationResponse>;
@@ -237,6 +240,7 @@ const mutationImplementations = {
 
     return {
       invalidates: MANUAL_ATTRIBUTION_INVALIDATIONS,
+      ...SAVES_FILE,
       result: {
         focusedAttributionOutcome: result,
       },
@@ -273,6 +277,7 @@ const mutationImplementations = {
 
     return {
       invalidates: MANUAL_ATTRIBUTION_INVALIDATIONS,
+      ...SAVES_FILE,
     };
   },
 
@@ -305,6 +310,7 @@ const mutationImplementations = {
 
     return {
       invalidates: MANUAL_ATTRIBUTION_INVALIDATIONS,
+      ...SAVES_FILE,
       result: {
         focusedAttributionOutcome: result,
       },
@@ -369,6 +375,7 @@ const mutationImplementations = {
       });
     return {
       invalidates: MANUAL_ATTRIBUTION_INVALIDATIONS,
+      ...SAVES_FILE,
       result: {
         focusedAttributionOutcome: result,
       },
@@ -407,6 +414,7 @@ const mutationImplementations = {
 
     return {
       invalidates: MANUAL_ATTRIBUTION_INVALIDATIONS,
+      ...SAVES_FILE,
       result: {
         focusedAttributionOutcome: result,
       },
@@ -422,6 +430,7 @@ const mutationImplementations = {
 
     return {
       invalidates: [{ queryName: 'getBaseUrlForSource' as const }],
+      ...SAVES_FILE,
     };
   },
 
@@ -466,6 +475,7 @@ const mutationImplementations = {
       });
     return {
       invalidates: MANUAL_ATTRIBUTION_INVALIDATIONS,
+      ...SAVES_FILE,
       result: {
         focusedAttributionOutcome: result,
       },
@@ -522,6 +532,7 @@ const mutationImplementations = {
 
     return {
       invalidates: MANUAL_ATTRIBUTION_INVALIDATIONS,
+      ...SAVES_FILE,
       result: {
         focusedAttributionOutcome: result,
       },
@@ -592,6 +603,7 @@ const mutationImplementations = {
       });
     return {
       invalidates: MANUAL_ATTRIBUTION_INVALIDATIONS,
+      ...SAVES_FILE,
       result: {
         focusedAttributionOutcome: result,
       },
@@ -686,6 +698,7 @@ async function setAttributionsResolvedStatus(
       { queryName: 'getResourceTree' } as const,
       { queryName: 'getLinkedResourceTree' } as const,
     ],
+    ...SAVES_FILE,
   };
 }
 

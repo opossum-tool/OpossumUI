@@ -8,6 +8,7 @@ import {
   type DbProcessRequest,
   type DbProcessResponse,
   handleDbProcessMessage,
+  resetDbProcessStateForTesting,
 } from '../dbProcess';
 
 const saveFileApiMock = vi.hoisted(() => vi.fn());
@@ -65,7 +66,11 @@ async function handle(
 }
 
 function loadFileOk(): void {
-  loadFileMock.mockResolvedValue({ ok: true, opossumZip: {} as AdmZip });
+  loadFileMock.mockResolvedValue({
+    ok: true,
+    opossumZip: {} as AdmZip,
+    projectId: 'uuid_1',
+  });
 }
 
 async function loadProject(): Promise<void> {
@@ -76,14 +81,33 @@ async function runCommand(
   id: number,
   command: string,
   isMutation: boolean,
+  response?: unknown,
 ): Promise<void> {
   isMutationCommandMock.mockReturnValue(isMutation);
+  if (response !== undefined) {
+    executeCommandMock.mockResolvedValueOnce(response);
+  }
   await handle({
     id,
     type: 'executeCommand',
     command,
     params: {},
   } as unknown as DbProcessRequest);
+}
+
+async function runMutationDeclaringSave(id: number): Promise<void> {
+  await runCommand(id, MUTATION_COMMAND, true, {
+    invalidates: [],
+    savesFile: true,
+  });
+}
+
+async function runMutationWithoutSaveDeclaration(id: number): Promise<void> {
+  await runCommand(id, MUTATION_COMMAND, true, { invalidates: [] });
+}
+
+async function awaitBackgroundIdle(id: number): Promise<void> {
+  await handle({ id, type: 'whenIdle' });
 }
 
 function saveMessage(id: number): DbProcessRequest {
@@ -101,6 +125,7 @@ async function save(id: number): Promise<DbProcessResponse | undefined> {
 
 describe('dbProcess save tracking', () => {
   beforeEach(() => {
+    resetDbProcessStateForTesting();
     saveFileApiMock.mockReset().mockResolvedValue(undefined);
     forceUnlockMock.mockReset().mockResolvedValue(undefined);
     splitOpossumFileMock.mockReset().mockResolvedValue(undefined);
@@ -221,5 +246,89 @@ describe('dbProcess save tracking', () => {
     expect(splitOpossumFileMock).toHaveBeenCalledTimes(1);
     expect(response?.type).toBe('success');
     expect(saveFileApiMock).not.toHaveBeenCalled();
+  });
+
+  it('saves automatically when a mutation declares that saving is necessary', async () => {
+    await loadProject();
+    await runMutationDeclaringSave(1);
+    await awaitBackgroundIdle(2);
+
+    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
+    expect(saveFileApiMock.mock.calls[0]?.[0]).toEqual({
+      projectId: 'uuid_1',
+      opossumFilePath: '/x',
+    });
+
+    const response = await save(3);
+    expect(response?.type).toBe('success');
+    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not save automatically without the save declaration', async () => {
+    await loadProject();
+    await runMutationWithoutSaveDeclaration(1);
+    await awaitBackgroundIdle(2);
+
+    expect(saveFileApiMock).not.toHaveBeenCalled();
+
+    await save(3);
+    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('skips the automatic save when no project is loaded', async () => {
+    await runMutationDeclaringSave(1);
+    await awaitBackgroundIdle(2);
+
+    expect(saveFileApiMock).not.toHaveBeenCalled();
+  });
+
+  it('writes once more after an automatic save that raced a mutation', async () => {
+    await loadProject();
+
+    let resolveFirstSave!: () => void;
+    saveFileApiMock.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveFirstSave = resolve;
+        }),
+    );
+
+    await runMutationDeclaringSave(1);
+    await runMutationDeclaringSave(2);
+    await runMutationDeclaringSave(3);
+    resolveFirstSave();
+    await awaitBackgroundIdle(4);
+
+    expect(saveFileApiMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps the file stale when an automatic save fails', async () => {
+    await loadProject();
+    saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
+    await runMutationDeclaringSave(1);
+    await awaitBackgroundIdle(2);
+
+    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
+
+    await save(3);
+    expect(saveFileApiMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('resolves whenIdle only after the scheduled write finished', async () => {
+    await loadProject();
+
+    let resolveSave!: () => void;
+    saveFileApiMock.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveSave = resolve;
+        }),
+    );
+
+    await runMutationDeclaringSave(1);
+    const idlePromise = awaitBackgroundIdle(2);
+    resolveSave();
+    await expect(idlePromise).resolves.toBeUndefined();
+    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
   });
 });

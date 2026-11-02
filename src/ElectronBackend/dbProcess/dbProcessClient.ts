@@ -131,6 +131,14 @@ export class DbProcessClient {
   }
 
   /**
+   * Resolves once the DB process has no scheduled background file write in
+   * flight. Mutations save automatically in the DB process.
+   */
+  async whenBackgroundWorkIdle(): Promise<void> {
+    await this.request({ type: 'whenIdle' });
+  }
+
+  /**
    * Whether the DB process has exited and this client rejects new requests
    * (see `failPendingRequests`).
    */
