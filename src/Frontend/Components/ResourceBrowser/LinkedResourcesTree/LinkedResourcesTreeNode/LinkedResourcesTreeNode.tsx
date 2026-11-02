@@ -7,7 +7,11 @@ import MuiTypography from '@mui/material/Typography';
 
 import type { LinkedResourceTreeNodeData } from '../../../../../ElectronBackend/api/resourceTree';
 import { text } from '../../../../../shared/text';
-import { readonlyStyle, treeItemClasses } from '../../../../shared-styles';
+import {
+  OpossumColors,
+  readonlyStyle,
+  treeItemClasses,
+} from '../../../../shared-styles';
 import {
   BreakpointIcon,
   DirectlyLinkedIcon,
@@ -21,7 +25,7 @@ const labelDetail = 'without information';
 
 export const LinkedResourcesTreeNode: React.FC<
   TreeNode<LinkedResourceTreeNodeData>
-> = ({ resource }) => {
+> = ({ resource, highlightDirectlyLinked }) => {
   const isAttributionBreakpoint = resource.isAttributionBreakpoint;
   const showFolderIcon = !resource.isFile;
   const labelText = resource.labelText;
@@ -33,6 +37,9 @@ export const LinkedResourcesTreeNode: React.FC<
         ...treeItemClasses.labelRoot,
         ...(resource.isReadonly ? readonlyStyle : {}),
         ...(resource.matchesFilters ? treeItemClasses.matchesFilters : {}),
+        ...(highlightDirectlyLinked && resource.isDirectlyLinked
+          ? treeItemClasses.directlyLinkedHighlight
+          : {}),
       }}
     >
       {showFolderIcon ? (
@@ -54,12 +61,15 @@ export const LinkedResourcesTreeNode: React.FC<
         sx={{
           ...treeItemClasses.text,
           ...(isAttributionBreakpoint && treeItemClasses.breakpoint),
-          ...(resource.isDirectlyLinked && treeItemClasses.directlyLinked),
         }}
       >
         {labelText}
       </MuiTypography>
-      {resource.isDirectlyLinked && <DirectlyLinkedIcon />}
+      {resource.isDirectlyLinked && (
+        <DirectlyLinkedIcon
+          sx={highlightDirectlyLinked ? { color: OpossumColors.darkBlue } : {}}
+        />
+      )}
       {resource.isReadonly && (
         <ReadonlyIcon
           label={'readonly resource'}

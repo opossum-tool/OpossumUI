@@ -16,6 +16,7 @@ import type { LinkedResourcesTreeState } from './useLinkedResourcesTreeState';
 
 interface Props {
   disableHighlightSelected?: boolean;
+  highlightDirectlyLinked?: boolean;
   readOnly?: boolean;
   state: LinkedResourcesTreeState;
   sx?: SxProps;
@@ -24,6 +25,7 @@ interface Props {
 export function LinkedResourcesTree({
   readOnly,
   disableHighlightSelected,
+  highlightDirectlyLinked,
   state,
   sx,
 }: Props) {
@@ -76,6 +78,7 @@ export function LinkedResourcesTree({
       selectedNodeId={disableHighlightSelected ? '' : selectedResourceId}
       readOnly={readOnly}
       TreeNodeLabel={LinkedResourcesTreeNode}
+      highlightDirectlyLinked={highlightDirectlyLinked}
       expansionFilters={state.expansionFilters}
       testId={'linked-resources-tree'}
     />

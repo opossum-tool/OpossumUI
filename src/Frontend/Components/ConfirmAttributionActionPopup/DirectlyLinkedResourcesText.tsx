@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { OpossumColors } from '../../shared-styles';
 import { DirectlyLinkedIcon } from '../Icons/Icons';
 
 interface Props {
@@ -13,7 +14,9 @@ export function DirectlyLinkedResourcesText({ count, noun }: Props) {
   return (
     <>
       {new Intl.NumberFormat().format(count)}{' '}
-      <DirectlyLinkedIcon sx={{ verticalAlign: '-0.2em' }} />{' '}
+      <DirectlyLinkedIcon
+        sx={{ verticalAlign: '-0.2em', color: OpossumColors.darkBlue }}
+      />{' '}
       {count === 1 ? noun : `${noun}s`}:
     </>
   );
