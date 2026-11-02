@@ -45,6 +45,7 @@ import {
 } from '../../../state/selectors/resource-selectors';
 import {
   type AttributionFilters,
+  hasActiveAttributionFilters,
   toAttributionValueFilters,
   type UseAttributionFilters,
 } from '../../../state/variables/use-filters';
@@ -388,11 +389,7 @@ export const PackagesPanel = ({
       setFilteredAttributions,
     ],
   );
-  const isFilterActive =
-    !!attributionFilters.length ||
-    Object.values(valueFilters).some((value) =>
-      Array.isArray(value) ? value.length > 0 : value !== undefined,
-    );
+  const isFilterActive = hasActiveAttributionFilters(filters);
   const pickerMode = usePickerMode();
 
   useEffect(() => {

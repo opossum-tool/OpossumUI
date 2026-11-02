@@ -4,7 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useState } from 'react';
 
-import { useAttributionFiltersInReportView } from '../../state/variables/use-filters';
+import {
+  hasActiveAttributionFilters,
+  useAttributionFiltersInReportView,
+} from '../../state/variables/use-filters';
 import { useFilterProperties } from '../../util/use-filter-properties';
 import { attributionFilterOptions } from '../AttributionPanels/attribution-filter-options';
 import { FilterButton } from '../FilterButton/FilterButton';
@@ -20,7 +23,6 @@ export const TableFilterButton: React.FC<{
   });
   const [filters, setFilteredAttributions] =
     useAttributionFiltersInReportView();
-  const { filters: attributionFilters, valueFilters } = filters;
   const filterOptions = useAttributionFilterOptions({
     filterOptions: attributionFilterOptions,
     filterProps,
@@ -29,11 +31,7 @@ export const TableFilterButton: React.FC<{
     filters,
     setFilters: setFilteredAttributions,
   });
-  const isFilterActive =
-    !!attributionFilters.length ||
-    Object.values(valueFilters).some((value) =>
-      Array.isArray(value) ? value.length > 0 : value !== undefined,
-    );
+  const isFilterActive = hasActiveAttributionFilters(filters);
 
   return (
     <FilterButton

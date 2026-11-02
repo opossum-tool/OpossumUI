@@ -86,3 +86,15 @@ export function toAttributionValueFilters(
       : undefined,
   };
 }
+
+export function hasActiveAttributionFilters({
+  filters,
+  valueFilters,
+}: AttributionFilters): boolean {
+  return (
+    !!filters.length ||
+    Object.values(valueFilters).some((value) =>
+      Array.isArray(value) ? value.length > 0 : value !== undefined,
+    )
+  );
+}
