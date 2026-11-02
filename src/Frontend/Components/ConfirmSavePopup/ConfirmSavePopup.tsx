@@ -13,6 +13,7 @@ import { maybePluralize } from '../../util/maybe-pluralize';
 import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../util/use-focused-attribution-outcome';
 import { useLinkedAttributionActionData } from '../AttributionAction/useLinkedAttributionActionData';
 import { ConfirmAttributionActionPopup } from '../ConfirmAttributionActionPopup/ConfirmAttributionActionPopup';
+import { DirectlyLinkedResourcesText } from '../ConfirmAttributionActionPopup/DirectlyLinkedResourcesText';
 import { toast } from '../Toaster';
 
 interface Props {
@@ -151,19 +152,22 @@ export const ConfirmSavePopup: React.FC<Props> = ({
       }}
       attributions={resolvedAttributions}
       onClose={onClose}
-      description={(isConfirmAction
-        ? text.saveAttributionsPopup.confirmAttributions
-        : text.saveAttributionsPopup.saveAttributions)({
-        attributions: maybePluralize(
-          actionSummary.selectedAttributionCount,
-          text.packageLists.attribution,
-        ),
-        resources: maybePluralize(
-          actionSummary.linkedResourceCount ?? 1,
-          text.saveAttributionsPopup.resource,
-          { showOne: true },
-        ),
-      })}
+      description={
+        <>
+          {(isConfirmAction
+            ? text.saveAttributionsPopup.confirmAttributions
+            : text.saveAttributionsPopup.saveAttributions)({
+            attributions: maybePluralize(
+              actionSummary.selectedAttributionCount,
+              text.packageLists.attribution,
+            ),
+          })}{' '}
+          <DirectlyLinkedResourcesText
+            count={actionSummary.linkedResourceCount ?? 1}
+            noun={text.saveAttributionsPopup.resource}
+          />
+        </>
+      }
       mixedWarning={text.confirmAttributionActionPopup.mixedWarning(
         actionSummary.mixedAttributionCount,
       )}

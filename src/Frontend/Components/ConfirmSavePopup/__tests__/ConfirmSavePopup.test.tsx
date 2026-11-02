@@ -314,11 +314,13 @@ describe('AttributionFormConfirmSavePopup', () => {
     });
     expect(
       await screen.findByText(
-        text.saveAttributionsPopup.confirmAttributions({
+        `${text.saveAttributionsPopup.confirmAttributions({
           attributions: '2 attributions',
-          resources: '1 resource',
-        }),
+        })} 1 resource:`,
       ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(text.resourceBrowser.directlyLinked),
     ).toBeInTheDocument();
     await waitFor(() => expect(confirmButton).toBeEnabled());
     await userEvent.click(confirmButton);

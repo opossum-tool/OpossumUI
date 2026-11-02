@@ -345,22 +345,10 @@ export const text = {
     ariaLabel: 'confirm save popup',
     titleSave: 'Save Attributions',
     titleConfirm: 'Confirm Attributions',
-    saveAttributions: ({
-      attributions,
-      resources,
-    }: {
-      attributions: string;
-      resources: string;
-    }) =>
-      `This action will save the following ${attributions} on ${resources}:`,
-    confirmAttributions: ({
-      attributions,
-      resources,
-    }: {
-      attributions: string;
-      resources: string;
-    }) =>
-      `This action will confirm the following ${attributions} on ${resources}:`,
+    saveAttributions: ({ attributions }: { attributions: string }) =>
+      `This action will save the following ${attributions} on`,
+    confirmAttributions: ({ attributions }: { attributions: string }) =>
+      `This action will confirm the following ${attributions} on`,
     saveGlobally: 'Save on All',
     confirmGlobally: 'Confirm on All',
     saveLocally: 'Save only on Selected',
@@ -373,14 +361,8 @@ export const text = {
   deleteAttributionsPopup: {
     ariaLabel: 'confirm delete popup',
     title: 'Delete Attributions',
-    deleteAttributions: ({
-      attributions,
-      resources,
-    }: {
-      attributions: string;
-      resources: string;
-    }) =>
-      `This action will permanently remove the following ${attributions} from ${resources}:`,
+    deleteAttributions: ({ attributions }: { attributions: string }) =>
+      `This action will permanently remove the following ${attributions} from`,
     deleteGlobally: 'Delete on All',
     deleteLocally: 'Delete only on Selected',
     delete: 'Delete',

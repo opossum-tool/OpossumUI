@@ -5,6 +5,7 @@
 import MuiAlert from '@mui/material/Alert';
 import MuiButton, { type ButtonProps } from '@mui/material/Button';
 import MuiTypography from '@mui/material/Typography';
+import type { ReactNode } from 'react';
 
 import type {
   AllMatchingAttributionSelection,
@@ -36,7 +37,7 @@ interface Props {
   onClose: () => void;
   header: string;
   ariaLabel: string;
-  description: string;
+  description: ReactNode;
   mixedWarning: string;
   attributions: Attributions | undefined;
   localAction?: Action;

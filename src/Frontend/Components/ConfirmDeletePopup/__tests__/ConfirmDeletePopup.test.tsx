@@ -61,11 +61,13 @@ describe('ConfirmDeletePopup', () => {
     });
     expect(
       await screen.findByText(
-        text.deleteAttributionsPopup.deleteAttributions({
+        `${text.deleteAttributionsPopup.deleteAttributions({
           attributions: 'attribution',
-          resources: '1 resource',
-        }),
+        })} 1 resource:`,
       ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(text.resourceBrowser.directlyLinked),
     ).toBeInTheDocument();
     await waitFor(() => expect(deleteButton).toBeEnabled());
     await userEvent.click(deleteButton);
@@ -107,12 +109,14 @@ describe('ConfirmDeletePopup', () => {
 
     expect(
       await screen.findByText(
-        text.deleteAttributionsPopup.deleteAttributions({
+        `${text.deleteAttributionsPopup.deleteAttributions({
           attributions: '2 attributions',
-          resources: '2 resources',
-        }),
+        })} 2 resources:`,
       ),
     ).toBeInTheDocument();
+    expect(
+      screen.getAllByLabelText(text.resourceBrowser.directlyLinked).length,
+    ).toBeGreaterThanOrEqual(1);
     expect(
       screen.getByText(text.deleteAttributionsPopup.title),
     ).toBeInTheDocument();

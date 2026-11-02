@@ -448,12 +448,12 @@ export function BreakpointIcon() {
   );
 }
 
-export function DirectlyLinkedIcon() {
+export function DirectlyLinkedIcon({ sx }: IconProps) {
   return (
     <MuiTooltip title={text.resourceBrowser.directlyLinked} disableInteractive>
       <LinkIcon
         aria-label={text.resourceBrowser.directlyLinked}
-        sx={{ ...classes.resourceIcon, ...classes.resourceDefaultColor }}
+        sx={{ ...classes.resourceIcon, ...classes.resourceDefaultColor, ...sx }}
       />
     </MuiTooltip>
   );
