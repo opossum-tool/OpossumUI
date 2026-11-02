@@ -70,6 +70,7 @@ export function FilterButton({
   const theme = useTheme();
   const BADGE_SIZE = theme.spacing(2);
   const BADGE_OFFSET = theme.spacing(1);
+  const viewportMargin = parseFloat(theme.spacing(Sizing.Large));
   const [panel, setPanel] = useState<{
     optionId: string;
     anchorEl: HTMLElement;
@@ -194,7 +195,7 @@ export function FilterButton({
                 name: 'flip',
                 options: {
                   fallbackPlacements: ['left-start'],
-                  padding: 16,
+                  padding: viewportMargin,
                   boundary: [],
                   altBoundary: false,
                 },
@@ -202,7 +203,7 @@ export function FilterButton({
               {
                 name: 'preventOverflow',
                 options: {
-                  padding: 16,
+                  padding: viewportMargin,
                   altAxis: true,
                   tether: false,
                   boundary: [],

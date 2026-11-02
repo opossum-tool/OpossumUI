@@ -28,13 +28,14 @@ export function MenuContainer({
   adjacentContent,
 }: Props) {
   const theme = useTheme();
+  const menuOffset = theme.spacing(anchorArrow ? Sizing.SmallGap : Sizing.Tiny);
   return (
     <Popover
       open={!!anchorEl}
       anchorEl={anchorEl}
       onClose={onClose}
-      marginThreshold={16}
-      sx={{ mt: theme.spacing(anchorArrow ? Sizing.SmallGap : Sizing.Tiny) }}
+      marginThreshold={parseFloat(theme.spacing(Sizing.Large))}
+      sx={{ mt: menuOffset }}
       anchorOrigin={{ horizontal: anchorPosition, vertical: 'bottom' }}
       transformOrigin={{ horizontal: anchorPosition, vertical: 'top' }}
       slotProps={{
@@ -51,7 +52,11 @@ export function MenuContainer({
       <MenuList
         autoFocusItem
         variant="menu"
-        sx={{ p: 0, maxHeight: 'calc(100vh - 48px)', overflowY: 'auto' }}
+        sx={{
+          p: 0,
+          maxHeight: `calc(100vh - ${theme.spacing(2 * Sizing.Large)} - ${menuOffset})`,
+          overflowY: 'auto',
+        }}
         onKeyDown={(event) => {
           if (event.key === 'Tab') {
             event.preventDefault();

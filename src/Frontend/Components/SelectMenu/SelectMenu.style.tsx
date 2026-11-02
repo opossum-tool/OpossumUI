@@ -37,13 +37,10 @@ export const MenuItemContainer = styled(MuiBox)(({ theme }) => ({
   display: 'flex',
   gap: theme.spacing(Sizing.SmallGap),
   alignItems: 'center',
-  // 4.25 units = 17px right padding for the check icon
-  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-  paddingRight: theme.spacing(4.25),
+  paddingRight: theme.spacing(Sizing.Large),
   paddingLeft: theme.spacing(Sizing.MediumPad),
-  // 9.5 units = 38px, matches the menu item row height
-  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-  height: theme.spacing(9.5),
+  paddingTop: theme.spacing(Sizing.SmallGap),
+  paddingBottom: theme.spacing(Sizing.SmallGap),
   width: '100%',
   minWidth: 0,
   boxSizing: 'border-box',

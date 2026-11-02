@@ -170,10 +170,10 @@ export function renderSelectMenuItems({
               </MuiListItemIcon>
               <MuiListItemText
                 primary={label}
+                sx={{ m: 0 }}
                 slotProps={{
                   primary: {
                     sx: {
-                      mt: 0.5,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',

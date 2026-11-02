@@ -7,24 +7,24 @@ import type { SxProps, Theme } from '@mui/material/styles';
 import { OpossumColors, Sizing } from '../../shared-styles';
 
 export const styles = {
-  editor: {
+  editor: ({ spacing }) => ({
     width: '420px',
     height: '480px',
-    maxWidth: 'calc(100vw - 32px)',
-    maxHeight: 'calc(100vh - 32px)',
+    maxWidth: `calc(100vw - ${spacing(2 * Sizing.Large)})`,
+    maxHeight: `calc(100vh - ${spacing(2 * Sizing.Large)})`,
     display: 'flex',
     flexDirection: 'column',
-  },
+  }),
   header: { display: 'flex', alignItems: 'center', flexShrink: 0 },
   tabs: {
     flex: 1,
     minWidth: 0,
-    minHeight: '38px',
+    minHeight: 0,
     '& .MuiTab-root': {
-      minHeight: '38px',
+      minHeight: 0,
       minWidth: 0,
       px: Sizing.MediumPad,
-      py: 1,
+      py: Sizing.SmallGap,
       textTransform: 'none',
       typography: 'body2',
     },
@@ -36,12 +36,9 @@ export const styles = {
     mx: Sizing.SmallGap,
   },
   row: {
-    py: 1,
+    py: Sizing.SmallGap,
     pl: Sizing.MediumPad,
-    // 4.25 units = 17px, matching the other filter rows.
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    pr: ({ spacing }) => spacing(4.25),
-    minHeight: '38px',
+    pr: Sizing.Large,
     boxSizing: 'border-box',
     typography: 'body2',
     '&:hover': { bgcolor: OpossumColors.lightestBlueOnHover },
