@@ -479,38 +479,6 @@ describe('AttributionFormConfirmSavePopup', () => {
     expect(onSaveComplete).not.toHaveBeenCalled();
   });
 
-  it('does not expand directly linked folders in the linked resources tree', async () => {
-    const attribution = faker.opossum.packageInfo();
-    const linkedFolder = '/folder';
-    const childResource = '/folder/child/inner.ts';
-
-    await renderComponent(
-      <ConfirmSavePopup
-        open
-        onClose={noop}
-        selection={{ mode: 'explicit', attributionUuids: [attribution.id] }}
-        attributions={{ [attribution.id]: attribution }}
-      />,
-      {
-        data: getParsedInputFileEnrichedWithTestData({
-          manualAttributions: faker.opossum.attributions({
-            [attribution.id]: attribution,
-          }),
-          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
-            [linkedFolder]: [attribution.id],
-          }),
-          resources: pathsToResources([childResource]),
-        }),
-        actions: [setSelectedResourceId(linkedFolder, 'auto')],
-      },
-    );
-
-    await screen.findByTestId('linked-resources-tree-node-/folder/');
-    expect(
-      screen.queryByTestId('linked-resources-tree-node-/folder/child/'),
-    ).not.toBeInTheDocument();
-  });
-
   it('saves attribution linked to a single resource', async () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo({ id: packageInfo1.id });

@@ -386,12 +386,10 @@ export const queries = {
     attributionUuids,
     limit,
     prioritizedResourcePath,
-    onlyExpandAncestorsOfLinkedResources,
   }: {
     attributionUuids: Array<string>;
     limit?: number;
     prioritizedResourcePath?: string;
-    onlyExpandAncestorsOfLinkedResources?: boolean;
   }) {
     const results: Array<string> = [];
 
@@ -406,7 +404,6 @@ export const queries = {
           aboveAttributionUuids: attributionUuids,
           aboveResourceId: prioritizedResource.id,
           limit,
-          onlyExpandAncestorsOfLinkedResources,
         })),
       );
     }
@@ -415,7 +412,6 @@ export const queries = {
       ...(await resourcesToExpand(getDb(), {
         aboveAttributionUuids: attributionUuids,
         limit,
-        onlyExpandAncestorsOfLinkedResources,
       })),
     );
 

@@ -14,7 +14,6 @@ import { backend } from '../../../util/backendClient';
 export type LinkedResourcesTreeState = {
   belowSelectedResource?: number;
   count: number;
-  readonlyLinkedResourceCount?: number;
   expandedIds: Array<string>;
   setExpandedIds: (values: Array<string>) => void;
   treeNodes: Array<LinkedResourceTreeNodeData>;
@@ -26,7 +25,6 @@ export type LinkedResourcesTreeQueryProps = {
   onAttributionUuids: Array<string>;
   onlyWritable?: boolean;
   search?: string;
-  onlyExpandAncestorsOfLinkedResources?: boolean;
 };
 
 export type LinkedResourcesTreeQueryResult = {
@@ -42,7 +40,6 @@ export function useLinkedResourcesTree({
   onAttributionUuids,
   search,
   onlyWritable = false,
-  onlyExpandAncestorsOfLinkedResources = false,
   enabled: enabledProp = true,
 }: LinkedResourcesTreeQueryProps): LinkedResourcesTreeQueryResult {
   const selectedResourcePath = useAppSelector(getSelectedResourceId);
@@ -72,7 +69,6 @@ export function useLinkedResourcesTree({
             attributionUuids: onAttributionUuids,
             limit: 1000,
             prioritizedResourcePath: selectedResourcePath,
-            onlyExpandAncestorsOfLinkedResources,
           }
         : skipToken,
     );
