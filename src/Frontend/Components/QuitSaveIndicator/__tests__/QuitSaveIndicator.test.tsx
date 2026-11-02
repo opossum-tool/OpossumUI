@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 
 import { text } from '../../../../shared/text';
 import { setIsSavingBeforeQuit } from '../../../state/actions/view-actions/view-actions';
@@ -10,23 +10,25 @@ import { renderComponent } from '../../../test-helpers/render';
 import { QuitSaveIndicator } from '../QuitSaveIndicator';
 
 describe('QuitSaveIndicator', () => {
-  it('is not rendered by default', async () => {
+  it('is not shown by default', async () => {
     await renderComponent(<QuitSaveIndicator />);
 
     expect(
-      screen.queryByRole('progressbar', {
-        name: text.quitSaveIndicator.saving,
-      }),
+      screen.queryByRole('dialog', { name: text.quitSaveIndicator.saving }),
     ).not.toBeInTheDocument();
   });
 
-  it('shows an indeterminate progress line while saving before quit', async () => {
+  it('shows a blocking popup while saving before quit', async () => {
     await renderComponent(<QuitSaveIndicator />, {
       actions: [setIsSavingBeforeQuit(true)],
     });
 
+    const popup = screen.getByRole('dialog', {
+      name: text.quitSaveIndicator.saving,
+    });
+    expect(popup).toBeInTheDocument();
     expect(
-      screen.getByRole('progressbar', { name: text.quitSaveIndicator.saving }),
-    ).toBeInTheDocument();
+      within(popup).getByText(text.quitSaveIndicator.saving),
+    ).toBeVisible();
   });
 });
