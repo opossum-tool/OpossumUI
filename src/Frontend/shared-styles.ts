@@ -153,6 +153,9 @@ export const treeItemClasses = {
     fontWeight: 'bold',
     color: OpossumColors.grey,
   },
+  directlyLinked: {
+    fontWeight: 'bold',
+  },
   hasSignal: {
     color: OpossumColors.pastelRed,
   },

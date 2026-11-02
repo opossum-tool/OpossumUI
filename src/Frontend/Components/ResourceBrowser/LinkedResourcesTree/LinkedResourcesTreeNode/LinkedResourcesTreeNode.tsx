@@ -54,6 +54,7 @@ export const LinkedResourcesTreeNode: React.FC<
         sx={{
           ...treeItemClasses.text,
           ...(isAttributionBreakpoint && treeItemClasses.breakpoint),
+          ...(resource.isDirectlyLinked && treeItemClasses.directlyLinked),
         }}
       >
         {labelText}
