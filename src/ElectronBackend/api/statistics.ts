@@ -193,7 +193,7 @@ export async function externalAttributionStatistics() {
 
 export type LicenseTableRow = {
   licenseName: string | null;
-  licenseOption: LicenseOption;
+  licenseOption: LicenseOption | null;
   criticality: number;
   classification: number;
   perSource: { [key: string]: number };
@@ -261,10 +261,13 @@ export async function licenseTable() {
     ) {
       currentRow = {
         licenseName,
-        licenseOption: {
-          id: queryRow.canonical_license_name ?? '',
-          label: licenseName ?? '-',
-        },
+        licenseOption:
+          queryRow.canonical_license_name === null
+            ? null
+            : {
+                id: queryRow.canonical_license_name,
+                label: licenseName ?? '-',
+              },
         criticality,
         classification,
         perSource: {},

@@ -202,7 +202,7 @@ export const AttributionCountPerSourcePerLicenseTable: React.FC<
                 totalSignalCount={row.total}
                 setSelectedLicense={setSelectedLicense}
                 key={JSON.stringify([
-                  row.licenseOption.id,
+                  row.licenseOption?.id,
                   row.licenseName,
                   row.criticality,
                   row.classification,

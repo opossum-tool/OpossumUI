@@ -26,7 +26,7 @@ interface AttributionCountPerSourcePerLicenseTableRowProps {
   columnConfig: ColumnConfig;
   signalCountsPerSource: { [sourceName: string]: number };
   licenseName: string;
-  licenseOption: LicenseOption;
+  licenseOption: LicenseOption | null;
   licenseCriticality: Criticality;
   licenseClassification: Classification | undefined;
   totalSignalCount: number;
@@ -75,7 +75,7 @@ export const AttributionCountPerSourcePerLicenseTableRow: React.FC<
 interface RowCellContentProps {
   signalCountsPerSource: { [sourceName: string]: number };
   licenseName: string;
-  licenseOption: LicenseOption;
+  licenseOption: LicenseOption | null;
   licenseCriticality: Criticality;
   licenseClassification: Classification | undefined;
   totalSignalCount: number;
@@ -89,6 +89,11 @@ const RowCellContent: React.FC<RowCellContentProps> = (props) => {
   const classifications = useClassifications();
 
   if (props.column.columnType === SingleColumn.NAME) {
+    const licenseOption = props.licenseOption;
+    if (licenseOption === null) {
+      return props.licenseName;
+    }
+
     return (
       <ChartActionTooltip
         description={
@@ -103,7 +108,7 @@ const RowCellContent: React.FC<RowCellContentProps> = (props) => {
           variant={'inherit'}
           underline="hover"
           onClick={() => {
-            props.setSelectedLicense?.(props.licenseOption);
+            props.setSelectedLicense?.(licenseOption);
           }}
           sx={{ cursor: 'pointer', textAlign: 'inherit' }}
         >
