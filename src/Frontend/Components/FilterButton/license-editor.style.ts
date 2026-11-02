@@ -9,9 +9,8 @@ import { OpossumColors, Sizing } from '../../shared-styles';
 export const styles = {
   editor: ({ spacing }) => ({
     width: '420px',
-    height: '480px',
     maxWidth: `calc(100vw - ${spacing(2 * Sizing.Large)})`,
-    maxHeight: `calc(100vh - ${spacing(2 * Sizing.Large)})`,
+    minHeight: 0,
     display: 'flex',
     flexDirection: 'column',
   }),

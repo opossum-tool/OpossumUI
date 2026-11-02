@@ -37,12 +37,6 @@ export interface LicenseConfiguration {
   setSelectedLicenses: (licenses: Array<LicenseOption>) => void;
 }
 
-function EmptyList({ context }: { context: string }) {
-  return <Typography sx={{ p: 2 }}>{context}</Typography>;
-}
-
-const LIST_COMPONENTS = { EmptyPlaceholder: EmptyList };
-
 type LicenseView = 'all' | 'selected';
 
 function LicenseEditor({
@@ -60,6 +54,7 @@ function LicenseEditor({
 }) {
   const [search, setSearch] = useState('');
   const [view, setView] = useState<LicenseView>('all');
+  const [listHeight, setListHeight] = useState(1);
   const listId = useId();
   const selectedIds = useMemo(
     () => new Set(selectedLicenses.map((option) => option.id)),
@@ -206,23 +201,16 @@ function LicenseEditor({
           },
         }}
       />
-      <Virtuoso
-        // Remounting resets virtualization measurements and scroll position.
-        key={`${view}-${search}`}
-        ref={listRef}
-        style={{
-          flex: 1,
+      <Box
+        ref={scrollerRef}
+        sx={{
+          height: rows.length ? listHeight : 'auto',
+          flexShrink: 1,
           minHeight: 0,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
         }}
-        data={rows}
-        computeItemKey={(_, option) => option.id}
-        components={LIST_COMPONENTS}
-        context={emptyMessage}
-        rangeChanged={setMounted}
-        scrollerRef={(element) => {
-          scrollerRef.current = element instanceof HTMLElement ? element : null;
-        }}
-        // Virtuoso forwards these attributes to its actual scrollerRef.
         role="listbox"
         aria-label={text.licenseEditor.names}
         aria-multiselectable
@@ -237,21 +225,38 @@ function LicenseEditor({
             : undefined
         }
         onKeyDown={handleListKeyDown}
-        itemContent={(_, option) => (
-          <LicenseRow
-            id={optionId(option.id)}
-            label={option.label}
-            selected={selectedIds.has(option.id)}
-            active={listHasFocus && current?.id === option.id}
-            view={view}
-            onToggle={() => toggle(option)}
-            onRemove={() => {
-              scrollerRef.current?.focus();
-              toggle(option);
-            }}
+      >
+        {rows.length ? (
+          <Virtuoso
+            // Remounting resets virtualization measurements and scroll position.
+            key={`${view}-${search}`}
+            ref={listRef}
+            style={{ height: listHeight, flexShrink: 1, minHeight: 0 }}
+            data={rows}
+            computeItemKey={(_, option) => option.id}
+            totalListHeightChanged={setListHeight}
+            skipAnimationFrameInResizeObserver
+            rangeChanged={setMounted}
+            tabIndex={-1}
+            itemContent={(_, option) => (
+              <LicenseRow
+                id={optionId(option.id)}
+                label={option.label}
+                selected={selectedIds.has(option.id)}
+                active={listHasFocus && current?.id === option.id}
+                view={view}
+                onToggle={() => toggle(option)}
+                onRemove={() => {
+                  scrollerRef.current?.focus();
+                  toggle(option);
+                }}
+              />
+            )}
           />
+        ) : (
+          <Typography sx={{ p: 2 }}>{emptyMessage}</Typography>
         )}
-      />
+      </Box>
     </Box>
   );
 }

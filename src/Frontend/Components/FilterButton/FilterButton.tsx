@@ -180,6 +180,12 @@ export function FilterButton({
         width="336px"
         adjacentContent={
           <Popper
+            // Reserve the maximum height for positioning so resizing the visible
+            // panel never moves its tabs and search field.
+            sx={{
+              height: `min(480px, calc(100vh - ${theme.spacing(2 * Sizing.Large)}))`,
+              pointerEvents: 'none',
+            }}
             open={!!view && !!panel}
             anchorEl={panel?.anchorEl}
             placement="right-start"
@@ -215,6 +221,11 @@ export function FilterButton({
             {view && (
               <Paper
                 elevation={2}
+                sx={{
+                  pointerEvents: 'auto',
+                  maxHeight: '100%',
+                  display: 'flex',
+                }}
                 onKeyDown={(event) => {
                   if (event.key === 'Escape') {
                     event.stopPropagation();
