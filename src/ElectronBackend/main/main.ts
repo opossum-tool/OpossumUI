@@ -69,7 +69,9 @@ export async function main(): Promise<void> {
 
     // Dev-only convenience: after a vite watcher restart (backend code
     // change), reopen the file that was open before the restart. Fresh dev
-    // starts and packaged builds never open a file on their own.
+    // starts and packaged builds never open a file on their own. An
+    // explicitly provided file (CLI argument or OPOSSUM_FILE) takes
+    // precedence over the reopen path.
     const reopenFilePath = isDevRestarted()
       ? await getLastOpenedFilePath()
       : undefined;
