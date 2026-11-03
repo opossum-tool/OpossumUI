@@ -9,7 +9,7 @@ import {
   type CommandParams,
   type CommandReturn,
   executeCommand,
-} from '../../ElectronBackend/api/commands';
+} from '../ElectronBackend/api/commands';
 
 /**
  * Routes the given backend command to `handler` and falls through to the real

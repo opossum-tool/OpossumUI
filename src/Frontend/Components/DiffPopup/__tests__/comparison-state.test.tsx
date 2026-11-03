@@ -8,7 +8,7 @@ import type { PackageInfo } from '../../../../shared/shared-types';
 import {
   makeComparisonItem,
   makeComparisonPackageInfo,
-} from '../../../../testing/ui';
+} from '../../../../testing/comparison-fixtures';
 import type { ComparisonItem } from '../DiffPopup';
 import {
   canTransfer,

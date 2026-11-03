@@ -10,15 +10,16 @@ import type { ComponentProps } from 'react';
 import type { CommandReturn } from '../../../../ElectronBackend/api/commands';
 import type { Attributions } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
-import { pathsToResources } from '../../../../testing/global-test-helpers';
 import {
-  dismissWithBackdrop,
-  dismissWithEscape,
   interceptBackendCommand,
+  restoreBackendCommandExecution,
+} from '../../../../testing/backend-stubs';
+import {
   makeComparisonItem,
   makeComparisonPackageInfo,
-  restoreBackendCommandExecution,
-} from '../../../../testing/ui';
+} from '../../../../testing/comparison-fixtures';
+import { pathsToResources } from '../../../../testing/global-test-helpers';
+import { dismissWithBackdrop, dismissWithEscape } from '../../../../testing/ui';
 import {
   setSelectedAttributionId,
   setSelectedResourceId,
