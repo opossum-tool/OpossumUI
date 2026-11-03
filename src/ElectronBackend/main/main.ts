@@ -12,6 +12,8 @@ import {
 } from '../dbProcess/dbProcessClient';
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
 import { createWindow, loadWebApp } from './createWindow';
+import { isDevRestarted } from './dev-env';
+import { getLastOpenedFilePath } from './last-opened-file';
 import { createMenu } from './menu';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
 import { setRuntimeMacOsOpenFileHandler } from './openFileRequests';
@@ -74,7 +76,17 @@ export async function main(): Promise<void> {
 
     await loadWebApp(mainWindow);
 
-    await openFileFromCliOrEnvVariableIfProvided(mainWindow, updateMenu);
+    // Dev-only convenience: after a vite watcher restart (backend code
+    // change), reopen the file that was open before the restart. Fresh dev
+    // starts and packaged builds never open a file on their own. An
+    // explicitly provided file (CLI argument or OPOSSUM_FILE) takes
+    // precedence over the reopen path.
+    const reopenFilePath = isDevRestarted()
+      ? await getLastOpenedFilePath()
+      : undefined;
+    await openFileFromCliOrEnvVariableIfProvided(mainWindow, updateMenu, {
+      reopenFilePath,
+    });
 
     setRuntimeMacOsOpenFileHandler((filePath) => {
       mainWindow.webContents.send(AllowedFrontendChannels.OpenFile, filePath);
