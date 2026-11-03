@@ -10,8 +10,8 @@ import {
   UPDATE_ASSET_NAMES,
 } from '../shared/release-assets';
 import { text } from '../shared/text';
-import { renderApp } from './helpers/render-app';
-import { expectViewIsActive, gotoReportView } from './helpers/ui';
+import { renderApp } from '../testing/render-app';
+import { expectViewIsActive, gotoReportView } from '../testing/ui';
 
 describe('checking for updates through the Help menu', () => {
   it.each(['audit', 'report'] as const)(

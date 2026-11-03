@@ -5,7 +5,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import { expect } from 'vitest';
 
-import { SETTLED_TIMEOUT } from './package-cards';
+import { SETTLED_TIMEOUT } from './common';
 
 export function getButton(name: string): HTMLElement {
   return screen.getByRole('button', { name });

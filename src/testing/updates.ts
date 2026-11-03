@@ -4,23 +4,23 @@
 // SPDX-License-Identifier: Apache-2.0
 import { net } from 'electron';
 
-import { sendToRenderers } from '../../ElectronBackend/main/send-to-renderers';
+import { sendToRenderers } from '../ElectronBackend/main/send-to-renderers';
 import {
   checkForUpdates,
   getUpdateState,
   initializeUpdateService,
   stopAutomaticUpdateChecks,
-} from '../../ElectronBackend/main/update-service';
-import type { AllowedFrontendChannels } from '../../shared/ipc-channels';
+} from '../ElectronBackend/main/update-service';
+import type { AllowedFrontendChannels } from '../shared/ipc-channels';
 
 vi.mock('electron', () => ({
   app: { isPackaged: true, runningUnderARM64Translation: false },
   net: { fetch: vi.fn() },
 }));
-vi.mock('../../ElectronBackend/main/installer-updater', () => ({
+vi.mock('../ElectronBackend/main/installer-updater', () => ({
   supportsInstallation: () => false,
 }));
-vi.mock('../../ElectronBackend/main/send-to-renderers', () => ({
+vi.mock('../ElectronBackend/main/send-to-renderers', () => ({
   sendToRenderers: vi.fn(),
 }));
 

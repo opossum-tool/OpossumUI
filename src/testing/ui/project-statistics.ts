@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -6,8 +6,8 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
-import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { text } from '../../../shared/text';
+import { AllowedFrontendChannels } from '../../shared/ipc-channels';
+import { text } from '../../shared/text';
 import {
   expectPopupHidden,
   type SendToChannel,

@@ -9,6 +9,7 @@ import { text } from '../../../../../shared/text';
 import { faker } from '../../../../../testing/Faker';
 import { pathsToResources } from '../../../../../testing/global-test-helpers';
 import {
+  ATTRIBUTIONS_PANEL,
   clickPackageCard,
   clickPackageCardCheckbox,
   expectButtonDisabled,
@@ -46,7 +47,7 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await clickPackageCard(packageInfo);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
 
     expect(getSelectedAttributionId(store.getState())).toBe(packageInfo.id);
     expectButtonsEnabled(text.packageLists.create);
@@ -64,7 +65,7 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await clickPackageCardCheckbox(packageInfo);
+    await clickPackageCardCheckbox(ATTRIBUTIONS_PANEL, packageInfo);
 
     expect(getSelectedAttributionId(store.getState())).toBe(packageInfo.id);
   });
@@ -86,7 +87,10 @@ describe('AttributionsPanel', () => {
       actions: [setSelectedResourceId(readonlyResource, 'auto')],
     });
 
-    const checkbox = await getPackageCardCheckbox(packageInfo);
+    const checkbox = await getPackageCardCheckbox(
+      ATTRIBUTIONS_PANEL,
+      packageInfo,
+    );
 
     expect(checkbox).toBeEnabled();
     await userEvent.click(checkbox);
@@ -109,7 +113,7 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await clickPackageCard(packageInfo);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
 
     expectButtonsDisabled(
       text.packageLists.create,
@@ -154,7 +158,7 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await clickPackageCard(packageInfo);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
     await userEvent.click(getButton(text.packageLists.create));
 
     expect(getSelectedAttributionId(store.getState())).toBe('');
@@ -173,7 +177,7 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await clickPackageCard(packageInfo);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
     await userEvent.click(getButton(text.packageLists.delete));
     const deleteButton = getButton(text.deleteAttributionsPopup.delete);
     await expectEventuallyEnabled(deleteButton);
@@ -199,7 +203,7 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await clickPackageCard(packageInfo);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
     await userEvent.click(getButton(text.packageLists.linkAsAttribution));
 
     await expectResourcesToManualAttributions({
@@ -224,7 +228,7 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await clickPackageCard(packageInfo);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
     act(() => {
       store.dispatch(
         setTemporaryDisplayPackageInfo(faker.opossum.packageInfo()),
@@ -252,7 +256,7 @@ describe('AttributionsPanel', () => {
       actions: [setSelectedResourceId(filePath, 'auto')],
     });
 
-    await clickPackageCard(packageInfo);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
 
     expectButtonDisabled(text.packageLists.linkAsAttribution);
   });
@@ -276,7 +280,7 @@ describe('AttributionsPanel', () => {
       actions: [setSelectedResourceId(filePath, 'auto')],
     });
 
-    await clickPackageCard(packageInfo);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
 
     expectButtonDisabled(text.packageLists.linkAsAttribution);
   });
@@ -295,8 +299,11 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await clickPackageCard(packageInfo);
-    const selectionCheckbox = await getPackageCardCheckbox(packageInfo);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
+    const selectionCheckbox = await getPackageCardCheckbox(
+      ATTRIBUTIONS_PANEL,
+      packageInfo,
+    );
     await userEvent.click(selectionCheckbox);
     act(() => {
       store.dispatch(setTemporaryDisplayPackageInfo(packageInfo));
@@ -327,7 +334,7 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await clickPackageCard(packageInfo);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
 
     expectButtonDisabled(text.packageLists.confirm);
   });
@@ -346,7 +353,7 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await clickPackageCard(packageInfo1);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
     await userEvent.click(getButton(text.packageLists.replace));
 
     expect(
@@ -366,7 +373,7 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await clickPackageCard(packageInfo);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
 
     expectButtonDisabled(text.packageLists.replace);
   });
@@ -386,7 +393,7 @@ describe('AttributionsPanel', () => {
       actions: [setVariable(COMPARE_SELECTION_SOURCE, packageInfo1.id)],
     });
 
-    await clickPackageCard(packageInfo1);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
 
     expectButtonDisabled(text.packageLists.replace);
   });
@@ -405,7 +412,7 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await clickPackageCard(packageInfo1);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
     await userEvent.click(getButton(text.packageLists.replace));
 
     expectButtonsDisabled(

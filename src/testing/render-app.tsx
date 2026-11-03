@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -6,21 +6,18 @@ import { render, waitFor } from '@testing-library/react';
 import type { IpcRendererEvent } from 'electron';
 import { Resizable } from 're-resizable';
 
-import { App } from '../../Frontend/Components/App/App';
-import { Toaster } from '../../Frontend/Components/Toaster/Toaster';
-import { setUserSetting } from '../../Frontend/state/actions/user-settings-actions/user-settings-actions';
-import type { Action } from '../../Frontend/state/configure-store';
+import { App } from '../Frontend/Components/App/App';
+import { Toaster } from '../Frontend/Components/Toaster/Toaster';
+import { setUserSetting } from '../Frontend/state/actions/user-settings-actions/user-settings-actions';
+import type { Action } from '../Frontend/state/configure-store';
 import {
   createTestStore,
   makeProviderWrapper,
   makeReactQueryClient,
-} from '../../Frontend/test-helpers/render';
-import type { AllowedFrontendChannels } from '../../shared/ipc-channels';
-import { DEFAULT_USER_SETTINGS } from '../../shared/shared-constants';
-import type {
-  ParsedFileContent,
-  UserSettings,
-} from '../../shared/shared-types';
+} from '../Frontend/test-helpers/render';
+import type { AllowedFrontendChannels } from '../shared/ipc-channels';
+import { DEFAULT_USER_SETTINGS } from '../shared/shared-constants';
+import type { ParsedFileContent, UserSettings } from '../shared/shared-types';
 import { setUpUpdates, type UpdatesFixture } from './updates';
 
 type IpcListener = (event: IpcRendererEvent, ...args: Array<unknown>) => void;
