@@ -3,18 +3,21 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { ThemeProvider } from '@mui/material/styles';
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ComponentProps } from 'react';
 
-import { executeCommand } from '../../../../ElectronBackend/api/commands';
-import {
-  type Attributions,
-  Criticality,
-  type PackageInfo,
-} from '../../../../shared/shared-types';
+import type { Attributions } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
+import {
+  dismissWithBackdrop,
+  dismissWithEscape,
+  interceptBackendCommand,
+  makeComparisonItem,
+  makeComparisonPackageInfo,
+  restoreBackendCommandExecution,
+} from '../../../../testing/ui';
 import {
   setSelectedAttributionId,
   setSelectedResourceId,
@@ -46,29 +49,7 @@ vi.mock('../ComparisonView', () => ({
   ),
 }));
 
-function packageInfo(overrides: Partial<PackageInfo> = {}): PackageInfo {
-  return {
-    id: 'package',
-    attributionConfidence: 50,
-    criticality: Criticality.None,
-    packageName: 'react',
-    packageType: 'npm',
-    licenseName: 'MIT',
-    licenseText: 'MIT License',
-    comment: 'opening comment',
-    ...overrides,
-  };
-}
-
-function item(overrides: Partial<ComparisonItem> = {}): ComparisonItem {
-  return {
-    isExternal: false,
-    label: 'attribution',
-    packageInfo: packageInfo(),
-    ...overrides,
-  };
-}
-
+const item = makeComparisonItem;
 async function renderPopup(
   leftItem: ComparisonItem,
   rightItem: ComparisonItem,
@@ -98,30 +79,28 @@ async function renderPopup(
   );
 }
 
-function dismissWithEscape() {
-  fireEvent.keyDown(screen.getByTestId('left-packageName'), {
-    key: 'Escape',
-  });
-}
+const dismissWithEscapeKey = (): void => {
+  dismissWithEscape(screen.getByTestId('left-packageName'));
+};
 
-function dismissWithBackdrop() {
-  const backdrop = within(
-    screen.getByLabelText(text.diffPopup.ariaLabel),
-  ).getByRole('presentation');
-  fireEvent.mouseDown(backdrop);
-  fireEvent.click(backdrop);
-}
+const dismissWithBackdropClick = (): void => {
+  dismissWithBackdrop(text.diffPopup.ariaLabel);
+};
 
 describe('DiffPopup', () => {
-  afterEach(() => {
-    vi.mocked(window.electronAPI.api).mockImplementation(executeCommand);
-  });
+  afterEach(restoreBackendCommandExecution);
 
   it.each([true, false])(
     'reveals only when the focused attribution is a submitted candidate (%s)',
     async (includesFocus) => {
-      const left = packageInfo({ id: 'left', packageName: 'left' });
-      const right = packageInfo({ id: 'right', packageName: 'right' });
+      const left = makeComparisonPackageInfo({
+        id: 'left',
+        packageName: 'left',
+      });
+      const right = makeComparisonPackageInfo({
+        id: 'right',
+        packageName: 'right',
+      });
       const onClose = vi.fn();
       const { store } = await renderPopup(
         item({ packageInfo: left }),
@@ -167,8 +146,11 @@ describe('DiffPopup', () => {
   );
 
   it('accepts drafts without publishing when no backend save is needed', async () => {
-    const left = packageInfo({ id: 'left', packageName: 'left' });
-    const persisted = packageInfo({ id: 'right', packageName: 'persisted' });
+    const left = makeComparisonPackageInfo({ id: 'left', packageName: 'left' });
+    const persisted = makeComparisonPackageInfo({
+      id: 'right',
+      packageName: 'persisted',
+    });
     const draft = { ...persisted, packageName: 'unsaved' };
     const onClose = vi.fn();
     const { store } = await renderPopup(
@@ -199,37 +181,37 @@ describe('DiffPopup', () => {
   });
 
   it('saves only changed mutation candidates', async () => {
-    const leftPersisted = packageInfo({
+    const leftPersisted = makeComparisonPackageInfo({
       id: 'left',
       packageName: 'left persisted',
       comment: 'left comment',
     });
-    const leftDraft = packageInfo({
+    const leftDraft = makeComparisonPackageInfo({
       id: 'left',
       packageName: 'left pre-edited',
       comment: 'left comment',
     });
-    const rightPersisted = packageInfo({
+    const rightPersisted = makeComparisonPackageInfo({
       id: 'right',
       packageName: 'right persisted',
       comment: 'right comment',
     });
-    const rightDraft = packageInfo({
+    const rightDraft = makeComparisonPackageInfo({
       id: 'right',
       packageName: 'right draft',
       comment: 'right comment',
     });
     let resolveRequest: (() => void) | undefined;
-    vi.mocked(window.electronAPI.api).mockImplementation((command, params) =>
-      command === 'updateOrMatchAttributions'
-        ? new Promise<never>((resolve) => {
-            resolveRequest = () =>
-              resolve({
-                result: { focusedAttributionOutcome: { status: 'unchanged' } },
-                invalidates: [],
-              } as never);
-          })
-        : executeCommand(command, params as never),
+    interceptBackendCommand(
+      'updateOrMatchAttributions',
+      () =>
+        new Promise<never>((resolve) => {
+          resolveRequest = () =>
+            resolve({
+              result: { focusedAttributionOutcome: { status: 'unchanged' } },
+              invalidates: [],
+            } as never);
+        }),
     );
 
     await renderPopup(
@@ -282,29 +264,35 @@ describe('DiffPopup', () => {
   });
 
   it('reports accepted drafts and completion after saving', async () => {
-    const leftPersisted = packageInfo({
+    const leftPersisted = makeComparisonPackageInfo({
       id: 'left',
       packageName: 'left persisted',
     });
-    const leftDraft = packageInfo({ id: 'left', packageName: 'left draft' });
-    const rightPersisted = packageInfo({
+    const leftDraft = makeComparisonPackageInfo({
+      id: 'left',
+      packageName: 'left draft',
+    });
+    const rightPersisted = makeComparisonPackageInfo({
       id: 'right',
       packageName: 'right persisted',
     });
-    const rightDraft = packageInfo({ id: 'right', packageName: 'right draft' });
+    const rightDraft = makeComparisonPackageInfo({
+      id: 'right',
+      packageName: 'right draft',
+    });
     const onClose = vi.fn();
     const onAcceptDrafts = vi.fn();
     let resolveRequest: (() => void) | undefined;
-    vi.mocked(window.electronAPI.api).mockImplementation((command, params) =>
-      command === 'updateOrMatchAttributions'
-        ? new Promise<never>((resolve) => {
-            resolveRequest = () =>
-              resolve({
-                result: { focusedAttributionOutcome: { status: 'unchanged' } },
-                invalidates: [],
-              } as never);
-          })
-        : executeCommand(command, params as never),
+    interceptBackendCommand(
+      'updateOrMatchAttributions',
+      () =>
+        new Promise<never>((resolve) => {
+          resolveRequest = () =>
+            resolve({
+              result: { focusedAttributionOutcome: { status: 'unchanged' } },
+              invalidates: [],
+            } as never);
+        }),
     );
 
     await renderPopup(
@@ -348,28 +336,34 @@ describe('DiffPopup', () => {
   });
 
   it('disables controls and ignores Escape while saving', async () => {
-    const leftPersisted = packageInfo({
+    const leftPersisted = makeComparisonPackageInfo({
       id: 'left',
       packageName: 'left persisted',
     });
-    const leftDraft = packageInfo({ id: 'left', packageName: 'left draft' });
-    const rightPersisted = packageInfo({
+    const leftDraft = makeComparisonPackageInfo({
+      id: 'left',
+      packageName: 'left draft',
+    });
+    const rightPersisted = makeComparisonPackageInfo({
       id: 'right',
       packageName: 'right persisted',
     });
-    const rightDraft = packageInfo({ id: 'right', packageName: 'right draft' });
+    const rightDraft = makeComparisonPackageInfo({
+      id: 'right',
+      packageName: 'right draft',
+    });
     const onClose = vi.fn();
     let resolveRequest: (() => void) | undefined;
-    vi.mocked(window.electronAPI.api).mockImplementation((command, params) =>
-      command === 'updateOrMatchAttributions'
-        ? new Promise<never>((resolve) => {
-            resolveRequest = () =>
-              resolve({
-                result: { focusedAttributionOutcome: { status: 'unchanged' } },
-                invalidates: [],
-              } as never);
-          })
-        : executeCommand(command, params as never),
+    interceptBackendCommand(
+      'updateOrMatchAttributions',
+      () =>
+        new Promise<never>((resolve) => {
+          resolveRequest = () =>
+            resolve({
+              result: { focusedAttributionOutcome: { status: 'unchanged' } },
+              invalidates: [],
+            } as never);
+        }),
     );
 
     await renderPopup(
@@ -410,7 +404,7 @@ describe('DiffPopup', () => {
     expect(
       screen.getByRole('button', { name: text.buttons.cancel }),
     ).toBeDisabled();
-    dismissWithEscape();
+    dismissWithEscapeKey();
     expect(onClose).not.toHaveBeenCalled();
 
     resolveRequest?.();
@@ -418,8 +412,8 @@ describe('DiffPopup', () => {
   });
 
   it.each([
-    ['Escape', dismissWithEscape],
-    ['backdrop click', dismissWithBackdrop],
+    ['Escape', dismissWithEscapeKey],
+    ['backdrop click', dismissWithBackdropClick],
   ])(
     'dismisses an idle popup with %s without reporting save success',
     async (_name, dismiss) => {
@@ -438,11 +432,11 @@ describe('DiffPopup', () => {
     const left = item({
       isExternal: true,
       label: 'left',
-      packageInfo: packageInfo({ id: 'left' }),
+      packageInfo: makeComparisonPackageInfo({ id: 'left' }),
     });
     const right = item({
       label: 'right',
-      packageInfo: packageInfo({ id: 'right' }),
+      packageInfo: makeComparisonPackageInfo({ id: 'right' }),
     });
     const view = await renderPopup(left, right);
 
@@ -455,7 +449,7 @@ describe('DiffPopup', () => {
           leftItem={left}
           rightItem={item({
             label: 'right',
-            packageInfo: packageInfo({
+            packageInfo: makeComparisonPackageInfo({
               id: 'right',
               packageName: 'refreshed',
             }),
@@ -470,11 +464,11 @@ describe('DiffPopup', () => {
     const newLeft = item({
       isExternal: true,
       label: 'new left',
-      packageInfo: packageInfo({ id: 'new-left' }),
+      packageInfo: makeComparisonPackageInfo({ id: 'new-left' }),
     });
     const newRight = item({
       label: 'new right',
-      packageInfo: packageInfo({
+      packageInfo: makeComparisonPackageInfo({
         id: 'new-right',
         packageName: 'new opening',
       }),
@@ -496,7 +490,7 @@ describe('DiffPopup', () => {
           leftItem={newLeft}
           rightItem={{
             ...newRight,
-            packageInfo: packageInfo({
+            packageInfo: makeComparisonPackageInfo({
               id: 'new-right',
               packageName: 'reopened',
             }),
@@ -512,7 +506,7 @@ describe('DiffPopup', () => {
           leftItem={newLeft}
           rightItem={{
             ...newRight,
-            packageInfo: packageInfo({
+            packageInfo: makeComparisonPackageInfo({
               id: 'new-right',
               packageName: 'reopened',
             }),
