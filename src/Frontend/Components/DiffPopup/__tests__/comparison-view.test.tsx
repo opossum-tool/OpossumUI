@@ -8,7 +8,7 @@ import userEvent from '@testing-library/user-event';
 import type { ComponentProps } from 'react';
 
 import { text } from '../../../../shared/text';
-import { makeComparisonPackageInfo } from '../../../../testing/ui';
+import { makeComparisonPackageInfo } from '../../../../testing/comparison-fixtures';
 import { theme } from '../../App/App.style';
 import type { AuditingOptions } from '../../AttributionForm/AuditingOptions/AuditingOptions';
 import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';

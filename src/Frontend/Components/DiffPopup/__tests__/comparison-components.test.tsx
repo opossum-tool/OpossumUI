@@ -12,7 +12,7 @@ import { text } from '../../../../shared/text';
 import {
   makeComparisonItem,
   makeComparisonPackageInfo,
-} from '../../../../testing/ui';
+} from '../../../../testing/comparison-fixtures';
 import { theme } from '../../App/App.style';
 import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { ComparisonFieldEditor } from '../ComparisonFieldEditor';

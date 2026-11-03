@@ -13,9 +13,7 @@ export * from './diff-popup';
 export * from './filters';
 export * from './project-statistics';
 export * from './report-view';
-export * from './backend-stubs';
 export * from './buttons';
-export * from './comparison-fixtures';
 export {
   ATTRIBUTIONS_PANEL,
   clickEnabledPanelButton,
