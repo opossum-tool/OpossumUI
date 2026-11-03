@@ -255,8 +255,7 @@ test('opens an uncached report attribution at its audit position', async ({
   );
 
   await topBar.gotoReportView();
-  await reportView.filterButton.click();
-  await reportView.selectLicenseName(reportTargetLicenseName);
+  await reportView.filterByLicense(reportTargetLicenseName);
   await reportView.assert.attributionIsInViewport(reportChildAttributionId);
   await reportView.openAttributionInAuditView(reportChildAttributionId);
 

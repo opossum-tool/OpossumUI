@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -197,6 +197,7 @@ describe('filtering attributions', () => {
 
     await clickFilterMenuButton(screen.getByTestId(ATTRIBUTIONS_PANEL));
     await selectFilterLicenseName(packageInfo1.licenseName ?? '');
+    await userEvent.keyboard('{Escape}');
     await closeFilterMenu();
     await expectPackageCards(
       ATTRIBUTIONS_PANEL,
@@ -205,10 +206,45 @@ describe('filtering attributions', () => {
     );
   });
 
+  it('broadens license matches and keeps audit and report selections independent', async () => {
+    await renderApp({ data });
+    await clickFilterMenuButton(screen.getByTestId(ATTRIBUTIONS_PANEL));
+    await selectFilterLicenseName('MIT');
+    await selectFilterLicenseName('Apache-2.0');
+    await closeFilterMenu();
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [packageInfo1, packageInfo2],
+      [packageInfo3],
+    );
+
+    await gotoReportView();
+    await expectReportAttributionVisibility(
+      [attributionId1, attributionId2, attributionId3],
+      [],
+    );
+    await clickFilterMenuButton(getReportView());
+    await selectFilterLicenseName('MIT');
+    await selectFilterLicenseName('Apache-2.0');
+    await closeFilterMenu();
+    await expectReportAttributionVisibility(
+      [attributionId1, attributionId2],
+      [attributionId3],
+    );
+    await clickFilterMenuButton(getReportView());
+    await clickClearFiltersMenuItem();
+    await closeFilterMenu();
+    await expectReportAttributionVisibility(
+      [attributionId1, attributionId2, attributionId3],
+      [],
+    );
+  });
+
   it('combines and clears value filters in audit view', async () => {
     await renderApp({ data });
     await clickFilterMenuButton(screen.getByTestId(ATTRIBUTIONS_PANEL));
     await selectFilterLicenseName(packageInfo1.licenseName ?? '');
+    await userEvent.keyboard('{Escape}');
     await userEvent.click(
       await screen.findByLabelText('incomplete component coordinates'),
     );
@@ -281,7 +317,6 @@ describe('filtering attributions', () => {
     await clickFilterMenuButton(getReportView());
     await userEvent.click(await screen.findByLabelText('criticality'));
     await userEvent.click(await screen.findByRole('option', { name: 'None' }));
-    await clickFilterMenuButton(getReportView());
     await clickClearFiltersMenuItem();
     await expectReportAttributionVisibility(
       [attributionId1, attributionId2, attributionId3],
@@ -331,6 +366,7 @@ describe('filtering attributions', () => {
 
     await clickFilterMenuButton(getReportView());
     await selectFilterLicenseName(packageInfo1.licenseName ?? '');
+    await userEvent.keyboard('{Escape}');
     await closeFilterMenu();
     await expectReportAttributionVisibility(
       [attributionId1],

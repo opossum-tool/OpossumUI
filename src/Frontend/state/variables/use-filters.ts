@@ -7,6 +7,7 @@ import type {
   AttributionValueFilters,
 } from '../../../shared/attribution-filters';
 import type { SortOption } from '../../../shared/attribution-result-set';
+import type { LicenseOption } from '../../../shared/shared-types';
 import { useVariable } from './use-variable';
 
 export const MANUAL_ATTRIBUTION_FILTERS_AUDIT =
@@ -19,14 +20,16 @@ export const RESOURCE_TREE_FILTERS = 'resource-tree-filters';
 export interface AttributionFilters {
   filters: Array<AttributionFilterKey>;
   search: string;
-  valueFilters: AttributionValueFilters;
+  valueFilters: Omit<AttributionValueFilters, 'licenseIds'> & {
+    license?: Array<LicenseOption>;
+  };
   sorting: SortOption;
 }
 
 export interface ResourceTreeFilters {
   onlyUnreviewedFiles: boolean;
   onlyWithAiDeferredAttributions: boolean;
-  selectedLicense: string;
+  selectedLicenses: Array<LicenseOption>;
 }
 
 export const initialAttributionFilters: AttributionFilters = {
@@ -39,7 +42,7 @@ export const initialAttributionFilters: AttributionFilters = {
 const initialResourceTreeFilters: ResourceTreeFilters = {
   onlyUnreviewedFiles: false,
   onlyWithAiDeferredAttributions: false,
-  selectedLicense: '',
+  selectedLicenses: [],
 };
 
 export type UseAttributionFilters = typeof useManualAttributionFilters;
@@ -69,5 +72,29 @@ export function useResourceTreeFilters() {
   return useVariable<ResourceTreeFilters>(
     RESOURCE_TREE_FILTERS,
     structuredClone(initialResourceTreeFilters),
+  );
+}
+
+export function toAttributionValueFilters(
+  filters: AttributionFilters['valueFilters'],
+): AttributionValueFilters {
+  const { license, ...rest } = filters;
+  return {
+    ...rest,
+    licenseIds: license?.length
+      ? license.map((option) => option.id)
+      : undefined,
+  };
+}
+
+export function hasActiveAttributionFilters({
+  filters,
+  valueFilters,
+}: AttributionFilters): boolean {
+  return (
+    !!filters.length ||
+    Object.values(valueFilters).some((value) =>
+      Array.isArray(value) ? value.length > 0 : value !== undefined,
+    )
   );
 }

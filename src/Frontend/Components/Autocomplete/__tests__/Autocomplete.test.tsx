@@ -12,6 +12,36 @@ import { renderComponent } from '../../../test-helpers/render';
 import { Autocomplete } from '../Autocomplete';
 
 describe('Autocomplete', () => {
+  it.each([false, true])(
+    'exposes one scrollable listbox linked to the input (grouped: %s)',
+    async (grouped) => {
+      await renderComponent(
+        <Autocomplete
+          title="Test picker"
+          options={['alpha', 'beta']}
+          groupBy={grouped ? (option) => option[0] : undefined}
+          optionText={{ primary: (option) => option }}
+        />,
+      );
+      const input = screen.getByRole('combobox');
+      await userEvent.click(input);
+
+      expect(screen.getAllByRole('listbox')).toHaveLength(1);
+      const listbox = screen.getByRole('listbox', { name: 'Test picker' });
+      expect(listbox).toHaveStyle({ overflowY: 'auto' });
+      expect(input).toHaveAttribute('aria-controls', listbox.id);
+      expect(within(listbox).getAllByRole('option')).toHaveLength(2);
+
+      await userEvent.keyboard('{ArrowDown}');
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'alpha' }).id,
+      );
+      await userEvent.keyboard('{Enter}');
+      expect(input).toHaveValue('alpha');
+    },
+  );
+
   it('does not measure a closed forced-top popup', async () => {
     const getBoundingClientRect = vi.spyOn(
       HTMLElement.prototype,
@@ -27,6 +57,25 @@ describe('Autocomplete', () => {
     );
 
     expect(getBoundingClientRect).not.toHaveBeenCalled();
+  });
+
+  it('puts MUI combobox attributes on the native input', async () => {
+    await renderComponent(
+      <Autocomplete
+        aria-label={'test picker'}
+        options={['option']}
+        optionText={{ primary: (option) => option }}
+      />,
+    );
+    const input = screen.getByRole('combobox', { name: 'test picker' });
+    expect(input.tagName).toBe('INPUT');
+    expect(input).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(input);
+    expect(input).toHaveAttribute('aria-expanded', 'true');
+    expect(input).toHaveAttribute(
+      'aria-controls',
+      screen.getByRole('listbox').id,
+    );
   });
 
   it('renders label and value', async () => {
@@ -433,6 +482,7 @@ describe('Autocomplete', () => {
 
     await userEvent.click(screen.getByRole('combobox'));
 
+    expect(screen.getAllByRole('listbox')).toHaveLength(1);
     expect(screen.getByText(options[0].group)).toBeInTheDocument();
 
     await userEvent.click(screen.getByText(options[0].value));

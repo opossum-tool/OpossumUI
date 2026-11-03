@@ -120,7 +120,7 @@ describe('resetManualAuditFiltersPreservingSort', () => {
       setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
         filters: ['firstParty'],
         search: 'react',
-        valueFilters: { license: 'MIT' },
+        valueFilters: { license: [{ id: 'mit', label: 'MIT' }] },
         sorting: 'criticality',
       } satisfies AttributionFilters),
     );

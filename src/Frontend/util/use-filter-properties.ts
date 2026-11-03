@@ -8,6 +8,7 @@ import { ROOT_PATH } from '../shared-constants';
 import { useAppSelector } from '../state/hooks';
 import { getSelectedResourceId } from '../state/selectors/resource-selectors';
 import {
+  toAttributionValueFilters,
   useAttributionFiltersInReportView,
   useExternalAttributionFilters,
   useManualAttributionFilters,
@@ -55,23 +56,23 @@ export function useFilterProperties({
   const [userSettings] = useUserSettings();
   const areHiddenSignalsVisible = userSettings.areHiddenSignalsVisible;
 
-  const filterPropsQuery = backend.filterProperties.useQuery(
-    {
-      external: mode === 'external',
-      filters,
-      search: mode === 'reportTable' ? undefined : search,
-      valueFilters,
-      resourcePathForRelationships:
-        mode === 'reportTable' ? ROOT_PATH : selectedResourceId,
-      showResolved: mode === 'external' ? areHiddenSignalsVisible : undefined,
-      includeReadonly: mode !== 'reportTable',
-      excludeUnrelated:
-        mode === 'external' ||
-        (mode !== 'reportTable' && isSelectedResourceReadonly),
-    },
-    { enabled, placeholderData: keepPreviousData },
-  );
-
+  const queryProps = {
+    external: mode === 'external',
+    filters,
+    search: mode === 'reportTable' ? undefined : search,
+    valueFilters: toAttributionValueFilters(valueFilters),
+    resourcePathForRelationships:
+      mode === 'reportTable' ? ROOT_PATH : selectedResourceId,
+    showResolved: mode === 'external' ? areHiddenSignalsVisible : undefined,
+    includeReadonly: mode !== 'reportTable',
+    excludeUnrelated:
+      mode === 'external' ||
+      (mode !== 'reportTable' && isSelectedResourceReadonly),
+  };
+  const filterPropsQuery = backend.filterProperties.useQuery(queryProps, {
+    enabled,
+    placeholderData: keepPreviousData,
+  });
   // The report table lists every attribution in the project, so 'all' matches
   // what it displays. The audit panels display one relation at a time; scope
   // their counts to the displayed relation so menu counts match the list.
@@ -86,10 +87,24 @@ export function useFilterProperties({
           } as const
         )[mode];
 
+  const licenseOptionsQuery = backend.licenseOptions.useQuery(
+    {
+      ...queryProps,
+      relationship: shownRelation,
+      valueFilters: { ...queryProps.valueFilters, licenseIds: undefined },
+    },
+    { enabled, placeholderData: keepPreviousData },
+  );
+
   const filterProps = filterPropsQuery.data?.[shownRelation] ?? null;
   const loading = filterPropsQuery.isLoading;
 
-  return { filterProps, loading };
+  return {
+    filterProps,
+    licenses: licenseOptionsQuery.data ?? [],
+    loading,
+    licenseOptionsLoading: licenseOptionsQuery.isFetching,
+  };
 }
 
 export function useResourceTreeFilterProperties({
@@ -99,9 +114,10 @@ export function useResourceTreeFilterProperties({
   enabled?: boolean;
   external: boolean;
 }) {
-  const filterPropsQuery = backend.filterProperties.useQuery(
+  const licenseOptionsQuery = backend.licenseOptions.useQuery(
     {
       external,
+      relationship: 'all',
       filters: [],
       resourcePathForRelationships: ROOT_PATH,
       includeReadonly: true,
@@ -110,7 +126,7 @@ export function useResourceTreeFilterProperties({
   );
 
   return {
-    filterProps: filterPropsQuery.data?.all ?? null,
-    loading: filterPropsQuery.isLoading,
+    licenses: licenseOptionsQuery.data ?? [],
+    licenseOptionsLoading: licenseOptionsQuery.isFetching,
   };
 }

@@ -11,6 +11,7 @@ import type {
 } from '../../shared/attribution-filters';
 import type {
   ExternalAttributionSources,
+  LicenseOption,
   PackageInfo,
   ProjectMetadata,
   RawClassificationsConfig,
@@ -73,7 +74,6 @@ import {
   removeTrailingSlash,
   type ResourceRelationship,
   resourcesToExpand,
-  toCanonicalLicenseName,
   toSnakeCase,
 } from './utils';
 
@@ -92,7 +92,7 @@ type AutocompleteOptions = Record<
 
 export type FilterProperties = {
   total: number;
-  licenses: Array<string>;
+  licenses: Array<LicenseOption>;
 } & Partial<Record<AttributionFilterKey, number>>;
 
 export type FilterPropertiesWithCanonicalLicenseNames = Omit<
@@ -135,6 +135,106 @@ function mergeFilterProperties(
   }
 
   return result;
+}
+
+type FilterContext = {
+  external: boolean;
+  filters: Array<AttributionFilterKey>;
+  valueFilters?: AttributionValueFilters;
+  resourcePathForRelationships: string;
+  search?: string;
+  showResolved?: boolean;
+  includeReadonly?: boolean;
+  excludeUnrelated?: boolean;
+};
+
+async function filteredAttributions(props: FilterContext) {
+  const db = getDb();
+  const resource = await getResourceOrThrow(
+    db,
+    props.resourcePathForRelationships,
+  );
+
+  const closestAncestor =
+    await getClosestAncestorWithManualAttributionsBelowBreakpoint(
+      db,
+      resource.id,
+    );
+
+  let query = db.selectFrom('attribution').select(
+    attributionToResourceRelationship({
+      resource,
+      ancestorId: closestAncestor,
+    }).as('relationship'),
+  );
+
+  query = query.where('is_external', '=', Number(props.external));
+  if (props.includeReadonly) {
+    query = query.where((eb) =>
+      eb.or([
+        eb('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS),
+        eb(
+          attributionToResourceRelationship({
+            resource,
+            ancestorId: closestAncestor,
+          }),
+          '!=',
+          'unrelated',
+        ),
+      ]),
+    );
+  } else {
+    query = query.where(
+      'resource_access',
+      'in',
+      EDITABLE_ATTRIBUTION_RESOURCE_ACCESS,
+    );
+  }
+
+  if (props.excludeUnrelated) {
+    query = query.where(
+      attributionToResourceRelationship({
+        resource,
+        ancestorId: closestAncestor,
+      }),
+      '!=',
+      'unrelated',
+    );
+  }
+
+  for (const filter of props.filters) {
+    query = query.where(getFilterExpression(filter));
+  }
+
+  const valueFilterExpression = getValueFilterExpression(
+    props.valueFilters ?? {},
+  );
+  if (valueFilterExpression) {
+    query = query.where(valueFilterExpression);
+  }
+
+  if (props.search) {
+    const search = props.search;
+    query = query.where(getSearchExpression(search));
+  }
+
+  if (!props.showResolved) {
+    query = query.where('is_resolved', '=', 0);
+  }
+
+  return query;
+}
+
+function normalizeLicenseOptions(
+  licenses: Array<{ name: string; canonical_name: string | null }>,
+): Array<LicenseOption> {
+  return uniqBy(licenses, (l) => l.canonical_name)
+    .filter(
+      (l): l is { name: string; canonical_name: string } =>
+        l.canonical_name !== null && !!l.name,
+    )
+    .map((l) => ({ id: l.canonical_name, label: l.name }))
+    .toSorted((a, b) => a.label.localeCompare(b.label));
 }
 
 export const queries = {
@@ -206,39 +306,34 @@ export const queries = {
     };
   },
 
-  async filterProperties(props: {
-    external: boolean;
-    filters: Array<AttributionFilterKey>;
-    valueFilters?: AttributionValueFilters;
-    resourcePathForRelationships: string;
-    license?: string;
-    search?: string;
-    showResolved?: boolean;
-    includeReadonly?: boolean;
-    excludeUnrelated?: boolean;
-  }): Promise<{
-    result: AttributionCounts;
-  }> {
-    const db = getDb();
-    const resource = await getResourceOrThrow(
-      db,
-      props.resourcePathForRelationships,
+  async licenseOptions(
+    props: FilterContext & { relationship: keyof AttributionCounts },
+  ): Promise<{ result: Array<LicenseOption> }> {
+    let query = getDb().selectFrom(
+      (await filteredAttributions(props))
+        .select(['license_name', 'canonical_license_name'])
+        .as('filtered'),
     );
+    if (props.relationship === 'sameOrDescendant') {
+      query = query.where('relationship', 'in', ['same', 'descendant']);
+    } else if (props.relationship !== 'all') {
+      query = query.where('relationship', '=', props.relationship);
+    }
+    const licenses = await query
+      .clearSelect()
+      .select((eb) => [
+        eb.fn<string>('trim', ['license_name']).as('name'),
+        'canonical_license_name as canonical_name',
+      ])
+      .distinct()
+      .execute();
+    return { result: normalizeLicenseOptions(licenses) };
+  },
 
-    const closestAncestor =
-      await getClosestAncestorWithManualAttributionsBelowBreakpoint(
-        db,
-        resource.id,
-      );
-
-    let query = db
-      .selectFrom('attribution')
-      .select(
-        attributionToResourceRelationship({
-          resource,
-          ancestorId: closestAncestor,
-        }).as('relationship'),
-      )
+  async filterProperties(
+    props: FilterContext,
+  ): Promise<{ result: AttributionCounts }> {
+    const query = (await filteredAttributions(props))
       .select((eb) => eb.fn.countAll<number>().as('total'))
       .select((eb) =>
         getFilterKeys().map((f) =>
@@ -257,69 +352,6 @@ export const queries = {
           ))`.as('licenses'),
       )
       .groupBy('relationship');
-
-    query = query.where('is_external', '=', Number(props.external));
-    if (props.includeReadonly) {
-      query = query.where((eb) =>
-        eb.or([
-          eb('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS),
-          eb(
-            attributionToResourceRelationship({
-              resource,
-              ancestorId: closestAncestor,
-            }),
-            '!=',
-            'unrelated',
-          ),
-        ]),
-      );
-    } else {
-      query = query.where(
-        'resource_access',
-        'in',
-        EDITABLE_ATTRIBUTION_RESOURCE_ACCESS,
-      );
-    }
-
-    if (props.excludeUnrelated) {
-      query = query.where(
-        attributionToResourceRelationship({
-          resource,
-          ancestorId: closestAncestor,
-        }),
-        '!=',
-        'unrelated',
-      );
-    }
-
-    for (const filter of props.filters) {
-      query = query.where(getFilterExpression(filter));
-    }
-
-    const valueFilterExpression = getValueFilterExpression(
-      props.valueFilters ?? {},
-    );
-    if (valueFilterExpression) {
-      query = query.where(valueFilterExpression);
-    }
-
-    if (props.license) {
-      query = query.where(
-        'canonical_license_name',
-        '=',
-        toCanonicalLicenseName(props.license),
-      );
-    }
-
-    if (props.search) {
-      const search = props.search;
-      query = query.where(getSearchExpression(search));
-    }
-
-    if (!props.showResolved) {
-      query = query.where('is_resolved', '=', 0);
-    }
-
     const sums = await query.execute();
 
     const sumsPerRelationship = Object.fromEntries(
@@ -352,13 +384,7 @@ export const queries = {
       if (count === undefined) {
         continue;
       }
-      const deduplicatedLicenses = uniqBy(
-        count.licenses,
-        (l) => l.canonical_name,
-      )
-        .map((l) => l.name)
-        .filter(Boolean)
-        .toSorted();
+      const deduplicatedLicenses = normalizeLicenseOptions(count.licenses);
       deduplicatedByRelationship[relationship] = {
         ...count,
         licenses: deduplicatedLicenses,

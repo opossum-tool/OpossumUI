@@ -10,7 +10,7 @@ import { Tree } from './tree';
 export class ResourcesTree extends Tree {
   private readonly filterMenu: Locator;
   readonly filterButton: Locator;
-  readonly filters: { readonly license: Locator; readonly unreviewed: Locator };
+  readonly filters: { readonly unreviewed: Locator };
 
   constructor(window: Page) {
     super(window, 'resources-tree', 'resources-tree-header');
@@ -18,7 +18,6 @@ export class ResourcesTree extends Tree {
       exact: true,
     });
     this.filters = {
-      license: window.getByLabel('license names'),
       unreviewed: window.getByRole('menuitem', {
         name: text.filters.unreviewed,
       }),
@@ -79,10 +78,5 @@ export class ResourcesTree extends Tree {
       expected,
     );
     await this.closeMenu();
-  }
-  async selectLicenseName(name: string): Promise<void> {
-    await this.filters.license.fill(name);
-    await this.window.getByRole('option', { name, exact: true }).click();
-    await expect(this.filters.license).toHaveValue(name);
   }
 }

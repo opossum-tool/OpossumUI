@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -49,7 +49,9 @@ export async function closeFilterMenu(): Promise<void> {
   // Escape must be dispatched on the menu element itself, like the Playwright
   // page object does: after interacting with an autocomplete inside the menu,
   // document.activeElement may be outside the modal's key-handling subtree.
-  const menu = screen.queryByRole('menu');
+  const menu =
+    screen.queryByRole('menu') ??
+    screen.queryByRole('dialog', { name: 'Licenses' });
   if (menu) {
     menu.focus();
     await userEvent.keyboard('{Escape}');
@@ -66,7 +68,8 @@ export async function clickClearFiltersMenuItem(): Promise<void> {
 export async function selectFilterLicenseName(
   licenseName: string,
 ): Promise<void> {
-  const licenseInput = await screen.findByLabelText('license names');
+  await openLicenseEditor();
+  const licenseInput = await screen.findByLabelText('Search licenses');
   fireEvent.change(licenseInput, { target: { value: licenseName } });
   await userEvent.click(
     await screen.findByRole('option', { name: licenseName }),
@@ -82,9 +85,19 @@ export async function applyPanelFilter(
   await closeFilterMenu();
 }
 
-const LICENSE_FILTER_INPUT_LABEL = 'license names';
+async function openLicenseEditor() {
+  if (!screen.queryByRole('dialog', { name: 'Licenses' })) {
+    await userEvent.click(
+      within(screen.getByRole('menu'))
+        .getAllByRole('menuitem')
+        .find((item) => item.getAttribute('aria-haspopup') === 'dialog')!,
+    );
+  }
+}
+const LICENSE_FILTER_INPUT_LABEL = 'Search licenses';
 
 export async function fillLicenseFilter(value: string): Promise<void> {
+  await openLicenseEditor();
   const input = await screen.findByLabelText<HTMLInputElement>(
     LICENSE_FILTER_INPUT_LABEL,
   );

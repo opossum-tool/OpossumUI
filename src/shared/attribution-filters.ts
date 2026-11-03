@@ -49,7 +49,7 @@ export type MissingAttribute = Exclude<
 export type AttributionValueFilters = {
   classification?: number;
   criticality?: number;
-  license?: string;
+  licenseIds?: Array<string>;
   incompleteCoordinates?: IncompleteCoordinateFilterValue;
   incompleteLegal?: IncompleteLegalFilterValue;
 };

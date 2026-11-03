@@ -308,9 +308,9 @@ describe('externalAttributionStatistics', () => {
       const { result } = await externalAttributionStatistics();
 
       expect(result.mostFrequentLicenses).toEqual([
-        { name: 'Apache-2.0', count: 3, isOther: 0 },
-        { name: 'MIT', count: 2, isOther: 0 },
-        { name: 'BSD', count: 1, isOther: 0 },
+        { name: 'Apache-2.0', licenseId: 'apache2.0', count: 3, isOther: 0 },
+        { name: 'MIT', licenseId: 'mit', count: 2, isOther: 0 },
+        { name: 'BSD', licenseId: 'bsd', count: 1, isOther: 0 },
       ]);
     });
 
@@ -336,11 +336,13 @@ describe('externalAttributionStatistics', () => {
       const { result } = await externalAttributionStatistics();
       expect(result.mostFrequentLicenses).toContainEqual({
         name: 'Other',
+        licenseId: 'other',
         count: 1,
         isOther: 0,
       });
       expect(result.mostFrequentLicenses).toContainEqual({
         name: 'Other',
+        licenseId: null,
         count: 1,
         isOther: 1,
       });
@@ -372,8 +374,8 @@ describe('externalAttributionStatistics', () => {
 
       expect(result.mostFrequentLicenses).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ count: 2 }),
-          expect.objectContaining({ count: 2 }),
+          expect.objectContaining({ count: 2, licenseId: 'mit' }),
+          expect.objectContaining({ count: 2, licenseId: 'apache2.0' }),
         ]),
       );
       expect(result.mostFrequentLicenses).toHaveLength(2);
@@ -399,7 +401,7 @@ describe('externalAttributionStatistics', () => {
       const { result } = await externalAttributionStatistics();
 
       expect(result.mostFrequentLicenses).toEqual([
-        { name: 'MIT', count: 1, isOther: 0 },
+        { name: 'MIT', licenseId: 'mit', count: 1, isOther: 0 },
       ]);
     });
 
@@ -423,7 +425,7 @@ describe('externalAttributionStatistics', () => {
       const { result } = await externalAttributionStatistics();
 
       expect(result.mostFrequentLicenses).toEqual([
-        { name: 'MIT', count: 1, isOther: 0 },
+        { name: 'MIT', licenseId: 'mit', count: 1, isOther: 0 },
       ]);
     });
 
@@ -503,6 +505,7 @@ describe('externalAttributionStatistics', () => {
       expect(result.mostFrequentLicenses).toHaveLength(6);
       expect(result.mostFrequentLicenses.at(-1)).toEqual({
         name: 'Other',
+        licenseId: null,
         count: 2,
         isOther: 1,
       });
@@ -688,6 +691,7 @@ describe('licenseTable', () => {
     expect(result.perLicense).toEqual([
       {
         licenseName: 'MIT',
+        licenseOption: { id: 'mit', label: 'MIT' },
         criticality: 0,
         classification: 0,
         perSource: { ScanCode: 2 },
@@ -775,6 +779,7 @@ describe('licenseTable', () => {
     expect(result.perLicense).toHaveLength(1);
     expect(result.perLicense[0]).toEqual({
       licenseName: 'Apache-2.0',
+      licenseOption: { id: 'apache2.0', label: 'Apache-2.0' },
       criticality: 0,
       classification: 0,
       perSource: { ScanCode: 1, REUSE: 1 },
@@ -784,6 +789,50 @@ describe('licenseTable', () => {
       perSource: { ScanCode: 1, REUSE: 1 },
       total: 2,
     });
+  });
+
+  it('keeps source rows with equivalent spellings and the same canonical identity', async () => {
+    await initializeDbWithTestData({
+      resources: {},
+      externalAttributions: {
+        attributions: {
+          ext1: {
+            id: 'ext1',
+            criticality: Criticality.None,
+            licenseName: 'Apache-2.0',
+            source: { name: 'SC' },
+          },
+          ext2: {
+            id: 'ext2',
+            criticality: Criticality.None,
+            licenseName: 'apache 2.0',
+            source: { name: 'REUSE' },
+          },
+        },
+        resourcesToAttributions: {},
+        attributionsToResources: {},
+      },
+      externalAttributionSources: {
+        SC: { name: 'ScanCode', priority: 1 },
+        REUSE: { name: 'REUSE', priority: 2 },
+      },
+    });
+    const { result } = await licenseTable();
+    expect(result.perLicense).toHaveLength(2);
+    expect(result.perLicense).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          licenseName: 'Apache-2.0',
+          licenseOption: { id: 'apache2.0', label: 'Apache-2.0' },
+          perSource: { ScanCode: 1 },
+        }),
+        expect.objectContaining({
+          licenseName: 'apache 2.0',
+          licenseOption: { id: 'apache2.0', label: 'apache 2.0' },
+          perSource: { REUSE: 1 },
+        }),
+      ]),
+    );
   });
 
   it('groups license names case-insensitively and ignoring dashes/spaces', async () => {

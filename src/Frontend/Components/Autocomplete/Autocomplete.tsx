@@ -116,7 +116,9 @@ export function Autocomplete<
   ...props
 }: AutocompleteProps<Value, Multiple, DisableClearable, FreeSolo>) {
   const [open, setOpen] = useState(false);
-  const closePopper = () => setOpen(false);
+  const closePopper = () => {
+    setOpen(false);
+  };
 
   const groupedOptionsRef = useRef<Array<Value> | null>(null);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -168,9 +170,11 @@ export function Autocomplete<
     freeSolo,
     getOptionLabel,
     multiple,
-    onClose: () => setOpen(false),
+    onClose: closePopper,
     onHighlightChange,
-    onOpen: () => setOpen(true),
+    onOpen: () => {
+      setOpen(true);
+    },
     open,
     readOnly,
     ...props,
@@ -209,7 +213,6 @@ export function Autocomplete<
       <Container {...getRootProps()} ref={setAnchorEl}>
         <MuiTooltip title={tooltipTitle} placement="bottom" followCursor>
           <Input
-            {...inputProps}
             {...customInputProps}
             background={background}
             variant={variant}
@@ -236,6 +239,9 @@ export function Autocomplete<
               },
               inputLabel: getInputLabelProps(),
               htmlInput: {
+                ...inputProps,
+                'aria-expanded': isPopupOpen,
+                'aria-controls': isPopupOpen ? getListboxProps().id : undefined,
                 'aria-label': props['aria-label'],
                 ...(inputDataTestId && { 'data-testid': inputDataTestId }),
                 sx: {
@@ -315,6 +321,8 @@ export function Autocomplete<
             aria-label={'popup indicator'}
             size={'small'}
             {...(getPopupIndicatorProps() as MuiIconButtonProps)}
+            // Keep blur from closing the popup before the click toggles it.
+            onMouseDown={(event) => event.preventDefault()}
           >
             <ArrowDropDownIcon />
           </MuiIconButton>

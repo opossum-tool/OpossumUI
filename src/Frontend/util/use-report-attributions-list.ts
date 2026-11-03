@@ -6,7 +6,10 @@ import type { AttributionResultSetCriteria } from '../../shared/attribution-resu
 import { ROOT_PATH } from '../shared-constants';
 import { useAppSelector } from '../state/hooks';
 import { getSelectedAttributionId } from '../state/selectors/resource-selectors';
-import { useAttributionFiltersInReportView } from '../state/variables/use-filters';
+import {
+  toAttributionValueFilters,
+  useAttributionFiltersInReportView,
+} from '../state/variables/use-filters';
 import { backend } from './backendClient';
 import { useAttributionPages } from './use-attribution-pages';
 
@@ -21,7 +24,7 @@ export function useReportAttributionsList() {
     resourcePathForRelationships: ROOT_PATH,
     showResolved: false,
     excludeUnrelated: false,
-    valueFilters,
+    valueFilters: toAttributionValueFilters(valueFilters),
   };
   const relationCountsQuery =
     backend.listAttributionRelationCounts.useQuery(criteria);

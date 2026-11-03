@@ -398,9 +398,7 @@ export async function runResourceWorkflows(
       ]);
     },
     execute: async () => {
-      await attributionsPanel.filterButton.click();
-      await attributionsPanel.selectLicenseName(attributionFilter.licenseName);
-      await attributionsPanel.closeFilterMenu();
+      await attributionsPanel.filterByLicense(attributionFilter.licenseName);
       await Promise.all([
         attributionsPanel.packageCard.assert.isVisible(
           attributionFilter.matchingAttribution.packageInfo,
@@ -545,9 +543,7 @@ export async function runResourceWorkflows(
     },
     execute: async () => {
       const dense = model.scenarios.denseSignals;
-      await signalsPanel.filterButton.click();
-      await signalsPanel.selectLicenseName(dense.licenseName);
-      await signalsPanel.closeFilterMenu();
+      await signalsPanel.filterByLicense(dense.licenseName);
       await Promise.all([
         signalsPanel.assert.onResourceCountIs(dense.bulkSignals.length),
         signalsPanel.packageCard.assert.isHidden(
@@ -612,11 +608,9 @@ export async function runResourceWorkflows(
         resourcesTree,
         signalsPanel,
       });
-      await signalsPanel.filterButton.click();
-      await signalsPanel.selectLicenseName(
+      await signalsPanel.filterByLicense(
         model.scenarios.denseSignals.licenseName,
       );
-      await signalsPanel.closeFilterMenu();
     },
     execute: async () => {
       await signalsPanel.selectAllCheckbox.click();

@@ -4,13 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiListItemIcon from '@mui/material/ListItemIcon';
 import MuiListItemText from '@mui/material/ListItemText';
-import { useMemo } from 'react';
 
 import { auditingOptionIconSize } from '../../shared-styles';
+import { MenuContainer } from './menu-container';
 import {
   MenuItemContainer,
   StyledCheckIcon,
-  StyledMenu,
   StyledMenuItem,
 } from './SelectMenu.style';
 
@@ -25,16 +24,36 @@ export interface SelectMenuProps {
   width?: string | number;
 }
 
-export interface SelectMenuOption {
+interface MenuOptionBase {
+  endIcon?: React.ReactNode;
   faded?: boolean;
   icon?: React.ReactElement<unknown>;
-  focusContent?(): void;
   id: string;
   label: React.ReactNode;
-  onAdd?(): void;
-  onDelete?(): void;
   selected: boolean;
 }
+
+export interface ToggleMenuOption extends MenuOptionBase {
+  kind: 'toggle';
+  onAdd?(): void;
+  onDelete?(): void;
+}
+interface EmbeddedMenuOption extends MenuOptionBase {
+  kind: 'embedded';
+  focusContent?(): void;
+}
+export interface PanelMenuOption extends MenuOptionBase {
+  kind: 'panel';
+  submenu: {
+    id: string;
+    open: boolean;
+    onOpen: (anchor: HTMLElement) => void;
+    onClose: () => void;
+  };
+}
+
+export type SelectMenuOption =
+  ToggleMenuOption | EmbeddedMenuOption | PanelMenuOption;
 
 export const SelectMenu: React.FC<SelectMenuProps> = ({
   anchorArrow,
@@ -46,87 +65,131 @@ export const SelectMenu: React.FC<SelectMenuProps> = ({
   setAnchorEl,
   width,
 }) => {
-  const selectedOptionIds = useMemo(
-    () =>
-      hideSelected
-        ? []
-        : options.filter(({ selected }) => selected).map(({ id }) => id),
-    [hideSelected, options],
-  );
-  const visibleOptions = useMemo(
-    () =>
-      hideSelected ? options.filter(({ selected }) => !selected) : options,
-    [hideSelected, options],
-  );
   return (
-    <StyledMenu
+    <MenuContainer
       anchorArrow={anchorArrow}
       anchorEl={anchorEl}
       anchorPosition={anchorPosition}
       onClose={() => setAnchorEl(undefined)}
-      open={!!anchorEl}
       width={width}
     >
-      {renderVisibleOptions()}
-    </StyledMenu>
+      {renderSelectMenuItems({ options, multiple, hideSelected, setAnchorEl })}
+    </MenuContainer>
   );
+};
+
+export function renderSelectMenuItems({
+  options,
+  multiple,
+  hideSelected,
+  setAnchorEl,
+  onOptionActivate,
+}: { onOptionActivate?: (id: string) => void } & Pick<
+  SelectMenuProps,
+  'options' | 'multiple' | 'hideSelected' | 'setAnchorEl'
+>) {
+  const selectedOptionIds = hideSelected
+    ? []
+    : options.filter(({ selected }) => selected).map(({ id }) => id);
+  const visibleOptions = hideSelected
+    ? options.filter(({ selected }) => !selected)
+    : options;
+  return renderVisibleOptions();
 
   function renderVisibleOptions() {
-    return visibleOptions.map(
-      (
-        { faded, label, icon, id, selected, onAdd, onDelete, focusContent },
-        index,
-      ) => {
-        const isLabelString = typeof label === 'string';
-        const toggleSelected = () => {
-          if (multiple) {
-            selectedOptionIds.includes(id) ? onDelete?.() : onAdd?.();
-          } else {
-            options.forEach((option) => {
-              if (option.id === id) {
-                option.onAdd?.();
-              } else {
-                option.onDelete?.();
-              }
-            });
-            setAnchorEl(undefined);
-          }
-        };
-
-        return (
-          <StyledMenuItem
-            key={index}
-            selected={selected}
-            aria-selected={selected}
-            onClick={isLabelString ? toggleSelected : focusContent}
-            divider={index + 1 !== visibleOptions.length}
-            disableRipple
-            faded={faded}
-            onKeyDown={
-              isLabelString ? undefined : (event) => event.stopPropagation()
+    return visibleOptions.map((option, index) => {
+      const { faded, label, icon, endIcon, id, selected, kind } = option;
+      const embedded = kind === 'embedded';
+      const submenu = kind === 'panel' ? option.submenu : undefined;
+      let onClick: React.MouseEventHandler<HTMLLIElement> | undefined;
+      let onKeyDown: React.KeyboardEventHandler<HTMLLIElement> | undefined;
+      switch (option.kind) {
+        case 'toggle':
+          onClick = () => {
+            if (multiple) {
+              selectedOptionIds.includes(id)
+                ? option.onDelete?.()
+                : option.onAdd?.();
+            } else {
+              options.forEach((other) => {
+                if (other.kind === 'toggle') {
+                  other.id === id ? other.onAdd?.() : other.onDelete?.();
+                }
+              });
+              setAnchorEl(undefined);
             }
-          >
-            {isLabelString ? (
-              <MenuItemContainer>
-                <MuiListItemIcon
-                  sx={{
-                    minWidth: `${auditingOptionIconSize} !important`,
-                  }}
-                >
-                  {icon}
-                </MuiListItemIcon>
-                <MuiListItemText
-                  primary={label}
-                  slotProps={{ primary: { sx: { mt: 0.5 } } }}
-                />
+          };
+          break;
+        case 'embedded':
+          onClick = option.focusContent;
+          onKeyDown = (event) => event.stopPropagation();
+          break;
+        case 'panel':
+          onClick = (event) =>
+            option.submenu.open
+              ? option.submenu.onClose()
+              : option.submenu.onOpen(event.currentTarget);
+          onKeyDown = (event) => {
+            if (event.key === 'ArrowRight') {
+              event.preventDefault();
+              event.stopPropagation();
+              option.submenu.onOpen(event.currentTarget);
+            }
+          };
+          break;
+        default: {
+          const exhaustive: never = option;
+          return exhaustive;
+        }
+      }
+
+      return (
+        <StyledMenuItem
+          key={id}
+          title={typeof label === 'string' ? label : undefined}
+          selected={selected}
+          aria-selected={selected}
+          aria-haspopup={submenu ? 'dialog' : undefined}
+          aria-expanded={submenu?.open}
+          aria-controls={submenu?.open ? submenu.id : undefined}
+          onClickCapture={() => onOptionActivate?.(id)}
+          onClick={onClick}
+          divider={index + 1 !== visibleOptions.length}
+          disableRipple
+          faded={faded}
+          onKeyDown={onKeyDown}
+        >
+          {!embedded ? (
+            <MenuItemContainer>
+              <MuiListItemIcon
+                sx={{
+                  minWidth: `${auditingOptionIconSize} !important`,
+                }}
+              >
+                {icon}
+              </MuiListItemIcon>
+              <MuiListItemText
+                primary={label}
+                sx={{ m: 0 }}
+                slotProps={{
+                  primary: {
+                    sx: {
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    },
+                  },
+                }}
+              />
+              {endIcon ?? (
                 <StyledCheckIcon visible={selectedOptionIds.includes(id)} />
-              </MenuItemContainer>
-            ) : (
-              label
-            )}
-          </StyledMenuItem>
-        );
-      },
-    );
+              )}
+            </MenuItemContainer>
+          ) : (
+            label
+          )}
+        </StyledMenuItem>
+      );
+    });
   }
-};
+}

@@ -250,7 +250,7 @@ describe('listAttributionsPage', () => {
     {
       name: 'selected license',
       filters: [],
-      valueFilters: { license: 'MIT' },
+      valueFilters: { licenseIds: ['mit'] },
       attributions: {
         selected: {
           id: 'selected',
@@ -264,6 +264,42 @@ describe('listAttributionsPage', () => {
         },
       },
       expected: ['selected'],
+    },
+    {
+      name: 'multiple licenses match with OR and canonical names',
+      filters: [],
+      valueFilters: { licenseIds: ['mit', 'apache2.0'] },
+      attributions: {
+        selected: {
+          id: 'selected',
+          criticality: Criticality.None,
+          licenseName: 'MIT',
+        },
+        other: {
+          id: 'other',
+          criticality: Criticality.None,
+          licenseName: 'Apache-2.0',
+        },
+      },
+      expected: ['other', 'selected'],
+    },
+    {
+      name: 'empty license selection does not restrict results',
+      filters: [],
+      valueFilters: { licenseIds: [] },
+      attributions: {
+        selected: {
+          id: 'selected',
+          criticality: Criticality.None,
+          licenseName: 'MIT',
+        },
+        other: {
+          id: 'other',
+          criticality: Criticality.None,
+          licenseName: 'Apache-2.0',
+        },
+      },
+      expected: ['other', 'selected'],
     },
     {
       name: 'needs follow-up',
@@ -474,7 +510,7 @@ describe('listAttributionsPage', () => {
     {
       name: 'combined license and incomplete coordinate',
       filters: [],
-      valueFilters: { license: 'MIT', incompleteCoordinates: 'any' },
+      valueFilters: { licenseIds: ['mit'], incompleteCoordinates: 'any' },
       attributions: {
         selected: {
           id: 'selected',
@@ -554,7 +590,7 @@ describe('listAttributionsPage', () => {
       expected: ['high'],
     },
     {
-      valueFilters: { classification: 2, license: 'MIT' },
+      valueFilters: { classification: 2, licenseIds: ['mit'] },
       expected: ['positive'],
     },
   ])(
