@@ -5,9 +5,9 @@
 import { type KeyboardEvent, useRef, useState } from 'react';
 import type { VirtuosoHandle } from 'react-virtuoso';
 
-import type { LicenseOption } from '../../../shared/shared-types';
-
-export function useLicenseNavigation(rows: Array<LicenseOption>) {
+export function useLicenseNavigation<Row extends { id: string }>(
+  rows: Array<Row>,
+) {
   const [activeIndex, setActiveIndex] = useState(0);
   const listRef = useRef<VirtuosoHandle>(null);
   const scrollerRef = useRef<HTMLElement | null>(null);

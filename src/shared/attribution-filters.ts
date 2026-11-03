@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { normalizeLicenseSearch } from './text-search';
+
 export const ATTRIBUTION_FILTER_KEYS = [
   'aiDeferred',
   'currentlyPreferred',
@@ -50,6 +52,21 @@ export type AttributionValueFilters = {
   classification?: number;
   criticality?: number;
   licenseIds?: Array<string>;
+  licenseSearches?: Array<string>;
   incompleteCoordinates?: IncompleteCoordinateFilterValue;
   incompleteLegal?: IncompleteLegalFilterValue;
 };
+
+export type LicenseConditions = Pick<
+  AttributionValueFilters,
+  'licenseIds' | 'licenseSearches'
+>;
+
+export function hasLicenseConditions(filters?: LicenseConditions): boolean {
+  return Boolean(
+    filters?.licenseIds?.length ||
+    filters?.licenseSearches?.some((search) =>
+      normalizeLicenseSearch(search.trim()),
+    ),
+  );
+}

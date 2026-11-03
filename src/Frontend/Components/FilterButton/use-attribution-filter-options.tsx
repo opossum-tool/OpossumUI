@@ -152,13 +152,19 @@ function getLicenseFilterOption({
   return createLicenseFilterOption({
     licenses,
     licensesLoading: licenseOptionsLoading,
-    selectedLicenses: filters.valueFilters.license ?? [],
-    setSelectedLicenses: (value) =>
+    selection: {
+      licenses: filters.valueFilters.license ?? [],
+      licenseSearches: filters.valueFilters.licenseSearches ?? [],
+    },
+    onSelectionChange: (value) =>
       setFilters({
         ...filters,
         valueFilters: {
           ...filters.valueFilters,
-          license: value.length ? value : undefined,
+          license: value.licenses.length ? value.licenses : undefined,
+          licenseSearches: value.licenseSearches.length
+            ? value.licenseSearches
+            : undefined,
         },
       }),
   });

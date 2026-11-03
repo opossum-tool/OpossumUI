@@ -1322,6 +1322,45 @@ describe('getResourceTree', () => {
         licenseFilter: { licenseIds: [], external: true },
       });
       expect(unrestricted.result.count).toBe(5);
+      for (const [licenseFilter, count] of [
+        [{ licenseIds: [], licenseSearches: ['pAcHe'], external: true }, 1],
+        [
+          { licenseIds: ['mit'], licenseSearches: ['apache'], external: true },
+          2,
+        ],
+        [
+          {
+            licenseIds: [],
+            licenseSearches: ['mit', 'apache'],
+            external: true,
+          },
+          2,
+        ],
+        [{ licenseIds: [], licenseSearches: ['%'], external: true }, 0],
+        [{ licenseIds: [], licenseSearches: ['_'], external: true }, 0],
+        [{ licenseIds: [], licenseSearches: ['mit'], external: false }, 0],
+        [{ licenseIds: [], licenseSearches: [], external: true }, 5],
+      ] as const) {
+        const filtered = await getResourceTree({
+          expandedNodes: 'expandAll',
+          licenseFilter: {
+            ...licenseFilter,
+            licenseIds: [...licenseFilter.licenseIds],
+            licenseSearches: [...licenseFilter.licenseSearches],
+          },
+        });
+        expect(filtered.result.count).toBe(count);
+      }
+      const textAndSearch = await getResourceTree({
+        expandedNodes: 'expandAll',
+        search: 'other',
+        licenseFilter: {
+          licenseIds: [],
+          licenseSearches: ['mit'],
+          external: true,
+        },
+      });
+      expect(textAndSearch.result.count).toBe(0);
     });
 
     it('filters resources by manual attribution license when requested', async () => {

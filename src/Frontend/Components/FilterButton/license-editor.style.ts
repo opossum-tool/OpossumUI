@@ -4,7 +4,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { SxProps, Theme } from '@mui/material/styles';
 
-import { OpossumColors, Sizing } from '../../shared-styles';
+import {
+  baseIcon,
+  checkIconSize,
+  OpossumColors,
+  Sizing,
+} from '../../shared-styles';
 
 const EDITOR_WIDTH = '420px';
 
@@ -50,6 +55,16 @@ export const styles = {
     overflowWrap: 'anywhere',
     outlineOffset: '-1px',
   },
+  searchLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 1,
+    minWidth: 0,
+    flex: 1,
+  },
+  captionSearchIcon: { ...baseIcon, flexShrink: 0 },
+  searchIcon: { flexShrink: 0, width: checkIconSize, height: checkIconSize },
+  searchQuery: { overflow: 'hidden', textOverflow: 'ellipsis' },
   label: { minWidth: 0, flex: 1 },
   removeButton: { p: 0, flexShrink: 0 },
 } satisfies Record<string, SxProps<Theme>>;
