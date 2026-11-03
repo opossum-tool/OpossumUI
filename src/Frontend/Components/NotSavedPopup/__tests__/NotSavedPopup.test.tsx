@@ -2,13 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { MutationObserver } from '@tanstack/react-query';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
-import { queryClient } from '../../../Components/AppContainer/queryClient';
 import { PopupType, View } from '../../../enums/enums';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
@@ -143,7 +141,7 @@ describe('NotSavedPopup', () => {
     expect(getOpenPopup(store.getState())).toBeFalsy();
   });
 
-  it('shows a spinner and disables cancel while quitting until mutations have settled', async () => {
+  it('shows a spinner and disables cancel while the backend has pending mutations', async () => {
     const packageInfo = faker.opossum.packageInfo();
     const { store } = await renderComponent(<NotSavedPopup />, {
       actions: [
@@ -153,15 +151,12 @@ describe('NotSavedPopup', () => {
       ],
     });
 
-    let resolveMutation!: () => void;
-    const observer = new MutationObserver(queryClient, {
-      mutationFn: () =>
-        new Promise<void>((resolve) => {
-          resolveMutation = resolve;
-        }),
-    });
-    void observer.mutate();
-    await vi.waitFor(() => expect(queryClient.isMutating()).toBe(1));
+    let resolveWhenBackendIdle!: () => void;
+    vi.mocked(global.window.electronAPI.whenBackendIdle).mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        resolveWhenBackendIdle = resolve;
+      }),
+    );
 
     await userEvent.click(
       screen.getByText(text.unsavedChangesPopup.discardAndQuit),
@@ -177,12 +172,10 @@ describe('NotSavedPopup', () => {
       screen.getByRole('button', { name: text.buttons.cancel }),
     ).toBeDisabled();
 
-    resolveMutation();
+    resolveWhenBackendIdle();
     await vi.waitFor(() =>
       expect(global.window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
     );
     expect(getOpenPopup(store.getState())).toBeFalsy();
-
-    observer.reset();
   });
 });

@@ -131,10 +131,10 @@ export class DbProcessClient {
   }
 
   /**
-   * Resolves once the DB process has no scheduled background file write in
-   * flight. Mutations save automatically in the DB process.
+   * Resolves once every mutation sent to the DB process — from any port —
+   * has finished executing and its automatic file write has concluded.
    */
-  async whenBackgroundWorkIdle(): Promise<void> {
+  async whenMutationsSettled(): Promise<void> {
     await this.request({ type: 'whenIdle' });
   }
 

@@ -11,7 +11,6 @@ import type {
   SplitFileResult,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
-import { queryClient } from '../../../Components/AppContainer/queryClient';
 import { toast } from '../../../Components/Toaster';
 import { PopupType, View } from '../../../enums/enums';
 import { ROOT_PATH } from '../../../shared-constants';
@@ -74,36 +73,15 @@ import {
 } from '../view-actions/view-actions';
 
 /**
- * Resolves once no TanStack Query mutation is pending anymore. Mutations are
- * executed in the DB process via the renderer's own connection, which the
- * main process cannot observe; waiting here ensures the DB process state is
- * settled before the app quits.
- */
-async function waitForMutationsToSettle(): Promise<void> {
-  if (queryClient.isMutating() === 0) {
-    return;
-  }
-  await new Promise<void>((resolve) => {
-    const unsubscribe = queryClient.getMutationCache().subscribe(() => {
-      if (queryClient.isMutating() === 0) {
-        unsubscribe();
-        resolve();
-      }
-    });
-  });
-}
-
-/**
- * Confirms the quit in the main process once no TanStack Query mutation is
- * pending anymore. Mutations are executed in the DB process via the
- * renderer's own connection, which the main process cannot observe; waiting
- * here ensures the DB process state is settled before the app quits. The
- * saving indicator is shown from here on, covering the final save performed
- * by the main process.
+ * Confirms the quit in the main process once the DB process reports no
+ * pending mutations: `whenBackendIdle` resolves only after every mutation
+ * has been executed and its automatic file write has concluded. The
+ * saving indicator is shown from here on, covering the final save
+ * performed by the main process.
  */
 function confirmQuitAfterMutationsSettle(): AppThunkAction<Promise<void>> {
   return async (dispatch) => {
-    await waitForMutationsToSettle();
+    await window.electronAPI.whenBackendIdle();
     dispatch(setIsSavingBeforeQuit(true));
     void window.electronAPI.confirmQuit();
   };
@@ -390,9 +368,10 @@ export function proceedFromUnsavedPopup(): AppThunkAction<Promise<void>> {
 
     if (quitAppRequested) {
       // Quitting discards the changes and any pending action targets. The
-      // popup stays open (with a spinning button) until pending mutations
-      // have settled, so that the final quit cannot silently lose writes.
-      await waitForMutationsToSettle();
+      // popup stays open (with a spinning button) until the backend has no
+      // pending mutations anymore, so that the final quit cannot silently
+      // lose writes.
+      await window.electronAPI.whenBackendIdle();
       dispatch(closePopup());
       dispatch(setTargetView(null));
       dispatch(setTargetSelectedResourceId(null));

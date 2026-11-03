@@ -139,91 +139,55 @@ type ResponsePort = {
 };
 
 let storedOpossumZip: AdmZip | undefined;
-
-// The DB process is the single funnel through which all ports' traffic
-// flows, so it is the place to track whether the .opossum file on disk is
-// up to date with the database state. Mutations arriving over any port
-// mark the file as stale.
-let hasUnsavedChanges = false;
-// Monotonically bumped on every change and every file rewrite. A save
-// captures the generation when it starts and only clears the flag if no
-// change arrived while it was writing.
-let changeGeneration = 0;
-
 let saveTarget: { projectId: string; opossumFilePath: string } | undefined;
-let backgroundSaveInFlight = false;
-const backgroundSaveIdleResolvers: Array<() => void> = [];
 
-function markUnsavedChanges(): void {
-  hasUnsavedChanges = true;
-  changeGeneration++;
-}
+// Every mutating command registers here when it starts executing and stays
+// registered until its file write has concluded. The `whenIdle` message
+// resolves only when the registry is empty, so a waiter can rely on having
+// every mutation executed and saved.
+let inFlightMutations = 0;
+const idleWaiters: Array<() => void> = [];
 
-function markFileSaved(): void {
-  hasUnsavedChanges = false;
-  changeGeneration++;
-}
+// Background writes are serialized: each write reads the database only
+// after the previous write finished, so the last write in the chain
+// reflects every mutation.
+let saveChain: Promise<void> = Promise.resolve();
 
-/**
- * Schedules a background write of the .opossum file for the currently
- * loaded project. Coalesces with an in-flight write: the running loop
- * keeps writing as long as the file is stale, so mutations arriving while
- * a write is running do not start a second concurrent loop.
- */
-function scheduleSave(): void {
-  if (backgroundSaveInFlight) {
-    return;
-  }
-  backgroundSaveInFlight = true;
-  void runScheduledSaves();
-}
-
-async function runScheduledSaves(): Promise<void> {
-  try {
-    while (
-      hasUnsavedChanges &&
-      saveTarget !== undefined &&
-      storedOpossumZip !== undefined
-    ) {
-      const generation = changeGeneration;
-      try {
-        await saveFile(saveTarget, storedOpossumZip);
-        if (changeGeneration === generation) {
-          hasUnsavedChanges = false;
-        }
-      } catch (error) {
-        console.error('Automatic save of the .opossum file failed.', error);
-        break;
-      }
-    }
-  } finally {
-    backgroundSaveInFlight = false;
-    const resolvers = backgroundSaveIdleResolvers.splice(
-      0,
-      backgroundSaveIdleResolvers.length,
-    );
+function maybeResolveIdleWaiters(): void {
+  if (inFlightMutations === 0) {
+    const resolvers = idleWaiters.splice(0, idleWaiters.length);
     for (const resolve of resolvers) {
       resolve();
     }
   }
 }
 
-function awaitBackgroundSaveIdle(): Promise<void> {
-  if (!backgroundSaveInFlight) {
-    return Promise.resolve();
-  }
-  return new Promise<void>((resolve) => {
-    backgroundSaveIdleResolvers.push(resolve);
+/**
+ * Performs the file write of the last successful mutation in the
+ * background. The mutation stays registered until the write has concluded
+ * (successfully or with a logged failure). Writes are chained so that they
+ * cannot interleave; skipping redundant writes is deliberately not done
+ * here (see the coalescing save ticket).
+ */
+function scheduleBackgroundSave(): void {
+  const write = saveChain.then(async () => {
+    const target = saveTarget;
+    const opossumZip = storedOpossumZip;
+    if (target === undefined || opossumZip === undefined) {
+      // No project is loaded, so there is no file to write to.
+      return;
+    }
+    try {
+      await saveFile(target, opossumZip);
+    } catch (error) {
+      console.error('Automatic save of the .opossum file failed.', error);
+    }
   });
-}
-
-function responseDeclaresSave(result: unknown): boolean {
-  return (
-    typeof result === 'object' &&
-    result !== null &&
-    'savesFile' in result &&
-    (result as { savesFile?: unknown }).savesFile === true
-  );
+  saveChain = write;
+  void write.finally(() => {
+    inFlightMutations--;
+    maybeResolveIdleWaiters();
+  });
 }
 
 async function executeDbProcessMessage(
@@ -241,9 +205,6 @@ async function executeDbProcessMessage(
           projectId: rest.projectId,
           opossumFilePath: msg.filePath,
         };
-        // loadFile writes the (normalized) file back to disk right after
-        // loading, so the file is fresh at this point.
-        markFileSaved();
         return rest;
       }
       return loadResult;
@@ -252,15 +213,8 @@ async function executeDbProcessMessage(
       if (!storedOpossumZip) {
         throw new Error('Cannot save: no input file loaded');
       }
-      if (!hasUnsavedChanges) {
-        return undefined;
-      }
       const { id: _, type: __, ...params } = msg;
-      const generation = changeGeneration;
       await saveFile(params, storedOpossumZip);
-      if (changeGeneration === generation) {
-        hasUnsavedChanges = false;
-      }
       return undefined;
     }
     case 'forceUnlock': {
@@ -269,7 +223,6 @@ async function executeDbProcessMessage(
       }
       const { id: _, type: __, ...params } = msg;
       await forceUnlockOpossumFile(params, storedOpossumZip);
-      markFileSaved();
       return undefined;
     }
     case 'splitOpossumFile': {
@@ -283,6 +236,7 @@ async function executeDbProcessMessage(
         splitOpossumFilePath,
         ...saveFileParams
       } = msg;
+      // splitOpossumFile rewrites the source file as part of the split.
       await splitOpossumFile(
         {
           saveFileParams,
@@ -291,8 +245,6 @@ async function executeDbProcessMessage(
         },
         storedOpossumZip,
       );
-      // splitOpossumFile rewrites the source file as part of the split.
-      markFileSaved();
       return undefined;
     }
     case 'mergeOpossumFiles': {
@@ -335,7 +287,6 @@ async function executeDbProcessMessage(
       }
       storedOpossumZip = loadResult.opossumZip;
       // The merge rewrote the output file and it was reloaded from disk.
-      markFileSaved();
       return result;
     }
     case 'mergeOpossumFilesFromPaths': {
@@ -358,19 +309,35 @@ async function executeDbProcessMessage(
       return undefined;
     }
     case 'executeCommand': {
-      // Mark the file as stale before running the mutation so that even a
-      // save racing this mutation cannot mark the file as saved.
+      // Mutations register before execution: the `whenIdle` wait may only
+      // resolve after the mutation has been executed and its file write
+      // has concluded. Other file-writing operations (forceUnlock,
+      // splitOpossumFile, mergeOpossumFiles) await their writes before
+      // responding, so their callers' requests cover them.
       if (isMutationCommand(msg.command)) {
-        markUnsavedChanges();
+        inFlightMutations++;
+        try {
+          const result = await executeCommand(msg.command, msg.params);
+          scheduleBackgroundSave();
+          return result;
+        } catch (error) {
+          // The command failed and did not change the database, so there
+          // is no file write to wait for. Failed background writes are
+          // logged and the awaited save at quit is the safety net.
+          inFlightMutations--;
+          maybeResolveIdleWaiters();
+          throw error;
+        }
       }
-      const result = await executeCommand(msg.command, msg.params);
-      if (responseDeclaresSave(result)) {
-        scheduleSave();
-      }
-      return result;
+      return executeCommand(msg.command, msg.params);
     }
     case 'whenIdle': {
-      await awaitBackgroundSaveIdle();
+      if (inFlightMutations === 0) {
+        return undefined;
+      }
+      await new Promise<void>((resolve) => {
+        idleWaiters.push(resolve);
+      });
       return undefined;
     }
   }
@@ -404,10 +371,9 @@ export async function handleDbProcessMessage(
 export function resetDbProcessStateForTesting(): void {
   storedOpossumZip = undefined;
   saveTarget = undefined;
-  hasUnsavedChanges = false;
-  changeGeneration = 0;
-  backgroundSaveInFlight = false;
-  backgroundSaveIdleResolvers.length = 0;
+  inFlightMutations = 0;
+  idleWaiters.length = 0;
+  saveChain = Promise.resolve();
 }
 
 // Guarded so that the module can be imported in tests, where

@@ -35,6 +35,10 @@ const electronAPI: ElectronAPI = {
   },
   confirmQuit: () => ipcRenderer.invoke(IpcChannel.ConfirmQuit),
   quitRequestHandled: () => ipcRenderer.invoke(IpcChannel.QuitRequestHandled),
+  whenBackendIdle: async (): Promise<void> => {
+    await clientReady;
+    return client!.whenMutationsSettled();
+  },
   relaunch: () => ipcRenderer.invoke(IpcChannel.Relaunch),
   openLink: (link) => ipcRenderer.invoke(IpcChannel.OpenLink, { link }),
   openFile: (filePath) => ipcRenderer.invoke(IpcChannel.OpenFile, filePath),

@@ -86,19 +86,19 @@ export function acknowledgeQuitRequest(): void {
 
 /**
  * Called by the renderer once it is safe to quit (no unsaved changes left).
- * Awaits all pending requests of the DB process (in particular pending
- * background writes of the .opossum file) and writes the current state of
- * the loaded project to file before quitting.
+ * Awaits all pending requests of the DB process, then the DB process's
+ * mutation registry (every mutation has been executed and its automatic
+ * file write has concluded), and finally writes the current state of the
+ * loaded project to file before quitting.
  *
- * The DB process tracks whether the file on disk is up to date (see
- * dbProcess.ts): mutations mark the file as stale and the DB process
- * automatically schedules a background write after each mutating command.
- * Every file write clears the flag, and saveFile skips serialization while
- * the file is fresh. This final saveFile is usually a no-op; it only
- * serializes when the file is actually stale (e.g. the last automatic save
- * failed). Unlike the DB process's fire-and-forget background writes, this
- * save is awaited and its failure keeps the app open instead of losing
- * data on quit.
+ * For file-writing operations outside `executeCommand` (forceUnlock,
+ * splitOpossumFile, mergeOpossumFiles) the awaited request itself covers
+ * the write, so `whenIdle` is what settles them.
+ *
+ * The final saveFile always writes: automatic saves are fire-and-forget,
+ * and a failure there is only logged. This awaited save is the safety net
+ * that guarantees the file on disk is up to date when the app quits. Its
+ * failure keeps the app open instead of losing data on quit.
  */
 export async function confirmQuit(
   window: BrowserWindow,
@@ -108,7 +108,7 @@ export async function confirmQuit(
   const client = getMainDbClient();
   await client.whenIdle();
   if (!client.isDead()) {
-    await client.whenBackgroundWorkIdle();
+    await client.whenMutationsSettled();
   }
 
   const globalBackendState = getGlobalBackendState();

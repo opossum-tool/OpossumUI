@@ -19,6 +19,7 @@ class ResizeObserver {
 global.window.electronAPI = {
   confirmQuit: vi.fn().mockReturnValue(Promise.resolve()),
   quitRequestHandled: vi.fn(),
+  whenBackendIdle: vi.fn().mockResolvedValue(undefined),
   relaunch: vi.fn(),
   openLink: vi.fn().mockReturnValue(Promise.resolve()),
   openFile: vi.fn(),

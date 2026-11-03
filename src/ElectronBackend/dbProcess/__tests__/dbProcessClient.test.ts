@@ -97,12 +97,12 @@ describe('DbProcessClient.whenIdle', () => {
   });
 });
 
-describe('DbProcessClient.whenBackgroundWorkIdle', () => {
+describe('DbProcessClient.whenMutationsSettled', () => {
   it('awaits the DB process answering the whenIdle request', async () => {
     const port = createFakePort();
     const client = new DbProcessClient(port);
 
-    const idlePromise = client.whenBackgroundWorkIdle();
+    const idlePromise = client.whenMutationsSettled();
     expect(port.postMessage).toHaveBeenCalledWith({ id: 0, type: 'whenIdle' });
     respond(port, { id: 0, type: 'success', result: undefined });
 
@@ -115,7 +115,7 @@ describe('DbProcessClient.whenBackgroundWorkIdle', () => {
 
     client.failPendingRequests(new Error('The DB process exited.'));
 
-    await expect(client.whenBackgroundWorkIdle()).rejects.toThrow(
+    await expect(client.whenMutationsSettled()).rejects.toThrow(
       'The DB process has exited; no further requests are sent.',
     );
   });

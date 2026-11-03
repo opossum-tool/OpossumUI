@@ -81,12 +81,8 @@ async function runCommand(
   id: number,
   command: string,
   isMutation: boolean,
-  response?: unknown,
 ): Promise<void> {
   isMutationCommandMock.mockReturnValue(isMutation);
-  if (response !== undefined) {
-    executeCommandMock.mockResolvedValueOnce(response);
-  }
   await handle({
     id,
     type: 'executeCommand',
@@ -95,19 +91,8 @@ async function runCommand(
   } as unknown as DbProcessRequest);
 }
 
-async function runMutationDeclaringSave(id: number): Promise<void> {
-  await runCommand(id, MUTATION_COMMAND, true, {
-    invalidates: [],
-    savesFile: true,
-  });
-}
-
-async function runMutationWithoutSaveDeclaration(id: number): Promise<void> {
-  await runCommand(id, MUTATION_COMMAND, true, { invalidates: [] });
-}
-
-async function awaitBackgroundIdle(id: number): Promise<void> {
-  await handle({ id, type: 'whenIdle' });
+async function awaitIdle(id: number): Promise<DbProcessResponse | undefined> {
+  return handle({ id, type: 'whenIdle' });
 }
 
 function saveMessage(id: number): DbProcessRequest {
@@ -138,151 +123,123 @@ describe('dbProcess save tracking', () => {
     loadFileOk();
   });
 
-  it('skips saving while the file is fresh after loading', async () => {
+  it('writes the project file when saving manually', async () => {
     await loadProject();
     const response = await save(1);
 
     expect(response?.type).toBe('success');
-    expect(saveFileApiMock).not.toHaveBeenCalled();
-  });
-
-  it('marks the file stale on mutations and saves once', async () => {
-    await loadProject();
-    await runCommand(1, MUTATION_COMMAND, true);
-    await save(2);
-    await save(3);
-
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
   });
 
-  it('does not mark the file stale on queries', async () => {
-    await loadProject();
-    await runCommand(1, QUERY_COMMAND, false);
-    const response = await save(2);
+  it('errors when manually saving without a loaded project', async () => {
+    const response = await save(1);
 
-    expect(response?.type).toBe('success');
+    expect(response?.type).toBe('error');
     expect(saveFileApiMock).not.toHaveBeenCalled();
   });
 
-  it('keeps the file stale when a save fails', async () => {
+  it('writes again with a manual save after a failed manual save', async () => {
     await loadProject();
-    await runCommand(1, MUTATION_COMMAND, true);
     saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
 
-    const failedResponse = await save(2);
+    const failedResponse = await save(1);
     expect(failedResponse?.type).toBe('error');
 
-    await save(3);
+    const response = await save(2);
+    expect(response?.type).toBe('success');
     expect(saveFileApiMock).toHaveBeenCalledTimes(2);
   });
 
-  it('keeps the file stale when a mutation arrives while a save is writing', async () => {
+  it('writes once for a force unlock', async () => {
     await loadProject();
-    await runCommand(1, MUTATION_COMMAND, true);
-
-    let resolveSave!: () => void;
-    saveFileApiMock.mockReturnValueOnce(
-      new Promise<void>((resolve) => {
-        resolveSave = resolve;
-      }),
-    );
-    const savePromise = save(2);
-    await runCommand(3, MUTATION_COMMAND, true);
-    resolveSave();
-    const firstSaveResponse = await savePromise;
-    expect(firstSaveResponse?.type).toBe('success');
-
-    await save(4);
-    expect(saveFileApiMock).toHaveBeenCalledTimes(2);
-  });
-
-  it('marks the file saved after a force unlock', async () => {
-    await loadProject();
-    await runCommand(1, MUTATION_COMMAND, true);
     await handle({
-      id: 2,
+      id: 1,
       type: 'forceUnlock',
       projectId: 'uuid_1',
       opossumFilePath: '/some/path.opossum',
     });
-    const response = await save(3);
 
     expect(forceUnlockMock).toHaveBeenCalledTimes(1);
-    expect(response?.type).toBe('success');
-    expect(saveFileApiMock).not.toHaveBeenCalled();
   });
 
-  it('marks the file saved after merging into the current file', async () => {
+  it('works after merging into the current file', async () => {
     await loadProject();
-    await runCommand(1, MUTATION_COMMAND, true);
-    await handle({
-      id: 2,
+    const response = await handle({
+      id: 1,
       type: 'mergeOpossumFiles',
       ignoreReadonlyResourceOutputConflicts: false,
       projectId: 'uuid_1',
       opossumFilePath: '/some/path.opossum',
       partitionPaths: ['/some/other.opossum'],
     });
-    const response = await save(3);
 
     expect(mergeOpossumFilesMock).toHaveBeenCalledTimes(1);
     expect(response?.type).toBe('success');
-    expect(saveFileApiMock).not.toHaveBeenCalled();
   });
 
-  it('marks the file saved after splitting the current file', async () => {
+  it('works after splitting the current file', async () => {
     await loadProject();
-    await runCommand(1, MUTATION_COMMAND, true);
     await handle({
-      id: 2,
+      id: 1,
       type: 'splitOpossumFile',
       projectId: 'uuid_1',
       opossumFilePath: '/some/path.opossum',
       selectedFolderPaths: ['/some/folder'],
       splitOpossumFilePath: '/some/split.opossum',
     });
-    const response = await save(3);
 
     expect(splitOpossumFileMock).toHaveBeenCalledTimes(1);
-    expect(response?.type).toBe('success');
-    expect(saveFileApiMock).not.toHaveBeenCalled();
   });
 
-  it('saves automatically when a mutation declares that saving is necessary', async () => {
+  it('saves automatically after a successful mutation', async () => {
     await loadProject();
-    await runMutationDeclaringSave(1);
-    await awaitBackgroundIdle(2);
+    await runCommand(1, MUTATION_COMMAND, true);
+    await awaitIdle(2);
 
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
     expect(saveFileApiMock.mock.calls[0]?.[0]).toEqual({
       projectId: 'uuid_1',
       opossumFilePath: '/x',
     });
+  });
+
+  it('does not save automatically for queries', async () => {
+    await loadProject();
+    await runCommand(1, QUERY_COMMAND, false);
+    await awaitIdle(2);
+
+    expect(saveFileApiMock).not.toHaveBeenCalled();
 
     const response = await save(3);
     expect(response?.type).toBe('success');
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
   });
 
-  it('does not save automatically without the save declaration', async () => {
-    await loadProject();
-    await runMutationWithoutSaveDeclaration(1);
-    await awaitBackgroundIdle(2);
-
-    expect(saveFileApiMock).not.toHaveBeenCalled();
-
-    await save(3);
-    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
-  });
-
   it('skips the automatic save when no project is loaded', async () => {
-    await runMutationDeclaringSave(1);
-    await awaitBackgroundIdle(2);
+    await runCommand(1, MUTATION_COMMAND, true);
+    await awaitIdle(2);
 
     expect(saveFileApiMock).not.toHaveBeenCalled();
   });
 
-  it('writes once more after an automatic save that raced a mutation', async () => {
+  it('does not schedule a save for a failed mutation', async () => {
+    await loadProject();
+    executeCommandMock.mockRejectedValueOnce(new Error('mutation failed'));
+
+    const response = await handle({
+      id: 1,
+      type: 'executeCommand',
+      command: MUTATION_COMMAND,
+      params: {},
+    } as unknown as DbProcessRequest);
+
+    expect(response?.type).toBe('error');
+
+    await awaitIdle(2);
+    expect(saveFileApiMock).not.toHaveBeenCalled();
+  });
+
+  it('serializes background writes so every successful mutation writes once', async () => {
     await loadProject();
 
     let resolveFirstSave!: () => void;
@@ -293,25 +250,23 @@ describe('dbProcess save tracking', () => {
         }),
     );
 
-    await runMutationDeclaringSave(1);
-    await runMutationDeclaringSave(2);
-    await runMutationDeclaringSave(3);
+    await runCommand(1, MUTATION_COMMAND, true);
+    await runCommand(2, MUTATION_COMMAND, true);
+    await runCommand(3, MUTATION_COMMAND, true);
     resolveFirstSave();
-    await awaitBackgroundIdle(4);
+    await awaitIdle(4);
 
-    expect(saveFileApiMock).toHaveBeenCalledTimes(2);
+    expect(saveFileApiMock).toHaveBeenCalledTimes(3);
   });
 
-  it('keeps the file stale when an automatic save fails', async () => {
+  it('does not block whenIdle when an automatic save fails', async () => {
     await loadProject();
     saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
-    await runMutationDeclaringSave(1);
-    await awaitBackgroundIdle(2);
+
+    await runCommand(1, MUTATION_COMMAND, true);
+    await awaitIdle(2);
 
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
-
-    await save(3);
-    expect(saveFileApiMock).toHaveBeenCalledTimes(2);
   });
 
   it('resolves whenIdle only after the scheduled write finished', async () => {
@@ -325,10 +280,30 @@ describe('dbProcess save tracking', () => {
         }),
     );
 
-    await runMutationDeclaringSave(1);
-    const idlePromise = awaitBackgroundIdle(2);
+    await runCommand(1, MUTATION_COMMAND, true);
+    const idlePromise = awaitIdle(2);
     resolveSave();
-    await expect(idlePromise).resolves.toBeUndefined();
+    expect((await idlePromise)?.type).toBe('success');
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('resolves whenIdle after all writes of a mutation burst', async () => {
+    await loadProject();
+
+    let resolveFirstSave!: () => void;
+    saveFileApiMock.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveFirstSave = resolve;
+        }),
+    );
+
+    await runCommand(1, MUTATION_COMMAND, true);
+    await runCommand(2, MUTATION_COMMAND, true);
+    await runCommand(3, MUTATION_COMMAND, true);
+    const idlePromise = awaitIdle(4);
+    resolveFirstSave();
+    expect((await idlePromise)?.type).toBe('success');
+    expect(saveFileApiMock).toHaveBeenCalledTimes(3);
   });
 });

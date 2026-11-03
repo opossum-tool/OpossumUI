@@ -3,8 +3,6 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { MutationObserver } from '@tanstack/react-query';
-
 import {
   type Attributions,
   Criticality,
@@ -1101,7 +1099,7 @@ describe('quitAppOrOpenUnsavedPopup', () => {
     expect(getTargetView(testStore.getState())).toBeNull();
   });
 
-  it('keeps the unsaved-changes popup open until pending mutations have settled', async () => {
+  it('keeps the unsaved-changes popup open until the backend has no pending mutations', async () => {
     const testStore = createAppStore();
     testStore.dispatch(
       setTemporaryDisplayPackageInfo({
@@ -1112,15 +1110,12 @@ describe('quitAppOrOpenUnsavedPopup', () => {
     );
     testStore.dispatch(quitAppOrOpenUnsavedPopup());
 
-    let resolveMutation!: () => void;
-    const observer = new MutationObserver(queryClient, {
-      mutationFn: () =>
-        new Promise<void>((resolve) => {
-          resolveMutation = resolve;
-        }),
-    });
-    void observer.mutate();
-    await vi.waitFor(() => expect(queryClient.isMutating()).toBe(1));
+    let resolveWhenBackendIdle!: () => void;
+    vi.mocked(window.electronAPI.whenBackendIdle).mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        resolveWhenBackendIdle = resolve;
+      }),
+    );
 
     void testStore.dispatch(proceedFromUnsavedPopup());
 
@@ -1129,14 +1124,12 @@ describe('quitAppOrOpenUnsavedPopup', () => {
     );
     expect(window.electronAPI.confirmQuit).not.toHaveBeenCalled();
 
-    resolveMutation();
+    resolveWhenBackendIdle();
     await vi.waitFor(() =>
       expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
     );
     expect(getOpenPopup(testStore.getState())).toBeNull();
     expect(getQuitAppRequested(testStore.getState())).toBe(false);
     expect(getIsSavingBeforeQuit(testStore.getState())).toBe(true);
-
-    observer.reset();
   });
 });
