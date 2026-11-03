@@ -6,9 +6,11 @@ import type { SxProps, Theme } from '@mui/material/styles';
 
 import { OpossumColors, Sizing } from '../../shared-styles';
 
+const EDITOR_WIDTH = '420px';
+
 export const styles = {
   editor: ({ spacing }) => ({
-    width: '420px',
+    width: EDITOR_WIDTH,
     maxWidth: `calc(100vw - ${spacing(2 * Sizing.Large)})`,
     minHeight: 0,
     display: 'flex',

@@ -27,6 +27,9 @@ import {
 } from '../SelectMenu/SelectMenu';
 import { ClearMenuIcon, IconButton } from './FilterButton.style';
 
+const FILTER_MENU_WIDTH = '336px';
+const PANEL_MAX_HEIGHT = '480px';
+
 export type FilterOption =
   | Exclude<SelectMenuOption, PanelMenuOption>
   | (Omit<PanelMenuOption, 'submenu'> & {
@@ -177,13 +180,13 @@ export function FilterButton({
         anchorArrow={anchorArrow}
         anchorPosition={anchorPosition}
         onClose={() => handleSetAnchorEl(undefined)}
-        width="336px"
+        width={FILTER_MENU_WIDTH}
         adjacentContent={
           <Popper
             // Reserve the maximum height for positioning so resizing the visible
             // panel never moves its tabs and search field.
             sx={{
-              height: `min(480px, calc(100vh - ${theme.spacing(2 * Sizing.Large)}))`,
+              height: `min(${PANEL_MAX_HEIGHT}, calc(100vh - ${theme.spacing(2 * Sizing.Large)}))`,
               pointerEvents: 'none',
             }}
             open={!!view && !!panel}
