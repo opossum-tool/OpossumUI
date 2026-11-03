@@ -184,9 +184,11 @@ export function getFilteredResourcesQuery(
       .where('r.is_readonly', '=', 0);
   }
   if (onlyWithAiDeferredAttributions) {
-    // A correlated exists probes resource_to_attribution and attribution_ai by
-    // primary key. Expressing this filter as a materialized `in` subquery makes
-    // SQLite pick a pathological plan when combined with the other tree filters.
+    // Deliberately a correlated EXISTS rather than a materialized `in`
+    // subquery: the EXISTS lets SQLite probe resource_to_attribution and
+    // attribution_ai by primary key, while the materialized subquery leads to
+    // a slow query plan once the other tree filters are combined with this
+    // one.
     query = query.where((eb) =>
       eb.exists(
         eb
