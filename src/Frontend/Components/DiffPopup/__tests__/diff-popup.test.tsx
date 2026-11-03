@@ -10,10 +10,7 @@ import type { ComponentProps } from 'react';
 import type { CommandReturn } from '../../../../ElectronBackend/api/commands';
 import type { Attributions } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
-import {
-  interceptBackendCommand,
-  restoreBackendCommandExecution,
-} from '../../../../testing/backend-stubs';
+import { interceptBackendCommand } from '../../../../testing/backend-stubs';
 import {
   makeComparisonItem,
   makeComparisonPackageInfo,
@@ -108,8 +105,6 @@ const dismissWithBackdropClick = (): void => {
 };
 
 describe('DiffPopup', () => {
-  afterEach(restoreBackendCommandExecution);
-
   it.each([true, false])(
     'reveals only when the focused attribution is a submitted candidate (%s)',
     async (includesFocus) => {

@@ -311,10 +311,11 @@ export async function expectAttributionColumnButtonVisibility(
 ): Promise<void> {
   await waitFor(() => {
     const node = queryAttributionColumnButton(button);
-    if (node === null) {
-      expect(visible).toBe(false);
-    } else {
+    if (visible) {
+      expect(node).not.toBeNull();
       expect(node).toBeVisible();
+    } else {
+      expect(node === null || !isNodeVisible(node)).toBe(true);
     }
   }, SETTLED_TIMEOUT);
 }
@@ -461,14 +462,16 @@ export async function expectAttributionLicenseTextVisibility(
     const licenseTextField = within(getAttributionColumn()).queryByLabelText(
       text.attributionColumn.licenseText,
     );
-    if (licenseTextField === null) {
-      expect(visible).toBe(false);
-    } else {
+    if (visible) {
+      expect(licenseTextField).not.toBeNull();
       expect(licenseTextField).toBeVisible();
+    } else {
+      expect(
+        licenseTextField === null || !isNodeVisible(licenseTextField),
+      ).toBe(true);
     }
   }, SETTLED_TIMEOUT);
 }
-
 export async function clickAttributionLicenseTextToggle(): Promise<void> {
   await userEvent.click(
     within(getAttributionColumn()).getByLabelText('license-text-toggle-button'),
