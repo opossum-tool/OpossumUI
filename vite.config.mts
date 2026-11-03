@@ -34,7 +34,7 @@ let electronStartCount = 0;
  * The vite dev server process persists across Electron restarts, so a module
  * level counter cleanly distinguishes the two cases. The flag propagates to
  * Electron via the inherited environment and gates the dev-only reopening of
- * the last opened file (see `reopen-last-dev-file.ts`).
+ * the last opened file (see `main.ts` and `dev-env.ts`).
  */
 function handleElectronStart({
   startup,

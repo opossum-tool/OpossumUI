@@ -12,10 +12,11 @@ import {
 } from '../dbProcess/dbProcessClient';
 import { getMessageBoxContentForErrorsWrapper } from '../errorHandling/errorHandling';
 import { createWindow, loadWebApp } from './createWindow';
+import { isDevRestarted } from './dev-env';
+import { getLastOpenedFilePath } from './last-opened-file';
 import { createMenu } from './menu';
 import { openFileFromCliOrEnvVariableIfProvided } from './openFileFromCliOrEnvVariableIfProvided';
 import { setRuntimeMacOsOpenFileHandler } from './openFileRequests';
-import { getDevReopenFilePath } from './reopen-last-dev-file';
 import { setupIpcHandling } from './setUpIpcHandling';
 import { UserSettingsService } from './user-settings-service';
 
@@ -66,8 +67,14 @@ export async function main(): Promise<void> {
 
     await loadWebApp(mainWindow);
 
+    // Dev-only convenience: after a vite watcher restart (backend code
+    // change), reopen the file that was open before the restart. Fresh dev
+    // starts and packaged builds never open a file on their own.
+    const reopenFilePath = isDevRestarted()
+      ? await getLastOpenedFilePath()
+      : undefined;
     await openFileFromCliOrEnvVariableIfProvided(mainWindow, updateMenu, {
-      reopenFilePath: await getDevReopenFilePath(),
+      reopenFilePath,
     });
 
     setRuntimeMacOsOpenFileHandler((filePath) => {
