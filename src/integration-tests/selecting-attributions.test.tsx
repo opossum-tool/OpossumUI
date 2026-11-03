@@ -117,8 +117,10 @@ describe('selecting attributions', () => {
 
     await clickPanelButton(ATTRIBUTIONS_PANEL, text.packageLists.delete);
     await expectPopupHasText(
-      'confirm delete popup',
-      'the following attribution',
+      text.deleteAttributionsPopup.ariaLabel,
+      `${text.deleteAttributionsPopup.deleteAttributions({
+        attributions: 'attribution',
+      })} 1 resource:`,
     );
 
     await clickPopupButton('confirm delete popup', text.buttons.cancel);
@@ -130,8 +132,10 @@ describe('selecting attributions', () => {
 
     await clickPanelButton(ATTRIBUTIONS_PANEL, text.packageLists.delete);
     await expectPopupHasText(
-      'confirm delete popup',
-      'the following 2 attributions',
+      text.deleteAttributionsPopup.ariaLabel,
+      `${text.deleteAttributionsPopup.deleteAttributions({
+        attributions: '2 attributions',
+      })} 2 resources:`,
     );
 
     await clickPopupButton('confirm delete popup', text.buttons.cancel);

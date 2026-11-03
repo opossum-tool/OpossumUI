@@ -131,7 +131,10 @@ describe('replacing attributions', () => {
     await expectAttributionColumnButtonVisibility('replace', true);
 
     await clickAttributionColumnButton('replace');
-    await expectPopupHasText('confirm replace popup', '2 attributions');
+    await expectPopupHasText(
+      'confirm replace popup',
+      text.replaceAttributionsPopup.removeAttributions('2 attributions'),
+    );
 
     await clickPopupButton(
       'confirm replace popup',

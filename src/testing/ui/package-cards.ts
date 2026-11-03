@@ -11,6 +11,7 @@ import {
   type PackageInfoForLabels,
 } from '../../Frontend/util/get-card-labels';
 import {
+  expectPanelsSettled,
   expectReadonlyIndicator,
   getPanel,
   type PanelTestId,
@@ -37,6 +38,15 @@ function getPackageCard(
   );
 }
 
+function queryPackageCard(
+  panelTestId: PanelTestId,
+  packageInfo: PackageInfoForLabels,
+): HTMLElement | null {
+  return within(getPanel(panelTestId)).queryByLabelText(
+    cardLabelText(packageInfo),
+  );
+}
+
 export async function getPackageCardCheckbox(
   panelTestId: PanelTestId,
   packageInfo: PackageInfoForLabels,
@@ -56,19 +66,21 @@ export async function expectPackageCards(
     }, SETTLED_TIMEOUT);
   }
   for (const packageInfo of hidden) {
-    await waitFor(() => {
-      expectCardAbsentOrHidden(panelTestId, packageInfo);
-    }, SETTLED_TIMEOUT);
+    await expectCardAbsentOrHidden(panelTestId, packageInfo);
   }
 }
 
-function expectCardAbsentOrHidden(
+async function expectCardAbsentOrHidden(
   panelTestId: PanelTestId,
   packageInfo: PackageInfoForLabels,
-): void {
-  const card = within(getPanel(panelTestId)).queryByLabelText(
-    cardLabelText(packageInfo),
-  );
+): Promise<void> {
+  // Wait for panel reloads to settle before asserting, so a card that stays
+  // visible fails fast instead of being retried until SETTLED_TIMEOUT. Two
+  // settle rounds close the race of a reload starting between the assertion
+  // rounds.
+  await expectPanelsSettled();
+  await expectPanelsSettled();
+  const card = queryPackageCard(panelTestId, packageInfo);
   if (card) {
     expect(card).not.toBeVisible();
   }
@@ -125,20 +137,16 @@ export async function expectPackageCardCheckbox(
   packageInfo: PackageInfoForLabels,
   checked: boolean,
 ): Promise<void> {
-  const assertion = checked ? jestExpectChecked : jestExpectUnchecked;
   await waitFor(() => {
-    assertion(
-      within(getPackageCard(panelTestId, packageInfo)).getByRole('checkbox'),
+    const checkbox = within(getPackageCard(panelTestId, packageInfo)).getByRole(
+      'checkbox',
     );
+    if (checked) {
+      expect(checkbox).toBeChecked();
+    } else {
+      expect(checkbox).not.toBeChecked();
+    }
   }, SETTLED_TIMEOUT);
-}
-
-function jestExpectChecked(checkbox: HTMLElement): void {
-  expect(checkbox).toBeChecked();
-}
-
-function jestExpectUnchecked(checkbox: HTMLElement): void {
-  expect(checkbox).not.toBeChecked();
 }
 
 export async function clickSelectAllCheckbox(

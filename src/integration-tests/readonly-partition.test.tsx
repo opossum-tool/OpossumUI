@@ -180,7 +180,12 @@ describe('readonly partition', () => {
     fillFormField('name', updatedName);
     await clickAttributionColumnButton('save');
     await expectConfirmSavePopupIsVisible();
-    await expectPopupHasText('confirm save popup', 'on 1 resource');
+    await expectPopupHasText(
+      text.saveAttributionsPopup.ariaLabel,
+      `${text.saveAttributionsPopup.saveAttributions({
+        attributions: 'attribution',
+      })} 1 resource:`,
+    );
     await expectConfirmSavePopupSaveOnlyOnSelectedIsHidden();
     await clickPopupButton(
       text.saveAttributionsPopup.ariaLabel,

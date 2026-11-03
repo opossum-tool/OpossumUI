@@ -6,6 +6,7 @@ import { describe, it, vi } from 'vitest';
 
 import { deserializeAttributions } from '../ElectronBackend/input/parseInputData';
 import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers/general-test-helpers';
+import { text } from '../shared/text';
 import { faker } from '../testing/Faker';
 import { renderApp } from '../testing/render-app';
 import {
@@ -155,7 +156,12 @@ describe('deleting attributions', () => {
     await expectPackageCardCheckbox(ATTRIBUTIONS_PANEL, packageInfo2, true);
 
     await clickPanelButton(ATTRIBUTIONS_PANEL, 'Delete');
-    await expectPopupHasText('confirm delete popup', '2 attributions');
+    await expectPopupHasText(
+      text.deleteAttributionsPopup.ariaLabel,
+      `${text.deleteAttributionsPopup.deleteAttributions({
+        attributions: '2 attributions',
+      })} 5 resources:`,
+    );
 
     await clickPopupButton('confirm delete popup', 'Delete on All');
     await expectPopupHidden('confirm delete popup');

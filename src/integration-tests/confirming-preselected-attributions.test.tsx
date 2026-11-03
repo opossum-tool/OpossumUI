@@ -134,7 +134,12 @@ describe('confirming pre-selected attributions', () => {
       ATTRIBUTIONS_PANEL,
       text.packageLists.confirm,
     );
-    await expectPopupHasText('confirm save popup', '2 attributions');
+    await expectPopupHasText(
+      text.saveAttributionsPopup.ariaLabel,
+      `${text.saveAttributionsPopup.confirmAttributions({
+        attributions: '2 attributions',
+      })} 4 resources:`,
+    );
 
     await clickPopupButton(
       text.saveAttributionsPopup.ariaLabel,
