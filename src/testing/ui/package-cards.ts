@@ -11,7 +11,6 @@ import {
   type PackageInfoForLabels,
 } from '../../Frontend/util/get-card-labels';
 import {
-  expectPanelsSettled,
   expectReadonlyIndicator,
   getPanel,
   type PanelTestId,
@@ -66,20 +65,20 @@ export async function expectPackageCards(
     }, SETTLED_TIMEOUT);
   }
   for (const packageInfo of hidden) {
-    await expectCardAbsentOrHidden(panelTestId, packageInfo);
+    // Retried like Playwright's auto-waiting toBeHidden(): the card may still
+    // be rendered while the panel refetches after a mutation or filter change,
+    // so absence can only be observed on the card list itself. A card that
+    // never disappears fails after SETTLED_TIMEOUT.
+    await waitFor(() => {
+      expectCardAbsentOrHidden(panelTestId, packageInfo);
+    }, SETTLED_TIMEOUT);
   }
 }
 
-async function expectCardAbsentOrHidden(
+function expectCardAbsentOrHidden(
   panelTestId: PanelTestId,
   packageInfo: PackageInfoForLabels,
-): Promise<void> {
-  // Wait for panel reloads to settle before asserting, so a card that stays
-  // visible fails fast instead of being retried until SETTLED_TIMEOUT. Two
-  // settle rounds close the race of a reload starting between the assertion
-  // rounds.
-  await expectPanelsSettled();
-  await expectPanelsSettled();
+): void {
   const card = queryPackageCard(panelTestId, packageInfo);
   if (card) {
     expect(card).not.toBeVisible();
