@@ -7,12 +7,12 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import { AllowedFrontendChannels } from '../shared/ipc-channels';
 import type { UpdateState } from '../shared/shared-types';
 import { text } from '../shared/text';
-import { renderApp } from './helpers/render-app';
+import { renderApp } from '../testing/render-app';
 import {
   clickTopBarViewButton,
   expectViewIsActive,
   gotoReportView,
-} from './helpers/ui';
+} from '../testing/ui';
 
 const releaseTag = 'OpossumUI-2030-01-02';
 const downloadUrl = 'https://example.com/update.exe';

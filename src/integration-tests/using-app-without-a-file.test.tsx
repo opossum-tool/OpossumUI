@@ -1,17 +1,17 @@
-﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { renderApp } from './helpers/render-app';
+import { renderApp } from '../testing/render-app';
 import {
   expectLinkedResourcesTreeVisibility,
   expectOpenFileButtonVisibility,
   expectViewIsActive,
   gotoReportView,
-} from './helpers/ui';
+} from '../testing/ui';
 
 describe('using the app without a file', () => {
   // The native window title (`menuBar.assert.hasTitle('OpossumUI')`) is not

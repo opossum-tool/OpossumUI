@@ -12,7 +12,7 @@ import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers
 import { text } from '../shared/text';
 import { faker } from '../testing/Faker';
 import { getFilterExcludedAttributionsFixture } from '../testing/filter-excluded-attributions';
-import { renderApp } from './helpers/render-app';
+import { renderApp } from '../testing/render-app';
 import {
   addLicenseSearchFilter,
   applyPanelFilter,
@@ -37,7 +37,7 @@ import {
   gotoResource,
   pressSearchShortcut,
   selectFilterLicenseName,
-} from './helpers/ui';
+} from '../testing/ui';
 
 const ATTRIBUTIONS_HEADER = 'attributions-panel-header';
 

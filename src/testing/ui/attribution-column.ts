@@ -6,8 +6,8 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
-import type { RawPackageInfo } from '../../../shared/shared-types';
-import { text } from '../../../shared/text';
+import type { RawPackageInfo } from '../../shared/shared-types';
+import { text } from '../../shared/text';
 import { isNodeEnabled, isNodeVisible, SETTLED_TIMEOUT } from './common';
 
 export type AttributionColumnField =

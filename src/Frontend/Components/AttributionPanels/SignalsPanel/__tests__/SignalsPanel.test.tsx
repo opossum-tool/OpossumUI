@@ -16,6 +16,7 @@ import {
   expectEventuallyButtonEnabled,
   expectEventuallyEnabled,
   getButton,
+  SIGNALS_PANEL,
 } from '../../../../../testing/ui';
 import { ROOT_PATH } from '../../../../shared-constants';
 import { setSelectedResourceId } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
@@ -44,7 +45,7 @@ describe('SignalsPanel', () => {
       }),
     });
 
-    await clickPackageCard(packageInfo);
+    await clickPackageCard(SIGNALS_PANEL, packageInfo);
 
     expect(getSelectedAttributionId(store.getState())).toBe(packageInfo.id);
   });
@@ -61,7 +62,7 @@ describe('SignalsPanel', () => {
       }),
     });
 
-    await clickPackageCardCheckbox(packageInfo);
+    await clickPackageCardCheckbox(SIGNALS_PANEL, packageInfo);
 
     expect(getSelectedAttributionId(store.getState())).toBe(packageInfo.id);
   });
@@ -86,7 +87,7 @@ describe('SignalsPanel', () => {
       ],
     });
 
-    await clickPackageCard(targetPackageInfo);
+    await clickPackageCard(SIGNALS_PANEL, targetPackageInfo);
 
     expect(getSelectedAttributionId(store.getState())).toBe('');
   });
@@ -108,7 +109,7 @@ describe('SignalsPanel', () => {
       ],
     });
 
-    await clickPackageCard(targetPackageInfo);
+    await clickPackageCard(SIGNALS_PANEL, targetPackageInfo);
 
     expect(getSelectedAttributionId(store.getState())).toBe(
       targetPackageInfo.id,
@@ -127,7 +128,7 @@ describe('SignalsPanel', () => {
       }),
     });
 
-    await clickPackageCard(packageInfo);
+    await clickPackageCard(SIGNALS_PANEL, packageInfo);
     await userEvent.click(getButton(text.packageLists.delete));
 
     await expectResolvedExternalAttributions(new Set([packageInfo.id]));
@@ -149,7 +150,7 @@ describe('SignalsPanel', () => {
     await userEvent.click(
       screen.getByRole('button', { name: text.packageLists.showDeleted }),
     );
-    await clickPackageCard(packageInfo);
+    await clickPackageCard(SIGNALS_PANEL, packageInfo);
 
     expectButtonDisabled(text.packageLists.delete);
   });
@@ -170,7 +171,7 @@ describe('SignalsPanel', () => {
     await userEvent.click(
       screen.getByRole('button', { name: text.packageLists.showDeleted }),
     );
-    await clickPackageCard(packageInfo);
+    await clickPackageCard(SIGNALS_PANEL, packageInfo);
     await userEvent.click(getButton(text.packageLists.restore));
 
     await expectResolvedExternalAttributions(new Set());
@@ -191,7 +192,7 @@ describe('SignalsPanel', () => {
     await userEvent.click(
       screen.getByRole('button', { name: text.packageLists.showDeleted }),
     );
-    await clickPackageCard(packageInfo);
+    await clickPackageCard(SIGNALS_PANEL, packageInfo);
 
     expectButtonDisabled(text.packageLists.restore);
   });
@@ -215,7 +216,7 @@ describe('SignalsPanel', () => {
 
     await expectResourcesToManualAttributions({});
 
-    await clickPackageCard(packageInfo);
+    await clickPackageCard(SIGNALS_PANEL, packageInfo);
     await userEvent.click(getButton(text.packageLists.linkAsAttribution));
 
     await expectResourcesToManualAttributions({
@@ -273,7 +274,7 @@ describe('SignalsPanel', () => {
       actions: [setSelectedResourceId(filePath, 'auto')],
     });
 
-    await clickPackageCard(packageInfo);
+    await clickPackageCard(SIGNALS_PANEL, packageInfo);
 
     expectButtonDisabled(text.packageLists.linkAsAttribution);
   });
@@ -293,7 +294,7 @@ describe('SignalsPanel', () => {
       }),
     });
 
-    await clickPackageCard(packageInfo);
+    await clickPackageCard(SIGNALS_PANEL, packageInfo);
 
     expectButtonDisabled(text.packageLists.linkAsAttribution);
   });
@@ -317,7 +318,7 @@ describe('SignalsPanel', () => {
       }),
     });
 
-    await clickPackageCard(signal);
+    await clickPackageCard(SIGNALS_PANEL, signal);
 
     await expectEventuallyButtonDisabled(text.packageLists.linkAsAttribution);
   });
@@ -345,7 +346,7 @@ describe('SignalsPanel', () => {
       actions: [setSelectedResourceId('/root/child', 'auto')],
     });
 
-    await clickPackageCard(signal);
+    await clickPackageCard(SIGNALS_PANEL, signal);
 
     await expectEventuallyButtonDisabled(text.packageLists.linkAsAttribution);
   });
@@ -377,7 +378,7 @@ describe('SignalsPanel', () => {
       actions: [setSelectedResourceId('/root/child', 'auto')],
     });
 
-    await clickPackageCard(signal);
+    await clickPackageCard(SIGNALS_PANEL, signal);
 
     await expectEventuallyButtonEnabled(text.packageLists.linkAsAttribution);
   });
@@ -407,8 +408,8 @@ describe('SignalsPanel', () => {
       }),
     });
 
-    await clickPackageCardCheckbox(matchedSignal);
-    await clickPackageCardCheckbox(unmatchedSignal);
+    await clickPackageCardCheckbox(SIGNALS_PANEL, matchedSignal);
+    await clickPackageCardCheckbox(SIGNALS_PANEL, unmatchedSignal);
 
     await expectEventuallyButtonEnabled(text.packageLists.linkAsAttribution);
   });
@@ -440,7 +441,7 @@ describe('SignalsPanel', () => {
       }),
     });
 
-    await clickPackageCardCheckbox(signal);
+    await clickPackageCardCheckbox(SIGNALS_PANEL, signal);
 
     await expectEventuallyButtonDisabled(text.packageLists.linkAsAttribution);
   });
@@ -472,7 +473,7 @@ describe('SignalsPanel', () => {
       actions: [setSelectedResourceId('/root/child', 'auto')],
     });
 
-    await clickPackageCardCheckbox(signal);
+    await clickPackageCardCheckbox(SIGNALS_PANEL, signal);
 
     await expectEventuallyButtonDisabled(text.packageLists.linkAsAttribution);
   });
