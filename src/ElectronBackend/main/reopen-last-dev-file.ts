@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import fs from 'fs';
 
+import { isDevRestarted } from './dev-env';
 import { UserSettingsService } from './user-settings-service';
 
 /**
@@ -17,7 +18,7 @@ import { UserSettingsService } from './user-settings-service';
  * builds never open a file on their own.
  */
 export async function getDevReopenFilePath(): Promise<string | undefined> {
-  if (process.env.OPOSSUM_ELECTRON_RESTARTED !== '1') {
+  if (!isDevRestarted()) {
     return undefined;
   }
 

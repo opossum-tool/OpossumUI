@@ -8,6 +8,14 @@ import path from 'path';
 import { faker } from '../../../testing/Faker';
 import { getDevReopenFilePath } from '../reopen-last-dev-file';
 
+const electronMock = vi.hoisted(() => ({
+  app: {
+    isPackaged: false,
+  },
+}));
+
+vi.mock('electron', () => electronMock);
+
 const mockUserSettingsGet = vi.fn().mockResolvedValue([]);
 vi.mock('../user-settings-service', () => ({
   UserSettingsService: {
@@ -22,6 +30,7 @@ describe('getDevReopenFilePath', () => {
     mockUserSettingsGet.mockClear();
     mockUserSettingsGet.mockResolvedValue([]);
     delete process.env.OPOSSUM_ELECTRON_RESTARTED;
+    electronMock.app.isPackaged = false;
   });
 
   afterAll(() => {
@@ -41,6 +50,16 @@ describe('getDevReopenFilePath', () => {
 
   it('returns no file when the process was not restarted by the watcher', async () => {
     process.env.OPOSSUM_ELECTRON_RESTARTED = '0';
+    const filePath = createOpossumFile();
+    setRecentlyOpenedPaths([filePath]);
+
+    expect(await getDevReopenFilePath()).toBeUndefined();
+    expect(mockUserSettingsGet).not.toHaveBeenCalled();
+  });
+
+  it('returns no file in a packaged app even if the restarted flag is set', async () => {
+    process.env.OPOSSUM_ELECTRON_RESTARTED = '1';
+    electronMock.app.isPackaged = true;
     const filePath = createOpossumFile();
     setRecentlyOpenedPaths([filePath]);
 

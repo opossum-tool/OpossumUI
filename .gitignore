@@ -52,3 +52,6 @@ yarn-error.log*
 .env
 
 .gitconfig
+
+dev.db
+dev.db-journal
