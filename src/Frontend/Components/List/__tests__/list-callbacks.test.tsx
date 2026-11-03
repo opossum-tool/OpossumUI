@@ -5,12 +5,16 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act, type Ref, useImperativeHandle } from 'react';
-import type { VirtuosoHandle } from 'react-virtuoso';
+import type { VirtuosoHandle, VirtuosoProps } from 'react-virtuoso';
 
 import { renderComponent } from '../../../test-helpers/render';
 import { List } from '../List';
 
 const virtuosoMock = vi.hoisted(() => ({
+  initialTopMostItemIndex: undefined as VirtuosoProps<
+    unknown,
+    unknown
+  >['initialTopMostItemIndex'],
   itemsRendered: undefined as
     ((items: ReadonlyArray<{ size: number }>) => void) | undefined,
   scrollIntoView: vi.fn(),
@@ -25,11 +29,16 @@ vi.mock('react-virtuoso', async (importOriginal) => {
   return {
     ...original,
     Virtuoso: ({
+      initialTopMostItemIndex,
       itemsRendered,
       rangeChanged,
       endReached,
       ref,
     }: {
+      initialTopMostItemIndex?: VirtuosoProps<
+        unknown,
+        unknown
+      >['initialTopMostItemIndex'];
       itemsRendered?: (items: ReadonlyArray<{ size: number }>) => void;
       rangeChanged?: (range: { startIndex: number; endIndex: number }) => void;
       endReached?: (index: number) => void;
@@ -43,15 +52,17 @@ vi.mock('react-virtuoso', async (importOriginal) => {
         scrollTo: vi.fn(),
         scrollToIndex: vi.fn(),
       }));
+      virtuosoMock.initialTopMostItemIndex = initialTopMostItemIndex;
       virtuosoMock.itemsRendered = itemsRendered;
       virtuosoMock.rangeChanged = rangeChanged;
       virtuosoMock.endReached = endReached;
-      return <div />;
+      return <div data-testid="virtuoso" />;
     },
   };
 });
 
 beforeEach(() => {
+  virtuosoMock.initialTopMostItemIndex = undefined;
   virtuosoMock.itemsRendered = undefined;
   virtuosoMock.rangeChanged = undefined;
   virtuosoMock.endReached = undefined;
@@ -67,6 +78,38 @@ function invokeRangeChanged(range: { startIndex: number; endIndex: number }) {
 }
 
 describe('List selection scrolling', () => {
+  it.each([undefined, { index: 4, align: 'center' } as const])(
+    'preserves initialTopMostItemIndex and the Virtuoso instance when selection changes (initialTopMostItemIndex: %j)',
+    async (initialTopMostItemIndex) => {
+      const data = Array.from({ length: 10 }, (_, index) => ({
+        id: `item-${index}`,
+      }));
+      const renderList = (selectedId: string) => (
+        <List
+          data={data}
+          selectedId={selectedId}
+          resultSetKey="result-set"
+          initialTopMostItemIndex={initialTopMostItemIndex}
+          renderItemContent={(item) => <div>{item.id}</div>}
+        />
+      );
+      const { rerender } = await renderComponent(renderList(data[9].id));
+      const virtuoso = screen.getByTestId('virtuoso');
+
+      expect(virtuosoMock.initialTopMostItemIndex).toEqual(
+        initialTopMostItemIndex,
+      );
+
+      invokeItemsRendered([{ size: 40 }]);
+      rerender(renderList(data[1].id));
+
+      expect(virtuosoMock.initialTopMostItemIndex).toEqual(
+        initialTopMostItemIndex,
+      );
+      expect(screen.getByTestId('virtuoso')).toBe(virtuoso);
+    },
+  );
+
   it.each([
     ['one row', [{ size: 24 }]],
     ['multiple rows', [{ size: 24 }, { size: 24 }, { size: 24 }]],
