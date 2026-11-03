@@ -4,7 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import { act, renderHook } from '@testing-library/react';
 
-import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
+import type { PackageInfo } from '../../../../shared/shared-types';
+import {
+  makeComparisonItem,
+  makeComparisonPackageInfo,
+} from '../../../../testing/ui';
 import type { ComparisonItem } from '../DiffPopup';
 import {
   canTransfer,
@@ -16,24 +20,16 @@ import {
 import { useComparisonState } from '../use-comparison-state';
 
 function packageInfo(overrides: Partial<PackageInfo> = {}): PackageInfo {
-  return {
-    id: 'package',
-    attributionConfidence: 50,
-    criticality: Criticality.None,
+  return makeComparisonPackageInfo({
     packageName: 'opening name',
-    packageType: 'npm',
-    comment: 'opening comment',
+    licenseName: undefined,
+    licenseText: undefined,
     ...overrides,
-  };
+  });
 }
 
 function item(overrides: Partial<ComparisonItem> = {}): ComparisonItem {
-  return {
-    isExternal: false,
-    label: 'attribution',
-    packageInfo: packageInfo(),
-    ...overrides,
-  };
+  return makeComparisonItem({ packageInfo: packageInfo(), ...overrides });
 }
 
 describe('comparison rules', () => {

@@ -2,12 +2,21 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../../shared/text';
 import { faker } from '../../../../../testing/Faker';
 import { pathsToResources } from '../../../../../testing/global-test-helpers';
+import {
+  clickPackageCard,
+  clickPackageCardCheckbox,
+  expectButtonDisabled,
+  expectEventuallyButtonDisabled,
+  expectEventuallyButtonEnabled,
+  expectEventuallyEnabled,
+  getButton,
+} from '../../../../../testing/ui';
 import { ROOT_PATH } from '../../../../shared-constants';
 import { setSelectedResourceId } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
@@ -35,11 +44,7 @@ describe('SignalsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
-    );
+    await clickPackageCard(packageInfo);
 
     expect(getSelectedAttributionId(store.getState())).toBe(packageInfo.id);
   });
@@ -56,13 +61,7 @@ describe('SignalsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      within(
-        await screen.findByLabelText(
-          `package card ${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-        ),
-      ).getByRole('checkbox'),
-    );
+    await clickPackageCardCheckbox(packageInfo);
 
     expect(getSelectedAttributionId(store.getState())).toBe(packageInfo.id);
   });
@@ -87,11 +86,7 @@ describe('SignalsPanel', () => {
       ],
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${targetPackageInfo.packageName}, ${targetPackageInfo.packageVersion}`,
-      ),
-    );
+    await clickPackageCard(targetPackageInfo);
 
     expect(getSelectedAttributionId(store.getState())).toBe('');
   });
@@ -113,11 +108,7 @@ describe('SignalsPanel', () => {
       ],
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${targetPackageInfo.packageName}, ${targetPackageInfo.packageVersion}`,
-      ),
-    );
+    await clickPackageCard(targetPackageInfo);
 
     expect(getSelectedAttributionId(store.getState())).toBe(
       targetPackageInfo.id,
@@ -136,14 +127,8 @@ describe('SignalsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
-    );
-    await userEvent.click(
-      screen.getByRole('button', { name: text.packageLists.delete }),
-    );
+    await clickPackageCard(packageInfo);
+    await userEvent.click(getButton(text.packageLists.delete));
 
     await expectResolvedExternalAttributions(new Set([packageInfo.id]));
   });
@@ -164,15 +149,9 @@ describe('SignalsPanel', () => {
     await userEvent.click(
       screen.getByRole('button', { name: text.packageLists.showDeleted }),
     );
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
-    );
+    await clickPackageCard(packageInfo);
 
-    expect(
-      screen.getByRole('button', { name: text.packageLists.delete }),
-    ).toBeDisabled();
+    expectButtonDisabled(text.packageLists.delete);
   });
 
   it('restores selected signal', async () => {
@@ -191,14 +170,8 @@ describe('SignalsPanel', () => {
     await userEvent.click(
       screen.getByRole('button', { name: text.packageLists.showDeleted }),
     );
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
-    );
-    await userEvent.click(
-      screen.getByRole('button', { name: text.packageLists.restore }),
-    );
+    await clickPackageCard(packageInfo);
+    await userEvent.click(getButton(text.packageLists.restore));
 
     await expectResolvedExternalAttributions(new Set());
   });
@@ -218,15 +191,9 @@ describe('SignalsPanel', () => {
     await userEvent.click(
       screen.getByRole('button', { name: text.packageLists.showDeleted }),
     );
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
-    );
+    await clickPackageCard(packageInfo);
 
-    expect(
-      screen.getByRole('button', { name: text.packageLists.restore }),
-    ).toBeDisabled();
+    expectButtonDisabled(text.packageLists.restore);
   });
 
   it('links selected attribution', async () => {
@@ -248,14 +215,8 @@ describe('SignalsPanel', () => {
 
     await expectResourcesToManualAttributions({});
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
-    );
-    await userEvent.click(
-      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
-    );
+    await clickPackageCard(packageInfo);
+    await userEvent.click(getButton(text.packageLists.linkAsAttribution));
 
     await expectResourcesToManualAttributions({
       [ROOT_PATH]: [expect.any(String)],
@@ -280,12 +241,10 @@ describe('SignalsPanel', () => {
     });
 
     const selectAll = screen.getByRole('checkbox', { name: 'select all' });
-    await waitFor(() => expect(selectAll).toBeEnabled());
+    await expectEventuallyEnabled(selectAll);
     await userEvent.click(selectAll);
-    const linkButton = screen.getByRole('button', {
-      name: text.packageLists.linkAsAttribution,
-    });
-    await waitFor(() => expect(linkButton).toBeEnabled());
+    const linkButton = getButton(text.packageLists.linkAsAttribution);
+    await expectEventuallyEnabled(linkButton);
     await userEvent.click(linkButton);
 
     await waitFor(() =>
@@ -314,15 +273,9 @@ describe('SignalsPanel', () => {
       actions: [setSelectedResourceId(filePath, 'auto')],
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
-    );
+    await clickPackageCard(packageInfo);
 
-    expect(
-      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
-    ).toBeDisabled();
+    expectButtonDisabled(text.packageLists.linkAsAttribution);
   });
 
   it('disables link button on a readonly structural ancestor', async () => {
@@ -340,15 +293,9 @@ describe('SignalsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
-    );
+    await clickPackageCard(packageInfo);
 
-    expect(
-      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
-    ).toBeDisabled();
+    expectButtonDisabled(text.packageLists.linkAsAttribution);
   });
 
   it('disables link button when the single selected signal already has a matching manual attribution', async () => {
@@ -370,19 +317,9 @@ describe('SignalsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${signal.packageName}, ${signal.packageVersion}`,
-      ),
-    );
+    await clickPackageCard(signal);
 
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', {
-          name: text.packageLists.linkAsAttribution,
-        }),
-      ).toBeDisabled(),
-    );
+    await expectEventuallyButtonDisabled(text.packageLists.linkAsAttribution);
   });
 
   it('disables link button when the single selected signal matches a manual attribution inherited from an ancestor', async () => {
@@ -408,19 +345,9 @@ describe('SignalsPanel', () => {
       actions: [setSelectedResourceId('/root/child', 'auto')],
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${signal.packageName}, ${signal.packageVersion}`,
-      ),
-    );
+    await clickPackageCard(signal);
 
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', {
-          name: text.packageLists.linkAsAttribution,
-        }),
-      ).toBeDisabled(),
-    );
+    await expectEventuallyButtonDisabled(text.packageLists.linkAsAttribution);
   });
 
   it('keeps link button enabled when the matching ancestor has additional manual attributions', async () => {
@@ -450,19 +377,9 @@ describe('SignalsPanel', () => {
       actions: [setSelectedResourceId('/root/child', 'auto')],
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${signal.packageName}, ${signal.packageVersion}`,
-      ),
-    );
+    await clickPackageCard(signal);
 
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', {
-          name: text.packageLists.linkAsAttribution,
-        }),
-      ).toBeEnabled(),
-    );
+    await expectEventuallyButtonEnabled(text.packageLists.linkAsAttribution);
   });
 
   it('keeps link button enabled for a multi-selection with an already matched signal', async () => {
@@ -490,28 +407,10 @@ describe('SignalsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      within(
-        await screen.findByLabelText(
-          `package card ${matchedSignal.packageName}, ${matchedSignal.packageVersion}`,
-        ),
-      ).getByRole('checkbox'),
-    );
-    await userEvent.click(
-      within(
-        await screen.findByLabelText(
-          `package card ${unmatchedSignal.packageName}, ${unmatchedSignal.packageVersion}`,
-        ),
-      ).getByRole('checkbox'),
-    );
+    await clickPackageCardCheckbox(matchedSignal);
+    await clickPackageCardCheckbox(unmatchedSignal);
 
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', {
-          name: text.packageLists.linkAsAttribution,
-        }),
-      ).toBeEnabled(),
-    );
+    await expectEventuallyButtonEnabled(text.packageLists.linkAsAttribution);
   });
 
   it('disables link button when the selected signal is already matched on the resource', async () => {
@@ -541,21 +440,9 @@ describe('SignalsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      within(
-        await screen.findByLabelText(
-          `package card ${signal.packageName}, ${signal.packageVersion}`,
-        ),
-      ).getByRole('checkbox'),
-    );
+    await clickPackageCardCheckbox(signal);
 
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', {
-          name: text.packageLists.linkAsAttribution,
-        }),
-      ).toBeDisabled(),
-    );
+    await expectEventuallyButtonDisabled(text.packageLists.linkAsAttribution);
   });
 
   it('disables link button when linking the selected signal would be redundant', async () => {
@@ -585,20 +472,8 @@ describe('SignalsPanel', () => {
       actions: [setSelectedResourceId('/root/child', 'auto')],
     });
 
-    await userEvent.click(
-      within(
-        await screen.findByLabelText(
-          `package card ${signal.packageName}, ${signal.packageVersion}`,
-        ),
-      ).getByRole('checkbox'),
-    );
+    await clickPackageCardCheckbox(signal);
 
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', {
-          name: text.packageLists.linkAsAttribution,
-        }),
-      ).toBeDisabled(),
-    );
+    await expectEventuallyButtonDisabled(text.packageLists.linkAsAttribution);
   });
 });

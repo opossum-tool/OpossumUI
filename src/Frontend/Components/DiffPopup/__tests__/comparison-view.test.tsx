@@ -7,8 +7,8 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ComponentProps } from 'react';
 
-import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
+import { makeComparisonPackageInfo } from '../../../../testing/ui';
 import { theme } from '../../App/App.style';
 import type { AuditingOptions } from '../../AttributionForm/AuditingOptions/AuditingOptions';
 import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
@@ -93,20 +93,6 @@ vi.mock('../ComparisonFieldEditor', () => ({
   ),
 }));
 
-function packageInfo(overrides: Partial<PackageInfo> = {}): PackageInfo {
-  return {
-    id: 'package',
-    attributionConfidence: 50,
-    criticality: Criticality.None,
-    packageName: 'react',
-    packageType: 'npm',
-    licenseName: 'MIT',
-    licenseText: 'MIT License',
-    comment: 'opening comment',
-    ...overrides,
-  };
-}
-
 function item(
   side: 'left' | 'right',
   overrides: Partial<ComparisonItem> = {},
@@ -114,7 +100,7 @@ function item(
   return {
     isExternal: side === 'left',
     label: side,
-    packageInfo: packageInfo({ id: side }),
+    packageInfo: makeComparisonPackageInfo({ id: side }),
     ...overrides,
   };
 }
