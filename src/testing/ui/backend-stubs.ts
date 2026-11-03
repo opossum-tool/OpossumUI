@@ -13,8 +13,10 @@ import {
 
 /**
  * Routes the given backend command to `handler` and falls through to the real
- * `executeCommand` for all other commands. Call `restoreBackendCommandExecution`
- * in an `afterEach` afterwards.
+ * `executeCommand` for all other commands. The global test setup resets the
+ * api mock before every test, so this stub does not leak between tests and no
+ * explicit cleanup is needed. `restoreBackendCommandExecution` is only required
+ * to drop the stub mid-test, not in an `afterEach`.
  */
 export function interceptBackendCommand<C extends CommandName>(
   command: C,
@@ -30,6 +32,11 @@ export function interceptBackendCommand<C extends CommandName>(
   );
 }
 
+/**
+ * Unconditionally re-asserts `executeCommand` as the api implementation,
+ * dropping both stubs from `interceptBackendCommand` and any custom api mock
+ * (e.g. a failure simulation), so only use it after the relevant test finished.
+ */
 export function restoreBackendCommandExecution(): void {
   vi.mocked(window.electronAPI.api).mockImplementation(executeCommand);
 }

@@ -42,9 +42,3 @@ export async function expectEventuallyButtonEnabled(
 ): Promise<void> {
   await waitFor(() => expect(getButton(name)).toBeEnabled(), SETTLED_TIMEOUT);
 }
-
-export async function expectEventuallyEnabled(
-  element: HTMLElement,
-): Promise<void> {
-  await waitFor(() => expect(element).toBeEnabled(), SETTLED_TIMEOUT);
-}

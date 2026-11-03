@@ -14,7 +14,6 @@ import {
   expectButtonDisabled,
   expectEventuallyButtonDisabled,
   expectEventuallyButtonEnabled,
-  expectEventuallyEnabled,
   getButton,
   SIGNALS_PANEL,
 } from '../../../../../testing/ui';
@@ -242,11 +241,10 @@ describe('SignalsPanel', () => {
     });
 
     const selectAll = screen.getByRole('checkbox', { name: 'select all' });
-    await expectEventuallyEnabled(selectAll);
+    await waitFor(() => expect(selectAll).toBeEnabled());
     await userEvent.click(selectAll);
-    const linkButton = getButton(text.packageLists.linkAsAttribution);
-    await expectEventuallyEnabled(linkButton);
-    await userEvent.click(linkButton);
+    await expectEventuallyButtonEnabled(text.packageLists.linkAsAttribution);
+    await userEvent.click(getButton(text.packageLists.linkAsAttribution));
 
     await waitFor(() =>
       expect(getSelectedAttributionId(store.getState())).not.toBe(

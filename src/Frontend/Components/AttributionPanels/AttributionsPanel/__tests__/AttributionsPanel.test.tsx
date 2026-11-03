@@ -16,7 +16,7 @@ import {
   expectButtonEnabled,
   expectButtonsDisabled,
   expectButtonsEnabled,
-  expectEventuallyEnabled,
+  expectEventuallyButtonEnabled,
   getButton,
   getPackageCardCheckbox,
 } from '../../../../../testing/ui';
@@ -179,9 +179,8 @@ describe('AttributionsPanel', () => {
 
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
     await userEvent.click(getButton(text.packageLists.delete));
-    const deleteButton = getButton(text.deleteAttributionsPopup.delete);
-    await expectEventuallyEnabled(deleteButton);
-    await userEvent.click(deleteButton);
+    await expectEventuallyButtonEnabled(text.deleteAttributionsPopup.delete);
+    await userEvent.click(getButton(text.deleteAttributionsPopup.delete));
 
     await expectManualAttributions({});
   });
@@ -309,9 +308,8 @@ describe('AttributionsPanel', () => {
       store.dispatch(setTemporaryDisplayPackageInfo(packageInfo));
     });
     await userEvent.click(getButton(text.packageLists.confirm));
-    const confirmButton = getButton(text.saveAttributionsPopup.confirm);
-    await expectEventuallyEnabled(confirmButton);
-    await userEvent.click(confirmButton);
+    await expectEventuallyButtonEnabled(text.saveAttributionsPopup.confirm);
+    await userEvent.click(getButton(text.saveAttributionsPopup.confirm));
 
     await expectManualAttributions({
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },

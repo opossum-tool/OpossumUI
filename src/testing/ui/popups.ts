@@ -35,7 +35,7 @@ export async function expectPopupHasText(
     const popup = screen.queryByLabelText(popupLabel);
     expect(popup).not.toBeNull();
     expect(
-      within(popup as HTMLElement).getByText(expectedText, { exact: false }),
+      within(popup as HTMLElement).getByText(expectedText, { exact: true }),
     ).toBeVisible();
   }, SETTLED_TIMEOUT);
 }
