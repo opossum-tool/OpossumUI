@@ -7,6 +7,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ComponentProps } from 'react';
 
+import type { CommandReturn } from '../../../../ElectronBackend/api/commands';
 import type { Attributions } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
@@ -50,6 +51,24 @@ vi.mock('../ComparisonView', () => ({
 }));
 
 const item = makeComparisonItem;
+
+type UpdateOrMatchAttributionsResponse = Awaited<
+  CommandReturn<'updateOrMatchAttributions'>
+>;
+
+let resolveUpdateOrMatch:
+  ((response: UpdateOrMatchAttributionsResponse) => void) | undefined;
+
+function stubPendingUpdateOrMatchAttributions(): void {
+  interceptBackendCommand(
+    'updateOrMatchAttributions',
+    () =>
+      new Promise((resolve) => {
+        resolveUpdateOrMatch = resolve;
+      }),
+  );
+}
+
 async function renderPopup(
   leftItem: ComparisonItem,
   rightItem: ComparisonItem,
@@ -201,18 +220,7 @@ describe('DiffPopup', () => {
       packageName: 'right draft',
       comment: 'right comment',
     });
-    let resolveRequest: (() => void) | undefined;
-    interceptBackendCommand(
-      'updateOrMatchAttributions',
-      () =>
-        new Promise<never>((resolve) => {
-          resolveRequest = () =>
-            resolve({
-              result: { focusedAttributionOutcome: { status: 'unchanged' } },
-              invalidates: [],
-            } as never);
-        }),
-    );
+    stubPendingUpdateOrMatchAttributions();
 
     await renderPopup(
       item({
@@ -259,7 +267,10 @@ describe('DiffPopup', () => {
         selection: { mode: 'explicit', attributionUuids: ['left'] },
       },
     );
-    resolveRequest?.();
+    resolveUpdateOrMatch?.({
+      result: { focusedAttributionOutcome: { status: 'unchanged' } },
+      invalidates: [],
+    });
     await waitFor(() => expect(save).toBeEnabled());
   });
 
@@ -282,18 +293,7 @@ describe('DiffPopup', () => {
     });
     const onClose = vi.fn();
     const onAcceptDrafts = vi.fn();
-    let resolveRequest: (() => void) | undefined;
-    interceptBackendCommand(
-      'updateOrMatchAttributions',
-      () =>
-        new Promise<never>((resolve) => {
-          resolveRequest = () =>
-            resolve({
-              result: { focusedAttributionOutcome: { status: 'unchanged' } },
-              invalidates: [],
-            } as never);
-        }),
-    );
+    stubPendingUpdateOrMatchAttributions();
 
     await renderPopup(
       item({
@@ -327,7 +327,10 @@ describe('DiffPopup', () => {
     });
     await userEvent.click(confirmSave);
 
-    resolveRequest?.();
+    resolveUpdateOrMatch?.({
+      result: { focusedAttributionOutcome: { status: 'unchanged' } },
+      invalidates: [],
+    });
     await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
     expect(onAcceptDrafts).toHaveBeenCalledWith({
       left: leftDraft,
@@ -353,18 +356,7 @@ describe('DiffPopup', () => {
       packageName: 'right draft',
     });
     const onClose = vi.fn();
-    let resolveRequest: (() => void) | undefined;
-    interceptBackendCommand(
-      'updateOrMatchAttributions',
-      () =>
-        new Promise<never>((resolve) => {
-          resolveRequest = () =>
-            resolve({
-              result: { focusedAttributionOutcome: { status: 'unchanged' } },
-              invalidates: [],
-            } as never);
-        }),
-    );
+    stubPendingUpdateOrMatchAttributions();
 
     await renderPopup(
       item({
@@ -407,7 +399,10 @@ describe('DiffPopup', () => {
     dismissWithEscapeKey();
     expect(onClose).not.toHaveBeenCalled();
 
-    resolveRequest?.();
+    resolveUpdateOrMatch?.({
+      result: { focusedAttributionOutcome: { status: 'unchanged' } },
+      invalidates: [],
+    });
     await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
   });
 

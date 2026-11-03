@@ -17,6 +17,8 @@ export const ATTRIBUTIONS_PANEL: PanelTestId = 'attributions-panel';
 export const SIGNALS_PANEL: PanelTestId = 'signals-panel';
 export const LINKED_RESOURCES_TREE: PanelTestId = 'linked-resources-tree';
 
+// Longer timeout (10s) so the shared assertions stay stable on
+// loaded CI runners even with several sequential waits per test
 export const SETTLED_TIMEOUT = { timeout: 10000 } as const;
 
 export type SendToChannel = RenderAppResult['sendToChannel'];
