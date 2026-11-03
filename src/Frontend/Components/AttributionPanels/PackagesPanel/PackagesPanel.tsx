@@ -180,6 +180,7 @@ export const PackagesPanel = ({
   const { filterProps } = useFilterProperties({
     mode: external ? 'external' : 'manual',
     enabled: isFilterOpen,
+    relation: relationForCurrentResource,
   });
   const [filters, setFilteredAttributions] = useFilteredData();
   const { filters: attributionFilters, valueFilters } = filters;

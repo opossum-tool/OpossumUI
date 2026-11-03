@@ -25,6 +25,7 @@ export type LicenseFilter = { licenseName: string; external: boolean };
 export type ResourceTreeFilters = {
   search?: string;
   onlyUnreviewedFiles?: boolean;
+  onlyWithAiDeferredAttributions?: boolean;
   licenseFilter?: LicenseFilter;
   onAttributionUuids?: Array<string>;
   onlyWritable?: boolean;
@@ -35,6 +36,7 @@ function hasActiveNonSearchFilters(filters: ResourceTreeFilters) {
     filters.licenseFilter ||
     filters.onAttributionUuids ||
     filters.onlyUnreviewedFiles ||
+    filters.onlyWithAiDeferredAttributions ||
     filters.onlyWritable,
   );
 }
@@ -122,6 +124,7 @@ export function getFilteredResourcesQuery(
   {
     licenseFilter,
     onlyUnreviewedFiles,
+    onlyWithAiDeferredAttributions,
     onAttributionUuids,
     search,
     onlyWritable,
@@ -179,6 +182,27 @@ export function getFilteredResourcesQuery(
       )
       .where('r.is_file', '=', 1)
       .where('r.is_readonly', '=', 0);
+  }
+  if (onlyWithAiDeferredAttributions) {
+    // Deliberately a correlated EXISTS rather than a materialized `in`
+    // subquery: the EXISTS lets SQLite probe resource_to_attribution and
+    // attribution_ai by primary key, while the materialized subquery leads to
+    // a slow query plan once the other tree filters are combined with this
+    // one.
+    query = query.where((eb) =>
+      eb.exists(
+        eb
+          .selectFrom('resource_to_attribution')
+          .innerJoin(
+            'attribution_ai',
+            'attribution_ai.attribution_uuid',
+            'resource_to_attribution.attribution_uuid',
+          )
+          .select('deferred_fields')
+          .whereRef('resource_to_attribution.resource_id', '=', 'r.id')
+          .where('deferred_fields', 'is not', null),
+      ),
+    );
   }
   if (onlyWritable) {
     query = query.where('r.is_readonly', '=', 0);

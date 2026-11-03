@@ -55,6 +55,7 @@ import {
 import {
   getLinkedResourceTree,
   getResourceTree,
+  getResourceTreeAiDeferredCount,
   getResourceTreeUnreviewedCount,
 } from './resourceTree';
 import { getNodePathsToExpand } from './resourceTreeExpansion';
@@ -149,6 +150,7 @@ export const queries = {
   getResourceTree,
   getLinkedResourceTree,
   getResourceTreeUnreviewedCount,
+  getResourceTreeAiDeferredCount,
   manualAttributionStatistics,
   externalAttributionStatistics,
   licenseTable,

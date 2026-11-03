@@ -173,6 +173,7 @@ const RESOURCE_TREE_INVALIDATIONS: Array<MutationInvalidation> = [
   { queryName: 'getLinkedResourceTree' },
   { queryName: 'getResourcePathsAndParentsForAttributions' },
   { queryName: 'getResourceTreeUnreviewedCount' },
+  { queryName: 'getResourceTreeAiDeferredCount' },
 ];
 
 const MANUAL_ATTRIBUTION_INVALIDATIONS: Array<MutationInvalidation> = [

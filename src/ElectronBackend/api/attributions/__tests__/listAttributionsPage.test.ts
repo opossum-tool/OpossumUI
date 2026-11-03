@@ -6,7 +6,11 @@ import type {
   AttributionFilterKey,
   AttributionValueFilters,
 } from '../../../../shared/attribution-filters';
-import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
+import {
+  Criticality,
+  type PackageInfo,
+  type PersistedPackageInfo,
+} from '../../../../shared/shared-types';
 import {
   initializeDbWithTestData,
   pathsToResources,
@@ -216,7 +220,14 @@ describe('listAttributionsPage', () => {
     expect(emptyResult.result.hasNextPage).toBe(false);
   });
 
-  it.each([
+  const filterScenarios: Array<{
+    name: string;
+    filters: Array<AttributionFilterKey>;
+    valueFilters: AttributionValueFilters;
+    attributions: Record<string, PersistedPackageInfo>;
+    search?: string;
+    expected: Array<string>;
+  }> = [
     {
       name: 'search',
       filters: [],
@@ -357,6 +368,37 @@ describe('listAttributionsPage', () => {
       expected: ['selected'],
     },
     {
+      name: 'AI-deferred',
+      filters: ['aiDeferred'],
+      valueFilters: {},
+      attributions: {
+        selected: {
+          id: 'selected',
+          criticality: Criticality.None,
+          packageName: 'a-deferred',
+          aiAttributions: { deferredFields: { copyright: true } },
+        },
+        emptyDeferredFields: {
+          id: 'emptyDeferredFields',
+          criticality: Criticality.None,
+          packageName: 'b-empty-deferred',
+          aiAttributions: { deferredFields: {} },
+        },
+        otherAi: {
+          id: 'otherAi',
+          criticality: Criticality.None,
+          packageName: 'c-ai-not-deferred',
+          aiAttributions: { humanModified: false },
+        },
+        other: {
+          id: 'other',
+          criticality: Criticality.None,
+          packageName: 'd-plain',
+        },
+      },
+      expected: ['selected', 'emptyDeferredFields'],
+    },
+    {
       name: 'currently preferred',
       filters: ['currentlyPreferred'],
       valueFilters: {},
@@ -470,24 +512,15 @@ describe('listAttributionsPage', () => {
       },
       expected: ['selected'],
     },
-  ] satisfies Array<{
-    name: string;
-    filters: Array<AttributionFilterKey>;
-    valueFilters: AttributionValueFilters;
-    attributions: Record<string, PackageInfo>;
-    search?: string;
-    expected: Array<string>;
-  }>)('$name works in the all scope', async (scenario) => {
-    const scenarioAttributions = scenario.attributions as Record<
-      string,
-      PackageInfo
-    >;
+  ];
+
+  it.each(filterScenarios)('$name works in the all scope', async (scenario) => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/resource']),
       manualAttributions: {
-        attributions: scenarioAttributions,
+        attributions: scenario.attributions,
         resourcesToAttributions: {
-          '/resource': Object.keys(scenarioAttributions),
+          '/resource': Object.keys(scenario.attributions),
         },
         attributionsToResources: {},
       },

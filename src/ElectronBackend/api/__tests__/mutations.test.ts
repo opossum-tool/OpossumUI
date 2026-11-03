@@ -192,6 +192,36 @@ describe('attribution resource access', () => {
     });
   });
 
+  it('invalidates the resource tree count queries after manual attribution updates', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/file.ts']),
+      manualAttributions: {
+        attributions: {
+          manual: { id: 'manual', criticality: Criticality.None },
+        },
+        resourcesToAttributions: { '/file.ts': ['manual'] },
+        attributionsToResources: {},
+      },
+    });
+
+    const response = await mutations.updateAttributions({
+      attributions: {
+        manual: {
+          id: 'manual',
+          criticality: Criticality.None,
+          comment: 'updated',
+        },
+      },
+    });
+
+    expect(response.invalidates).toContainEqual({
+      queryName: 'getResourceTreeUnreviewedCount',
+    });
+    expect(response.invalidates).toContainEqual({
+      queryName: 'getResourceTreeAiDeferredCount',
+    });
+  });
+
   async function initializeReadonlyStructuralAncestor() {
     await initializeDbWithTestData({
       resources: pathsToResources(['/editable/file.ts']),

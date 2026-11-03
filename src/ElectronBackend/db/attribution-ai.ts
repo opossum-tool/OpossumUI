@@ -2,7 +2,14 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { Kysely, Selectable, SqlBool, Transaction } from 'kysely';
+import type {
+  AliasableExpression,
+  ExpressionBuilder,
+  Kysely,
+  Selectable,
+  SqlBool,
+  Transaction,
+} from 'kysely';
 
 import {
   type AttributionContent,
@@ -21,6 +28,26 @@ export type AttributionWithAiStatus = Selectable<Attribution> & {
   ai_human_modified: number | null;
   ai_deferred: SqlBool;
 };
+
+/**
+ * An attribution is AI-deferred if it has AI metadata with deferred fields
+ * (`deferred_fields IS NOT NULL`, so an empty object counts as deferred).
+ * Use this in query contexts that do not already join `attribution_ai`;
+ * when the join exists, check `deferred_fields` directly (see
+ * selectAttributionsWithAiStatus) to avoid the redundant exists subquery.
+ * Both places must stay semantically identical.
+ */
+export function isAiDeferred(
+  eb: ExpressionBuilder<DB, 'attribution'>,
+): AliasableExpression<SqlBool> {
+  return eb.exists(
+    eb
+      .selectFrom('attribution_ai')
+      .select('attribution_uuid')
+      .whereRef('attribution_ai.attribution_uuid', '=', 'attribution.uuid')
+      .where('deferred_fields', 'is not', null),
+  );
+}
 
 export function selectAttributionsWithAiStatus(db: Kysely<DB>) {
   return db

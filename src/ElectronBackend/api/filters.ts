@@ -14,6 +14,7 @@ import {
   type AttributionValueFilters,
   type MissingAttribute,
 } from '../../shared/attribution-filters';
+import { isAiDeferred } from '../db/attribution-ai';
 import type { DB } from '../db/generated/databaseTypes';
 import { toCanonicalLicenseName } from './utils';
 
@@ -38,6 +39,7 @@ function getFilters(): Record<
 > {
   const eb = expressionBuilder<DB, 'attribution'>();
   const filters = {
+    aiDeferred: isAiDeferred(eb),
     currentlyPreferred: eb('preferred', '=', 1),
     excludedFromNotice: eb('exclude_from_notice', '=', 1),
     firstParty: eb('first_party', '=', 1),
