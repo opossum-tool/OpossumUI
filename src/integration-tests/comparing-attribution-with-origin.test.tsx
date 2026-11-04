@@ -65,10 +65,15 @@ const data = getParsedInputFileEnrichedWithTestData({
   resourcesToExternalAttributions: faker.opossum.resourcesToAttributions({
     [faker.opossum.filePath(resourceName2)]: [externalAttributionId],
   }),
-  manualAttributions: deserializeAttributions({
-    [attributionId1]: manualPackageInfo1,
-    [attributionId2]: manualPackageInfo2,
-  }),
+  manualAttributions: deserializeAttributions(
+    {
+      [attributionId1]: manualPackageInfo1,
+      [attributionId2]: manualPackageInfo2,
+    },
+    deserializeAttributions({
+      [externalAttributionId]: externalPackageInfo,
+    }),
+  ),
   resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
     [faker.opossum.filePath(resourceName1)]: [attributionId1],
     [faker.opossum.filePath(resourceName2)]: [attributionId2],
