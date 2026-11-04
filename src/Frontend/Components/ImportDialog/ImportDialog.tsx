@@ -10,17 +10,17 @@ import { useState } from 'react';
 import type { FileFormatInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file-utils';
-import {
-  popupMaxWidth,
-  popupMinWidth,
-  popupViewportWidth,
-} from '../../shared-styles';
+import { fileDialogMaxWidth } from '../../shared-styles';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { useProcessingStatusUpdated } from '../../util/use-processing-status-updated';
 import { DialogLogDisplay } from '../DialogLogDisplay/DialogLogDisplay.style';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
+import {
+  popupColumnContentSx,
+  popupFixedSectionSx,
+} from '../NotificationPopup/NotificationPopup.style';
 
 interface ImportDialogProps {
   canImportIntoCurrentProject: boolean;
@@ -111,10 +111,10 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
 
   return (
     <NotificationPopup
+      fullWidth
+      maxWidth={fileDialogMaxWidth}
+      sx={popupColumnContentSx}
       header={text.importDialog.title(fileFormat)}
-      width={popupViewportWidth}
-      minWidth={popupMinWidth}
-      maxWidth={popupMaxWidth}
       isOpen={true}
       customAction={
         processingStatusUpdatedEvents.length ? (
@@ -144,54 +144,54 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
       }}
       aria-label={'import dialog'}
     >
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <MuiTypography>{text.importDialog.explanationText[0]}</MuiTypography>
-        <MuiTypography sx={{ mb: 2.5 }}>
-          {text.importDialog.explanationText[1]}
+      <MuiTypography sx={popupFixedSectionSx}>
+        {text.importDialog.explanationText[0]}
+      </MuiTypography>
+      <MuiTypography sx={{ ...popupFixedSectionSx, mb: 2.5 }}>
+        {text.importDialog.explanationText[1]}
+      </MuiTypography>
+      {canImportIntoCurrentProject && (
+        <MuiFormControlLabel
+          control={
+            <MuiSwitch
+              checked={importIntoCurrentProject}
+              onChange={(_, checked) => setImportIntoCurrentProject(checked)}
+            />
+          }
+          label={text.importDialog.importIntoCurrentProject}
+          sx={{ ...popupFixedSectionSx, mb: 2.5 }}
+        />
+      )}
+      {importIntoCurrentProject && (
+        <MuiTypography sx={{ ...popupFixedSectionSx, mb: 2.5 }}>
+          {text.importDialog.currentProjectWarning}
         </MuiTypography>
-        {canImportIntoCurrentProject && (
-          <MuiFormControlLabel
-            control={
-              <MuiSwitch
-                checked={importIntoCurrentProject}
-                onChange={(_, checked) => setImportIntoCurrentProject(checked)}
-              />
-            }
-            label={text.importDialog.importIntoCurrentProject}
-            sx={{ mb: 2.5 }}
-          />
-        )}
-        {importIntoCurrentProject && (
-          <MuiTypography sx={{ mb: 2.5 }}>
-            {text.importDialog.currentProjectWarning}
-          </MuiTypography>
-        )}
+      )}
+      <FilePathInput
+        label={
+          inputFilePath
+            ? text.importDialog.inputFilePath.label(fileFormat)
+            : text.importDialog.inputFilePath.selectLabel(fileFormat)
+        }
+        text={inputFilePath}
+        onClick={selectInputFilePath}
+        testId={'import-input-file-path'}
+        tooltipProps={{ placement: 'top' }}
+        disabled={importInProgress}
+      />
+      {!importIntoCurrentProject && (
         <FilePathInput
           label={
-            inputFilePath
-              ? text.importDialog.inputFilePath.label(fileFormat)
-              : text.importDialog.inputFilePath.selectLabel(fileFormat)
+            opossumFilePath
+              ? text.importDialog.opossumFilePath.label
+              : text.importDialog.opossumFilePath.selectLabel
           }
-          text={inputFilePath}
-          onClick={selectInputFilePath}
-          testId={'import-input-file-path'}
-          tooltipProps={{ placement: 'top' }}
+          text={opossumFilePath}
+          onClick={selectOpossumFilePath}
+          testId={'import-opossum-file-path'}
           disabled={importInProgress}
         />
-        {!importIntoCurrentProject && (
-          <FilePathInput
-            label={
-              opossumFilePath
-                ? text.importDialog.opossumFilePath.label
-                : text.importDialog.opossumFilePath.selectLabel
-            }
-            text={opossumFilePath}
-            onClick={selectOpossumFilePath}
-            testId={'import-opossum-file-path'}
-            disabled={importInProgress}
-          />
-        )}
-      </div>
+      )}
     </NotificationPopup>
   );
 };

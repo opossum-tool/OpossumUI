@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiAlert from '@mui/material/Alert';
 import MuiButton, { type ButtonProps } from '@mui/material/Button';
+import { useTheme } from '@mui/material/styles';
 import MuiTypography from '@mui/material/Typography';
 import type { ReactNode } from 'react';
 
@@ -13,15 +14,21 @@ import type {
 } from '../../../shared/attribution-selection';
 import type { Attributions } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
+import {
+  attributionPopupMaxWidth,
+  borderThin,
+  Sizing,
+} from '../../shared-styles';
 import { AttributionCardList } from '../AttributionCardList/AttributionCardList';
+import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
+import {
+  popupColumnContentSx,
+  popupFixedSectionSx,
+  popupScrollableSectionSx,
+} from '../NotificationPopup/NotificationPopup.style';
 import { LinkedResourcesTree } from '../ResourceBrowser/LinkedResourcesTree/LinkedResourcesTree';
 import type { LinkedResourcesTreeState } from '../ResourceBrowser/LinkedResourcesTree/useLinkedResourcesTreeState';
-import { StyledConfirmAttributionActionPopup } from './ConfirmAttributionActionPopup.style';
 import { useAttributionPreview } from './use-attribution-preview';
-
-// Popup width and content minimum height, fixed px (not spacing-scaled).
-const POPUP_WIDTH = '580px';
-const MIN_CONTENT_HEIGHT = '100px';
 
 interface Action {
   buttonText: string;
@@ -69,6 +76,7 @@ export function ConfirmAttributionActionPopup({
   selection,
   attributionCount,
 }: Props) {
+  const theme = useTheme();
   const isMutationPending =
     globalAction.isPending || (localAction?.isPending ?? false);
   const isLocalActionVisible =
@@ -78,7 +86,10 @@ export function ConfirmAttributionActionPopup({
   const attributionValues = attributions && Object.values(attributions);
 
   return (
-    <StyledConfirmAttributionActionPopup
+    <NotificationPopup
+      fullWidth
+      maxWidth={attributionPopupMaxWidth}
+      sx={popupColumnContentSx}
       header={header}
       leftButtonConfig={
         isLocalActionVisible
@@ -110,12 +121,13 @@ export function ConfirmAttributionActionPopup({
       }}
       isOpen={open}
       aria-label={ariaLabel}
-      width={POPUP_WIDTH}
     >
       {mixedAttributionCount > 0 && (
-        <MuiAlert severity={'warning'}>{mixedWarning}</MuiAlert>
+        <MuiAlert severity={'warning'} sx={popupFixedSectionSx}>
+          {mixedWarning}
+        </MuiAlert>
       )}
-      <MuiTypography>{description}</MuiTypography>
+      <MuiTypography sx={popupFixedSectionSx}>{description}</MuiTypography>
       {selection?.mode === 'allMatching' ? (
         <AttributionPreview
           selection={selection}
@@ -125,11 +137,16 @@ export function ConfirmAttributionActionPopup({
       ) : (
         <>
           {attributionValues ? (
-            <AttributionCardList attributions={attributionValues} />
+            <AttributionCardList
+              attributions={attributionValues}
+              testId={'attribution-preview'}
+            />
           ) : (
-            <MuiTypography>{text.updateApp.loading}</MuiTypography>
+            <MuiTypography sx={popupFixedSectionSx}>
+              {text.updateApp.loading}
+            </MuiTypography>
           )}
-          <MuiTypography variant={'subtitle2'}>
+          <MuiTypography variant={'subtitle2'} sx={popupFixedSectionSx}>
             {mixedAttributionCount > 0
               ? text.confirmAttributionActionPopup.editableLinkedResources
               : text.confirmAttributionActionPopup.linkedResources}
@@ -140,13 +157,14 @@ export function ConfirmAttributionActionPopup({
               disableHighlightSelected={!isLocalActionAvailable}
               state={linkedResourcesTreeState}
               sx={{
-                minHeight: MIN_CONTENT_HEIGHT,
+                ...popupScrollableSectionSx,
+                height: `calc(${linkedResourcesTreeState.treeNodes.length} * ${theme.spacing(Sizing.Row)} + 2 * ${borderThin})`,
               }}
             />
           )}
         </>
       )}
-    </StyledConfirmAttributionActionPopup>
+    </NotificationPopup>
   );
 }
 
@@ -170,12 +188,17 @@ function AttributionPreview({
   }
 
   if (!preview.attributions) {
-    return <MuiTypography>{text.updateApp.loading}</MuiTypography>;
+    return (
+      <MuiTypography sx={popupFixedSectionSx}>
+        {text.updateApp.loading}
+      </MuiTypography>
+    );
   }
 
   return (
     <AttributionCardList
       attributions={Object.values(preview.attributions)}
+      testId={'attribution-preview'}
       totalCount={attributionCount}
       resultSetKey={preview.resultSetKey}
       loadingMore={preview.loadingMore}
@@ -188,7 +211,6 @@ function AttributionPreview({
           ? (requiredEndIndex) => void preview.fetchNextPage(requiredEndIndex)
           : undefined
       }
-      fillAvailableHeight
     />
   );
 }

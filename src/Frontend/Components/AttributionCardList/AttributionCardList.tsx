@@ -17,7 +17,6 @@ export function AttributionCardList({
   loadMoreError,
   onRetryLoadMore,
   endReached,
-  fillAvailableHeight,
   totalCount,
   resultSetKey,
 }: {
@@ -27,7 +26,6 @@ export function AttributionCardList({
   loadMoreError?: unknown;
   onRetryLoadMore?: (requiredEndIndex?: number) => void;
   endReached?: (index: number) => void;
-  fillAvailableHeight?: boolean;
   totalCount?: number;
   resultSetKey?: string;
 }) {
@@ -39,7 +37,6 @@ export function AttributionCardList({
       loadMoreError={loadMoreError}
       onRetryLoadMore={onRetryLoadMore}
       endReached={endReached}
-      fillAvailableHeight={fillAvailableHeight}
       totalCount={totalCount}
       unloadedItemHeight={PACKAGE_CARD_LIST_ITEM_HEIGHT}
       resultSetKey={resultSetKey}

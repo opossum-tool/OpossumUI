@@ -5,6 +5,8 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
 import { text } from '../../shared/text';
+import { expectNoVerticalScroll } from '../utils/expect-no-vertical-scroll';
+import { scrollToBottomUntilVisible } from '../utils/scroll-to-bottom-until-visible';
 
 export class MergeOpossumFilesDialog {
   private readonly node: Locator;
@@ -12,6 +14,7 @@ export class MergeOpossumFilesDialog {
   readonly inputFileSelection: Locator;
   readonly outputFileSelection: Locator;
   readonly mergeButton: Locator;
+  readonly cancelButton: Locator;
   readonly mergeAnywayButton: Locator;
   readonly warning: Locator;
 
@@ -30,6 +33,10 @@ export class MergeOpossumFilesDialog {
       name: 'Merge',
       exact: true,
     });
+    this.cancelButton = this.node.getByRole('button', {
+      name: text.buttons.cancel,
+      exact: true,
+    });
     this.mergeAnywayButton = this.node.getByRole('button', {
       name: 'Merge anyway',
       exact: true,
@@ -41,6 +48,12 @@ export class MergeOpossumFilesDialog {
     await this.node
       .getByLabel(text.mergeOpossumFilesDialog.mergeIntoCurrentProject)
       .setChecked(false);
+  }
+
+  public async scrollToInputFile(filePath: string): Promise<void> {
+    const file = this.node.getByText(filePath, { exact: true });
+    const scroller = this.node.getByTestId('merge-input-file-list');
+    await scrollToBottomUntilVisible(scroller, file);
   }
 
   public async merge(timeout?: number): Promise<void> {
@@ -60,6 +73,24 @@ export class MergeOpossumFilesDialog {
   }
 
   public assert = {
+    controlsAreInViewport: async (): Promise<void> => {
+      await expect(this.node.getByRole('heading', { level: 2 })).toBeInViewport(
+        {
+          ratio: 1,
+        },
+      );
+      for (const control of [
+        this.inputFileSelection,
+        this.outputFileSelection,
+        this.mergeButton,
+        this.cancelButton,
+      ]) {
+        await expect(control).toBeInViewport({ ratio: 1 });
+      }
+    },
+    bodyHasNoScrollbar: async (): Promise<void> => {
+      await expectNoVerticalScroll(this.node.locator('.MuiDialogContent-root'));
+    },
     isVisible: async (): Promise<void> => {
       await expect(this.node).toBeVisible();
     },

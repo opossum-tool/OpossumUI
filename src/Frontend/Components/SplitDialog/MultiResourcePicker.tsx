@@ -19,11 +19,11 @@ import { getParents } from '../../state/helpers/get-parents';
 import { backend } from '../../util/backendClient';
 import { Checkbox } from '../Checkbox/Checkbox';
 import { ReadonlyIcon } from '../Icons/Icons';
+import { popupFixedSectionSx } from '../NotificationPopup/NotificationPopup.style';
 import { getNodeIdsToExpand } from '../VirtualizedTree/VirtualizedTreeNode/VirtualizedTreeNode.util';
 import {
   ExpandButton,
   LoadingIndicator,
-  PickerContainer,
   ResourceLabel,
   ResourceRow,
   ResourceTreeContainer,
@@ -98,11 +98,11 @@ export function MultiResourcePicker({
   }
 
   return (
-    <PickerContainer>
-      <MuiTypography>
+    <>
+      <MuiTypography sx={popupFixedSectionSx}>
         {text.splitDialog.resourcePicker.explanationText}
       </MuiTypography>
-      <ResourceTreeContainer>
+      <ResourceTreeContainer data-testid={'split-resources-tree'}>
         {resourceTree.isLoading ? (
           <MuiTypography color={'text.secondary'}>
             {text.splitDialog.resourcePicker.loadingResources}
@@ -139,7 +139,7 @@ export function MultiResourcePicker({
           ))
         )}
       </SelectedPathsContainer>
-    </PickerContainer>
+    </>
   );
 }
 

@@ -92,10 +92,8 @@ export const occurrenceChipMinWidth = '24px';
 export const spinnerDefaultSize = 12;
 export const buttonSpinnerSize = 16;
 
-// Popup width bounds shared by the file import / merge / split dialogs.
-export const popupMinWidth = '300px';
-export const popupMaxWidth = '700px';
-export const popupViewportWidth = '80vw';
+export const attributionPopupMaxWidth = '580px';
+export const fileDialogMaxWidth = '700px';
 
 export const baseIcon = {
   width: baseIconSize,
