@@ -11,7 +11,7 @@ import {
   clickAuditingMenuOption,
   closeAuditingOptionsMenu,
 } from './attribution-column';
-import { isNodeEnabled, isNodeVisible, SETTLED_TIMEOUT } from './common';
+import { isNodeEnabled, SETTLED_TIMEOUT } from './common';
 
 function getDiffPopup(): HTMLElement {
   return screen.getByLabelText(text.diffPopup.ariaLabel);
@@ -43,7 +43,9 @@ async function expectDiffPopupFieldValue(
       `${side}-${field}`,
     );
     if (value === null) {
-      expect(fieldNode === null || !isNodeVisible(fieldNode)).toBe(true);
+      if (fieldNode !== null) {
+        expect(fieldNode).not.toBeVisible();
+      }
     } else {
       expect(fieldNode).not.toBeNull();
       expect(fieldNode).toHaveValue(value);

@@ -8,7 +8,7 @@ import { expect } from 'vitest';
 
 import type { RawPackageInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
-import { isNodeEnabled, isNodeVisible, SETTLED_TIMEOUT } from './common';
+import { isNodeEnabled, SETTLED_TIMEOUT } from './common';
 
 export type AttributionColumnField =
   | 'name'
@@ -77,7 +77,9 @@ export async function expectFormFieldValues(
     await waitFor(() => {
       const input = queryFormField(field);
       if (value === null) {
-        expect(input === null || !isNodeVisible(input)).toBe(true);
+        if (input !== null) {
+          expect(input).not.toBeVisible();
+        }
       } else {
         expect(input).not.toBeNull();
         expect(input).toHaveValue(value);
@@ -314,8 +316,8 @@ export async function expectAttributionColumnButtonVisibility(
     if (visible) {
       expect(node).not.toBeNull();
       expect(node).toBeVisible();
-    } else {
-      expect(node === null || !isNodeVisible(node)).toBe(true);
+    } else if (node !== null) {
+      expect(node).not.toBeVisible();
     }
   }, SETTLED_TIMEOUT);
 }
@@ -465,10 +467,8 @@ export async function expectAttributionLicenseTextVisibility(
     if (visible) {
       expect(licenseTextField).not.toBeNull();
       expect(licenseTextField).toBeVisible();
-    } else {
-      expect(
-        licenseTextField === null || !isNodeVisible(licenseTextField),
-      ).toBe(true);
+    } else if (licenseTextField !== null) {
+      expect(licenseTextField).not.toBeVisible();
     }
   }, SETTLED_TIMEOUT);
 }

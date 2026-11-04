@@ -27,11 +27,6 @@ export function getPanel(panelTestId: PanelTestId): HTMLElement {
   return screen.getByTestId(panelTestId);
 }
 
-export function isNodeVisible(node: HTMLElement): boolean {
-  const style = window.getComputedStyle(node);
-  return style.display !== 'none' && style.visibility !== 'hidden';
-}
-
 export function isNodeEnabled(node: HTMLElement): boolean {
   return !(
     node.hasAttribute('disabled') ||
@@ -152,8 +147,8 @@ export function expectReadonlyIndicator(
   if (readonly) {
     expect(indicator).not.toBeNull();
     expect(indicator).toBeVisible();
-  } else {
-    expect(indicator === null || !isNodeVisible(indicator)).toBe(true);
+  } else if (indicator !== null) {
+    expect(indicator).not.toBeVisible();
   }
 }
 
