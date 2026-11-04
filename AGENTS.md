@@ -51,8 +51,8 @@ yarn format-check && yarn check-exact-versions && yarn lint-check && yarn typech
 ```
 
 CI runs the code-quality checks (format, lint, typecheck, etc.) in the
-`check-code-quality` workflow and all tests (unit + integration) in the
-`tests` workflow.
+`check-code-quality` workflow and all vitest tests (unit, integration and
+performance) in the `tests` workflow.
 
 ## Critical quirks
 
