@@ -50,7 +50,9 @@ OpossumUI is an Electron app (TypeScript + React + Redux) for auditing open-sour
 yarn format-check && yarn check-exact-versions && yarn lint-check && yarn typecheck && yarn circular-import-check && yarn knip && yarn test:unit
 ```
 
-CI runs the unit tests in the `check-code-quality` workflow and the integration tests in a separate `integration-tests` job.
+CI runs the code-quality checks (format, lint, typecheck, etc.) in the
+`check-code-quality` workflow and all tests (unit + integration) in the
+`tests` workflow.
 
 ## Critical quirks
 
