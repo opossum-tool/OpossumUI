@@ -22,12 +22,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
         include:
           - os: ubuntu-latest
             # https://github.com/microsoft/playwright/issues/11932
             E2E: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- yarn test:e2e:ci
-          - os: macos-26
+          - os: macos-latest
             E2E: yarn test:e2e:ci
             # We only want to run a single smoketest on macOS-Intel to avoid long pipeline durations
           - os: macos-15-intel
