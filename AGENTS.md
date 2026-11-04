@@ -25,9 +25,11 @@ OpossumUI is an Electron app (TypeScript + React + Redux) for auditing open-sour
 | Install & setup           | `yarn install` (runs postinstall: deps, electron rebuild, commit hash, husky)                                              |
 | Copyright tool            | Install [reuse](https://git.fsfe.org/reuse/tool#install) CLI — required by `yarn copyright-lint-check` and pre-commit hook |
 | Dev server                | `yarn start`                                                                                                               |
-| Unit tests (all)          | `yarn test:unit`                                                                                                           |
-| Unit tests (changed only) | `yarn test:changed`                                                                                                        |
-| Integration tests         | `yarn test:int`                                                                                                            |
+| Unit tests (all)          | `yarn test:unit` (FE, BE, SH projects only)                                                                                |
+| Unit tests (changed only) | `yarn test:changed` (all projects for changed files)                                                                       |
+| Integration tests         | `yarn test:int` (INT project only)                                                                                         |
+| Performance vitest tests  | `yarn test:perf` (PERF project only)                                                                                       |
+| All vitest tests          | `yarn test:all` (all five projects)                                                                                        |
 | Watch unit tests          | `yarn test:watch`                                                                                                          |
 | E2E (dev server)          | `yarn test:e2e`                                                                                                            |
 | E2E (built app)           | `yarn test:e2e:ci`                                                                                                         |
@@ -47,6 +49,8 @@ OpossumUI is an Electron app (TypeScript + React + Redux) for auditing open-sour
 ```bash
 yarn format-check && yarn check-exact-versions && yarn lint-check && yarn typecheck && yarn circular-import-check && yarn knip && yarn test:unit
 ```
+
+CI runs the unit tests in the `check-code-quality` workflow and the integration tests in a separate `integration-tests` job.
 
 ## Critical quirks
 
@@ -87,7 +91,10 @@ Five vitest projects with different environments:
 
 Test directories can be `__tests__` or `__test__`.
 
-Run only the integration tests with `yarn test:int`.
+The vitest projects are cleanly separated: `yarn test:unit` runs only FE, BE and
+SH; `yarn test:int` runs only INT; `yarn test:perf` runs only PERF;
+`yarn test:all` runs everything.
+
 Integration tests (`src/integration-tests/`) render the full app via the
 `renderApp` helper in `helpers/render-app.tsx`: the real backend command handlers
 (`executeCommand`) run against a real SQLite DB seeded from a `ParsedFileContent`

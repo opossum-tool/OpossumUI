@@ -103,10 +103,17 @@ yarn start
 While developing, restarting Electron (triggered by backend code changes) reopens the file that was open before the
 restart, so that you do not have to pick it again. A fresh `yarn start` does not open a file on its own.
 
-Unit tests are provided for all features. The testing framework is Vitest + Testing Library. They can be run by executing:
+Unit tests are provided for all features. The testing framework is Vitest + Testing Library. They only cover the frontend,
+backend and shared unit test projects and can be run by executing:
 
 ```bash
 yarn test:unit
+```
+
+To run all vitest test projects at once (including the integration and performance ones below), use:
+
+```bash
+yarn test:all
 ```
 
 Integration tests render the full app (frontend against a real, SQLite-backed backend) in a simulated browser. They sit between the
@@ -115,6 +122,8 @@ unit and end-to-end tests: slower than unit tests, but without the startup cost 
 ```bash
 yarn test:int
 ```
+
+Performance tests of the synthetic-file generation tooling can be run separately with `yarn test:perf`.
 
 End-to-end tests launch the packaged Electron app and cover everything a renderer-only test cannot observe, e.g. native menus,
 dialogs, multi-window and file-IO behavior. They are slower and can be run using:
