@@ -6,9 +6,38 @@
 import '@testing-library/jest-dom/vitest';
 
 import type { setDatabaseInitialized as setDatabaseInitializedType } from '../Frontend/util/backendClient';
+import type * as packageSearchHooksModule from '../Frontend/util/package-search-hooks';
 import { DEFAULT_USER_SETTINGS } from '../shared/shared-constants';
 import type { ElectronAPI } from '../shared/shared-types';
 import { unexpectedBackendCall } from './backend-integration';
+
+// Stub the package-search suggestion hooks by default. Otherwise every
+// rendered attribution fires real, CORS-blocked deps.dev requests with
+// react-query retries, slowing tests down and causing failures.
+vi.mock('../Frontend/util/package-search-hooks', async (importOriginal) => {
+  const actual = await importOriginal<typeof packageSearchHooksModule>();
+  return {
+    ...actual,
+    PackageSearchHooks: {
+      ...actual.PackageSearchHooks,
+      usePackageNames: () => ({
+        packageNames: [],
+        packageNamesError: null,
+        packageNamesLoading: false,
+      }),
+      usePackageNamespaces: () => ({
+        packageNamespaces: [],
+        packageNamespacesError: null,
+        packageNamespacesLoading: false,
+      }),
+      usePackageVersions: () => ({
+        packageVersions: [],
+        packageVersionsError: null,
+        packageVersionsLoading: false,
+      }),
+    },
+  };
+});
 
 class ResizeObserver {
   observe = () => void 0;
