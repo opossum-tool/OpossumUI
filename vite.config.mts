@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import babel from '@rolldown/plugin-babel';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
-import { defineConfig, type InlineConfig, loadEnv } from 'vite';
+import { defineConfig, type InlineConfig } from 'vite';
 import electron from 'vite-plugin-electron';
 import svgrPlugin from 'vite-plugin-svgr';
 
@@ -70,9 +70,6 @@ export default defineConfig(({ mode }) => ({
           },
         ])),
   ],
-  define: {
-    'process.env.CI': loadEnv(mode, process.cwd()).CI,
-  },
   build: {
     outDir: 'build',
     chunkSizeWarningLimit: 2000,
