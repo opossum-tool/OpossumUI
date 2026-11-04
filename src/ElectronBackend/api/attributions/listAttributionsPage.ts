@@ -50,6 +50,11 @@ export type AttributionPageResult = {
   hasNextPage: boolean;
 };
 
+export type AttributionPreviewData = Record<
+  string,
+  PackageInfo & { writableLinkedResourceCount: number }
+>;
+
 export type AttributionNavigationResult =
   | { found: false }
   | {
@@ -195,6 +200,32 @@ export async function hydrateAttributionsByUuid(
   return hydrateAttributionRows(trx, rows, resource);
 }
 
+export async function withWritableLinkedResourceCounts(
+  trx: Kysely<DB>,
+  attributions: Attributions,
+): Promise<AttributionPreviewData> {
+  const uuids = Object.keys(attributions);
+  if (uuids.length === 0) {
+    return {};
+  }
+  const rows = await trx
+    .selectFrom('resource_to_attribution as rta')
+    .innerJoin('resource as r', 'r.id', 'rta.resource_id')
+    .select('rta.attribution_uuid')
+    .select((eb) => eb.fn.countAll<number>().as('count'))
+    .where('rta.attribution_uuid', 'in', jsonArraySelection(uuids))
+    .where('r.is_readonly', '=', 0)
+    .groupBy('rta.attribution_uuid')
+    .execute();
+  const counts = new Map(rows.map((row) => [row.attribution_uuid, row.count]));
+  return Object.fromEntries(
+    Object.entries(attributions).map(([uuid, attribution]) => [
+      uuid,
+      { ...attribution, writableLinkedResourceCount: counts.get(uuid) ?? 0 },
+    ]),
+  );
+}
+
 async function getResourceCounts(
   trx: Kysely<DB>,
   uuids: Array<string>,
@@ -247,9 +278,10 @@ async function executeScopedPage(
     .offset(props.offset)
     .execute()) as Array<PageQueryRow>;
   const visibleRows = pageRows.slice(0, props.limit);
+  const attributions = await hydrateAttributionRows(trx, visibleRows, resource);
 
   return {
-    attributions: await hydrateAttributionRows(trx, visibleRows, resource),
+    attributions,
     offset: props.offset,
     limit: props.limit,
     hasNextPage: pageRows.length > props.limit,
@@ -285,13 +317,40 @@ export async function listAttributionsPage(
 
 export async function listAttributionPreview(
   props: AttributionPreviewRequest,
-): Promise<{ result: AttributionPageResult }> {
-  return executeAttributionPage({
-    ...props,
-    scope: { mode: 'relation', relation: props.relation },
-    sort: 'alphabetically',
-    includeReadonly: false,
-  });
+): Promise<{
+  result: Omit<AttributionPageResult, 'attributions'> & {
+    attributions: AttributionPreviewData;
+  };
+}> {
+  const limit = props.limit > 0 ? props.limit : DEFAULT_PAGE_SIZE;
+  const offset = Math.max(0, props.offset);
+  const result = await getDb()
+    .transaction()
+    .execute(async (trx) => {
+      const { resource, closestAncestor } =
+        await getAttributionResultSetContext(trx, props);
+      const page = await executeScopedPage(
+        trx,
+        {
+          ...props,
+          offset,
+          limit,
+          scope: { mode: 'relation', relation: props.relation },
+          sort: 'alphabetically',
+          includeReadonly: false,
+        },
+        resource,
+        closestAncestor,
+      );
+      return {
+        ...page,
+        attributions: await withWritableLinkedResourceCounts(
+          trx,
+          page.attributions,
+        ),
+      };
+    });
+  return { result };
 }
 
 export async function locateAttribution(

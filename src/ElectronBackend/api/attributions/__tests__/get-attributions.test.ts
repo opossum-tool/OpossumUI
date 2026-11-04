@@ -7,10 +7,71 @@ import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../../testing/global-test-helpers';
-import { getAttributions } from '../getAttributions';
-import { initializeDefaultAttributionQueryTestData } from './attribution-query-test-helpers';
+import { getAttributionPreview, getAttributions } from '../getAttributions';
+import {
+  initializeDefaultAttributionQueryTestData,
+  preview,
+} from './attribution-query-test-helpers';
 
 describe('getAttributions', () => {
+  it('counts editable links across the project without changing scoped counts', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/branch/file', '/outside', '/readonly']),
+      manualAttributions: {
+        attributions: Object.fromEntries(
+          ['a', 'b', 'empty', 'readonly'].map((id) => [
+            id,
+            { id, packageName: id, criticality: Criticality.None },
+          ]),
+        ),
+        resourcesToAttributions: {
+          '/branch/file': ['a', 'b'],
+          '/outside': ['a'],
+          '/readonly': ['a', 'readonly'],
+        },
+        attributionsToResources: {},
+      },
+      readonlyRules: [{ path: '/readonly', readonly: true }],
+    });
+    const params = {
+      attributionUuids: ['a', 'b', 'empty', 'readonly'],
+      resourcePathForRelationships: '/branch/',
+    };
+    const scoped = await getAttributions(params);
+    expect(scoped.result.a.count).toBe(1);
+    expect(scoped.result.a.writableLinkedResourceCount).toBeUndefined();
+
+    const counted = await getAttributionPreview(params);
+    expect(counted.result.a).toMatchObject({
+      count: 1,
+      writableLinkedResourceCount: 2,
+    });
+    expect(counted.result.b.writableLinkedResourceCount).toBe(1);
+    expect(counted.result.empty.writableLinkedResourceCount).toBe(0);
+    expect(counted.result.readonly.writableLinkedResourceCount).toBe(0);
+
+    const unscoped = await getAttributionPreview({
+      attributionUuids: ['a'],
+    });
+    expect(unscoped.result.a.writableLinkedResourceCount).toBe(2);
+    expect(unscoped.result.a.count).toBeUndefined();
+
+    const page = {
+      resourcePathForRelationships: '/branch/',
+      relation: 'children' as const,
+      limit: 1,
+    };
+    const first = await preview({ ...page, offset: 0 });
+    const second = await preview({ ...page, offset: 1 });
+    expect(Object.keys(first.result.attributions)).toEqual(['a']);
+    expect(first.result.attributions.a).toMatchObject({
+      count: 1,
+      writableLinkedResourceCount: 2,
+    });
+    expect(Object.keys(second.result.attributions)).toEqual(['b']);
+    expect(second.result.attributions.b.writableLinkedResourceCount).toBe(1);
+  });
+
   beforeEach(async () => {
     await initializeDefaultAttributionQueryTestData();
   });

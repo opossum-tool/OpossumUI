@@ -31,7 +31,10 @@ import {
 } from '../types/types';
 import { listAttributionRelationCounts } from './attributions/attribution-relation-counts';
 import { getAttributionSelectionSummary } from './attributions/attribution-selection-queries';
-import { getAttributions } from './attributions/getAttributions';
+import {
+  getAttributionPreview,
+  getAttributions,
+} from './attributions/getAttributions';
 import {
   listAttributionPreview,
   listAttributionsPage,
@@ -242,6 +245,7 @@ export const queries = {
     return { result: await isProjectSplit() };
   },
   getAttributions,
+  getAttributionPreview,
   listAttributionRelationCounts,
   listAttributionsPage,
   listAttributionPreview,

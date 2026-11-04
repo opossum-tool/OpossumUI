@@ -355,6 +355,7 @@ export const text = {
     title: 'Replace Attributions',
   },
   confirmAttributionActionPopup: {
+    editableLinkedResource: 'editable linked resource',
     linkedResources: 'Linked resources',
     editableLinkedResources: 'Editable linked resources',
     mixedWarning: (count: number) =>

@@ -26,10 +26,9 @@ export type AttributionPageParams = Omit<
 export type AttributionPageResult = NonNullable<
   QueryResult<'listAttributionsPage'>
 >;
-export type InfiniteAttributionData = InfiniteData<
-  AttributionPageResult,
-  AttributionPageParam
->;
+export type InfiniteAttributionData<
+  TPage extends AttributionPageResult = AttributionPageResult,
+> = InfiniteData<TPage, AttributionPageParam>;
 
 const FIRST_ATTRIBUTION_PAGE_PARAM: AttributionPageParam = {
   offset: 0,
@@ -42,7 +41,10 @@ export function getAttributionPageQueryKey(
   return ['backend', 'listAttributionsPage', params];
 }
 
-export function getAttributionInfiniteQueryOptions<TQueryKey extends QueryKey>({
+export function getAttributionInfiniteQueryOptions<
+  TQueryKey extends QueryKey,
+  TPage extends AttributionPageResult,
+>({
   queryKey,
   enabled,
   fetchPage,
@@ -50,9 +52,7 @@ export function getAttributionInfiniteQueryOptions<TQueryKey extends QueryKey>({
 }: {
   queryKey: TQueryKey;
   enabled: boolean;
-  fetchPage: (
-    pageParam: AttributionPageParam,
-  ) => Promise<AttributionPageResult>;
+  fetchPage: (pageParam: AttributionPageParam) => Promise<TPage>;
   getNextPageLimit?: (nextOffset: number) => number;
 }) {
   return infiniteQueryOptions({
@@ -74,25 +74,26 @@ export function getAttributionInfiniteQueryOptions<TQueryKey extends QueryKey>({
   });
 }
 
-export function getAttributionPrefixData(
-  page: AttributionPageResult,
-): InfiniteAttributionData {
+export function getAttributionPrefixData<TPage extends AttributionPageResult>(
+  page: TPage,
+): InfiniteAttributionData<TPage> {
   return {
     pages: [page],
     pageParams: [{ offset: page.offset, limit: page.limit }],
   };
 }
 
-export function getAttributionPrefixDataFromPages(
-  data: InfiniteAttributionData,
-): InfiniteAttributionData {
+export function getAttributionPrefixDataFromPages<
+  TPage extends AttributionPageResult,
+>(data: InfiniteAttributionData<TPage>): InfiniteAttributionData<TPage> {
   if (data.pages.length === 0) {
     return data;
   }
 
   const firstPage = data.pages[0];
   const lastPage = data.pages[data.pages.length - 1];
-  const page: AttributionPageResult = {
+  const page: TPage = {
+    ...firstPage,
     attributions: Object.fromEntries(
       data.pages.flatMap((currentPage) =>
         Object.entries(currentPage.attributions),

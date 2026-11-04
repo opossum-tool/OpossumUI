@@ -41,7 +41,7 @@ export function useLinkedAttributionActionData({
   const isQueryWideSelection = selection.mode === 'allMatching';
 
   const { data: attributions, isSuccess: areAttributionsReady } =
-    backend.getAttributions.useQuery(
+    backend.getAttributionPreview.useQuery(
       open && !isMutationPending && !isQueryWideSelection
         ? {
             attributionUuids: attributionIds,

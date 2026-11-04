@@ -4,7 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { Attributions } from '../../../shared/shared-types';
 import { getDb } from '../../db/db';
-import { hydrateAttributionsByUuid } from './listAttributionsPage';
+import {
+  type AttributionPreviewData,
+  hydrateAttributionsByUuid,
+  withWritableLinkedResourceCounts,
+} from './listAttributionsPage';
 
 export type GetAttributionsProps = {
   attributionUuids: Array<string>;
@@ -27,5 +31,21 @@ export async function getAttributions(
         props.resourcePathForRelationships,
       ),
     );
+  return { result };
+}
+
+export async function getAttributionPreview(
+  props: GetAttributionsProps,
+): Promise<{ result: AttributionPreviewData }> {
+  const result = await getDb()
+    .transaction()
+    .execute(async (trx) => {
+      const attributions = await hydrateAttributionsByUuid(
+        trx,
+        props.attributionUuids,
+        props.resourcePathForRelationships,
+      );
+      return withWritableLinkedResourceCounts(trx, attributions);
+    });
   return { result };
 }
