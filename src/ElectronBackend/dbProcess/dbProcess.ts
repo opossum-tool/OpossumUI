@@ -371,7 +371,7 @@ async function executeDbProcessMessage(
         } catch (error) {
           // The command failed and did not change the database, so there
           // is no file write to wait for. Failed background writes are
-          // logged and their outcome tracked.
+          // logged, tracked, and re-tried when the app quits.
           inFlightMutations--;
           maybeResolveIdleWaiters();
           throw error;

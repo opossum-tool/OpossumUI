@@ -76,8 +76,8 @@ import {
  * Confirms the quit in the main process once the DB process reports no
  * pending mutations: `whenBackendIdle` resolves only after every mutation
  * has been executed and its automatic file write has concluded. The
- * saving indicator is shown from here on, covering the final save
- * performed by the main process.
+ * saving indicator is shown from here on, covering the re-save the main
+ * process performs when the last automatic save failed.
  */
 function confirmQuitAfterMutationsSettle(): AppThunkAction<Promise<void>> {
   return async (dispatch) => {

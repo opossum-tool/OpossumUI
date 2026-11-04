@@ -15,6 +15,7 @@ import {
 
 const whenIdleMock = vi.hoisted(() => vi.fn());
 const whenMutationsSettledMock = vi.hoisted(() => vi.fn());
+const getLastSaveResultMock = vi.hoisted(() => vi.fn());
 const saveFileMock = vi.hoisted(() => vi.fn());
 const isDeadMock = vi.hoisted(() => vi.fn());
 const showMessageBoxMock = vi.hoisted(() => vi.fn());
@@ -28,6 +29,7 @@ vi.mock('../../dbProcess/dbProcessClient', () => ({
   getMainDbClient: () => ({
     whenIdle: whenIdleMock,
     whenMutationsSettled: whenMutationsSettledMock,
+    getLastSaveResult: getLastSaveResultMock,
     saveFile: saveFileMock,
     isDead: isDeadMock,
   }),
@@ -84,6 +86,7 @@ describe('handleWindowClose', () => {
     currentTimestamp = 0;
     whenIdleMock.mockReset().mockResolvedValue(undefined);
     whenMutationsSettledMock.mockReset().mockResolvedValue(undefined);
+    getLastSaveResultMock.mockReset().mockResolvedValue('success');
     saveFileMock.mockReset().mockResolvedValue(undefined);
     isDeadMock.mockReset().mockReturnValue(false);
     showMessageBoxMock.mockReset().mockResolvedValue(undefined);
@@ -151,17 +154,22 @@ describe('confirmQuit', () => {
     setGlobalBackendState({});
     whenIdleMock.mockReset().mockResolvedValue(undefined);
     whenMutationsSettledMock.mockReset().mockResolvedValue(undefined);
+    getLastSaveResultMock.mockReset().mockResolvedValue('success');
     saveFileMock.mockReset().mockResolvedValue(undefined);
     isDeadMock.mockReset().mockReturnValue(false);
     showMessageBoxMock.mockReset().mockResolvedValue(undefined);
     quitMock.mockReset();
   });
 
-  it('waits for pending DB process requests, writes the project file, then quits', async () => {
+  function loadProjectState(): void {
     setGlobalBackendState({
       projectId: 'uuid_1',
       opossumFilePath: '/some/path.opossum',
     });
+  }
+
+  it('waits for pending DB process requests, then quits without saving when the last save succeeded', async () => {
+    loadProjectState();
     let resolveWhenIdle!: () => void;
     whenIdleMock.mockReturnValue(
       new Promise<void>((resolve) => {
@@ -176,38 +184,58 @@ describe('confirmQuit', () => {
     await quitPromise;
 
     expect(whenIdleMock).toHaveBeenCalledTimes(1);
+    expect(whenMutationsSettledMock).toHaveBeenCalledTimes(1);
+    expect(getLastSaveResultMock).toHaveBeenCalledTimes(1);
+    expect(saveFileMock).not.toHaveBeenCalled();
+    expect(quitMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('quits without saving when no project is loaded', async () => {
+    await confirmQuit(createWindowMock().window);
+
+    expect(getLastSaveResultMock).not.toHaveBeenCalled();
+    expect(saveFileMock).not.toHaveBeenCalled();
+    expect(quitMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('skips the save check when the DB process is dead', async () => {
+    loadProjectState();
+    isDeadMock.mockReturnValue(true);
+
+    await confirmQuit(createWindowMock().window);
+
+    expect(getLastSaveResultMock).not.toHaveBeenCalled();
+    expect(saveFileMock).not.toHaveBeenCalled();
+    expect(quitMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('quits without saving when no write happened since the file was loaded', async () => {
+    loadProjectState();
+    getLastSaveResultMock.mockResolvedValue(undefined);
+
+    await confirmQuit(createWindowMock().window);
+
+    expect(saveFileMock).not.toHaveBeenCalled();
+    expect(quitMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('re-writes the project file and quits when the last save failed', async () => {
+    loadProjectState();
+    getLastSaveResultMock.mockResolvedValue('failed');
+
+    await confirmQuit(createWindowMock().window);
+
     expect(saveFileMock).toHaveBeenCalledExactlyOnceWith({
       projectId: 'uuid_1',
       opossumFilePath: '/some/path.opossum',
     });
     expect(quitMock).toHaveBeenCalledTimes(1);
+    expect(showMessageBoxMock).not.toHaveBeenCalled();
   });
 
-  it('quits without writing when no project is loaded', async () => {
-    await confirmQuit(createWindowMock().window);
-
-    expect(saveFileMock).not.toHaveBeenCalled();
-    expect(quitMock).toHaveBeenCalledTimes(1);
-  });
-
-  it('skips the final write when the DB process is dead', async () => {
-    setGlobalBackendState({
-      projectId: 'uuid_1',
-      opossumFilePath: '/some/path.opossum',
-    });
-    isDeadMock.mockReturnValue(true);
-
-    await confirmQuit(createWindowMock().window);
-
-    expect(saveFileMock).not.toHaveBeenCalled();
-    expect(quitMock).toHaveBeenCalledTimes(1);
-  });
-
-  it('keeps the app open, notifies the renderer and shows the error when the final write fails', async () => {
-    setGlobalBackendState({
-      projectId: 'uuid_1',
-      opossumFilePath: '/some/path.opossum',
-    });
+  it('keeps the app open, notifies the renderer and shows the error when the retried save fails', async () => {
+    loadProjectState();
+    getLastSaveResultMock.mockResolvedValue('failed');
     saveFileMock.mockRejectedValue(new Error('write failed'));
     const { window, send } = createWindowMock();
 
@@ -225,11 +253,9 @@ describe('confirmQuit', () => {
     expect(preventDefault).toHaveBeenCalledTimes(1);
   });
 
-  it('quits anyway if the final write fails in the forced path', async () => {
-    setGlobalBackendState({
-      projectId: 'uuid_1',
-      opossumFilePath: '/some/path.opossum',
-    });
+  it('quits anyway if the retried save fails in the forced path', async () => {
+    loadProjectState();
+    getLastSaveResultMock.mockResolvedValue('failed');
     saveFileMock.mockRejectedValue(new Error('write failed'));
 
     await confirmQuit(createWindowMock().window, { force: true });
@@ -238,11 +264,8 @@ describe('confirmQuit', () => {
     expect(showMessageBoxMock).not.toHaveBeenCalled();
   });
 
-  it('ignores close attempts while the final save is in flight', async () => {
-    setGlobalBackendState({
-      projectId: 'uuid_1',
-      opossumFilePath: '/some/path.opossum',
-    });
+  it('ignores close attempts while the quit is in progress', async () => {
+    loadProjectState();
     let resolveWhenIdle!: () => void;
     whenIdleMock.mockReturnValue(
       new Promise<void>((resolve) => {
@@ -262,10 +285,7 @@ describe('confirmQuit', () => {
   });
 
   it('lets the window close once quit is finalized', async () => {
-    setGlobalBackendState({
-      projectId: 'uuid_1',
-      opossumFilePath: '/some/path.opossum',
-    });
+    loadProjectState();
 
     await confirmQuit(createWindowMock().window);
     expect(quitMock).toHaveBeenCalledTimes(1);
