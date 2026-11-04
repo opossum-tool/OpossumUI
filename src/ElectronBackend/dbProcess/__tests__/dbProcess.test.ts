@@ -9,6 +9,7 @@ import {
   type DbProcessResponse,
   handleDbProcessMessage,
   resetDbProcessStateForTesting,
+  type SaveResult,
 } from '../dbProcess';
 
 const saveFileApiMock = vi.hoisted(() => vi.fn());
@@ -305,5 +306,118 @@ describe('dbProcess save tracking', () => {
     resolveFirstSave();
     expect((await idlePromise)?.type).toBe('success');
     expect(saveFileApiMock).toHaveBeenCalledTimes(3);
+  });
+});
+
+describe('dbProcess last save result tracking', () => {
+  beforeEach(() => {
+    resetDbProcessStateForTesting();
+    saveFileApiMock.mockReset().mockResolvedValue(undefined);
+    forceUnlockMock.mockReset().mockResolvedValue(undefined);
+    splitOpossumFileMock.mockReset().mockResolvedValue(undefined);
+    mergeOpossumFilesMock.mockReset().mockResolvedValue({ status: 'success' });
+    mergeOpossumFilesFromPathsMock.mockReset().mockResolvedValue(undefined);
+    exportFileMock.mockReset().mockResolvedValue(undefined);
+    loadFileMock.mockReset();
+    executeCommandMock.mockReset().mockResolvedValue(undefined);
+    isMutationCommandMock.mockReset().mockReturnValue(false);
+    loadFileOk();
+  });
+
+  async function getLastSaveResult(
+    id: number,
+  ): Promise<SaveResult | undefined> {
+    const response = await handle({ id, type: 'getLastSaveResult' });
+    if (response?.type !== 'success') {
+      throw new Error(`Unexpected response: ${JSON.stringify(response)}`);
+    }
+    const result = response.result;
+    if (result !== undefined && result !== 'success' && result !== 'failed') {
+      throw new Error(`Unexpected save result: ${JSON.stringify(result)}`);
+    }
+    return result;
+  }
+
+  it('reports no save result before any write happened', async () => {
+    await loadProject();
+
+    await expect(getLastSaveResult(1)).resolves.toBeUndefined();
+  });
+
+  it('reports a successful manual save', async () => {
+    await loadProject();
+    await save(1);
+
+    await expect(getLastSaveResult(2)).resolves.toBe('success');
+  });
+
+  it('reports a failed manual save', async () => {
+    await loadProject();
+    saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
+    await save(1);
+
+    await expect(getLastSaveResult(2)).resolves.toBe('failed');
+  });
+
+  it('reports success again after a failed save was followed by a successful one', async () => {
+    await loadProject();
+    saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
+    await save(1);
+    await save(2);
+
+    await expect(getLastSaveResult(3)).resolves.toBe('success');
+  });
+
+  it('reports a failed automatic save after a mutation', async () => {
+    await loadProject();
+    saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
+    await runCommand(1, MUTATION_COMMAND, true);
+    await awaitIdle(2);
+
+    await expect(getLastSaveResult(3)).resolves.toBe('failed');
+  });
+
+  it('reports a failed force unlock', async () => {
+    await loadProject();
+    forceUnlockMock.mockRejectedValueOnce(new Error('write failed'));
+    await handle({
+      id: 1,
+      type: 'forceUnlock',
+      projectId: 'uuid_1',
+      opossumFilePath: '/some/path.opossum',
+    });
+
+    await expect(getLastSaveResult(2)).resolves.toBe('failed');
+  });
+
+  it('reports a failed merge when the merge reports an error result', async () => {
+    await loadProject();
+    mergeOpossumFilesMock.mockResolvedValueOnce({
+      status: 'error',
+      errorType: 'Unknown',
+      errorMessage: 'merge failed',
+    });
+    await handle({
+      id: 1,
+      type: 'mergeOpossumFiles',
+      ignoreReadonlyResourceOutputConflicts: false,
+      projectId: 'uuid_1',
+      opossumFilePath: '/some/path.opossum',
+      partitionPaths: ['/some/other.opossum'],
+    });
+
+    await expect(getLastSaveResult(2)).resolves.toBe('failed');
+  });
+
+  it('resets the tracked result when another file is loaded', async () => {
+    await loadProject();
+    await save(1);
+    loadFileMock.mockRejectedValueOnce(new Error('load failed'));
+    await handle({ id: 2, type: 'loadFile', filePath: '/does-not-exist' });
+
+    await expect(getLastSaveResult(3)).resolves.toBeUndefined();
+
+    await loadProject();
+    await expect(getLastSaveResult(4)).resolves.toBeUndefined();
   });
 });

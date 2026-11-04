@@ -120,3 +120,29 @@ describe('DbProcessClient.whenMutationsSettled', () => {
     );
   });
 });
+
+describe('DbProcessClient.getLastSaveResult', () => {
+  it('requests the last save result from the DB process', async () => {
+    const port = createFakePort();
+    const client = new DbProcessClient(port);
+
+    const resultPromise = client.getLastSaveResult();
+    expect(port.postMessage).toHaveBeenCalledWith({
+      id: 0,
+      type: 'getLastSaveResult',
+    });
+    respond(port, { id: 0, type: 'success', result: 'failed' });
+
+    await expect(resultPromise).resolves.toBe('failed');
+  });
+
+  it('resolves to undefined when no write happened since the file was loaded', async () => {
+    const port = createFakePort();
+    const client = new DbProcessClient(port);
+
+    const resultPromise = client.getLastSaveResult();
+    respond(port, { id: 0, type: 'success', result: undefined });
+
+    await expect(resultPromise).resolves.toBeUndefined();
+  });
+});

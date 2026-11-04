@@ -25,6 +25,7 @@ import type {
   DbProcessPayload,
   DbProcessRequest,
   DbProcessResponse,
+  SaveResult,
 } from './dbProcess';
 
 type ProgressCallback = (message: string, level?: 'info' | 'warn') => void;
@@ -136,6 +137,18 @@ export class DbProcessClient {
    */
   async whenMutationsSettled(): Promise<void> {
     await this.request({ type: 'whenIdle' });
+  }
+
+  /**
+   * Outcome of the last write of the currently loaded project's file, as
+   * tracked by the DB process. `undefined` means no write happened since
+   * the file was loaded. Callers should await `whenMutationsSettled` first
+   * so that pending background writes have concluded.
+   */
+  getLastSaveResult(): Promise<SaveResult | undefined> {
+    return this.request({ type: 'getLastSaveResult' }) as Promise<
+      SaveResult | undefined
+    >;
   }
 
   /**

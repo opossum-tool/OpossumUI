@@ -91,6 +91,17 @@ interface WhenIdleMessage {
   type: 'whenIdle';
 }
 
+interface GetLastSaveResultMessage {
+  type: 'getLastSaveResult';
+}
+
+/**
+ * Outcome of the last write of the currently loaded project's file.
+ * `undefined` means no write happened since the file was loaded (so the
+ * file on disk matches the loaded state).
+ */
+export type SaveResult = 'success' | 'failed';
+
 export type DbProcessPayload =
   | LoadFileMessage
   | SaveFileMessage
@@ -100,7 +111,8 @@ export type DbProcessPayload =
   | MergeOpossumFilesFromPathsMessage
   | ExportFileMessage
   | ExecuteCommandMessage
-  | WhenIdleMessage;
+  | WhenIdleMessage
+  | GetLastSaveResultMessage;
 
 export type DbProcessRequest = DbProcessPayload & { id: number };
 
@@ -109,6 +121,7 @@ type SuccessPayload =
   | Awaited<CommandReturn<CommandName>>
   | MergeOpossumFilesResult
   | boolean
+  | SaveResult
   | undefined;
 
 interface SuccessResponse {
@@ -140,6 +153,11 @@ type ResponsePort = {
 
 let storedOpossumZip: AdmZip | undefined;
 let saveTarget: { projectId: string; opossumFilePath: string } | undefined;
+
+// Outcome of the last write of the currently loaded project's file,
+// tracked so that the quit path only needs to re-write the file when a
+// write actually failed. Reset whenever a file is loaded.
+let lastSaveResult: SaveResult | undefined;
 
 // Every mutating command registers here when it starts executing and stays
 // registered until its file write has concluded. The `whenIdle` message
@@ -178,7 +196,7 @@ function scheduleBackgroundSave(): void {
       return;
     }
     try {
-      await saveFile(target, opossumZip);
+      await trackSaveResult(() => saveFile(target, opossumZip));
     } catch (error) {
       console.error('Automatic save of the .opossum file failed.', error);
     }
@@ -190,6 +208,24 @@ function scheduleBackgroundSave(): void {
   });
 }
 
+/**
+ * Runs a write of the currently loaded project's file and records its
+ * outcome. A failure in any surrounding step of a file-writing operation
+ * (e.g. reloading a merged archive) is conservatively recorded as a failed
+ * save so that the quit path re-writes the file instead of assuming it is
+ * up to date.
+ */
+async function trackSaveResult<T>(write: () => Promise<T>): Promise<T> {
+  try {
+    const result = await write();
+    lastSaveResult = 'success';
+    return result;
+  } catch (error) {
+    lastSaveResult = 'failed';
+    throw error;
+  }
+}
+
 async function executeDbProcessMessage(
   msg: DbProcessRequest,
   onProgress?: LoadFileProgressCallback,
@@ -197,6 +233,7 @@ async function executeDbProcessMessage(
   switch (msg.type) {
     case 'loadFile': {
       storedOpossumZip = undefined;
+      lastSaveResult = undefined;
       const loadResult = await loadFile(msg.filePath, onProgress);
       if (loadResult.ok) {
         const { opossumZip, ...rest } = loadResult;
@@ -213,22 +250,25 @@ async function executeDbProcessMessage(
       if (!storedOpossumZip) {
         throw new Error('Cannot save: no input file loaded');
       }
+      const opossumZip = storedOpossumZip;
       const { id: _, type: __, ...params } = msg;
-      await saveFile(params, storedOpossumZip);
+      await trackSaveResult(() => saveFile(params, opossumZip));
       return undefined;
     }
     case 'forceUnlock': {
       if (!storedOpossumZip) {
         throw new Error('Cannot force unlock: no input file loaded');
       }
+      const opossumZip = storedOpossumZip;
       const { id: _, type: __, ...params } = msg;
-      await forceUnlockOpossumFile(params, storedOpossumZip);
+      await trackSaveResult(() => forceUnlockOpossumFile(params, opossumZip));
       return undefined;
     }
     case 'splitOpossumFile': {
       if (!storedOpossumZip) {
         throw new Error('Cannot split: no .opossum file is loaded');
       }
+      const opossumZip = storedOpossumZip;
       const {
         id: _,
         type: __,
@@ -237,13 +277,15 @@ async function executeDbProcessMessage(
         ...saveFileParams
       } = msg;
       // splitOpossumFile rewrites the source file as part of the split.
-      await splitOpossumFile(
-        {
-          saveFileParams,
-          selectedFolderPaths,
-          splitOpossumFilePath,
-        },
-        storedOpossumZip,
+      await trackSaveResult(() =>
+        splitOpossumFile(
+          {
+            saveFileParams,
+            selectedFolderPaths,
+            splitOpossumFilePath,
+          },
+          opossumZip,
+        ),
       );
       return undefined;
     }
@@ -255,6 +297,7 @@ async function executeDbProcessMessage(
           status: 'error',
         };
       }
+      const opossumZip = storedOpossumZip;
       const {
         id: _,
         type: __,
@@ -262,16 +305,21 @@ async function executeDbProcessMessage(
         partitionPaths,
         ...saveFileParams
       } = msg;
-      const result = await mergeOpossumFiles(
-        {
-          ignoreReadonlyResourceOutputConflicts,
-          saveFileParams,
-          partitionPaths,
-          reportProgress: onProgress,
-        },
-        storedOpossumZip,
+      const result = await trackSaveResult(() =>
+        mergeOpossumFiles(
+          {
+            ignoreReadonlyResourceOutputConflicts,
+            saveFileParams,
+            partitionPaths,
+            reportProgress: onProgress,
+          },
+          opossumZip,
+        ),
       );
       if (result.status === 'error') {
+        // mergeOpossumFiles reports write failures as an error result
+        // instead of throwing, so the tracked outcome must be corrected.
+        lastSaveResult = 'failed';
         return result;
       }
       const loadResult = await loadFile(
@@ -323,7 +371,7 @@ async function executeDbProcessMessage(
         } catch (error) {
           // The command failed and did not change the database, so there
           // is no file write to wait for. Failed background writes are
-          // logged and the awaited save at quit is the safety net.
+          // logged and their outcome tracked.
           inFlightMutations--;
           maybeResolveIdleWaiters();
           throw error;
@@ -339,6 +387,9 @@ async function executeDbProcessMessage(
         idleWaiters.push(resolve);
       });
       return undefined;
+    }
+    case 'getLastSaveResult': {
+      return lastSaveResult;
     }
   }
 }
@@ -371,6 +422,7 @@ export async function handleDbProcessMessage(
 export function resetDbProcessStateForTesting(): void {
   storedOpossumZip = undefined;
   saveTarget = undefined;
+  lastSaveResult = undefined;
   inFlightMutations = 0;
   idleWaiters.length = 0;
   saveChain = Promise.resolve();
