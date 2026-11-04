@@ -12,6 +12,7 @@ import { deserializeAttributions } from '../ElectronBackend/input/parseInputData
 import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers/general-test-helpers';
 import { Criticality, RawCriticality } from '../shared/shared-types';
 import { text } from '../shared/text';
+import { faker } from '../testing/Faker';
 import { renderApp } from '../testing/render-app';
 import {
   applyPanelFilter,
@@ -44,6 +45,12 @@ vi.mock('recharts', async (importOriginal) => {
     ) => <recharts.ResponsiveContainer {...props} width={800} height={600} />,
   };
 });
+
+// Installing the package-search hook stubs prevents real deps.dev requests
+// (CORS-blocked with react-query retries) while the attribution details render.
+faker.packageSearch.usePackageNames();
+faker.packageSearch.usePackageNamespaces();
+faker.packageSearch.usePackageVersions();
 
 async function clickChartLegend(chartId: string, label: string): Promise<void> {
   await userEvent.click(
