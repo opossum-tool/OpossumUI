@@ -235,16 +235,7 @@
     "@electron/rebuild/node-abi": "4.40.0"
   },
   "dependenciesMeta": {
-    "better-sqlite3": {
-      "built": true
-    },
-    "electron": {
-      "built": true
-    },
     "esbuild": {
-      "built": true
-    },
-    "twain": {
       "built": true
     }
   }
