@@ -29,7 +29,8 @@ OpossumUI is an Electron app (TypeScript + React + Redux) for auditing open-sour
 | Unit tests (changed only) | `yarn test:changed` (all projects for changed files)                                                                       |
 | Integration tests         | `yarn test:int` (INT project only)                                                                                         |
 | Performance vitest tests  | `yarn test:perf` (PERF project only)                                                                                       |
-| All vitest tests          | `yarn test:all` (all five projects)                                                                                        |
+| All vitest tests          | `yarn test:vitest` (all five projects)                                                                                     |
+| Everything (vitest + e2e) | `yarn test:all`                                                                                                            |
 | Watch unit tests          | `yarn test:watch`                                                                                                          |
 | E2E (dev server)          | `yarn test:e2e`                                                                                                            |
 | E2E (built app)           | `yarn test:e2e:ci`                                                                                                         |
@@ -88,10 +89,6 @@ Five vitest projects with different environments:
 - **PERF** (node): `src/performance-tests/**/__test{s,}__/**/*.test.{ts,tsx}`
 
 Test directories can be `__tests__` or `__test__`.
-
-The vitest projects are cleanly separated: `yarn test:unit` runs only FE, BE and
-SH; `yarn test:int` runs only INT; `yarn test:perf` runs only PERF;
-`yarn test:all` runs everything.
 
 Integration tests (`src/integration-tests/`) render the full app via the
 `renderApp` helper in `helpers/render-app.tsx`: the real backend command handlers
