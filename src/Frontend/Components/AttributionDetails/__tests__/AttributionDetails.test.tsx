@@ -633,11 +633,11 @@ describe('AttributionDetails', () => {
         name: text.attributionColumn.replace,
       }),
     );
-    await userEvent.click(
-      screen.getByRole('button', {
-        name: text.replaceAttributionsPopup.replace,
-      }),
-    );
+    const replaceButton = screen.getByRole('button', {
+      name: text.replaceAttributionsPopup.replace,
+    });
+    await waitFor(() => expect(replaceButton).toBeEnabled());
+    await userEvent.click(replaceButton);
 
     await expectManualAttributions({
       [packageInfo1.id]: packageInfo1,
