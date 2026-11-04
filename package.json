@@ -118,7 +118,7 @@
     "db:generate": "npx tsx ./src/ElectronBackend/db/generate.ts",
     "typecheck": "yarn db:generate && tsc -p ./ && tsc --noEmit -p src/ElectronBackend",
     "test:unit": "vitest run --project FE --project BE --project SH",
-    "test:changed": "vitest --onlyChanged",
+    "test:changed": "vitest --changed",
     "test:int": "vitest run --project INT",
     "test:perf": "vitest run --project PERF",
     "test:all": "vitest run",
