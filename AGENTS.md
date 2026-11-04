@@ -28,8 +28,7 @@ OpossumUI is an Electron app (TypeScript + React + Redux) for auditing open-sour
 | Unit tests (all)          | `yarn test:unit` (FE, BE, SH projects only)                                                                                |
 | Unit tests (changed only) | `yarn test:changed` (all projects for changed files)                                                                       |
 | Integration tests         | `yarn test:int` (INT project only)                                                                                         |
-| Performance vitest tests  | `yarn test:perf` (PERF project only)                                                                                       |
-| All vitest tests          | `yarn test:vitest` (all five projects)                                                                                     |
+| All vitest tests          | `yarn test:vitest` (all four projects)                                                                                     |
 | Everything (vitest + e2e) | `yarn test:all`                                                                                                            |
 | Watch unit tests          | `yarn test:watch`                                                                                                          |
 | E2E (dev server)          | `yarn test:e2e`                                                                                                            |
@@ -80,13 +79,14 @@ Husky + lint-staged runs on every commit: copyright check, knip, prettier, eslin
 
 ## Vitest setup
 
-Five vitest projects with different environments:
+Four vitest projects with different environments:
 
 - **FE** (happy-dom): `src/Frontend/**/__test{s,}__/**/*.test.{ts,tsx}`
 - **INT** (happy-dom): `src/integration-tests/**/*.test.{ts,tsx}`
-- **BE** (node): `src/ElectronBackend/**/__test{s,}__/**/*.test.{ts,tsx}`
+- **BE** (node): `src/ElectronBackend/**/__test{s,}__/**/*.test.{ts,tsx}` and
+  `src/performance-tests/**/__test{s,}__/**/*.test.{ts,tsx}` (unit tests for the
+  synthetic performance file generator, not actual performance tests)
 - **SH** (node): `src/shared/**/__test{s,}__/**/*.test.{ts,tsx}`
-- **PERF** (node): `src/performance-tests/**/__test{s,}__/**/*.test.{ts,tsx}`
 
 Test directories can be `__tests__` or `__test__`.
 

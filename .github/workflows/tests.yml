@@ -37,8 +37,6 @@ jobs:
 
       - run: yarn test:unit
 
-      - run: yarn test:perf
-
   integration-tests:
     runs-on: ubuntu-latest
     if: |

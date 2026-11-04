@@ -110,7 +110,7 @@ and shared source code (integration, performance and end-to-end tests are separa
 yarn test:unit
 ```
 
-To run all vitest test projects at once (including the integration and performance ones below), use:
+To run all vitest test projects at once (including the integration tests below), use:
 
 ```bash
 yarn test:vitest
@@ -122,8 +122,6 @@ unit and end-to-end tests: slower than unit tests, but without the startup cost 
 ```bash
 yarn test:int
 ```
-
-Performance tests of the synthetic-file generation tooling can be run separately with `yarn test:perf`.
 
 End-to-end tests launch the packaged Electron app and cover everything a renderer-only test cannot observe, e.g. native menus,
 dialogs, multi-window and file-IO behavior. They are slower and can be run using:
