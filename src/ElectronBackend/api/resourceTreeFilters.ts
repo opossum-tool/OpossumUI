@@ -142,7 +142,7 @@ export function getFilteredResourcesQuery(
   if (search) {
     query = query.where('r.path', 'like', `%${removeTrailingSlash(search)}%`);
   }
-  if (licenseFilter) {
+  if (licenseFilter && hasLicenseConditions(licenseFilter)) {
     const attributionQuery = trx
       .selectFrom('attribution as a')
       .innerJoin(
