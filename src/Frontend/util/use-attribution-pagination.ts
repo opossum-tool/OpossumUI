@@ -18,22 +18,17 @@ import {
   type InfiniteAttributionData,
 } from './attribution-page-query';
 
-type Params<TQueryKey extends QueryKey> = {
+type Params<TQueryKey extends QueryKey, TPage extends AttributionPageResult> = {
   queryKey: TQueryKey;
   enabled: boolean;
   totalCount?: number;
-  fetchPage: (pageParam: {
-    offset: number;
-    limit: number;
-  }) => Promise<AttributionPageResult>;
+  fetchPage: (pageParam: { offset: number; limit: number }) => Promise<TPage>;
 };
 
-export function useAttributionPagination<TQueryKey extends QueryKey>({
-  queryKey,
-  enabled,
-  totalCount,
-  fetchPage,
-}: Params<TQueryKey>) {
+export function useAttributionPagination<
+  TQueryKey extends QueryKey,
+  TPage extends AttributionPageResult,
+>({ queryKey, enabled, totalCount, fetchPage }: Params<TQueryKey, TPage>) {
   const queryClient = useQueryClient();
   const queryIdentity = hashKey(queryKey);
   const requestedRangeRef = useRef<{
@@ -66,7 +61,7 @@ export function useAttributionPagination<TQueryKey extends QueryKey>({
     }),
   );
   const { fetchNextPage: fetchNextPageQuery, hasNextPage } = query;
-  const attributions = useMemo(() => {
+  const attributions = useMemo<TPage['attributions'] | null>(() => {
     if (!query.data) {
       return null;
     }
@@ -100,7 +95,7 @@ export function useAttributionPagination<TQueryKey extends QueryKey>({
       const result = await fetchNextPageQuery({ cancelRefetch: false });
       if (!result.isFetchNextPageError) {
         if (rangeAtRequest !== null) {
-          queryClient.setQueryData<InfiniteAttributionData>(
+          queryClient.setQueryData<InfiniteAttributionData<TPage>>(
             queryKey,
             (data) => data && getAttributionPrefixDataFromPages(data),
           );

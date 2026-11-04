@@ -81,7 +81,10 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     return Object.fromEntries(
       Object.entries(attributionsToSave).map(([id, attribution]) => [
         id,
-        attributionOverrides?.[id] ?? attribution,
+        {
+          ...(attributionOverrides?.[id] ?? attribution),
+          writableLinkedResourceCount: attribution.writableLinkedResourceCount,
+        },
       ]),
     );
   }, [attributionOverrides, attributionsToSave, selection.mode]);
@@ -97,7 +100,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
     try {
       const params = {
         selection,
-        attributions: resolvedAttributions,
+        attributions: attributionOverrides,
         focusedAttributionUuid,
       };
       const result = saveLocally

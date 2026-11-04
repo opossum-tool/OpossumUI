@@ -56,6 +56,7 @@ const knownKeys = new Set<string>([
   'resourceAccess',
   'resources',
   'count',
+  'writableLinkedResourceCount',
   'relation',
   'suffix',
   'synthetic',

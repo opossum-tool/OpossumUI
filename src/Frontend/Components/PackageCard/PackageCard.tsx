@@ -139,6 +139,7 @@ export interface PackageCardConfig {
 }
 
 interface PackageCardProps {
+  countTooltip?: string;
   packageInfo: PackageInfo;
   cardConfig?: Partial<PackageCardConfig>;
   readonlyIconLabel?: string;
@@ -154,6 +155,7 @@ interface PackageCardProps {
 export const PackageCard = memo(
   ({
     packageInfo,
+    countTooltip,
     cardConfig,
     checkbox,
     onClick,
@@ -244,13 +246,16 @@ export const PackageCard = memo(
         <MuiBox sx={classes.innerRoot} onClick={onClick}>
           {packageInfo.count !== undefined && (
             <MuiTooltip
-              title={maybePluralize(
-                packageInfo.count,
-                text.attributionColumn.occurrence,
-                {
-                  showOne: true,
-                },
-              )}
+              title={
+                countTooltip ??
+                maybePluralize(
+                  packageInfo.count,
+                  text.attributionColumn.occurrence,
+                  {
+                    showOne: true,
+                  },
+                )
+              }
               enterDelay={500}
             >
               <MuiChip
