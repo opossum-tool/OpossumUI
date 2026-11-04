@@ -17,7 +17,10 @@ import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../util/use-f
 import { useAttributionSelectionData } from '../AttributionAction/use-attribution-selection-data';
 import { AttributionCardList } from '../AttributionCardList/AttributionCardList';
 import { ConfirmAttributionActionPopup } from '../ConfirmAttributionActionPopup/ConfirmAttributionActionPopup';
-import { popupFixedSectionSx, popupScrollableContentSx } from '../NotificationPopup/NotificationPopup.style';
+import {
+  popupFixedSectionSx,
+  popupScrollableContentSx,
+} from '../NotificationPopup/NotificationPopup.style';
 import { useLinkedResourcesTree } from '../ResourceBrowser/LinkedResourcesTree/useLinkedResourcesTreeState';
 
 interface Props {

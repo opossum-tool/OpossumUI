@@ -133,7 +133,6 @@ export function ConfirmAttributionActionPopup({
           open={open}
           attributionCount={attributionCount}
           testId={attributionListTestId}
-              sx={popupScrollableContentSx}
         />
       ) : (
         <>
@@ -153,9 +152,7 @@ export function ConfirmAttributionActionPopup({
       {children}
       {selection.mode === 'explicit' && (
         <MuiTypography variant={'subtitle2'} sx={popupFixedSectionSx}>
-          {mixedAttributionCount > 0
-            ? text.confirmAttributionActionPopup.editableLinkedResources
-            : text.confirmAttributionActionPopup.linkedResources}
+          {text.confirmAttributionActionPopup.affectedResources}
         </MuiTypography>
       )}
       {selection.mode === 'explicit' && linkedResourcesTreeState && (
@@ -166,7 +163,9 @@ export function ConfirmAttributionActionPopup({
           state={linkedResourcesTreeState}
           sx={{
             ...popupScrollableSectionSx,
-            ...(linkedResourcesTreeState.treeNodes.length > 0 && { minHeight: 0 }),
+            ...(linkedResourcesTreeState.treeNodes.length > 0 && {
+              minHeight: 0,
+            }),
           }}
         />
       )}
