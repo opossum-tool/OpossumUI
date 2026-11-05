@@ -14,13 +14,5 @@ export function createAppStore() {
   return configureStore({
     reducer,
     devTools: process.env.NODE_ENV !== 'production',
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({
-        // TECH DEBT: we should not be putting sets into the store
-        // https://redux.js.org/style-guide/#do-not-put-non-serializable-values-in-state-or-actions
-        serializableCheck: false,
-        // We only use this check in the CI because it significantly slows down the development server.
-        immutableCheck: process.env.CI === 'true',
-      }),
   });
 }
