@@ -37,7 +37,7 @@ export class UserSettingsService {
         await settings.set({
           ...DEFAULT_USER_SETTINGS,
           ...currentSettings,
-        });
+        } as unknown as never);
       }
     });
   }
@@ -66,7 +66,7 @@ export class UserSettingsService {
       for (const key of Object.keys(userSettings)) {
         const properKey = key as keyof UserSettings;
         if (userSettings[properKey] !== undefined) {
-          await settings.set(properKey, userSettings[properKey]);
+          await settings.set(properKey, userSettings[properKey] as never);
         }
       }
       if (!skipNotification) {

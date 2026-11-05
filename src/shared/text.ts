@@ -429,6 +429,18 @@ export const text = {
     selectedMissingCopyright: 'Missing Copyright',
     selectedMissingLicenseInformation: 'Missing License Information',
   },
+  quickfilters: {
+    title: 'Quickfilters',
+    save: 'Save current filters…',
+    nameLabel: 'Quickfilter name',
+    saveAction: 'Save',
+    more: 'More quickfilters',
+    empty:
+      'No quickfilters saved yet. Configure filters and save them here for quick access.',
+    apply: (name: string) => `Apply quickfilter ${name}`,
+    delete: (name: string) => `Delete quickfilter ${name}`,
+    deleteIconLabel: 'Delete quickfilter',
+  },
   sortings: {
     criticality: 'By Criticality',
     name: 'By Name',

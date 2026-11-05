@@ -32,6 +32,7 @@ interface MenuOptionBase {
   id: string;
   label: React.ReactNode;
   selected: boolean;
+  tinted?: boolean;
 }
 
 export interface ToggleMenuOption extends MenuOptionBase {
@@ -99,7 +100,8 @@ export function renderSelectMenuItems({
 
   function renderVisibleOptions() {
     return visibleOptions.map((option, index) => {
-      const { faded, label, icon, endIcon, id, selected, kind } = option;
+      const { faded, label, icon, endIcon, id, selected, kind, tinted } =
+        option;
       const embedded = kind === 'embedded';
       const submenu = kind === 'panel' ? option.submenu : undefined;
       let onClick: React.MouseEventHandler<HTMLLIElement> | undefined;
@@ -159,6 +161,7 @@ export function renderSelectMenuItems({
           divider={index + 1 !== visibleOptions.length}
           disableRipple
           faded={faded}
+          tinted={tinted}
           onKeyDown={onKeyDown}
         >
           {!embedded ? (
