@@ -7,13 +7,13 @@ import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../../testing/global-test-helpers';
-import { getAttributionPreview, getAttributions } from '../getAttributions';
+import { getAttributionPreview } from '../get-attribution-preview';
 import {
   initializeDefaultAttributionQueryTestData,
   preview,
 } from './attribution-query-test-helpers';
 
-describe('getAttributions', () => {
+describe('getAttributionPreview', () => {
   it('counts editable links across the project without changing scoped counts', async () => {
     await initializeDbWithTestData({
       resources: pathsToResources(['/branch/file', '/outside', '/readonly']),
@@ -37,10 +37,6 @@ describe('getAttributions', () => {
       attributionUuids: ['a', 'b', 'empty', 'readonly'],
       resourcePathForRelationships: '/branch/',
     };
-    const scoped = await getAttributions(params);
-    expect(scoped.result.a.count).toBe(1);
-    expect(scoped.result.a.writableLinkedResourceCount).toBeUndefined();
-
     const counted = await getAttributionPreview(params);
     expect(counted.result.a).toMatchObject({
       count: 1,
@@ -77,7 +73,7 @@ describe('getAttributions', () => {
   });
 
   it('loads an explicit UUID batch without applying result-set filters', async () => {
-    const result = await getAttributions({
+    const result = await getAttributionPreview({
       attributionUuids: ['missing', 'unrelated', 'resourceOne', 'unrelated'],
       resourcePathForRelationships: '/parent/resource',
     });
@@ -100,7 +96,7 @@ describe('getAttributions', () => {
       readonlyRules: [{ path: '/readonly', readonly: true }],
     });
 
-    const result = await getAttributions({
+    const result = await getAttributionPreview({
       attributionUuids: ['readonly'],
     });
 

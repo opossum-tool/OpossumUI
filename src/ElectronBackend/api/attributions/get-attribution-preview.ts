@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { Attributions } from '../../../shared/shared-types';
 import { getDb } from '../../db/db';
 import {
   type AttributionPreviewData,
@@ -10,32 +9,13 @@ import {
   withWritableLinkedResourceCounts,
 } from './listAttributionsPage';
 
-export type GetAttributionsProps = {
+type GetAttributionPreviewProps = {
   attributionUuids: Array<string>;
   resourcePathForRelationships?: string;
 };
 
-export async function getAttributions(
-  props: GetAttributionsProps,
-): Promise<{ result: Attributions }> {
-  if (props.attributionUuids.length === 0) {
-    return { result: {} };
-  }
-
-  const result = await getDb()
-    .transaction()
-    .execute((trx) =>
-      hydrateAttributionsByUuid(
-        trx,
-        props.attributionUuids,
-        props.resourcePathForRelationships,
-      ),
-    );
-  return { result };
-}
-
 export async function getAttributionPreview(
-  props: GetAttributionsProps,
+  props: GetAttributionPreviewProps,
 ): Promise<{ result: AttributionPreviewData }> {
   const result = await getDb()
     .transaction()
