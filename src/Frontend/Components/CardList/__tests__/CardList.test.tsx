@@ -39,7 +39,9 @@ describe('CardList', () => {
     const listElement = screen.getByTestId('card-list');
     const expectedHeight = 2 * PACKAGE_CARD_LIST_ITEM_HEIGHT + 1;
     expect(listElement).toHaveStyle({ height: `${expectedHeight}px` });
-    expect(listElement).toHaveStyle({ flex: '0 1 auto' });
+    expect(listElement).toHaveStyle({
+      minHeight: `${PACKAGE_CARD_LIST_ITEM_HEIGHT + 1}px`,
+    });
   });
 
   it('includes unloaded items in the preferred height', () => {
@@ -51,7 +53,7 @@ describe('CardList', () => {
     const listElement = screen.getByTestId('card-list');
     expect(listElement).toHaveStyle({
       height: `${1000 * PACKAGE_CARD_LIST_ITEM_HEIGHT + 1}px`,
-      flex: '0 1 auto',
+      minHeight: `${PACKAGE_CARD_LIST_ITEM_HEIGHT + 1}px`,
     });
   });
 });

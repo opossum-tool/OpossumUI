@@ -7,7 +7,6 @@ import type { ComponentProps } from 'react';
 
 import { borderThin, OpossumColors } from '../../shared-styles';
 import { type BaseItem, List } from '../List/List';
-import { popupScrollableSectionSx } from '../NotificationPopup/NotificationPopup.style';
 import { PACKAGE_CARD_LIST_ITEM_HEIGHT } from '../PackageCard/PackageCard';
 
 export function CardList<ItemType extends BaseItem>(
@@ -24,9 +23,9 @@ export function CardList<ItemType extends BaseItem>(
     <List
       {...props}
       sx={{
-        ...popupScrollableSectionSx,
         background: OpossumColors.lightestBlue,
         border: `${borderThin} solid ${theme.palette.divider}`,
+        boxSizing: 'border-box',
         minHeight: Math.min(height, PACKAGE_CARD_LIST_ITEM_HEIGHT + 1),
         height,
         ...props.sx,

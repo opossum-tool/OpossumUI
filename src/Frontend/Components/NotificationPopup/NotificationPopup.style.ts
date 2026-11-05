@@ -19,10 +19,14 @@ export const popupFixedSectionSx = {
   flex: '0 0 auto',
 } satisfies SxProps<Theme>;
 
-export const popupScrollableSectionSx = {
+export const popupScrollableContentSx = {
   flex: '0 1 auto',
-  minHeight: SCROLLABLE_SECTION_MIN_HEIGHT,
   maxHeight: `min(${SCROLLABLE_SECTION_MAX_HEIGHT}, ${SCROLLABLE_SECTION_MAX_VIEWPORT_HEIGHT})`,
   overflowY: 'auto',
   boxSizing: 'border-box',
+} satisfies SxProps<Theme>;
+
+export const popupScrollableSectionSx = {
+  ...popupScrollableContentSx,
+  minHeight: SCROLLABLE_SECTION_MIN_HEIGHT,
 } satisfies SxProps<Theme>;

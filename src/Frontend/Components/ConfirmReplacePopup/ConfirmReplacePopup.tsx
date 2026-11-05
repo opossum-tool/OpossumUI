@@ -21,6 +21,7 @@ import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
   popupColumnContentSx,
   popupFixedSectionSx,
+  popupScrollableContentSx,
 } from '../NotificationPopup/NotificationPopup.style';
 
 interface Props {
@@ -181,6 +182,7 @@ export const ConfirmReplacePopup = ({
         <AttributionCardList
           attributions={Object.values(attributionsForReplacement)}
           testId={'removed-attributions'}
+          sx={popupScrollableContentSx}
         />
       ) : null}
       <MuiTypography sx={popupFixedSectionSx}>
@@ -189,6 +191,7 @@ export const ConfirmReplacePopup = ({
       <AttributionCardList
         attributions={[attributionWithoutCount]}
         testId={'added attributions'}
+        sx={popupScrollableContentSx}
       />
     </NotificationPopup>
   );

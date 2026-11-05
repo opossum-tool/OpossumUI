@@ -19,6 +19,7 @@ import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
   popupColumnContentSx,
   popupFixedSectionSx,
+  popupScrollableContentSx,
   popupScrollableSectionSx,
 } from '../NotificationPopup/NotificationPopup.style';
 import { LinkedResourcesTree } from '../ResourceBrowser/LinkedResourcesTree/LinkedResourcesTree';
@@ -134,6 +135,7 @@ export function ConfirmAttributionActionPopup({
             <AttributionCardList
               attributions={attributionValues}
               testId={'attribution-preview'}
+              sx={popupScrollableContentSx}
             />
           ) : (
             <MuiTypography sx={popupFixedSectionSx}>
@@ -208,6 +210,7 @@ function AttributionPreview({
           ? (requiredEndIndex) => void preview.fetchNextPage(requiredEndIndex)
           : undefined
       }
+      sx={popupScrollableContentSx}
     />
   );
 }
