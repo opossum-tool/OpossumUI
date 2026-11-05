@@ -49,11 +49,13 @@ export const ConfirmReplacePopup = ({
     onBeforeInvalidation: handleFocusedAttributionOutcome,
   });
   const replaceAttributions = backend.replaceAttributions.useMutation();
-  const replacementPreview = backend.getAttributionPreview.useQuery(
-    open ? { attributionUuids: [selectedAttribution.id] } : skipToken,
-  );
   const isReplacing =
     updateAttributions.isPending || replaceAttributions.isPending;
+  const replacementPreview = backend.getAttributionPreview.useQuery(
+    open && !isReplacing
+      ? { attributionUuids: [selectedAttribution.id] }
+      : skipToken,
+  );
   const selectionForConfirmation = selectionForReplacement
     ? excludeAttributionFromAllMatchingSelection(
         selectionForReplacement,
