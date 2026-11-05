@@ -14,12 +14,7 @@ function getElectronProcessViteConfig(): InlineConfig {
       minify: true,
       outDir: 'build/ElectronBackend',
       rollupOptions: {
-        external: [
-          'electron',
-          'better-sqlite3',
-          'bindings',
-          'file-uri-to-path',
-        ],
+        external: ['electron', 'better-sqlite3'],
       },
     },
   };
