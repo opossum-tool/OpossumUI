@@ -159,11 +159,11 @@ let saveTarget: { projectId: string; opossumFilePath: string } | undefined;
 // write actually failed. Reset whenever a file is loaded.
 let lastSaveResult: SaveResult | undefined;
 
-// Every mutating command registers here when it starts executing and stays
-// registered until its file write has concluded. The `whenIdle` message
-// resolves only when the registry is empty, so a waiter can rely on having
-// every mutation executed and saved.
-let inFlightMutations = 0;
+// Every file-writing operation registers here when it starts executing and
+// stays registered until its file write has concluded. The `whenIdle`
+// message resolves only when the registry is empty, so a waiter (e.g. the
+// quit path) can rely on every operation having been executed and saved.
+let inFlightOperations = 0;
 const idleWaiters: Array<() => void> = [];
 
 // Background writes are serialized: each write reads the database only
@@ -172,11 +172,26 @@ const idleWaiters: Array<() => void> = [];
 let saveChain: Promise<void> = Promise.resolve();
 
 function maybeResolveIdleWaiters(): void {
-  if (inFlightMutations === 0) {
+  if (inFlightOperations === 0) {
     const resolvers = idleWaiters.splice(0, idleWaiters.length);
     for (const resolve of resolvers) {
       resolve();
     }
+  }
+}
+
+/**
+ * Runs a file-writing operation while registered in the in-flight
+ * registry, so that `whenIdle` only resolves once the operation and its
+ * file write have concluded.
+ */
+async function runTrackedOperation<T>(operation: () => Promise<T>): Promise<T> {
+  inFlightOperations++;
+  try {
+    return await operation();
+  } finally {
+    inFlightOperations--;
+    maybeResolveIdleWaiters();
   }
 }
 
@@ -203,7 +218,7 @@ function scheduleBackgroundSave(): void {
   });
   saveChain = write;
   void write.finally(() => {
-    inFlightMutations--;
+    inFlightOperations--;
     maybeResolveIdleWaiters();
   });
 }
@@ -252,7 +267,9 @@ async function executeDbProcessMessage(
       }
       const opossumZip = storedOpossumZip;
       const { id: _, type: __, ...params } = msg;
-      await trackSaveResult(() => saveFile(params, opossumZip));
+      await runTrackedOperation(() =>
+        trackSaveResult(() => saveFile(params, opossumZip)),
+      );
       return undefined;
     }
     case 'forceUnlock': {
@@ -261,7 +278,9 @@ async function executeDbProcessMessage(
       }
       const opossumZip = storedOpossumZip;
       const { id: _, type: __, ...params } = msg;
-      await trackSaveResult(() => forceUnlockOpossumFile(params, opossumZip));
+      await runTrackedOperation(() =>
+        trackSaveResult(() => forceUnlockOpossumFile(params, opossumZip)),
+      );
       return undefined;
     }
     case 'splitOpossumFile': {
@@ -277,14 +296,16 @@ async function executeDbProcessMessage(
         ...saveFileParams
       } = msg;
       // splitOpossumFile rewrites the source file as part of the split.
-      await trackSaveResult(() =>
-        splitOpossumFile(
-          {
-            saveFileParams,
-            selectedFolderPaths,
-            splitOpossumFilePath,
-          },
-          opossumZip,
+      await runTrackedOperation(() =>
+        trackSaveResult(() =>
+          splitOpossumFile(
+            {
+              saveFileParams,
+              selectedFolderPaths,
+              splitOpossumFilePath,
+            },
+            opossumZip,
+          ),
         ),
       );
       return undefined;
@@ -305,37 +326,39 @@ async function executeDbProcessMessage(
         partitionPaths,
         ...saveFileParams
       } = msg;
-      const result = await trackSaveResult(() =>
-        mergeOpossumFiles(
-          {
-            ignoreReadonlyResourceOutputConflicts,
-            saveFileParams,
-            partitionPaths,
-            reportProgress: onProgress,
-          },
-          opossumZip,
-        ),
-      );
-      if (result.status === 'error') {
-        // mergeOpossumFiles reports write failures as an error result
-        // instead of throwing, so the tracked outcome must be corrected.
-        lastSaveResult = 'failed';
+      return runTrackedOperation(async () => {
+        const result = await trackSaveResult(() =>
+          mergeOpossumFiles(
+            {
+              ignoreReadonlyResourceOutputConflicts,
+              saveFileParams,
+              partitionPaths,
+              reportProgress: onProgress,
+            },
+            opossumZip,
+          ),
+        );
+        if (result.status === 'error') {
+          // mergeOpossumFiles reports write failures as an error result
+          // instead of throwing, so the tracked outcome must be corrected.
+          lastSaveResult = 'failed';
+          return result;
+        }
+        const loadResult = await loadFile(
+          saveFileParams.opossumFilePath,
+          onProgress,
+        );
+        if (!loadResult.ok) {
+          return {
+            errorMessage: `Could not reload merged archive: ${loadResult.error.message}`,
+            errorType: MergeOpossumFilesErrorType.Unknown,
+            status: 'error',
+          };
+        }
+        storedOpossumZip = loadResult.opossumZip;
+        // The merge rewrote the output file and it was reloaded from disk.
         return result;
-      }
-      const loadResult = await loadFile(
-        saveFileParams.opossumFilePath,
-        onProgress,
-      );
-      if (!loadResult.ok) {
-        return {
-          errorMessage: `Could not reload merged archive: ${loadResult.error.message}`,
-          errorType: MergeOpossumFilesErrorType.Unknown,
-          status: 'error',
-        };
-      }
-      storedOpossumZip = loadResult.opossumZip;
-      // The merge rewrote the output file and it was reloaded from disk.
-      return result;
+      });
     }
     case 'mergeOpossumFilesFromPaths': {
       const {
@@ -345,25 +368,27 @@ async function executeDbProcessMessage(
         inputPaths,
         outputPath,
       } = msg;
-      return mergeOpossumFilesFromPaths({
-        ignoreReadonlyResourceOutputConflicts,
-        inputPaths,
-        outputPath,
-        reportProgress: onProgress,
-      });
+      return runTrackedOperation(() =>
+        mergeOpossumFilesFromPaths({
+          ignoreReadonlyResourceOutputConflicts,
+          inputPaths,
+          outputPath,
+          reportProgress: onProgress,
+        }),
+      );
     }
     case 'exportFile': {
-      await exportFile(msg.exportType, msg.filePath);
+      await runTrackedOperation(() => exportFile(msg.exportType, msg.filePath));
       return undefined;
     }
     case 'executeCommand': {
       // Mutations register before execution: the `whenIdle` wait may only
       // resolve after the mutation has been executed and its file write
-      // has concluded. Other file-writing operations (forceUnlock,
-      // splitOpossumFile, mergeOpossumFiles) await their writes before
-      // responding, so their callers' requests cover them.
+      // has concluded. The write stays registered until the scheduled
+      // background save has concluded. Other file-writing operations are
+      // registered by `runTrackedOperation` in their own cases.
       if (isMutationCommand(msg.command)) {
-        inFlightMutations++;
+        inFlightOperations++;
         try {
           const result = await executeCommand(msg.command, msg.params);
           scheduleBackgroundSave();
@@ -372,7 +397,7 @@ async function executeDbProcessMessage(
           // The command failed and did not change the database, so there
           // is no file write to wait for. Failed background writes are
           // logged, tracked, and re-tried when the app quits.
-          inFlightMutations--;
+          inFlightOperations--;
           maybeResolveIdleWaiters();
           throw error;
         }
@@ -380,7 +405,7 @@ async function executeDbProcessMessage(
       return executeCommand(msg.command, msg.params);
     }
     case 'whenIdle': {
-      if (inFlightMutations === 0) {
+      if (inFlightOperations === 0) {
         return undefined;
       }
       await new Promise<void>((resolve) => {
@@ -423,7 +448,7 @@ export function resetDbProcessStateForTesting(): void {
   storedOpossumZip = undefined;
   saveTarget = undefined;
   lastSaveResult = undefined;
-  inFlightMutations = 0;
+  inFlightOperations = 0;
   idleWaiters.length = 0;
   saveChain = Promise.resolve();
 }

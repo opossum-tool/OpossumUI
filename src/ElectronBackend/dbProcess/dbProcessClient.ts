@@ -55,7 +55,6 @@ export class DbProcessClient {
   private nextId = 0;
   private dead = false;
   private readonly pending = new Map<number, PendingRequest>();
-  private readonly idleResolvers: Array<() => void> = [];
   private readonly port: { postMessage(data: DbProcessRequest): void };
 
   constructor(port: ClientPort) {
@@ -80,12 +79,6 @@ export class DbProcessClient {
       return;
     }
     this.pending.delete(msg.id);
-    if (this.pending.size === 0) {
-      const resolvers = this.idleResolvers.splice(0, this.idleResolvers.length);
-      for (const resolve of resolvers) {
-        resolve();
-      }
-    }
     if (msg.type === 'error') {
       const err = new Error(msg.error);
       if (msg.stack) {
@@ -118,22 +111,9 @@ export class DbProcessClient {
   }
 
   /**
-   * Resolves once all requests sent over this client have been answered by
-   * the DB process. Used to await pending background file writes before
-   * the app quits.
-   */
-  async whenIdle(): Promise<void> {
-    if (this.pending.size === 0) {
-      return;
-    }
-    await new Promise<void>((resolve) => {
-      this.idleResolvers.push(resolve);
-    });
-  }
-
-  /**
-   * Resolves once every mutation sent to the DB process — from any port —
-   * has finished executing and its automatic file write has concluded.
+   * Resolves once every file-writing operation sent to the DB process —
+   * from any port — has finished executing and its file write has
+   * concluded. Used to await pending operations before the app quits.
    */
   async whenMutationsSettled(): Promise<void> {
     await this.request({ type: 'whenIdle' });
@@ -160,23 +140,16 @@ export class DbProcessClient {
   }
 
   /**
-   * Rejects all requests that are still waiting for a DB process response
-   * and resolves all `whenIdle` waiters. Called when the DB process exits;
-   * afterwards this client rejects any new request immediately.
+   * Rejects all requests that are still waiting for a DB process response.
+   * Called when the DB process exits; afterwards this client rejects any
+   * new request immediately.
    */
   failPendingRequests(error: Error): void {
     this.dead = true;
     const requests = Array.from(this.pending.values());
     this.pending.clear();
-    const idleResolvers = this.idleResolvers.splice(
-      0,
-      this.idleResolvers.length,
-    );
     for (const request of requests) {
       request.reject(error);
-    }
-    for (const resolve of idleResolvers) {
-      resolve();
     }
   }
 

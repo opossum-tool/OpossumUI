@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type AdmZip from 'adm-zip';
 
+import { ExportType } from '../../../shared/shared-types';
 import {
   type DbProcessRequest,
   type DbProcessResponse,
@@ -306,6 +307,90 @@ describe('dbProcess save tracking', () => {
     resolveFirstSave();
     expect((await idlePromise)?.type).toBe('success');
     expect(saveFileApiMock).toHaveBeenCalledTimes(3);
+  });
+
+  it('resolves whenIdle only after a manual save concluded', async () => {
+    await loadProject();
+
+    let resolveSave!: () => void;
+    saveFileApiMock.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveSave = resolve;
+        }),
+    );
+
+    const savePromise = handle(saveMessage(1));
+    const idlePromise = awaitIdle(2);
+    resolveSave();
+    expect((await idlePromise)?.type).toBe('success');
+    expect((await savePromise)?.type).toBe('success');
+  });
+
+  it('resolves whenIdle only after a force unlock concluded', async () => {
+    await loadProject();
+
+    let resolveUnlock!: () => void;
+    forceUnlockMock.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveUnlock = resolve;
+        }),
+    );
+
+    const unlockPromise = handle({
+      id: 1,
+      type: 'forceUnlock',
+      projectId: 'uuid_1',
+      opossumFilePath: '/some/path.opossum',
+    });
+    const idlePromise = awaitIdle(2);
+    resolveUnlock();
+    expect((await idlePromise)?.type).toBe('success');
+    expect((await unlockPromise)?.type).toBe('success');
+  });
+
+  it('resolves whenIdle only after an export concluded', async () => {
+    let resolveExport!: () => void;
+    exportFileMock.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveExport = resolve;
+        }),
+    );
+
+    const exportPromise = handle({
+      id: 1,
+      type: 'exportFile',
+      exportType: ExportType.FollowUp,
+      filePath: '/some/export.json',
+    });
+    const idlePromise = awaitIdle(2);
+    resolveExport();
+    expect((await idlePromise)?.type).toBe('success');
+    expect((await exportPromise)?.type).toBe('success');
+  });
+
+  it('resolves whenIdle only after a standalone merge concluded', async () => {
+    let resolveMerge!: () => void;
+    mergeOpossumFilesFromPathsMock.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveMerge = resolve;
+        }),
+    );
+
+    const mergePromise = handle({
+      id: 1,
+      type: 'mergeOpossumFilesFromPaths',
+      ignoreReadonlyResourceOutputConflicts: false,
+      inputPaths: ['/some/input.opossum'],
+      outputPath: '/some/output.opossum',
+    });
+    const idlePromise = awaitIdle(2);
+    resolveMerge();
+    expect((await idlePromise)?.type).toBe('success');
+    expect((await mergePromise)?.type).toBe('success');
   });
 });
 

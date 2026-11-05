@@ -87,15 +87,14 @@ export function acknowledgeQuitRequest(): void {
 
 /**
  * Called by the renderer once it is safe to quit (no unsaved changes left).
- * Awaits all pending requests of the DB process, then the DB process's
- * mutation registry (every mutation has been executed and its automatic
- * file write has concluded).
+ * Awaits the DB process's in-flight registry: every file-writing operation
+ * (mutations with their automatic saves, manual saves, forceUnlock, split,
+ * merge, export) has been executed and its file write has concluded.
  *
- * The DB process tracks the outcome of every write of the project file
- * (automatic saves after mutations, manual saves, and the writes of
- * forceUnlock, split, and merge). Only when the last write failed is the
- * file written again here. If that retry also fails, the app stays open
- * so that the user can retry closing it instead of losing data on quit.
+ * The DB process tracks the outcome of every write of the project file.
+ * Only when the last write failed is the file written again here. If that
+ * retry also fails, the app stays open so that the user can retry closing
+ * it instead of losing data on quit.
  */
 export async function confirmQuit(
   window: BrowserWindow,
@@ -103,7 +102,6 @@ export async function confirmQuit(
 ): Promise<void> {
   quitApproved = true;
   const client = getMainDbClient();
-  await client.whenIdle();
   if (!client.isDead()) {
     await client.whenMutationsSettled();
   }

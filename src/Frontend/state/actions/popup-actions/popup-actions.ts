@@ -74,8 +74,8 @@ import {
 
 /**
  * Confirms the quit in the main process once the DB process reports no
- * pending mutations: `whenBackendIdle` resolves only after every mutation
- * has been executed and its automatic file write has concluded. The
+ * in-flight file-writing operations: `whenBackendIdle` resolves only after
+ * every operation has been executed and its file write has concluded. The
  * saving indicator is shown from here on, covering the re-save the main
  * process performs when the last automatic save failed.
  */

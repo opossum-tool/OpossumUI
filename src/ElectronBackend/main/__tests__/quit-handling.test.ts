@@ -13,7 +13,6 @@ import {
   resetQuitStateForTesting,
 } from '../quit-handling';
 
-const whenIdleMock = vi.hoisted(() => vi.fn());
 const whenMutationsSettledMock = vi.hoisted(() => vi.fn());
 const getLastSaveResultMock = vi.hoisted(() => vi.fn());
 const saveFileMock = vi.hoisted(() => vi.fn());
@@ -27,7 +26,6 @@ vi.mock('electron', () => ({
 
 vi.mock('../../dbProcess/dbProcessClient', () => ({
   getMainDbClient: () => ({
-    whenIdle: whenIdleMock,
     whenMutationsSettled: whenMutationsSettledMock,
     getLastSaveResult: getLastSaveResultMock,
     saveFile: saveFileMock,
@@ -84,7 +82,6 @@ describe('handleWindowClose', () => {
   beforeEach(() => {
     resetQuitStateForTesting();
     currentTimestamp = 0;
-    whenIdleMock.mockReset().mockResolvedValue(undefined);
     whenMutationsSettledMock.mockReset().mockResolvedValue(undefined);
     getLastSaveResultMock.mockReset().mockResolvedValue('success');
     saveFileMock.mockReset().mockResolvedValue(undefined);
@@ -152,7 +149,6 @@ describe('confirmQuit', () => {
   beforeEach(() => {
     resetQuitStateForTesting();
     setGlobalBackendState({});
-    whenIdleMock.mockReset().mockResolvedValue(undefined);
     whenMutationsSettledMock.mockReset().mockResolvedValue(undefined);
     getLastSaveResultMock.mockReset().mockResolvedValue('success');
     saveFileMock.mockReset().mockResolvedValue(undefined);
@@ -168,22 +164,21 @@ describe('confirmQuit', () => {
     });
   }
 
-  it('waits for pending DB process requests, then quits without saving when the last save succeeded', async () => {
+  it('waits for the DB process operations to settle, then quits without saving when the last save succeeded', async () => {
     loadProjectState();
-    let resolveWhenIdle!: () => void;
-    whenIdleMock.mockReturnValue(
+    let resolveWhenMutationsSettled!: () => void;
+    whenMutationsSettledMock.mockReturnValue(
       new Promise<void>((resolve) => {
-        resolveWhenIdle = resolve;
+        resolveWhenMutationsSettled = resolve;
       }),
     );
 
     const quitPromise = confirmQuit(createWindowMock().window);
     expect(quitMock).not.toHaveBeenCalled();
 
-    resolveWhenIdle();
+    resolveWhenMutationsSettled();
     await quitPromise;
 
-    expect(whenIdleMock).toHaveBeenCalledTimes(1);
     expect(whenMutationsSettledMock).toHaveBeenCalledTimes(1);
     expect(getLastSaveResultMock).toHaveBeenCalledTimes(1);
     expect(saveFileMock).not.toHaveBeenCalled();
@@ -266,10 +261,10 @@ describe('confirmQuit', () => {
 
   it('ignores close attempts while the quit is in progress', async () => {
     loadProjectState();
-    let resolveWhenIdle!: () => void;
-    whenIdleMock.mockReturnValue(
+    let resolveWhenMutationsSettled!: () => void;
+    whenMutationsSettledMock.mockReturnValue(
       new Promise<void>((resolve) => {
-        resolveWhenIdle = resolve;
+        resolveWhenMutationsSettled = resolve;
       }),
     );
 
@@ -280,7 +275,7 @@ describe('confirmQuit', () => {
     expect(midSave.preventDefault).toHaveBeenCalledTimes(1);
     expect(midSave.send).not.toHaveBeenCalled();
 
-    resolveWhenIdle();
+    resolveWhenMutationsSettled();
     await quitPromise;
   });
 
