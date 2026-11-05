@@ -8,7 +8,7 @@ import userEvent from '@testing-library/user-event';
 import { deserializeAttributions } from '../ElectronBackend/input/parseInputData';
 import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers/general-test-helpers';
 import { faker } from '../testing/Faker';
-import { renderApp } from './helpers/render-app';
+import { renderApp } from '../testing/render-app';
 import {
   addLicenseSearchFilter,
   clickFilterMenuButton,
@@ -21,7 +21,7 @@ import {
   fillLicenseFilter,
   getReportView,
   gotoReportView,
-} from './helpers/ui';
+} from '../testing/ui';
 
 const entries = [
   'MIT',
