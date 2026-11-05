@@ -25,9 +25,12 @@ OpossumUI is an Electron app (TypeScript + React + Redux) for auditing open-sour
 | Install & setup           | `yarn install` (runs postinstall: deps, electron rebuild, commit hash, husky)                                              |
 | Copyright tool            | Install [reuse](https://git.fsfe.org/reuse/tool#install) CLI — required by `yarn copyright-lint-check` and pre-commit hook |
 | Dev server                | `yarn start`                                                                                                               |
-| Unit tests (all)          | `yarn test:unit`                                                                                                           |
-| Unit tests (changed only) | `yarn test:changed`                                                                                                        |
-| Integration tests         | `yarn test:int`                                                                                                            |
+| Unit tests (all)          | `yarn test:unit` (FE, BE, SH, TOOLING projects)                                                                            |
+| Unit tests (changed only) | `yarn test:changed` (all projects for changed files)                                                                       |
+| Integration tests         | `yarn test:int` (INT project only)                                                                                         |
+| Tooling tests             | `yarn test:tooling` (TOOLING project only)                                                                                 |
+| All vitest tests          | `yarn test:vitest` (all four projects)                                                                                     |
+| Everything (vitest + e2e) | `yarn test:all`                                                                                                            |
 | Watch unit tests          | `yarn test:watch`                                                                                                          |
 | E2E (dev server)          | `yarn test:e2e`                                                                                                            |
 | E2E (built app)           | `yarn test:e2e:ci`                                                                                                         |
@@ -83,11 +86,12 @@ Five vitest projects with different environments:
 - **INT** (happy-dom): `src/integration-tests/**/*.test.{ts,tsx}`
 - **BE** (node): `src/ElectronBackend/**/__test{s,}__/**/*.test.{ts,tsx}`
 - **SH** (node): `src/shared/**/__test{s,}__/**/*.test.{ts,tsx}`
-- **PERF** (node): `src/performance-tests/**/__test{s,}__/**/*.test.{ts,tsx}`
+- **TOOLING** (node): `src/performance-tests/**/__test{s,}__/**/*.test.{ts,tsx}`
+  (unit tests for the synthetic performance file generator, not actual
+  performance tests)
 
 Test directories can be `__tests__` or `__test__`.
 
-Run only the integration tests with `yarn test:int`.
 Integration tests (`src/integration-tests/`) render the full app via the
 `renderApp` helper in `helpers/render-app.tsx`: the real backend command handlers
 (`executeCommand`) run against a real SQLite DB seeded from a `ParsedFileContent`

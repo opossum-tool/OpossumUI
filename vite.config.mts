@@ -136,7 +136,7 @@ export default defineConfig(({ mode }) => ({
         test: {
           environment: 'node',
           include: ['src/performance-tests/**/__test{s,}__/**/*.test.{ts,tsx}'],
-          name: { label: 'PERF', color: 'magenta' },
+          name: { label: 'TOOLING', color: 'magenta' },
           setupFiles: ['./src/testing/setup.ts'],
         },
       },
