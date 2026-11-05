@@ -30,7 +30,6 @@ export default tseslint.config(
       'eslint.config.mjs',
       'index.html',
       'notices.template.html',
-      'vite.config.mts',
       '.yarn',
       'src/ElectronBackend/db/generated',
     ],
@@ -58,9 +57,7 @@ export default tseslint.config(
         },
         ecmaVersion: 2018,
         sourceType: 'module',
-        projectService: {
-          allowDefaultProject: ['tools/*.mjs'],
-        },
+        projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },

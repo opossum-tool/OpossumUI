@@ -10,8 +10,8 @@ export default {
     'prettier --write --ignore-unknown',
   ],
   'package.json': () => 'yarn check-exact-versions',
-  '*.{ts,tsx}': 'eslint',
-  '!(src/ElectronBackend/**/*)*.{ts,tsx}': () => 'tsc -p ./',
+  '*.{ts,tsx,mts,mjs}': 'eslint',
+  '!(src/ElectronBackend/**/*)*.{ts,tsx,mts}': () => 'tsc -p ./',
   'src/ElectronBackend/**/*.{ts,tsx}': () => [
     'yarn db:generate',
     'tsc --noEmit -p src/ElectronBackend',
