@@ -11,6 +11,10 @@ import type {
   CommandParams,
   CommandReturn,
 } from '../ElectronBackend/api/commands';
+import type {
+  AttributionFilterKey,
+  AttributionValueFilters,
+} from './attribution-filters';
 import type { AllowedFrontendChannels } from './ipc-channels';
 
 export interface Resources {
@@ -418,6 +422,19 @@ export type TableOrdering = {
   orderedColumn: string;
 };
 
+export interface SavedQuickfilter {
+  id: string;
+  name: string;
+  lastUsedAt: number;
+  filters: {
+    filters: Array<AttributionFilterKey>;
+    search: string;
+    valueFilters: Omit<AttributionValueFilters, 'licenseIds'> & {
+      license?: Array<LicenseOption>;
+    };
+  };
+}
+
 export interface UserSettings {
   qaMode: boolean;
   showProjectStatistics: boolean;
@@ -432,6 +449,7 @@ export interface UserSettings {
   };
   recentlyOpenedPaths: Array<string>;
   attributionTableOrdering: TableOrdering;
+  savedQuickfilters: Array<SavedQuickfilter>;
   automaticallyCheckForUpdates: boolean;
   lastSeenWhatsNewRevision: number;
 }

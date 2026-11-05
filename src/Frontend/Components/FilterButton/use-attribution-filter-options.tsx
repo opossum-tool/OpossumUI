@@ -23,6 +23,7 @@ import {
 } from '../Icons/Icons';
 import type { FilterOption } from './FilterButton';
 import { createLicenseFilterOption } from './license-editor';
+import { useQuickfilterOptions } from './quickfilter-options';
 import { ValueFilterAutocomplete } from './ValueFilterAutocomplete/ValueFilterAutocomplete';
 
 const incompleteCoordinateLabels = {
@@ -84,9 +85,11 @@ export function useAttributionFilterOptions({
     filters,
     setFilters,
   });
+  const quickfilterOptions = useQuickfilterOptions({ filters, setFilters });
   return useMemo(
     () =>
       compact([
+        ...quickfilterOptions,
         ...filterOptions.map(({ key, label, icon }) => {
           const count = filterProps?.[key];
 
@@ -126,6 +129,7 @@ export function useAttributionFilterOptions({
         criticalityFilterOption,
       ]),
     [
+      quickfilterOptions,
       filterOptions,
       filterProps,
       licenses,
