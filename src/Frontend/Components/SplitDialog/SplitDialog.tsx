@@ -10,15 +10,15 @@ import MuiTypography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
 
 import { text } from '../../../shared/text';
-import {
-  popupMaxWidth,
-  popupMinWidth,
-  popupViewportWidth,
-} from '../../shared-styles';
+import { fileDialogMaxWidth } from '../../shared-styles';
 import { createSplit } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
+import {
+  popupColumnContentSx,
+  popupFixedSectionSx,
+} from '../NotificationPopup/NotificationPopup.style';
 import { MultiResourcePicker } from './MultiResourcePicker';
 
 interface SplitDialogProps {
@@ -94,10 +94,10 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
 
   return (
     <NotificationPopup
+      fullWidth
+      maxWidth={fileDialogMaxWidth}
+      sx={popupColumnContentSx}
       header={text.splitDialog.title}
-      width={popupViewportWidth}
-      minWidth={popupMinWidth}
-      maxWidth={popupMaxWidth}
       isOpen={open}
       leftButtonConfig={{
         onClick: handleCreateSplit,
@@ -117,45 +117,44 @@ export const SplitDialog: React.FC<SplitDialogProps> = ({
       onEscapeKeyDown={splitInProgress ? undefined : onClose}
       aria-label={'split dialog'}
     >
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <MuiTypography>{text.splitDialog.explanationText}</MuiTypography>
-        <MultiResourcePicker
-          key={`${resourcePath}-${pickerInstance}`}
-          disabled={splitInProgress}
-          initialSelectedPaths={selectedResourcePaths}
-          open={open}
-          onSelectionChange={setSelectedResourcePaths}
-        />
-        <FilePathInput
-          label={
-            destinationPath
-              ? text.splitDialog.destinationPath.label
-              : text.splitDialog.destinationPath.selectLabel
-          }
-          text={destinationPath}
-          onClick={() => void selectDestinationPath()}
-          testId={'split-destination-path'}
-          disabled={splitInProgress || selectedResourcePaths.length === 0}
-        />
-        <MuiCollapse
-          in={Boolean(splitInProgress || splitSucceeded || errorMessage)}
-        >
-          <MuiBox sx={{ mt: 5 }}>
-            {splitInProgress ? (
-              <>
-                <MuiTypography>{text.splitDialog.inProgress}</MuiTypography>
-                <MuiLinearProgress sx={{ mt: 2 }} />
-              </>
-            ) : splitSucceeded ? (
-              <MuiAlert severity={'success'}>
-                {text.splitDialog.success}
-              </MuiAlert>
-            ) : errorMessage ? (
-              <MuiAlert severity={'error'}>{errorMessage}</MuiAlert>
-            ) : null}
-          </MuiBox>
-        </MuiCollapse>
-      </div>
+      <MuiTypography sx={popupFixedSectionSx}>
+        {text.splitDialog.explanationText}
+      </MuiTypography>
+      <MultiResourcePicker
+        key={`${resourcePath}-${pickerInstance}`}
+        disabled={splitInProgress}
+        initialSelectedPaths={selectedResourcePaths}
+        open={open}
+        onSelectionChange={setSelectedResourcePaths}
+      />
+      <FilePathInput
+        label={
+          destinationPath
+            ? text.splitDialog.destinationPath.label
+            : text.splitDialog.destinationPath.selectLabel
+        }
+        text={destinationPath}
+        onClick={() => void selectDestinationPath()}
+        testId={'split-destination-path'}
+        disabled={splitInProgress || selectedResourcePaths.length === 0}
+      />
+      <MuiCollapse
+        in={Boolean(splitInProgress || splitSucceeded || errorMessage)}
+        sx={popupFixedSectionSx}
+      >
+        <MuiBox sx={{ mt: 5 }}>
+          {splitInProgress ? (
+            <>
+              <MuiTypography>{text.splitDialog.inProgress}</MuiTypography>
+              <MuiLinearProgress sx={{ mt: 2 }} />
+            </>
+          ) : splitSucceeded ? (
+            <MuiAlert severity={'success'}>{text.splitDialog.success}</MuiAlert>
+          ) : errorMessage ? (
+            <MuiAlert severity={'error'}>{errorMessage}</MuiAlert>
+          ) : null}
+        </MuiBox>
+      </MuiCollapse>
     </NotificationPopup>
   );
 };

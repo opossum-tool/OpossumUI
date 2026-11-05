@@ -20,17 +20,18 @@ import {
   OPOSSUM_FILE_FORMAT,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import {
-  popupMaxWidth,
-  popupMinWidth,
-  popupViewportWidth,
-} from '../../shared-styles';
+import { fileDialogMaxWidth } from '../../shared-styles';
 import { mergeOpossumFilesIntoCurrentFile } from '../../state/actions/popup-actions/popup-actions';
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { backend } from '../../util/backendClient';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
+import {
+  popupColumnContentSx,
+  popupFixedSectionSx,
+  popupScrollableSectionSx,
+} from '../NotificationPopup/NotificationPopup.style';
 
 interface MergeOpossumFilesDialogProps {
   canMergeIntoCurrentFile: boolean;
@@ -145,14 +146,14 @@ export const MergeOpossumFilesDialog: React.FC<
 
   return (
     <NotificationPopup
+      fullWidth
+      maxWidth={fileDialogMaxWidth}
+      sx={popupColumnContentSx}
       header={
         mergeIntoCurrentFile
           ? text.mergeOpossumFilesDialog.titleForCurrentFile
           : text.mergeOpossumFilesDialog.title
       }
-      width={popupViewportWidth}
-      minWidth={popupMinWidth}
-      maxWidth={popupMaxWidth}
       isOpen={true}
       rightButtonConfig={{
         onClick: () => dispatch(closePopup()),
@@ -181,24 +182,28 @@ export const MergeOpossumFilesDialog: React.FC<
             />
           }
           label={text.mergeOpossumFilesDialog.mergeIntoCurrentProject}
-          sx={{ mb: 2.5 }}
+          sx={{ ...popupFixedSectionSx, mb: 2.5 }}
         />
       )}
-      <MuiTypography>
+      <MuiTypography sx={popupFixedSectionSx}>
         {mergeIntoCurrentFile
           ? text.mergeOpossumFilesDialog.explanationTextForCurrentFile
           : text.mergeOpossumFilesDialog.explanationText}
       </MuiTypography>
       {showNoReadonlyPathsMessage ? (
-        <MuiAlert severity={'warning'} sx={{ mt: 5 }}>
+        <MuiAlert severity={'warning'} sx={{ ...popupFixedSectionSx, mt: 5 }}>
           {text.mergeOpossumFilesDialog.noReadonlyPathsWarning}
         </MuiAlert>
       ) : null}
-      <MuiTypography sx={{ mt: 5 }}>
+      <MuiTypography sx={{ ...popupFixedSectionSx, mt: 5 }}>
         {text.mergeOpossumFilesDialog.filesToMerge}
       </MuiTypography>
       {mergeIntoCurrentFile || inputFilePaths.length > 0 ? (
-        <MuiPaper variant={'outlined'} sx={{ mt: 2.5 }}>
+        <MuiPaper
+          data-testid={'merge-input-file-list'}
+          variant={'outlined'}
+          sx={{ ...popupScrollableSectionSx, mt: 2.5 }}
+        >
           <MuiList dense>
             {mergeIntoCurrentFile && currentFilePath ? (
               <MuiListItem>
@@ -252,7 +257,7 @@ export const MergeOpossumFilesDialog: React.FC<
       {errorMessage ? (
         <MuiAlert
           severity={ignoreReadonlyResourceOutputConflicts ? 'warning' : 'error'}
-          sx={{ mt: 5 }}
+          sx={{ ...popupFixedSectionSx, mt: 5 }}
         >
           {errorMessage}
         </MuiAlert>

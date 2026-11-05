@@ -9,6 +9,7 @@ import { skipToken } from '@tanstack/react-query';
 import { excludeAttributionFromAllMatchingSelection } from '../../../shared/attribution-selection';
 import type { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
+import { attributionPopupMaxWidth } from '../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { useAttributionSelectionForReplacement } from '../../state/variables/use-attribution-selection-for-replacement';
@@ -17,9 +18,11 @@ import { maybePluralize } from '../../util/maybe-pluralize';
 import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../util/use-focused-attribution-outcome';
 import { AttributionCardList } from '../AttributionCardList/AttributionCardList';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
-
-// Popup width, fixed px (not spacing-scaled).
-const POPUP_WIDTH = '500px';
+import {
+  popupColumnContentSx,
+  popupFixedSectionSx,
+  popupScrollableContentSx,
+} from '../NotificationPopup/NotificationPopup.style';
 
 interface Props {
   selectedAttribution: PackageInfo;
@@ -131,6 +134,9 @@ export const ConfirmReplacePopup = ({
 
   return (
     <NotificationPopup
+      fullWidth
+      maxWidth={attributionPopupMaxWidth}
+      sx={popupColumnContentSx}
       header={text.replaceAttributionsPopup.title}
       leftButtonConfig={{
         disabled:
@@ -151,17 +157,15 @@ export const ConfirmReplacePopup = ({
       }}
       isOpen={open}
       aria-label={'confirm replace popup'}
-      width={POPUP_WIDTH}
-      sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
     >
       {mixedAttributionCount > 0 && (
-        <MuiAlert severity={'warning'}>
+        <MuiAlert severity={'warning'} sx={popupFixedSectionSx}>
           {text.confirmAttributionActionPopup.mixedWarning(
             mixedAttributionCount,
           )}
         </MuiAlert>
       )}
-      <MuiTypography>
+      <MuiTypography sx={popupFixedSectionSx}>
         {text.replaceAttributionsPopup.removeAttributions(
           isQueryWideSelection
             ? maybePluralize(
@@ -178,12 +182,16 @@ export const ConfirmReplacePopup = ({
         <AttributionCardList
           attributions={Object.values(attributionsForReplacement)}
           testId={'removed-attributions'}
+          sx={popupScrollableContentSx}
         />
       ) : null}
-      <MuiTypography>{text.replaceAttributionsPopup.replacement}</MuiTypography>
+      <MuiTypography sx={popupFixedSectionSx}>
+        {text.replaceAttributionsPopup.replacement}
+      </MuiTypography>
       <AttributionCardList
         attributions={[attributionWithoutCount]}
         testId={'added attributions'}
+        sx={popupScrollableContentSx}
       />
     </NotificationPopup>
   );

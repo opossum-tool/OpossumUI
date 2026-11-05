@@ -9,11 +9,9 @@ import { PACKAGE_CARD_LIST_ITEM_HEIGHT } from '../../PackageCard/PackageCard';
 import { CardList } from '../CardList';
 
 function renderCardList({
-  fillAvailableHeight = false,
   itemCount = 2,
   totalCount,
 }: {
-  fillAvailableHeight?: boolean;
   itemCount?: number;
   totalCount?: number;
 }) {
@@ -23,7 +21,6 @@ function renderCardList({
     >
       <CardList
         testId={'card-list'}
-        fillAvailableHeight={fillAvailableHeight}
         totalCount={totalCount}
         unloadedItemHeight={PACKAGE_CARD_LIST_ITEM_HEIGHT}
         data={Array.from({ length: itemCount }, (_, index) => ({
@@ -36,33 +33,27 @@ function renderCardList({
 }
 
 describe('CardList', () => {
-  it('keeps a fixed height when fillAvailableHeight content fits the dialog', () => {
-    renderCardList({ fillAvailableHeight: true, itemCount: 2 });
+  it('sizes short lists to their content', () => {
+    renderCardList({ itemCount: 2 });
 
     const listElement = screen.getByTestId('card-list');
     const expectedHeight = 2 * PACKAGE_CARD_LIST_ITEM_HEIGHT + 1;
     expect(listElement).toHaveStyle({ height: `${expectedHeight}px` });
-    expect(listElement).toHaveStyle({ flex: '' });
+    expect(listElement).toHaveStyle({
+      minHeight: `${PACKAGE_CARD_LIST_ITEM_HEIGHT + 1}px`,
+    });
   });
 
-  it('fills available height when fillAvailableHeight content exceeds the dialog', () => {
+  it('includes unloaded items in the preferred height', () => {
     renderCardList({
-      fillAvailableHeight: true,
       itemCount: 5,
       totalCount: 1000,
     });
 
     const listElement = screen.getByTestId('card-list');
-    expect(listElement).toHaveStyle({ height: 'auto' });
-    expect(listElement).toHaveStyle({ flex: '1 1 0%' });
-  });
-
-  it('keeps a fixed height without fillAvailableHeight', () => {
-    renderCardList({ itemCount: 5 });
-
-    const listElement = screen.getByTestId('card-list');
-    const expectedHeight = 4 * PACKAGE_CARD_LIST_ITEM_HEIGHT + 1;
-    expect(listElement).toHaveStyle({ height: `${expectedHeight}px` });
-    expect(listElement).toHaveStyle({ flex: '' });
+    expect(listElement).toHaveStyle({
+      height: `${1000 * PACKAGE_CARD_LIST_ITEM_HEIGHT + 1}px`,
+      minHeight: `${PACKAGE_CARD_LIST_ITEM_HEIGHT + 1}px`,
+    });
   });
 });

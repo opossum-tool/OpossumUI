@@ -52,7 +52,7 @@ export const FilePathInput: React.FC<FilePathInputProps> = (props) => {
       // behavior (e.g. horizontal text scrolling) that we don't want here
       inputComponent={CustomInput}
       disabled={props.disabled}
-      sx={{ mt: 5 }}
+      sx={{ flex: '0 0 auto', mt: 5 }}
     />
   );
 };

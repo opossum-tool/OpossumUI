@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 // SPDX-License-Identifier: Apache-2.0
 import MuiDivider from '@mui/material/Divider';
+import type { SxProps } from '@mui/system';
 
 import type { PackageInfo } from '../../../shared/shared-types';
 import { CardList } from '../CardList/CardList';
@@ -17,9 +18,9 @@ export function AttributionCardList({
   loadMoreError,
   onRetryLoadMore,
   endReached,
-  fillAvailableHeight,
   totalCount,
   resultSetKey,
+  sx,
 }: {
   attributions: Array<PackageInfo>;
   testId?: string;
@@ -27,9 +28,9 @@ export function AttributionCardList({
   loadMoreError?: unknown;
   onRetryLoadMore?: (requiredEndIndex?: number) => void;
   endReached?: (index: number) => void;
-  fillAvailableHeight?: boolean;
   totalCount?: number;
   resultSetKey?: string;
+  sx?: SxProps;
 }) {
   return (
     <CardList
@@ -39,10 +40,10 @@ export function AttributionCardList({
       loadMoreError={loadMoreError}
       onRetryLoadMore={onRetryLoadMore}
       endReached={endReached}
-      fillAvailableHeight={fillAvailableHeight}
       totalCount={totalCount}
       unloadedItemHeight={PACKAGE_CARD_LIST_ITEM_HEIGHT}
       resultSetKey={resultSetKey}
+      sx={sx}
       renderItemContent={(attribution, { index }) => (
         <>
           <PackageCard packageInfo={attribution} />

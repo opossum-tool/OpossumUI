@@ -9,24 +9,15 @@ import { borderThin, OpossumColors } from '../../shared-styles';
 import { type BaseItem, List } from '../List/List';
 import { PACKAGE_CARD_LIST_ITEM_HEIGHT } from '../PackageCard/PackageCard';
 
-const MAX_NUMBER_OF_CARDS = 4;
-
-export function CardList<ItemType extends BaseItem>({
-  fillAvailableHeight = false,
-  ...props
-}: ComponentProps<typeof List<ItemType>> & {
-  fillAvailableHeight?: boolean;
-}) {
+export function CardList<ItemType extends BaseItem>(
+  props: ComponentProps<typeof List<ItemType>>,
+) {
   const theme = useTheme();
   const numberOfCards = Math.max(
     props.totalCount ?? 0,
     props.data?.length ?? 0,
   );
-  const height =
-    Math.min(MAX_NUMBER_OF_CARDS, numberOfCards) *
-      PACKAGE_CARD_LIST_ITEM_HEIGHT +
-    1;
-  const contentFitsDialog = numberOfCards <= MAX_NUMBER_OF_CARDS;
+  const height = numberOfCards * PACKAGE_CARD_LIST_ITEM_HEIGHT + 1;
 
   return (
     <List
@@ -35,16 +26,8 @@ export function CardList<ItemType extends BaseItem>({
         background: OpossumColors.lightestBlue,
         border: `${borderThin} solid ${theme.palette.divider}`,
         boxSizing: 'border-box',
-        maxHeight: height,
-        minHeight: height,
+        minHeight: Math.min(height, PACKAGE_CARD_LIST_ITEM_HEIGHT + 1),
         height,
-        ...(fillAvailableHeight &&
-          !contentFitsDialog && {
-            flex: 1,
-            minHeight: 0,
-            maxHeight: 'none',
-            height: 'auto',
-          }),
         ...props.sx,
       }}
     />

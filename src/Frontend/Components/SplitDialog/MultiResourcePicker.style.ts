@@ -9,29 +9,25 @@ import MuiLinearProgress from '@mui/material/LinearProgress';
 import MuiTypography from '@mui/material/Typography';
 
 import { borderThin, Sizing } from '../../shared-styles';
+import {
+  popupFixedSectionSx,
+  popupScrollableSectionSx,
+} from '../NotificationPopup/NotificationPopup.style';
 
 const INDENT_PER_LEVEL = Sizing.Section;
 const INCLUDED_RESOURCE_OPACITY = 0.7;
 
-export const PickerContainer = styled(MuiBox)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: theme.spacing(Sizing.MediumPad),
-}));
-
 export const ResourceTreeContainer = styled(MuiBox)(({ theme }) => ({
+  ...popupScrollableSectionSx,
   border: `${borderThin} solid`,
   borderColor: 'divider',
   borderRadius: theme.shape.borderRadiusDefault,
-  // 90 units = 360px picker height
-  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-  height: theme.spacing(90),
-  overflowY: 'auto',
   padding: theme.spacing(Sizing.SmallGap),
   position: 'relative',
 }));
 
 export const SelectedPathsContainer = styled(MuiBox)(({ theme }) => ({
+  ...popupFixedSectionSx,
   display: 'flex',
   flexWrap: 'wrap',
   gap: theme.spacing(Sizing.SmallGap),

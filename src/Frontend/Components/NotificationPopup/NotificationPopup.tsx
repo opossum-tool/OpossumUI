@@ -32,7 +32,6 @@ interface NotificationPopupProps {
   height?: React.CSSProperties['height'];
   minWidth?: React.CSSProperties['minWidth'];
   maxWidth?: React.CSSProperties['maxWidth'];
-  className?: string;
 }
 
 export function NotificationPopup(
@@ -66,7 +65,7 @@ export function NotificationPopup(
       aria-label={props['aria-label']}
     >
       <MuiDialogTitle sx={props.titleSx}>{props.header}</MuiDialogTitle>
-      <MuiDialogContent className={props.className} sx={props.sx}>
+      <MuiDialogContent sx={props.sx}>
         {typeof props.children === 'string' ? (
           <MuiDialogContentText>{props.children}</MuiDialogContentText>
         ) : (

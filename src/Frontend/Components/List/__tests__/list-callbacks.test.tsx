@@ -20,6 +20,7 @@ const virtuosoMock = vi.hoisted(() => ({
   scrollIntoView: vi.fn(),
   rangeChanged: undefined as
     ((range: { startIndex: number; endIndex: number }) => void) | undefined,
+  totalListHeightChanged: undefined as ((height: number) => void) | undefined,
   endReached: undefined as ((index: number) => void) | undefined,
 }));
 
@@ -33,6 +34,8 @@ vi.mock('react-virtuoso', async (importOriginal) => {
       itemsRendered,
       rangeChanged,
       endReached,
+      totalListHeightChanged,
+      style,
       ref,
     }: {
       initialTopMostItemIndex?: VirtuosoProps<
@@ -42,6 +45,8 @@ vi.mock('react-virtuoso', async (importOriginal) => {
       itemsRendered?: (items: ReadonlyArray<{ size: number }>) => void;
       rangeChanged?: (range: { startIndex: number; endIndex: number }) => void;
       endReached?: (index: number) => void;
+      totalListHeightChanged?: (height: number) => void;
+      style?: VirtuosoProps<unknown, unknown>['style'];
       ref?: Ref<VirtuosoHandle>;
     }) => {
       useImperativeHandle(ref, () => ({
@@ -56,7 +61,8 @@ vi.mock('react-virtuoso', async (importOriginal) => {
       virtuosoMock.itemsRendered = itemsRendered;
       virtuosoMock.rangeChanged = rangeChanged;
       virtuosoMock.endReached = endReached;
-      return <div data-testid="virtuoso" />;
+      virtuosoMock.totalListHeightChanged = totalListHeightChanged;
+      return <div data-testid="virtuoso" style={style} />;
     },
   };
 });
@@ -331,5 +337,77 @@ describe('List pagination', () => {
     );
 
     expect(fetchNextPage).not.toHaveBeenCalled();
+  });
+});
+
+describe('List content fitting', () => {
+  it('follows measured heights, preserves callbacks and unrelated caller styles, and keeps a probe viewport', async () => {
+    const onHeightChanged = vi.fn();
+    await renderComponent(
+      <List
+        fitContent
+        testId={'list'}
+        data={[{ id: 'first' }]}
+        totalListHeightChanged={onHeightChanged}
+        sx={{
+          minHeight: '50px',
+          maxHeight: '400px',
+          flex: '0 1 auto',
+          border: '1px solid black',
+        }}
+        style={{
+          height: 999,
+          flex: 'none',
+          minHeight: 999,
+          backgroundColor: 'red',
+        }}
+        renderItemContent={(item) => <div>{item.id}</div>}
+      />,
+    );
+    const scroller = screen.getByTestId('virtuoso');
+    expect(scroller).toHaveStyle({ height: '1px' });
+    for (const height of [0, 137, 61, 219, 0, 83]) {
+      act(() => virtuosoMock.totalListHeightChanged?.(height));
+      expect(onHeightChanged).toHaveBeenLastCalledWith(height);
+      expect(scroller).toHaveStyle({
+        height: `${Math.max(1, height)}px`,
+        flex: '1 1 auto',
+        minHeight: '0',
+        backgroundColor: 'red',
+      });
+    }
+    expect(onHeightChanged).toHaveBeenCalledTimes(6);
+    expect(screen.getByTestId('list')).toHaveStyle({
+      height: 'auto',
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: '50px',
+      maxHeight: '400px',
+      flex: '0 1 auto',
+      border: '1px solid black',
+    });
+  });
+
+  it('preserves default sizing, caller styles and the measurement callback', async () => {
+    const onHeightChanged = vi.fn();
+    await renderComponent(
+      <List
+        testId={'list'}
+        data={[{ id: 'first' }]}
+        totalListHeightChanged={onHeightChanged}
+        style={{ height: 231, flex: 'none', minHeight: 17 }}
+        renderItemContent={(item) => <div>{item.id}</div>}
+      />,
+    );
+    expect(screen.getByTestId('list')).toHaveStyle({ height: '100%' });
+    expect(screen.getByTestId('virtuoso')).toHaveStyle({
+      height: '231px',
+      flex: '0 0 auto',
+      minHeight: '17px',
+    });
+    expect(virtuosoMock.totalListHeightChanged).toBe(onHeightChanged);
+    act(() => virtuosoMock.totalListHeightChanged?.(99));
+    expect(onHeightChanged).toHaveBeenCalledWith(99);
+    expect(screen.getByTestId('virtuoso')).toHaveStyle({ height: '231px' });
   });
 });

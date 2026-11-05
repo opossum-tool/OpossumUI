@@ -5,6 +5,8 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
 import { text } from '../../shared/text';
+import { expectNoVerticalScroll } from '../utils/expect-no-vertical-scroll';
+import { scrollToBottomUntilVisible } from '../utils/scroll-to-bottom-until-visible';
 
 export class SplitDialog {
   private readonly node: Locator;
@@ -37,6 +39,21 @@ export class SplitDialog {
   }
 
   public assert = {
+    controlsAreInViewport: async (): Promise<void> => {
+      await expect(
+        this.node.getByRole('heading', { name: text.splitDialog.title }),
+      ).toBeInViewport({ ratio: 1 });
+      for (const control of [
+        this.destinationPathSelection,
+        this.createButton,
+        this.cancelButton,
+      ]) {
+        await expect(control).toBeInViewport({ ratio: 1 });
+      }
+    },
+    bodyHasNoScrollbar: async (): Promise<void> => {
+      await expectNoVerticalScroll(this.node.locator('.MuiDialogContent-root'));
+    },
     destinationPathIs: async (destinationPath: string): Promise<void> => {
       await expect(this.destinationPathValue).toHaveText(destinationPath);
     },
@@ -76,6 +93,21 @@ export class SplitDialog {
 
   async toggleResourceSelection(resourceName: string): Promise<void> {
     await this.getResourceCheckbox(resourceName).click();
+  }
+
+  async expandResource(path: string): Promise<void> {
+    await this.node
+      .getByRole('button', {
+        name: text.splitDialog.resourcePicker.expand(path),
+        exact: true,
+      })
+      .click();
+  }
+
+  async scrollToResource(name: string): Promise<void> {
+    const resource = this.getResourceByName(name);
+    const scroller = this.node.getByTestId('split-resources-tree');
+    await scrollToBottomUntilVisible(scroller, resource);
   }
 
   private getResourceByName(resourceName: string): Locator {
