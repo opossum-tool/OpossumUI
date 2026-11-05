@@ -16,6 +16,7 @@ on:
 
 jobs:
   build-and-test:
+    name: build-and-test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     if: |
       !(github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/'))
