@@ -51,7 +51,9 @@ const currentTypesNode = packageJson.devDependencies?.['@types/node'];
 const currentTypesMajor = currentTypesNode?.split('.')[0];
 if (currentTypesMajor !== majorVersion) {
   console.log(`@types/node: updating to ^${majorVersion}...`);
-  execSync(`yarn add -D @types/node@^${majorVersion}`, { stdio: 'inherit' });
+  execSync(`yarn add -D --exact @types/node@^${majorVersion}`, {
+    stdio: 'inherit',
+  });
 } else {
   console.log(`@types/node: already on major ${majorVersion}`);
 }
