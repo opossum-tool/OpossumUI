@@ -10,8 +10,13 @@ import {
   type Transaction,
 } from 'kysely';
 
+import {
+  hasLicenseConditions,
+  type LicenseConditions,
+} from '../../shared/attribution-filters';
 import type { DB } from '../db/generated/databaseTypes';
 import { jsonArraySelection } from '../db/json-array-selection';
+import { getLicenseFilterExpression } from './filters';
 import {
   getOnlyExternalFilesQuery,
   getOnlyPreSelectedManualFilesQuery,
@@ -21,7 +26,10 @@ import { removeTrailingSlash } from './utils';
 export type FilteredTable = {
   filtered_resources: { cache_id: number; id: number };
 };
-export type LicenseFilter = { licenseIds: Array<string>; external: boolean };
+export type LicenseFilter = LicenseConditions &
+  Required<Pick<LicenseConditions, 'licenseIds'>> & {
+    external: boolean;
+  };
 export type ResourceTreeFilters = {
   search?: string;
   onlyUnreviewedFiles?: boolean;
@@ -33,7 +41,7 @@ export type ResourceTreeFilters = {
 
 function hasActiveNonSearchFilters(filters: ResourceTreeFilters) {
   return Boolean(
-    filters.licenseFilter?.licenseIds.length ||
+    hasLicenseConditions(filters.licenseFilter) ||
     filters.onAttributionUuids ||
     filters.onlyUnreviewedFiles ||
     filters.onlyWithAiDeferredAttributions ||
@@ -134,19 +142,29 @@ export function getFilteredResourcesQuery(
   if (search) {
     query = query.where('r.path', 'like', `%${removeTrailingSlash(search)}%`);
   }
-  if (licenseFilter?.licenseIds.length) {
-    query = query.where('r.id', 'in', (eb) =>
-      eb
-        .selectFrom('attribution as a')
-        .innerJoin(
-          'resource_to_attribution as rta',
-          'rta.attribution_uuid',
-          'a.uuid',
-        )
-        .select('rta.resource_id')
-        .where('a.is_external', '=', Number(licenseFilter.external))
-        .where('a.canonical_license_name', 'in', licenseFilter.licenseIds),
+  if (licenseFilter && hasLicenseConditions(licenseFilter)) {
+    const attributionQuery = trx
+      .selectFrom('attribution as a')
+      .innerJoin(
+        'resource_to_attribution as rta',
+        'rta.attribution_uuid',
+        'a.uuid',
+      )
+      .select('rta.resource_id')
+      .where('a.is_external', '=', Number(licenseFilter.external));
+    const eb = expressionBuilder(attributionQuery);
+    const licenseExpression = getLicenseFilterExpression(
+      eb,
+      eb.ref('a.canonical_license_name'),
+      licenseFilter,
     );
+    if (licenseExpression) {
+      query = query.where(
+        'r.id',
+        'in',
+        attributionQuery.where(licenseExpression),
+      );
+    }
   }
   if (onAttributionUuids) {
     query = query.where('r.id', 'in', (eb) =>

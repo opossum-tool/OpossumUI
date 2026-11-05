@@ -526,6 +526,34 @@ describe('filterProperties', () => {
     expect(unrestricted.result.all.total).toBe(4);
   });
 
+  it('counts text-only and mixed license conditions together with other filters', async () => {
+    await setupDb();
+    const props = {
+      external: true,
+      filters: [],
+      resourcePathForRelationships: '/parent/target',
+    };
+    const textOnly = await filterPropertiesWithOptionParity({
+      ...props,
+      valueFilters: { licenseSearches: ['pAcHe'] },
+    });
+    expect(textOnly.result.all.total).toBe(1);
+    expect(textOnly.result.all.licenses).toEqual([
+      { id: 'apache2.0', label: 'Apache-2.0' },
+    ]);
+    const mixed = await filterPropertiesWithOptionParity({
+      ...props,
+      valueFilters: { licenseIds: ['mit'], licenseSearches: ['apache'] },
+    });
+    expect(mixed.result.all.total).toBe(3);
+    const narrowed = await filterPropertiesWithOptionParity({
+      ...props,
+      filters: ['firstParty'],
+      valueFilters: { licenseIds: ['mit'], licenseSearches: ['apache'] },
+    });
+    expect(narrowed.result.all.total).toBe(1);
+  });
+
   it('counts filter matches correctly', async () => {
     await setupDb();
 

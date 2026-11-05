@@ -56,6 +56,7 @@ export function ResourceBrowser() {
       onlyUnreviewedFiles,
       onlyWithAiDeferredAttributions,
       selectedLicenses: resourceTreeSelectedLicenses,
+      licenseSearches = [],
     },
     setResourceTreeFilters,
   ] = useResourceTreeFilters();
@@ -64,12 +65,16 @@ export function ResourceBrowser() {
   const expandedIdsAll = useAppSelector(getExpandedIds);
   const allResourceTreeFilters = useMemo(
     () => ({
-      licenseFilter: resourceTreeSelectedLicenses.length
-        ? {
-            licenseIds: resourceTreeSelectedLicenses.map((option) => option.id),
-            external: IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS,
-          }
-        : undefined,
+      licenseFilter:
+        resourceTreeSelectedLicenses.length || licenseSearches.length
+          ? {
+              licenseIds: resourceTreeSelectedLicenses.map(
+                (option) => option.id,
+              ),
+              external: IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS,
+              licenseSearches,
+            }
+          : undefined,
       onlyUnreviewedFiles,
       onlyWithAiDeferredAttributions,
       search: debouncedSearchAll,
@@ -79,6 +84,7 @@ export function ResourceBrowser() {
       onlyWithAiDeferredAttributions,
       onlyUnreviewedFiles,
       resourceTreeSelectedLicenses,
+      licenseSearches,
     ],
   );
   const [isResourceTreeFilterOpen, setIsResourceTreeFilterOpen] =
@@ -124,7 +130,8 @@ export function ResourceBrowser() {
   const isResourceTreeFilterActive =
     onlyUnreviewedFiles ||
     onlyWithAiDeferredAttributions ||
-    !!resourceTreeSelectedLicenses.length;
+    !!resourceTreeSelectedLicenses.length ||
+    !!licenseSearches.length;
   // Linked resources
   const [searchLinked, setSearchLinked] = useVariable(
     LINKED_RESOURCES_SEARCH,
@@ -203,11 +210,15 @@ export function ResourceBrowser() {
                 createLicenseFilterOption({
                   licenses,
                   licensesLoading: licenseOptionsLoading,
-                  selectedLicenses: resourceTreeSelectedLicenses,
-                  setSelectedLicenses: (licenses) =>
+                  selection: {
+                    licenses: resourceTreeSelectedLicenses,
+                    licenseSearches,
+                  },
+                  onSelectionChange: (selection) =>
                     setResourceTreeFilters((prev) => ({
                       ...prev,
-                      selectedLicenses: licenses,
+                      selectedLicenses: selection.licenses,
+                      licenseSearches: selection.licenseSearches,
                     })),
                 }),
               ]}
@@ -219,6 +230,7 @@ export function ResourceBrowser() {
                   onlyUnreviewedFiles: false,
                   onlyWithAiDeferredAttributions: false,
                   selectedLicenses: [],
+                  licenseSearches: [],
                 }))
               }
               anchorPosition={'right'}

@@ -15,11 +15,20 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { type KeyboardEvent, useId, useMemo, useState } from 'react';
+import {
+  type KeyboardEvent,
+  type ReactNode,
+  useCallback,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
 import type { LicenseOption } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
+import { normalizeLicenseSearch } from '../../../shared/text-search';
 import { baseIcon, OpossumColors } from '../../shared-styles';
 import {
   EndAdornmentContainer,
@@ -28,22 +37,28 @@ import {
 import { StyledCheckIcon } from '../SelectMenu/SelectMenu.style';
 import type { FilterOption } from './FilterButton';
 import { styles } from './license-editor.style';
+import {
+  buildLicenseEditorRows,
+  type LicenseEditorRow,
+  type LicenseSelection,
+  type LicenseView,
+} from './license-editor.util';
 import { useLicenseNavigation } from './use-license-navigation';
+
+export type { LicenseSelection } from './license-editor.util';
 
 export interface LicenseConfiguration {
   licenses: Array<LicenseOption>;
   licensesLoading?: boolean;
-  selectedLicenses: Array<LicenseOption>;
-  setSelectedLicenses: (licenses: Array<LicenseOption>) => void;
+  selection: LicenseSelection;
+  onSelectionChange: (selection: LicenseSelection) => void;
 }
-
-type LicenseView = 'all' | 'selected';
 
 function LicenseEditor({
   licenses,
   licensesLoading,
-  selectedLicenses,
-  setSelectedLicenses,
+  selection,
+  onSelectionChange,
   onBack,
   id: dialogId,
   initialFocusRef,
@@ -52,6 +67,16 @@ function LicenseEditor({
   id: string;
   initialFocusRef?: (element: HTMLElement | null) => void;
 }) {
+  const { licenses: selectedLicenses, licenseSearches } = selection;
+  const selectionCount = selectedLicenses.length + licenseSearches.length;
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const setInputRef = useCallback(
+    (element: HTMLInputElement | null) => {
+      inputRef.current = element;
+      initialFocusRef?.(element);
+    },
+    [initialFocusRef],
+  );
   const [search, setSearch] = useState('');
   const [view, setView] = useState<LicenseView>('all');
   const [listHeight, setListHeight] = useState(1);
@@ -60,22 +85,9 @@ function LicenseEditor({
     () => new Set(selectedLicenses.map((option) => option.id)),
     [selectedLicenses],
   );
-  const options = useMemo(() => {
-    const byId = new Map(selectedLicenses.map((option) => [option.id, option]));
-    licenses.forEach((option) => byId.set(option.id, option));
-    return [...byId.values()].toSorted((a, b) =>
-      a.label.localeCompare(b.label),
-    );
-  }, [licenses, selectedLicenses]);
-  const normalizedSearch = search.toLowerCase();
-  const rows = useMemo(
-    () =>
-      options.filter(
-        (option) =>
-          (view === 'all' || selectedIds.has(option.id)) &&
-          option.label.toLowerCase().includes(normalizedSearch),
-      ),
-    [options, selectedIds, view, normalizedSearch],
+  const { rows, trimmedSearch, duplicate } = useMemo(
+    () => buildLicenseEditorRows({ licenses, selection, search, view }),
+    [licenses, selection, search, view],
   );
   const {
     current,
@@ -98,13 +110,36 @@ function LicenseEditor({
     setSearch(value);
     resetList();
   };
-  const toggle = (option: LicenseOption) => {
-    activate(option.id);
-    setSelectedLicenses(
-      selectedIds.has(option.id)
-        ? selectedLicenses.filter((value) => value.id !== option.id)
-        : [...selectedLicenses, option],
-    );
+  const addCondition = () => {
+    if (!normalizeLicenseSearch(trimmedSearch) || duplicate) {
+      return;
+    }
+    onSelectionChange({
+      ...selection,
+      licenseSearches: [...licenseSearches, trimmedSearch],
+    });
+    updateSearch('');
+    inputRef.current?.focus();
+  };
+  const activateRow = (row: LicenseEditorRow) => {
+    activate(row.id);
+    if (row.kind === 'suggestion') {
+      addCondition();
+      return;
+    }
+    if (row.kind === 'search') {
+      onSelectionChange({
+        ...selection,
+        licenseSearches: licenseSearches.filter((value) => value !== row.label),
+      });
+      return;
+    }
+    onSelectionChange({
+      ...selection,
+      licenses: selectedIds.has(row.option.id)
+        ? selectedLicenses.filter((value) => value.id !== row.option.id)
+        : [...selectedLicenses, row.option],
+    });
   };
   const handleListKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'ArrowLeft') {
@@ -114,18 +149,18 @@ function LicenseEditor({
     } else if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       if (current) {
-        toggle(current);
+        activateRow(current);
       }
     } else {
       handleKeyDown(event);
     }
   };
   let emptyMessage: string = text.licenseEditor.noAvailable;
-  if (view === 'selected' && !selectedLicenses.length) {
+  if (view === 'selected' && !selectionCount) {
     emptyMessage = text.licenseEditor.noSelected;
   } else if (view === 'all' && licensesLoading) {
     emptyMessage = text.licenseEditor.loading;
-  } else if (search) {
+  } else if (trimmedSearch) {
     emptyMessage = text.licenseEditor.noMatches;
   }
   const optionId = (id: string) => `${listId}-${encodeURIComponent(id)}`;
@@ -149,21 +184,23 @@ function LicenseEditor({
           <Tab value="all" label={text.licenseEditor.all} />
           <Tab
             value="selected"
-            label={text.licenseEditor.selected(selectedLicenses.length)}
+            label={text.licenseEditor.selected(selectionCount)}
           />
         </Tabs>
         <Button
           size="small"
           aria-label={text.licenseEditor.clearLicenses}
           sx={styles.clearButton}
-          disabled={!selectedLicenses.length}
-          onClick={() => setSelectedLicenses([])}
+          disabled={!selectionCount}
+          onClick={() =>
+            onSelectionChange({ licenses: [], licenseSearches: [] })
+          }
         >
           {text.licenseEditor.clear}
         </Button>
       </Box>
       <Input
-        inputRef={initialFocusRef}
+        inputRef={setInputRef}
         placeholder={text.licenseEditor.search}
         variant="filled"
         size="small"
@@ -172,7 +209,15 @@ function LicenseEditor({
         value={search}
         onChange={(event) => updateSearch(event.target.value)}
         onKeyDown={(event) => {
-          if (event.key === 'ArrowDown') {
+          if (
+            event.key === 'Enter' &&
+            view === 'all' &&
+            !event.nativeEvent.isComposing
+          ) {
+            event.preventDefault();
+            event.stopPropagation();
+            addCondition();
+          } else if (event.key === 'ArrowDown') {
             event.preventDefault();
             move(0);
             scrollerRef.current?.focus();
@@ -208,6 +253,7 @@ function LicenseEditor({
           flexShrink: 1,
           minHeight: 0,
           overflow: 'hidden',
+          outline: 'none',
           display: 'flex',
           flexDirection: 'column',
         }}
@@ -241,14 +287,17 @@ function LicenseEditor({
             itemContent={(_, option) => (
               <LicenseRow
                 id={optionId(option.id)}
-                label={option.label}
-                selected={selectedIds.has(option.id)}
+                option={option}
+                selected={
+                  option.kind === 'search' ||
+                  (option.kind === 'exact' && selectedIds.has(option.option.id))
+                }
                 active={listHasFocus && current?.id === option.id}
                 view={view}
-                onToggle={() => toggle(option)}
+                onActivate={() => activateRow(option)}
                 onRemove={() => {
                   scrollerRef.current?.focus();
-                  toggle(option);
+                  activateRow(option);
                 }}
               />
             )}
@@ -263,80 +312,134 @@ function LicenseEditor({
 
 function LicenseRow({
   id,
-  label,
+  option,
   selected,
   active,
   view,
-  onToggle,
+  onActivate,
   onRemove,
 }: {
   id: string;
-  label: string;
+  option: LicenseEditorRow;
   selected: boolean;
   active: boolean;
   view: LicenseView;
-  onToggle: () => void;
+  onActivate: () => void;
   onRemove: () => void;
 }) {
-  return (
+  const { label, kind } = option;
+  const suggestion = kind === 'suggestion';
+  const disabled = suggestion && option.disabled;
+  const isSearch = kind !== 'exact';
+  const accessibleLabel = suggestion
+    ? text.licenseEditor.addContains(label)
+    : kind === 'search'
+      ? text.licenseEditor.contains(label)
+      : label;
+  const row = (
     <Box
       id={id}
       role="option"
-      aria-labelledby={`${id}-label`}
+      aria-labelledby={isSearch ? undefined : `${id}-label`}
+      aria-label={isSearch ? accessibleLabel : undefined}
+      aria-disabled={disabled || undefined}
       aria-selected={selected}
       onMouseDown={(event) => event.preventDefault()}
-      onClick={onToggle}
+      onClick={onActivate}
       sx={{
         ...styles.row,
         bgcolor: selected ? OpossumColors.lightestBlue : undefined,
         outline: active ? '1px solid currentColor' : undefined,
+        color: disabled ? 'text.disabled' : undefined,
+        borderBottom: suggestion ? '1px solid' : undefined,
+        borderColor: 'divider',
       }}
     >
+      {isSearch && <SearchIcon sx={styles.searchIcon} />}
       <Box component="span" id={`${id}-label`} sx={styles.label}>
         {label}
       </Box>
-      {view === 'selected' ? (
-        <Tooltip title={text.licenseEditor.remove} disableInteractive>
-          <IconButton
-            aria-label={text.licenseEditor.removeLicense(label)}
-            tabIndex={-1}
-            size="small"
-            sx={styles.removeButton}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
+      {!suggestion &&
+        (view === 'selected' ? (
+          <Tooltip title={text.licenseEditor.remove} disableInteractive>
+            <IconButton
+              aria-label={text.licenseEditor.removeLicense(accessibleLabel)}
+              tabIndex={-1}
+              size="small"
+              sx={styles.removeButton}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.stopPropagation();
+                }
+              }}
+              onClick={(event) => {
                 event.stopPropagation();
-              }
-            }}
-            onClick={(event) => {
-              event.stopPropagation();
-              onRemove();
-            }}
-          >
-            <ClearIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <StyledCheckIcon visible={selected} sx={{ flexShrink: 0 }} />
-      )}
+                onRemove();
+              }}
+            >
+              <ClearIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        ) : (
+          <StyledCheckIcon visible={selected} sx={{ flexShrink: 0 }} />
+        ))}
     </Box>
+  );
+  return isSearch ? (
+    <Tooltip
+      title={disabled ? text.licenseEditor.alreadySelected : accessibleLabel}
+      describeChild
+      disableInteractive
+    >
+      {row}
+    </Tooltip>
+  ) : (
+    row
   );
 }
 
 export function createLicenseFilterOption(
   configuration: LicenseConfiguration,
 ): FilterOption {
-  const { selectedLicenses, licenses } = configuration;
+  const {
+    selection: { licenses: selectedLicenses, licenseSearches },
+    licenses,
+  } = configuration;
+  const count = selectedLicenses.length + licenseSearches.length;
+  let label: ReactNode;
+  if (!count) {
+    label = text.licenseEditor.select;
+  } else if (count > 1) {
+    label = text.licenseEditor.selectionCount(count);
+  } else if (selectedLicenses.length) {
+    label =
+      licenses.find((option) => option.id === selectedLicenses[0].id)?.label ??
+      selectedLicenses[0].label;
+  } else {
+    label = (
+      <Tooltip
+        title={text.licenseEditor.contains(licenseSearches[0])}
+        describeChild
+        disableInteractive
+      >
+        <Box component="span" sx={styles.searchLabel}>
+          <SearchIcon sx={styles.captionSearchIcon} />
+          <Box component="span" sx={styles.searchQuery}>
+            {licenseSearches[0]}
+          </Box>
+        </Box>
+      </Tooltip>
+    );
+  }
   return {
     id: 'license',
+    ariaLabel:
+      count === 1 && licenseSearches.length
+        ? text.licenseEditor.contains(licenseSearches[0])
+        : undefined,
     kind: 'panel',
-    selected: !!selectedLicenses.length,
-    label:
-      selectedLicenses.length === 1
-        ? (licenses.find((option) => option.id === selectedLicenses[0].id)
-            ?.label ?? selectedLicenses[0].label)
-        : selectedLicenses.length
-          ? text.licenseEditor.selectionCount(selectedLicenses.length)
-          : text.licenseEditor.select,
+    selected: !!count,
+    label,
     icon: <CopyrightIcon sx={{ ...baseIcon, color: OpossumColors.green }} />,
     endIcon: <ChevronRightIcon />,
     renderPanel: ({ id, onClose, initialFocusRef }) => (

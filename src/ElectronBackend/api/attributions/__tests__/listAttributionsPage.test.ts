@@ -24,6 +24,18 @@ import {
   relationCounts,
 } from './attribution-query-test-helpers';
 
+function createLicenseFilterAttributions() {
+  return {
+    selected: { id: 'selected', criticality: 0, licenseName: 'MIT' },
+    other: { id: 'other', criticality: 2, licenseName: 'Apache-2.0' },
+    punctuation: {
+      id: 'punctuation',
+      criticality: 0,
+      licenseName: 'Custom License (x) %_!',
+    },
+  };
+}
+
 describe('listAttributionsPage', () => {
   beforeEach(async () => {
     await initializeDefaultAttributionQueryTestData();
@@ -246,6 +258,76 @@ describe('listAttributionsPage', () => {
       },
       search: 'search-me',
       expected: ['selected'],
+    },
+    {
+      name: 'ASCII text is case insensitive',
+      filters: [],
+      valueFilters: { licenseSearches: ['aPaChE'] },
+      attributions: createLicenseFilterAttributions(),
+      expected: ['other'],
+    },
+    {
+      name: 'exact and contains OR',
+      filters: [],
+      valueFilters: { licenseIds: ['mit'], licenseSearches: ['apache'] },
+      attributions: createLicenseFilterAttributions(),
+      expected: ['other', 'selected'],
+    },
+    {
+      name: 'multiple contains OR',
+      filters: [],
+      valueFilters: { licenseSearches: ['MIT', '-2.0'] },
+      attributions: createLicenseFilterAttributions(),
+      expected: ['other', 'selected'],
+    },
+    {
+      name: 'spaces and punctuation retained',
+      filters: [],
+      valueFilters: { licenseSearches: ['License (x)'] },
+      attributions: createLicenseFilterAttributions(),
+      expected: ['punctuation'],
+    },
+    {
+      name: 'percent is literal',
+      filters: [],
+      valueFilters: { licenseSearches: ['%'] },
+      attributions: createLicenseFilterAttributions(),
+      expected: ['punctuation'],
+    },
+    {
+      name: 'underscore is literal',
+      filters: [],
+      valueFilters: { licenseSearches: ['_'] },
+      attributions: createLicenseFilterAttributions(),
+      expected: ['punctuation'],
+    },
+    {
+      name: 'exclamation mark is literal',
+      filters: [],
+      valueFilters: { licenseSearches: ['!'] },
+      attributions: createLicenseFilterAttributions(),
+      expected: ['punctuation'],
+    },
+    {
+      name: 'canonicalization applies to searches',
+      filters: [],
+      valueFilters: { licenseSearches: ['apache2.0'] },
+      attributions: createLicenseFilterAttributions(),
+      expected: ['other'],
+    },
+    {
+      name: 'empty license arrays',
+      filters: [],
+      valueFilters: { licenseIds: [], licenseSearches: [] },
+      attributions: createLicenseFilterAttributions(),
+      expected: ['other', 'punctuation', 'selected'],
+    },
+    {
+      name: 'other categories AND',
+      filters: [],
+      valueFilters: { licenseSearches: ['mit', 'apache'], criticality: 2 },
+      attributions: createLicenseFilterAttributions(),
+      expected: ['other'],
     },
     {
       name: 'selected license',

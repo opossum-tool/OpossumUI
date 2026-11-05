@@ -25,6 +25,7 @@ export interface SelectMenuProps {
 }
 
 interface MenuOptionBase {
+  ariaLabel?: string;
   endIcon?: React.ReactNode;
   faded?: boolean;
   icon?: React.ReactElement<unknown>;
@@ -148,6 +149,7 @@ export function renderSelectMenuItems({
           key={id}
           title={typeof label === 'string' ? label : undefined}
           selected={selected}
+          aria-label={option.ariaLabel}
           aria-selected={selected}
           aria-haspopup={submenu ? 'dialog' : undefined}
           aria-expanded={submenu?.open}

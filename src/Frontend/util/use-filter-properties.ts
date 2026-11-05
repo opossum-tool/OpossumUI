@@ -91,7 +91,11 @@ export function useFilterProperties({
     {
       ...queryProps,
       relationship: shownRelation,
-      valueFilters: { ...queryProps.valueFilters, licenseIds: undefined },
+      valueFilters: {
+        ...queryProps.valueFilters,
+        licenseIds: undefined,
+        licenseSearches: undefined,
+      },
     },
     { enabled, placeholderData: keepPreviousData },
   );

@@ -12,6 +12,7 @@ import { text } from '../shared/text';
 import { faker } from '../testing/Faker';
 import { renderApp, type RenderAppResult } from './helpers/render-app';
 import {
+  addLicenseSearchFilter,
   clickFilterMenuButton,
   clickLicenseTableCell,
   clickPackageCard,
@@ -113,6 +114,23 @@ async function renderFixture(equivalent = false): Promise<RenderAppResult> {
 }
 
 describe('filtering signals', () => {
+  it('combines exact and contains signal filters and keeps options available', async () => {
+    await renderFixture();
+    await clickFilterMenuButton(screen.getByTestId('signals-panel'));
+    await addLicenseSearchFilter('cLaUsE');
+    await fillLicenseFilter('Apache-2.0');
+    expect(
+      await screen.findByRole('option', { name: 'Apache-2.0' }),
+    ).toBeVisible();
+    await selectFilterLicenseName('Apache-2.0');
+    await closeFilterMenu();
+    await expectPackageCards(
+      'signals-panel',
+      [packageInfo2, packageInfo3],
+      [packageInfo1],
+    );
+  });
+
   it('reopens after selecting BSD and adds another license', async () => {
     await renderFixture();
     await clickFilterMenuButton(screen.getByTestId('signals-panel'));
@@ -182,7 +200,7 @@ describe('filtering signals', () => {
     );
     await clickFilterMenuButton(screen.getByTestId('signals-panel'));
     await userEvent.click(
-      screen.getByRole('menuitem', { name: '2 licenses selected' }),
+      screen.getByRole('menuitem', { name: '2 license filters' }),
     );
     await userEvent.click(
       screen.getByRole('button', { name: 'Clear licenses' }),

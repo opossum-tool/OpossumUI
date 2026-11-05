@@ -244,6 +244,9 @@ export const text = {
     },
   },
   licenseEditor: {
+    contains: (value: string) => `Name contains “${value}”`,
+    addContains: (value: string) => `Add filter: name contains “${value}”`,
+    alreadySelected: 'Already selected',
     title: 'Licenses',
     search: 'Search licenses',
     clearSearch: 'Clear search',
@@ -260,7 +263,7 @@ export const text = {
     noAvailable: 'No licenses available.',
     loading: 'Loading licenses…',
     select: 'Select licenses',
-    selectionCount: (count: number) => `${count} licenses selected`,
+    selectionCount: (count: number) => `${count} license filters`,
   },
   attributionCountPerSourcePerLicenseTable: {
     footerTitle: 'Total',

@@ -3,7 +3,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
+  type Expression,
   expressionBuilder,
+  type ExpressionBuilder,
   type OperandExpression,
   type SqlBool,
 } from 'kysely';
@@ -12,8 +14,11 @@ import {
   ATTRIBUTION_FILTER_KEYS,
   type AttributionFilterKey,
   type AttributionValueFilters,
+  hasLicenseConditions,
+  type LicenseConditions,
   type MissingAttribute,
 } from '../../shared/attribution-filters';
+import { normalizeLicenseSearch } from '../../shared/text-search';
 import { isAiDeferred } from '../db/attribution-ai';
 import type { DB } from '../db/generated/databaseTypes';
 
@@ -158,8 +163,13 @@ export function getValueFilterExpression(
     expressions.push(eb('criticality', '=', filters.criticality));
   }
 
-  if (filters.licenseIds?.length) {
-    expressions.push(eb('canonical_license_name', 'in', filters.licenseIds));
+  const licenseExpression = getLicenseFilterExpression(
+    eb,
+    eb.ref('canonical_license_name'),
+    filters,
+  );
+  if (licenseExpression) {
+    expressions.push(licenseExpression);
   }
 
   if (filters.incompleteCoordinates) {
@@ -196,4 +206,32 @@ export function getSearchExpression(
       ] as const
     ).map((term) => eb(term, 'like', `%${search}%`)),
   );
+}
+
+export function getLicenseFilterExpression<TDB, TB extends keyof TDB>(
+  eb: ExpressionBuilder<TDB, TB>,
+  canonicalName: Expression<string | null>,
+  filters: LicenseConditions,
+): Expression<SqlBool> | undefined {
+  if (!hasLicenseConditions(filters)) {
+    return undefined;
+  }
+  const expressions: Array<Expression<SqlBool>> = [];
+  if (filters.licenseIds?.length) {
+    expressions.push(eb(canonicalName, 'in', filters.licenseIds));
+  }
+  for (const search of filters.licenseSearches ?? []) {
+    const normalizedSearch = normalizeLicenseSearch(search.trim());
+    if (!normalizedSearch) {
+      continue;
+    }
+    expressions.push(
+      eb(
+        eb.fn<number>('instr', [canonicalName, eb.val(normalizedSearch)]),
+        '>',
+        0,
+      ),
+    );
+  }
+  return eb.or(expressions);
 }

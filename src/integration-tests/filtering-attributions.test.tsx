@@ -14,6 +14,7 @@ import { faker } from '../testing/Faker';
 import { getFilterExcludedAttributionsFixture } from '../testing/filter-excluded-attributions';
 import { renderApp } from './helpers/render-app';
 import {
+  addLicenseSearchFilter,
   applyPanelFilter,
   ATTRIBUTIONS_PANEL,
   clearPanelSearch,
@@ -29,6 +30,7 @@ import {
   expectPopupHidden,
   expectReportAttributionVisibility,
   fillFormField,
+  fillLicenseFilter,
   fillPanelSearch,
   getReportView,
   gotoReportView,
@@ -203,6 +205,30 @@ describe('filtering attributions', () => {
       ATTRIBUTIONS_PANEL,
       [packageInfo1],
       [packageInfo2, packageInfo3],
+    );
+  });
+
+  it('applies contains conditions in audit and report while keeping picker options available', async () => {
+    await renderApp({ data });
+    await clickFilterMenuButton(screen.getByTestId(ATTRIBUTIONS_PANEL));
+    await addLicenseSearchFilter('mIt');
+    await fillLicenseFilter('Apache-2.0');
+    expect(
+      await screen.findByRole('option', { name: 'Apache-2.0' }),
+    ).toBeVisible();
+    await closeFilterMenu();
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [packageInfo1],
+      [packageInfo2, packageInfo3],
+    );
+    await gotoReportView();
+    await clickFilterMenuButton(getReportView());
+    await addLicenseSearchFilter('pAcHe');
+    await closeFilterMenu();
+    await expectReportAttributionVisibility(
+      [attributionId2],
+      [attributionId1, attributionId3],
     );
   });
 

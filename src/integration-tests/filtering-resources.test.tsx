@@ -11,6 +11,7 @@ import { text } from '../shared/text';
 import { faker } from '../testing/Faker';
 import { renderApp } from './helpers/render-app';
 import {
+  addLicenseSearchFilter,
   clickFilterMenuItem,
   clickTreeFilterMenuButton,
   closeFilterMenu,
@@ -163,6 +164,33 @@ describe('filtering resources', () => {
     await expectResourceVisibility(
       [deferredResourceName, aiNotDeferredResourceName, plainResourceName],
       [],
+    );
+  });
+
+  it('applies text-only resource filters, preserves options, and broadens with exact selections', async () => {
+    await renderApp({ data: multiLicenseData });
+    await clickTreeFilterMenuButton();
+    await addLicenseSearchFilter('mIt');
+    await closeFilterMenu();
+    await expectResourceVisibility(
+      [externalResourceName],
+      [reviewedApacheResourceName, reviewedMitResourceName],
+    );
+    await clickTreeFilterMenuButton();
+    await fillLicenseFilter('Apache-2.0');
+    await expectLicenseFilterOption('Apache-2.0', true);
+    await selectFilterLicenseName('Apache-2.0');
+    await closeFilterMenu();
+    await expectResourceVisibility(
+      [externalResourceName, reviewedApacheResourceName],
+      [reviewedMitResourceName],
+    );
+    await clickTreeFilterMenuButton();
+    await clickFilterMenuItem('Unreviewed');
+    await closeFilterMenu();
+    await expectResourceVisibility(
+      [externalResourceName],
+      [reviewedApacheResourceName, reviewedMitResourceName],
     );
   });
 

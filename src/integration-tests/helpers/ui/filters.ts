@@ -132,3 +132,12 @@ export async function clickTreeFilterMenuButton(): Promise<void> {
   );
   await userEvent.click(button);
 }
+
+export async function addLicenseSearchFilter(value: string): Promise<void> {
+  await fillLicenseFilter(value);
+  await userEvent.click(
+    screen.getByRole('option', {
+      name: text.licenseEditor.addContains(value.trim()),
+    }),
+  );
+}
