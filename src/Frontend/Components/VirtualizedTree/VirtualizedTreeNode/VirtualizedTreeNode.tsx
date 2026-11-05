@@ -198,6 +198,7 @@ export function VirtualizedTreeNode<
 
     return (
       <MuiBox
+        sx={{ display: 'flex' }}
         onClick={async (event) => {
           event.stopPropagation();
           if (resource.isExpanded) {

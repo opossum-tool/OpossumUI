@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type { SxProps } from '@mui/system';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Virtuoso,
   type VirtuosoHandle,
@@ -22,6 +22,7 @@ import {
 } from './InfiniteListFooter';
 
 export const INFINITE_LIST_BOTTOM_OVERSCAN = 600;
+const MIN_MEASUREMENT_VIEWPORT_HEIGHT = 1;
 
 export interface ListItemContentProps {
   index: number;
@@ -42,6 +43,7 @@ export type UnloadedItemsProps =
     };
 
 interface ListProps<ItemType extends BaseItem> {
+  fitContent?: boolean;
   className?: string;
   data: ReadonlyArray<ItemType> | null;
   loading?: boolean;
@@ -61,6 +63,7 @@ interface ListProps<ItemType extends BaseItem> {
 }
 
 export function List<ItemType extends BaseItem>({
+  fitContent = false,
   className,
   data,
   loading,
@@ -81,10 +84,24 @@ export function List<ItemType extends BaseItem>({
   endReached,
   itemsRendered,
   rangeChanged,
+  totalListHeightChanged,
   ...props
 }: ListProps<ItemType> &
   UnloadedItemsProps &
   Omit<VirtuosoProps<ItemType, unknown>, 'data' | 'selected' | 'totalCount'>) {
+  // Virtuoso needs a positive viewport before it can render and measure rows.
+  // Keep that measurement viewport after a zero-height report too, so later
+  // rows can be measured instead of leaving the fitted list stuck at zero.
+  const [contentHeight, setContentHeight] = useState(
+    MIN_MEASUREMENT_VIEWPORT_HEIGHT,
+  );
+  const handleHeightChanged = useCallback(
+    (height: number) => {
+      setContentHeight(Math.max(MIN_MEASUREMENT_VIEWPORT_HEIGHT, height));
+      totalListHeightChanged?.(height);
+    },
+    [totalListHeightChanged],
+  );
   const [isListReady, setIsListReady] = useState(false);
   const [visibleRange, setVisibleRange] = useState<{
     endIndex: number;
@@ -154,7 +171,15 @@ export function List<ItemType extends BaseItem>({
   return (
     <LoadingMask
       className={className}
-      sx={{ position: 'relative', ...sx }}
+      sx={{
+        position: 'relative',
+        ...(fitContent && {
+          height: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+        }),
+        ...sx,
+      }}
       active={loading}
       testId={testId}
     >
@@ -179,6 +204,19 @@ export function List<ItemType extends BaseItem>({
               // rows).
               key={resultSetKey}
               {...props}
+              totalListHeightChanged={
+                fitContent ? handleHeightChanged : totalListHeightChanged
+              }
+              style={
+                fitContent
+                  ? {
+                      ...props.style,
+                      height: contentHeight,
+                      flex: '1 1 auto',
+                      minHeight: 0,
+                    }
+                  : props.style
+              }
               ref={ref}
               data-selected-id={selectedId}
               onFocus={() => setIsVirtuosoFocused(true)}

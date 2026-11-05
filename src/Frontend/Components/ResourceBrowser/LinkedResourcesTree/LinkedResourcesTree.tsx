@@ -15,6 +15,7 @@ import { LinkedResourcesTreeNode } from './LinkedResourcesTreeNode/LinkedResourc
 import type { LinkedResourcesTreeState } from './useLinkedResourcesTreeState';
 
 interface Props {
+  fitContent?: boolean;
   disableHighlightSelected?: boolean;
   readOnly?: boolean;
   state: LinkedResourcesTreeState;
@@ -23,6 +24,7 @@ interface Props {
 
 export function LinkedResourcesTree({
   readOnly,
+  fitContent = false,
   disableHighlightSelected,
   state,
   sx,
@@ -63,6 +65,7 @@ export function LinkedResourcesTree({
   return (
     <VirtualizedTree
       resources={state.treeNodes}
+      fitContent={fitContent}
       onSelect={handleSelect}
       onToggle={handleToggle}
       sx={{

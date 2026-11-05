@@ -4,7 +4,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiAlert from '@mui/material/Alert';
 import MuiButton, { type ButtonProps } from '@mui/material/Button';
-import { useTheme } from '@mui/material/styles';
 import MuiTypography from '@mui/material/Typography';
 import type { ReactNode } from 'react';
 
@@ -14,11 +13,7 @@ import type {
 } from '../../../shared/attribution-selection';
 import type { Attributions } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import {
-  attributionPopupMaxWidth,
-  borderThin,
-  Sizing,
-} from '../../shared-styles';
+import { attributionPopupMaxWidth } from '../../shared-styles';
 import { AttributionCardList } from '../AttributionCardList/AttributionCardList';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
@@ -76,7 +71,6 @@ export function ConfirmAttributionActionPopup({
   selection,
   attributionCount,
 }: Props) {
-  const theme = useTheme();
   const isMutationPending =
     globalAction.isPending || (localAction?.isPending ?? false);
   const isLocalActionVisible =
@@ -154,11 +148,14 @@ export function ConfirmAttributionActionPopup({
           {linkedResourcesTreeState && (
             <LinkedResourcesTree
               readOnly
+              fitContent
               disableHighlightSelected={!isLocalActionAvailable}
               state={linkedResourcesTreeState}
               sx={{
                 ...popupScrollableSectionSx,
-                height: `calc(${linkedResourcesTreeState.treeNodes.length} * ${theme.spacing(Sizing.Row)} + 2 * ${borderThin})`,
+                ...(linkedResourcesTreeState.treeNodes.length > 0 && {
+                  minHeight: 0,
+                }),
               }}
             />
           )}

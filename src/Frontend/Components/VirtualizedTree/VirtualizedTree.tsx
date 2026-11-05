@@ -29,6 +29,7 @@ interface VirtualizedTreeProps<T extends ResourceTreeNodeBase> {
   selectedNodeId?: string;
   sx?: SxProps;
   testId?: string;
+  fitContent?: boolean;
 }
 
 export function VirtualizedTree<
@@ -45,10 +46,12 @@ export function VirtualizedTree<
   selectedNodeId,
   sx,
   testId,
+  fitContent = false,
 }: VirtualizedTreeProps<T>) {
   return (
     <List
       data={resources}
+      fitContent={fitContent}
       components={{ List: SearchList }}
       renderItemContent={(resource, { selected, focused }) => (
         <VirtualizedTreeNode
@@ -68,7 +71,7 @@ export function VirtualizedTree<
       scrollBehavior={'auto'}
       testId={testId}
       sx={{
-        height: '100%',
+        ...(!fitContent && { height: '100%' }),
         // allow tree node selected indicator to overflow the width of the list
         '& [data-viewport-type]': {
           width: 'unset !important',
