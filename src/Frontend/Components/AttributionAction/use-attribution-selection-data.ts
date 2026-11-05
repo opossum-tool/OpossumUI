@@ -22,10 +22,11 @@ export function useAttributionSelectionData({
   const attributionIds =
     selection.mode === 'explicit' ? selection.attributionUuids : [];
   const isQueryWideSelection = selection.mode === 'allMatching';
+  const isEmptySelection = !isQueryWideSelection && attributionIds.length === 0;
 
-  const { data: attributions, isSuccess: areAttributionsReady } =
+  const { data: fetchedAttributions, isSuccess: areAttributionsReady } =
     backend.getAttributionPreview.useQuery(
-      open && !isMutationPending && !isQueryWideSelection
+      open && !isMutationPending && !isQueryWideSelection && !isEmptySelection
         ? {
             attributionUuids: attributionIds,
             resourcePathForRelationships: selectedResourceId,
@@ -35,10 +36,13 @@ export function useAttributionSelectionData({
 
   const selectionSummaryQuery = backend.getAttributionSelectionSummary.useQuery(
     { selection },
-    { enabled: open && isQueryWideSelection },
+    { enabled: open && !isMutationPending && isQueryWideSelection },
   );
 
   const summary = selectionSummaryQuery.data;
+  const attributions: typeof fetchedAttributions = isEmptySelection
+    ? {}
+    : fetchedAttributions;
   const attributionValues = attributions && Object.values(attributions);
 
   return {
@@ -48,7 +52,7 @@ export function useAttributionSelectionData({
     isQueryWideSelection,
     isSelectionDataReady: isQueryWideSelection
       ? selectionSummaryQuery.isSuccess
-      : areAttributionsReady,
+      : isEmptySelection || areAttributionsReady,
     selectionMetadata: {
       selectedAttributionCount: isQueryWideSelection
         ? (summary?.selectedCount ?? 0)
