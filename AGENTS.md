@@ -25,9 +25,10 @@ OpossumUI is an Electron app (TypeScript + React + Redux) for auditing open-sour
 | Install & setup           | `yarn install` (runs postinstall: deps, electron rebuild, commit hash, husky)                                              |
 | Copyright tool            | Install [reuse](https://git.fsfe.org/reuse/tool#install) CLI — required by `yarn copyright-lint-check` and pre-commit hook |
 | Dev server                | `yarn start`                                                                                                               |
-| Unit tests (all)          | `yarn test:unit` (FE, BE, SH projects only)                                                                                |
+| Unit tests (all)          | `yarn test:unit` (FE, BE, SH, TOOLING projects)                                                                            |
 | Unit tests (changed only) | `yarn test:changed` (all projects for changed files)                                                                       |
 | Integration tests         | `yarn test:int` (INT project only)                                                                                         |
+| Tooling tests             | `yarn test:tooling` (TOOLING project only)                                                                                 |
 | All vitest tests          | `yarn test:vitest` (all four projects)                                                                                     |
 | Everything (vitest + e2e) | `yarn test:all`                                                                                                            |
 | Watch unit tests          | `yarn test:watch`                                                                                                          |
@@ -79,14 +80,15 @@ Husky + lint-staged runs on every commit: copyright check, knip, prettier, eslin
 
 ## Vitest setup
 
-Four vitest projects with different environments:
+Five vitest projects with different environments:
 
 - **FE** (happy-dom): `src/Frontend/**/__test{s,}__/**/*.test.{ts,tsx}`
 - **INT** (happy-dom): `src/integration-tests/**/*.test.{ts,tsx}`
-- **BE** (node): `src/ElectronBackend/**/__test{s,}__/**/*.test.{ts,tsx}` and
-  `src/performance-tests/**/__test{s,}__/**/*.test.{ts,tsx}` (unit tests for the
-  synthetic performance file generator, not actual performance tests)
+- **BE** (node): `src/ElectronBackend/**/__test{s,}__/**/*.test.{ts,tsx}`
 - **SH** (node): `src/shared/**/__test{s,}__/**/*.test.{ts,tsx}`
+- **TOOLING** (node): `src/performance-tests/**/__test{s,}__/**/*.test.{ts,tsx}`
+  (unit tests for the synthetic performance file generator, not actual
+  performance tests)
 
 Test directories can be `__tests__` or `__test__`.
 

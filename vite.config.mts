@@ -117,10 +117,7 @@ export default defineConfig(({ mode }) => ({
         extends: true,
         test: {
           environment: 'node',
-          include: [
-            'src/ElectronBackend/**/__test{s,}__/**/*.test.{ts,tsx}',
-            'src/performance-tests/**/__test{s,}__/**/*.test.{ts,tsx}',
-          ],
+          include: ['src/ElectronBackend/**/__test{s,}__/**/*.test.{ts,tsx}'],
           name: { label: 'BE', color: 'blue' },
           setupFiles: ['./src/testing/setup.ts'],
         },
@@ -131,6 +128,15 @@ export default defineConfig(({ mode }) => ({
           environment: 'node',
           include: ['src/shared/**/__test{s,}__/**/*.test.{ts,tsx}'],
           name: { label: 'SH', color: 'yellow' },
+          setupFiles: ['./src/testing/setup.ts'],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          environment: 'node',
+          include: ['src/performance-tests/**/__test{s,}__/**/*.test.{ts,tsx}'],
+          name: { label: 'TOOLING', color: 'magenta' },
           setupFiles: ['./src/testing/setup.ts'],
         },
       },
