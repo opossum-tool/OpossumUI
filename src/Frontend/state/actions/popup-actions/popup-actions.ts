@@ -76,8 +76,8 @@ import {
  * Confirms the quit in the main process once the DB process reports no
  * in-flight file-writing operations: `whenBackendIdle` resolves only after
  * every operation has been executed and its file write has concluded. The
- * saving indicator is shown from here on, covering the re-save the main
- * process performs when the last automatic save failed.
+ * saving indicator is shown from here on, while the main process
+ * finalizes the quit.
  */
 function confirmQuitAfterMutationsSettle(): AppThunkAction<Promise<void>> {
   return async (dispatch) => {

@@ -6,8 +6,6 @@ import { app, type BrowserWindow, type Event } from 'electron';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { getMainDbClient } from '../dbProcess/dbProcessClient';
-import { showListenerErrorInMessageBox } from '../errorHandling/errorHandling';
-import { getGlobalBackendState } from './globalBackendState';
 import logger from './logger';
 
 // Once the renderer acknowledged a quit request, it is considered alive and
@@ -66,7 +64,7 @@ export function handleWindowClose(window: BrowserWindow, event: Event): void {
     logger.info(
       'The renderer did not respond to the quit request; force-quitting.',
     );
-    void confirmQuit(window, { force: true });
+    void confirmQuit();
     return;
   }
 
@@ -91,56 +89,18 @@ export function acknowledgeQuitRequest(): void {
  * (mutations with their automatic saves, manual saves, forceUnlock, split,
  * merge, export) has been executed and its file write has concluded.
  *
- * The DB process tracks the outcome of every write of the project file.
- * Only when the last write failed is the file written again here. If that
- * retry also fails, the app stays open so that the user can retry closing
- * it instead of losing data on quit.
+ * The DB process tracks the outcome of every write of the project file
+ * (see `getLastSaveResult`). Acting on a failed write — re-writing the
+ * file and warning the user instead of quitting with stale data — is
+ * error handling and deliberately not part of this change; it is tracked
+ * separately so that tracking and error handling land as two independent
+ * issues.
  */
-export async function confirmQuit(
-  window: BrowserWindow,
-  { force = false }: { force?: boolean } = {},
-): Promise<void> {
+export async function confirmQuit(): Promise<void> {
   quitApproved = true;
   const client = getMainDbClient();
   if (!client.isDead()) {
     await client.whenMutationsSettled();
-  }
-
-  const globalBackendState = getGlobalBackendState();
-  const projectIsLoaded = Boolean(
-    globalBackendState.projectId && globalBackendState.opossumFilePath,
-  );
-  if (
-    projectIsLoaded &&
-    !client.isDead() &&
-    (await client.getLastSaveResult()) === 'failed'
-  ) {
-    try {
-      await client.saveFile({
-        projectId: globalBackendState.projectId as string,
-        opossumFilePath: globalBackendState.opossumFilePath as string,
-      });
-    } catch (error) {
-      if (force) {
-        quitFinalized = true;
-        app.quit();
-        return;
-      }
-      // The retried write failed; keep the app open so that the user can
-      // retry closing it. Tell the renderer so it can clear its
-      // saving-before-quit indicator.
-      quitApproved = false;
-      quitRequestSentAt = null;
-      quitRequestHandled = false;
-      if (
-        !window.webContents.isDestroyed() &&
-        !window.webContents.isCrashed()
-      ) {
-        window.webContents.send(AllowedFrontendChannels.QuitSaveFailed);
-      }
-      await showListenerErrorInMessageBox(window, error);
-      return;
-    }
   }
 
   quitFinalized = true;
