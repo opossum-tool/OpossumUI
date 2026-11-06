@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -9,7 +9,7 @@ import { deserializeAttributions } from '../ElectronBackend/input/parseInputData
 import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers/general-test-helpers';
 import { text } from '../shared/text';
 import { faker } from '../testing/Faker';
-import { renderApp } from './helpers/render-app';
+import { renderApp } from '../testing/render-app';
 import {
   ATTRIBUTIONS_PANEL,
   clickPackageCard,
@@ -30,7 +30,7 @@ import {
   gotoResourceTreeRoot,
   LINKED_RESOURCES_TREE,
   selectTab,
-} from './helpers/ui';
+} from '../testing/ui';
 
 const [resourceName1, resourceName2, resourceName3, resourceName4] =
   faker.opossum.resourceNames({ count: 4 });
@@ -117,8 +117,10 @@ describe('selecting attributions', () => {
 
     await clickPanelButton(ATTRIBUTIONS_PANEL, text.packageLists.delete);
     await expectPopupHasText(
-      'confirm delete popup',
-      'the following attribution',
+      text.deleteAttributionsPopup.ariaLabel,
+      `${text.deleteAttributionsPopup.deleteAttributions({
+        attributions: 'attribution',
+      })} 1 resource:`,
     );
 
     await clickPopupButton('confirm delete popup', text.buttons.cancel);
@@ -130,8 +132,10 @@ describe('selecting attributions', () => {
 
     await clickPanelButton(ATTRIBUTIONS_PANEL, text.packageLists.delete);
     await expectPopupHasText(
-      'confirm delete popup',
-      'the following 2 attributions',
+      text.deleteAttributionsPopup.ariaLabel,
+      `${text.deleteAttributionsPopup.deleteAttributions({
+        attributions: '2 attributions',
+      })} 2 resources:`,
     );
 
     await clickPopupButton('confirm delete popup', text.buttons.cancel);

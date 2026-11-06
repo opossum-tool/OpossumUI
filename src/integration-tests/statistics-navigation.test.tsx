@@ -12,7 +12,7 @@ import { deserializeAttributions } from '../ElectronBackend/input/parseInputData
 import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers/general-test-helpers';
 import { Criticality, RawCriticality } from '../shared/shared-types';
 import { text } from '../shared/text';
-import { renderApp } from './helpers/render-app';
+import { renderApp } from '../testing/render-app';
 import {
   applyPanelFilter,
   ATTRIBUTIONS_PANEL,
@@ -31,7 +31,7 @@ import {
   gotoResource,
   openProjectStatisticsPopup,
   SIGNALS_PANEL,
-} from './helpers/ui';
+} from '../testing/ui';
 
 // Happy DOM cannot lay out responsive charts. Fix only their container size;
 // render the real chart, labels, legends, and activation handlers.

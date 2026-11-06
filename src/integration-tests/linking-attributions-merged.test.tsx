@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -11,7 +11,7 @@ import {
 import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers/general-test-helpers';
 import { text } from '../shared/text';
 import { faker } from '../testing/Faker';
-import { renderApp } from './helpers/render-app';
+import { renderApp } from '../testing/render-app';
 import {
   ATTRIBUTIONS_PANEL,
   clickAttributionColumnButton,
@@ -25,7 +25,7 @@ import {
   gotoResource,
   selectTab,
   SIGNALS_PANEL,
-} from './helpers/ui';
+} from '../testing/ui';
 
 const [
   resourceName1,

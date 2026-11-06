@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -10,7 +10,7 @@ import { deserializeAttributions } from '../ElectronBackend/input/parseInputData
 import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers/general-test-helpers';
 import { text } from '../shared/text';
 import { faker } from '../testing/Faker';
-import { renderApp, type RenderAppResult } from './helpers/render-app';
+import { renderApp, type RenderAppResult } from '../testing/render-app';
 import {
   addLicenseSearchFilter,
   clickFilterMenuButton,
@@ -24,7 +24,7 @@ import {
   openProjectStatisticsPopup,
   pressSearchShortcut,
   selectFilterLicenseName,
-} from './helpers/ui';
+} from '../testing/ui';
 
 const [resourceName1, resourceName2, resourceName3, resourceName4] =
   faker.opossum.resourceNames({ count: 4 });

@@ -34,7 +34,6 @@ import {
   type VersionsResponse,
   type WebVersionResponse,
 } from '../Frontend/util/package-search-api';
-import { PackageSearchHooks } from '../Frontend/util/package-search-hooks';
 import {
   type AttributionData,
   type Attributions,
@@ -355,30 +354,6 @@ class OpossumModule {
 }
 
 class PackageSearchModule {
-  public static usePackageNames() {
-    vi.spyOn(PackageSearchHooks, 'usePackageNames').mockReturnValue({
-      packageNames: [],
-      packageNamesError: null,
-      packageNamesLoading: false,
-    });
-  }
-
-  public static usePackageNamespaces() {
-    vi.spyOn(PackageSearchHooks, 'usePackageNamespaces').mockReturnValue({
-      packageNamespaces: [],
-      packageNamespacesError: null,
-      packageNamespacesLoading: false,
-    });
-  }
-
-  public static usePackageVersions() {
-    vi.spyOn(PackageSearchHooks, 'usePackageVersions').mockReturnValue({
-      packageVersions: [],
-      packageVersionsError: null,
-      packageVersionsLoading: false,
-    });
-  }
-
   public static packageSystem(): PackageSystem {
     return faker.helpers.arrayElement(packageSystems);
   }
@@ -577,9 +552,4 @@ class Faker extends NativeFaker {
 }
 
 const faker = new Faker({ locale: [en, base] });
-if (typeof vi !== 'undefined') {
-  faker.packageSearch.usePackageNames();
-  faker.packageSearch.usePackageNamespaces();
-  faker.packageSearch.usePackageVersions();
-}
 export { faker };

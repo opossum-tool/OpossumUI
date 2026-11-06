@@ -10,7 +10,7 @@ import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers
 import { AllowedFrontendChannels } from '../shared/ipc-channels';
 import { text } from '../shared/text';
 import { faker } from '../testing/Faker';
-import { renderApp } from './helpers/render-app';
+import { renderApp } from '../testing/render-app';
 import {
   clickTopBarViewButton,
   expectFormFieldValues,
@@ -18,7 +18,7 @@ import {
   fillFormField,
   gotoResource,
   saveChangesInAttributionColumn,
-} from './helpers/ui';
+} from '../testing/ui';
 
 const [attributionId, packageInfo] = faker.opossum.rawAttribution({
   packageName: 'before update',

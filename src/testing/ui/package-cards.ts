@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -6,8 +6,10 @@ import { waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
-import { getCardLabels } from '../../../Frontend/util/get-card-labels';
-import type { RawPackageInfo } from '../../../shared/shared-types';
+import {
+  getCardLabels,
+  type PackageInfoForLabels,
+} from '../../Frontend/util/get-card-labels';
 import {
   expectReadonlyIndicator,
   getPanel,
@@ -15,37 +17,47 @@ import {
   SETTLED_TIMEOUT,
 } from './common';
 
-function cardLabel(packageInfo: RawPackageInfo): string {
+function cardLabel(packageInfo: PackageInfoForLabels): string {
   // Production PackageCard builds `package card ${labels[0]}` from
   // getCardLabels(); reusing it keeps the helper in sync for packageInfo
   // without a packageName (URL/license/copyright fallback).
   return getCardLabels(packageInfo)[0] ?? '';
 }
 
-function cardLabelText(packageInfo: RawPackageInfo): string {
+function cardLabelText(packageInfo: PackageInfoForLabels): string {
   return `package card ${cardLabel(packageInfo)}`;
 }
 
 function getPackageCard(
   panelTestId: PanelTestId,
-  packageInfo: RawPackageInfo,
+  packageInfo: PackageInfoForLabels,
 ): HTMLElement {
   return within(getPanel(panelTestId)).getByLabelText(
     cardLabelText(packageInfo),
   );
 }
 
-function getPackageCardCheckbox(
+function queryPackageCard(
   panelTestId: PanelTestId,
-  packageInfo: RawPackageInfo,
-): HTMLElement {
-  return within(getPackageCard(panelTestId, packageInfo)).getByRole('checkbox');
+  packageInfo: PackageInfoForLabels,
+): HTMLElement | null {
+  return within(getPanel(panelTestId)).queryByLabelText(
+    cardLabelText(packageInfo),
+  );
+}
+
+export async function getPackageCardCheckbox(
+  panelTestId: PanelTestId,
+  packageInfo: PackageInfoForLabels,
+): Promise<HTMLElement> {
+  const card = await getPackageCardAfterItAppears(panelTestId, packageInfo);
+  return within(card).getByRole('checkbox');
 }
 
 export async function expectPackageCards(
   panelTestId: PanelTestId,
-  visible: Array<RawPackageInfo>,
-  hidden: Array<RawPackageInfo> = [],
+  visible: Array<PackageInfoForLabels>,
+  hidden: Array<PackageInfoForLabels> = [],
 ): Promise<void> {
   for (const packageInfo of visible) {
     await waitFor(() => {
@@ -53,6 +65,10 @@ export async function expectPackageCards(
     }, SETTLED_TIMEOUT);
   }
   for (const packageInfo of hidden) {
+    // Retried like Playwright's auto-waiting toBeHidden(): the card may still
+    // be rendered while the panel refetches after a mutation or filter change,
+    // so absence can only be observed on the card list itself. A card that
+    // never disappears fails after SETTLED_TIMEOUT.
     await waitFor(() => {
       expectCardAbsentOrHidden(panelTestId, packageInfo);
     }, SETTLED_TIMEOUT);
@@ -61,11 +77,9 @@ export async function expectPackageCards(
 
 function expectCardAbsentOrHidden(
   panelTestId: PanelTestId,
-  packageInfo: RawPackageInfo,
+  packageInfo: PackageInfoForLabels,
 ): void {
-  const card = within(getPanel(panelTestId)).queryByLabelText(
-    cardLabelText(packageInfo),
-  );
+  const card = queryPackageCard(panelTestId, packageInfo);
   if (card) {
     expect(card).not.toBeVisible();
   }
@@ -73,7 +87,7 @@ function expectCardAbsentOrHidden(
 
 export async function expectPackageCardPickerSource(
   panelTestId: PanelTestId,
-  packageInfo: RawPackageInfo,
+  packageInfo: PackageInfoForLabels,
   isPickerSource: boolean,
 ): Promise<void> {
   await waitFor(() => {
@@ -88,7 +102,7 @@ export async function expectPackageCardPickerSource(
 
 async function getPackageCardAfterItAppears(
   panelTestId: PanelTestId,
-  packageInfo: RawPackageInfo,
+  packageInfo: PackageInfoForLabels,
 ): Promise<HTMLElement> {
   // Playwright auto-waits for the card to attach after mounting; mirror that
   // here since callers click cards right after renderApp.
@@ -101,7 +115,7 @@ async function getPackageCardAfterItAppears(
 
 export async function clickPackageCard(
   panelTestId: PanelTestId,
-  packageInfo: RawPackageInfo,
+  packageInfo: PackageInfoForLabels,
 ): Promise<void> {
   const card = await getPackageCardAfterItAppears(panelTestId, packageInfo);
   await userEvent.click(
@@ -111,7 +125,7 @@ export async function clickPackageCard(
 
 export async function clickPackageCardCheckbox(
   panelTestId: PanelTestId,
-  packageInfo: RawPackageInfo,
+  packageInfo: PackageInfoForLabels,
 ): Promise<void> {
   const card = await getPackageCardAfterItAppears(panelTestId, packageInfo);
   await userEvent.click(within(card).getByRole('checkbox'));
@@ -119,21 +133,19 @@ export async function clickPackageCardCheckbox(
 
 export async function expectPackageCardCheckbox(
   panelTestId: PanelTestId,
-  packageInfo: RawPackageInfo,
+  packageInfo: PackageInfoForLabels,
   checked: boolean,
 ): Promise<void> {
-  const assertion = checked ? jestExpectChecked : jestExpectUnchecked;
   await waitFor(() => {
-    assertion(getPackageCardCheckbox(panelTestId, packageInfo));
+    const checkbox = within(getPackageCard(panelTestId, packageInfo)).getByRole(
+      'checkbox',
+    );
+    if (checked) {
+      expect(checkbox).toBeChecked();
+    } else {
+      expect(checkbox).not.toBeChecked();
+    }
   }, SETTLED_TIMEOUT);
-}
-
-function jestExpectChecked(checkbox: HTMLElement): void {
-  expect(checkbox).toBeChecked();
-}
-
-function jestExpectUnchecked(checkbox: HTMLElement): void {
-  expect(checkbox).not.toBeChecked();
 }
 
 export async function clickSelectAllCheckbox(
@@ -148,7 +160,7 @@ export async function clickSelectAllCheckbox(
 
 export async function expectPackageCardPartition(
   panelTestId: PanelTestId,
-  packageInfo: RawPackageInfo,
+  packageInfo: PackageInfoForLabels,
   readonly: boolean,
 ): Promise<void> {
   await waitFor(() => {

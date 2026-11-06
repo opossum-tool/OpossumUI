@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -6,8 +6,8 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
-import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import type { UserSettings } from '../../../shared/shared-types';
+import { AllowedFrontendChannels } from '../../shared/ipc-channels';
+import type { UserSettings } from '../../shared/shared-types';
 import type { RenderAppResult } from '../render-app';
 
 export type PanelTestId =
@@ -17,17 +17,14 @@ export const ATTRIBUTIONS_PANEL: PanelTestId = 'attributions-panel';
 export const SIGNALS_PANEL: PanelTestId = 'signals-panel';
 export const LINKED_RESOURCES_TREE: PanelTestId = 'linked-resources-tree';
 
+// Longer timeout (10s) so the shared assertions stay stable on
+// loaded CI runners even with several sequential waits per test
 export const SETTLED_TIMEOUT = { timeout: 10000 } as const;
 
 export type SendToChannel = RenderAppResult['sendToChannel'];
 
 export function getPanel(panelTestId: PanelTestId): HTMLElement {
   return screen.getByTestId(panelTestId);
-}
-
-export function isNodeVisible(node: HTMLElement): boolean {
-  const style = window.getComputedStyle(node);
-  return style.display !== 'none' && style.visibility !== 'hidden';
 }
 
 export function isNodeEnabled(node: HTMLElement): boolean {
@@ -150,8 +147,8 @@ export function expectReadonlyIndicator(
   if (readonly) {
     expect(indicator).not.toBeNull();
     expect(indicator).toBeVisible();
-  } else {
-    expect(indicator === null || !isNodeVisible(indicator)).toBe(true);
+  } else if (indicator !== null) {
+    expect(indicator).not.toBeVisible();
   }
 }
 

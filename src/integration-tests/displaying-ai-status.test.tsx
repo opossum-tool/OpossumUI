@@ -7,13 +7,13 @@ import userEvent from '@testing-library/user-event';
 
 import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers/general-test-helpers';
 import { Criticality } from '../shared/shared-types';
-import { renderApp } from './helpers/render-app';
+import { renderApp } from '../testing/render-app';
 import {
   expectFormFieldValues,
   fillFormField,
   gotoResource,
   saveChangesInAttributionColumn,
-} from './helpers/ui';
+} from '../testing/ui';
 
 test('shows consistent AI status in attribution cards and details', async () => {
   const cases = [

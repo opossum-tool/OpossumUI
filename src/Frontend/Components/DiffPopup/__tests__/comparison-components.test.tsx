@@ -7,8 +7,12 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ComponentProps } from 'react';
 
-import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
+import type { PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
+import {
+  makeComparisonItem,
+  makeComparisonPackageInfo,
+} from '../../../../testing/comparison-fixtures';
 import { theme } from '../../App/App.style';
 import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { ComparisonFieldEditor } from '../ComparisonFieldEditor';
@@ -25,23 +29,21 @@ vi.mock('../../../util/backendClient', () => ({
 }));
 
 function packageInfo(overrides: Partial<PackageInfo> = {}): PackageInfo {
-  return {
-    id: 'package',
-    criticality: Criticality.None,
+  return makeComparisonPackageInfo({
     packageName: 'package',
-    packageType: 'npm',
-    comment: 'opening comment',
+    attributionConfidence: undefined,
+    licenseName: undefined,
+    licenseText: undefined,
     ...overrides,
-  };
+  });
 }
 
 function item(overrides: Partial<ComparisonItem> = {}): ComparisonItem {
-  return {
-    isExternal: false,
-    label: 'item',
+  return makeComparisonItem({
     packageInfo: packageInfo(),
+    label: 'item',
     ...overrides,
-  };
+  });
 }
 
 const commentField: FieldDefinition = {

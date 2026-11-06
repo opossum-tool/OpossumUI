@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -6,12 +6,12 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
-import { text } from '../../../shared/text';
+import { text } from '../../shared/text';
 import {
   clickAuditingMenuOption,
   closeAuditingOptionsMenu,
 } from './attribution-column';
-import { isNodeEnabled, isNodeVisible, SETTLED_TIMEOUT } from './common';
+import { isNodeEnabled, SETTLED_TIMEOUT } from './common';
 
 function getDiffPopup(): HTMLElement {
   return screen.getByLabelText(text.diffPopup.ariaLabel);
@@ -43,7 +43,9 @@ async function expectDiffPopupFieldValue(
       `${side}-${field}`,
     );
     if (value === null) {
-      expect(fieldNode === null || !isNodeVisible(fieldNode)).toBe(true);
+      if (fieldNode !== null) {
+        expect(fieldNode).not.toBeVisible();
+      }
     } else {
       expect(fieldNode).not.toBeNull();
       expect(fieldNode).toHaveValue(value);

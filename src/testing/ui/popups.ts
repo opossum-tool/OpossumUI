@@ -1,13 +1,13 @@
-﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
-import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { text } from '../../../shared/text';
+import { AllowedFrontendChannels } from '../../shared/ipc-channels';
+import { text } from '../../shared/text';
 import {
   expectReadonlyIndicator,
   getPopup,
@@ -35,7 +35,7 @@ export async function expectPopupHasText(
     const popup = screen.queryByLabelText(popupLabel);
     expect(popup).not.toBeNull();
     expect(
-      within(popup as HTMLElement).getByText(expectedText, { exact: false }),
+      within(popup as HTMLElement).getByText(expectedText, { exact: true }),
     ).toBeVisible();
   }, SETTLED_TIMEOUT);
 }
@@ -184,4 +184,16 @@ export async function expectConfirmSavePopupSaveOnlyOnSelectedIsHidden(): Promis
       }),
     ).toBeNull();
   }, SETTLED_TIMEOUT);
+}
+
+export function dismissWithEscape(element: HTMLElement): void {
+  fireEvent.keyDown(element, { key: 'Escape' });
+}
+
+export function dismissWithBackdrop(popupLabel: string): void {
+  const backdrop = within(screen.getByLabelText(popupLabel)).getByRole(
+    'presentation',
+  );
+  fireEvent.mouseDown(backdrop);
+  fireEvent.click(backdrop);
 }
