@@ -11,18 +11,23 @@ import { PopupType } from '../../enums/enums';
 import {
   exportFileOrOpenUnsavedPopup,
   openFileOrOpenUnsavedPopup,
+  quitAppOrOpenUnsavedPopup,
   showImportDialogOrOpenUnsavedPopup,
   showMergeOpossumFilesDialogOrOpenUnsavedPopup,
   showSplitDialogOrOpenUnsavedPopup,
 } from '../../state/actions/popup-actions/popup-actions';
 import { resetResourceState } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { openPopup } from '../../state/actions/view-actions/view-actions';
+import {
+  openPopup,
+  setIsSavingBeforeQuit,
+} from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { backend, setDatabaseInitialized } from '../../util/backendClient';
 import {
   type ExportFileRequestListener,
   type LoggingListener,
   type OpenFileListener,
+  type RequestQuitApprovalListener,
   type SetBaseURLForRootListener,
   type SetDatabaseInitializedListener,
   type ShowImportDialogListener,
@@ -132,6 +137,19 @@ export const BackendCommunication: React.FC = () => {
   useIpcRenderer(
     AllowedFrontendChannels.ShowForceUnlockDialog,
     () => dispatch(openPopup(PopupType.ForceUnlockPopup)),
+    [dispatch],
+  );
+  useIpcRenderer<RequestQuitApprovalListener>(
+    AllowedFrontendChannels.RequestQuitApproval,
+    () => {
+      window.electronAPI.quitRequestHandled();
+      void dispatch(quitAppOrOpenUnsavedPopup());
+    },
+    [dispatch],
+  );
+  useIpcRenderer(
+    AllowedFrontendChannels.QuitSaveFailed,
+    () => dispatch(setIsSavingBeforeQuit(false)),
     [dispatch],
   );
 

@@ -51,3 +51,7 @@ export function executeCommand<C extends CommandName>(
   ) => CommandReturn<C>;
   return fn(params);
 }
+
+export function isMutationCommand(command: CommandName): boolean {
+  return Object.hasOwn(mutations, command);
+}

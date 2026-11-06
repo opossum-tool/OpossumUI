@@ -63,3 +63,11 @@ export function getExportFileRequest(state: State): ExportType | null {
 export function getSplitFileRequest(state: State): SplitFileRequest | null {
   return state.viewState.splitFileRequest;
 }
+
+export function getQuitAppRequested(state: State): boolean {
+  return state.viewState.quitAppRequest;
+}
+
+export function getIsSavingBeforeQuit(state: State): boolean {
+  return state.viewState.isSavingBeforeQuit;
+}

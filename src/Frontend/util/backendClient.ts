@@ -173,7 +173,6 @@ export const backend = new Proxy({} as BackendClient, {
         invalidations:
           'invalidates' in response ? (response.invalidates ?? []) : [],
       });
-      window.electronAPI.saveFile();
       return mutationResult;
     }
 

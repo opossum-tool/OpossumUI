@@ -18,7 +18,7 @@ import type {
   ParsedOpossumInputFile,
   ParsedOpossumOutputFile,
 } from '../../ElectronBackend/types/types';
-import type { ReadonlyRule } from '../../shared/shared-types';
+import type { ElectronAPI, ReadonlyRule } from '../../shared/shared-types';
 import { writeOpossumFile } from '../../shared/write-file';
 import { AttributionDetails } from '../page-objects/AttributionDetails';
 import { AttributionsPanel } from '../page-objects/AttributionsPanel';
@@ -227,6 +227,19 @@ export const test = base.extend<{
         });
       }
 
+      try {
+        // Quit through the app's own confirm-quit path, which persists
+        // unsaved changes and awaits pending background file writes before
+        // the app exits. Without this, plain `app.close()` would trigger the
+        // unsaved-changes prompt which nobody answers.
+        await window.evaluate(() =>
+          (
+            globalThis as unknown as { electronAPI: ElectronAPI }
+          ).electronAPI.confirmQuit(),
+        );
+      } catch {
+        // The renderer has already gone away.
+      }
       try {
         await app.close();
       } catch {

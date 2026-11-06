@@ -17,8 +17,10 @@ import {
   ACTION_RESET_VIEW_STATE,
   ACTION_SET_EXPORT_FILE_REQUEST,
   ACTION_SET_IMPORT_FILE_REQUEST,
+  ACTION_SET_IS_SAVING_BEFORE_QUIT,
   ACTION_SET_MERGE_OPOSSUM_FILES_REQUEST,
   ACTION_SET_OPEN_FILE_REQUEST,
+  ACTION_SET_QUIT_APP_REQUEST,
   ACTION_SET_SPLIT_FILE_REQUEST,
   ACTION_SET_TARGET_VIEW,
   ACTION_SET_VIEW,
@@ -30,8 +32,10 @@ import {
   type ResetViewStateAction,
   type SetExportFileRequestAction,
   type SetImportFileRequestAction,
+  type SetIsSavingBeforeQuitAction,
   type SetMergeOpossumFilesRequestAction,
   type SetOpenFileRequestAction,
+  type SetQuitAppRequestAction,
   type SetSplitFileRequestAction,
   type SetTargetView,
   type SetView,
@@ -181,4 +185,19 @@ export function setSplitFileRequest(
   splitFileRequest: SplitFileRequest | null,
 ): SetSplitFileRequestAction {
   return { type: ACTION_SET_SPLIT_FILE_REQUEST, payload: splitFileRequest };
+}
+
+export function setQuitAppRequest(
+  quitAppRequest: boolean,
+): SetQuitAppRequestAction {
+  return { type: ACTION_SET_QUIT_APP_REQUEST, payload: quitAppRequest };
+}
+
+export function setIsSavingBeforeQuit(
+  isSavingBeforeQuit: boolean,
+): SetIsSavingBeforeQuitAction {
+  return {
+    type: ACTION_SET_IS_SAVING_BEFORE_QUIT,
+    payload: isSavingBeforeQuit,
+  };
 }

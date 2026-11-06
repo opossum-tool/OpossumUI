@@ -32,7 +32,8 @@ export enum IpcChannel {
   CheckForUpdates = 'check-for-updates',
   DownloadUpdate = 'download-update',
   RestartAndUpdate = 'restart-and-update',
-  Quit = 'quit',
+  ConfirmQuit = 'confirm-quit',
+  QuitRequestHandled = 'quit-request-handled',
   Relaunch = 'relaunch',
 }
 
@@ -58,4 +59,6 @@ export enum AllowedFrontendChannels {
   UpdateStateChanged = 'update-state-changed',
   ProcessingStateChanged = 'processing-state-changed',
   SetDatabaseInitialized = 'set-database-initialized',
+  RequestQuitApproval = 'request-quit-approval',
+  QuitSaveFailed = 'quit-save-failed',
 }

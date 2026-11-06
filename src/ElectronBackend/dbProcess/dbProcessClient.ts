@@ -25,6 +25,7 @@ import type {
   DbProcessPayload,
   DbProcessRequest,
   DbProcessResponse,
+  SaveResult,
 } from './dbProcess';
 
 type ProgressCallback = (message: string, level?: 'info' | 'warn') => void;
@@ -52,6 +53,7 @@ type ClientPort = ElectronPort | WebPort;
 
 export class DbProcessClient {
   private nextId = 0;
+  private dead = false;
   private readonly pending = new Map<number, PendingRequest>();
   private readonly port: { postMessage(data: DbProcessRequest): void };
 
@@ -92,6 +94,11 @@ export class DbProcessClient {
     msg: DbProcessPayload,
     options?: { onProgress?: ProgressCallback },
   ): Promise<unknown> {
+    if (this.dead) {
+      return Promise.reject(
+        new Error('The DB process has exited; no further requests are sent.'),
+      );
+    }
     const id = this.nextId++;
     return new Promise((resolve, reject) => {
       this.pending.set(id, {
@@ -101,6 +108,49 @@ export class DbProcessClient {
       });
       this.port.postMessage({ ...msg, id });
     });
+  }
+
+  /**
+   * Resolves once every file-writing operation sent to the DB process —
+   * from any port — has finished executing and its file write has
+   * concluded. Used to await pending operations before the app quits.
+   */
+  async whenMutationsSettled(): Promise<void> {
+    await this.request({ type: 'whenIdle' });
+  }
+
+  /**
+   * Outcome of the last write of the currently loaded project's file, as
+   * tracked by the DB process. `undefined` means no write happened since
+   * the file was loaded. Callers should await `whenMutationsSettled` first
+   * so that pending background writes have concluded.
+   */
+  getLastSaveResult(): Promise<SaveResult | undefined> {
+    return this.request({ type: 'getLastSaveResult' }) as Promise<
+      SaveResult | undefined
+    >;
+  }
+
+  /**
+   * Whether the DB process has exited and this client rejects new requests
+   * (see `failPendingRequests`).
+   */
+  isDead(): boolean {
+    return this.dead;
+  }
+
+  /**
+   * Rejects all requests that are still waiting for a DB process response.
+   * Called when the DB process exits; afterwards this client rejects any
+   * new request immediately.
+   */
+  failPendingRequests(error: Error): void {
+    this.dead = true;
+    const requests = Array.from(this.pending.values());
+    this.pending.clear();
+    for (const request of requests) {
+      request.reject(error);
+    }
   }
 
   api<C extends CommandName>(
@@ -202,6 +252,9 @@ function ensureUtilityProcess(): Electron.UtilityProcess {
     child.on('exit', (code) => {
       console.error(`DB utility process exited with code ${code}`);
       child = null;
+      mainClient?.failPendingRequests(
+        new Error(`The DB process exited with code ${code}.`),
+      );
     });
   }
   return child;
