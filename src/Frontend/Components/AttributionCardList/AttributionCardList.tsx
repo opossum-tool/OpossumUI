@@ -5,6 +5,8 @@ import MuiDivider from '@mui/material/Divider';
 import type { SxProps } from '@mui/system';
 
 import type { PackageInfo } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
+import { maybePluralize } from '../../util/maybe-pluralize';
 import { CardList } from '../CardList/CardList';
 import {
   PACKAGE_CARD_LIST_ITEM_HEIGHT,
@@ -46,7 +48,17 @@ export function AttributionCardList({
       sx={sx}
       renderItemContent={(attribution, { index }) => (
         <>
-          <PackageCard packageInfo={attribution} />
+          <PackageCard
+            packageInfo={{
+              ...attribution,
+              count: attribution.writableLinkedResourceCount,
+            }}
+            countTooltip={maybePluralize(
+              attribution.writableLinkedResourceCount ?? 0,
+              text.confirmAttributionActionPopup.editableLinkedResource,
+              { showOne: true },
+            )}
+          />
           {index + 1 !== attributions.length && <MuiDivider />}
         </>
       )}

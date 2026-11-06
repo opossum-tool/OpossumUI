@@ -2,27 +2,26 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiAlert from '@mui/material/Alert';
 import MuiTypography from '@mui/material/Typography';
 import { skipToken } from '@tanstack/react-query';
 
 import { excludeAttributionFromAllMatchingSelection } from '../../../shared/attribution-selection';
 import type { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import { attributionPopupMaxWidth } from '../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { useAttributionSelectionForReplacement } from '../../state/variables/use-attribution-selection-for-replacement';
 import { backend } from '../../util/backendClient';
 import { maybePluralize } from '../../util/maybe-pluralize';
 import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../util/use-focused-attribution-outcome';
+import { useAttributionSelectionData } from '../AttributionAction/use-attribution-selection-data';
 import { AttributionCardList } from '../AttributionCardList/AttributionCardList';
-import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
+import { ConfirmAttributionActionPopup } from '../ConfirmAttributionActionPopup/ConfirmAttributionActionPopup';
 import {
-  popupColumnContentSx,
   popupFixedSectionSx,
   popupScrollableContentSx,
 } from '../NotificationPopup/NotificationPopup.style';
+import { useLinkedResourcesTree } from '../ResourceBrowser/LinkedResourcesTree/useLinkedResourcesTreeState';
 
 interface Props {
   selectedAttribution: PackageInfo;
@@ -52,7 +51,11 @@ export const ConfirmReplacePopup = ({
   const replaceAttributions = backend.replaceAttributions.useMutation();
   const isReplacing =
     updateAttributions.isPending || replaceAttributions.isPending;
-  const isQueryWideSelection = selectionForReplacement?.mode === 'allMatching';
+  const replacementPreview = backend.getAttributionPreview.useQuery(
+    open && !isReplacing
+      ? { attributionUuids: [selectedAttribution.id] }
+      : skipToken,
+  );
   const selectionForConfirmation = selectionForReplacement
     ? excludeAttributionFromAllMatchingSelection(
         selectionForReplacement,
@@ -60,33 +63,40 @@ export const ConfirmReplacePopup = ({
       )
     : null;
 
-  const { data: attributionsForReplacement, isSuccess: areAttributionsReady } =
-    backend.getAttributions.useQuery(
-      open && !isReplacing && !isQueryWideSelection
-        ? {
-            attributionUuids: attributionIdsForReplacement,
-          }
-        : skipToken,
-    );
-  const selectionSummaryQuery = backend.getAttributionSelectionSummary.useQuery(
-    {
-      selection: selectionForConfirmation ?? {
-        mode: 'explicit',
-        attributionUuids: attributionIdsForReplacement,
-      },
+  const {
+    attributions: attributionsForReplacement,
+    attributionIds,
+    isQueryWideSelection,
+    isSelectionDataReady,
+    selectionMetadata,
+  } = useAttributionSelectionData({
+    open,
+    isMutationPending: isReplacing,
+    selection: selectionForConfirmation ?? {
+      mode: 'explicit',
+      attributionUuids: [],
     },
-    { enabled: open && !isReplacing && isQueryWideSelection },
-  );
-  const selectionSummary = isQueryWideSelection
-    ? selectionSummaryQuery.data
-    : undefined;
+  });
+  const {
+    data: linkedResourcesTreeState,
+    isLoading: isTreeLoading,
+    isError: hasTreeError,
+  } = useLinkedResourcesTree({
+    onAttributionUuids: [
+      ...new Set([
+        ...attributionIds,
+        ...(selectedAttribution.preSelected ? [selectedAttribution.id] : []),
+      ]),
+    ],
+    enabled:
+      open && !isReplacing && isSelectionDataReady && !isQueryWideSelection,
+    onlyWritable: true,
+  });
+  const isResourceInfoReady =
+    isSelectionDataReady &&
+    (isQueryWideSelection || (!isTreeLoading && !hasTreeError));
   const mixedAttributionCount =
-    (selectionSummary?.mixedCount ??
-      (attributionsForReplacement
-        ? Object.values(attributionsForReplacement).filter(
-            (attribution) => attribution.resourceAccess === 'mixed',
-          ).length
-        : 0)) +
+    selectionMetadata.mixedAttributionCount +
     (selectedAttribution.preSelected &&
     selectedAttribution.resourceAccess === 'mixed' &&
     !attributionIdsForReplacement.includes(selectedAttribution.id)
@@ -130,69 +140,54 @@ export const ConfirmReplacePopup = ({
     );
     onClose();
   };
-  const { count, ...attributionWithoutCount } = selectedAttribution;
-
   return (
-    <NotificationPopup
-      fullWidth
-      maxWidth={attributionPopupMaxWidth}
-      sx={popupColumnContentSx}
+    <ConfirmAttributionActionPopup
       header={text.replaceAttributionsPopup.title}
-      leftButtonConfig={{
-        disabled:
-          isReplacing ||
-          (isQueryWideSelection
-            ? !selectionSummaryQuery.isSuccess
-            : !areAttributionsReady),
-        loading: isReplacing,
+      globalAction={{
+        disabled: isReplacing,
+        isPending: isReplacing,
         onClick: handleReplace,
         buttonText: text.replaceAttributionsPopup.replace,
         color: 'error',
       }}
-      rightButtonConfig={{
-        disabled: isReplacing,
-        onClick: onClose,
-        buttonText: text.buttons.cancel,
-        color: 'secondary',
-      }}
-      isOpen={open}
-      aria-label={'confirm replace popup'}
-    >
-      {mixedAttributionCount > 0 && (
-        <MuiAlert severity={'warning'} sx={popupFixedSectionSx}>
-          {text.confirmAttributionActionPopup.mixedWarning(
-            mixedAttributionCount,
-          )}
-        </MuiAlert>
+      onClose={onClose}
+      open={open}
+      ariaLabel={'confirm replace popup'}
+      description={text.replaceAttributionsPopup.removeAttributions(
+        maybePluralize(
+          selectionMetadata.selectedAttributionCount,
+          text.packageLists.attribution,
+        ),
       )}
-      <MuiTypography sx={popupFixedSectionSx}>
-        {text.replaceAttributionsPopup.removeAttributions(
-          isQueryWideSelection
-            ? maybePluralize(
-                selectionSummary?.selectedCount ?? 0,
-                text.packageLists.attribution,
-              )
-            : maybePluralize(
-                attributionIdsForReplacement.length,
-                text.packageLists.attribution,
-              ),
-        )}
-      </MuiTypography>
-      {!isQueryWideSelection && attributionsForReplacement ? (
-        <AttributionCardList
-          attributions={Object.values(attributionsForReplacement)}
-          testId={'removed-attributions'}
-          sx={popupScrollableContentSx}
-        />
-      ) : null}
+      mixedWarning={text.confirmAttributionActionPopup.mixedWarning(
+        mixedAttributionCount,
+      )}
+      mixedAttributionCount={mixedAttributionCount}
+      attributions={attributionsForReplacement}
+      linkedResourcesTreeState={linkedResourcesTreeState}
+      isResourceInfoReady={isResourceInfoReady}
+      isLocalActionAvailable={false}
+      selection={
+        selectionForConfirmation ?? { mode: 'explicit', attributionUuids: [] }
+      }
+      attributionCount={selectionMetadata.selectedAttributionCount}
+      attributionListTestId={'removed-attributions'}
+    >
       <MuiTypography sx={popupFixedSectionSx}>
         {text.replaceAttributionsPopup.replacement}
       </MuiTypography>
       <AttributionCardList
-        attributions={[attributionWithoutCount]}
+        attributions={[
+          {
+            ...selectedAttribution,
+            writableLinkedResourceCount:
+              replacementPreview.data?.[selectedAttribution.id]
+                ?.writableLinkedResourceCount,
+          },
+        ]}
         testId={'added attributions'}
         sx={popupScrollableContentSx}
       />
-    </NotificationPopup>
+    </ConfirmAttributionActionPopup>
   );
 };

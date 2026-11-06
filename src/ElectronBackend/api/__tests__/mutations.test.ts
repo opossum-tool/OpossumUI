@@ -458,8 +458,8 @@ describe('attribution resource access', () => {
         offset: 0,
         limit: 200,
       }),
-      queries.getAttributions({ attributionUuids: ['attribution'] }),
-      queries.getAttributions({
+      queries.getAttributionPreview({ attributionUuids: ['attribution'] }),
+      queries.getAttributionPreview({
         attributionUuids: ['attribution'],
         resourcePathForRelationships: '/a',
       }),

@@ -52,6 +52,8 @@ interface Props {
   isCloseDisabled?: boolean;
   selection: AttributionSelection;
   attributionCount?: number;
+  children?: ReactNode;
+  attributionListTestId?: string;
 }
 
 export function ConfirmAttributionActionPopup({
@@ -71,6 +73,8 @@ export function ConfirmAttributionActionPopup({
   isCloseDisabled,
   selection,
   attributionCount,
+  children,
+  attributionListTestId = 'attribution-preview',
 }: Props) {
   const isMutationPending =
     globalAction.isPending || (localAction?.isPending ?? false);
@@ -128,13 +132,14 @@ export function ConfirmAttributionActionPopup({
           selection={selection}
           open={open}
           attributionCount={attributionCount}
+          testId={attributionListTestId}
         />
       ) : (
         <>
           {attributionValues ? (
             <AttributionCardList
               attributions={attributionValues}
-              testId={'attribution-preview'}
+              testId={attributionListTestId}
               sx={popupScrollableContentSx}
             />
           ) : (
@@ -142,26 +147,27 @@ export function ConfirmAttributionActionPopup({
               {text.updateApp.loading}
             </MuiTypography>
           )}
-          <MuiTypography variant={'subtitle2'} sx={popupFixedSectionSx}>
-            {mixedAttributionCount > 0
-              ? text.confirmAttributionActionPopup.editableLinkedResources
-              : text.confirmAttributionActionPopup.linkedResources}
-          </MuiTypography>
-          {linkedResourcesTreeState && (
-            <LinkedResourcesTree
-              readOnly
-              fitContent
-              disableHighlightSelected={!isLocalActionAvailable}
-              state={linkedResourcesTreeState}
-              sx={{
-                ...popupScrollableSectionSx,
-                ...(linkedResourcesTreeState.treeNodes.length > 0 && {
-                  minHeight: 0,
-                }),
-              }}
-            />
-          )}
         </>
+      )}
+      {children}
+      {selection.mode === 'explicit' && (
+        <MuiTypography variant={'subtitle2'} sx={popupFixedSectionSx}>
+          {text.confirmAttributionActionPopup.affectedResources}
+        </MuiTypography>
+      )}
+      {selection.mode === 'explicit' && linkedResourcesTreeState && (
+        <LinkedResourcesTree
+          readOnly
+          fitContent
+          disableHighlightSelected={!isLocalActionAvailable}
+          state={linkedResourcesTreeState}
+          sx={{
+            ...popupScrollableSectionSx,
+            ...(linkedResourcesTreeState.treeNodes.length > 0 && {
+              minHeight: 0,
+            }),
+          }}
+        />
       )}
     </NotificationPopup>
   );
@@ -171,10 +177,12 @@ function AttributionPreview({
   open,
   selection,
   attributionCount,
+  testId,
 }: {
   open: boolean;
   selection: AllMatchingAttributionSelection;
   attributionCount?: number;
+  testId: string;
 }) {
   const preview = useAttributionPreview(selection, open, attributionCount);
 
@@ -197,7 +205,7 @@ function AttributionPreview({
   return (
     <AttributionCardList
       attributions={Object.values(preview.attributions)}
-      testId={'attribution-preview'}
+      testId={testId}
       totalCount={attributionCount}
       resultSetKey={preview.resultSetKey}
       loadingMore={preview.loadingMore}

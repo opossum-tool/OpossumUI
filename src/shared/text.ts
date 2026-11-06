@@ -355,8 +355,8 @@ export const text = {
     title: 'Replace Attributions',
   },
   confirmAttributionActionPopup: {
-    linkedResources: 'Linked resources',
-    editableLinkedResources: 'Editable linked resources',
+    editableLinkedResource: 'editable linked resource',
+    affectedResources: 'Affected resources',
     mixedWarning: (count: number) =>
       count === 1
         ? '1 attribution is linked to both editable and read-only resources. It will be cloned and changes will affect only the new attribution.'
