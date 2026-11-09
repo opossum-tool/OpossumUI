@@ -156,7 +156,7 @@ export function combineQuickfilters({
 
 export function useQuickfilters(scope: QuickfilterScope): {
   quickfilters: Array<SavedQuickfilter>;
-  saveQuickfilter: (name: string, filters: AttributionFilters) => void;
+  saveQuickfilter: (name: string, filters: AttributionFilters) => string;
   deleteQuickfilter: (id: string) => void;
   markQuickfilterUsed: (id: string) => void;
 } {
@@ -170,12 +170,16 @@ export function useQuickfilters(scope: QuickfilterScope): {
     [userSettings.savedQuickfilters, scope],
   );
 
-  const saveQuickfilter = (name: string, filters: AttributionFilters): void => {
+  const saveQuickfilter = (
+    name: string,
+    filters: AttributionFilters,
+  ): string => {
+    const id = uuid4();
     updateUserSettings((settings) => ({
       savedQuickfilters: [
         ...settings.savedQuickfilters,
         {
-          id: uuid4(),
+          id,
           name,
           lastUsedAt: Date.now(),
           scope,
@@ -183,6 +187,7 @@ export function useQuickfilters(scope: QuickfilterScope): {
         },
       ],
     }));
+    return id;
   };
 
   const deleteQuickfilter = (id: string): void => {

@@ -70,6 +70,13 @@ export function useQuickfilterOptions({
       );
     };
 
+    const activateSavedQuickfilter = (id: string): void => {
+      setFilters({
+        ...filters,
+        activeQuickfilterIds: [...activeIds, id],
+      });
+    };
+
     const recentQuickfilterOptions = quickfilters
       .slice(0, MAX_RECENT_QUICKFILTERS)
       .map((quickfilter) => {
@@ -87,36 +94,38 @@ export function useQuickfilterOptions({
         };
       });
 
-    const moreQuickfiltersOption: Array<FilterOption> =
-      quickfilters.length > MAX_RECENT_QUICKFILTERS
-        ? [
-            {
-              kind: 'panel' as const,
-              id: 'quickfilters-more',
-              selected: false,
-              label: text.quickfilters.more,
-              tinted: true,
-              icon: <BookmarkIcon sx={baseIcon} />,
-              endIcon: <ChevronRightIcon />,
-              renderPanel: ({ id, onClose, initialFocusRef }) => (
-                <QuickfilterListPanel
-                  id={id}
-                  quickfilters={quickfilters}
-                  incompatibleIds={quickfilters
-                    .filter(
-                      (quickfilter) =>
-                        !isQuickfilterCompatible(filters, quickfilter),
-                    )
-                    .map(({ id }) => id)}
-                  onApply={applyQuickfilter}
-                  onDelete={deleteQuickfilter}
-                  onClose={onClose}
-                  initialFocusRef={initialFocusRef}
-                />
-              ),
-            },
-          ]
-        : [];
+    const manageQuickfiltersOption: Array<FilterOption> = quickfilters.length
+      ? [
+          {
+            kind: 'panel' as const,
+            id: 'quickfilters-more',
+            selected: false,
+            label:
+              quickfilters.length > MAX_RECENT_QUICKFILTERS
+                ? text.quickfilters.more
+                : text.quickfilters.manage,
+            tinted: true,
+            icon: <BookmarkIcon sx={baseIcon} />,
+            endIcon: <ChevronRightIcon />,
+            renderPanel: ({ id, onClose, initialFocusRef }) => (
+              <QuickfilterListPanel
+                id={id}
+                quickfilters={quickfilters}
+                incompatibleIds={quickfilters
+                  .filter(
+                    (quickfilter) =>
+                      !isQuickfilterCompatible(filters, quickfilter),
+                  )
+                  .map(({ id }) => id)}
+                onApply={applyQuickfilter}
+                onDelete={deleteQuickfilter}
+                onClose={onClose}
+                initialFocusRef={initialFocusRef}
+              />
+            ),
+          },
+        ]
+      : [];
 
     const saveQuickfilterOption: Array<FilterOption> = hasActiveFilters
       ? [
@@ -132,6 +141,7 @@ export function useQuickfilterOptions({
                 id={id}
                 filters={filters}
                 scope={scope}
+                onSaved={activateSavedQuickfilter}
                 onClose={onClose}
                 initialFocusRef={initialFocusRef}
               />
@@ -142,7 +152,7 @@ export function useQuickfilterOptions({
 
     return [
       ...recentQuickfilterOptions,
-      ...moreQuickfiltersOption,
+      ...manageQuickfiltersOption,
       ...saveQuickfilterOption,
     ];
   }, [

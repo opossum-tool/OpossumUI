@@ -30,12 +30,14 @@ function handleActivationKeyDown(
 export function SaveQuickfilterPanel({
   filters,
   scope,
+  onSaved,
   onClose,
   id,
   initialFocusRef,
 }: {
   filters: AttributionFilters;
   scope: QuickfilterScope;
+  onSaved: (id: string) => void;
   onClose: () => void;
   id: string;
   initialFocusRef?: (element: HTMLElement | null) => void;
@@ -47,9 +49,10 @@ export function SaveQuickfilterPanel({
     if (!trimmedName) {
       return;
     }
-    saveQuickfilter(trimmedName, filters);
+    const savedId = saveQuickfilter(trimmedName, filters);
+    onSaved(savedId);
     onClose();
-  }, [trimmedName, saveQuickfilter, filters, onClose]);
+  }, [trimmedName, saveQuickfilter, filters, onSaved, onClose]);
 
   return (
     <Box

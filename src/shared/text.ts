@@ -442,6 +442,7 @@ export const text = {
     nameLabel: 'Quickfilter name',
     saveAction: 'Save',
     more: 'More quickfilters',
+    manage: 'Manage quickfilters',
     empty:
       'No quickfilters saved yet. Configure filters and save them here for quick access.',
     apply: (name: string) => `Apply quickfilter ${name}`,
