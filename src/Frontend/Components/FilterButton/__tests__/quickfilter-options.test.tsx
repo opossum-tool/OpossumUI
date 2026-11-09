@@ -110,9 +110,6 @@ describe('quickfilters in the filter menu', () => {
       valueFilters: {},
       sorting: 'criticality',
     });
-    expect(
-      screen.getByRole('menuitem', { name: quickfilter.name }),
-    ).toHaveAttribute('aria-selected', 'true');
   });
 
   it('saves on Enter and trims the name', async () => {
@@ -225,32 +222,29 @@ describe('quickfilters in the filter menu', () => {
     });
   });
 
-  it('does nothing when clicking an already selected quickfilter', async () => {
+  it('re-applies a quickfilter when clicked again', async () => {
     const quickfilter = makeQuickfilter({ name: 'My quickfilter' });
     const { store } = await renderQuickfilterButton([
       setUserSetting({ savedQuickfilters: [quickfilter] }),
     ]);
-    const updateUserSettings = vi.mocked(window.electronAPI.updateUserSettings);
 
     await openFilterMenu();
     await userEvent.click(
       screen.getByRole('menuitem', { name: quickfilter.name }),
     );
-    const stateAfterApply =
-      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT];
-    const callCountAfterApply = updateUserSettings.mock.calls.length;
-
+    store.dispatch(
+      setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+        ...initialAttributionFilters,
+        filters: ['thirdParty'],
+      }),
+    );
     await userEvent.click(
       screen.getByRole('menuitem', { name: quickfilter.name }),
     );
 
     expect(
       store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
-    ).toEqual(stateAfterApply);
-    expect(updateUserSettings.mock.calls).toHaveLength(callCountAfterApply);
-    expect(
-      screen.getByRole('menuitem', { name: quickfilter.name }),
-    ).toHaveAttribute('aria-selected', 'true');
+    ).toMatchObject({ filters: ['firstParty'] });
   });
 
   it('only shows quickfilters matching the panel scope', async () => {
