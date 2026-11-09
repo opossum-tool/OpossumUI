@@ -18,8 +18,10 @@ import {
   hasActiveAttributionFilters,
 } from '../../state/variables/use-filters';
 import {
-  matchesQuickfilter,
+  combineQuickfilters,
+  isQuickfilterCompatible,
   MAX_RECENT_QUICKFILTERS,
+  mergeQuickfilterIntoFilters,
   useQuickfilters,
 } from '../../state/variables/use-quickfilters';
 import type { FilterOption } from './FilterButton';
@@ -44,45 +46,46 @@ export function useQuickfilterOptions({
   const hasActiveFilters = hasActiveAttributionFilters(filters);
 
   return useMemo(() => {
-    const isSelected = (quickfilter: SavedQuickfilter): boolean =>
-      filters.activeQuickfilterId === quickfilter.id &&
-      matchesQuickfilter(filters, quickfilter);
+    const activeIds = filters.activeQuickfilterIds ?? [];
 
     const applyQuickfilter = (quickfilter: SavedQuickfilter): void => {
-      // The sorting is intentionally kept from the current filters.
-      setFilters({
-        ...filters,
-        filters: [...quickfilter.filters.filters],
-        search: quickfilter.filters.search,
-        valueFilters: structuredClone(quickfilter.filters.valueFilters),
-        activeQuickfilterId: quickfilter.id,
-      });
+      if (
+        activeIds.includes(quickfilter.id) ||
+        !isQuickfilterCompatible(filters, quickfilter)
+      ) {
+        return;
+      }
+      setFilters(mergeQuickfilterIntoFilters(filters, quickfilter));
       markQuickfilterUsed(quickfilter.id);
     };
 
-    const resetQuickfilter = (): void => {
+    const removeQuickfilter = (quickfilter: SavedQuickfilter): void => {
       // The sorting is intentionally kept from the current filters.
-      setFilters({
-        ...filters,
-        filters: [],
-        search: '',
-        valueFilters: {},
-        activeQuickfilterId: undefined,
-      });
+      setFilters(
+        combineQuickfilters({
+          ids: activeIds.filter((id) => id !== quickfilter.id),
+          quickfilters,
+          sorting: filters.sorting,
+        }),
+      );
     };
 
     const recentQuickfilterOptions = quickfilters
       .slice(0, MAX_RECENT_QUICKFILTERS)
-      .map((quickfilter) => ({
-        kind: 'toggle' as const,
-        id: `quickfilter-${quickfilter.id}`,
-        selected: isSelected(quickfilter),
-        label: quickfilter.name,
-        tinted: true,
-        icon: <BookmarkIcon sx={baseIcon} />,
-        onAdd: () => applyQuickfilter(quickfilter),
-        onDelete: () => resetQuickfilter(),
-      }));
+      .map((quickfilter) => {
+        const selected = activeIds.includes(quickfilter.id);
+        return {
+          kind: 'toggle' as const,
+          id: `quickfilter-${quickfilter.id}`,
+          selected,
+          faded: !selected && !isQuickfilterCompatible(filters, quickfilter),
+          label: quickfilter.name,
+          tinted: true,
+          icon: <BookmarkIcon sx={baseIcon} />,
+          onAdd: () => applyQuickfilter(quickfilter),
+          onDelete: () => removeQuickfilter(quickfilter),
+        };
+      });
 
     const moreQuickfiltersOption: Array<FilterOption> =
       quickfilters.length > MAX_RECENT_QUICKFILTERS
@@ -99,6 +102,12 @@ export function useQuickfilterOptions({
                 <QuickfilterListPanel
                   id={id}
                   quickfilters={quickfilters}
+                  incompatibleIds={quickfilters
+                    .filter(
+                      (quickfilter) =>
+                        !isQuickfilterCompatible(filters, quickfilter),
+                    )
+                    .map(({ id }) => id)}
                   onApply={applyQuickfilter}
                   onDelete={deleteQuickfilter}
                   onClose={onClose}

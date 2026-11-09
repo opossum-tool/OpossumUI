@@ -39,6 +39,11 @@ export const styles = {
     '&:hover': { bgcolor: OpossumColors.lightestBlueOnHover },
     outlineOffset: '-1px',
   } satisfies SxProps<Theme>,
+  inapplicableRow: {
+    opacity: 0.5,
+    cursor: 'default',
+    '&:hover': { bgcolor: 'transparent' },
+  } satisfies SxProps<Theme>,
   label: {
     minWidth: 0,
     flex: 1,
