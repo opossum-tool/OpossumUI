@@ -24,6 +24,8 @@ export interface AttributionFilters {
     license?: Array<LicenseOption>;
   };
   sorting: SortOption;
+  /** Id of the quickfilter last applied via click; cleared on manual edits via matching. */
+  activeQuickfilterId?: string;
 }
 
 export interface ResourceTreeFilters {

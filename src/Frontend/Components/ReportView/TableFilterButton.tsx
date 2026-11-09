@@ -44,6 +44,7 @@ export const TableFilterButton: React.FC<{
           ...filters,
           filters: [],
           valueFilters: {},
+          activeQuickfilterId: undefined,
         })
       }
       anchorPosition={'left'}

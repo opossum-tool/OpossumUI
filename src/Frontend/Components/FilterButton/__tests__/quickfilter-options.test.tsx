@@ -109,7 +109,85 @@ describe('quickfilters in the filter menu', () => {
       search: '',
       valueFilters: {},
       sorting: 'criticality',
+      activeQuickfilterId: quickfilter.id,
     });
+    expect(
+      screen.getByRole('menuitem', { name: quickfilter.name }),
+    ).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('resets the filters when clicking the selected quickfilter again', async () => {
+    const quickfilter = makeQuickfilter({
+      name: 'My quickfilter',
+      filters: { filters: ['firstParty'], search: 'react', valueFilters: {} },
+    });
+    const { store } = await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [quickfilter] }),
+    ]);
+
+    await openFilterMenu();
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: quickfilter.name }),
+    );
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: quickfilter.name }),
+    );
+
+    expect(
+      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toEqual({
+      filters: [],
+      search: '',
+      valueFilters: {},
+      sorting: 'alphabetically',
+    });
+    expect(
+      screen.getByRole('menuitem', { name: quickfilter.name }),
+    ).toHaveAttribute('aria-selected', 'false');
+  });
+
+  it('deselects the quickfilter when filters are changed manually', async () => {
+    const quickfilter = makeQuickfilter({ name: 'My quickfilter' });
+    const { store } = await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [quickfilter] }),
+    ]);
+
+    await openFilterMenu();
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: quickfilter.name }),
+    );
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: text.filters.thirdParty }),
+    );
+
+    expect(
+      screen.getByRole('menuitem', { name: quickfilter.name }),
+    ).toHaveAttribute('aria-selected', 'false');
+    expect(
+      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toMatchObject({
+      filters: ['firstParty', 'thirdParty'],
+    });
+  });
+
+  it('selects only the quickfilter that was applied when duplicates exist', async () => {
+    const first = makeQuickfilter({ name: 'First' });
+    const second = makeQuickfilter({ name: 'Second' });
+    await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [first, second] }),
+    ]);
+
+    await openFilterMenu();
+    await userEvent.click(screen.getByRole('menuitem', { name: 'First' }));
+
+    expect(screen.getByRole('menuitem', { name: 'First' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    expect(screen.getByRole('menuitem', { name: 'Second' })).toHaveAttribute(
+      'aria-selected',
+      'false',
+    );
   });
 
   it('saves on Enter and trims the name', async () => {
@@ -206,6 +284,7 @@ describe('quickfilters in the filter menu', () => {
         license: [{ id: 'MIT', label: 'MIT' }],
       },
       sorting: 'alphabetically',
+      activeQuickfilterId: quickfilter.id,
     });
 
     await userEvent.click(
@@ -222,7 +301,7 @@ describe('quickfilters in the filter menu', () => {
     });
   });
 
-  it('re-applies a quickfilter when clicked again', async () => {
+  it('applies again after manual edits deselected the quickfilter', async () => {
     const quickfilter = makeQuickfilter({ name: 'My quickfilter' });
     const { store } = await renderQuickfilterButton([
       setUserSetting({ savedQuickfilters: [quickfilter] }),
@@ -236,6 +315,7 @@ describe('quickfilters in the filter menu', () => {
       setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
         ...initialAttributionFilters,
         filters: ['thirdParty'],
+        activeQuickfilterId: quickfilter.id,
       }),
     );
     await userEvent.click(
@@ -444,6 +524,7 @@ function TestFilterButton({
           filters: [],
           search: '',
           valueFilters: {},
+          activeQuickfilterId: undefined,
         })
       }
     />

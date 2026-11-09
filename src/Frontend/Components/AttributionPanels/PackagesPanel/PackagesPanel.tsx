@@ -870,6 +870,7 @@ export const PackagesPanel = ({
                   ...filters,
                   filters: [],
                   valueFilters: {},
+                  activeQuickfilterId: undefined,
                 })
               }
               anchorPosition={'right'}
