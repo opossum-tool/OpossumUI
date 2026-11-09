@@ -72,6 +72,7 @@ type Never<T, K extends keyof T> = Expand<
 
 export interface EphemeralPackageInfoProps {
   count?: number;
+  writableLinkedResourceCount?: number;
   id: string;
   resourceAccess?: AttributionResourceAccess;
   originalAttributionId?: string;

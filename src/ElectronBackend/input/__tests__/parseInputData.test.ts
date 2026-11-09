@@ -304,12 +304,14 @@ describe('serializeAttributions', () => {
     const serialized = serializeAttributions({
       [attribution.id]: {
         ...attribution,
+        writableLinkedResourceCount: 7,
         ...{ aiStatus: { deferred: true, humanModified: true } },
       },
     })[attribution.id];
 
     expect(serialized.aiAttributions).toEqual(aiAttributions);
     expect(serialized).not.toHaveProperty('aiStatus');
+    expect(serialized).not.toHaveProperty('writableLinkedResourceCount');
   });
 
   it('removes source', () => {

@@ -146,7 +146,7 @@ const PROGRESS_BAR_INVALIDATIONS: Array<MutationInvalidation> = [
 const ATTRIBUTION_AGGREGATE_INVALIDATIONS: Array<MutationInvalidation> = [
   ...PROGRESS_BAR_INVALIDATIONS,
   { queryName: 'getAttributionData', awaitRefetch: true },
-  { queryName: 'getAttributions' },
+  { queryName: 'getAttributionPreview' },
   { queryName: 'listAttributionRelationCounts' },
   { queryName: 'filterProperties' },
   { queryName: 'licenseOptions' },

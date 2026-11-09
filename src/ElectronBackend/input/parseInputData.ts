@@ -251,6 +251,7 @@ export function serializeAttributions(
         {
           criticality,
           count,
+          writableLinkedResourceCount,
           followUp,
           id,
           originalAttributionId,
