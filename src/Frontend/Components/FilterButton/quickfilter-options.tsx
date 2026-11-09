@@ -18,7 +18,6 @@ import {
   hasActiveAttributionFilters,
 } from '../../state/variables/use-filters';
 import {
-  matchesQuickfilter,
   MAX_RECENT_QUICKFILTERS,
   useQuickfilters,
 } from '../../state/variables/use-quickfilters';
@@ -60,7 +59,7 @@ export function useQuickfilterOptions({
       .map((quickfilter) => ({
         kind: 'toggle' as const,
         id: `quickfilter-${quickfilter.id}`,
-        selected: matchesQuickfilter(filters, quickfilter),
+        selected: false,
         label: quickfilter.name,
         tinted: true,
         icon: <BookmarkIcon sx={baseIcon} />,
