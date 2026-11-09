@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { isEqual } from 'lodash-es';
 import { useMemo } from 'react';
 import { v4 as uuid4 } from 'uuid';
 
@@ -25,17 +24,6 @@ function toQuickfilterFilters({
     search,
     valueFilters: structuredClone(valueFilters),
   };
-}
-
-export function matchesQuickfilter(
-  { filters, search, valueFilters }: AttributionFilters,
-  quickfilter: SavedQuickfilter,
-): boolean {
-  return (
-    isEqual(new Set(quickfilter.filters.filters), new Set(filters)) &&
-    quickfilter.filters.search === search &&
-    isEqual(quickfilter.filters.valueFilters, valueFilters)
-  );
 }
 
 export function useQuickfilters(scope: QuickfilterScope): {

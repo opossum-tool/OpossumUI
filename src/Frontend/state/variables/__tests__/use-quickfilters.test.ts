@@ -1,18 +1,16 @@
-// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
 import { act } from '@testing-library/react';
 
-import type { AttributionFilterKey } from '../../../../shared/attribution-filters';
-import type { QuickfilterScope } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
 import { renderHook } from '../../../test-helpers/render';
 import {
   type AttributionFilters,
   initialAttributionFilters,
 } from '../use-filters';
-import { matchesQuickfilter, useQuickfilters } from '../use-quickfilters';
+import { useQuickfilters } from '../use-quickfilters';
 
 describe('useQuickfilters', () => {
   it('returns an empty list by default', async () => {
@@ -139,98 +137,5 @@ describe('useQuickfilters', () => {
       first,
       second,
     ]);
-  });
-});
-
-describe('matchesQuickfilter', () => {
-  const scope: QuickfilterScope = 'attribution';
-
-  it('matches filters independent of order and sorting', () => {
-    const quickfilter = {
-      id: faker.string.uuid(),
-      name: faker.string.sample(),
-      lastUsedAt: faker.number.int(),
-      scope,
-      filters: {
-        filters: ['firstParty', 'thirdParty'] as Array<AttributionFilterKey>,
-        search: '',
-        valueFilters: {},
-      },
-    };
-
-    expect(
-      matchesQuickfilter(
-        {
-          ...initialAttributionFilters,
-          filters: ['thirdParty', 'firstParty'],
-          sorting: 'criticality',
-        },
-        quickfilter,
-      ),
-    ).toBe(true);
-  });
-
-  it('does not match different filters, searches, or value filters', () => {
-    const quickfilter = {
-      id: faker.string.uuid(),
-      name: faker.string.sample(),
-      lastUsedAt: faker.number.int(),
-      scope,
-      filters: {
-        filters: ['firstParty'] as Array<AttributionFilterKey>,
-        search: '',
-        valueFilters: { classification: 1 },
-      },
-    };
-    const base = {
-      ...initialAttributionFilters,
-      filters: ['firstParty'] as Array<AttributionFilterKey>,
-    };
-
-    expect(
-      matchesQuickfilter({ ...base, filters: ['thirdParty'] }, quickfilter),
-    ).toBe(false);
-    expect(matchesQuickfilter({ ...base, search: 'react' }, quickfilter)).toBe(
-      false,
-    );
-    expect(
-      matchesQuickfilter(
-        { ...base, valueFilters: { classification: 2 } },
-        quickfilter,
-      ),
-    ).toBe(false);
-  });
-
-  it('matches license value filters by value', () => {
-    const quickfilter = {
-      id: faker.string.uuid(),
-      name: faker.string.sample(),
-      lastUsedAt: faker.number.int(),
-      scope,
-      filters: {
-        filters: [] as Array<AttributionFilterKey>,
-        search: '',
-        valueFilters: { license: [{ id: 'MIT', label: 'MIT' }] },
-      },
-    };
-    const matching = {
-      ...initialAttributionFilters,
-      valueFilters: { license: [{ id: 'MIT', label: 'MIT' }] },
-    };
-    const unmatchedLicense = {
-      ...initialAttributionFilters,
-      valueFilters: {
-        license: [
-          { id: 'MIT', label: 'MIT' },
-          { id: 'Apache-2.0', label: 'Apache-2.0' },
-        ],
-      },
-    };
-
-    expect(matchesQuickfilter(matching, quickfilter)).toBe(true);
-    expect(
-      matchesQuickfilter({ ...initialAttributionFilters }, quickfilter),
-    ).toBe(false);
-    expect(matchesQuickfilter(unmatchedLicense, quickfilter)).toBe(false);
   });
 });
