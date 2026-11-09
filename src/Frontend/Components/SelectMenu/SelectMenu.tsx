@@ -150,6 +150,7 @@ export function renderSelectMenuItems({
         <StyledMenuItem
           key={id}
           title={typeof label === 'string' ? label : undefined}
+          data-option-id={id}
           selected={selected}
           aria-label={option.ariaLabel}
           aria-selected={selected}
