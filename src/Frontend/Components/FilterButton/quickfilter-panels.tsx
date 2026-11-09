@@ -93,6 +93,7 @@ export function SaveQuickfilterPanel({
 
 export function QuickfilterListPanel({
   quickfilters,
+  incompatibleIds = [],
   onApply,
   onDelete,
   onClose,
@@ -100,6 +101,7 @@ export function QuickfilterListPanel({
   initialFocusRef,
 }: {
   quickfilters: Array<SavedQuickfilter>;
+  incompatibleIds?: Array<string>;
   onApply: (quickfilter: SavedQuickfilter) => void;
   onDelete: (id: string) => void;
   onClose: () => void;
@@ -125,53 +127,56 @@ export function QuickfilterListPanel({
       <Typography sx={styles.title}>{text.quickfilters.title}</Typography>
       {quickfilters.length ? (
         <Box sx={styles.list}>
-          {quickfilters.map((quickfilter) => (
-            <Box
-              key={quickfilter.id}
-              role="button"
-              tabIndex={0}
-              aria-label={text.quickfilters.apply(quickfilter.name)}
-              sx={styles.row}
-              onClick={() => {
+          {quickfilters.map((quickfilter) => {
+            const isApplicable = !incompatibleIds.includes(quickfilter.id);
+            const apply = (): void => {
+              if (isApplicable) {
                 onApply(quickfilter);
                 onClose();
-              }}
-              onKeyDown={(event) => {
-                if (event.key === 'ArrowLeft') {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  onClose();
-                } else {
-                  handleActivationKeyDown(event, () => {
-                    onApply(quickfilter);
-                    onClose();
-                  });
-                }
-              }}
-            >
-              <BookmarkIcon fontSize="small" sx={styles.icon} />
-              <Box component="span" sx={styles.label}>
-                {quickfilter.name}
-              </Box>
-              <IconButton
-                aria-label={text.quickfilters.delete(quickfilter.name)}
-                size="small"
-                sx={styles.deleteButton}
-                tabIndex={-1}
+              }
+            };
+            return (
+              <Box
+                key={quickfilter.id}
+                role="button"
+                tabIndex={0}
+                aria-label={text.quickfilters.apply(quickfilter.name)}
+                sx={[styles.row, !isApplicable && styles.inapplicableRow]}
+                onClick={apply}
                 onKeyDown={(event) => {
-                  if (event.key === 'Enter' || event.key === ' ') {
+                  if (event.key === 'ArrowLeft') {
+                    event.preventDefault();
                     event.stopPropagation();
+                    onClose();
+                  } else {
+                    handleActivationKeyDown(event, apply);
                   }
                 }}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onDelete(quickfilter.id);
-                }}
               >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </Box>
-          ))}
+                <BookmarkIcon fontSize="small" sx={styles.icon} />
+                <Box component="span" sx={styles.label}>
+                  {quickfilter.name}
+                </Box>
+                <IconButton
+                  aria-label={text.quickfilters.delete(quickfilter.name)}
+                  size="small"
+                  sx={styles.deleteButton}
+                  tabIndex={-1}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.stopPropagation();
+                    }
+                  }}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onDelete(quickfilter.id);
+                  }}
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Box>
+            );
+          })}
         </Box>
       ) : (
         <Typography sx={styles.empty}>{text.quickfilters.empty}</Typography>
