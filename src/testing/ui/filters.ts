@@ -6,7 +6,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
-import { text } from '../../../shared/text';
+import { text } from '../../shared/text';
 import { getPanel, type PanelTestId, SETTLED_TIMEOUT } from './common';
 
 const FILTER_MENU_LABELS = {

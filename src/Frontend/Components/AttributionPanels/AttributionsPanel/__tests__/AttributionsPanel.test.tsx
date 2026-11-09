@@ -2,12 +2,24 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, screen, waitFor, within } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../../shared/text';
 import { faker } from '../../../../../testing/Faker';
 import { pathsToResources } from '../../../../../testing/global-test-helpers';
+import {
+  ATTRIBUTIONS_PANEL,
+  clickPackageCard,
+  clickPackageCardCheckbox,
+  expectButtonDisabled,
+  expectButtonEnabled,
+  expectButtonsDisabled,
+  expectButtonsEnabled,
+  expectEventuallyButtonEnabled,
+  getButton,
+  getPackageCardCheckbox,
+} from '../../../../../testing/ui';
 import { ROOT_PATH } from '../../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
@@ -35,16 +47,10 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
-    );
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
 
     expect(getSelectedAttributionId(store.getState())).toBe(packageInfo.id);
-    expect(
-      screen.getByRole('button', { name: text.packageLists.create }),
-    ).toBeEnabled();
+    expectButtonsEnabled(text.packageLists.create);
   });
 
   it('selects attribution on checkbox click', async () => {
@@ -59,13 +65,7 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      within(
-        await screen.findByLabelText(
-          `package card ${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-        ),
-      ).getByRole('checkbox'),
-    );
+    await clickPackageCardCheckbox(ATTRIBUTIONS_PANEL, packageInfo);
 
     expect(getSelectedAttributionId(store.getState())).toBe(packageInfo.id);
   });
@@ -87,17 +87,15 @@ describe('AttributionsPanel', () => {
       actions: [setSelectedResourceId(readonlyResource, 'auto')],
     });
 
-    const card = await screen.findByLabelText(
-      `package card ${packageInfo.packageName}, ${packageInfo.packageVersion}`,
+    const checkbox = await getPackageCardCheckbox(
+      ATTRIBUTIONS_PANEL,
+      packageInfo,
     );
-    const checkbox = within(card).getByRole('checkbox');
 
     expect(checkbox).toBeEnabled();
     await userEvent.click(checkbox);
 
-    expect(
-      screen.getByRole('button', { name: text.packageLists.delete }),
-    ).toBeEnabled();
+    expectButtonEnabled(text.packageLists.delete);
   });
 
   it('disables create and link buttons on a readonly structural ancestor', async () => {
@@ -115,21 +113,13 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
-    );
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
 
-    expect(
-      screen.getByRole('button', { name: text.packageLists.create }),
-    ).toBeDisabled();
-    expect(
-      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
-    ).toBeDisabled();
-    expect(
-      screen.getByRole('button', { name: text.packageLists.delete }),
-    ).toBeEnabled();
+    expectButtonsDisabled(
+      text.packageLists.create,
+      text.packageLists.linkAsAttribution,
+    );
+    expectButtonEnabled(text.packageLists.delete);
   });
 
   it('shows alert when some attribution on current resource is incomplete', async () => {
@@ -168,19 +158,11 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
-    );
-    await userEvent.click(
-      screen.getByRole('button', { name: text.packageLists.create }),
-    );
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
+    await userEvent.click(getButton(text.packageLists.create));
 
     expect(getSelectedAttributionId(store.getState())).toBe('');
-    expect(
-      screen.getByRole('button', { name: text.packageLists.create }),
-    ).toBeDisabled();
+    expectButtonDisabled(text.packageLists.create);
   });
 
   it('deletes selected attribution', async () => {
@@ -195,19 +177,10 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
-    );
-    await userEvent.click(
-      screen.getByRole('button', { name: text.packageLists.delete }),
-    );
-    const deleteButton = screen.getByRole('button', {
-      name: text.deleteAttributionsPopup.delete,
-    });
-    await waitFor(() => expect(deleteButton).toBeEnabled());
-    await userEvent.click(deleteButton);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
+    await userEvent.click(getButton(text.packageLists.delete));
+    await expectEventuallyButtonEnabled(text.deleteAttributionsPopup.delete);
+    await userEvent.click(getButton(text.deleteAttributionsPopup.delete));
 
     await expectManualAttributions({});
   });
@@ -229,14 +202,8 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
-    );
-    await userEvent.click(
-      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
-    );
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
+    await userEvent.click(getButton(text.packageLists.linkAsAttribution));
 
     await expectResourcesToManualAttributions({
       [ROOT_PATH]: [packageInfo.id],
@@ -260,20 +227,14 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
-    );
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
     act(() => {
       store.dispatch(
         setTemporaryDisplayPackageInfo(faker.opossum.packageInfo()),
       );
     });
 
-    expect(
-      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
-    ).toBeDisabled();
+    expectButtonDisabled(text.packageLists.linkAsAttribution);
   });
 
   it('disables link button when only resource related attributions available', async () => {
@@ -294,15 +255,9 @@ describe('AttributionsPanel', () => {
       actions: [setSelectedResourceId(filePath, 'auto')],
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
-    );
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
 
-    expect(
-      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
-    ).toBeDisabled();
+    expectButtonDisabled(text.packageLists.linkAsAttribution);
   });
 
   it('disables link button when selected resource is a breakpoint', async () => {
@@ -324,15 +279,9 @@ describe('AttributionsPanel', () => {
       actions: [setSelectedResourceId(filePath, 'auto')],
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
-    );
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
 
-    expect(
-      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
-    ).toBeDisabled();
+    expectButtonDisabled(text.packageLists.linkAsAttribution);
   });
 
   it('confirms selected attribution', async () => {
@@ -349,27 +298,18 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
+    const selectionCheckbox = await getPackageCardCheckbox(
+      ATTRIBUTIONS_PANEL,
+      packageInfo,
     );
-    const packageCard = screen.getByLabelText(
-      `package card ${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-    );
-    const selectionCheckbox = within(packageCard).getByRole('checkbox');
     await userEvent.click(selectionCheckbox);
     act(() => {
       store.dispatch(setTemporaryDisplayPackageInfo(packageInfo));
     });
-    await userEvent.click(
-      screen.getByRole('button', { name: text.packageLists.confirm }),
-    );
-    const confirmButton = screen.getByRole('button', {
-      name: text.saveAttributionsPopup.confirm,
-    });
-    await waitFor(() => expect(confirmButton).toBeEnabled());
-    await userEvent.click(confirmButton);
+    await userEvent.click(getButton(text.packageLists.confirm));
+    await expectEventuallyButtonEnabled(text.saveAttributionsPopup.confirm);
+    await userEvent.click(getButton(text.saveAttributionsPopup.confirm));
 
     await expectManualAttributions({
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },
@@ -392,15 +332,9 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
-    );
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
 
-    expect(
-      screen.getByRole('button', { name: text.packageLists.confirm }),
-    ).toBeDisabled();
+    expectButtonDisabled(text.packageLists.confirm);
   });
 
   it('replaces selected attribution', async () => {
@@ -417,14 +351,8 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo1.packageName}, ${packageInfo1.packageVersion}`,
-      ),
-    );
-    await userEvent.click(
-      screen.getByRole('button', { name: text.packageLists.replace }),
-    );
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
+    await userEvent.click(getButton(text.packageLists.replace));
 
     expect(
       screen.getByText(text.packageLists.selectReplacement),
@@ -443,15 +371,9 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo.packageName}, ${packageInfo.packageVersion}`,
-      ),
-    );
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
 
-    expect(
-      screen.getByRole('button', { name: text.packageLists.replace }),
-    ).toBeDisabled();
+    expectButtonDisabled(text.packageLists.replace);
   });
 
   it('disables replace button while compare-selection mode is active', async () => {
@@ -469,15 +391,9 @@ describe('AttributionsPanel', () => {
       actions: [setVariable(COMPARE_SELECTION_SOURCE, packageInfo1.id)],
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo1.packageName}, ${packageInfo1.packageVersion}`,
-      ),
-    );
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
 
-    expect(
-      screen.getByRole('button', { name: text.packageLists.replace }),
-    ).toBeDisabled();
+    expectButtonDisabled(text.packageLists.replace);
   });
 
   it('disables various buttons in replacement mode', async () => {
@@ -494,26 +410,14 @@ describe('AttributionsPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      await screen.findByText(
-        `${packageInfo1.packageName}, ${packageInfo1.packageVersion}`,
-      ),
-    );
-    await userEvent.click(
-      screen.getByRole('button', { name: text.packageLists.replace }),
-    );
+    await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
+    await userEvent.click(getButton(text.packageLists.replace));
 
-    expect(
-      screen.getByRole('button', { name: text.packageLists.create }),
-    ).toBeDisabled();
-    expect(
-      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
-    ).toBeDisabled();
-    expect(
-      screen.getByRole('button', { name: text.packageLists.confirm }),
-    ).toBeDisabled();
-    expect(
-      screen.getByRole('button', { name: text.packageLists.delete }),
-    ).toBeDisabled();
+    expectButtonsDisabled(
+      text.packageLists.create,
+      text.packageLists.linkAsAttribution,
+      text.packageLists.confirm,
+      text.packageLists.delete,
+    );
   });
 });

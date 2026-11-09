@@ -1,4 +1,4 @@
-﻿// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
@@ -8,7 +8,7 @@ import { deserializeAttributions } from '../ElectronBackend/input/parseInputData
 import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers/general-test-helpers';
 import { text } from '../shared/text';
 import { faker } from '../testing/Faker';
-import { renderApp } from './helpers/render-app';
+import { renderApp } from '../testing/render-app';
 import {
   clickAttributionColumnButton,
   clickAttributionLicenseTextToggle,
@@ -35,7 +35,7 @@ import {
   fillDiffPopupField,
   fillFormField,
   gotoResource,
-} from './helpers/ui';
+} from '../testing/ui';
 
 const [resourceName1, resourceName2] = faker.opossum.resourceNames({
   count: 2,
@@ -65,10 +65,15 @@ const data = getParsedInputFileEnrichedWithTestData({
   resourcesToExternalAttributions: faker.opossum.resourcesToAttributions({
     [faker.opossum.filePath(resourceName2)]: [externalAttributionId],
   }),
-  manualAttributions: deserializeAttributions({
-    [attributionId1]: manualPackageInfo1,
-    [attributionId2]: manualPackageInfo2,
-  }),
+  manualAttributions: deserializeAttributions(
+    {
+      [attributionId1]: manualPackageInfo1,
+      [attributionId2]: manualPackageInfo2,
+    },
+    deserializeAttributions({
+      [externalAttributionId]: externalPackageInfo,
+    }),
+  ),
   resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
     [faker.opossum.filePath(resourceName1)]: [attributionId1],
     [faker.opossum.filePath(resourceName2)]: [attributionId2],
