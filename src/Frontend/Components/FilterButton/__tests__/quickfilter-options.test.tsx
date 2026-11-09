@@ -45,7 +45,7 @@ describe('quickfilters in the filter menu', () => {
     ).toBeInTheDocument();
   });
 
-  it('saves the current filters as a quickfilter', async () => {
+  it('saves the current filters as a quickfilter and activates it', async () => {
     const { store } = await renderQuickfilterButton();
     const name = faker.string.alphanumeric(8);
 
@@ -65,19 +65,33 @@ describe('quickfilters in the filter menu', () => {
     );
 
     expect(await screen.findByRole('menuitem', { name })).toBeInTheDocument();
-    expect(store.getState().userSettingsState.savedQuickfilters).toEqual([
-      {
-        id: expect.any(String),
-        name,
-        lastUsedAt: expect.any(Number),
-        scope: 'attribution',
-        filters: {
-          filters: ['firstParty'],
-          search: '',
-          valueFilters: {},
-        },
+    expect(screen.getByRole('menuitem', { name })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    const savedQuickfilter = store
+      .getState()
+      .userSettingsState.savedQuickfilters.at(0);
+    expect(savedQuickfilter).toEqual({
+      id: expect.any(String),
+      name,
+      lastUsedAt: expect.any(Number),
+      scope: 'attribution',
+      filters: {
+        filters: ['firstParty'],
+        search: '',
+        valueFilters: {},
       },
-    ]);
+    });
+    expect(
+      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toEqual({
+      filters: ['firstParty'],
+      search: '',
+      valueFilters: {},
+      sorting: 'alphabetically',
+      activeQuickfilterIds: [savedQuickfilter?.id],
+    });
     expect(window.electronAPI.updateUserSettings).toHaveBeenLastCalledWith(
       expect.objectContaining({
         savedQuickfilters: expect.any(Array),
@@ -543,13 +557,13 @@ describe('quickfilters in the filter menu', () => {
     ).toMatchObject({ filters: ['firstParty'] });
   });
 
-  it('shows all quickfilters without a manage entry when there are exactly three', async () => {
+  it('offers a manage panel to delete quickfilters when there are exactly three', async () => {
     const quickfilters = [
       makeQuickfilter({ name: 'first', lastUsedAt: 1 }),
       makeQuickfilter({ name: 'second', lastUsedAt: 2 }),
       makeQuickfilter({ name: 'third', lastUsedAt: 3 }),
     ];
-    await renderQuickfilterButton([
+    const { store } = await renderQuickfilterButton([
       setUserSetting({ savedQuickfilters: quickfilters }),
     ]);
 
@@ -560,6 +574,47 @@ describe('quickfilters in the filter menu', () => {
         screen.getByRole('menuitem', { name: quickfilter.name }),
       ).toBeInTheDocument();
     }
+    expect(
+      screen.queryByRole('menuitem', { name: text.quickfilters.more }),
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: text.quickfilters.manage }),
+    );
+
+    const panel = screen.getByRole('dialog', { name: text.quickfilters.title });
+    for (const quickfilter of quickfilters) {
+      expect(panel).toContainElement(
+        screen.getByRole('button', {
+          name: text.quickfilters.apply(quickfilter.name),
+        }),
+      );
+    }
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: text.quickfilters.delete('first'),
+      }),
+    );
+
+    expect(
+      screen.queryByRole('button', {
+        name: text.quickfilters.apply('first'),
+      }),
+    ).not.toBeInTheDocument();
+    expect(store.getState().userSettingsState.savedQuickfilters).toHaveLength(
+      2,
+    );
+  });
+
+  it('offers no manage entry when there are no quickfilters', async () => {
+    await renderQuickfilterButton();
+
+    await openFilterMenu();
+
+    expect(
+      screen.queryByRole('menuitem', { name: text.quickfilters.manage }),
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByRole('menuitem', { name: text.quickfilters.more }),
     ).not.toBeInTheDocument();
