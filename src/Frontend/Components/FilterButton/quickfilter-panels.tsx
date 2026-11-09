@@ -61,7 +61,7 @@ export function SaveQuickfilterPanel({
       <Input
         inputRef={initialFocusRef}
         label={text.quickfilters.nameLabel}
-        variant="filled"
+        variant="outlined"
         size="small"
         numberOfEndAdornments={0}
         value={name}
