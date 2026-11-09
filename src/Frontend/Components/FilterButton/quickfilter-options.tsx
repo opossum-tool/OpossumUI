@@ -18,6 +18,7 @@ import {
   hasActiveAttributionFilters,
 } from '../../state/variables/use-filters';
 import {
+  matchesQuickfilter,
   MAX_RECENT_QUICKFILTERS,
   useQuickfilters,
 } from '../../state/variables/use-quickfilters';
@@ -43,6 +44,10 @@ export function useQuickfilterOptions({
   const hasActiveFilters = hasActiveAttributionFilters(filters);
 
   return useMemo(() => {
+    const isSelected = (quickfilter: SavedQuickfilter): boolean =>
+      filters.activeQuickfilterId === quickfilter.id &&
+      matchesQuickfilter(filters, quickfilter);
+
     const applyQuickfilter = (quickfilter: SavedQuickfilter): void => {
       // The sorting is intentionally kept from the current filters.
       setFilters({
@@ -50,8 +55,20 @@ export function useQuickfilterOptions({
         filters: [...quickfilter.filters.filters],
         search: quickfilter.filters.search,
         valueFilters: structuredClone(quickfilter.filters.valueFilters),
+        activeQuickfilterId: quickfilter.id,
       });
       markQuickfilterUsed(quickfilter.id);
+    };
+
+    const resetQuickfilter = (): void => {
+      // The sorting is intentionally kept from the current filters.
+      setFilters({
+        ...filters,
+        filters: [],
+        search: '',
+        valueFilters: {},
+        activeQuickfilterId: undefined,
+      });
     };
 
     const recentQuickfilterOptions = quickfilters
@@ -59,11 +76,12 @@ export function useQuickfilterOptions({
       .map((quickfilter) => ({
         kind: 'toggle' as const,
         id: `quickfilter-${quickfilter.id}`,
-        selected: false,
+        selected: isSelected(quickfilter),
         label: quickfilter.name,
         tinted: true,
         icon: <BookmarkIcon sx={baseIcon} />,
         onAdd: () => applyQuickfilter(quickfilter),
+        onDelete: () => resetQuickfilter(),
       }));
 
     const moreQuickfiltersOption: Array<FilterOption> =
