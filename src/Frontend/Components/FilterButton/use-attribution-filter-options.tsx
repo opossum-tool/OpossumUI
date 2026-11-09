@@ -10,7 +10,11 @@ import {
   INCOMPLETE_COORDINATE_FILTER_VALUES,
   INCOMPLETE_LEGAL_FILTER_VALUES,
 } from '../../../shared/attribution-filters';
-import { Criticality, type LicenseOption } from '../../../shared/shared-types';
+import {
+  Criticality,
+  type LicenseOption,
+  type QuickfilterScope,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import type { AttributionFilters } from '../../state/variables/use-filters';
 import { useUserSettings } from '../../state/variables/use-user-setting';
@@ -69,6 +73,7 @@ export function useAttributionFilterOptions({
   licenseOptionsLoading,
   filters,
   setFilters,
+  quickfilterScope,
 }: {
   filterOptions: Array<AttributionFilterOption>;
   filterProps: FilterProperties | null;
@@ -76,6 +81,7 @@ export function useAttributionFilterOptions({
   licenseOptionsLoading?: boolean;
   filters: AttributionFilters;
   setFilters: SetFilters;
+  quickfilterScope: QuickfilterScope;
 }): Array<FilterOption> {
   const classificationFilterOption = useClassificationFilterOption({
     filters,
@@ -85,7 +91,11 @@ export function useAttributionFilterOptions({
     filters,
     setFilters,
   });
-  const quickfilterOptions = useQuickfilterOptions({ filters, setFilters });
+  const quickfilterOptions = useQuickfilterOptions({
+    filters,
+    setFilters,
+    scope: quickfilterScope,
+  });
   return useMemo(
     () =>
       compact([
