@@ -111,22 +111,13 @@ export class DbProcessClient {
   }
 
   /**
-   * Resolves once every file-writing operation sent to the DB process —
-   * from any port — has finished executing and its file write has
-   * concluded. Used to await pending operations before the app quits.
+   * Resolves once every tracked operation and every scheduled save in the
+   * DB process — from any port — has concluded, and returns the outcome of
+   * the latest save. `undefined` means no write happened since the file
+   * was loaded. Used to await pending file writes before the app quits.
    */
-  async whenMutationsSettled(): Promise<void> {
-    await this.request({ type: 'whenIdle' });
-  }
-
-  /**
-   * Outcome of the last write of the currently loaded project's file, as
-   * tracked by the DB process. `undefined` means no write happened since
-   * the file was loaded. Callers should await `whenMutationsSettled` first
-   * so that pending background writes have concluded.
-   */
-  getLastSaveResult(): Promise<SaveResult | undefined> {
-    return this.request({ type: 'getLastSaveResult' }) as Promise<
+  waitForPendingSaves(): Promise<SaveResult | undefined> {
+    return this.request({ type: 'waitForPendingSaves' }) as Promise<
       SaveResult | undefined
     >;
   }

@@ -93,8 +93,10 @@ async function runCommand(
   } as unknown as DbProcessRequest);
 }
 
-async function awaitIdle(id: number): Promise<DbProcessResponse | undefined> {
-  return handle({ id, type: 'whenIdle' });
+async function waitForPendingSaves(
+  id: number,
+): Promise<DbProcessResponse | undefined> {
+  return handle({ id, type: 'waitForPendingSaves' });
 }
 
 function saveMessage(id: number): DbProcessRequest {
@@ -196,7 +198,7 @@ describe('dbProcess save tracking', () => {
   it('saves automatically after a successful mutation', async () => {
     await loadProject();
     await runCommand(1, MUTATION_COMMAND, true);
-    await awaitIdle(2);
+    await waitForPendingSaves(2);
 
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
     expect(saveFileApiMock.mock.calls[0]?.[0]).toEqual({
@@ -208,7 +210,7 @@ describe('dbProcess save tracking', () => {
   it('does not save automatically for queries', async () => {
     await loadProject();
     await runCommand(1, QUERY_COMMAND, false);
-    await awaitIdle(2);
+    await waitForPendingSaves(2);
 
     expect(saveFileApiMock).not.toHaveBeenCalled();
 
@@ -219,7 +221,7 @@ describe('dbProcess save tracking', () => {
 
   it('skips the automatic save when no project is loaded', async () => {
     await runCommand(1, MUTATION_COMMAND, true);
-    await awaitIdle(2);
+    await waitForPendingSaves(2);
 
     expect(saveFileApiMock).not.toHaveBeenCalled();
   });
@@ -237,7 +239,7 @@ describe('dbProcess save tracking', () => {
 
     expect(response?.type).toBe('error');
 
-    await awaitIdle(2);
+    await waitForPendingSaves(2);
     expect(saveFileApiMock).not.toHaveBeenCalled();
   });
 
@@ -256,22 +258,22 @@ describe('dbProcess save tracking', () => {
     await runCommand(2, MUTATION_COMMAND, true);
     await runCommand(3, MUTATION_COMMAND, true);
     resolveFirstSave();
-    await awaitIdle(4);
+    await waitForPendingSaves(4);
 
     expect(saveFileApiMock).toHaveBeenCalledTimes(3);
   });
 
-  it('does not block whenIdle when an automatic save fails', async () => {
+  it('does not block waitForPendingSaves when an automatic save fails', async () => {
     await loadProject();
     saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
 
     await runCommand(1, MUTATION_COMMAND, true);
-    await awaitIdle(2);
+    await waitForPendingSaves(2);
 
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
   });
 
-  it('resolves whenIdle only after the scheduled write finished', async () => {
+  it('resolves waitForPendingSaves only after the scheduled write finished', async () => {
     await loadProject();
 
     let resolveSave!: () => void;
@@ -283,13 +285,13 @@ describe('dbProcess save tracking', () => {
     );
 
     await runCommand(1, MUTATION_COMMAND, true);
-    const idlePromise = awaitIdle(2);
+    const idlePromise = waitForPendingSaves(2);
     resolveSave();
     expect((await idlePromise)?.type).toBe('success');
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
   });
 
-  it('resolves whenIdle after all writes of a mutation burst', async () => {
+  it('resolves waitForPendingSaves after all writes of a mutation burst', async () => {
     await loadProject();
 
     let resolveFirstSave!: () => void;
@@ -303,13 +305,31 @@ describe('dbProcess save tracking', () => {
     await runCommand(1, MUTATION_COMMAND, true);
     await runCommand(2, MUTATION_COMMAND, true);
     await runCommand(3, MUTATION_COMMAND, true);
-    const idlePromise = awaitIdle(4);
+    const idlePromise = waitForPendingSaves(4);
     resolveFirstSave();
     expect((await idlePromise)?.type).toBe('success');
     expect(saveFileApiMock).toHaveBeenCalledTimes(3);
   });
 
-  it('resolves whenIdle only after a manual save concluded', async () => {
+  it('serializes a manual save behind a running automatic save', async () => {
+    await loadProject();
+
+    let resolveAutomaticSave!: () => void;
+    saveFileApiMock.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveAutomaticSave = resolve;
+        }),
+    );
+
+    await runCommand(1, MUTATION_COMMAND, true);
+    const manualSavePromise = handle(saveMessage(2));
+    resolveAutomaticSave();
+    expect((await manualSavePromise)?.type).toBe('success');
+    expect(saveFileApiMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('resolves waitForPendingSaves only after a manual save concluded', async () => {
     await loadProject();
 
     let resolveSave!: () => void;
@@ -321,13 +341,15 @@ describe('dbProcess save tracking', () => {
     );
 
     const savePromise = handle(saveMessage(1));
-    const idlePromise = awaitIdle(2);
+    const idlePromise = waitForPendingSaves(2);
+    // Let the queued save start writing before resolving it.
+    await Promise.resolve();
     resolveSave();
     expect((await idlePromise)?.type).toBe('success');
     expect((await savePromise)?.type).toBe('success');
   });
 
-  it('resolves whenIdle only after a force unlock concluded', async () => {
+  it('resolves waitForPendingSaves only after a force unlock concluded', async () => {
     await loadProject();
 
     let resolveUnlock!: () => void;
@@ -344,13 +366,13 @@ describe('dbProcess save tracking', () => {
       projectId: 'uuid_1',
       opossumFilePath: '/some/path.opossum',
     });
-    const idlePromise = awaitIdle(2);
+    const idlePromise = waitForPendingSaves(2);
     resolveUnlock();
     expect((await idlePromise)?.type).toBe('success');
     expect((await unlockPromise)?.type).toBe('success');
   });
 
-  it('resolves whenIdle only after an export concluded', async () => {
+  it('resolves waitForPendingSaves only after an export concluded', async () => {
     let resolveExport!: () => void;
     exportFileMock.mockImplementationOnce(
       () =>
@@ -365,13 +387,13 @@ describe('dbProcess save tracking', () => {
       exportType: ExportType.FollowUp,
       filePath: '/some/export.json',
     });
-    const idlePromise = awaitIdle(2);
+    const idlePromise = waitForPendingSaves(2);
     resolveExport();
     expect((await idlePromise)?.type).toBe('success');
     expect((await exportPromise)?.type).toBe('success');
   });
 
-  it('resolves whenIdle only after a standalone merge concluded', async () => {
+  it('resolves waitForPendingSaves only after a standalone merge concluded', async () => {
     let resolveMerge!: () => void;
     mergeOpossumFilesFromPathsMock.mockImplementationOnce(
       () =>
@@ -387,14 +409,14 @@ describe('dbProcess save tracking', () => {
       inputPaths: ['/some/input.opossum'],
       outputPath: '/some/output.opossum',
     });
-    const idlePromise = awaitIdle(2);
+    const idlePromise = waitForPendingSaves(2);
     resolveMerge();
     expect((await idlePromise)?.type).toBe('success');
     expect((await mergePromise)?.type).toBe('success');
   });
 });
 
-describe('dbProcess last save result tracking', () => {
+describe('dbProcess save outcome tracking', () => {
   beforeEach(() => {
     resetDbProcessStateForTesting();
     saveFileApiMock.mockReset().mockResolvedValue(undefined);
@@ -409,10 +431,8 @@ describe('dbProcess last save result tracking', () => {
     loadFileOk();
   });
 
-  async function getLastSaveResult(
-    id: number,
-  ): Promise<SaveResult | undefined> {
-    const response = await handle({ id, type: 'getLastSaveResult' });
+  async function getSaveOutcome(id: number): Promise<SaveResult | undefined> {
+    const response = await handle({ id, type: 'waitForPendingSaves' });
     if (response?.type !== 'success') {
       throw new Error(`Unexpected response: ${JSON.stringify(response)}`);
     }
@@ -426,14 +446,14 @@ describe('dbProcess last save result tracking', () => {
   it('reports no save result before any write happened', async () => {
     await loadProject();
 
-    await expect(getLastSaveResult(1)).resolves.toBeUndefined();
+    await expect(getSaveOutcome(1)).resolves.toBeUndefined();
   });
 
   it('reports a successful manual save', async () => {
     await loadProject();
     await save(1);
 
-    await expect(getLastSaveResult(2)).resolves.toBe('success');
+    await expect(getSaveOutcome(2)).resolves.toBe('success');
   });
 
   it('reports a failed manual save', async () => {
@@ -441,7 +461,7 @@ describe('dbProcess last save result tracking', () => {
     saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
     await save(1);
 
-    await expect(getLastSaveResult(2)).resolves.toBe('failed');
+    await expect(getSaveOutcome(2)).resolves.toBe('failed');
   });
 
   it('reports success again after a failed save was followed by a successful one', async () => {
@@ -450,19 +470,43 @@ describe('dbProcess last save result tracking', () => {
     await save(1);
     await save(2);
 
-    await expect(getLastSaveResult(3)).resolves.toBe('success');
+    await expect(getSaveOutcome(3)).resolves.toBe('success');
   });
 
   it('reports a failed automatic save after a mutation', async () => {
     await loadProject();
     saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
     await runCommand(1, MUTATION_COMMAND, true);
-    await awaitIdle(2);
+    await waitForPendingSaves(2);
 
-    await expect(getLastSaveResult(3)).resolves.toBe('failed');
+    await expect(getSaveOutcome(3)).resolves.toBe('failed');
   });
 
-  it('reports a failed force unlock', async () => {
+  it('replaces a failed automatic save outcome with a successful manual save', async () => {
+    await loadProject();
+    saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
+    await runCommand(1, MUTATION_COMMAND, true);
+    await waitForPendingSaves(2);
+    await save(3);
+
+    await expect(getSaveOutcome(4)).resolves.toBe('success');
+  });
+
+  it('does not let an export overwrite the save outcome', async () => {
+    await loadProject();
+    saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
+    await save(1);
+    await handle({
+      id: 2,
+      type: 'exportFile',
+      exportType: ExportType.FollowUp,
+      filePath: '/some/export.json',
+    });
+
+    await expect(getSaveOutcome(3)).resolves.toBe('failed');
+  });
+
+  it('does not record a failed force unlock as a save outcome', async () => {
     await loadProject();
     forceUnlockMock.mockRejectedValueOnce(new Error('write failed'));
     await handle({
@@ -472,10 +516,10 @@ describe('dbProcess last save result tracking', () => {
       opossumFilePath: '/some/path.opossum',
     });
 
-    await expect(getLastSaveResult(2)).resolves.toBe('failed');
+    await expect(getSaveOutcome(2)).resolves.toBeUndefined();
   });
 
-  it('reports a failed merge when the merge reports an error result', async () => {
+  it('does not record a failed merge as a save outcome', async () => {
     await loadProject();
     mergeOpossumFilesMock.mockResolvedValueOnce({
       status: 'error',
@@ -491,7 +535,7 @@ describe('dbProcess last save result tracking', () => {
       partitionPaths: ['/some/other.opossum'],
     });
 
-    await expect(getLastSaveResult(2)).resolves.toBe('failed');
+    await expect(getSaveOutcome(2)).resolves.toBeUndefined();
   });
 
   it('resets the tracked result when another file is loaded', async () => {
@@ -500,9 +544,9 @@ describe('dbProcess last save result tracking', () => {
     loadFileMock.mockRejectedValueOnce(new Error('load failed'));
     await handle({ id: 2, type: 'loadFile', filePath: '/does-not-exist' });
 
-    await expect(getLastSaveResult(3)).resolves.toBeUndefined();
+    await expect(getSaveOutcome(3)).resolves.toBeUndefined();
 
     await loadProject();
-    await expect(getLastSaveResult(4)).resolves.toBeUndefined();
+    await expect(getSaveOutcome(4)).resolves.toBeUndefined();
   });
 });

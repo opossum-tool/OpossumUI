@@ -87,12 +87,8 @@ interface ExecuteCommandMessage {
   params: CommandParams<CommandName>;
 }
 
-interface WhenIdleMessage {
-  type: 'whenIdle';
-}
-
-interface GetLastSaveResultMessage {
-  type: 'getLastSaveResult';
+interface WaitForPendingSavesMessage {
+  type: 'waitForPendingSaves';
 }
 
 /**
@@ -111,8 +107,7 @@ export type DbProcessPayload =
   | MergeOpossumFilesFromPathsMessage
   | ExportFileMessage
   | ExecuteCommandMessage
-  | WhenIdleMessage
-  | GetLastSaveResultMessage;
+  | WaitForPendingSavesMessage;
 
 export type DbProcessRequest = DbProcessPayload & { id: number };
 
@@ -154,92 +149,168 @@ type ResponsePort = {
 let storedOpossumZip: AdmZip | undefined;
 let saveTarget: { projectId: string; opossumFilePath: string } | undefined;
 
-// Outcome of the last write of the currently loaded project's file,
-// tracked so that the quit path only needs to re-write the file when a
-// write actually failed. Reset whenever a file is loaded.
-let lastSaveResult: SaveResult | undefined;
-
-// Every file-writing operation registers here when it starts executing and
-// stays registered until its file write has concluded. The `whenIdle`
-// message resolves only when the registry is empty, so a waiter (e.g. the
-// quit path) can rely on every operation having been executed and saved.
-let inFlightOperations = 0;
-const idleWaiters: Array<() => void> = [];
-
-// Background writes are serialized: each write reads the database only
-// after the previous write finished, so the last write in the chain
-// reflects every mutation.
-let saveChain: Promise<void> = Promise.resolve();
-
-function maybeResolveIdleWaiters(): void {
-  if (inFlightOperations === 0) {
-    const resolvers = idleWaiters.splice(0, idleWaiters.length);
-    for (const resolve of resolvers) {
-      resolve();
-    }
-  }
-}
-
 /**
- * Runs a file-writing operation while registered in the in-flight
- * registry, so that `whenIdle` only resolves once the operation and its
- * file write have concluded.
+ * Owns the lifecycle of tracked operations and project-file saves: which
+ * work is pending, in which order saves are written, and what the outcome
+ * of the latest save was.
+ *
+ * Operations are registered before they start and stay registered until
+ * they conclude. A successful mutation schedules a save (`saveInBackground`)
+ * that registers itself before the operation's registration is released, so
+ * the two stages of a mutation never leave a gap. `waitForPendingSaves`
+ * resolves only when nothing is registered anymore, so a waiter (e.g. the
+ * quit path) can rely on every tracked operation having been executed and
+ * every requested save having been written or failed.
+ *
+ * Only saves are serialized: each save reads the current database snapshot
+ * only after the previous save finished, so the last save reflects every
+ * mutation that completed before it was scheduled. Operations themselves
+ * are not serialized and may run while a save is writing.
+ *
+ * The outcome recorded by a save is deliberately only the outcome of the
+ * save itself. Specialized workflows that write the project file as one of
+ * several steps (split, merge, force unlock) participate in waiting, but
+ * their outcome is not summarized as an ordinary save outcome.
  */
-async function runTrackedOperation<T>(operation: () => Promise<T>): Promise<T> {
-  inFlightOperations++;
-  try {
-    return await operation();
-  } finally {
-    inFlightOperations--;
-    maybeResolveIdleWaiters();
-  }
-}
+class SaveWorker {
+  private readonly writeCurrentProject: () => Promise<void>;
+  private pendingWork = 0;
+  private readonly pendingWorkWaiters: Array<() => void> = [];
+  private lastSaveResult: SaveResult | undefined;
+  private saveTail: Promise<void> = Promise.resolve();
 
-/**
- * Performs the file write of the last successful mutation in the
- * background. The mutation stays registered until the write has concluded
- * (successfully or with a logged failure). Writes are chained so that they
- * cannot interleave; skipping redundant writes is deliberately not done
- * here (see the coalescing save ticket).
- */
-function scheduleBackgroundSave(): void {
-  const write = saveChain.then(async () => {
-    const target = saveTarget;
-    const opossumZip = storedOpossumZip;
-    if (target === undefined || opossumZip === undefined) {
-      // No project is loaded, so there is no file to write to.
-      return;
-    }
+  constructor(options: { writeCurrentProject: () => Promise<void> }) {
+    this.writeCurrentProject = options.writeCurrentProject;
+  }
+
+  /**
+   * Runs the operation and returns its result as soon as it is available.
+   * With `saveInBackground`, a successful operation additionally schedules
+   * a save of the current project state; the caller is not delayed by that
+   * save, but it keeps the worker busy until the write has concluded. A
+   * failed operation rejects to its caller and does not schedule a save.
+   */
+  async run<T>(
+    operation: () => Promise<T>,
+    options?: { saveInBackground?: boolean },
+  ): Promise<T> {
+    this.pendingWork++;
     try {
-      await trackSaveResult(() => saveFile(target, opossumZip));
-    } catch (error) {
-      console.error('Automatic save of the .opossum file failed.', error);
+      const result = await operation();
+      if (options?.saveInBackground === true) {
+        void this.save().catch((error) => {
+          console.error('Automatic save of the .opossum file failed.', error);
+        });
+      }
+      return result;
+    } finally {
+      this.pendingWork--;
+      this.maybeResolvePendingWorkWaiters();
     }
-  });
-  saveChain = write;
-  void write.finally(() => {
-    inFlightOperations--;
-    maybeResolveIdleWaiters();
+  }
+
+  /**
+   * Schedules a save of the current project state and resolves when the
+   * write has concluded, rejecting with the write's error. Used by manual
+   * save requests and by the automatic-save continuation of mutations, so
+   * both share tracking, ordering, and outcome recording.
+   */
+  async save(): Promise<void> {
+    await this.enqueueSave();
+  }
+
+  /**
+   * Resolves once every tracked operation and every scheduled save has
+   * concluded — including work registered while waiting — and returns the
+   * outcome of the latest save. `undefined` means no save happened since
+   * the file was loaded.
+   */
+  async waitForPendingSaves(): Promise<SaveResult | undefined> {
+    while (this.pendingWork > 0) {
+      await new Promise<void>((resolve) => {
+        this.pendingWorkWaiters.push(resolve);
+      });
+    }
+    return this.lastSaveResult;
+  }
+
+  /** Clears the recorded save outcome, e.g. when another file is loaded. */
+  resetSaveOutcome(): void {
+    this.lastSaveResult = undefined;
+  }
+
+  /**
+   * Registers a save as pending work immediately (queued saves count as
+   * pending before they start writing), appends the write to the save
+   * tail, and releases the registration once the write has concluded.
+   */
+  private enqueueSave(): Promise<void> {
+    this.pendingWork++;
+    const write = this.enqueueWrite();
+    void write
+      .finally(() => {
+        this.pendingWork--;
+        this.maybeResolvePendingWorkWaiters();
+      })
+      .catch(() => {
+        // The rejection is observed by the caller of `save` or logged by
+        // the automatic-save continuation of `run`; nothing to do here.
+      });
+    return write;
+  }
+
+  /**
+   * Appends a write of the current project state to the save tail and
+   * records its outcome. The snapshot of the project state is read inside
+   * the queued callback, so the write reflects every mutation that
+   * completed before it was scheduled.
+   */
+  private enqueueWrite(): Promise<void> {
+    const write = this.saveTail.then(async () => {
+      try {
+        await this.writeCurrentProject();
+        this.lastSaveResult = 'success';
+      } catch (error) {
+        this.lastSaveResult = 'failed';
+        throw error;
+      }
+    });
+    // A failed save must not prevent later saves from starting.
+    this.saveTail = write.then(
+      () => undefined,
+      () => undefined,
+    );
+    return write;
+  }
+
+  private maybeResolvePendingWorkWaiters(): void {
+    if (this.pendingWork === 0) {
+      const resolvers = this.pendingWorkWaiters.splice(
+        0,
+        this.pendingWorkWaiters.length,
+      );
+      for (const resolve of resolvers) {
+        resolve();
+      }
+    }
+  }
+}
+
+function createSaveWorker(): SaveWorker {
+  return new SaveWorker({
+    writeCurrentProject: async () => {
+      const target = saveTarget;
+      const opossumZip = storedOpossumZip;
+      if (target === undefined || opossumZip === undefined) {
+        // No project is loaded, so there is no file to write to.
+        return;
+      }
+      await saveFile(target, opossumZip);
+    },
   });
 }
 
-/**
- * Runs a write of the currently loaded project's file and records its
- * outcome. A failure in any surrounding step of a file-writing operation
- * (e.g. reloading a merged archive) is conservatively recorded as a failed
- * save so that the quit path re-writes the file instead of assuming it is
- * up to date.
- */
-async function trackSaveResult<T>(write: () => Promise<T>): Promise<T> {
-  try {
-    const result = await write();
-    lastSaveResult = 'success';
-    return result;
-  } catch (error) {
-    lastSaveResult = 'failed';
-    throw error;
-  }
-}
+let saveWorker = createSaveWorker();
 
 async function executeDbProcessMessage(
   msg: DbProcessRequest,
@@ -248,7 +319,7 @@ async function executeDbProcessMessage(
   switch (msg.type) {
     case 'loadFile': {
       storedOpossumZip = undefined;
-      lastSaveResult = undefined;
+      saveWorker.resetSaveOutcome();
       const loadResult = await loadFile(msg.filePath, onProgress);
       if (loadResult.ok) {
         const { opossumZip, ...rest } = loadResult;
@@ -265,11 +336,7 @@ async function executeDbProcessMessage(
       if (!storedOpossumZip) {
         throw new Error('Cannot save: no input file loaded');
       }
-      const opossumZip = storedOpossumZip;
-      const { id: _, type: __, ...params } = msg;
-      await runTrackedOperation(() =>
-        trackSaveResult(() => saveFile(params, opossumZip)),
-      );
+      await saveWorker.save();
       return undefined;
     }
     case 'forceUnlock': {
@@ -278,9 +345,7 @@ async function executeDbProcessMessage(
       }
       const opossumZip = storedOpossumZip;
       const { id: _, type: __, ...params } = msg;
-      await runTrackedOperation(() =>
-        trackSaveResult(() => forceUnlockOpossumFile(params, opossumZip)),
-      );
+      await saveWorker.run(() => forceUnlockOpossumFile(params, opossumZip));
       return undefined;
     }
     case 'splitOpossumFile': {
@@ -296,16 +361,14 @@ async function executeDbProcessMessage(
         ...saveFileParams
       } = msg;
       // splitOpossumFile rewrites the source file as part of the split.
-      await runTrackedOperation(() =>
-        trackSaveResult(() =>
-          splitOpossumFile(
-            {
-              saveFileParams,
-              selectedFolderPaths,
-              splitOpossumFilePath,
-            },
-            opossumZip,
-          ),
+      await saveWorker.run(() =>
+        splitOpossumFile(
+          {
+            saveFileParams,
+            selectedFolderPaths,
+            splitOpossumFilePath,
+          },
+          opossumZip,
         ),
       );
       return undefined;
@@ -326,22 +389,17 @@ async function executeDbProcessMessage(
         partitionPaths,
         ...saveFileParams
       } = msg;
-      return runTrackedOperation(async () => {
-        const result = await trackSaveResult(() =>
-          mergeOpossumFiles(
-            {
-              ignoreReadonlyResourceOutputConflicts,
-              saveFileParams,
-              partitionPaths,
-              reportProgress: onProgress,
-            },
-            opossumZip,
-          ),
+      return saveWorker.run(async () => {
+        const result = await mergeOpossumFiles(
+          {
+            ignoreReadonlyResourceOutputConflicts,
+            saveFileParams,
+            partitionPaths,
+            reportProgress: onProgress,
+          },
+          opossumZip,
         );
         if (result.status === 'error') {
-          // mergeOpossumFiles reports write failures as an error result
-          // instead of throwing, so the tracked outcome must be corrected.
-          lastSaveResult = 'failed';
           return result;
         }
         const loadResult = await loadFile(
@@ -368,7 +426,7 @@ async function executeDbProcessMessage(
         inputPaths,
         outputPath,
       } = msg;
-      return runTrackedOperation(() =>
+      return saveWorker.run(() =>
         mergeOpossumFilesFromPaths({
           ignoreReadonlyResourceOutputConflicts,
           inputPaths,
@@ -378,43 +436,21 @@ async function executeDbProcessMessage(
       );
     }
     case 'exportFile': {
-      await runTrackedOperation(() => exportFile(msg.exportType, msg.filePath));
+      await saveWorker.run(() => exportFile(msg.exportType, msg.filePath));
       return undefined;
     }
     case 'executeCommand': {
-      // Mutations register before execution: the `whenIdle` wait may only
-      // resolve after the mutation has been executed and its file write
-      // has concluded. The write stays registered until the scheduled
-      // background save has concluded. Other file-writing operations are
-      // registered by `runTrackedOperation` in their own cases.
       if (isMutationCommand(msg.command)) {
-        inFlightOperations++;
-        try {
-          const result = await executeCommand(msg.command, msg.params);
-          scheduleBackgroundSave();
-          return result;
-        } catch (error) {
-          // The command failed and did not change the database, so there
-          // is no file write to wait for. Failed background writes are
-          // logged, tracked, and re-tried when the app quits.
-          inFlightOperations--;
-          maybeResolveIdleWaiters();
-          throw error;
-        }
+        return saveWorker.run(
+          (): Promise<SuccessPayload> =>
+            executeCommand(msg.command, msg.params),
+          { saveInBackground: true },
+        );
       }
       return executeCommand(msg.command, msg.params);
     }
-    case 'whenIdle': {
-      if (inFlightOperations === 0) {
-        return undefined;
-      }
-      await new Promise<void>((resolve) => {
-        idleWaiters.push(resolve);
-      });
-      return undefined;
-    }
-    case 'getLastSaveResult': {
-      return lastSaveResult;
+    case 'waitForPendingSaves': {
+      return saveWorker.waitForPendingSaves();
     }
   }
 }
@@ -447,10 +483,7 @@ export async function handleDbProcessMessage(
 export function resetDbProcessStateForTesting(): void {
   storedOpossumZip = undefined;
   saveTarget = undefined;
-  lastSaveResult = undefined;
-  inFlightOperations = 0;
-  idleWaiters.length = 0;
-  saveChain = Promise.resolve();
+  saveWorker = createSaveWorker();
 }
 
 // Guarded so that the module can be imported in tests, where

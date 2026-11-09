@@ -90,7 +90,7 @@ export function acknowledgeQuitRequest(): void {
  * merge, export) has been executed and its file write has concluded.
  *
  * The DB process tracks the outcome of every write of the project file
- * (see `getLastSaveResult`). Acting on a failed write — re-writing the
+ * (see `waitForPendingSaves`). Acting on a failed write — re-writing the
  * file and warning the user instead of quitting with stale data — is
  * error handling and deliberately not part of this change; it is tracked
  * separately so that tracking and error handling land as two independent
@@ -100,7 +100,7 @@ export async function confirmQuit(): Promise<void> {
   quitApproved = true;
   const client = getMainDbClient();
   if (!client.isDead()) {
-    await client.whenMutationsSettled();
+    await client.waitForPendingSaves();
   }
 
   quitFinalized = true;
