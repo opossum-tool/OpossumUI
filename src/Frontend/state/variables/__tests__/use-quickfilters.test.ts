@@ -5,6 +5,7 @@
 import { act } from '@testing-library/react';
 
 import type { AttributionFilterKey } from '../../../../shared/attribution-filters';
+import type { QuickfilterScope } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
 import { renderHook } from '../../../test-helpers/render';
 import {
@@ -15,13 +16,13 @@ import { matchesQuickfilter, useQuickfilters } from '../use-quickfilters';
 
 describe('useQuickfilters', () => {
   it('returns an empty list by default', async () => {
-    const { result } = await renderHook(() => useQuickfilters());
+    const { result } = await renderHook(() => useQuickfilters('attribution'));
 
     expect(result.current.quickfilters).toEqual([]);
   });
 
   it('saves a quickfilter and persists it', async () => {
-    const { result } = await renderHook(() => useQuickfilters());
+    const { result } = await renderHook(() => useQuickfilters('attribution'));
     const name = faker.string.sample();
     const filters: AttributionFilters = {
       ...initialAttributionFilters,
@@ -36,6 +37,7 @@ describe('useQuickfilters', () => {
     expect(result.current.quickfilters).toHaveLength(1);
     expect(result.current.quickfilters[0]).toMatchObject({
       name,
+      scope: 'attribution',
       filters: { filters: ['firstParty'], search: '', valueFilters: {} },
     });
     expect(window.electronAPI.updateUserSettings).toHaveBeenLastCalledWith({
@@ -43,8 +45,28 @@ describe('useQuickfilters', () => {
     });
   });
 
+  it('hides quickfilters saved under another scope', async () => {
+    const { result: attributionResult } = await renderHook(() =>
+      useQuickfilters('attribution'),
+    );
+    const { result: signalResult } = await renderHook(() =>
+      useQuickfilters('signal'),
+    );
+
+    await act(async () => {
+      signalResult.current.saveQuickfilter(
+        faker.string.sample(),
+        initialAttributionFilters,
+      );
+      await Promise.resolve();
+    });
+
+    expect(signalResult.current.quickfilters).toHaveLength(1);
+    expect(attributionResult.current.quickfilters).toEqual([]);
+  });
+
   it('stores a deep copy so later filter changes do not affect the saved quickfilter', async () => {
-    const { result } = await renderHook(() => useQuickfilters());
+    const { result } = await renderHook(() => useQuickfilters('attribution'));
     const filters: AttributionFilters = {
       ...initialAttributionFilters,
       filters: ['firstParty'],
@@ -67,7 +89,7 @@ describe('useQuickfilters', () => {
   });
 
   it('deletes a quickfilter', async () => {
-    const { result } = await renderHook(() => useQuickfilters());
+    const { result } = await renderHook(() => useQuickfilters('attribution'));
     const name = faker.string.sample();
 
     await act(async () => {
@@ -87,7 +109,7 @@ describe('useQuickfilters', () => {
     const nowSpy = vi
       .spyOn(Date, 'now')
       .mockImplementation(() => ++currentTime);
-    const { result } = await renderHook(() => useQuickfilters());
+    const { result } = await renderHook(() => useQuickfilters('attribution'));
     const first = faker.string.sample();
     const second = faker.string.sample();
 
@@ -121,11 +143,14 @@ describe('useQuickfilters', () => {
 });
 
 describe('matchesQuickfilter', () => {
+  const scope: QuickfilterScope = 'attribution';
+
   it('matches filters independent of order and sorting', () => {
     const quickfilter = {
       id: faker.string.uuid(),
       name: faker.string.sample(),
       lastUsedAt: faker.number.int(),
+      scope,
       filters: {
         filters: ['firstParty', 'thirdParty'] as Array<AttributionFilterKey>,
         search: '',
@@ -150,6 +175,7 @@ describe('matchesQuickfilter', () => {
       id: faker.string.uuid(),
       name: faker.string.sample(),
       lastUsedAt: faker.number.int(),
+      scope,
       filters: {
         filters: ['firstParty'] as Array<AttributionFilterKey>,
         search: '',
@@ -180,6 +206,7 @@ describe('matchesQuickfilter', () => {
       id: faker.string.uuid(),
       name: faker.string.sample(),
       lastUsedAt: faker.number.int(),
+      scope,
       filters: {
         filters: [] as Array<AttributionFilterKey>,
         search: '',

@@ -30,6 +30,7 @@ export const TableFilterButton: React.FC<{
     licenseOptionsLoading,
     filters,
     setFilters: setFilteredAttributions,
+    quickfilterScope: 'attribution',
   });
   const isFilterActive = hasActiveAttributionFilters(filters);
 

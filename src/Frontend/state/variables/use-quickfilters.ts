@@ -6,7 +6,10 @@ import { isEqual } from 'lodash-es';
 import { useMemo } from 'react';
 import { v4 as uuid4 } from 'uuid';
 
-import type { SavedQuickfilter } from '../../../shared/shared-types';
+import type {
+  QuickfilterScope,
+  SavedQuickfilter,
+} from '../../../shared/shared-types';
 import type { AttributionFilters } from './use-filters';
 import { useUserSettings } from './use-user-setting';
 
@@ -35,7 +38,7 @@ export function matchesQuickfilter(
   );
 }
 
-export function useQuickfilters(): {
+export function useQuickfilters(scope: QuickfilterScope): {
   quickfilters: Array<SavedQuickfilter>;
   saveQuickfilter: (name: string, filters: AttributionFilters) => void;
   deleteQuickfilter: (id: string) => void;
@@ -45,10 +48,10 @@ export function useQuickfilters(): {
 
   const quickfilters = useMemo(
     () =>
-      [...userSettings.savedQuickfilters].sort(
-        (first, second) => second.lastUsedAt - first.lastUsedAt,
-      ),
-    [userSettings.savedQuickfilters],
+      userSettings.savedQuickfilters
+        .filter((quickfilter) => quickfilter.scope === scope)
+        .sort((first, second) => second.lastUsedAt - first.lastUsedAt),
+    [userSettings.savedQuickfilters, scope],
   );
 
   const saveQuickfilter = (name: string, filters: AttributionFilters): void => {
@@ -59,6 +62,7 @@ export function useQuickfilters(): {
           id: uuid4(),
           name,
           lastUsedAt: Date.now(),
+          scope,
           filters: toQuickfilterFilters(filters),
         },
       ],
