@@ -352,6 +352,7 @@ export const PackagesPanel = ({
     licenseOptionsLoading,
     filters,
     setFilters: setFiltersWithUnsavedCheck,
+    quickfilterScope: external ? 'signal' : 'attribution',
   });
   const setSortingWithUnsavedCheck = useCallback(
     (sorting: SortOption) => {

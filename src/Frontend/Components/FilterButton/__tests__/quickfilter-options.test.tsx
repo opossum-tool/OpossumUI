@@ -5,7 +5,10 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import type { SavedQuickfilter } from '../../../../shared/shared-types';
+import type {
+  QuickfilterScope,
+  SavedQuickfilter,
+} from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
@@ -67,6 +70,7 @@ describe('quickfilters in the filter menu', () => {
         id: expect.any(String),
         name,
         lastUsedAt: expect.any(Number),
+        scope: 'attribution',
         filters: {
           filters: ['firstParty'],
           search: '',
@@ -249,6 +253,73 @@ describe('quickfilters in the filter menu', () => {
     ).toHaveAttribute('aria-selected', 'true');
   });
 
+  it('only shows quickfilters matching the panel scope', async () => {
+    const attributionQuickfilter = makeQuickfilter({
+      name: 'Attribution quickfilter',
+    });
+    const signalQuickfilter = makeQuickfilter({
+      name: 'Signal quickfilter',
+      scope: 'signal',
+    });
+    const savedQuickfilters = [attributionQuickfilter, signalQuickfilter];
+    const view = await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters }),
+    ]);
+
+    await openFilterMenu();
+
+    expect(
+      screen.getByRole('menuitem', { name: attributionQuickfilter.name }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('menuitem', { name: signalQuickfilter.name }),
+    ).not.toBeInTheDocument();
+
+    view.unmount();
+    await renderQuickfilterButton(
+      [setUserSetting({ savedQuickfilters })],
+      'signal',
+    );
+
+    await openFilterMenu();
+
+    expect(
+      screen.getByRole('menuitem', { name: signalQuickfilter.name }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('menuitem', { name: attributionQuickfilter.name }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('keeps quickfilters of both scopes when saving from one panel', async () => {
+    const { store } = await renderQuickfilterButton(
+      [setUserSetting({ savedQuickfilters: [makeQuickfilter()] })],
+      'signal',
+    );
+    const name = faker.string.alphanumeric(8);
+
+    await openFilterMenu();
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: text.filters.firstParty }),
+    );
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: text.quickfilters.save }),
+    );
+    await userEvent.type(
+      screen.getByRole('textbox', { name: text.quickfilters.nameLabel }),
+      name,
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: text.quickfilters.saveAction }),
+    );
+
+    expect(await screen.findByRole('menuitem', { name })).toBeInTheDocument();
+    expect(store.getState().userSettingsState.savedQuickfilters).toEqual([
+      expect.objectContaining({ scope: 'attribution' }),
+      expect.objectContaining({ name, scope: 'signal' }),
+    ]);
+  });
+
   it('shows the three most recently used quickfilters and manages the rest in a panel', async () => {
     const quickfilters = [
       makeQuickfilter({ name: 'oldest', lastUsedAt: 1 }),
@@ -338,21 +409,28 @@ describe('quickfilters in the filter menu', () => {
 function makeQuickfilter({
   name = faker.string.sample(),
   lastUsedAt = faker.number.int(),
+  scope = 'attribution',
   filters = { filters: ['firstParty'], search: '', valueFilters: {} },
 }: {
   name?: string;
   lastUsedAt?: number;
+  scope?: SavedQuickfilter['scope'];
   filters?: SavedQuickfilter['filters'];
 } = {}): SavedQuickfilter {
   return {
     id: faker.string.uuid(),
     name,
     lastUsedAt,
+    scope,
     filters,
   };
 }
 
-function TestFilterButton() {
+function TestFilterButton({
+  scope = 'attribution',
+}: {
+  scope?: QuickfilterScope;
+}) {
   const [filters, setFilters] = useManualAttributionFilters();
   const options = useAttributionFilterOptions({
     filterOptions: attributionFilterOptions,
@@ -360,6 +438,7 @@ function TestFilterButton() {
     licenses: [],
     filters,
     setFilters,
+    quickfilterScope: scope,
   });
   return (
     <FilterButton
@@ -381,6 +460,9 @@ async function openFilterMenu(): Promise<void> {
   await userEvent.click(screen.getByRole('button', { name: 'filter button' }));
 }
 
-async function renderQuickfilterButton(actions?: Array<Action>) {
-  return renderComponent(<TestFilterButton />, { actions });
+async function renderQuickfilterButton(
+  actions?: Array<Action>,
+  scope?: QuickfilterScope,
+) {
+  return renderComponent(<TestFilterButton scope={scope} />, { actions });
 }

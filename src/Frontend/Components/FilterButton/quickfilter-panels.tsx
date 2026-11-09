@@ -7,7 +7,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, Button, IconButton, Typography } from '@mui/material';
 import { type KeyboardEvent, useCallback, useState } from 'react';
 
-import type { SavedQuickfilter } from '../../../shared/shared-types';
+import type {
+  QuickfilterScope,
+  SavedQuickfilter,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import type { AttributionFilters } from '../../state/variables/use-filters';
 import { useQuickfilters } from '../../state/variables/use-quickfilters';
@@ -26,16 +29,18 @@ function handleActivationKeyDown(
 
 export function SaveQuickfilterPanel({
   filters,
+  scope,
   onClose,
   id,
   initialFocusRef,
 }: {
   filters: AttributionFilters;
+  scope: QuickfilterScope;
   onClose: () => void;
   id: string;
   initialFocusRef?: (element: HTMLElement | null) => void;
 }) {
-  const { saveQuickfilter } = useQuickfilters();
+  const { saveQuickfilter } = useQuickfilters(scope);
   const [name, setName] = useState('');
   const trimmedName = name.trim();
   const save = useCallback(() => {

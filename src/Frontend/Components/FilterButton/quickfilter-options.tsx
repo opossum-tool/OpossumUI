@@ -7,7 +7,10 @@ import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useMemo } from 'react';
 
-import type { SavedQuickfilter } from '../../../shared/shared-types';
+import type {
+  QuickfilterScope,
+  SavedQuickfilter,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon } from '../../shared-styles';
 import {
@@ -30,12 +33,14 @@ type SetFilters = (filters: AttributionFilters) => void;
 export function useQuickfilterOptions({
   filters,
   setFilters,
+  scope,
 }: {
   filters: AttributionFilters;
   setFilters: SetFilters;
+  scope: QuickfilterScope;
 }): Array<FilterOption> {
   const { quickfilters, deleteQuickfilter, markQuickfilterUsed } =
-    useQuickfilters();
+    useQuickfilters(scope);
   const hasActiveFilters = hasActiveAttributionFilters(filters);
 
   return useMemo(() => {
@@ -100,6 +105,7 @@ export function useQuickfilterOptions({
               <SaveQuickfilterPanel
                 id={id}
                 filters={filters}
+                scope={scope}
                 onClose={onClose}
                 initialFocusRef={initialFocusRef}
               />
@@ -118,6 +124,7 @@ export function useQuickfilterOptions({
     filters,
     setFilters,
     hasActiveFilters,
+    scope,
     deleteQuickfilter,
     markQuickfilterUsed,
   ]);

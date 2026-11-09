@@ -412,10 +412,13 @@ export type TableOrdering = {
   orderedColumn: string;
 };
 
+export type QuickfilterScope = 'attribution' | 'signal';
+
 export interface SavedQuickfilter {
   id: string;
   name: string;
   lastUsedAt: number;
+  scope: QuickfilterScope;
   filters: {
     filters: Array<AttributionFilterKey>;
     search: string;
