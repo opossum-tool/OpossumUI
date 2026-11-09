@@ -10,7 +10,7 @@ import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers
 import { text } from '../shared/text';
 import { faker } from '../testing/Faker';
 import { pathsToResources } from '../testing/global-test-helpers';
-import { renderApp } from './helpers/render-app';
+import { renderApp } from '../testing/render-app';
 import {
   ATTRIBUTIONS_PANEL,
   clickAttributionColumnButton,
@@ -20,7 +20,7 @@ import {
   clickSelectAllCheckbox,
   fillFormField,
   gotoResource,
-} from './helpers/ui';
+} from '../testing/ui';
 
 const [firstId, first] = faker.opossum.rawAttribution({
   packageName: 'first',
