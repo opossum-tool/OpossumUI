@@ -177,6 +177,14 @@ export class MenuBar {
     await this.clickEnabledMenuItem(menuItemIds.projectStatistics);
   }
 
+  async openOpossumUiNotices(): Promise<void> {
+    await this.clickEnabledMenuItem(menuItemIds.aboutOpossumUiNotices);
+  }
+
+  async openChromiumNotices(): Promise<void> {
+    await this.clickEnabledMenuItem(menuItemIds.aboutChromiumNotices);
+  }
+
   async importLegacyOpossumFile(): Promise<void> {
     await this.clickEnabledMenuItem(menuItemIds.importLegacyOpossumFile);
   }
