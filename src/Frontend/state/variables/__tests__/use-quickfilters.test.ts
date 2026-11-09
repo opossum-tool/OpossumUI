@@ -185,13 +185,15 @@ describe('useQuickfilters', () => {
       filters: ['firstParty'],
     };
 
+    let savedId: string | undefined;
     await act(async () => {
-      result.current.saveQuickfilter(name, filters);
+      savedId = result.current.saveQuickfilter(name, filters);
       await Promise.resolve();
     });
 
     expect(result.current.quickfilters).toHaveLength(1);
     expect(result.current.quickfilters[0]).toMatchObject({
+      id: savedId,
       name,
       scope: 'attribution',
       filters: { filters: ['firstParty'], search: '', valueFilters: {} },
