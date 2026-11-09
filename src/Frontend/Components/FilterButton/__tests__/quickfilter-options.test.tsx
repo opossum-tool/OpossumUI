@@ -109,7 +109,7 @@ describe('quickfilters in the filter menu', () => {
       search: '',
       valueFilters: {},
       sorting: 'criticality',
-      activeQuickfilterId: quickfilter.id,
+      activeQuickfilterIds: [quickfilter.id],
     });
     expect(
       screen.getByRole('menuitem', { name: quickfilter.name }),
@@ -146,7 +146,7 @@ describe('quickfilters in the filter menu', () => {
     ).toHaveAttribute('aria-selected', 'false');
   });
 
-  it('deselects the quickfilter when filters are changed manually', async () => {
+  it('keeps the quickfilter checked when filters are changed manually', async () => {
     const quickfilter = makeQuickfilter({ name: 'My quickfilter' });
     const { store } = await renderQuickfilterButton([
       setUserSetting({ savedQuickfilters: [quickfilter] }),
@@ -162,11 +162,12 @@ describe('quickfilters in the filter menu', () => {
 
     expect(
       screen.getByRole('menuitem', { name: quickfilter.name }),
-    ).toHaveAttribute('aria-selected', 'false');
+    ).toHaveAttribute('aria-selected', 'true');
     expect(
       store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
     ).toMatchObject({
       filters: ['firstParty', 'thirdParty'],
+      activeQuickfilterIds: [quickfilter.id],
     });
   });
 
@@ -284,7 +285,7 @@ describe('quickfilters in the filter menu', () => {
         license: [{ id: 'MIT', label: 'MIT' }],
       },
       sorting: 'alphabetically',
-      activeQuickfilterId: quickfilter.id,
+      activeQuickfilterIds: [quickfilter.id],
     });
 
     await userEvent.click(
@@ -301,30 +302,115 @@ describe('quickfilters in the filter menu', () => {
     });
   });
 
-  it('applies again after manual edits deselected the quickfilter', async () => {
-    const quickfilter = makeQuickfilter({ name: 'My quickfilter' });
+  it('combines compatible quickfilters', async () => {
+    const first = makeQuickfilter({ name: 'First party only' });
+    const second = makeQuickfilter({
+      name: 'MIT license',
+      filters: {
+        filters: [],
+        search: '',
+        valueFilters: { license: [{ id: 'MIT', label: 'MIT' }] },
+      },
+    });
     const { store } = await renderQuickfilterButton([
-      setUserSetting({ savedQuickfilters: [quickfilter] }),
+      setUserSetting({ savedQuickfilters: [first, second] }),
     ]);
 
     await openFilterMenu();
     await userEvent.click(
-      screen.getByRole('menuitem', { name: quickfilter.name }),
-    );
-    store.dispatch(
-      setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
-        ...initialAttributionFilters,
-        filters: ['thirdParty'],
-        activeQuickfilterId: quickfilter.id,
-      }),
+      screen.getByRole('menuitem', { name: 'First party only' }),
     );
     await userEvent.click(
-      screen.getByRole('menuitem', { name: quickfilter.name }),
+      screen.getByRole('menuitem', { name: 'MIT license' }),
     );
 
     expect(
       store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
-    ).toMatchObject({ filters: ['firstParty'] });
+    ).toEqual({
+      filters: ['firstParty'],
+      search: '',
+      valueFilters: { license: [{ id: 'MIT', label: 'MIT' }] },
+      sorting: 'alphabetically',
+      activeQuickfilterIds: [first.id, second.id],
+    });
+    expect(
+      screen.getByRole('menuitem', { name: 'First party only' }),
+    ).toHaveAttribute('aria-selected', 'true');
+    expect(
+      screen.getByRole('menuitem', { name: 'MIT license' }),
+    ).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('removes a single quickfilter from a combination when clicked again', async () => {
+    const first = makeQuickfilter({ name: 'First party only' });
+    const second = makeQuickfilter({
+      name: 'MIT license',
+      filters: {
+        filters: [],
+        search: '',
+        valueFilters: { license: [{ id: 'MIT', label: 'MIT' }] },
+      },
+    });
+    const { store } = await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [first, second] }),
+    ]);
+
+    await openFilterMenu();
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: 'First party only' }),
+    );
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: 'MIT license' }),
+    );
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: 'First party only' }),
+    );
+
+    expect(
+      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toEqual({
+      filters: [],
+      search: '',
+      valueFilters: { license: [{ id: 'MIT', label: 'MIT' }] },
+      sorting: 'alphabetically',
+      activeQuickfilterIds: [second.id],
+    });
+    expect(
+      screen.getByRole('menuitem', { name: 'First party only' }),
+    ).toHaveAttribute('aria-selected', 'false');
+    expect(
+      screen.getByRole('menuitem', { name: 'MIT license' }),
+    ).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('fades incompatible quickfilters and ignores clicking them', async () => {
+    const first = makeQuickfilter({
+      name: 'React search',
+      filters: { filters: [], search: 'react', valueFilters: {} },
+    });
+    const second = makeQuickfilter({
+      name: 'Vue search',
+      filters: { filters: [], search: 'vue', valueFilters: {} },
+    });
+    const { store } = await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [first, second] }),
+    ]);
+
+    await openFilterMenu();
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: 'React search' }),
+    );
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Vue search' }));
+
+    expect(
+      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toMatchObject({ search: 'react' });
+    expect(
+      screen.getByRole('menuitem', { name: 'React search' }),
+    ).toHaveAttribute('aria-selected', 'true');
+    expect(
+      screen.getByRole('menuitem', { name: 'Vue search' }),
+    ).toHaveAttribute('aria-selected', 'false');
   });
 
   it('only shows quickfilters matching the panel scope', async () => {
@@ -524,7 +610,7 @@ function TestFilterButton({
           filters: [],
           search: '',
           valueFilters: {},
-          activeQuickfilterId: undefined,
+          activeQuickfilterIds: undefined,
         })
       }
     />

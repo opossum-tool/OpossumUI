@@ -24,8 +24,13 @@ export interface AttributionFilters {
     license?: Array<LicenseOption>;
   };
   sorting: SortOption;
-  /** Id of the quickfilter last applied via click; cleared on manual edits via matching. */
-  activeQuickfilterId?: string;
+  /**
+   * Ids of the quickfilters currently combined into these filters. Selection
+   * is membership-based: entries stay checked while they are part of the
+   * active combination, and unchecking recomputes the filters from the
+   * remaining ids.
+   */
+  activeQuickfilterIds?: Array<string>;
 }
 
 export interface ResourceTreeFilters {
