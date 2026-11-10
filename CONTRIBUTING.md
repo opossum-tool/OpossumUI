@@ -212,7 +212,6 @@ Note: You will need the "maintain" role in order to create a new release.
    1. Check performances on a large .opossum file.
    1. Check that the layout does not break at lower resolutions (you can use View → Zoom in OpossumUI and resize the window, don't need to change resolution).
    1. Check that the performance of the save operation is good.
-   1. Check that the notices for the app itself and chromium are accessible via the menu.
 1. **Start** the Publish release workflow (see next section for details).
 1. Optional: Notify users about a new release.
    1. Wait until all the artifacts are shown on Github before sending a message.
