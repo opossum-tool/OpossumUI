@@ -96,8 +96,36 @@ export async function expectStatisticsChartContainsText(
 ): Promise<void> {
   await waitFor(() => {
     expect(
-      within(screen.getByTestId(chartTestId)).getByText(expectedText),
+      within(getStatisticsChart(chartTestId)).getByText(expectedText),
     ).toBeVisible();
+  }, SETTLED_TIMEOUT);
+}
+
+export function getStatisticsChart(
+  chartTestId: StatisticsChartTestId,
+): HTMLElement {
+  return screen.getByTestId(chartTestId);
+}
+
+export async function clickStatisticsChartLegend(
+  chartTestId: StatisticsChartTestId,
+  label: string,
+): Promise<void> {
+  await userEvent.click(
+    within(getStatisticsChart(chartTestId)).getByRole('button', {
+      name: label,
+    }),
+  );
+}
+
+export async function expectStatisticsChartEntryIsPlainText(
+  chartTestId: StatisticsChartTestId,
+  label: string,
+): Promise<void> {
+  await waitFor(() => {
+    const chart = getStatisticsChart(chartTestId);
+    expect(within(chart).getByText(label)).toBeVisible();
+    expect(within(chart).queryByRole('button', { name: label })).toBeNull();
   }, SETTLED_TIMEOUT);
 }
 

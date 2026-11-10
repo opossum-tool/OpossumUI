@@ -15,6 +15,7 @@ const FILTER_MENU_LABELS = {
   thirdParty: text.filters.thirdParty,
   aiDeferred: text.filters.aiDeferred,
   unreviewed: text.filters.unreviewed,
+  previouslyPreferred: text.filters.previouslyPreferred,
 } as const;
 
 type FilterMenuLabel = keyof typeof FILTER_MENU_LABELS;
@@ -24,6 +25,67 @@ export async function clickFilterMenuButton(
 ): Promise<void> {
   await userEvent.click(
     within(container).getByRole('button', { name: 'filter button' }),
+  );
+}
+
+export async function clickPanelFilterMenuButton(
+  panelTestId: PanelTestId,
+): Promise<void> {
+  await clickFilterMenuButton(getPanel(panelTestId));
+}
+
+export async function selectFilterMenuDropdown(
+  dropdownLabel: string,
+  optionName: string,
+  optionIndex = 0,
+): Promise<void> {
+  const dropdown = await screen.findByLabelText(dropdownLabel);
+  await userEvent.click(dropdown);
+  // Duplicate option descriptions exist (e.g. classifications with the same
+  // text but different IDs); optionIndex disambiguates.
+  const options = await screen.findAllByRole('option', { name: optionName });
+  await userEvent.click(options[optionIndex]);
+}
+
+export async function expectFilterMenuDropdownValue(
+  dropdownLabel: string,
+  value: string,
+): Promise<void> {
+  await waitFor(() => {
+    expect(screen.getByLabelText(dropdownLabel)).toHaveValue(value);
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectFilterMenuIconVisible(
+  iconLabel: string,
+  visible: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const icon = within(screen.getByRole('menu')).queryByLabelText(iconLabel);
+    if (visible) {
+      expect(icon).not.toBeNull();
+      expect(icon).toBeVisible();
+    } else {
+      expect(icon).toBeNull();
+    }
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectFilterMenuItemCount(
+  name: string,
+  count: string,
+): Promise<void> {
+  await waitFor(() => {
+    const item = screen.getByRole('menuitem', { name: menuNameMatcher(name) });
+    expect(item.textContent).toBe(`${name}${count ? ` (${count})` : ''}`);
+  }, SETTLED_TIMEOUT);
+}
+
+export async function clearFilterMenuFilterChip(): Promise<void> {
+  await userEvent.click(
+    within(screen.getByRole('menu')).getByRole('button', {
+      name: 'clear button',
+    }),
   );
 }
 
@@ -139,5 +201,77 @@ export async function addLicenseSearchFilter(value: string): Promise<void> {
     screen.getByRole('option', {
       name: text.licenseEditor.addContains(value.trim()),
     }),
+  );
+}
+
+const LICENSE_EDITOR_DIALOG_LABEL = text.licenseEditor.title;
+
+export async function closeLicenseEditorDialog(): Promise<void> {
+  // Only the license editor dialog closes; the outer filter menu stays open.
+  const dialog = screen.queryByRole('dialog', {
+    name: LICENSE_EDITOR_DIALOG_LABEL,
+  });
+  if (dialog) {
+    dialog.focus();
+    await userEvent.keyboard('{Escape}');
+  }
+  await waitFor(() => {
+    expect(
+      screen.queryByRole('dialog', { name: LICENSE_EDITOR_DIALOG_LABEL }),
+    ).toBeNull();
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectLicenseFilterOptionSelected(
+  name: string,
+  selected: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    expect(screen.getByRole('option', { name })).toHaveAttribute(
+      'aria-selected',
+      selected ? 'true' : 'false',
+    );
+  }, SETTLED_TIMEOUT);
+}
+
+export async function clickLicenseEditorTab(
+  name: string | RegExp,
+): Promise<void> {
+  await userEvent.click(screen.getByRole('tab', { name }));
+}
+
+export async function expectLicenseEditorTabVisible(
+  name: string,
+  visible: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const tab = screen.queryByRole('tab', { name });
+    if (visible) {
+      expect(tab).not.toBeNull();
+      expect(tab).toBeVisible();
+    } else {
+      expect(tab).toBeNull();
+    }
+  }, SETTLED_TIMEOUT);
+}
+
+export async function removeLicenseFilterOption(
+  licenseName: string,
+): Promise<void> {
+  await userEvent.click(
+    screen.getByRole('button', {
+      name: text.licenseEditor.removeLicense(licenseName),
+    }),
+  );
+}
+
+export async function clearAllLicenseFilters(): Promise<void> {
+  // The counted "{n} license filters" menu item opens the license editor on
+  // the selection list, from which all selected licenses can be cleared.
+  await userEvent.click(
+    screen.getByRole('menuitem', { name: /\d+ license filters/ }),
+  );
+  await userEvent.click(
+    screen.getByRole('button', { name: text.licenseEditor.clearLicenses }),
   );
 }

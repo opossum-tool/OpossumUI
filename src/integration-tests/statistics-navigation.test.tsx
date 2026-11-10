@@ -16,21 +16,29 @@ import { renderApp } from '../testing/render-app';
 import {
   applyPanelFilter,
   ATTRIBUTIONS_PANEL,
-  clickFilterMenuButton,
   clickPackageCard,
+  clickPanelFilterMenuButton,
   clickPopupButton,
+  clickProjectStatisticsTab,
+  clickStatisticsChartLegend,
   closeFilterMenu,
+  expectFilterMenuDropdownValue,
   expectFormFieldValues,
   expectPackageCards,
   expectPathBarCrumbs,
   expectPopupHidden,
+  expectSearchValue,
+  expectStatisticsChartEntryIsPlainText,
   expectViewIsActive,
   fillFormField,
   fillPanelSearch,
+  getStatisticsChart,
   gotoReportView,
   gotoResource,
   openProjectStatisticsPopup,
+  selectFilterMenuDropdown,
   SIGNALS_PANEL,
+  type StatisticsChartTestId,
 } from '../testing/ui';
 
 // Happy DOM cannot lay out responsive charts. Fix only their container size;
@@ -44,12 +52,6 @@ vi.mock('recharts', async (importOriginal) => {
     ) => <recharts.ResponsiveContainer {...props} width={800} height={600} />,
   };
 });
-
-async function clickChartLegend(chartId: string, label: string): Promise<void> {
-  await userEvent.click(
-    within(screen.getByTestId(chartId)).getByRole('button', { name: label }),
-  );
-}
 
 const signals = {
   high: {
@@ -102,14 +104,14 @@ async function openStatistics(): Promise<void> {
 }
 
 describe('statistics navigation', () => {
-  it.each([
+  it.each<[StatisticsChartTestId, string]>([
     ['mostFrequentLicenseCountPieChart', 'MIT'],
     ['attributionBarChart', 'Needs Review'],
   ])(
     'shows only one tooltip for %s on hover and keyboard focus',
     async (chartId, label) => {
       await openStatistics();
-      const chart = within(screen.getByTestId(chartId));
+      const chart = within(getStatisticsChart(chartId));
       act(() => chart.getByRole('application').focus());
       await userEvent.keyboard('{ArrowRight}');
       expect(await chart.findByRole('status')).toBeVisible();
@@ -133,7 +135,7 @@ describe('statistics navigation', () => {
 
   it('shows a tooltip without changing the license button accessible name', async () => {
     await openStatistics();
-    await userEvent.click(screen.getByRole('tab', { name: 'Licenses' }));
+    await clickProjectStatisticsTab('details');
     const button = screen.getByRole('button', { name: 'MIT' });
     await userEvent.hover(button);
     expect(await screen.findByRole('tooltip')).toBeVisible();
@@ -171,21 +173,15 @@ describe('statistics navigation', () => {
     });
 
     await gotoResource('nested', 'current.ts');
-    await clickFilterMenuButton(screen.getByTestId(SIGNALS_PANEL));
-    await userEvent.click(screen.getByLabelText('criticality'));
-    await userEvent.click(
-      await screen.findByRole('option', { name: 'Medium' }),
-    );
-    await userEvent.click(screen.getByLabelText('classification'));
-    await userEvent.click(
-      await screen.findByRole('option', { name: 'Default' }),
-    );
+    await clickPanelFilterMenuButton(SIGNALS_PANEL);
+    await selectFilterMenuDropdown('criticality', 'Medium');
+    await selectFilterMenuDropdown('classification', 'Default');
     await closeFilterMenu();
     await fillPanelSearch('signals-panel-header', 'old search');
     await gotoReportView();
     await openProjectStatisticsPopup(sendToChannel);
 
-    await clickChartLegend(
+    await clickStatisticsChartLegend(
       'criticalSignalsCountPieChart',
       text.projectStatisticsPopup.charts.criticalSignalsCountPieChart
         .highlyCritical,
@@ -194,18 +190,16 @@ describe('statistics navigation', () => {
     await expectPopupHidden('project statistics');
     await expectViewIsActive('audit');
     await expectPathBarCrumbs(['Home'], ['nested', 'current.ts']);
-    await clickFilterMenuButton(screen.getByTestId(SIGNALS_PANEL));
-    expect(screen.getByLabelText('criticality')).toHaveValue('High');
-    expect(screen.getByLabelText('classification')).toHaveValue('');
+    await clickPanelFilterMenuButton(SIGNALS_PANEL);
+    await expectFilterMenuDropdownValue('criticality', 'High');
+    await expectFilterMenuDropdownValue('classification', '');
     await closeFilterMenu();
-    expect(
-      within(screen.getByTestId('signals-panel-header')).getByRole('searchbox'),
-    ).toHaveValue('');
+    await expectSearchValue('signals-panel-header', '');
     await expectPackageCards(SIGNALS_PANEL, [highSignal], [mediumSignal]);
   });
   it('Needs Review shows only attributions needing review', async () => {
     await openStatistics();
-    await clickChartLegend('attributionBarChart', 'Needs Review');
+    await clickStatisticsChartLegend('attributionBarChart', 'Needs Review');
     await expectPackageCards(
       ATTRIBUTIONS_PANEL,
       [attributions.review],
@@ -215,7 +209,7 @@ describe('statistics navigation', () => {
 
   it('Follow Up shows only follow-up attributions', async () => {
     await openStatistics();
-    await clickChartLegend('attributionBarChart', 'Follow Up');
+    await clickStatisticsChartLegend('attributionBarChart', 'Follow Up');
     await expectPackageCards(
       ATTRIBUTIONS_PANEL,
       [attributions.follow],
@@ -225,7 +219,7 @@ describe('statistics navigation', () => {
 
   it('First Party shows only first-party attributions', async () => {
     await openStatistics();
-    await clickChartLegend('attributionBarChart', 'First Party');
+    await clickStatisticsChartLegend('attributionBarChart', 'First Party');
     await expectPackageCards(
       ATTRIBUTIONS_PANEL,
       [attributions.first],
@@ -243,7 +237,10 @@ describe('statistics navigation', () => {
     );
 
     await openProjectStatisticsPopup(sendToChannel);
-    await clickChartLegend('attributionBarChart', 'Total Attributions');
+    await clickStatisticsChartLegend(
+      'attributionBarChart',
+      'Total Attributions',
+    );
     await expectPackageCards(
       ATTRIBUTIONS_PANEL,
       [
@@ -258,7 +255,7 @@ describe('statistics navigation', () => {
 
   it('a license shows only matching signals', async () => {
     await openStatistics();
-    await clickChartLegend('mostFrequentLicenseCountPieChart', 'MIT');
+    await clickStatisticsChartLegend('mostFrequentLicenseCountPieChart', 'MIT');
     await expectPackageCards(
       SIGNALS_PANEL,
       [signals.high],
@@ -268,7 +265,10 @@ describe('statistics navigation', () => {
 
   it('a real license named Other is clickable', async () => {
     await openStatistics();
-    await clickChartLegend('mostFrequentLicenseCountPieChart', 'Other');
+    await clickStatisticsChartLegend(
+      'mostFrequentLicenseCountPieChart',
+      'Other',
+    );
     await expectPackageCards(
       SIGNALS_PANEL,
       [signals.none],
@@ -278,7 +278,7 @@ describe('statistics navigation', () => {
 
   it('High shows only highly critical signals', async () => {
     await openStatistics();
-    await clickChartLegend(
+    await clickStatisticsChartLegend(
       'criticalSignalsCountPieChart',
       'Highly Critical Signals',
     );
@@ -291,7 +291,7 @@ describe('statistics navigation', () => {
 
   it('Medium shows only medium criticality signals', async () => {
     await openStatistics();
-    await clickChartLegend(
+    await clickStatisticsChartLegend(
       'criticalSignalsCountPieChart',
       'Medium Critical Signals',
     );
@@ -304,7 +304,7 @@ describe('statistics navigation', () => {
 
   it('None includes numeric-zero criticality signals', async () => {
     await openStatistics();
-    await clickChartLegend(
+    await clickStatisticsChartLegend(
       'criticalSignalsCountPieChart',
       'Non-Critical Signals',
     );
@@ -317,7 +317,10 @@ describe('statistics navigation', () => {
 
   it('classification selects signals independently of criticality', async () => {
     await openStatistics();
-    await clickChartLegend('signalCountByClassificationPieChart', 'Restricted');
+    await clickStatisticsChartLegend(
+      'signalCountByClassificationPieChart',
+      'Restricted',
+    );
     await expectPackageCards(
       SIGNALS_PANEL,
       [signals.medium, signals.none],
@@ -327,7 +330,10 @@ describe('statistics navigation', () => {
 
   it('classification zero selects signals independently of criticality', async () => {
     await openStatistics();
-    await clickChartLegend('signalCountByClassificationPieChart', 'Default');
+    await clickStatisticsChartLegend(
+      'signalCountByClassificationPieChart',
+      'Default',
+    );
     await expectPackageCards(
       SIGNALS_PANEL,
       [signals.high],
@@ -341,7 +347,7 @@ describe('statistics navigation', () => {
     await clickPackageCard(ATTRIBUTIONS_PANEL, attributions.review);
     fillFormField('comment', 'unsaved comment');
     await openProjectStatisticsPopup(sendToChannel);
-    await clickChartLegend('mostFrequentLicenseCountPieChart', 'MIT');
+    await clickStatisticsChartLegend('mostFrequentLicenseCountPieChart', 'MIT');
     await clickPopupButton('unsaved changes popup', 'Cancel');
     await expectFormFieldValues({ comment: 'unsaved comment' });
     await expectPackageCards(ATTRIBUTIONS_PANEL, [
@@ -358,7 +364,7 @@ describe('statistics navigation', () => {
     await clickPackageCard(ATTRIBUTIONS_PANEL, attributions.review);
     fillFormField('comment', 'unsaved comment');
     await openProjectStatisticsPopup(sendToChannel);
-    await clickChartLegend('mostFrequentLicenseCountPieChart', 'MIT');
+    await clickStatisticsChartLegend('mostFrequentLicenseCountPieChart', 'MIT');
     await clickPopupButton('unsaved changes popup', 'Discard and Proceed');
     await expectPackageCards(
       SIGNALS_PANEL,
@@ -371,14 +377,13 @@ describe('statistics navigation', () => {
 
   it('incomplete-attribution chart entries remain plain text', async () => {
     await openStatistics();
-    const chart = within(screen.getByTestId('incompleteAttributionsPieChart'));
+    const chart = within(getStatisticsChart('incompleteAttributionsPieChart'));
     expect(chart.getByText('Complete Attributions')).toBeVisible();
     expect(chart.queryByRole('button')).not.toBeInTheDocument();
-    const overview = within(screen.getByTestId('attributionBarChart'));
-    expect(overview.getByText('Incomplete Attributions')).toBeVisible();
-    expect(
-      overview.queryByRole('button', { name: 'Incomplete Attributions' }),
-    ).not.toBeInTheDocument();
+    await expectStatisticsChartEntryIsPlainText(
+      'attributionBarChart',
+      'Incomplete Attributions',
+    );
   });
 
   it('No License remains plain text in criticality and classification legends', async () => {
@@ -394,20 +399,14 @@ describe('statistics navigation', () => {
       userSettings: { showCriticality: true, showClassifications: true },
     });
     await openProjectStatisticsPopup(sendToChannel);
-    const criticality = within(
-      screen.getByTestId('criticalSignalsCountPieChart'),
+    await expectStatisticsChartEntryIsPlainText(
+      'criticalSignalsCountPieChart',
+      'No License',
     );
-    expect(criticality.getByText('No License')).toBeVisible();
-    expect(
-      criticality.queryByRole('button', { name: 'No License' }),
-    ).not.toBeInTheDocument();
-    const classification = within(
-      screen.getByTestId('signalCountByClassificationPieChart'),
+    await expectStatisticsChartEntryIsPlainText(
+      'signalCountByClassificationPieChart',
+      'No License',
     );
-    expect(classification.getByText('No License')).toBeVisible();
-    expect(
-      classification.queryByRole('button', { name: 'No License' }),
-    ).not.toBeInTheDocument();
   });
 
   it('aggregate Other remains plain text', async () => {
@@ -428,13 +427,10 @@ describe('statistics navigation', () => {
       }),
     });
     await openProjectStatisticsPopup(sendToChannel);
-    const chart = within(
-      screen.getByTestId('mostFrequentLicenseCountPieChart'),
+    await expectStatisticsChartEntryIsPlainText(
+      'mostFrequentLicenseCountPieChart',
+      'Other',
     );
-    expect(chart.getByText('Other')).toBeVisible();
-    expect(
-      chart.queryByRole('button', { name: 'Other' }),
-    ).not.toBeInTheDocument();
   });
   it('criticality navigation includes licensed and unlicensed signals with matching criticality', async () => {
     const licensed = {
@@ -460,7 +456,7 @@ describe('statistics navigation', () => {
       userSettings: { showCriticality: true },
     });
     await openProjectStatisticsPopup(sendToChannel);
-    await clickChartLegend(
+    await clickStatisticsChartLegend(
       'criticalSignalsCountPieChart',
       'Highly Critical Signals',
     );

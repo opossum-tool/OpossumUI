@@ -445,6 +445,21 @@ export async function removeAuditingOption(optionId: string): Promise<void> {
   );
 }
 
+const AI_STATUS_BADGE_TEST_ID =
+  /^auditing-option-(ai-generated|human-modified|deferred)$/;
+
+export async function expectAttributionColumnAiBadges(
+  badges: Array<string>,
+): Promise<void> {
+  await waitFor(() => {
+    expect(
+      within(getAttributionColumn())
+        .queryAllByTestId(AI_STATUS_BADGE_TEST_ID)
+        .map((badge) => badge.textContent),
+    ).toEqual(badges);
+  }, SETTLED_TIMEOUT);
+}
+
 function queryAuditingOptionChip(optionId: string): HTMLElement | null {
   return within(getAttributionColumn()).queryByTestId(
     `auditing-option-${optionId}`,

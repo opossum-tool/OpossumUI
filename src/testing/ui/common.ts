@@ -188,6 +188,25 @@ export async function clearPanelSearch(headerTestId: string): Promise<void> {
   );
 }
 
+function getHeaderSearchbox(headerTestId: string): HTMLElement {
+  return within(screen.getByTestId(headerTestId)).getByRole('searchbox');
+}
+
+export async function expectSearchFocused(headerTestId: string): Promise<void> {
+  await waitFor(() => {
+    expect(getHeaderSearchbox(headerTestId)).toHaveFocus();
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectSearchValue(
+  headerTestId: string,
+  value: string,
+): Promise<void> {
+  await waitFor(() => {
+    expect(getHeaderSearchbox(headerTestId)).toHaveValue(value);
+  }, SETTLED_TIMEOUT);
+}
+
 export function sendUserSettingsChange(
   sendToChannel: SendToChannel,
   settings: Partial<UserSettings>,

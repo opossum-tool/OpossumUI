@@ -2,14 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-
 import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers/general-test-helpers';
 import { Criticality } from '../shared/shared-types';
 import { renderApp } from '../testing/render-app';
 import {
+  ATTRIBUTIONS_PANEL,
+  clickPackageCardByLabel,
+  expectAttributionColumnAiBadges,
   expectFormFieldValues,
+  expectPackageCardAiIcons,
   fillFormField,
   gotoResource,
   saveChangesInAttributionColumn,
@@ -79,29 +80,11 @@ test('shows consistent AI status in attribution cards and details', async () => 
     }),
   });
   await gotoResource('file.ts');
-  const panel = screen.getByTestId('attributions-panel');
 
   for (const { id, icons, badges } of cases) {
-    const card = await within(panel).findByLabelText(`package card ${id}`);
-    expect(
-      within(card)
-        .queryAllByLabelText(
-          /^(AI generated|Human-modified AI|Deferred AI) icon$/,
-        )
-        .map((icon) => icon.getAttribute('aria-label')),
-    ).toEqual(icons);
-
-    await userEvent.click(within(card).getByText(id));
-    await waitFor(() => {
-      const details = screen.getByLabelText('attribution column');
-      expect(
-        within(details)
-          .queryAllByTestId(
-            /^auditing-option-(ai-generated|human-modified|deferred)$/,
-          )
-          .map((badge) => badge.textContent),
-      ).toEqual(badges);
-    });
+    await expectPackageCardAiIcons(ATTRIBUTIONS_PANEL, id, icons);
+    await clickPackageCardByLabel(ATTRIBUTIONS_PANEL, id);
+    await expectAttributionColumnAiBadges(badges);
   }
 });
 
@@ -147,40 +130,22 @@ test.each([
       }),
     });
     await gotoResource('file.ts');
-    const panel = screen.getByTestId('attributions-panel');
-    const card = await within(panel).findByLabelText(
-      `package card ${initialComment}`,
-    );
-    await userEvent.click(within(card).getByText(initialComment));
 
     async function expectStatus(
       comment: string,
       expectedIcons: Array<string>,
       expectedBadges: Array<string>,
     ) {
-      await waitFor(() => {
-        const currentCard = within(panel).getByLabelText(
-          `package card ${comment}`,
-        );
-        expect(
-          within(currentCard)
-            .queryAllByLabelText(
-              /^(AI generated|Human-modified AI|Deferred AI) icon$/,
-            )
-            .map((icon) => icon.getAttribute('aria-label')),
-        ).toEqual(expectedIcons);
-        const details = screen.getByLabelText('attribution column');
-        expect(
-          within(details)
-            .queryAllByTestId(
-              /^auditing-option-(ai-generated|human-modified|deferred)$/,
-            )
-            .map((badge) => badge.textContent),
-        ).toEqual(expectedBadges);
-      });
+      await expectPackageCardAiIcons(
+        ATTRIBUTIONS_PANEL,
+        comment,
+        expectedIcons,
+      );
+      await expectAttributionColumnAiBadges(expectedBadges);
       await expectFormFieldValues({ comment });
     }
 
+    await clickPackageCardByLabel(ATTRIBUTIONS_PANEL, initialComment);
     await expectStatus(initialComment, icons, badges);
     fillFormField('comment', savedComment);
     await saveChangesInAttributionColumn();
@@ -193,10 +158,7 @@ test.each([
 
     await gotoResource('other.ts');
     await gotoResource('file.ts');
-    const savedCard = await within(panel).findByLabelText(
-      `package card ${savedComment}`,
-    );
-    await userEvent.click(within(savedCard).getByText(savedComment));
+    await clickPackageCardByLabel(ATTRIBUTIONS_PANEL, savedComment);
     await expectStatus(savedComment, savedIcons, savedBadges);
   },
 );
