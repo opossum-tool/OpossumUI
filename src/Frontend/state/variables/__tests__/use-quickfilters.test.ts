@@ -342,36 +342,19 @@ describe('useQuickfilters', () => {
     expect(result.current.quickfilters).toEqual([]);
   });
 
-  it('marks a quickfilter as used and sorts by most recent use', async () => {
-    let currentTime = 1000;
-    const nowSpy = vi
-      .spyOn(Date, 'now')
-      .mockImplementation(() => ++currentTime);
+  it('lists quickfilters in creation order regardless of use', async () => {
     const { result } = await renderHook(() => useQuickfilters('attribution'));
     const first = faker.string.sample();
     const second = faker.string.sample();
 
-    try {
-      await act(async () => {
-        result.current.saveQuickfilter(first, initialAttributionFilters);
-        await Promise.resolve();
-      });
-      await act(async () => {
-        result.current.saveQuickfilter(second, initialAttributionFilters);
-        await Promise.resolve();
-      });
-      expect(result.current.quickfilters.map(({ name }) => name)).toEqual([
-        second,
-        first,
-      ]);
-
-      await act(async () => {
-        result.current.markQuickfilterUsed(result.current.quickfilters[1].id);
-        await Promise.resolve();
-      });
-    } finally {
-      nowSpy.mockRestore();
-    }
+    await act(async () => {
+      result.current.saveQuickfilter(first, initialAttributionFilters);
+      await Promise.resolve();
+    });
+    await act(async () => {
+      result.current.saveQuickfilter(second, initialAttributionFilters);
+      await Promise.resolve();
+    });
 
     expect(result.current.quickfilters.map(({ name }) => name)).toEqual([
       first,
