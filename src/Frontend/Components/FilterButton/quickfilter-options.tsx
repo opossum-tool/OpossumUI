@@ -3,7 +3,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import MuiTooltip from '@mui/material/Tooltip';
 import { useMemo } from 'react';
 
 import type {
@@ -105,6 +107,11 @@ export function useQuickfilterOptions({
       return [];
     }
 
+    // Nudge users to persist manual filter selections. A selection produced
+    // by an applied quickfilter is already saved, so no hint is needed.
+    const showSaveHint =
+      hasActiveFilters && !(filters.activeQuickfilterIds ?? []).length;
+
     // A single menu entry keeps the filter menu clean; everything happens
     // inside the side panel (recently used list, save, manage).
     return [
@@ -113,8 +120,23 @@ export function useQuickfilterOptions({
         id: 'quickfilters',
         selected: false,
         label: text.quickfilters.title,
+        // The tooltip on the icon renders hidden text inside the menu item;
+        // an explicit label keeps the accessible name stable.
+        ariaLabel: text.quickfilters.title,
         tinted: true,
-        icon: <BookmarkIcon sx={baseIcon} />,
+        icon: showSaveHint ? (
+          <MuiTooltip
+            title={text.quickfilters.saveHint}
+            disableInteractive
+            placement={'bottom'}
+          >
+            <span>
+              <BookmarkAddIcon sx={baseIcon} color={'primary'} />
+            </span>
+          </MuiTooltip>
+        ) : (
+          <BookmarkIcon sx={baseIcon} />
+        ),
         endIcon: <ChevronRightIcon />,
         renderPanel: ({ id, onClose, initialFocusRef }) => (
           <QuickfiltersPanel

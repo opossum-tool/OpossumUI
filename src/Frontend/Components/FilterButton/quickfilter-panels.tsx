@@ -129,6 +129,9 @@ export function QuickfiltersPanel({
   initialFocusRef?: (element: HTMLElement | null) => void;
 }) {
   const [isSaving, setIsSaving] = useState(false);
+  // Snapshot at panel open: focus the save row only when the panel was opened
+  // with active filters; later appearing rows must not steal focus mid-flow.
+  const [focusSaveRowOnOpen] = useState(hasActiveFilters);
   const setFocusTarget = useCallback(
     (element: HTMLDivElement | null) => {
       initialFocusRef?.(element);
@@ -158,7 +161,7 @@ export function QuickfiltersPanel({
   return (
     <Box
       id={id}
-      ref={setFocusTarget}
+      ref={focusSaveRowOnOpen ? undefined : setFocusTarget}
       tabIndex={-1}
       role="dialog"
       aria-label={text.quickfilters.title}
@@ -169,6 +172,7 @@ export function QuickfiltersPanel({
         <Box
           role="button"
           tabIndex={0}
+          ref={focusSaveRowOnOpen ? setFocusTarget : undefined}
           aria-label={text.quickfilters.save}
           sx={styles.row}
           onClick={() => setIsSaving(true)}
