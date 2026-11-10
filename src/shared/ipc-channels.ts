@@ -54,6 +54,7 @@ export enum AllowedFrontendChannels {
   ShowProjectMetadataPopup = 'show-project-metadata-pop-up',
   ShowProjectStatisticsPopup = 'show-project-statistics-pop-up',
   CheckForUpdatesRequested = 'check-for-updates-requested',
+  ShowWhatsNew = 'show-whats-new',
   UserSettingsChanged = 'user-settings-changed',
   UpdateStateChanged = 'update-state-changed',
   ProcessingStateChanged = 'processing-state-changed',

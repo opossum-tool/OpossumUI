@@ -18,6 +18,7 @@ export enum PopupType {
   MergeOpossumFilesDialog = 'MergeOpossumFilesDialog',
   SplitDialog = 'SplitDialog',
   ForceUnlockPopup = 'ForceUnlockPopup',
+  WhatsNewPopup = 'WhatsNewPopup',
 }
 
 export enum AttributionType {

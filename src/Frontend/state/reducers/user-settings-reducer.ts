@@ -6,6 +6,7 @@ import { DEFAULT_USER_SETTINGS } from '../../../shared/shared-constants';
 import type { UserSettings } from '../../../shared/shared-types';
 import {
   ACTION_SET_USER_SETTING,
+  ACTION_USER_SETTINGS_LOADED,
   type UserSettingsAction,
 } from '../actions/user-settings-actions/types';
 
@@ -15,6 +16,7 @@ export function userSettingsState(
 ): UserSettings {
   switch (action.type) {
     case ACTION_SET_USER_SETTING:
+    case ACTION_USER_SETTINGS_LOADED:
       return {
         ...state,
         ...action.payload,
@@ -22,4 +24,11 @@ export function userSettingsState(
     default:
       return state;
   }
+}
+
+export function userSettingsLoaded(
+  state = false,
+  action: UserSettingsAction,
+): boolean {
+  return action.type === ACTION_USER_SETTINGS_LOADED ? true : state;
 }

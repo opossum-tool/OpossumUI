@@ -64,6 +64,16 @@ export async function getHelpMenu(
     id: menuItemIds.help,
     submenu: [
       getUsersGuide(),
+      {
+        icon: getIconBasedOnTheme(
+          'icons/whats-new-white.png',
+          'icons/whats-new-black.png',
+        ),
+        label: text.menu.helpSubmenu.whatsNew,
+        id: menuItemIds.helpWhatsNew,
+        click: () => webContents.send(AllowedFrontendChannels.ShowWhatsNew),
+        enabled: !getGlobalBackendState().frontendPopupOpen,
+      },
       getOpenLogFiles(),
       getCheckForUpdates(webContents),
       await switchableMenuItem(updateMenu, {

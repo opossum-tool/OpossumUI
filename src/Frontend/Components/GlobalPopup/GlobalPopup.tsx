@@ -16,6 +16,7 @@ import { NotSavedPopup } from '../NotSavedPopup/NotSavedPopup';
 import { ProjectMetadataPopup } from '../ProjectMetadataPopup/ProjectMetadataPopup';
 import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup/ProjectStatisticsPopup';
 import { SplitDialogPopup } from '../SplitDialog/SplitDialogPopup';
+import { WhatsNewPopup } from '../WhatsNew/whats-new-popup';
 
 function getPopupComponent(popupInfo: PopupInfo | null) {
   switch (popupInfo?.popup) {
@@ -45,6 +46,8 @@ function getPopupComponent(popupInfo: PopupInfo | null) {
       return <SplitDialogPopup resourcePath={popupInfo.resourcePath} />;
     case PopupType.ForceUnlockPopup:
       return <ForceUnlockPopup />;
+    case PopupType.WhatsNewPopup:
+      return <WhatsNewPopup />;
     default:
       return null;
   }

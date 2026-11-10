@@ -8,3 +8,7 @@ import type { State } from '../../types/types';
 export function getUserSettings(state: State): UserSettings {
   return state.userSettingsState;
 }
+
+export function getUserSettingsLoaded(state: State): boolean {
+  return state.userSettingsLoaded;
+}

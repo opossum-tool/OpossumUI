@@ -423,6 +423,7 @@ export interface UserSettings {
   recentlyOpenedPaths: Array<string>;
   attributionTableOrdering: TableOrdering;
   automaticallyCheckForUpdates: boolean;
+  lastSeenWhatsNewRevision: number;
 }
 
 export type PanelSizes = UserSettings['panelSizes'];

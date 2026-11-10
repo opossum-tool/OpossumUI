@@ -13,6 +13,10 @@ function menuLabelForFileFormat(fileFilter: FileFilter): string {
 }
 
 export const text = {
+  whatsNew: {
+    title: 'What’s new',
+    empty: 'No release highlights are available yet.',
+  },
   macArchitectureMismatch: {
     warning:
       'You’re running the Intel version of OpossumUI on an Apple Silicon Mac. This can reduce performance. Download the Apple Silicon (ARM64) version for your Mac.',
@@ -79,6 +83,7 @@ export const text = {
       checkForUpdates: 'Check for Updates',
       automaticallyCheckForUpdates: 'Automatically Check for Updates',
       userGuide: 'User Guide',
+      whatsNew: 'What’s New',
     },
   },
   forceUnlock: {

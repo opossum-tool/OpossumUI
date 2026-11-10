@@ -110,6 +110,8 @@ function mergeUserSettings(
   const { panelSizes, ...rest } = overrides;
   return {
     ...DEFAULT_USER_SETTINGS,
+    // Announcements are opt-in; unrelated tests start with all revisions seen.
+    lastSeenWhatsNewRevision: Number.MAX_SAFE_INTEGER,
     ...rest,
     panelSizes: {
       ...DEFAULT_USER_SETTINGS.panelSizes,
@@ -129,10 +131,8 @@ export async function renderApp(
   const store = await createTestStore(data);
   actions?.forEach(store.dispatch);
 
-  if (userSettings) {
-    const merged = mergeUserSettings(userSettings);
-    vi.spyOn(window.electronAPI, 'getUserSettings').mockResolvedValue(merged);
-  }
+  const merged = mergeUserSettings(userSettings ?? {});
+  vi.spyOn(window.electronAPI, 'getUserSettings').mockResolvedValue(merged);
 
   const channelListeners = new Map<AllowedFrontendChannels, Set<IpcListener>>();
   vi.spyOn(window.electronAPI, 'on').mockImplementation((channel, listener) => {
@@ -183,7 +183,6 @@ export async function renderApp(
   // Panel layout effects measure a zero-size DOM in happy-dom and may have
   // overwritten user settings derived data; apply overrides after mounting.
   if (userSettings) {
-    const merged = mergeUserSettings(userSettings);
     store.dispatch(setUserSetting(merged));
     await waitFor(() => {
       const current = (

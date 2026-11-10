@@ -31,9 +31,11 @@ import {
   useIpcRenderer,
 } from '../../util/use-ipc-renderer';
 import { useSyncProcessingStatusUpdatesToFrontendLogs } from '../../util/use-processing-status-updated';
+import { useWhatsNew } from '../WhatsNew/use-whats-new';
 
 export const BackendCommunication: React.FC = () => {
   const dispatch = useAppDispatch();
+  useWhatsNew();
   function showProjectMetadataPopupListener(
     _: IpcRendererEvent,
     showProjectMetadataPopup: boolean,
@@ -70,6 +72,11 @@ export const BackendCommunication: React.FC = () => {
   useIpcRenderer(
     AllowedFrontendChannels.ShowProjectStatisticsPopup,
     showProjectStatisticsPopupListener,
+    [dispatch],
+  );
+  useIpcRenderer(
+    AllowedFrontendChannels.ShowWhatsNew,
+    () => dispatch(openPopup(PopupType.WhatsNewPopup)),
     [dispatch],
   );
   useIpcRenderer<SetBaseURLForRootListener>(

@@ -28,4 +28,5 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
     orderedColumn: 'NAME',
   },
   automaticallyCheckForUpdates: true,
+  lastSeenWhatsNewRevision: 0,
 };

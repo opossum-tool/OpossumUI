@@ -24,6 +24,7 @@ export const menuItemIds = {
   helpAutomaticallyCheckForUpdates: 'help-automatically-check-for-updates',
   helpOpenLogFiles: 'help-open-log-files',
   helpUserGuide: 'help-user-guide',
+  helpWhatsNew: 'help-whats-new',
   help: 'help',
   import: 'import',
   importLegacyOpossumFile: 'import-legacy-opossum-file',

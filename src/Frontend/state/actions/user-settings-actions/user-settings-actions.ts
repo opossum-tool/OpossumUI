@@ -4,7 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { UserSettings } from '../../../../shared/shared-types';
 import type { AppThunkAction } from '../../types';
-import { ACTION_SET_USER_SETTING, type SetUserSetting } from './types';
+import {
+  ACTION_SET_USER_SETTING,
+  ACTION_USER_SETTINGS_LOADED,
+  type SetUserSetting,
+} from './types';
 
 export function setUserSetting(setting: Partial<UserSettings>): SetUserSetting {
   return {
@@ -13,9 +17,18 @@ export function setUserSetting(setting: Partial<UserSettings>): SetUserSetting {
   };
 }
 
-export function fetchUserSettings(): AppThunkAction {
+export function fetchUserSettings(): AppThunkAction<Promise<void>> {
   return async (dispatch) => {
     const userSettings = await window.electronAPI.getUserSettings();
-    dispatch(setUserSetting(userSettings));
+    dispatch({ type: ACTION_USER_SETTINGS_LOADED, payload: userSettings });
+  };
+}
+
+export function updateUserSettings(
+  settings: Partial<UserSettings>,
+): AppThunkAction<Promise<void>> {
+  return async (dispatch) => {
+    await window.electronAPI.updateUserSettings(settings);
+    dispatch(setUserSetting(settings));
   };
 }

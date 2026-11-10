@@ -14,6 +14,7 @@ import {
 import {
   fetchUserSettings,
   setUserSetting,
+  updateUserSettings,
 } from '../actions/user-settings-actions/user-settings-actions';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { getUserSettings } from '../selectors/user-settings-selector';
@@ -25,7 +26,9 @@ type UpdateUserSettingsArguments =
 export function useInitUserSettings() {
   const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(fetchUserSettings());
+    void dispatch(fetchUserSettings()).catch((error: unknown) => {
+      console.error('Could not load user settings.', error);
+    });
   }, [dispatch]);
 
   useIpcRenderer<UserSettingsChangedListener>(
@@ -58,14 +61,11 @@ export function useUserSettings(): [
   const userSettings = useAppSelector(getUserSettings);
   const dispatch = useAppDispatch();
 
-  const updateUserSettings = (
-    userSettings: UpdateUserSettingsArguments,
-  ): void => {
-    void dispatch(async (dispatch, getState) => {
+  const updateSettings = (userSettings: UpdateUserSettingsArguments): void => {
+    void dispatch((dispatch, getState) => {
       const userSettingsToSet = getUserSettingsToSet(userSettings, getState);
-      await window.electronAPI.updateUserSettings(userSettingsToSet);
-      dispatch(setUserSetting(userSettingsToSet));
+      return dispatch(updateUserSettings(userSettingsToSet));
     });
   };
-  return [userSettings, updateUserSettings];
+  return [userSettings, updateSettings];
 }
