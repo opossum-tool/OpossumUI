@@ -25,6 +25,7 @@ export {
   expectPopupHidden,
   expectSearchFocused,
   expectSearchValue,
+  expectTextVisible,
   fillPanelSearch,
   getPopup,
   pressGoBackShortcut,
@@ -33,4 +34,5 @@ export {
   sendUserSettingsChange,
   SIGNALS_PANEL,
   LINKED_RESOURCES_TREE,
+  PACKAGES_PANEL,
 } from './common';

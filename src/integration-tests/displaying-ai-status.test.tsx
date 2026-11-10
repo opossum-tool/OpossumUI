@@ -8,7 +8,7 @@ import { renderApp } from '../testing/render-app';
 import {
   ATTRIBUTIONS_PANEL,
   clickPackageCardByLabel,
-  expectAttributionColumnAiBadges,
+  expectAiStatusBadges,
   expectFormFieldValues,
   expectPackageCardAiIcons,
   fillFormField,
@@ -84,7 +84,7 @@ test('shows consistent AI status in attribution cards and details', async () => 
   for (const { id, icons, badges } of cases) {
     await expectPackageCardAiIcons(ATTRIBUTIONS_PANEL, id, icons);
     await clickPackageCardByLabel(ATTRIBUTIONS_PANEL, id);
-    await expectAttributionColumnAiBadges(badges);
+    await expectAiStatusBadges(badges);
   }
 });
 
@@ -141,7 +141,7 @@ test.each([
         comment,
         expectedIcons,
       );
-      await expectAttributionColumnAiBadges(expectedBadges);
+      await expectAiStatusBadges(expectedBadges);
       await expectFormFieldValues({ comment });
     }
 

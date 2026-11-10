@@ -199,6 +199,52 @@ export async function clickSelectAllCheckbox(
   );
 }
 
+function getSelectAllCheckbox(panelTestId: PanelTestId): HTMLElement {
+  return within(getPanel(panelTestId)).getByRole('checkbox', {
+    name: /select all/i,
+  });
+}
+
+export async function expectSelectAllCheckboxChecked(
+  panelTestId: PanelTestId,
+  checked: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const checkbox = getSelectAllCheckbox(panelTestId);
+    if (checked) {
+      expect(checkbox).toBeChecked();
+    } else {
+      expect(checkbox).not.toBeChecked();
+    }
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectSelectAllCheckboxIndeterminate(
+  panelTestId: PanelTestId,
+  indeterminate: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    expect(getSelectAllCheckbox(panelTestId)).toHaveAttribute(
+      'data-indeterminate',
+      indeterminate ? 'true' : 'false',
+    );
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectSelectAllCheckboxEnabled(
+  panelTestId: PanelTestId,
+  enabled: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const checkbox = getSelectAllCheckbox(panelTestId);
+    if (enabled) {
+      expect(checkbox).toBeEnabled();
+    } else {
+      expect(checkbox).toBeDisabled();
+    }
+  }, SETTLED_TIMEOUT);
+}
+
 export async function expectPackageCardPartition(
   panelTestId: PanelTestId,
   packageInfo: PackageInfoForLabels,
