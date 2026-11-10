@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import type {
@@ -11,6 +11,7 @@ import type {
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import { initializeDbWithTestData } from '../../../../testing/global-test-helpers';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import type { Action } from '../../../state/configure-store';
@@ -21,6 +22,7 @@ import {
   useManualAttributionFilters,
 } from '../../../state/variables/use-filters';
 import { renderComponent } from '../../../test-helpers/render';
+import { setDatabaseInitialized } from '../../../util/backendClient';
 import { attributionFilterOptions } from '../../AttributionPanels/attribution-filter-options';
 import { FilterButton } from '../FilterButton';
 import { useAttributionFilterOptions } from '../use-attribution-filter-options';
@@ -269,6 +271,10 @@ describe('quickfilters in the filter menu', () => {
   });
 
   it('applies a quickfilter with search and value filters and can be cleared', async () => {
+    await initializeDbWithTestData({
+      config: { classifications: { 1: 'Low' } },
+    });
+    setDatabaseInitialized(true);
     const quickfilter = makeQuickfilter({
       name: 'Rich quickfilter',
       filters: {
@@ -425,6 +431,185 @@ describe('quickfilters in the filter menu', () => {
     expect(
       screen.getByRole('menuitem', { name: 'Vue search' }),
     ).toHaveAttribute('aria-selected', 'false');
+  });
+
+  it('lists conflicting quickfilters in the manage panel with a conflict tooltip', async () => {
+    const first = makeQuickfilter({
+      name: 'React search',
+      filters: { filters: [], search: 'react', valueFilters: {} },
+    });
+    const second = makeQuickfilter({
+      name: 'Vue search',
+      filters: { filters: [], search: 'vue', valueFilters: {} },
+    });
+    const { store } = await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [first, second] }),
+    ]);
+
+    await openFilterMenu();
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: 'React search' }),
+    );
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: text.quickfilters.manage }),
+    );
+
+    const panel = screen.getByRole('dialog', { name: text.quickfilters.title });
+    const conflictRow = within(panel).getByRole('button', {
+      name: text.quickfilters.apply('Vue search'),
+    });
+    expect(conflictRow).toHaveAttribute('aria-disabled', 'true');
+    await userEvent.hover(conflictRow);
+    expect(
+      await screen.findByText(text.quickfilters.conflictsWithFilters),
+    ).toBeInTheDocument();
+
+    await userEvent.click(conflictRow);
+    expect(panel).toBeInTheDocument();
+    expect(
+      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toMatchObject({ search: 'react' });
+  });
+
+  it('hides quickfilters with classifications the project does not define', async () => {
+    await initializeDbWithTestData({
+      config: { classifications: { 1: 'Low' } },
+    });
+    setDatabaseInitialized(true);
+    const known = makeQuickfilter({
+      name: 'Known classification',
+      filters: { filters: [], search: '', valueFilters: { classification: 1 } },
+    });
+    const unknown = makeQuickfilter({
+      name: 'Unknown classification',
+      filters: { filters: [], search: '', valueFilters: { classification: 7 } },
+    });
+    await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [unknown, known] }),
+    ]);
+
+    await openFilterMenu();
+
+    expect(
+      await screen.findByRole('menuitem', { name: known.name }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('menuitem', { name: unknown.name }),
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: text.quickfilters.manage }),
+    );
+
+    const panel = screen.getByRole('dialog', { name: text.quickfilters.title });
+    expect(panel).toContainElement(
+      screen.getByRole('button', {
+        name: text.quickfilters.apply(known.name),
+      }),
+    );
+
+    const unknownRow = within(panel).getByRole('button', {
+      name: text.quickfilters.apply(unknown.name),
+    });
+    expect(unknownRow).toHaveAttribute('aria-disabled', 'true');
+    await userEvent.hover(unknownRow);
+    expect(
+      await screen.findByText(text.quickfilters.incompatibleWithProject),
+    ).toBeInTheDocument();
+    await userEvent.click(unknownRow);
+    expect(panel).toBeInTheDocument();
+  });
+
+  it('hides quickfilters whose classification or criticality filter is hidden by settings', async () => {
+    const withClassification = makeQuickfilter({
+      name: 'Classification quickfilter',
+      filters: { filters: [], search: '', valueFilters: { classification: 1 } },
+    });
+    const withCriticality = makeQuickfilter({
+      name: 'Criticality quickfilter',
+      filters: { filters: [], search: '', valueFilters: { criticality: 2 } },
+    });
+    const portable = makeQuickfilter({ name: 'Portable quickfilter' });
+    await renderQuickfilterButton([
+      setUserSetting({
+        savedQuickfilters: [withClassification, withCriticality, portable],
+        showClassifications: false,
+        showCriticality: false,
+      }),
+    ]);
+
+    await openFilterMenu();
+
+    expect(
+      screen.queryByRole('menuitem', {
+        name: withClassification.name,
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('menuitem', { name: withCriticality.name }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('menuitem', { name: portable.name }),
+    ).toBeInTheDocument();
+  });
+
+  it('does not let hidden quickfilters consume recent menu slots', async () => {
+    const hidden = makeQuickfilter({
+      name: 'Hidden quickfilter',
+      lastUsedAt: 10,
+      filters: { filters: [], search: '', valueFilters: { classification: 7 } },
+    });
+    const visible = [
+      makeQuickfilter({ name: 'oldest', lastUsedAt: 1 }),
+      makeQuickfilter({ name: 'middle', lastUsedAt: 2 }),
+      makeQuickfilter({ name: 'newest', lastUsedAt: 3 }),
+    ];
+    await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [hidden, ...visible] }),
+    ]);
+
+    await openFilterMenu();
+
+    for (const quickfilter of visible) {
+      expect(
+        screen.getByRole('menuitem', { name: quickfilter.name }),
+      ).toBeInTheDocument();
+    }
+    expect(
+      screen.queryByRole('menuitem', { name: hidden.name }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('hides active quickfilters that do not fit the project but lists them in the manage panel', async () => {
+    const incompatible = makeQuickfilter({
+      name: 'Incompatible quickfilter',
+      filters: { filters: [], search: '', valueFilters: { classification: 7 } },
+    });
+    await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [incompatible] }),
+      setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+        ...initialAttributionFilters,
+        activeQuickfilterIds: [incompatible.id],
+      }),
+    ]);
+
+    await openFilterMenu();
+
+    expect(
+      screen.queryByRole('menuitem', { name: incompatible.name }),
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: text.quickfilters.manage }),
+    );
+
+    const panel = screen.getByRole('dialog', { name: text.quickfilters.title });
+    const row = within(panel).getByRole('button', {
+      name: text.quickfilters.apply(incompatible.name),
+    });
+    expect(row).toHaveAttribute('aria-disabled', 'true');
+    await userEvent.click(row);
+    expect(row).toBeInTheDocument();
   });
 
   it('only shows quickfilters matching the panel scope', async () => {

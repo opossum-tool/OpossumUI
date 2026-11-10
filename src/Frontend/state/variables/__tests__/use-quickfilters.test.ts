@@ -14,6 +14,7 @@ import {
 import {
   combineQuickfilters,
   isQuickfilterCompatible,
+  isQuickfilterUsableInProject,
   mergeQuickfilterIntoFilters,
   useQuickfilters,
 } from '../use-quickfilters';
@@ -149,6 +150,85 @@ describe('combineQuickfilters', () => {
         sorting: 'occurrence',
       }),
     ).toEqual({ ...initialAttributionFilters, sorting: 'occurrence' });
+  });
+});
+
+describe('isQuickfilterUsableInProject', () => {
+  const context = {
+    classificationIds: new Set([1, 2]),
+    showClassifications: true,
+    showCriticality: true,
+  };
+
+  it('accepts quickfilters without classification or criticality filters', () => {
+    const quickfilter = makeQuickfilter({
+      filters: {
+        filters: ['firstParty'],
+        search: 'react',
+        valueFilters: { license: [{ id: 'MIT', label: 'MIT' }] },
+      },
+    });
+
+    expect(isQuickfilterUsableInProject(quickfilter, context)).toBe(true);
+  });
+
+  it('accepts classification and criticality filters the project can express', () => {
+    const quickfilter = makeQuickfilter({
+      filters: {
+        filters: [],
+        search: '',
+        valueFilters: { classification: 1, criticality: 2 },
+      },
+    });
+
+    expect(isQuickfilterUsableInProject(quickfilter, context)).toBe(true);
+  });
+
+  it('rejects classification ids the project does not define', () => {
+    const quickfilter = makeQuickfilter({
+      filters: {
+        filters: [],
+        search: '',
+        valueFilters: { classification: 7 },
+      },
+    });
+
+    expect(isQuickfilterUsableInProject(quickfilter, context)).toBe(false);
+  });
+
+  it('rejects classification filters when classifications are hidden', () => {
+    const quickfilter = makeQuickfilter({
+      filters: { filters: [], search: '', valueFilters: { classification: 1 } },
+    });
+    const withoutClassification = makeQuickfilter({
+      filters: { filters: [], search: '', valueFilters: {} },
+    });
+
+    expect(
+      isQuickfilterUsableInProject(quickfilter, {
+        ...context,
+        showClassifications: false,
+      }),
+    ).toBe(false);
+    expect(
+      isQuickfilterUsableInProject(withoutClassification, {
+        ...context,
+        showClassifications: false,
+      }),
+    ).toBe(true);
+  });
+
+  it('rejects criticality filters when criticality is hidden', () => {
+    const quickfilter = makeQuickfilter({
+      filters: { filters: [], search: '', valueFilters: { criticality: 2 } },
+    });
+
+    expect(
+      isQuickfilterUsableInProject(quickfilter, {
+        ...context,
+        showCriticality: false,
+      }),
+    ).toBe(false);
   });
 });
 

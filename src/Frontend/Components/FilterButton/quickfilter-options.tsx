@@ -20,10 +20,13 @@ import {
 import {
   combineQuickfilters,
   isQuickfilterCompatible,
+  isQuickfilterUsableInProject,
   MAX_RECENT_QUICKFILTERS,
   mergeQuickfilterIntoFilters,
   useQuickfilters,
 } from '../../state/variables/use-quickfilters';
+import { useUserSettings } from '../../state/variables/use-user-setting';
+import { useClassifications } from '../../util/use-classifications';
 import type { FilterOption } from './FilterButton';
 import {
   QuickfilterListPanel,
@@ -43,7 +46,41 @@ export function useQuickfilterOptions({
 }): Array<FilterOption> {
   const { quickfilters, deleteQuickfilter, markQuickfilterUsed } =
     useQuickfilters(scope);
+  const classifications = useClassifications();
+  const [userSettings] = useUserSettings();
   const hasActiveFilters = hasActiveAttributionFilters(filters);
+
+  const usabilityContext = useMemo(
+    () => ({
+      classificationIds: new Set(
+        Object.keys(classifications).map((id) => Number(id)),
+      ),
+      showClassifications: userSettings.showClassifications,
+      showCriticality: userSettings.showCriticality,
+    }),
+    [
+      classifications,
+      userSettings.showClassifications,
+      userSettings.showCriticality,
+    ],
+  );
+  const visibleQuickfilters = useMemo(
+    () =>
+      quickfilters.filter((quickfilter) =>
+        isQuickfilterUsableInProject(quickfilter, usabilityContext),
+      ),
+    [quickfilters, usabilityContext],
+  );
+  const incompatibleProjectIds = useMemo(
+    () =>
+      quickfilters
+        .filter(
+          (quickfilter) =>
+            !isQuickfilterUsableInProject(quickfilter, usabilityContext),
+        )
+        .map(({ id }) => id),
+    [quickfilters, usabilityContext],
+  );
 
   return useMemo(() => {
     const activeIds = filters.activeQuickfilterIds ?? [];
@@ -77,7 +114,7 @@ export function useQuickfilterOptions({
       });
     };
 
-    const recentQuickfilterOptions = quickfilters
+    const recentQuickfilterOptions = visibleQuickfilters
       .slice(0, MAX_RECENT_QUICKFILTERS)
       .map((quickfilter) => {
         const selected = activeIds.includes(quickfilter.id);
@@ -101,7 +138,7 @@ export function useQuickfilterOptions({
             id: 'quickfilters-more',
             selected: false,
             label:
-              quickfilters.length > MAX_RECENT_QUICKFILTERS
+              visibleQuickfilters.length > MAX_RECENT_QUICKFILTERS
                 ? text.quickfilters.more
                 : text.quickfilters.manage,
             tinted: true,
@@ -111,7 +148,8 @@ export function useQuickfilterOptions({
               <QuickfilterListPanel
                 id={id}
                 quickfilters={quickfilters}
-                incompatibleIds={quickfilters
+                incompatibleProjectIds={incompatibleProjectIds}
+                conflictingIds={quickfilters
                   .filter(
                     (quickfilter) =>
                       !isQuickfilterCompatible(filters, quickfilter),
@@ -156,6 +194,8 @@ export function useQuickfilterOptions({
       ...saveQuickfilterOption,
     ];
   }, [
+    visibleQuickfilters,
+    incompatibleProjectIds,
     quickfilters,
     filters,
     setFilters,

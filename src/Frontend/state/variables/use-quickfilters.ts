@@ -80,6 +80,37 @@ function mergeUnique<T>(current: Array<T>, incoming: Array<T>): Array<T> {
   return [...new Set([...current, ...incoming])];
 }
 
+/**
+ * Whether a quickfilter fits the current project and settings. Classification
+ * ids are project-local, so a saved classification that the current project
+ * does not define cannot be expressed here; classification and criticality
+ * filters additionally depend on their visibility settings. Such quickfilters
+ * are hidden from the menus.
+ */
+export function isQuickfilterUsableInProject(
+  quickfilter: SavedQuickfilter,
+  {
+    classificationIds,
+    showClassifications,
+    showCriticality,
+  }: {
+    classificationIds: ReadonlySet<number>;
+    showClassifications: boolean;
+    showCriticality: boolean;
+  },
+): boolean {
+  const { classification, criticality } = quickfilter.filters.valueFilters;
+
+  if (
+    classification !== undefined &&
+    (!showClassifications || !classificationIds.has(classification))
+  ) {
+    return false;
+  }
+
+  return criticality === undefined || showCriticality;
+}
+
 function mergeLicenseOptions(
   current: Array<LicenseOption> | undefined,
   incoming: Array<LicenseOption> | undefined,
