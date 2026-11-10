@@ -47,6 +47,62 @@ describe('quickfilters in the filter menu', () => {
     await userEvent.keyboard('{Escape}');
   });
 
+  it('highlights the quickfilters entry while manual filters are active and explains why on hover', async () => {
+    await renderQuickfilterButton();
+
+    await openFilterMenu();
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: text.filters.firstParty }),
+    );
+    const entry = screen.getByRole('menuitem', {
+      name: text.quickfilters.title,
+    });
+    const icon = within(entry).getByTestId('BookmarkAddIcon');
+    expect(icon).toHaveClass('MuiSvgIcon-colorPrimary');
+
+    await userEvent.hover(icon);
+    expect(
+      await screen.findByText(text.quickfilters.saveHint),
+    ).toBeInTheDocument();
+  });
+
+  it('hides the save hint when the selection comes from an applied quickfilter', async () => {
+    const quickfilter = makeQuickfilter({ name: 'My quickfilter' });
+    await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [quickfilter] }),
+    ]);
+
+    await openFilterMenu();
+    // Without active filters the entry icon stays neutral.
+    const entry = screen.getByRole('menuitem', {
+      name: text.quickfilters.title,
+    });
+    expect(
+      within(entry).queryByTestId('BookmarkAddIcon'),
+    ).not.toBeInTheDocument();
+
+    const panel = await openQuickfiltersPanelFromMenu();
+    await userEvent.click(row(panel, quickfilter.name));
+
+    // Close the side panel; the filter menu stays open.
+    await userEvent.keyboard('{Escape}');
+    const updatedEntry = screen.getByRole('menuitem', {
+      name: text.quickfilters.title,
+    });
+    expect(
+      within(updatedEntry).queryByTestId('BookmarkAddIcon'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('focuses the save action when opening the panel with active filters', async () => {
+    await renderQuickfilterButton();
+
+    const panel = await openQuickfiltersPanelWithActiveFilters();
+    expect(
+      within(panel).getByRole('button', { name: text.quickfilters.save }),
+    ).toHaveFocus();
+  });
+
   it('saves the current filters as a quickfilter and activates it', async () => {
     const { store } = await renderQuickfilterButton();
     const name = faker.string.alphanumeric(8);
