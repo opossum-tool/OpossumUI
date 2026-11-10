@@ -31,14 +31,16 @@ async function getOpenedNoticeDocumentPath(
 
 function assertNoticeDocumentContainsNoticeContent(
   openedPath: string,
-  expectedContent: string,
+  expectedIntroText: string,
+  expectedLicenseEntry: string,
 ): void {
   expect(fs.existsSync(openedPath), `Expected ${openedPath} to exist`).toBe(
     true,
   );
   const content = fs.readFileSync(openedPath, 'utf-8');
   expect(content).toContain('<!doctype html');
-  expect(content).toContain(expectedContent);
+  expect(content).toContain(expectedIntroText);
+  expect(content).toContain(expectedLicenseEntry);
 }
 
 test('opens the OpossumUI notices document from the about menu', async ({
@@ -53,7 +55,11 @@ test('opens the OpossumUI notices document from the about menu', async ({
     window.app,
     'notices.html',
   );
-  assertNoticeDocumentContainsNoticeContent(openedPath, 'OPOSSUM UI PRODUCT');
+  assertNoticeDocumentContainsNoticeContent(
+    openedPath,
+    'OPOSSUM UI PRODUCT',
+    'The following software may be included in this product: spdx-correct',
+  );
 });
 
 test('opens the Chromium notices document from the about menu', async ({
@@ -71,5 +77,6 @@ test('opens the Chromium notices document from the about menu', async ({
   assertNoticeDocumentContainsNoticeContent(
     openedPath,
     'Chromium software is made available',
+    'The Chromium Authors',
   );
 });

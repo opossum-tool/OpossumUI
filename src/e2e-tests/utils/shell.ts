@@ -42,6 +42,7 @@ export async function stubOpenPath(app: ElectronApplication): Promise<void> {
     Reflect.set(shell, stateKey, state);
     Reflect.set(shell, 'openPath', (filePath: string) => {
       state.openPathCalls.push(filePath);
+      return Promise.resolve('');
     });
   }, OPEN_PATH_STUB_STATE_KEY);
 }
