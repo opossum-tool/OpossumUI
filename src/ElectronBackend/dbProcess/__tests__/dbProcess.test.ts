@@ -10,8 +10,8 @@ import {
   type DbProcessResponse,
   handleDbProcessMessage,
   resetDbProcessStateForTesting,
-  type SaveResult,
 } from '../dbProcess';
+import type { SaveResult } from '../save-worker';
 
 const saveFileApiMock = vi.hoisted(() => vi.fn());
 const forceUnlockMock = vi.hoisted(() => vi.fn());

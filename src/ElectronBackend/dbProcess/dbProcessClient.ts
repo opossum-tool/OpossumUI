@@ -21,11 +21,11 @@ import type {
 import type { SaveFileParams } from '../api/saveFile';
 import type { SplitOpossumFileParams } from '../api/splitOpossumFile';
 import type { LoadFileIpcResult } from '../input/loadFile';
+import type { SaveResult } from './save-worker';
 import type {
   DbProcessPayload,
   DbProcessRequest,
   DbProcessResponse,
-  SaveResult,
 } from './dbProcess';
 
 type ProgressCallback = (message: string, level?: 'info' | 'warn') => void;
