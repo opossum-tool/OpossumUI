@@ -13,13 +13,21 @@ import { useRef } from 'react';
 
 import { text } from '../../../shared/text';
 import { borderMedium, OpossumColors, Sizing } from '../../shared-styles';
-import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
+import {
+  navigateToAiReviewOrOpenUnsavedPopup,
+  navigateToSelectedPathOrOpenUnsavedPopup,
+} from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { getSelectedResourceId } from '../../state/selectors/resource-selectors';
+import {
+  getSelectedAttributionId,
+  getSelectedResourceId,
+} from '../../state/selectors/resource-selectors';
 import type { SelectedProgressBar } from '../../types/types';
 import { backend } from '../../util/backendClient';
 import { useClassifications } from '../../util/use-classifications';
+import { AiProgressBarTooltip } from './ai-progress-bar-tooltip';
 import {
+  calculateAiBarSteps,
   calculateAttributionBarSteps,
   calculateClassificationBarSteps,
   calculateCriticalityBarSteps,
@@ -94,6 +102,31 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   }
 
   const selectedResourcePath = useAppSelector(getSelectedResourceId);
+  const selectedAttributionUuid = useAppSelector(getSelectedAttributionId);
+  const aiProgressBarData = backend.getAiProgressBarData.useQuery(undefined, {
+    enabled: props.selectedProgressBar === 'ai',
+  });
+  const nextAiAttribution = backend.getNextAttributionToReviewForAi.useQuery(
+    { selectedResourcePath, selectedAttributionUuid },
+    { enabled: false },
+  );
+
+  async function goToNextAiAttribution() {
+    if (nextResourceRequestInFlightRef.current) {
+      return;
+    }
+    nextResourceRequestInFlightRef.current = true;
+    try {
+      const { data } = await nextAiAttribution.refetch({
+        cancelRefetch: false,
+      });
+      if (data) {
+        dispatch(navigateToAiReviewOrOpenUnsavedPopup(data));
+      }
+    } finally {
+      nextResourceRequestInFlightRef.current = false;
+    }
+  }
 
   const attributionsProgressBarData =
     backend.getAttributionProgressBarData.useQuery(undefined, {
@@ -130,6 +163,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     SelectedProgressBar,
     { isPending: boolean; isFetching: boolean }
   > = {
+    ai: aiProgressBarData,
     attribution: attributionsProgressBarData,
     criticality: criticalityProgressBarData,
     classification: classificationProgressBarData,
@@ -141,17 +175,32 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     progressBarDataQueries[props.selectedProgressBar].isFetching &&
     !isInitialFetchInProgress;
 
+  const aiBarSteps = aiProgressBarData.data
+    ? calculateAiBarSteps(aiProgressBarData.data)
+    : undefined;
+
   const progressBarConfigurations: Record<
     SelectedProgressBar,
     {
-      Title: React.FC<ProgressBarTooltipProps>;
+      renderTooltip: (steps: Array<ProgressBarStep>) => React.ReactNode;
       ariaLabel: string;
       steps: Array<ProgressBarStep> | undefined;
       onClickHandler: () => void;
     }
   > = {
+    ai: {
+      renderTooltip: () =>
+        aiBarSteps ? <AiProgressBarTooltip steps={aiBarSteps} /> : null,
+      ariaLabel: text.topBar.switchableProgressBar.aiBar.ariaLabel,
+      steps: aiBarSteps
+        ? Object.values(aiBarSteps).filter((step) => step.count > 0)
+        : undefined,
+      onClickHandler: () => {
+        void goToNextAiAttribution();
+      },
+    },
     attribution: {
-      Title: AttributionBarTooltipTitle,
+      renderTooltip: (steps) => <AttributionBarTooltipTitle steps={steps} />,
       ariaLabel: text.topBar.switchableProgressBar.attributionBar.ariaLabel,
       steps: attributionsProgressBarData.data
         ? calculateAttributionBarSteps(attributionsProgressBarData.data)
@@ -163,7 +212,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       },
     },
     criticality: {
-      Title: CriticalityBarTooltipTitle,
+      renderTooltip: (steps) => <CriticalityBarTooltipTitle steps={steps} />,
       ariaLabel: text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
       steps: criticalityProgressBarData.data
         ? calculateCriticalityBarSteps(criticalityProgressBarData.data)
@@ -175,7 +224,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
       },
     },
     classification: {
-      Title: ClassificationBarTooltipTitle,
+      renderTooltip: (steps) => <ClassificationBarTooltipTitle steps={steps} />,
       ariaLabel: text.topBar.switchableProgressBar.classificationBar.ariaLabel,
       steps: classificationProgressBarData.data
         ? calculateClassificationBarSteps(
@@ -191,7 +240,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     },
   };
 
-  const { ariaLabel, steps, onClickHandler, Title } =
+  const { ariaLabel, steps, onClickHandler, renderTooltip } =
     progressBarConfigurations[props.selectedProgressBar];
 
   if (isInitialFetchInProgress) {
@@ -217,7 +266,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
 
   return (
     <MuiBox sx={props.sx}>
-      <MuiTooltip title={<Title steps={steps} />} followCursor>
+      <MuiTooltip title={renderTooltip(steps)} followCursor>
         <MuiBox
           aria-busy={isRefetchInProgress ? true : undefined}
           aria-label={ariaLabel}

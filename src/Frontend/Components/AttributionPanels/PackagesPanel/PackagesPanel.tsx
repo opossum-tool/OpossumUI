@@ -193,15 +193,15 @@ export const PackagesPanel = ({
   const previousSorting = usePrevious(filters.sorting);
   const sortingChanged =
     previousSorting !== undefined && previousSorting !== filters.sorting;
+  const pendingNavigationMatches =
+    pendingAttributionNavigation?.attributionUuid === selectedAttributionId;
   const navigationTargetUuid =
-    !preserveSelection &&
+    (!preserveSelection || pendingNavigationMatches) &&
     !sortingChanged &&
     selectedAttributionId &&
     selectedAttributionIsExternal === external
       ? selectedAttributionId
       : undefined;
-  const pendingNavigationMatches =
-    pendingAttributionNavigation?.attributionUuid === selectedAttributionId;
   const resultSetCriteria = useMemo<AttributionResultSetCriteria>(
     () => ({
       external,

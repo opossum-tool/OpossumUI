@@ -12,7 +12,7 @@ import { text as fullText } from '../../../shared/text';
 import { OpossumColors } from '../../shared-styles';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import type { SelectedProgressBar } from '../../types/types';
-import { useDatabaseInitialized } from '../../util/backendClient';
+import { backend, useDatabaseInitialized } from '../../util/backendClient';
 import { ProgressBar } from '../ProgressBar/ProgressBar';
 
 const classes = {
@@ -45,6 +45,7 @@ interface ProgressBarSwitchConfiguration {
 
 export const SwitchableProgressBar: React.FC = () => {
   const databaseInitialized = useDatabaseInitialized();
+  const aiAttributions = backend.hasAiAttributions.useQuery();
   const [userSettings] = useUserSettings();
   const showClassifications = userSettings.showClassifications;
   const showCriticality = userSettings.showCriticality;
@@ -56,6 +57,10 @@ export const SwitchableProgressBar: React.FC = () => {
     attribution: {
       label: text.attributionBar.selectLabel,
       active: true,
+    },
+    ai: {
+      label: text.aiBar.selectLabel,
+      active: !!aiAttributions.data,
     },
     criticality: {
       label: text.criticalityBar.selectLabel,

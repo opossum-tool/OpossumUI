@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { sum } from 'lodash-es';
 
+import type { QueryResult } from '../../../ElectronBackend/api/queries';
 import {
   type ClassificationsConfig,
   Criticality,
@@ -23,6 +24,49 @@ export interface ProgressBarStep {
   count?: number;
   widthInPercent: number;
   color: Color;
+}
+
+export type AiProgressBarSteps = Record<
+  keyof QueryResult<'getAiProgressBarData'>,
+  ProgressBarStep & { count: number }
+>;
+
+export function calculateAiBarSteps(
+  data: QueryResult<'getAiProgressBarData'>,
+): AiProgressBarSteps {
+  const [
+    nonDeferredModifiedWidth,
+    nonDeferredUnmodifiedWidth,
+    deferredModifiedWidth,
+    deferredUnmodifiedWidth,
+  ] = getNormalizedPercentages([
+    data.nonDeferredModified,
+    data.nonDeferredUnmodified,
+    data.deferredModified,
+    data.deferredUnmodified,
+  ]);
+  return {
+    nonDeferredModified: {
+      count: data.nonDeferredModified,
+      widthInPercent: nonDeferredModifiedWidth,
+      color: OpossumColors.pastelDarkGreen,
+    },
+    nonDeferredUnmodified: {
+      count: data.nonDeferredUnmodified,
+      widthInPercent: nonDeferredUnmodifiedWidth,
+      color: OpossumColors.pastelLightGreen,
+    },
+    deferredModified: {
+      count: data.deferredModified,
+      widthInPercent: deferredModifiedWidth,
+      color: OpossumColors.pastelMiddleGreen,
+    },
+    deferredUnmodified: {
+      count: data.deferredUnmodified,
+      widthInPercent: deferredUnmodifiedWidth,
+      color: OpossumColors.pastelRed,
+    },
+  };
 }
 
 export function calculateAttributionBarSteps(

@@ -85,20 +85,24 @@ export async function clickProgressBar(): Promise<void> {
   await userEvent.click(progressBar);
 }
 
-type ProgressBarMode = 'Attributions' | 'Criticalities' | 'Classifications';
+type ProgressBarMode =
+  'Attributions' | 'Criticalities' | 'Classifications' | 'AI';
 
-const PROGRESS_BAR_MODE_ARIA_LABELS: Record<ProgressBarMode, string> = {
-  Attributions: text.topBar.switchableProgressBar.attributionBar.ariaLabel,
-  Criticalities: text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
-  Classifications:
-    text.topBar.switchableProgressBar.classificationBar.ariaLabel,
+const PROGRESS_BAR_MODE_TEXT: Record<
+  ProgressBarMode,
+  { selectLabel: string; ariaLabel: string }
+> = {
+  AI: text.topBar.switchableProgressBar.aiBar,
+  Attributions: text.topBar.switchableProgressBar.attributionBar,
+  Criticalities: text.topBar.switchableProgressBar.criticalityBar,
+  Classifications: text.topBar.switchableProgressBar.classificationBar,
 };
 
 async function expectProgressBarModeIs(mode: ProgressBarMode): Promise<void> {
   await waitFor(() => {
     expect(screen.getByTestId('progress-bar')).toHaveAttribute(
       'aria-label',
-      PROGRESS_BAR_MODE_ARIA_LABELS[mode],
+      PROGRESS_BAR_MODE_TEXT[mode].ariaLabel,
     );
   }, SETTLED_TIMEOUT);
 }
@@ -107,7 +111,11 @@ export async function selectProgressBar(mode: ProgressBarMode): Promise<void> {
   await userEvent.click(
     screen.getByLabelText(text.topBar.switchableProgressBar.selectAriaLabel),
   );
-  await userEvent.click(await screen.findByRole('option', { name: mode }));
+  await userEvent.click(
+    await screen.findByRole('option', {
+      name: PROGRESS_BAR_MODE_TEXT[mode].selectLabel,
+    }),
+  );
   await expectProgressBarModeIs(mode);
 }
 
