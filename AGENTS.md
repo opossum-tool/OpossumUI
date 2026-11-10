@@ -63,6 +63,12 @@ yarn format-check && yarn check-exact-versions && yarn lint-check && yarn typech
 - **Conventional commits** enforced via commitlint: `type(scope)?: description` where type is one of: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`.
 - **DCO sign-off** required on every commit (`git commit -s`).
 
+## In-app release highlights
+
+Update the in-app highlights in the same PR as a noteworthy user-facing feature. Follow
+[the contribution guidance](CONTRIBUTING.md#in-app-release-highlights) and the authoring instructions in
+[`release-notes.tsx`](src/Frontend/whats-new/release-notes.tsx).
+
 ## Pre-commit hook
 
 Husky + lint-staged runs on every commit: copyright check, knip, prettier, eslint, and tsc (with `db:generate` for ElectronBackend file changes). This means a commit may fail on checks beyond just the files you changed.
