@@ -11,8 +11,14 @@ import type { ElectronAPI } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { PopupType } from '../../../enums/enums';
-import { openPopup } from '../../../state/actions/view-actions/view-actions';
+import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
+import {
+  closePopup,
+  openPopup,
+} from '../../../state/actions/view-actions/view-actions';
+import { getOpenPopup } from '../../../state/selectors/view-selector';
 import { renderComponent } from '../../../test-helpers/render';
+import { GlobalPopup } from '../../GlobalPopup/GlobalPopup';
 import { ProcessPopup } from '../ProcessPopup';
 
 type Listener = (event: IpcRendererEvent, ...args: Array<unknown>) => void;
@@ -107,5 +113,68 @@ describe('ProcessPopup', () => {
     simulateBackendProcessingDone();
 
     expect(screen.queryByText(text.processPopup.title)).not.toBeVisible();
+  });
+
+  it('does not open statistics when generic processing completes', async () => {
+    const { store } = await renderComponent(<ProcessPopup />, {
+      actions: [setUserSetting({ showProjectStatistics: true })],
+    });
+
+    simulateBackendProcessingStarted();
+    simulateBackendProcessingDone();
+
+    expect(getOpenPopup(store.getState())).toBeNull();
+  });
+
+  it('keeps menus disabled when processing hands off to the statistics popup', async () => {
+    const { store } = await renderComponent(
+      <>
+        <GlobalPopup />
+        <ProcessPopup />
+      </>,
+    );
+
+    simulateBackendProcessingStarted();
+    vi.mocked(electronAPI.setFrontendPopupOpen).mockClear();
+
+    act(() => {
+      electronAPI.send(AllowedFrontendChannels.ProcessingStateChanged, {
+        type: 'ProcessingDone',
+      });
+      store.dispatch(openPopup(PopupType.ProjectStatisticsPopup));
+    });
+
+    expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true);
+    expect(electronAPI.setFrontendPopupOpen).not.toHaveBeenCalledWith(false);
+
+    act(() => {
+      store.dispatch(closePopup());
+    });
+
+    expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(false);
+  });
+
+  it('resumes menu updates when a global popup closes during processing', async () => {
+    const { store } = await renderComponent(
+      <>
+        <GlobalPopup />
+        <ProcessPopup />
+      </>,
+    );
+
+    simulateBackendProcessingStarted();
+    act(() => {
+      store.dispatch(openPopup(PopupType.ProjectStatisticsPopup));
+    });
+    expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true);
+
+    act(() => {
+      store.dispatch(closePopup());
+    });
+    expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true);
+
+    simulateBackendProcessingDone();
+
+    expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(false);
   });
 });

@@ -53,6 +53,7 @@ export enum AllowedFrontendChannels {
   ShowForceUnlockDialog = 'show-force-unlock-dialog',
   ShowProjectMetadataPopup = 'show-project-metadata-pop-up',
   ShowProjectStatisticsPopup = 'show-project-statistics-pop-up',
+  ProjectOpened = 'project-opened',
   CheckForUpdatesRequested = 'check-for-updates-requested',
   ShowWhatsNew = 'show-whats-new',
   UserSettingsChanged = 'user-settings-changed',

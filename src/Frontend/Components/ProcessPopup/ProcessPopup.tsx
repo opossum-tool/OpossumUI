@@ -4,14 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiDialog from '@mui/material/Dialog';
 import MuiDialogTitle from '@mui/material/DialogTitle';
-import { useEffect } from 'react';
 
 import { text } from '../../../shared/text';
-import { openStatisticsPopupAfterFileLoadIfEnabled } from '../../state/actions/view-actions/view-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
+import { useAppSelector } from '../../state/hooks';
 import { getOpenPopup } from '../../state/selectors/view-selector';
 import { useFrontendPopupOpen } from '../../util/use-app-menu-disabled';
-import { usePrevious } from '../../util/use-previous';
 import { useProcessingStatusUpdated } from '../../util/use-processing-status-updated';
 import { DialogContent, GridLogDisplay } from './ProcessPopup.style';
 
@@ -23,17 +20,8 @@ export function ProcessPopup() {
 
   const showPopup = processing;
 
-  useFrontendPopupOpen(processing && !openPopup);
-
-  // Open statistics popup after closing process popup if enabled
-  const previouslyShown = usePrevious(showPopup, false);
-
-  const dispatch = useAppDispatch();
-  useEffect(() => {
-    if (previouslyShown && !showPopup) {
-      dispatch(openStatisticsPopupAfterFileLoadIfEnabled);
-    }
-  }, [previouslyShown, showPopup, dispatch]);
+  // Let GlobalPopup own menu updates while another popup is open.
+  useFrontendPopupOpen(processing, !openPopup);
 
   return (
     <MuiDialog open={showPopup} fullWidth>

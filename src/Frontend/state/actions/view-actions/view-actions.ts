@@ -8,9 +8,13 @@ import type {
 } from '../../../../shared/shared-types';
 import { PopupType, type View } from '../../../enums/enums';
 import type { PopupWithoutPayload, State } from '../../../types/types';
-import { getUserSettings } from '../../selectors/user-settings-selector';
+import {
+  getUserSettings,
+  getUserSettingsLoaded,
+} from '../../selectors/user-settings-selector';
 import { getSelectedView } from '../../selectors/view-selector';
 import type { AppThunkAction, AppThunkDispatch } from '../../types';
+import { fetchUserSettings } from '../user-settings-actions/user-settings-actions';
 import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
@@ -53,14 +57,21 @@ export function navigateToView(view: View): AppThunkAction {
   };
 }
 
-export function openStatisticsPopupAfterFileLoadIfEnabled(
+export async function openStatisticsPopupAfterFileLoadIfEnabled(
   dispatch: AppThunkDispatch,
   getState: () => State,
-): void {
-  const state = getState();
-  const showStatisticsPopup = getUserSettings(state).showProjectStatistics;
-  if (showStatisticsPopup) {
-    dispatch(openPopup(PopupType.ProjectStatisticsPopup));
+): Promise<void> {
+  try {
+    if (!getUserSettingsLoaded(getState())) {
+      await dispatch(fetchUserSettings());
+    }
+    const showStatisticsPopup =
+      getUserSettings(getState()).showProjectStatistics;
+    if (showStatisticsPopup) {
+      dispatch(openPopup(PopupType.ProjectStatisticsPopup));
+    }
+  } catch (error) {
+    console.error('Could not load user settings for project statistics', error);
   }
 }
 

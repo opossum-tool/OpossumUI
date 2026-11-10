@@ -146,6 +146,7 @@ describe('openFileListener', () => {
     const updateMenu = vi.fn().mockResolvedValue(undefined);
     const listener = openFileListener(mainWindow, updateMenu);
     const filePath = '/home/input.opossum';
+    vi.mocked(loadInputAndOutputFromFilePath).mockResolvedValue(true);
 
     await listener({} as Electron.IpcMainInvokeEvent, filePath);
 
@@ -153,6 +154,42 @@ describe('openFileListener', () => {
     expect(loadInputAndOutputFromFilePath).toHaveBeenCalledWith(
       mainWindow,
       filePath,
+    );
+    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
+      AllowedFrontendChannels.ProjectOpened,
+    );
+  });
+
+  it('does not notify the frontend after a handled load failure and ends processing', async () => {
+    const mainWindow = initWindowAndBackendState();
+    vi.mocked(loadInputAndOutputFromFilePath).mockResolvedValue(false);
+
+    await openFileListener(mainWindow, vi.fn().mockResolvedValue(undefined))(
+      {} as Electron.IpcMainInvokeEvent,
+      '/home/invalid.opossum',
+    );
+
+    const sentEvents = vi.mocked(mainWindow.webContents.send).mock.calls;
+    expect(sentEvents).not.toContainEqual([
+      AllowedFrontendChannels.ProjectOpened,
+    ]);
+    expect(sentEvents).toContainEqual([
+      AllowedFrontendChannels.ProcessingStateChanged,
+      { type: 'ProcessingDone' },
+    ]);
+  });
+
+  it('does not notify the frontend when the open dialog is cancelled', async () => {
+    const mainWindow = initWindowAndBackendState();
+    vi.mocked(openOpossumFileDialog).mockReturnValue(undefined);
+
+    await openFileListener(
+      mainWindow,
+      vi.fn().mockResolvedValue(undefined),
+    )({} as Electron.IpcMainInvokeEvent);
+
+    expect(mainWindow.webContents.send).not.toHaveBeenCalledWith(
+      AllowedFrontendChannels.ProjectOpened,
     );
   });
 });

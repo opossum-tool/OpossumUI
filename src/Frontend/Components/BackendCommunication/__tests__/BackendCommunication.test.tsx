@@ -2,10 +2,11 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act } from '@testing-library/react';
+import { act, waitFor } from '@testing-library/react';
 import type { IpcRendererEvent } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
+import { DEFAULT_USER_SETTINGS } from '../../../../shared/shared-constants';
 import { faker } from '../../../../testing/Faker';
 import { PopupType } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
@@ -15,11 +16,13 @@ import {
   getSelectedResourceId,
   getTemporaryDisplayPackageInfo,
 } from '../../../state/selectors/resource-selectors';
+import { getUserSettingsLoaded } from '../../../state/selectors/user-settings-selector';
 import {
   getOpenFileRequest,
   getOpenPopup,
 } from '../../../state/selectors/view-selector';
 import { renderComponent } from '../../../test-helpers/render';
+import { revision } from '../../../whats-new/release-notes';
 import { BackendCommunication } from '../BackendCommunication';
 
 describe('BackendCommunication', () => {
@@ -71,6 +74,40 @@ describe('BackendCommunication', () => {
     });
     return listeners;
   }
+
+  describe('ProjectOpened', () => {
+    it.each([true, false])(
+      'respects showProjectStatistics=%s when a project is opened',
+      async (showProjectStatistics) => {
+        const listeners = setupListeners();
+        vi.mocked(window.electronAPI.getUserSettings).mockResolvedValue({
+          ...DEFAULT_USER_SETTINGS,
+          showProjectStatistics,
+          lastSeenWhatsNewRevision: revision,
+        });
+        const { store } = await renderComponent(<BackendCommunication />);
+
+        expect(getOpenPopup(store.getState())).toBeNull();
+        expect(listeners.has(AllowedFrontendChannels.ProjectOpened)).toBe(true);
+
+        act(() => {
+          listeners.get(AllowedFrontendChannels.ProjectOpened)?.(
+            {} as IpcRendererEvent,
+          );
+        });
+
+        await waitFor(() =>
+          expect(getUserSettingsLoaded(store.getState())).toBe(true),
+        );
+        expect(window.electronAPI.getUserSettings).toHaveBeenCalledOnce();
+        expect(getOpenPopup(store.getState())).toEqual(
+          showProjectStatistics
+            ? { popup: PopupType.ProjectStatisticsPopup }
+            : null,
+        );
+      },
+    );
+  });
 
   describe('SetDatabaseInitialized', () => {
     it('resets the resource state when the database is uninitialized', async () => {

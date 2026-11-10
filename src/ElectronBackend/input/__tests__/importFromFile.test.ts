@@ -96,7 +96,9 @@ describe('loadInputAndOutputFromFilePath', () => {
     } satisfies LoadFileIpcResult);
 
     setGlobalBackendState({});
-    await loadInputAndOutputFromFilePath(mainWindow, '/some/file.opossum');
+    await expect(
+      loadInputAndOutputFromFilePath(mainWindow, '/some/file.opossum'),
+    ).resolves.toBe(true);
 
     const webContents = mainWindow.webContents as unknown as MockWebContents;
     expect(
@@ -115,7 +117,9 @@ describe('loadInputAndOutputFromFilePath', () => {
     } satisfies LoadFileIpcResult);
 
     setGlobalBackendState({});
-    await loadInputAndOutputFromFilePath(mainWindow, '/missing/file.json');
+    await expect(
+      loadInputAndOutputFromFilePath(mainWindow, '/missing/file.json'),
+    ).resolves.toBe(false);
 
     expect(dialog.showMessageBox).toHaveBeenCalled();
   });
@@ -150,7 +154,9 @@ describe('loadInputAndOutputFromFilePath', () => {
       } satisfies LoadFileIpcResult);
 
       setGlobalBackendState({});
-      await loadInputAndOutputFromFilePath(mainWindow, '/file');
+      await expect(
+        loadInputAndOutputFromFilePath(mainWindow, '/file'),
+      ).resolves.toBe(false);
 
       expect(dialog.showMessageBox).toHaveBeenCalledWith(
         expect.objectContaining({
