@@ -225,6 +225,18 @@ Note: You will need the "maintain" role in order to create a new release.
 
 Release runs are serialized. The workflow rejects a version that would not be newer than an already published release and checks again before publication.
 
+### Writing in-app release highlights
+
+Edit `src/Frontend/whats-new/release-notes.tsx`. The `revision` counter lives alongside the `ReleaseNotes` component:
+
+- When starting a new announcement, increment `revision` once and replace the previous content. Add sections incrementally in feature PRs and review them before release.
+- Keep the revision and notes for bugfix releases. Corrections to an existing announcement do not need a new revision either.
+- Write prose as JSX using ordinary headings, paragraphs, lists, and images. Import screenshots from the same directory so Vite includes the referenced assets. Crop and optimize images, and remove unused screenshots when replacing the announcement.
+- External links should handle clicks explicitly using the existing `openUrl` utility so they open in the browser rather than navigating the app window.
+- Keep this component independent of application state and popup controls. The dialog and revision tracking live separately in `src/Frontend/Components/WhatsNew/`; opening and closing use the existing shared popup state and `GlobalPopup`.
+
+Revision `0` means no announcement is available. Otherwise, packaged builds automatically open an unseen announcement once persisted settings have loaded, including on first installation. **Help → What’s New** opens it at any time, even without a project open. Development builds only open it through Help, which can also be used to preview content while writing. Announcements use the existing single-popup mechanism; coordination and stacking with other startup dialogs are left to a separate popup-system refactor.
+
 ### Retrying a release
 
 If preparation, a build, or an upload fails, use **Re-run failed jobs** or **Re-run all jobs** on the original workflow run. The draft records the workflow run ID and pinned commit, so retries reuse the same tag and commit even after midnight or after the branch has moved. Keep the draft and its run marker in the release notes intact until the release is complete. Starting a new workflow run prepares a separate release.

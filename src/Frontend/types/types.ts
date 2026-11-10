@@ -14,6 +14,7 @@ export type State = {
   viewState: ViewState;
   variablesState: VariablesState;
   userSettingsState: UserSettings;
+  userSettingsLoaded: boolean;
 };
 
 export type SelectedProgressBar =
@@ -38,6 +39,7 @@ export type PopupWithoutPayload =
   | PopupType.InvalidLinkPopup
   | PopupType.ProjectMetadataPopup
   | PopupType.ProjectStatisticsPopup
+  | PopupType.WhatsNewPopup
   | PopupType.ForceUnlockPopup;
 
 export type PopupInfo =

@@ -129,6 +129,27 @@ describe('create menu', () => {
     );
   });
 
+  it.each([false, true])(
+    'opens release notes from Help and respects popup state (open: %s)',
+    async (popupOpen) => {
+      await UserSettingsService.init();
+      setGlobalBackendState({ frontendPopupOpen: popupOpen });
+      const send = vi.fn();
+      const mainWindow = {
+        webContents: { send },
+      } as unknown as BrowserWindow;
+      const menu = await getHelpMenu(mainWindow.webContents, vi.fn());
+      const item = (menu.submenu as Array<MenuItemConstructorOptions>).find(
+        ({ id }) => id === menuItemIds.helpWhatsNew,
+      );
+
+      expect(item?.label).toBe(text.menu.helpSubmenu.whatsNew);
+      expect(item?.enabled).toBe(!popupOpen);
+      item?.click?.({} as Electron.MenuItem, mainWindow, {});
+      expect(send).toHaveBeenCalledWith(AllowedFrontendChannels.ShowWhatsNew);
+    },
+  );
+
   it('starts and stops automatic checks after saving the menu preference', async () => {
     Object.defineProperty(BrowserWindow, 'getAllWindows', {
       configurable: true,

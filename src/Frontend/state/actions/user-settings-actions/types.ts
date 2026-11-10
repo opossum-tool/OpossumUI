@@ -10,5 +10,11 @@ export interface SetUserSetting {
 }
 
 export const ACTION_SET_USER_SETTING = 'ACTION_SET_USER_SETTING';
+export const ACTION_USER_SETTINGS_LOADED = 'ACTION_USER_SETTINGS_LOADED';
 
-export type UserSettingsAction = SetUserSetting;
+interface UserSettingsLoaded {
+  type: typeof ACTION_USER_SETTINGS_LOADED;
+  payload: UserSettings;
+}
+
+export type UserSettingsAction = SetUserSetting | UserSettingsLoaded;
