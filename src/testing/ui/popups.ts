@@ -190,6 +190,29 @@ export function dismissWithEscape(element: HTMLElement): void {
   fireEvent.keyDown(element, { key: 'Escape' });
 }
 
+export type AlertSeverity = 'error' | 'warning' | 'info' | 'success';
+
+export async function expectAlert(
+  message: string | RegExp,
+  visible: boolean,
+  severity: AlertSeverity = 'warning',
+): Promise<void> {
+  await waitFor(() => {
+    const alert = screen.queryByRole('alert');
+    if (visible) {
+      expect(alert).not.toBeNull();
+      expect(alert).toHaveTextContent(message);
+      expect(alert).toHaveClass(`MuiAlert-color${capitalize(severity)}`);
+    } else {
+      expect(alert).toBeNull();
+    }
+  }, SETTLED_TIMEOUT);
+}
+
+function capitalize(value: string): string {
+  return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+}
+
 export function dismissWithBackdrop(popupLabel: string): void {
   const backdrop = within(screen.getByLabelText(popupLabel)).getByRole(
     'presentation',

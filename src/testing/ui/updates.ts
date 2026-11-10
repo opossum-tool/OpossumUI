@@ -81,8 +81,16 @@ export async function expectUpdateDownloadLinkVisible(
   }, SETTLED_TIMEOUT);
 }
 
-export async function expectUpdateProgressbarVisible(): Promise<void> {
+export async function expectUpdateProgressbarVisible(
+  visible: boolean = true,
+): Promise<void> {
   await waitFor(() => {
-    expect(screen.getByRole('progressbar')).toBeVisible();
+    const progressbar = screen.queryByRole('progressbar');
+    if (visible) {
+      expect(progressbar).not.toBeNull();
+      expect(progressbar).toBeVisible();
+    } else {
+      expect(progressbar).toBeNull();
+    }
   }, SETTLED_TIMEOUT);
 }

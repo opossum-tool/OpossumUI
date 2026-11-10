@@ -175,10 +175,10 @@ export async function expectAttributionFormIsEmpty(): Promise<void> {
 export async function expectAttributionSaveButtonIsEnabled(
   enabled: boolean = true,
 ): Promise<void> {
-  const button = within(getAttributionColumn()).getByRole('button', {
-    name: BUTTON_LABELS.save,
-  });
   await waitFor(() => {
+    const button = within(getAttributionColumn()).getByRole('button', {
+      name: BUTTON_LABELS.save,
+    });
     if (enabled) {
       expect(button).toBeEnabled();
     } else {
@@ -322,7 +322,9 @@ export async function expectAttributionColumnButtonVisibility(
   }, SETTLED_TIMEOUT);
 }
 
-async function expectAttributionColumnDirty(dirty: boolean): Promise<void> {
+export async function expectAttributionColumnDirty(
+  dirty: boolean,
+): Promise<void> {
   await waitFor(() => {
     expect(getAttributionColumn()).toHaveAttribute(
       'data-dirty',
@@ -448,15 +450,27 @@ export async function removeAuditingOption(optionId: string): Promise<void> {
 const AI_STATUS_BADGE_TEST_ID =
   /^auditing-option-(ai-generated|human-modified|deferred)$/;
 
-export async function expectAttributionColumnAiBadges(
+export async function expectAiStatusBadges(
   badges: Array<string>,
 ): Promise<void> {
   await waitFor(() => {
     expect(
-      within(getAttributionColumn())
+      screen
         .queryAllByTestId(AI_STATUS_BADGE_TEST_ID)
         .map((badge) => badge.textContent),
     ).toEqual(badges);
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectAiStatusIcons(icons: Array<string>): Promise<void> {
+  await waitFor(() => {
+    expect(
+      screen
+        .queryAllByLabelText(
+          /^(AI generated|Human-modified AI|Deferred AI) icon$/,
+        )
+        .map((icon) => icon.getAttribute('aria-label')),
+    ).toEqual(icons);
   }, SETTLED_TIMEOUT);
 }
 

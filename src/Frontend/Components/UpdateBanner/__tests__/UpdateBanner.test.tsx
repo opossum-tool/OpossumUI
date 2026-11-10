@@ -2,12 +2,23 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import type { IpcRendererEvent } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import type { UpdateState } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
+import {
+  clickUpdateActionButton,
+  dismissUpdateAlert,
+  expectUpdateActionButtonVisible,
+  expectUpdateAlertVisible,
+  expectUpdateDownloadLinkVisible,
+  expectUpdateMessage,
+  expectUpdateProgressbarVisible,
+  getButton,
+} from '../../../../testing/ui';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { renderComponent, renderHook } from '../../../test-helpers/render';
 import { UpdateBanner } from '../UpdateBanner';
@@ -46,17 +57,17 @@ describe('UpdateBanner', () => {
   it('opens the asset download and dismisses the release for this mount', async () => {
     await renderComponent(<UpdateBanner />);
 
-    const downloadLink = await screen.findByRole('link', { name: 'Download' });
-    fireEvent.click(downloadLink);
+    await expectUpdateDownloadLinkVisible(true);
+    await userEvent.click(
+      screen.getByRole('link', { name: text.updateApp.download }),
+    );
     expect(window.electronAPI.openLink).toHaveBeenCalledWith(assetUrl);
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Dismiss update notification' }),
-    );
+    await dismissUpdateAlert();
     expect(window.electronAPI.updateUserSettings).not.toHaveBeenCalled();
     emit(AllowedFrontendChannels.UpdateStateChanged, available);
     emit(AllowedFrontendChannels.UpdateStateChanged, available);
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    await expectUpdateAlertVisible(false);
   });
 
   it('offers an explicit download button and follows progress to a restart button', async () => {
@@ -69,16 +80,13 @@ describe('UpdateBanner', () => {
       pending.promise,
     );
     await renderComponent(<UpdateBanner />);
-    const download = await screen.findByRole('button', {
-      name: text.updateApp.downloadUpdate,
-    });
     expect(window.electronAPI.downloadUpdate).not.toHaveBeenCalled();
-    expect(screen.queryByRole('link')).not.toBeInTheDocument();
-    fireEvent.click(download);
+    await expectUpdateDownloadLinkVisible(false);
+    await clickUpdateActionButton(text.updateApp.downloadUpdate);
     expect(window.electronAPI.downloadUpdate).toHaveBeenCalledExactlyOnceWith(
       tag,
     );
-    expect(screen.getByText(text.updateApp.downloading(0))).toBeInTheDocument();
+    await expectUpdateMessage(text.updateApp.downloading(0), true);
     emit(AllowedFrontendChannels.UpdateStateChanged, {
       status: 'downloading',
       tag,
@@ -88,9 +96,7 @@ describe('UpdateBanner', () => {
       pending.resolve(downloadable);
       await pending.promise;
     });
-    expect(
-      screen.getByText(text.updateApp.downloading(50)),
-    ).toBeInTheDocument();
+    await expectUpdateMessage(text.updateApp.downloading(50), true);
     expect(
       screen.getByRole('progressbar', { name: text.updateApp.downloading(50) }),
     ).toHaveAttribute('aria-valuenow', '50');
@@ -98,11 +104,9 @@ describe('UpdateBanner', () => {
       status: 'downloaded',
       tag,
     });
-    expect(screen.getByText(text.updateApp.ready)).toBeInTheDocument();
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: text.updateApp.restart }),
-    ).toBeInTheDocument();
+    await expectUpdateMessage(text.updateApp.ready, true);
+    await expectUpdateProgressbarVisible(false);
+    await expectUpdateActionButtonVisible(text.updateApp.restart, true);
     expect(window.electronAPI.restartAndUpdate).not.toHaveBeenCalled();
   });
 
@@ -119,16 +123,10 @@ describe('UpdateBanner', () => {
       })
       .mockResolvedValueOnce({ status: 'downloaded', tag });
     await renderComponent(<UpdateBanner />);
-    fireEvent.click(
-      await screen.findByRole('button', {
-        name: text.updateApp.downloadUpdate,
-      }),
-    );
-    expect(
-      await screen.findByText(text.updateApp.downloadFailed),
-    ).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: text.updateApp.retry }));
-    expect(await screen.findByText(text.updateApp.ready)).toBeInTheDocument();
+    await clickUpdateActionButton(text.updateApp.downloadUpdate);
+    await expectUpdateMessage(text.updateApp.downloadFailed, true);
+    await userEvent.click(getButton(text.updateApp.retry));
+    await expectUpdateMessage(text.updateApp.ready, true);
     expect(vi.mocked(window.electronAPI.downloadUpdate).mock.calls).toEqual([
       [tag],
       [tag],
@@ -149,24 +147,14 @@ describe('UpdateBanner', () => {
     );
     await renderComponent(<UpdateBanner />);
 
-    fireEvent.click(
-      await screen.findByRole('button', {
-        name: text.updateApp.downloadUpdate,
-      }),
-    );
-    fireEvent.click(
-      await screen.findByRole('button', { name: text.updateApp.retry }),
-    );
+    await clickUpdateActionButton(text.updateApp.downloadUpdate);
+    await clickUpdateActionButton(text.updateApp.retry);
 
     expect(window.electronAPI.checkForUpdates).toHaveBeenCalledTimes(1);
     expect(window.electronAPI.downloadUpdate).toHaveBeenCalledExactlyOnceWith(
       tag,
     );
-    expect(
-      await screen.findByRole('button', {
-        name: text.updateApp.downloadUpdate,
-      }),
-    ).toBeInTheDocument();
+    await expectUpdateActionButtonVisible(text.updateApp.downloadUpdate, true);
   });
 
   it('does not download when an available update is dismissed', async () => {
@@ -175,11 +163,9 @@ describe('UpdateBanner', () => {
       canInstall: true,
     });
     await renderComponent(<UpdateBanner />);
-    await screen.findByRole('button', { name: text.updateApp.downloadUpdate });
-    fireEvent.click(
-      screen.getByRole('button', { name: text.updateApp.dismissed }),
-    );
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    await expectUpdateActionButtonVisible(text.updateApp.downloadUpdate, true);
+    await dismissUpdateAlert();
+    await expectUpdateAlertVisible(false);
     expect(window.electronAPI.downloadUpdate).not.toHaveBeenCalled();
   });
 
@@ -200,26 +186,21 @@ describe('UpdateBanner', () => {
       await snapshot.promise;
     });
 
-    expect(
-      await screen.findByText(text.updateApp.available(newerAvailable.tag)),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(text.updateApp.available(tag)),
-    ).not.toBeInTheDocument();
+    await expectUpdateMessage(
+      text.updateApp.available(newerAvailable.tag),
+      true,
+    );
+    await expectUpdateMessage(text.updateApp.available(tag), false);
   });
 
   it('resets session dismissal after remount', async () => {
     const { unmount } = await renderComponent(<UpdateBanner />);
-    await screen.findByRole('link', { name: 'Download' });
-    fireEvent.click(
-      screen.getByRole('button', { name: text.updateApp.dismissed }),
-    );
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    await expectUpdateDownloadLinkVisible(true);
+    await dismissUpdateAlert();
+    await expectUpdateAlertVisible(false);
     unmount();
     await renderComponent(<UpdateBanner />);
-    expect(
-      await screen.findByRole('link', { name: 'Download' }),
-    ).toBeInTheDocument();
+    await expectUpdateDownloadLinkVisible(true);
   });
 
   it('ignores an older overlapping manual check result', async () => {
@@ -237,17 +218,15 @@ describe('UpdateBanner', () => {
       firstCheck.resolve(available);
       await firstCheck.promise;
     });
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    await expectUpdateProgressbarVisible();
     emit(AllowedFrontendChannels.UpdateStateChanged, available);
-    expect(screen.getByRole('link', { name: 'Download' })).toBeInTheDocument();
+    await expectUpdateDownloadLinkVisible(true);
 
     await act(async () => {
       secondCheck.resolve(upToDate);
       await secondCheck.promise;
     });
-    expect(
-      await screen.findByRole('link', { name: 'Download' }),
-    ).toBeInTheDocument();
+    await expectUpdateDownloadLinkVisible(true);
   });
 
   it('preserves the latest feedback when an older overlapping request resolves last', async () => {
@@ -265,17 +244,13 @@ describe('UpdateBanner', () => {
       secondCheck.resolve(upToDate);
       await secondCheck.promise;
     });
-    expect(
-      screen.getByText(text.updateApp.noUpdateAvailable),
-    ).toBeInTheDocument();
+    await expectUpdateMessage(text.updateApp.noUpdateAvailable, true);
     await act(async () => {
       firstCheck.resolve(available);
       await firstCheck.promise;
     });
-    expect(
-      screen.getByText(text.updateApp.noUpdateAvailable),
-    ).toBeInTheDocument();
-    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    await expectUpdateMessage(text.updateApp.noUpdateAvailable, true);
+    await expectUpdateDownloadLinkVisible(false);
   });
 
   it('preserves completed manual feedback when a stale startup snapshot arrives', async () => {
@@ -293,38 +268,30 @@ describe('UpdateBanner', () => {
       check.resolve(upToDate);
       await check.promise;
     });
-    expect(
-      screen.getByText(text.updateApp.noUpdateAvailable),
-    ).toBeInTheDocument();
+    await expectUpdateMessage(text.updateApp.noUpdateAvailable, true);
 
     await act(async () => {
       snapshot.resolve(available);
       await snapshot.promise;
     });
-    expect(
-      screen.getByText(text.updateApp.noUpdateAvailable),
-    ).toBeInTheDocument();
-    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    await expectUpdateMessage(text.updateApp.noUpdateAvailable, true);
+    await expectUpdateDownloadLinkVisible(false);
   });
 
   it('clears release dismissal on a manual check so subsequent events appear', async () => {
     await renderComponent(<UpdateBanner />);
-    await screen.findByRole('link', { name: 'Download' });
-    fireEvent.click(
-      screen.getByRole('button', { name: text.updateApp.dismissed }),
-    );
+    await expectUpdateDownloadLinkVisible(true);
+    await dismissUpdateAlert();
     vi.mocked(window.electronAPI.checkForUpdates).mockResolvedValueOnce(
       upToDate,
     );
     emit(AllowedFrontendChannels.CheckForUpdatesRequested);
-    await screen.findByText(text.updateApp.noUpdateAvailable);
+    await expectUpdateMessage(text.updateApp.noUpdateAvailable, true);
     emit(AllowedFrontendChannels.UpdateStateChanged, available);
-    expect(screen.getByRole('link', { name: 'Download' })).toBeInTheDocument();
+    await expectUpdateDownloadLinkVisible(true);
 
     emit(AllowedFrontendChannels.CheckForUpdatesRequested);
-    expect(
-      await screen.findByRole('link', { name: 'Download' }),
-    ).toBeInTheDocument();
+    await expectUpdateDownloadLinkVisible(true);
   });
 
   it.each([false, true])(
@@ -337,24 +304,18 @@ describe('UpdateBanner', () => {
       );
       await renderComponent(<UpdateBanner />);
       emit(AllowedFrontendChannels.CheckForUpdatesRequested);
-      expect(screen.getByRole('progressbar')).toBeInTheDocument();
+      await expectUpdateProgressbarVisible();
       if (dismissed) {
-        fireEvent.click(
-          screen.getByRole('button', { name: text.updateApp.dismissed }),
-        );
+        await dismissUpdateAlert();
       }
       await act(async () => {
         check.reject(new Error('IPC invoke failed'));
         await check.promise.catch(() => {});
       });
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-      expect(screen.queryAllByText(text.updateApp.fetchFailed)).toHaveLength(
-        dismissed ? 0 : 1,
-      );
+      await expectUpdateProgressbarVisible(false);
+      await expectUpdateMessage(text.updateApp.fetchFailed, !dismissed);
       emit(AllowedFrontendChannels.UpdateStateChanged, available);
-      expect(
-        screen.getByRole('link', { name: 'Download' }),
-      ).toBeInTheDocument();
+      await expectUpdateDownloadLinkVisible(true);
     },
   );
 
@@ -485,13 +446,9 @@ describe('UpdateBanner', () => {
     await renderComponent(<UpdateBanner />);
     emit(AllowedFrontendChannels.CheckForUpdatesRequested);
 
-    expect(
-      await screen.findByText(text.updateApp.unsupportedInstallation),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(text.updateApp.fetchFailed),
-    ).not.toBeInTheDocument();
-    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    await expectUpdateMessage(text.updateApp.unsupportedInstallation, true);
+    await expectUpdateMessage(text.updateApp.fetchFailed, false);
+    await expectUpdateDownloadLinkVisible(false);
   });
 
   it('explains an unknown version and links to the releases page', async () => {
@@ -503,13 +460,9 @@ describe('UpdateBanner', () => {
     await renderComponent(<UpdateBanner />);
     emit(AllowedFrontendChannels.CheckForUpdatesRequested);
 
-    expect(
-      await screen.findByText(text.updateApp.unknownInstalledVersion),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(text.updateApp.fetchFailed),
-    ).not.toBeInTheDocument();
-    fireEvent.click(
+    await expectUpdateMessage(text.updateApp.unknownInstalledVersion, true);
+    await expectUpdateMessage(text.updateApp.fetchFailed, false);
+    await userEvent.click(
       screen.getByRole('link', { name: text.updateApp.viewReleases }),
     );
     expect(window.electronAPI.openLink).toHaveBeenCalledWith(
@@ -533,23 +486,19 @@ describe('UpdateBanner', () => {
       );
       await renderComponent(<UpdateBanner />);
       emit(AllowedFrontendChannels.CheckForUpdatesRequested);
-      expect(screen.getByRole('progressbar')).toBeInTheDocument();
-      expect(screen.queryByRole('link')).not.toBeInTheDocument();
-      fireEvent.click(
-        screen.getByRole('button', { name: text.updateApp.dismissed }),
-      );
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      await expectUpdateProgressbarVisible();
+      await expectUpdateDownloadLinkVisible(false);
+      await dismissUpdateAlert();
+      await expectUpdateAlertVisible(false);
       await act(async () => {
         check.resolve(result);
         await check.promise;
       });
-      expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      await expectUpdateProgressbarVisible(false);
+      await expectUpdateAlertVisible(false);
       emit(AllowedFrontendChannels.UpdateStateChanged, { status: 'checking' });
       emit(AllowedFrontendChannels.UpdateStateChanged, available);
-      expect(
-        screen.getByRole('link', { name: 'Download' }),
-      ).toBeInTheDocument();
+      await expectUpdateDownloadLinkVisible(true);
     },
   );
 
@@ -564,31 +513,25 @@ describe('UpdateBanner', () => {
       downloading,
     );
     await renderComponent(<UpdateBanner />);
-    await screen.findByText(text.updateApp.downloading(10));
-    fireEvent.click(
-      screen.getByRole('button', { name: text.updateApp.dismissed }),
-    );
+    await expectUpdateMessage(text.updateApp.downloading(10), true);
+    await dismissUpdateAlert();
     emit(AllowedFrontendChannels.UpdateStateChanged, {
       ...downloading,
       percent: 40,
     });
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    await expectUpdateAlertVisible(false);
     emit(AllowedFrontendChannels.CheckForUpdatesRequested);
-    await screen.findByText(text.updateApp.downloading(10));
+    await expectUpdateMessage(text.updateApp.downloading(10), true);
     emit(AllowedFrontendChannels.UpdateStateChanged, {
       ...downloading,
       percent: 75,
     });
-    expect(
-      screen.getByText(text.updateApp.downloading(75)),
-    ).toBeInTheDocument();
+    await expectUpdateMessage(text.updateApp.downloading(75), true);
     emit(AllowedFrontendChannels.UpdateStateChanged, {
       status: 'downloaded',
       tag,
     });
-    expect(
-      screen.getByRole('button', { name: text.updateApp.restart }),
-    ).toBeInTheDocument();
+    await expectUpdateActionButtonVisible(text.updateApp.restart, true);
   });
 
   it('shows an asynchronous installer error after checking a dismissed release and restarting', async () => {
@@ -596,14 +539,10 @@ describe('UpdateBanner', () => {
     vi.mocked(window.electronAPI.getUpdateState).mockResolvedValue(downloaded);
     vi.mocked(window.electronAPI.checkForUpdates).mockResolvedValue(downloaded);
     await renderComponent(<UpdateBanner />);
-    await screen.findByRole('button', { name: text.updateApp.restart });
-    fireEvent.click(
-      screen.getByRole('button', { name: text.updateApp.dismissed }),
-    );
+    await expectUpdateActionButtonVisible(text.updateApp.restart, true);
+    await dismissUpdateAlert();
     emit(AllowedFrontendChannels.CheckForUpdatesRequested);
-    fireEvent.click(
-      await screen.findByRole('button', { name: text.updateApp.restart }),
-    );
+    await clickUpdateActionButton(text.updateApp.restart);
     expect(window.electronAPI.restartAndUpdate).toHaveBeenCalledTimes(1);
     emit(AllowedFrontendChannels.UpdateStateChanged, {
       status: 'restarting',
@@ -613,10 +552,8 @@ describe('UpdateBanner', () => {
       ...downloaded,
       error: 'Installer failed',
     });
-    expect(screen.getByText('Installer failed')).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: text.updateApp.restart }),
-    ).toBeInTheDocument();
+    await expectUpdateMessage('Installer failed', true);
+    await expectUpdateActionButtonVisible(text.updateApp.restart, true);
   });
 
   it('updates hidden state and suppresses the dismissed release, including its download errors', async () => {
@@ -685,16 +622,14 @@ describe('UpdateBanner', () => {
         pending.promise,
       );
       await renderComponent(<UpdateBanner />);
-      await screen.findByRole('button', { name: text.updateApp.retry });
+      await expectUpdateActionButtonVisible(text.updateApp.retry, true);
       if (trigger === 'Retry') {
-        fireEvent.click(
-          screen.getByRole('button', { name: text.updateApp.retry }),
-        );
+        await userEvent.click(getButton(text.updateApp.retry));
       } else {
         emit(AllowedFrontendChannels.CheckForUpdatesRequested);
       }
       expect(window.electronAPI.checkForUpdates).toHaveBeenCalledTimes(1);
-      expect(screen.getByText(text.updateApp.loading)).toBeInTheDocument();
+      await expectUpdateMessage(text.updateApp.loading, true);
       emit(AllowedFrontendChannels.UpdateStateChanged, { status: 'checking' });
       emit(AllowedFrontendChannels.UpdateStateChanged, { status: 'error' });
       await act(async () => {
@@ -703,19 +638,15 @@ describe('UpdateBanner', () => {
       });
       emit(AllowedFrontendChannels.UpdateStateChanged, { status: 'checking' });
       emit(AllowedFrontendChannels.UpdateStateChanged, upToDate);
-      expect(screen.getByText(text.updateApp.fetchFailed)).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: text.updateApp.retry }),
-      ).toBeInTheDocument();
+      await expectUpdateMessage(text.updateApp.fetchFailed, true);
+      await expectUpdateActionButtonVisible(text.updateApp.retry, true);
     },
   );
 
   it('clears release dismissal through Retry before later installer events', async () => {
     await renderComponent(<UpdateBanner />);
-    await screen.findByRole('link', { name: text.updateApp.download });
-    fireEvent.click(
-      screen.getByRole('button', { name: text.updateApp.dismissed }),
-    );
+    await expectUpdateDownloadLinkVisible(true);
+    await dismissUpdateAlert();
     emit(AllowedFrontendChannels.UpdateStateChanged, {
       status: 'downloaded',
       tag: 'OpossumUI-2030-02-01',
@@ -728,8 +659,8 @@ describe('UpdateBanner', () => {
     vi.mocked(window.electronAPI.downloadUpdate).mockReturnValue(
       pending.promise,
     );
-    fireEvent.click(screen.getByRole('button', { name: text.updateApp.retry }));
-    expect(screen.getByText(text.updateApp.downloading(0))).toBeInTheDocument();
+    await userEvent.click(getButton(text.updateApp.retry));
+    await expectUpdateMessage(text.updateApp.downloading(0), true);
     emit(AllowedFrontendChannels.UpdateStateChanged, {
       status: 'downloading',
       tag,
@@ -739,9 +670,7 @@ describe('UpdateBanner', () => {
       pending.resolve(upToDate);
       await pending.promise;
     });
-    expect(
-      screen.getByText(text.updateApp.downloading(60)),
-    ).toBeInTheDocument();
+    await expectUpdateMessage(text.updateApp.downloading(60), true);
   });
 
   it.each(['success', 'failure'])(
@@ -765,15 +694,9 @@ describe('UpdateBanner', () => {
         }
         await pending.promise.catch(() => undefined);
       });
-      expect(
-        screen.getByRole('button', { name: text.updateApp.restart }),
-      ).toBeInTheDocument();
-      expect(
-        screen.queryByText(text.updateApp.fetchFailed),
-      ).not.toBeInTheDocument();
-      expect(
-        screen.queryByText(text.updateApp.noUpdateAvailable),
-      ).not.toBeInTheDocument();
+      await expectUpdateActionButtonVisible(text.updateApp.restart, true);
+      await expectUpdateMessage(text.updateApp.fetchFailed, false);
+      await expectUpdateMessage(text.updateApp.noUpdateAvailable, false);
     },
   );
 
