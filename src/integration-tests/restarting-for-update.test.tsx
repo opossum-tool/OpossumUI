@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
 
 import { deserializeAttributions } from '../ElectronBackend/input/parseInputData';
 import { getIsPackageInfoDirty } from '../Frontend/state/selectors/resource-selectors';
@@ -12,8 +12,13 @@ import { text } from '../shared/text';
 import { faker } from '../testing/Faker';
 import { renderApp } from '../testing/render-app';
 import {
+  clickPopupButton,
   clickTopBarViewButton,
+  clickUpdateActionButton,
   expectFormFieldValues,
+  expectUnsavedChangesPopupVisibility,
+  expectUpdateActionButtonVisible,
+  expectUpdateMessage,
   expectViewIsActive,
   fillFormField,
   gotoResource,
@@ -39,9 +44,7 @@ beforeEach(() => {
 });
 
 async function clickRestart() {
-  fireEvent.click(
-    await screen.findByRole('button', { name: text.updateApp.restart }),
-  );
+  await clickUpdateActionButton(text.updateApp.restart);
 }
 async function dirtyEditor() {
   const view = await renderApp({ data });
@@ -63,16 +66,12 @@ test('shows progress and the restart action with automatic checks disabled', asy
     data,
     userSettings: { automaticallyCheckForUpdates: false },
   });
-  expect(
-    await screen.findByText(text.updateApp.downloading(42)),
-  ).toBeInTheDocument();
+  await expectUpdateMessage(text.updateApp.downloading(42), true);
   view.sendToChannel(AllowedFrontendChannels.UpdateStateChanged, {
     status: 'downloaded',
     tag,
   });
-  expect(
-    await screen.findByRole('button', { name: text.updateApp.restart }),
-  ).toBeInTheDocument();
+  await expectUpdateActionButtonVisible(text.updateApp.restart, true);
   expect(window.electronAPI.restartAndUpdate).not.toHaveBeenCalled();
 });
 
@@ -80,26 +79,21 @@ test('requests installation directly when there are no unsaved editor changes', 
   await renderApp({ data });
   await clickRestart();
   expect(window.electronAPI.restartAndUpdate).toHaveBeenCalledTimes(1);
-  expect(
-    screen.queryByLabelText('unsaved changes popup'),
-  ).not.toBeInTheDocument();
+  await expectUnsavedChangesPopupVisibility(false);
 });
 
 test('uses the existing unsaved-changes popup and cancels without losing the draft', async () => {
   await dirtyEditor();
   await clickRestart();
-  const popup = await screen.findByLabelText('unsaved changes popup');
-  fireEvent.click(
-    within(popup).getByRole('button', { name: text.buttons.cancel }),
-  );
+  await expectUnsavedChangesPopupVisibility(true);
+  await clickPopupButton('unsaved changes popup', text.buttons.cancel);
   await expectFormFieldValues({ name: 'edited before update' });
   expect(window.electronAPI.restartAndUpdate).not.toHaveBeenCalled();
   await clickTopBarViewButton('report');
-  const navigationPopup = await screen.findByLabelText('unsaved changes popup');
-  fireEvent.click(
-    within(navigationPopup).getByRole('button', {
-      name: text.unsavedChangesPopup.discard,
-    }),
+  await expectUnsavedChangesPopupVisibility(true);
+  await clickPopupButton(
+    'unsaved changes popup',
+    text.unsavedChangesPopup.discard,
   );
   await expectViewIsActive('report');
   expect(window.electronAPI.restartAndUpdate).not.toHaveBeenCalled();
@@ -108,11 +102,10 @@ test('uses the existing unsaved-changes popup and cancels without losing the dra
 test('discards through the existing continuation and requests installation', async () => {
   const { store } = await dirtyEditor();
   await clickRestart();
-  const popup = await screen.findByLabelText('unsaved changes popup');
-  fireEvent.click(
-    within(popup).getByRole('button', {
-      name: text.unsavedChangesPopup.discard,
-    }),
+  await expectUnsavedChangesPopupVisibility(true);
+  await clickPopupButton(
+    'unsaved changes popup',
+    text.unsavedChangesPopup.discard,
   );
   expect(window.electronAPI.restartAndUpdate).toHaveBeenCalledTimes(1);
   expect(getIsPackageInfoDirty(store.getState())).toBe(false);
@@ -121,10 +114,8 @@ test('discards through the existing continuation and requests installation', asy
 test('uses the normal editor save after cancelling, then requests installation', async () => {
   await dirtyEditor();
   await clickRestart();
-  const popup = await screen.findByLabelText('unsaved changes popup');
-  fireEvent.click(
-    within(popup).getByRole('button', { name: text.buttons.cancel }),
-  );
+  await expectUnsavedChangesPopupVisibility(true);
+  await clickPopupButton('unsaved changes popup', text.buttons.cancel);
   await saveChangesInAttributionColumn();
   await clickRestart();
   expect(window.electronAPI.restartAndUpdate).toHaveBeenCalledTimes(1);
@@ -136,9 +127,7 @@ test('reports installation request errors and allows another attempt', async () 
   );
   await renderApp({ data });
   await clickRestart();
-  expect(
-    await screen.findByText('Could not start installer'),
-  ).toBeInTheDocument();
+  await expectUpdateMessage('Could not start installer', true);
   await clickRestart();
   await waitFor(() =>
     expect(window.electronAPI.restartAndUpdate).toHaveBeenCalledTimes(2),
@@ -152,15 +141,13 @@ test('displays asynchronous installer errors and keeps the restart action availa
     status: 'restarting',
     tag,
   });
-  expect(
-    await screen.findByText(text.updateApp.restarting),
-  ).toBeInTheDocument();
+  await expectUpdateMessage(text.updateApp.restarting, true);
   sendToChannel(AllowedFrontendChannels.UpdateStateChanged, {
     status: 'downloaded',
     tag,
     error: 'Installer failed',
   });
-  expect(await screen.findByText('Installer failed')).toBeInTheDocument();
+  await expectUpdateMessage('Installer failed', true);
   await clickRestart();
   expect(window.electronAPI.restartAndUpdate).toHaveBeenCalledTimes(2);
 });

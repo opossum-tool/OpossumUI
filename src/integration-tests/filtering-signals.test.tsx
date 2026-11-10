@@ -2,28 +2,35 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { expect } from 'vitest';
-
 import { deserializeAttributions } from '../ElectronBackend/input/parseInputData';
 import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers/general-test-helpers';
-import { text } from '../shared/text';
 import { faker } from '../testing/Faker';
 import { renderApp, type RenderAppResult } from '../testing/render-app';
 import {
   addLicenseSearchFilter,
-  clickFilterMenuButton,
+  applyPanelFilter,
+  clearAllLicenseFilters,
+  clearPanelSearch,
+  clickFilterMenuItem,
+  clickLicenseEditorTab,
   clickLicenseTableCell,
   clickPackageCard,
+  clickPanelFilterMenuButton,
   clickProjectStatisticsTab,
   closeFilterMenu,
+  expectLicenseEditorTabVisible,
+  expectLicenseFilterOption,
+  expectLicenseFilterOptionSelected,
   expectPackageCards,
+  expectSearchFocused,
   fillLicenseFilter,
+  fillPanelSearch,
   gotoResource,
   openProjectStatisticsPopup,
   pressSearchShortcut,
+  removeLicenseFilterOption,
   selectFilterLicenseName,
+  SIGNALS_PANEL,
 } from '../testing/ui';
 
 const [resourceName1, resourceName2, resourceName3, resourceName4] =
@@ -46,39 +53,6 @@ const [attributionId3, packageInfo3] = faker.opossum.rawAttribution({
   preSelected: true,
   packageVersion: undefined,
 });
-
-const findMenuItem = (name: string): RegExp =>
-  new RegExp(`^${escapeString(name)}( \\(\\d+\\))?$`);
-
-function escapeString(value: string): string {
-  return value.replace(/[.*+?^${}()|\\[\]]/g, '\\$&');
-}
-
-const valueFilterNames = {
-  firstParty: text.filters.firstParty,
-  previouslyPreferred: text.filters.previouslyPreferred,
-} satisfies Record<string, string>;
-
-async function applyValueFilter(
-  filter: keyof typeof valueFilterNames,
-): Promise<void> {
-  await userEvent.click(
-    within(screen.getByTestId('signals-panel')).getByRole('button', {
-      name: 'filter button',
-    }),
-  );
-  const item = screen.getByRole('menuitem', {
-    name: findMenuItem(valueFilterNames[filter]),
-  });
-  await userEvent.click(item);
-  await userEvent.keyboard('{Escape}');
-  await waitFor(
-    () => {
-      expect(screen.queryByRole('menu')).toBeNull();
-    },
-    { timeout: 10000 },
-  );
-}
 
 async function renderFixture(equivalent = false): Promise<RenderAppResult> {
   return renderApp({
@@ -116,16 +90,14 @@ async function renderFixture(equivalent = false): Promise<RenderAppResult> {
 describe('filtering signals', () => {
   it('combines exact and contains signal filters and keeps options available', async () => {
     await renderFixture();
-    await clickFilterMenuButton(screen.getByTestId('signals-panel'));
+    await clickPanelFilterMenuButton(SIGNALS_PANEL);
     await addLicenseSearchFilter('cLaUsE');
     await fillLicenseFilter('Apache-2.0');
-    expect(
-      await screen.findByRole('option', { name: 'Apache-2.0' }),
-    ).toBeVisible();
+    await expectLicenseFilterOption('Apache-2.0', true);
     await selectFilterLicenseName('Apache-2.0');
     await closeFilterMenu();
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [packageInfo2, packageInfo3],
       [packageInfo1],
     );
@@ -133,20 +105,20 @@ describe('filtering signals', () => {
 
   it('reopens after selecting BSD and adds another license', async () => {
     await renderFixture();
-    await clickFilterMenuButton(screen.getByTestId('signals-panel'));
+    await clickPanelFilterMenuButton(SIGNALS_PANEL);
     await selectFilterLicenseName('BSD-3-Clause');
     await closeFilterMenu();
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [packageInfo3],
       [packageInfo1, packageInfo2],
     );
 
-    await clickFilterMenuButton(screen.getByTestId('signals-panel'));
+    await clickPanelFilterMenuButton(SIGNALS_PANEL);
     await selectFilterLicenseName('Apache-2.0');
     await closeFilterMenu();
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [packageInfo2, packageInfo3],
       [packageInfo1],
     );
@@ -155,27 +127,24 @@ describe('filtering signals', () => {
   it('keeps a selection with no resource matches removable without an availability warning', async () => {
     await renderFixture();
     await gotoResource(resourceName1, resourceName2, resourceName3);
-    await clickFilterMenuButton(screen.getByTestId('signals-panel'));
+    await clickPanelFilterMenuButton(SIGNALS_PANEL);
     await selectFilterLicenseName('MIT');
     await closeFilterMenu();
     await gotoResource(resourceName4);
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [],
       [packageInfo1, packageInfo2, packageInfo3],
     );
 
-    await clickFilterMenuButton(screen.getByTestId('signals-panel'));
+    await clickPanelFilterMenuButton(SIGNALS_PANEL);
     await fillLicenseFilter('MIT');
-    const selectedOption = await screen.findByRole('option', {
-      name: 'MIT',
-    });
-    expect(selectedOption).toHaveAttribute('aria-selected', 'true');
-    await userEvent.click(screen.getByRole('tab', { name: 'Selected (1)' }));
-    await userEvent.click(screen.getByRole('button', { name: 'Remove MIT' }));
+    await expectLicenseFilterOptionSelected('MIT', true);
+    await clickLicenseEditorTab('Selected (1)');
+    await removeLicenseFilterOption('MIT');
     await closeFilterMenu();
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [packageInfo2],
       [packageInfo1, packageInfo3],
     );
@@ -183,31 +152,26 @@ describe('filtering signals', () => {
 
   it('broadens signal license matches and preserves other filters on clear', async () => {
     await renderFixture();
-    await clickFilterMenuButton(screen.getByTestId('signals-panel'));
+    await clickPanelFilterMenuButton(SIGNALS_PANEL);
     await selectFilterLicenseName('MIT');
     await selectFilterLicenseName('Apache-2.0');
     await closeFilterMenu();
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [packageInfo1, packageInfo2],
       [packageInfo3],
     );
-    await applyValueFilter('previouslyPreferred');
+    await applyPanelFilter(SIGNALS_PANEL, 'previouslyPreferred');
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [packageInfo1],
       [packageInfo2, packageInfo3],
     );
-    await clickFilterMenuButton(screen.getByTestId('signals-panel'));
-    await userEvent.click(
-      screen.getByRole('menuitem', { name: '2 license filters' }),
-    );
-    await userEvent.click(
-      screen.getByRole('button', { name: 'Clear licenses' }),
-    );
+    await clickPanelFilterMenuButton(SIGNALS_PANEL);
+    await clearAllLicenseFilters();
     await closeFilterMenu();
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [packageInfo1],
       [packageInfo2, packageInfo3],
     );
@@ -216,34 +180,26 @@ describe('filtering signals', () => {
   it('retains identity across resource spelling changes and statistics quicklinks', async () => {
     const { sendToChannel } = await renderFixture(true);
     await gotoResource(resourceName1, resourceName2, resourceName3);
-    await clickFilterMenuButton(screen.getByTestId('signals-panel'));
+    await clickPanelFilterMenuButton(SIGNALS_PANEL);
     await selectFilterLicenseName('MIT');
     await closeFilterMenu();
     await gotoResource(resourceName4);
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [{ ...packageInfo2, licenseName: 'M-IT' }],
       [packageInfo1, packageInfo3],
     );
-    await clickFilterMenuButton(screen.getByTestId('signals-panel'));
-    await userEvent.click(
-      await screen.findByRole('menuitem', { name: 'M-IT' }),
-    );
-    await userEvent.type(
-      screen.getByRole('textbox', { name: 'Search licenses' }),
-      'M-IT',
-    );
-    expect(await screen.findByRole('option', { name: 'M-IT' })).toHaveAttribute(
-      'aria-selected',
-      'true',
-    );
-    expect(screen.getByRole('tab', { name: 'Selected (1)' })).toBeVisible();
+    await clickPanelFilterMenuButton(SIGNALS_PANEL);
+    await clickFilterMenuItem('M-IT');
+    await fillLicenseFilter('M-IT');
+    await expectLicenseFilterOptionSelected('M-IT', true);
+    await expectLicenseEditorTabVisible('Selected (1)', true);
     await closeFilterMenu();
     await openProjectStatisticsPopup(sendToChannel);
     await clickProjectStatisticsTab('details');
     await clickLicenseTableCell('MIT');
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [packageInfo1, { ...packageInfo2, licenseName: 'M-IT' }],
       [packageInfo3],
     );
@@ -252,34 +208,34 @@ describe('filtering signals', () => {
   it('filters signals', async () => {
     await renderFixture();
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [packageInfo1, packageInfo2, packageInfo3],
       [],
     );
 
-    await applyValueFilter('previouslyPreferred');
+    await applyPanelFilter(SIGNALS_PANEL, 'previouslyPreferred');
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [packageInfo1],
       [packageInfo2, packageInfo3],
     );
 
-    await applyValueFilter('firstParty');
+    await applyPanelFilter(SIGNALS_PANEL, 'firstParty');
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [],
       [packageInfo1, packageInfo2, packageInfo3],
     );
-    await applyValueFilter('previouslyPreferred');
+    await applyPanelFilter(SIGNALS_PANEL, 'previouslyPreferred');
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [packageInfo3],
       [packageInfo1, packageInfo2],
     );
 
-    await applyValueFilter('firstParty');
+    await applyPanelFilter(SIGNALS_PANEL, 'firstParty');
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [packageInfo1, packageInfo2, packageInfo3],
       [],
     );
@@ -288,39 +244,30 @@ describe('filtering signals', () => {
   it('only displays signals matching search term', async () => {
     await renderFixture();
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [packageInfo1, packageInfo2, packageInfo3],
       [],
     );
 
-    const signalsPanelHeader = screen.getByTestId('signals-panel-header');
-    const searchField = within(signalsPanelHeader).getByRole('searchbox');
-    await userEvent.type(searchField, packageInfo1.packageName!);
+    await fillPanelSearch('signals-panel-header', packageInfo1.packageName!);
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [packageInfo1],
       [packageInfo2, packageInfo3],
     );
 
-    await userEvent.click(
-      within(signalsPanelHeader).getByLabelText('clear search'),
-    );
+    await clearPanelSearch('signals-panel-header');
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [packageInfo1, packageInfo2, packageInfo3],
       [],
     );
-    await clickPackageCard('signals-panel', packageInfo1);
+    await clickPackageCard(SIGNALS_PANEL, packageInfo1);
     await pressSearchShortcut();
-    const searchbox = within(
-      screen.getByTestId('signals-panel-header'),
-    ).getByRole('searchbox');
-    await waitFor(() => {
-      expect(searchbox).toHaveFocus();
-    });
-    await userEvent.type(searchbox, packageInfo1.packageName!);
+    await expectSearchFocused('signals-panel-header');
+    await fillPanelSearch('signals-panel-header', packageInfo1.packageName!);
     await expectPackageCards(
-      'signals-panel',
+      SIGNALS_PANEL,
       [packageInfo1],
       [packageInfo2, packageInfo3],
     );

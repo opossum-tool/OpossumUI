@@ -23,7 +23,7 @@ import {
   expectPathBarCrumbs,
   expectPathBarHistoryButton,
   expectResourceVisibility,
-  expectTreeSearchFocused,
+  expectSearchFocused,
   fillPanelSearch,
   focusResourceTreeItem,
   gotoResource,
@@ -250,7 +250,7 @@ describe('interacting with resources', () => {
     await gotoResourceTreeRoot();
     focusResourceTreeItem(resourceWithExternalSelectedLicense);
     await pressSearchShortcut();
-    await expectTreeSearchFocused('resources-tree-header');
+    await expectSearchFocused('resources-tree-header');
     await fillPanelSearch(
       'resources-tree-header',
       resourceWithExternalDifferentLicense,
