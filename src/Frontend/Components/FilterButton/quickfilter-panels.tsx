@@ -5,6 +5,7 @@
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, Button, IconButton, Typography } from '@mui/material';
+import MuiTooltip from '@mui/material/Tooltip';
 import { type KeyboardEvent, useCallback, useState } from 'react';
 
 import type {
@@ -96,7 +97,8 @@ export function SaveQuickfilterPanel({
 
 export function QuickfilterListPanel({
   quickfilters,
-  incompatibleIds = [],
+  incompatibleProjectIds = [],
+  conflictingIds = [],
   onApply,
   onDelete,
   onClose,
@@ -104,7 +106,8 @@ export function QuickfilterListPanel({
   initialFocusRef,
 }: {
   quickfilters: Array<SavedQuickfilter>;
-  incompatibleIds?: Array<string>;
+  incompatibleProjectIds?: Array<string>;
+  conflictingIds?: Array<string>;
   onApply: (quickfilter: SavedQuickfilter) => void;
   onDelete: (id: string) => void;
   onClose: () => void;
@@ -128,23 +131,34 @@ export function QuickfilterListPanel({
       sx={styles.panel}
     >
       <Typography sx={styles.title}>{text.quickfilters.title}</Typography>
-      {quickfilters.length ? (
-        <Box sx={styles.list}>
-          {quickfilters.map((quickfilter) => {
-            const isApplicable = !incompatibleIds.includes(quickfilter.id);
-            const apply = (): void => {
-              if (isApplicable) {
-                onApply(quickfilter);
-                onClose();
-              }
-            };
-            return (
+      <Box sx={styles.list}>
+        {quickfilters.map((quickfilter) => {
+          const disabledReason: string | undefined = (() => {
+            if (incompatibleProjectIds.includes(quickfilter.id)) {
+              return text.quickfilters.incompatibleWithProject;
+            }
+            if (conflictingIds.includes(quickfilter.id)) {
+              return text.quickfilters.conflictsWithFilters;
+            }
+            return undefined;
+          })();
+          const apply = (): void => {
+            if (disabledReason === undefined) {
+              onApply(quickfilter);
+              onClose();
+            }
+          };
+          return (
+            <MuiTooltip key={quickfilter.id} title={disabledReason ?? ''}>
               <Box
-                key={quickfilter.id}
                 role="button"
                 tabIndex={0}
                 aria-label={text.quickfilters.apply(quickfilter.name)}
-                sx={[styles.row, !isApplicable && styles.inapplicableRow]}
+                aria-disabled={disabledReason !== undefined}
+                sx={[
+                  styles.row,
+                  disabledReason !== undefined && styles.inapplicableRow,
+                ]}
                 onClick={apply}
                 onKeyDown={(event) => {
                   if (event.key === 'ArrowLeft') {
@@ -178,10 +192,11 @@ export function QuickfilterListPanel({
                   <DeleteIcon fontSize="small" />
                 </IconButton>
               </Box>
-            );
-          })}
-        </Box>
-      ) : (
+            </MuiTooltip>
+          );
+        })}
+      </Box>
+      {!quickfilters.length && (
         <Typography sx={styles.empty}>{text.quickfilters.empty}</Typography>
       )}
     </Box>
