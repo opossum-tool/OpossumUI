@@ -9,13 +9,10 @@ import statisticsNavigationScreenshot from './images/quickfilter-link.png';
 import searchFilterScreenshot from './images/search-filter.png';
 import updateAndRestartScreenshot from './images/update-and-restart.png';
 
-// Increment when starting a new announcement. Keep unchanged for bugfix
-// releases and corrections to these notes. Revision 0 means no announcement yet.
+// When adding notes for the first new feature after a release, increment this flag and delete the previous notes and screenshots.
 export const revision = 1;
 
-// Group each highlight in a <section> with headings, paragraphs, lists, and
-// screenshots imported from ./images/. Keep the content independent of popup
-// controls and application state so it can also be published separately later.
+// Give each feature its own <section> with an <h2>. Use <Screenshot> with imports from ./images/.
 export function ReleaseNotes(): React.ReactNode {
   return (
     <>

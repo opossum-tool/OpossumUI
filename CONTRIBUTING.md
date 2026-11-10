@@ -61,6 +61,16 @@ Pull requests should have a clear description that fully elaborates the context 
 The corresponding template should be used. If your pull request resolves an issue, please add a respective
 line to the end.
 
+### In-app release highlights
+
+When implementing a noteworthy user-facing feature, add or update its in-app highlight in the same PR.
+Describe the benefit and how to use the feature; the highlights are a selection of useful improvements, not a list of every change.
+Build up the next announcement incrementally as features are implemented, rather than writing it from scratch at release time.
+
+Edit [release-notes.tsx](src/Frontend/whats-new/release-notes.tsx). The authoring instructions in that file explain
+whether to start a new announcement or extend the one being prepared, and how to write and preview the content.
+Bugfix-only releases normally retain the existing announcement.
+
 ## Developer's guide
 
 OpossumUI is an Electron app written in TypeScript. The frontend uses React (where functional components are used
@@ -207,6 +217,7 @@ Note: You will need the "maintain" role in order to create a new release.
 
 ### Checklist
 
+1. **Review** the accumulated [in-app release highlights](#in-app-release-highlights) for completeness, clarity, and consistency with the features being released.
 1. **Test** on a large real-world example.
    1. Create a build for your OS using `yarn ship:auto` (see _/release_ folder).
    1. Check performances on a large .opossum file.
@@ -224,18 +235,6 @@ Note: You will need the "maintain" role in order to create a new release.
 1. Wait for the workflow to publish the release. It pins the selected ref to its commit SHA, chooses a UTC date tag such as `OpossumUI-2026-10-23` (then `.1`, `.2`, etc. for additional releases that day), and creates a draft with automatically generated notes excluding Renovate. All platform downloads, update manifests, the user guide, and the SPDX document are uploaded before publication. Performance testing runs after publication and reports separately; its result does not gate publication.
 
 Release runs are serialized. The workflow rejects a version that would not be newer than an already published release and checks again before publication.
-
-### Writing in-app release highlights
-
-Edit `src/Frontend/whats-new/release-notes.tsx`. The `revision` counter lives alongside the `ReleaseNotes` component:
-
-- When starting a new announcement, increment `revision` once and replace the previous content. Add sections incrementally in feature PRs and review them before release.
-- Keep the revision and notes for bugfix releases. Corrections to an existing announcement do not need a new revision either.
-- Write prose as JSX using ordinary headings, paragraphs, lists, and images. Import screenshots from the same directory so Vite includes the referenced assets. Crop and optimize images, and remove unused screenshots when replacing the announcement.
-- External links should handle clicks explicitly using the existing `openUrl` utility so they open in the browser rather than navigating the app window.
-- Keep this component independent of application state and popup controls. The dialog and revision tracking live separately in `src/Frontend/Components/WhatsNew/`; opening and closing use the existing shared popup state and `GlobalPopup`.
-
-Revision `0` means no announcement is available. Otherwise, packaged builds automatically open an unseen announcement once persisted settings have loaded, including on first installation. **Help → What’s New** opens it at any time, even without a project open. Development builds only open it through Help, which can also be used to preview content while writing. Announcements use the existing single-popup mechanism; coordination and stacking with other startup dialogs are left to a separate popup-system refactor.
 
 ### Retrying a release
 
