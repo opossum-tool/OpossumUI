@@ -19,8 +19,12 @@ export type SaveResult = 'success' | 'failed';
  */
 export class SaveWorker {
   private readonly writeCurrentProject: () => Promise<void>;
-  private pendingWork = 0;
-  private readonly pendingWorkWaiters: Array<() => void> = [];
+  /**
+   * Completion promises of all currently tracked operations and saves.
+   * Each promise resolves when its tracked work concludes, so waiting is
+   * awaiting this set.
+   */
+  private readonly pending = new Set<Promise<void>>();
   /**
    * Records only ordinary saves; split, merge, and force unlock write the
    * project file as one of several steps and do not record here.
@@ -38,12 +42,13 @@ export class SaveWorker {
    * a save. A failed operation rejects to its caller and does not schedule
    * a save.
    */
-  async run<T>(
+  run<T>(
     operation: () => Promise<T>,
     options?: { saveInBackground?: boolean },
   ): Promise<T> {
-    this.pendingWork++;
-    try {
+    // The automatic save is scheduled inside the tracked region, so it is
+    // registered before the operation's registration is released.
+    return this.track(async () => {
       const result = await operation();
       if (options?.saveInBackground === true) {
         void this.save().catch((error) => {
@@ -51,18 +56,15 @@ export class SaveWorker {
         });
       }
       return result;
-    } finally {
-      this.pendingWork--;
-      this.maybeResolvePendingWorkWaiters();
-    }
+    });
   }
 
   /**
    * Schedules a save of the current project state and resolves when the
    * write has concluded, rejecting with the write's error.
    */
-  async save(): Promise<void> {
-    await this.enqueueSave();
+  save(): Promise<void> {
+    return this.track(() => this.enqueueWrite());
   }
 
   /**
@@ -72,10 +74,8 @@ export class SaveWorker {
    * the file was loaded.
    */
   async waitForPendingSaves(): Promise<SaveResult | undefined> {
-    while (this.pendingWork > 0) {
-      await new Promise<void>((resolve) => {
-        this.pendingWorkWaiters.push(resolve);
-      });
+    while (this.pending.size > 0) {
+      await Promise.all([...this.pending]);
     }
     return this.lastSaveResult;
   }
@@ -86,23 +86,19 @@ export class SaveWorker {
   }
 
   /**
-   * Registers a save as pending work (queued saves count as pending
-   * before they start writing) and releases the registration once the
-   * write has concluded.
+   * Runs `work` while counting it as pending tracked work: registers it
+   * before it starts and releases the registration once it concludes,
+   * successfully or with an error.
    */
-  private enqueueSave(): Promise<void> {
-    this.pendingWork++;
-    const write = this.enqueueWrite();
-    void write
-      .finally(() => {
-        this.pendingWork--;
-        this.maybeResolvePendingWorkWaiters();
-      })
-      .catch(() => {
-        // The rejection is observed by the caller of `save` or logged by
-        // the automatic-save continuation of `run`; nothing to do here.
-      });
-    return write;
+  private async track<T>(work: () => Promise<T>): Promise<T> {
+    const done = Promise.withResolvers<void>();
+    this.pending.add(done.promise);
+    try {
+      return await work();
+    } finally {
+      this.pending.delete(done.promise);
+      done.resolve();
+    }
   }
 
   /**
@@ -127,17 +123,5 @@ export class SaveWorker {
       () => undefined,
     );
     return write;
-  }
-
-  private maybeResolvePendingWorkWaiters(): void {
-    if (this.pendingWork === 0) {
-      const resolvers = this.pendingWorkWaiters.splice(
-        0,
-        this.pendingWorkWaiters.length,
-      );
-      for (const resolve of resolvers) {
-        resolve();
-      }
-    }
   }
 }
