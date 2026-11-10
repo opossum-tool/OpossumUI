@@ -72,11 +72,7 @@ import {
   setTargetView,
 } from '../view-actions/view-actions';
 
-/**
- * Shows the saving indicator and confirms the quit in the main process,
- * which finalizes the quit only after every tracked operation has been
- * executed and its file write has concluded.
- */
+/** Shows the saving indicator and confirms the quit in the main process. */
 function confirmQuitShowingSavingIndicator(): AppThunkAction {
   return (dispatch) => {
     dispatch(setIsSavingBeforeQuit(true));
@@ -85,10 +81,8 @@ function confirmQuitShowingSavingIndicator(): AppThunkAction {
 }
 
 /**
- * Shows the saving indicator, then confirms the quit once the backend has
- * no pending tracked work: `whenBackendIdle` resolves only after every
- * operation has been executed and its file write has concluded. The
- * indicator is shown while waiting, so the waiting time is visible.
+ * Shows the saving indicator to make the waiting time visible, then
+ * confirms the quit once the backend has no pending tracked work.
  */
 function confirmQuitWhenBackendIdle(): AppThunkAction<Promise<void>> {
   return async (dispatch) => {
@@ -378,10 +372,8 @@ export function proceedFromUnsavedPopup(): AppThunkAction<Promise<void>> {
     const quitAppRequested = getQuitAppRequested(getState());
 
     if (quitAppRequested) {
-      // Quitting discards the changes and any pending action targets. The
-      // popup stays open (with a spinning button) until the backend has no
-      // pending mutations anymore, so that the final quit cannot silently
-      // lose writes.
+      // The popup stays open, with a spinning button, until the backend has
+      // settled, so that the quit cannot silently lose writes.
       await window.electronAPI.whenBackendIdle();
       dispatch(closePopup());
       dispatch(setTargetView(null));
@@ -394,8 +386,6 @@ export function proceedFromUnsavedPopup(): AppThunkAction<Promise<void>> {
       dispatch(setExportFileRequest(null));
       dispatch(setSplitFileRequest(null));
       dispatch(setQuitAppRequest(false));
-      // The backend just settled, so confirming the quit directly skips the
-      // otherwise redundant wait of `confirmQuitWhenBackendIdle`.
       dispatch(confirmQuitShowingSavingIndicator());
       return;
     }

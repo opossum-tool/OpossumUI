@@ -8,10 +8,6 @@ import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { getMainDbClient } from '../dbProcess/dbProcessClient';
 import logger from './logger';
 
-// Once the renderer acknowledged a quit request, it is considered alive and
-// the user may take as long as they want in the unsaved-changes popup. Only
-// if the renderer never acknowledges the request at all, the renderer is
-// treated as unresponsive and the app force-quits on repeated close attempts.
 const QUIT_REQUEST_UNRESPONSIVE_TIMEOUT_MS = 10000;
 
 let quitApproved = false;
@@ -41,9 +37,6 @@ function canRendererHandleQuitRequest(window: BrowserWindow): boolean {
 export function handleWindowClose(window: BrowserWindow, event: Event): void {
   if (quitApproved) {
     if (!quitFinalized) {
-      // The quit is confirmed but not finalized yet (e.g. a retried save
-      // is in flight); ignore duplicate close attempts so that the window
-      // cannot close mid-write.
       event.preventDefault();
       logger.info('Quit is already in progress; ignoring close attempt.');
     }
@@ -84,17 +77,12 @@ export function acknowledgeQuitRequest(): void {
 }
 
 /**
- * Called by the renderer once it is safe to quit (no unsaved changes left).
- * Awaits the DB process's in-flight registry: every file-writing operation
- * (mutations with their automatic saves, manual saves, forceUnlock, split,
- * merge, export) has been executed and its file write has concluded.
- *
- * The DB process tracks the outcome of every write of the project file
- * (see `waitForPendingSaves`). Acting on a failed write — re-writing the
- * file and warning the user instead of quitting with stale data — is
- * error handling and deliberately not part of this change; it is tracked
- * separately so that tracking and error handling land as two independent
- * issues.
+ * Called by the renderer once it is safe to quit. Resolves after every
+ * tracked file-writing operation (mutations with their automatic saves,
+ * manual saves, forceUnlock, split, merge, export) has been executed and
+ * its write has concluded. Acting on a failed write is error handling and
+ * deliberately part of future work, so tracking and recovery land
+ * independently (see `waitForPendingSaves`).
  */
 export async function confirmQuit(): Promise<void> {
   quitApproved = true;

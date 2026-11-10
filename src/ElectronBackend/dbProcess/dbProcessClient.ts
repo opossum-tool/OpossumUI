@@ -114,7 +114,7 @@ export class DbProcessClient {
    * Resolves once every tracked operation and every scheduled save in the
    * DB process — from any port — has concluded, and returns the outcome of
    * the latest save. `undefined` means no write happened since the file
-   * was loaded. Used to await pending file writes before the app quits.
+   * was loaded.
    */
   waitForPendingSaves(): Promise<SaveResult | undefined> {
     return this.request({ type: 'waitForPendingSaves' }) as Promise<

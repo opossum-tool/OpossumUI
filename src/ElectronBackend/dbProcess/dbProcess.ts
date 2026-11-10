@@ -150,32 +150,21 @@ let storedOpossumZip: AdmZip | undefined;
 let saveTarget: { projectId: string; opossumFilePath: string } | undefined;
 
 /**
- * Owns the lifecycle of tracked operations and project-file saves: which
+ * Owns the lifecycle of tracked operations and project-file saves: what
  * work is pending, in which order saves are written, and what the outcome
- * of the latest save was.
- *
- * Operations are registered before they start and stay registered until
- * they conclude. A successful mutation schedules a save (`saveInBackground`)
- * that registers itself before the operation's registration is released, so
- * the two stages of a mutation never leave a gap. `waitForPendingSaves`
- * resolves only when nothing is registered anymore, so a waiter (e.g. the
- * quit path) can rely on every tracked operation having been executed and
- * every requested save having been written or failed.
- *
- * Only saves are serialized: each save reads the current database snapshot
- * only after the previous save finished, so the last save reflects every
- * mutation that completed before it was scheduled. Operations themselves
- * are not serialized and may run while a save is writing.
- *
- * The outcome recorded by a save is deliberately only the outcome of the
- * save itself. Specialized workflows that write the project file as one of
- * several steps (split, merge, force unlock) participate in waiting, but
- * their outcome is not summarized as an ordinary save outcome.
+ * of the latest save was. `waitForPendingSaves` resolves only when nothing
+ * is pending anymore, so waiters (e.g. the quit path) can rely on every
+ * tracked operation having been executed and every requested save having
+ * been written or failed.
  */
 class SaveWorker {
   private readonly writeCurrentProject: () => Promise<void>;
   private pendingWork = 0;
   private readonly pendingWorkWaiters: Array<() => void> = [];
+  /**
+   * Records only ordinary saves; split, merge, and force unlock write the
+   * project file as one of several steps and do not record here.
+   */
   private lastSaveResult: SaveResult | undefined;
   private saveTail: Promise<void> = Promise.resolve();
 
@@ -186,9 +175,8 @@ class SaveWorker {
   /**
    * Runs the operation and returns its result as soon as it is available.
    * With `saveInBackground`, a successful operation additionally schedules
-   * a save of the current project state; the caller is not delayed by that
-   * save, but it keeps the worker busy until the write has concluded. A
-   * failed operation rejects to its caller and does not schedule a save.
+   * a save. A failed operation rejects to its caller and does not schedule
+   * a save.
    */
   async run<T>(
     operation: () => Promise<T>,
@@ -211,9 +199,7 @@ class SaveWorker {
 
   /**
    * Schedules a save of the current project state and resolves when the
-   * write has concluded, rejecting with the write's error. Used by manual
-   * save requests and by the automatic-save continuation of mutations, so
-   * both share tracking, ordering, and outcome recording.
+   * write has concluded, rejecting with the write's error.
    */
   async save(): Promise<void> {
     await this.enqueueSave();
@@ -240,9 +226,9 @@ class SaveWorker {
   }
 
   /**
-   * Registers a save as pending work immediately (queued saves count as
-   * pending before they start writing), appends the write to the save
-   * tail, and releases the registration once the write has concluded.
+   * Registers a save as pending work (queued saves count as pending
+   * before they start writing) and releases the registration once the
+   * write has concluded.
    */
   private enqueueSave(): Promise<void> {
     this.pendingWork++;
@@ -261,9 +247,9 @@ class SaveWorker {
 
   /**
    * Appends a write of the current project state to the save tail and
-   * records its outcome. The snapshot of the project state is read inside
-   * the queued callback, so the write reflects every mutation that
-   * completed before it was scheduled.
+   * records its outcome. The snapshot is read when the write starts, so
+   * the last write reflects every mutation completed before it was
+   * scheduled.
    */
   private enqueueWrite(): Promise<void> {
     const write = this.saveTail.then(async () => {
