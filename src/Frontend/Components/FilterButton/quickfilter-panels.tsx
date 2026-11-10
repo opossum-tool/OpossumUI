@@ -3,6 +3,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, Button, IconButton, Typography } from '@mui/material';
 import MuiTooltip from '@mui/material/Tooltip';
@@ -28,10 +30,11 @@ function handleActivationKeyDown(
   }
 }
 
-export function SaveQuickfilterPanel({
+function SaveQuickfilterPanel({
   filters,
   scope,
   onSaved,
+  onCancel,
   onClose,
   id,
   initialFocusRef,
@@ -39,6 +42,7 @@ export function SaveQuickfilterPanel({
   filters: AttributionFilters;
   scope: QuickfilterScope;
   onSaved: (id: string) => void;
+  onCancel?: () => void;
   onClose: () => void;
   id: string;
   initialFocusRef?: (element: HTMLElement | null) => void;
@@ -46,14 +50,14 @@ export function SaveQuickfilterPanel({
   const { saveQuickfilter } = useQuickfilters(scope);
   const [name, setName] = useState('');
   const trimmedName = name.trim();
+  const cancel = onCancel ?? onClose;
   const save = useCallback(() => {
     if (!trimmedName) {
       return;
     }
     const savedId = saveQuickfilter(trimmedName, filters);
     onSaved(savedId);
-    onClose();
-  }, [trimmedName, saveQuickfilter, filters, onSaved, onClose]);
+  }, [trimmedName, saveQuickfilter, filters, onSaved]);
 
   return (
     <Box
@@ -87,7 +91,7 @@ export function SaveQuickfilterPanel({
         >
           {text.quickfilters.saveAction}
         </Button>
-        <Button size="small" sx={styles.actionButton} onClick={onClose}>
+        <Button size="small" sx={styles.actionButton} onClick={cancel}>
           {text.buttons.cancel}
         </Button>
       </Box>
@@ -95,12 +99,17 @@ export function SaveQuickfilterPanel({
   );
 }
 
-export function QuickfilterListPanel({
+export function QuickfiltersPanel({
   quickfilters,
   incompatibleProjectIds = [],
   conflictingIds = [],
+  activeQuickfilterIds,
+  hasActiveFilters,
+  filters,
+  scope,
   onApply,
   onDelete,
+  onSaved,
   onClose,
   id,
   initialFocusRef,
@@ -108,18 +117,43 @@ export function QuickfilterListPanel({
   quickfilters: Array<SavedQuickfilter>;
   incompatibleProjectIds?: Array<string>;
   conflictingIds?: Array<string>;
+  activeQuickfilterIds: Array<string>;
+  hasActiveFilters: boolean;
+  filters: AttributionFilters;
+  scope: QuickfilterScope;
   onApply: (quickfilter: SavedQuickfilter) => void;
   onDelete: (id: string) => void;
+  onSaved: (id: string) => void;
   onClose: () => void;
   id: string;
   initialFocusRef?: (element: HTMLElement | null) => void;
 }) {
+  const [isSaving, setIsSaving] = useState(false);
   const setFocusTarget = useCallback(
     (element: HTMLDivElement | null) => {
       initialFocusRef?.(element);
     },
     [initialFocusRef],
   );
+
+  if (isSaving) {
+    return (
+      <SaveQuickfilterPanel
+        filters={filters}
+        scope={scope}
+        onSaved={(savedId) => {
+          onSaved(savedId);
+          // Return to the list so the newly saved quickfilter is visible and
+          // immediately active; the panel closes only on dismiss.
+          setIsSaving(false);
+        }}
+        onCancel={() => setIsSaving(false)}
+        onClose={onClose}
+        id={id}
+        initialFocusRef={initialFocusRef}
+      />
+    );
+  }
 
   return (
     <Box
@@ -131,74 +165,103 @@ export function QuickfilterListPanel({
       sx={styles.panel}
     >
       <Typography sx={styles.title}>{text.quickfilters.title}</Typography>
-      <Box sx={styles.list}>
-        {quickfilters.map((quickfilter) => {
-          const disabledReason: string | undefined = (() => {
-            if (incompatibleProjectIds.includes(quickfilter.id)) {
-              return text.quickfilters.incompatibleWithProject;
-            }
-            if (conflictingIds.includes(quickfilter.id)) {
-              return text.quickfilters.conflictsWithFilters;
-            }
-            return undefined;
-          })();
-          const apply = (): void => {
-            if (disabledReason === undefined) {
-              onApply(quickfilter);
+      {hasActiveFilters && (
+        <Box
+          role="button"
+          tabIndex={0}
+          aria-label={text.quickfilters.save}
+          sx={styles.row}
+          onClick={() => setIsSaving(true)}
+          onKeyDown={(event) => {
+            if (event.key === 'ArrowLeft') {
+              event.preventDefault();
+              event.stopPropagation();
               onClose();
+            } else {
+              handleActivationKeyDown(event, () => setIsSaving(true));
             }
-          };
-          return (
-            <MuiTooltip key={quickfilter.id} title={disabledReason ?? ''}>
+          }}
+        >
+          <BookmarkAddIcon fontSize="small" sx={styles.icon} />
+          <Box component="span" sx={styles.label}>
+            {text.quickfilters.save}
+          </Box>
+        </Box>
+      )}
+      {quickfilters.map((quickfilter) => {
+        const active = activeQuickfilterIds.includes(quickfilter.id);
+        // Active quickfilters can always be removed; conflicts with the
+        // current filters only prevent applying them. Quickfilters that the
+        // project or settings cannot express stay disabled like before.
+        const disabledReason = (() => {
+          if (incompatibleProjectIds.includes(quickfilter.id)) {
+            return text.quickfilters.incompatibleWithProject;
+          }
+          if (!active && conflictingIds.includes(quickfilter.id)) {
+            return text.quickfilters.conflictsWithFilters;
+          }
+          return undefined;
+        })();
+        const apply = (): void => {
+          if (disabledReason === undefined) {
+            onApply(quickfilter);
+          }
+        };
+        return (
+          <MuiTooltip key={quickfilter.id} title={disabledReason ?? ''}>
+            <Box
+              role="button"
+              tabIndex={0}
+              aria-label={text.quickfilters.apply(quickfilter.name)}
+              aria-pressed={active}
+              aria-disabled={disabledReason !== undefined}
+              sx={[
+                styles.row,
+                disabledReason !== undefined && styles.inapplicableRow,
+              ]}
+              onClick={apply}
+              onKeyDown={(event) => {
+                if (event.key === 'ArrowLeft') {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  onClose();
+                } else {
+                  handleActivationKeyDown(event, apply);
+                }
+              }}
+            >
+              {active ? (
+                <BookmarkIcon fontSize="small" sx={styles.icon} />
+              ) : (
+                <BookmarkBorderIcon fontSize="small" sx={styles.icon} />
+              )}
               <Box
-                role="button"
-                tabIndex={0}
-                aria-label={text.quickfilters.apply(quickfilter.name)}
-                aria-disabled={disabledReason !== undefined}
-                sx={[
-                  styles.row,
-                  disabledReason !== undefined && styles.inapplicableRow,
-                ]}
-                onClick={apply}
+                component="span"
+                sx={[styles.label, active && styles.activeLabel]}
+              >
+                {quickfilter.name}
+              </Box>
+              <IconButton
+                aria-label={text.quickfilters.delete(quickfilter.name)}
+                size="small"
+                sx={styles.deleteButton}
+                tabIndex={-1}
                 onKeyDown={(event) => {
-                  if (event.key === 'ArrowLeft') {
-                    event.preventDefault();
+                  if (event.key === 'Enter' || event.key === ' ') {
                     event.stopPropagation();
-                    onClose();
-                  } else {
-                    handleActivationKeyDown(event, apply);
                   }
                 }}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onDelete(quickfilter.id);
+                }}
               >
-                <BookmarkIcon fontSize="small" sx={styles.icon} />
-                <Box component="span" sx={styles.label}>
-                  {quickfilter.name}
-                </Box>
-                <IconButton
-                  aria-label={text.quickfilters.delete(quickfilter.name)}
-                  size="small"
-                  sx={styles.deleteButton}
-                  tabIndex={-1}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.stopPropagation();
-                    }
-                  }}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onDelete(quickfilter.id);
-                  }}
-                >
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
-              </Box>
-            </MuiTooltip>
-          );
-        })}
-      </Box>
-      {!quickfilters.length && (
-        <Typography sx={styles.empty}>{text.quickfilters.empty}</Typography>
-      )}
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Box>
+          </MuiTooltip>
+        );
+      })}
     </Box>
   );
 }

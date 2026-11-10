@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import BookmarkIcon from '@mui/icons-material/Bookmark';
-import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useMemo } from 'react';
 
@@ -21,17 +20,13 @@ import {
   combineQuickfilters,
   isQuickfilterCompatible,
   isQuickfilterUsableInProject,
-  MAX_RECENT_QUICKFILTERS,
   mergeQuickfilterIntoFilters,
   useQuickfilters,
 } from '../../state/variables/use-quickfilters';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { useClassifications } from '../../util/use-classifications';
 import type { FilterOption } from './FilterButton';
-import {
-  QuickfilterListPanel,
-  SaveQuickfilterPanel,
-} from './quickfilter-panels';
+import { QuickfiltersPanel } from './quickfilter-panels';
 
 type SetFilters = (filters: AttributionFilters) => void;
 
@@ -44,8 +39,7 @@ export function useQuickfilterOptions({
   setFilters: SetFilters;
   scope: QuickfilterScope;
 }): Array<FilterOption> {
-  const { quickfilters, deleteQuickfilter, markQuickfilterUsed } =
-    useQuickfilters(scope);
+  const { quickfilters, deleteQuickfilter } = useQuickfilters(scope);
   const classifications = useClassifications();
   const [userSettings] = useUserSettings();
   const hasActiveFilters = hasActiveAttributionFilters(filters);
@@ -64,13 +58,6 @@ export function useQuickfilterOptions({
       userSettings.showCriticality,
     ],
   );
-  const visibleQuickfilters = useMemo(
-    () =>
-      quickfilters.filter((quickfilter) =>
-        isQuickfilterUsableInProject(quickfilter, usabilityContext),
-      ),
-    [quickfilters, usabilityContext],
-  );
   const incompatibleProjectIds = useMemo(
     () =>
       quickfilters
@@ -86,14 +73,14 @@ export function useQuickfilterOptions({
     const activeIds = filters.activeQuickfilterIds ?? [];
 
     const applyQuickfilter = (quickfilter: SavedQuickfilter): void => {
-      if (
-        activeIds.includes(quickfilter.id) ||
-        !isQuickfilterCompatible(filters, quickfilter)
-      ) {
+      if (activeIds.includes(quickfilter.id)) {
+        removeQuickfilter(quickfilter);
+        return;
+      }
+      if (!isQuickfilterCompatible(filters, quickfilter)) {
         return;
       }
       setFilters(mergeQuickfilterIntoFilters(filters, quickfilter));
-      markQuickfilterUsed(quickfilter.id);
     };
 
     const removeQuickfilter = (quickfilter: SavedQuickfilter): void => {
@@ -114,94 +101,51 @@ export function useQuickfilterOptions({
       });
     };
 
-    const recentQuickfilterOptions = visibleQuickfilters
-      .slice(0, MAX_RECENT_QUICKFILTERS)
-      .map((quickfilter) => {
-        const selected = activeIds.includes(quickfilter.id);
-        return {
-          kind: 'toggle' as const,
-          id: `quickfilter-${quickfilter.id}`,
-          selected,
-          faded: !selected && !isQuickfilterCompatible(filters, quickfilter),
-          label: quickfilter.name,
-          tinted: true,
-          icon: <BookmarkIcon sx={baseIcon} />,
-          onAdd: () => applyQuickfilter(quickfilter),
-          onDelete: () => removeQuickfilter(quickfilter),
-        };
-      });
+    if (!quickfilters.length && !hasActiveFilters) {
+      return [];
+    }
 
-    const manageQuickfiltersOption: Array<FilterOption> = quickfilters.length
-      ? [
-          {
-            kind: 'panel' as const,
-            id: 'quickfilters-more',
-            selected: false,
-            label:
-              visibleQuickfilters.length > MAX_RECENT_QUICKFILTERS
-                ? text.quickfilters.more
-                : text.quickfilters.manage,
-            tinted: true,
-            icon: <BookmarkIcon sx={baseIcon} />,
-            endIcon: <ChevronRightIcon />,
-            renderPanel: ({ id, onClose, initialFocusRef }) => (
-              <QuickfilterListPanel
-                id={id}
-                quickfilters={quickfilters}
-                incompatibleProjectIds={incompatibleProjectIds}
-                conflictingIds={quickfilters
-                  .filter(
-                    (quickfilter) =>
-                      !isQuickfilterCompatible(filters, quickfilter),
-                  )
-                  .map(({ id }) => id)}
-                onApply={applyQuickfilter}
-                onDelete={deleteQuickfilter}
-                onClose={onClose}
-                initialFocusRef={initialFocusRef}
-              />
-            ),
-          },
-        ]
-      : [];
-
-    const saveQuickfilterOption: Array<FilterOption> = hasActiveFilters
-      ? [
-          {
-            kind: 'panel' as const,
-            id: 'save-quickfilter',
-            selected: false,
-            label: text.quickfilters.save,
-            icon: <BookmarkAddIcon sx={baseIcon} />,
-            endIcon: <ChevronRightIcon />,
-            renderPanel: ({ id, onClose, initialFocusRef }) => (
-              <SaveQuickfilterPanel
-                id={id}
-                filters={filters}
-                scope={scope}
-                onSaved={activateSavedQuickfilter}
-                onClose={onClose}
-                initialFocusRef={initialFocusRef}
-              />
-            ),
-          },
-        ]
-      : [];
-
+    // A single menu entry keeps the filter menu clean; everything happens
+    // inside the side panel (recently used list, save, manage).
     return [
-      ...recentQuickfilterOptions,
-      ...manageQuickfiltersOption,
-      ...saveQuickfilterOption,
+      {
+        kind: 'panel' as const,
+        id: 'quickfilters',
+        selected: false,
+        label: text.quickfilters.title,
+        tinted: true,
+        icon: <BookmarkIcon sx={baseIcon} />,
+        endIcon: <ChevronRightIcon />,
+        renderPanel: ({ id, onClose, initialFocusRef }) => (
+          <QuickfiltersPanel
+            id={id}
+            filters={filters}
+            scope={scope}
+            activeQuickfilterIds={activeIds}
+            hasActiveFilters={hasActiveFilters}
+            quickfilters={quickfilters}
+            incompatibleProjectIds={incompatibleProjectIds}
+            conflictingIds={quickfilters
+              .filter(
+                (quickfilter) => !isQuickfilterCompatible(filters, quickfilter),
+              )
+              .map(({ id }) => id)}
+            onApply={applyQuickfilter}
+            onDelete={deleteQuickfilter}
+            onSaved={activateSavedQuickfilter}
+            onClose={onClose}
+            initialFocusRef={initialFocusRef}
+          />
+        ),
+      },
     ];
   }, [
-    visibleQuickfilters,
-    incompatibleProjectIds,
     quickfilters,
+    incompatibleProjectIds,
     filters,
     setFilters,
     hasActiveFilters,
     scope,
     deleteQuickfilter,
-    markQuickfilterUsed,
   ]);
 }

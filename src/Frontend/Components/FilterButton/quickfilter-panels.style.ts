@@ -51,12 +51,11 @@ export const styles = {
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   } satisfies SxProps<Theme>,
+  activeLabel: {
+    fontWeight: 'bold',
+  } satisfies SxProps<Theme>,
   icon: { flexShrink: 0 } satisfies SxProps<Theme>,
   deleteButton: { p: Sizing.Tiny, flexShrink: 0 } satisfies SxProps<Theme>,
-  empty: {
-    typography: 'body2',
-    color: OpossumColors.disabledGrey,
-  } satisfies SxProps<Theme>,
   actions: {
     display: 'flex',
     justifyContent: 'flex-end',

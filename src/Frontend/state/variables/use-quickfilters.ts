@@ -16,8 +16,6 @@ import {
 } from './use-filters';
 import { useUserSettings } from './use-user-setting';
 
-export const MAX_RECENT_QUICKFILTERS = 3;
-
 function toQuickfilterFilters({
   filters,
   search,
@@ -189,15 +187,15 @@ export function useQuickfilters(scope: QuickfilterScope): {
   quickfilters: Array<SavedQuickfilter>;
   saveQuickfilter: (name: string, filters: AttributionFilters) => string;
   deleteQuickfilter: (id: string) => void;
-  markQuickfilterUsed: (id: string) => void;
 } {
   const [userSettings, updateUserSettings] = useUserSettings();
 
+  // In creation order: savedQuickfilters are appended on save.
   const quickfilters = useMemo(
     () =>
-      userSettings.savedQuickfilters
-        .filter((quickfilter) => quickfilter.scope === scope)
-        .sort((first, second) => second.lastUsedAt - first.lastUsedAt),
+      userSettings.savedQuickfilters.filter(
+        (quickfilter) => quickfilter.scope === scope,
+      ),
     [userSettings.savedQuickfilters, scope],
   );
 
@@ -229,20 +227,9 @@ export function useQuickfilters(scope: QuickfilterScope): {
     }));
   };
 
-  const markQuickfilterUsed = (id: string): void => {
-    updateUserSettings((settings) => ({
-      savedQuickfilters: settings.savedQuickfilters.map((quickfilter) =>
-        quickfilter.id === id
-          ? { ...quickfilter, lastUsedAt: Date.now() }
-          : quickfilter,
-      ),
-    }));
-  };
-
   return {
     quickfilters,
     saveQuickfilter,
     deleteQuickfilter,
-    markQuickfilterUsed,
   };
 }
