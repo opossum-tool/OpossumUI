@@ -6,7 +6,6 @@ import { expect } from '@playwright/test';
 
 import { menuItemIds } from '../../ElectronBackend/main/menu/menuItemIds';
 import type { ElectronAPI } from '../../shared/shared-types';
-import { MenuBar } from '../page-objects/MenuBar';
 import { test } from '../utils';
 
 test.use({ playwrightTracing: false });
@@ -71,8 +70,8 @@ test('persists user settings across an app restart', async ({
     menuItemIds.showClassifications,
   );
 
-  const relaunchedWindow = await relaunch();
-  const relaunchedMenuBar = new MenuBar(relaunchedWindow);
+  const { window: relaunchedWindow, menuBar: relaunchedMenuBar } =
+    await relaunch();
 
   await expect
     .poll(() => relaunchedMenuBar.getMenuItemIconReference(menuItemIds.qaMode))

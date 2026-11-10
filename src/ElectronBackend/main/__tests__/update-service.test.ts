@@ -304,10 +304,10 @@ describe('update service release tags', () => {
     expect(net.fetch).not.toHaveBeenCalled();
   });
 
-  it('does not start automatic checks during RESET', async () => {
+  it('does not start automatic checks when disabled by the environment', async () => {
     vi.useFakeTimers();
     vi.stubEnv('APPIMAGE', '/test/app');
-    vi.stubEnv('RESET', '1');
+    vi.stubEnv('OPOSSUM_DISABLE_AUTOMATIC_UPDATE_CHECKS', '1');
     startAutomaticUpdateChecks();
     await flushMicrotasks();
     expect(net.fetch).not.toHaveBeenCalled();

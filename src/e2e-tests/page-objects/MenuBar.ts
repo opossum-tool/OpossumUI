@@ -233,6 +233,10 @@ export class MenuBar {
     await this.clickEnabledMenuItem(menuItemIds.helpCheckForUpdates);
   }
 
+  async showWhatsNew(): Promise<void> {
+    await this.clickEnabledMenuItem(menuItemIds.helpWhatsNew);
+  }
+
   async toggleAutomaticUpdateChecks(): Promise<void> {
     const previousIcon = await this.getMenuItemIconReference(
       menuItemIds.helpAutomaticallyCheckForUpdates,
