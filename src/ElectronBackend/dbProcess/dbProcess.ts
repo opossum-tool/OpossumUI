@@ -33,7 +33,7 @@ import {
   type LoadFileIpcResult,
   type LoadFileProgressCallback,
 } from '../input/loadFile';
-import { SaveWorker, type SaveResult } from './save-worker';
+import { type SaveResult, SaveWorker } from './save-worker';
 
 interface LoadFileMessage {
   type: 'loadFile';

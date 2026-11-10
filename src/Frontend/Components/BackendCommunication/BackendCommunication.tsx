@@ -17,10 +17,7 @@ import {
   showSplitDialogOrOpenUnsavedPopup,
 } from '../../state/actions/popup-actions/popup-actions';
 import { resetResourceState } from '../../state/actions/resource-actions/all-views-simple-actions';
-import {
-  openPopup,
-  setIsSavingBeforeQuit,
-} from '../../state/actions/view-actions/view-actions';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { backend, setDatabaseInitialized } from '../../util/backendClient';
 import {
@@ -145,11 +142,6 @@ export const BackendCommunication: React.FC = () => {
       window.electronAPI.quitRequestHandled();
       void dispatch(quitAppOrOpenUnsavedPopup());
     },
-    [dispatch],
-  );
-  useIpcRenderer(
-    AllowedFrontendChannels.QuitSaveFailed,
-    () => dispatch(setIsSavingBeforeQuit(false)),
     [dispatch],
   );
 
