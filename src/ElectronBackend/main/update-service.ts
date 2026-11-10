@@ -349,7 +349,7 @@ function isValidAssetDownloadUrl(
 export function startAutomaticUpdateChecks(): void {
   if (
     !app.isPackaged ||
-    process.env.RESET ||
+    process.env.OPOSSUM_DISABLE_AUTOMATIC_UPDATE_CHECKS ||
     !installedRelease ||
     !getRequiredAsset()
   ) {

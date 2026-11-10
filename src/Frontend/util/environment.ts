@@ -6,3 +6,7 @@
 export function isProductionBuild(): boolean {
   return import.meta.env.PROD;
 }
+
+export function isProductionOrAutomatedRun(): boolean {
+  return isProductionBuild() || navigator.webdriver;
+}

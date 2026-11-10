@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getUserSettingsLoaded } from '../../state/selectors/user-settings-selector';
 import { getOpenPopup } from '../../state/selectors/view-selector';
 import { useUserSettings } from '../../state/variables/use-user-setting';
-import { isProductionBuild } from '../../util/environment';
+import { isProductionOrAutomatedRun } from '../../util/environment';
 import { revision } from '../../whats-new/release-notes';
 
 export function useWhatsNew() {
@@ -34,7 +34,7 @@ export function useWhatsNew() {
     }
     startupCheckCompletedRef.current = true;
     if (
-      isProductionBuild() &&
+      isProductionOrAutomatedRun() &&
       revision > 0 &&
       settings.lastSeenWhatsNewRevision < revision
     ) {

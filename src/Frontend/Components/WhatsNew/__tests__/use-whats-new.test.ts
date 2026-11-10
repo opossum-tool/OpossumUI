@@ -165,10 +165,25 @@ describe('automatic release announcements', () => {
 
   it('does not automatically open in development', async () => {
     vi.stubEnv('PROD', false);
+    using webdriver = vi.spyOn(navigator, 'webdriver', 'get');
+    webdriver.mockReturnValue(false);
     const { store, result } = await renderWhatsNew();
     await waitFor(() => expect(result.current).toBe(true));
     expect(getOpenPopup(store.getState())).toBeNull();
     expect(window.electronAPI.updateUserSettings).not.toHaveBeenCalled();
+  });
+
+  it('automatically opens under automation without a production build', async () => {
+    vi.stubEnv('PROD', false);
+    using webdriver = vi.spyOn(navigator, 'webdriver', 'get');
+    webdriver.mockReturnValue(true);
+    const { store } = await renderWhatsNew();
+    await waitFor(() =>
+      expect(getOpenPopup(store.getState())?.popup).toBe(
+        PopupType.WhatsNewPopup,
+      ),
+    );
+    await waitFor(() => expect(savedSettings.lastSeenWhatsNewRevision).toBe(1));
   });
 
   it('does not automatically open when reading settings fails', async () => {

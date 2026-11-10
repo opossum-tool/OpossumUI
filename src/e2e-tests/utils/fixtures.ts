@@ -7,6 +7,7 @@ import {
   _electron as electron,
   type ElectronApplication,
   type Page,
+  type TestFixture,
 } from '@playwright/test';
 import { parseElectronApp } from 'electron-playwright-helpers';
 import * as fs from 'fs';
@@ -43,6 +44,7 @@ import { ResourcesTree } from '../page-objects/ResourcesTree';
 import { SignalsPanel } from '../page-objects/SignalsPanel';
 import { SplitDialog } from '../page-objects/SplitDialog';
 import { TopBar } from '../page-objects/TopBar';
+import { WhatsNewPopup } from '../page-objects/whats-new-popup';
 import {
   getUnexpectedSyncDialogCalls,
   installDefaultSyncDialogStubs,
@@ -74,62 +76,106 @@ interface FilePaths {
   json: string;
 }
 
-export const test = base.extend<{
-  window: Page & {
-    app: ElectronApplication;
-    startupDurationMs: number | null;
-    /** Closes the app and relaunches it with the same user data directory (no reset, no file). */
-    relaunch: () => Promise<Page & { app: ElectronApplication }>;
-  };
-  /** Specify the input/output data contained in the opossum file which the app will open as part of the test. */
-  data: OpossumData | undefined;
-  /** Open an existing file instead of creating a test file. */
-  existingFilePath: string | null;
-  /** Override the release application path used by release E2E runs. */
-  releasePathOverride: string | null;
-  /** Enable the Playwright trace collected by regular E2E tests. */
-  playwrightTracing: boolean;
-  /** Timeout for loading an existing file into the application. */
-  appLoadTimeout: number;
-  /** Measure process launch until the empty application is ready for a file. */
-  measureStartup: boolean;
-  /** Run this function at any point in a test to abort the test at that point and inspect the opossum file. */
-  debug: () => void;
-  modKey: string;
-  attributionDetails: AttributionDetails;
-  attributionsPanel: AttributionsPanel;
-  confirmDeletePopup: ConfirmDeletePopup;
-  confirmReplacePopup: ConfirmReplacePopup;
-  confirmSavePopup: ConfirmSavePopup;
-  confirmationDialog: ConfirmationDialog;
-  diffPopup: DiffPopup;
-  errorPopup: ErrorPopup;
-  filePaths: FilePaths | null;
-  fileSupportPopup: FileSupportPopup;
-  forceUnlockPopup: ForceUnlockPopup;
-  importDialog: ImportDialog;
-  mergeOpossumFilesDialog: MergeOpossumFilesDialog;
-  linkedResourcesTree: LinkedResourcesTree;
-  menuBar: MenuBar;
-  notSavedPopup: NotSavedPopup;
-  openFromCLI: boolean;
-  pathBar: PathBar;
-  projectMetadataPopup: ProjectMetadataPopup;
-  projectStatisticsPopup: ProjectStatisticsPopup;
-  /** Closes the app and relaunches it */
-  relaunch: () => Promise<Page & { app: ElectronApplication }>;
-  reportView: ReportView;
-  resourcesTree: ResourcesTree;
-  signalsPanel: SignalsPanel;
-  splitDialog: SplitDialog;
-  topBar: TopBar;
-}>({
+type AppWindow = Page & { app: ElectronApplication };
+
+const pageObjectConstructors = {
+  attributionDetails: AttributionDetails,
+  attributionsPanel: AttributionsPanel,
+  confirmDeletePopup: ConfirmDeletePopup,
+  confirmReplacePopup: ConfirmReplacePopup,
+  confirmSavePopup: ConfirmSavePopup,
+  confirmationDialog: ConfirmationDialog,
+  diffPopup: DiffPopup,
+  errorPopup: ErrorPopup,
+  fileSupportPopup: FileSupportPopup,
+  forceUnlockPopup: ForceUnlockPopup,
+  importDialog: ImportDialog,
+  linkedResourcesTree: LinkedResourcesTree,
+  menuBar: MenuBar,
+  mergeOpossumFilesDialog: MergeOpossumFilesDialog,
+  notSavedPopup: NotSavedPopup,
+  pathBar: PathBar,
+  projectMetadataPopup: ProjectMetadataPopup,
+  projectStatisticsPopup: ProjectStatisticsPopup,
+  reportView: ReportView,
+  resourcesTree: ResourcesTree,
+  signalsPanel: SignalsPanel,
+  splitDialog: SplitDialog,
+  topBar: TopBar,
+  whatsNewPopup: WhatsNewPopup,
+};
+
+type PageObjects = {
+  [K in keyof typeof pageObjectConstructors]: InstanceType<
+    (typeof pageObjectConstructors)[K]
+  >;
+};
+
+const pageObjectFixtures = Object.fromEntries(
+  Object.entries(pageObjectConstructors).map(([name, PageObject]) => [
+    name,
+    async (
+      { window }: { window: AppWindow },
+      use: (pageObject: PageObjects[keyof PageObjects]) => Promise<void>,
+    ) => {
+      await use(new PageObject(window));
+    },
+  ]),
+) as unknown as {
+  [K in keyof PageObjects]: TestFixture<PageObjects[K], { window: AppWindow }>;
+};
+
+function createPageObjects(window: AppWindow): PageObjects {
+  return Object.fromEntries(
+    Object.entries(pageObjectConstructors).map(([name, PageObject]) => [
+      name,
+      new PageObject(window),
+    ]),
+  ) as PageObjects;
+}
+
+export const test = base.extend<
+  PageObjects & {
+    window: AppWindow & {
+      startupDurationMs: number | null;
+      /** Closes the app and relaunches it with the same user data directory (no reset, no file). */
+      relaunch: () => Promise<AppWindow>;
+    };
+    /** Specify the input/output data contained in the opossum file which the app will open as part of the test. */
+    data: OpossumData | undefined;
+    /** Open an existing file instead of creating a test file. */
+    existingFilePath: string | null;
+    /** Override the release application path used by release E2E runs. */
+    releasePathOverride: string | null;
+    /** Enable the Playwright trace collected by regular E2E tests. */
+    playwrightTracing: boolean;
+    /** Timeout for loading an existing file into the application. */
+    appLoadTimeout: number;
+    /** Measure process launch until the empty application is ready for a file. */
+    measureStartup: boolean;
+    /** Show the automatic announcement on the initial app launch. */
+    showStartupWhatsNew: boolean;
+    /** Run this function at any point in a test to abort the test at that point and inspect the opossum file. */
+    debug: () => void;
+    modKey: string;
+    filePaths: FilePaths | null;
+    openFromCLI: boolean;
+    /** Closes the app and relaunches it */
+    relaunch: () => Promise<
+      PageObjects & {
+        window: AppWindow;
+      }
+    >;
+  }
+>({
+  ...pageObjectFixtures,
   data: undefined,
   existingFilePath: [null, { option: true }],
   releasePathOverride: [null, { option: true }],
   playwrightTracing: [true, { option: true }],
   appLoadTimeout: [LOAD_TIMEOUT, { option: true }],
   measureStartup: [false, { option: true }],
+  showStartupWhatsNew: [false, { option: true }],
   openFromCLI: true,
   filePaths: async ({ data }, use, info) => {
     if (!data) {
@@ -153,6 +199,7 @@ export const test = base.extend<{
       playwrightTracing,
       releasePathOverride,
       measureStartup,
+      showStartupWhatsNew,
     },
     use,
     info,
@@ -171,14 +218,22 @@ export const test = base.extend<{
 
     const artifactBaseName = getArtifactBaseName(data);
 
+    const userDataPath = info.outputPath('user-data');
+    await fs.promises.mkdir(userDataPath, { recursive: true });
+    await fs.promises.writeFile(
+      path.join(userDataPath, 'settings.json'),
+      JSON.stringify({
+        lastSeenWhatsNewRevision: showStartupWhatsNew
+          ? 0
+          : Number.MAX_SAFE_INTEGER,
+      }),
+    );
     const startupStartedAt = performance.now();
     let currentSession = await startAppSession({
       appLoadTimeout,
-      args: [
-        '--reset',
-        `--user-data-dir=${info.outputPath('user-data')}`,
-      ].concat(opossumFilePath && openFromCLI ? [opossumFilePath] : []),
-      env: { ...process.env, RESET: '1' },
+      args: [`--user-data-dir=${userDataPath}`].concat(
+        opossumFilePath && openFromCLI ? [opossumFilePath] : [],
+      ),
       playwrightTracing,
       releasePathOverride,
     });
@@ -242,7 +297,7 @@ export const test = base.extend<{
         startupDurationMs: measureStartup
           ? performance.now() - startupStartedAt
           : null,
-        relaunch: async (): Promise<Page & { app: ElectronApplication }> => {
+        relaunch: async (): Promise<AppWindow> => {
           finishedSessions.push({
             label: 'Before relaunch',
             unexpectedDialogCalls: await finishCurrentAppSession(
@@ -251,11 +306,8 @@ export const test = base.extend<{
           });
           currentSession = await startAppSession({
             appLoadTimeout,
-            // The user data directory is reused so that persisted user
-            // settings are still present. Contrary to the initial launch, no
-            // reset flags are passed and no file is opened.
-            args: [`--user-data-dir=${info.outputPath('user-data')}`],
-            env: { ...process.env, RESET: '' },
+            // Reuse persisted settings without resetting or opening a file.
+            args: [`--user-data-dir=${userDataPath}`],
             playwrightTracing,
             releasePathOverride,
           });
@@ -288,7 +340,13 @@ export const test = base.extend<{
     }
   },
   relaunch: async ({ window }, use) => {
-    await use(window.relaunch);
+    await use(async () => {
+      const restartedWindow = await window.relaunch();
+      return {
+        window: restartedWindow,
+        ...createPageObjects(restartedWindow),
+      };
+    });
   },
   debug: async ({ window: _ }, use, info) => {
     await use(() => {
@@ -298,75 +356,6 @@ export const test = base.extend<{
   },
   modKey: async ({}, use) => {
     await use(os.platform() === 'darwin' ? 'Meta' : 'Control');
-  },
-  projectMetadataPopup: async ({ window }, use) => {
-    await use(new ProjectMetadataPopup(window));
-  },
-  projectStatisticsPopup: async ({ window }, use) => {
-    await use(new ProjectStatisticsPopup(window));
-  },
-  fileSupportPopup: async ({ window }, use) => {
-    await use(new FileSupportPopup(window));
-  },
-  resourcesTree: async ({ window }, use) => {
-    await use(new ResourcesTree(window));
-  },
-  pathBar: async ({ window }, use) => {
-    await use(new PathBar(window));
-  },
-  errorPopup: async ({ window }, use) => {
-    await use(new ErrorPopup(window));
-  },
-  topBar: async ({ window }, use) => {
-    await use(new TopBar(window));
-  },
-  confirmReplacePopup: async ({ window }, use) => {
-    await use(new ConfirmReplacePopup(window));
-  },
-  menuBar: async ({ window }, use) => {
-    await use(new MenuBar(window));
-  },
-  confirmDeletePopup: async ({ window }, use) => {
-    await use(new ConfirmDeletePopup(window));
-  },
-  attributionsPanel: async ({ window }, use) => {
-    await use(new AttributionsPanel(window));
-  },
-  attributionDetails: async ({ window }, use) => {
-    await use(new AttributionDetails(window));
-  },
-  confirmationDialog: async ({ window }, use) => {
-    await use(new ConfirmationDialog(window));
-  },
-  forceUnlockPopup: async ({ window }, use) => {
-    await use(new ForceUnlockPopup(window));
-  },
-  notSavedPopup: async ({ window }, use) => {
-    await use(new NotSavedPopup(window));
-  },
-  diffPopup: async ({ window }, use) => {
-    await use(new DiffPopup(window));
-  },
-  signalsPanel: async ({ window }, use) => {
-    await use(new SignalsPanel(window));
-  },
-  splitDialog: async ({ window }, use) => {
-    await use(new SplitDialog(window));
-  },
-  confirmSavePopup: async ({ window }, use) => {
-    await use(new ConfirmSavePopup(window));
-  },
-  linkedResourcesTree: async ({ window }, use) => {
-    await use(new LinkedResourcesTree(window));
-  },
-  reportView: async ({ window }, use) => {
-    await use(new ReportView(window));
-  },
-  importDialog: async ({ window }, use) => {
-    await use(new ImportDialog(window));
-  },
-  mergeOpossumFilesDialog: async ({ window }, use) => {
-    await use(new MergeOpossumFilesDialog(window));
   },
 });
 
@@ -389,12 +378,10 @@ function getPlatformArgs(): Array<string> {
 async function launchOpossumApp({
   appLoadTimeout,
   args,
-  env,
   releasePathOverride,
 }: {
   appLoadTimeout: number;
   args: Array<string>;
-  env: { [key: string]: string };
   releasePathOverride: string | null;
 }): Promise<{
   app: ElectronApplication;
@@ -405,7 +392,11 @@ async function launchOpossumApp({
   const app = await electron.launch({
     args: [...(main ? [main] : []), ...args, ...getPlatformArgs()],
     executablePath,
-    env,
+    env: {
+      ...process.env,
+      RESET: '',
+      OPOSSUM_DISABLE_AUTOMATIC_UPDATE_CHECKS: '1',
+    },
   });
   await installDefaultSyncDialogStubs(app);
 
@@ -427,7 +418,7 @@ async function launchOpossumApp({
     timeout: appLoadTimeout,
   });
   await window
-    .getByRole('button', { name: 'open file' })
+    .getByRole('button', { name: 'open file', includeHidden: true })
     .waitFor({ state: 'visible', timeout: appLoadTimeout });
 
   return { app, window, mainProcessLogs };
@@ -436,20 +427,17 @@ async function launchOpossumApp({
 async function startAppSession({
   appLoadTimeout,
   args,
-  env,
   playwrightTracing,
   releasePathOverride,
 }: {
   appLoadTimeout: number;
   args: Array<string>;
-  env: { [key: string]: string };
   playwrightTracing: boolean;
   releasePathOverride: string | null;
 }): Promise<AppSession> {
   const { app, window, mainProcessLogs } = await launchOpossumApp({
     appLoadTimeout,
     args,
-    env,
     releasePathOverride,
   });
 
