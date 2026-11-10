@@ -73,16 +73,27 @@ import {
 } from '../view-actions/view-actions';
 
 /**
- * Confirms the quit in the main process once the DB process reports no
- * pending tracked work: `whenBackendIdle` resolves only after every
- * operation has been executed and its file write has concluded. The
- * saving indicator is shown from here on, while the main process
- * finalizes the quit.
+ * Shows the saving indicator and confirms the quit in the main process,
+ * which finalizes the quit only after every tracked operation has been
+ * executed and its file write has concluded.
  */
-function confirmQuitAfterMutationsSettle(): AppThunkAction<Promise<void>> {
-  return async (dispatch) => {
-    await window.electronAPI.whenBackendIdle();
+function confirmQuitShowingSavingIndicator(): AppThunkAction {
+  return (dispatch) => {
     dispatch(setIsSavingBeforeQuit(true));
+    void window.electronAPI.confirmQuit();
+  };
+}
+
+/**
+ * Shows the saving indicator, then confirms the quit once the backend has
+ * no pending tracked work: `whenBackendIdle` resolves only after every
+ * operation has been executed and its file write has concluded. The
+ * indicator is shown while waiting, so the waiting time is visible.
+ */
+function confirmQuitWhenBackendIdle(): AppThunkAction<Promise<void>> {
+  return async (dispatch) => {
+    dispatch(setIsSavingBeforeQuit(true));
+    await window.electronAPI.whenBackendIdle();
     void window.electronAPI.confirmQuit();
   };
 }
@@ -309,7 +320,7 @@ export function showSplitDialogOrOpenUnsavedPopup(
 export function quitAppOrOpenUnsavedPopup(): AppThunkAction {
   return withUnsavedCheck({
     executeImmediately: (dispatch) =>
-      void dispatch(confirmQuitAfterMutationsSettle()),
+      void dispatch(confirmQuitWhenBackendIdle()),
     requestContinuation: (dispatch) => dispatch(setQuitAppRequest(true)),
   });
 }
@@ -383,7 +394,9 @@ export function proceedFromUnsavedPopup(): AppThunkAction<Promise<void>> {
       dispatch(setExportFileRequest(null));
       dispatch(setSplitFileRequest(null));
       dispatch(setQuitAppRequest(false));
-      void dispatch(confirmQuitAfterMutationsSettle());
+      // The backend just settled, so confirming the quit directly skips the
+      // otherwise redundant wait of `confirmQuitWhenBackendIdle`.
+      dispatch(confirmQuitShowingSavingIndicator());
       return;
     }
 
