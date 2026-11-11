@@ -57,6 +57,24 @@ export function useProcessingStatusUpdated(): ProcessingStatusUpdatedResult {
   };
 }
 
+export function useProcessingState(): boolean {
+  const [processing, setProcessing] = useState<boolean>(false);
+
+  useIpcRenderer<ProcessingStateChangedListener>(
+    AllowedFrontendChannels.ProcessingStateChanged,
+    (_, processingStateChangedEvent) => {
+      if (processingStateChangedEvent.type === 'ProcessingStarted') {
+        setProcessing(true);
+      } else if (processingStateChangedEvent.type === 'ProcessingDone') {
+        setProcessing(false);
+      }
+    },
+    [],
+  );
+
+  return processing;
+}
+
 export function useSyncProcessingStatusUpdatesToFrontendLogs() {
   useIpcRenderer<ProcessingStateChangedListener>(
     AllowedFrontendChannels.ProcessingStateChanged,

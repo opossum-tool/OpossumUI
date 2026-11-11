@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
+import type { FileFormatInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import {
   expectReadonlyIndicator,
@@ -152,6 +153,41 @@ export async function expectSplitDialogResourceIsReadonly(
 }
 
 const UNSAVED_CHANGES_POPUP_LABEL = 'unsaved changes popup';
+export const IMPORT_DIALOG_LABEL = 'import dialog';
+
+export function openImportDialogFromMenu(
+  sendToChannel: SendToChannel,
+  fileFormat: FileFormatInfo,
+  canImportIntoCurrentProject: boolean,
+): void {
+  sendToChannel(
+    AllowedFrontendChannels.ShowImportDialog,
+    fileFormat,
+    canImportIntoCurrentProject,
+  );
+}
+
+export async function selectImportInputFile(): Promise<void> {
+  const popup = await getPopup(IMPORT_DIALOG_LABEL);
+  await userEvent.click(
+    within(popup).getByTestId('import-input-file-path-input'),
+  );
+}
+
+export async function selectImportOutputFile(): Promise<void> {
+  const popup = await getPopup(IMPORT_DIALOG_LABEL);
+  await userEvent.click(
+    within(popup).getByTestId('import-opossum-file-path-input'),
+  );
+}
+
+export async function expectImportInputFilePath(path: string): Promise<void> {
+  await expectPopupHasText(IMPORT_DIALOG_LABEL, path);
+}
+
+export async function expectImportOutputFilePath(path: string): Promise<void> {
+  await expectPopupHasText(IMPORT_DIALOG_LABEL, path);
+}
 
 export async function expectUnsavedChangesPopupVisibility(
   visible: boolean,

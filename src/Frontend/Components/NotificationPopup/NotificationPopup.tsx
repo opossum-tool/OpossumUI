@@ -11,6 +11,7 @@ import MuiDialogTitle from '@mui/material/DialogTitle';
 
 import { OpossumColors } from '../../shared-styles';
 import { Dialog } from '../Dialog/dialog';
+import type { DialogClassification } from '../Dialog/dialog-provider';
 
 interface NotificationPopupProps {
   header: string;
@@ -32,6 +33,7 @@ interface NotificationPopupProps {
   height?: React.CSSProperties['height'];
   minWidth?: React.CSSProperties['minWidth'];
   maxWidth?: React.CSSProperties['maxWidth'];
+  classification?: DialogClassification;
 }
 
 export function NotificationPopup(
@@ -42,6 +44,7 @@ export function NotificationPopup(
       fullWidth={props.fullWidth}
       maxWidth={'xl'}
       open={props.isOpen}
+      classification={props.classification}
       onClose={(_, reason) => {
         if (reason === 'escapeKeyDown') {
           props.onEscapeKeyDown?.();

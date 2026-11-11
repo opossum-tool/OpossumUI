@@ -5,14 +5,18 @@
 import MuiDialog, { type DialogProps } from '@mui/material/Dialog';
 import { type Ref, useEffect, useId } from 'react';
 
-import { useDialogRegistration } from './dialog-provider';
+import {
+  type DialogClassification,
+  useDialogRegistration,
+} from './dialog-provider';
 
 interface RegisteredDialogProps extends DialogProps {
   ref?: Ref<HTMLDivElement>;
+  classification?: DialogClassification;
 }
 
 export function Dialog(props: RegisteredDialogProps) {
-  const { open, ref, ...dialogProps } = props;
+  const { open, ref, classification = 'workflow', ...dialogProps } = props;
   const id = useId();
   const { register, unregister } = useDialogRegistration();
 
@@ -20,9 +24,9 @@ export function Dialog(props: RegisteredDialogProps) {
     if (!open) {
       return;
     }
-    register(id);
+    register(id, classification);
     return () => unregister(id);
-  }, [id, open, register, unregister]);
+  }, [classification, id, open, register, unregister]);
 
   return <MuiDialog {...dialogProps} ref={ref} open={open} />;
 }

@@ -22,6 +22,7 @@ export function WhatsNewPopup() {
       header={text.whatsNew.title}
       aria-label={text.whatsNew.title}
       isOpen={true}
+      classification={'reference'}
       width="60rem"
       fullWidth
       rightButtonConfig={{ buttonText: text.buttons.close, onClick: close }}

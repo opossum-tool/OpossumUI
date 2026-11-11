@@ -342,7 +342,7 @@ export interface ElectronAPI {
   on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;
   getUserSettings: () => Promise<UserSettings>;
   updateUserSettings: (userSettings: Partial<UserSettings>) => Promise<void>;
-  setFrontendPopupOpen: (open: boolean) => Promise<void>;
+  setFrontendDialogState: (state: FrontendDialogState) => Promise<void>;
   getMacArchitectureMismatch: () => Promise<boolean>;
   getAppVersion: () => Promise<string>;
   getUpdateState: () => Promise<UpdateState>;
@@ -353,6 +353,11 @@ export interface ElectronAPI {
     command: C,
     params: CommandParams<C>,
   ) => Promise<Awaited<CommandReturn<C>>>;
+}
+
+export interface FrontendDialogState {
+  anyDialogOpen: boolean;
+  activityActive: boolean;
 }
 
 export type UpdateState =

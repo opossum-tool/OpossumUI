@@ -18,6 +18,7 @@ export const ProjectMetadataPopup: React.FC = () => {
     <NotificationPopup
       header={'Project Metadata'}
       isOpen={true}
+      classification={'reference'}
       fullWidth={false}
       rightButtonConfig={{ onClick: close, buttonText: text.buttons.close }}
       onBackdropClick={close}

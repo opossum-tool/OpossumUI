@@ -39,7 +39,12 @@ export function Screenshot({ src, alt, children }: ScreenshotProps) {
         </ScreenshotOpenButton>
         {children && <figcaption>{children}</figcaption>}
       </ScreenshotFigure>
-      <Dialog fullScreen open={viewerOpen} onClose={() => setViewerOpen(false)}>
+      <Dialog
+        fullScreen
+        open={viewerOpen}
+        classification={'reference'}
+        onClose={() => setViewerOpen(false)}
+      >
         <ScreenshotViewerHeader>
           <ScreenshotViewerTitle>
             {text.whatsNew.screenshot}: {alt}

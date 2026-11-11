@@ -59,11 +59,18 @@ async function expectPanelsSettled(): Promise<void> {
 }
 
 async function getPopup(popupLabel: string): Promise<HTMLElement> {
-  return screen.findByLabelText(
+  const matches = await screen.findAllByLabelText(
     popupLabel,
     {},
     { timeout: SETTLED_TIMEOUT.timeout },
   );
+  const popup = matches.find(
+    (element) => element.getAttribute('aria-label') === popupLabel,
+  );
+  if (!popup) {
+    throw new Error(`Could not locate popup root labeled '${popupLabel}'`);
+  }
+  return popup;
 }
 
 export { expectPanelsSettled, getPopup };

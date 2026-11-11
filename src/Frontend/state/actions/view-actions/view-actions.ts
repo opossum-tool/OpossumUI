@@ -14,13 +14,8 @@ import type {
   PopupWithoutPayload,
   State,
 } from '../../../types/types';
-import {
-  getUserSettings,
-  getUserSettingsLoaded,
-} from '../../selectors/user-settings-selector';
 import { getSelectedView } from '../../selectors/view-selector';
 import type { AppThunkAction, AppThunkDispatch } from '../../types';
-import { fetchUserSettings } from '../user-settings-actions/user-settings-actions';
 import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
@@ -61,24 +56,6 @@ export function navigateToView(view: View): AppThunkAction {
     dispatch(setTargetView(null));
     dispatch(setView(view));
   };
-}
-
-export async function openStatisticsPopupAfterFileLoadIfEnabled(
-  dispatch: AppThunkDispatch,
-  getState: () => State,
-): Promise<void> {
-  try {
-    if (!getUserSettingsLoaded(getState())) {
-      await dispatch(fetchUserSettings());
-    }
-    const showStatisticsPopup =
-      getUserSettings(getState()).showProjectStatistics;
-    if (showStatisticsPopup) {
-      dispatch(openPopup(PopupType.ProjectStatisticsPopup));
-    }
-  } catch (error) {
-    console.error('Could not load user settings for project statistics', error);
-  }
 }
 
 export function setView(view: View): SetView {

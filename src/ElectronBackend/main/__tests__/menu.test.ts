@@ -12,6 +12,7 @@ import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
 import { setGlobalBackendState } from '../globalBackendState';
 import { createMenu } from '../menu';
+import { getEditMenu } from '../menu/editMenu';
 import { getFileMenu, importFileFormats } from '../menu/fileMenu';
 import { getHelpMenu } from '../menu/helpMenu';
 import { menuItemIds } from '../menu/menuItemIds';
@@ -110,6 +111,47 @@ describe('create menu', () => {
     expect(mergeMenu?.enabled).toBe(true);
   });
 
+  it('blocks project commands for references but leaves reference views available', async () => {
+    await UserSettingsService.init();
+    setGlobalBackendState({
+      opossumFilePath: '/project.opossum',
+      frontendPopupOpen: true,
+      frontendActivityActive: false,
+    });
+    const mainWindow = new BrowserWindow();
+    const fileMenu = await getFileMenu(mainWindow, vi.fn(), false);
+    const fileItems = fileMenu.submenu as Array<MenuItemConstructorOptions>;
+    const itemById = (id: string) => fileItems.find((item) => item.id === id);
+    const editMenu = getEditMenu(mainWindow.webContents);
+    const editItems = editMenu.submenu as Array<MenuItemConstructorOptions>;
+
+    expect(itemById(menuItemIds.projectMetadata)?.enabled).toBe(true);
+    expect(itemById(menuItemIds.import)?.enabled).toBe(false);
+    expect(itemById(menuItemIds.projectStatistics)?.enabled).toBe(false);
+    expect(itemById(menuItemIds.saveFile)?.enabled).toBe(false);
+    expect(
+      editItems.find((item) => item.id === menuItemIds.searchAttributions)
+        ?.enabled,
+    ).toBe(false);
+  });
+
+  it('blocks unrelated workflows while allowing reference views above them', async () => {
+    await UserSettingsService.init();
+    setGlobalBackendState({
+      opossumFilePath: '/project.opossum',
+      frontendPopupOpen: true,
+      frontendActivityActive: true,
+    });
+    const fileMenu = await getFileMenu(new BrowserWindow(), vi.fn(), false);
+    const fileItems = fileMenu.submenu as Array<MenuItemConstructorOptions>;
+    const itemById = (id: string) => fileItems.find((item) => item.id === id);
+
+    expect(itemById(menuItemIds.projectMetadata)?.enabled).toBe(true);
+    expect(itemById(menuItemIds.import)?.enabled).toBe(false);
+    expect(itemById(menuItemIds.projectStatistics)?.enabled).toBe(false);
+    expect(itemById(menuItemIds.saveFile)?.enabled).toBe(false);
+  });
+
   it('requests an update check from the shared banner when the help item is clicked', async () => {
     await UserSettingsService.init();
     const send = vi.fn();
@@ -130,7 +172,7 @@ describe('create menu', () => {
   });
 
   it.each([false, true])(
-    'opens release notes from Help and respects popup state (open: %s)',
+    'opens release notes from Help regardless of dialog state (open: %s)',
     async (popupOpen) => {
       await UserSettingsService.init();
       setGlobalBackendState({ frontendPopupOpen: popupOpen });
@@ -144,7 +186,7 @@ describe('create menu', () => {
       );
 
       expect(item?.label).toBe(text.menu.helpSubmenu.whatsNew);
-      expect(item?.enabled).toBe(!popupOpen);
+      expect(item?.enabled).toBe(true);
       item?.click?.({} as Electron.MenuItem, mainWindow, {});
       expect(send).toHaveBeenCalledWith(AllowedFrontendChannels.ShowWhatsNew);
     },

@@ -65,6 +65,7 @@ export interface GlobalBackendState {
   spdxJsonFilePath?: string;
   projectId?: string;
   frontendPopupOpen?: boolean;
+  frontendActivityActive?: boolean;
 }
 
 export interface RawFrequentLicense {

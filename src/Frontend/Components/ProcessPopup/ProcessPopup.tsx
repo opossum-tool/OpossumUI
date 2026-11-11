@@ -7,13 +7,20 @@ import MuiDialogTitle from '@mui/material/DialogTitle';
 import { text } from '../../../shared/text';
 import { useProcessingStatusUpdated } from '../../util/use-processing-status-updated';
 import { Dialog } from '../Dialog/dialog';
+import { useProgressPresentation } from '../Dialog/use-progress-presentation';
 import { DialogContent, GridLogDisplay } from './ProcessPopup.style';
 
 export function ProcessPopup() {
   const { processingStatusUpdatedEvents, processing } =
     useProcessingStatusUpdated();
+  const presentProgress = useProgressPresentation(processing);
   return (
-    <Dialog open={processing} fullWidth>
+    <Dialog
+      open={processing && presentProgress}
+      fullWidth
+      aria-label={text.processPopup.title}
+      data-testid={'progress-dialog'}
+    >
       <MuiDialogTitle>{text.processPopup.title}</MuiDialogTitle>
       {renderDialogContent()}
     </Dialog>

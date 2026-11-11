@@ -19,7 +19,7 @@ describe('ImportDialog statistics behavior', () => {
     vi.clearAllMocks();
   });
 
-  it('closes a successful new-project import before opening enabled statistics', async () => {
+  it('closes a successful new-project import without owning statistics presentation', async () => {
     vi.mocked(window.electronAPI.getUserSettings).mockResolvedValue({
       ...DEFAULT_USER_SETTINGS,
       showProjectStatistics: true,
@@ -55,14 +55,8 @@ describe('ImportDialog statistics behavior', () => {
     expect(getOpenPopup(store.getState())?.popup).toBe(PopupType.ImportDialog);
 
     resolveImport?.(true);
-    await waitFor(() =>
-      expect(getOpenPopup(store.getState())?.popup).toBe(
-        PopupType.ProjectStatisticsPopup,
-      ),
-    );
-    expect(
-      store.getState().viewState.popupInfo.map(({ info }) => info),
-    ).toEqual([{ popup: PopupType.ProjectStatisticsPopup }]);
+    await waitFor(() => expect(getOpenPopup(store.getState())).toBeNull());
+    expect(store.getState().viewState.popupInfo).toEqual([]);
   });
 
   it('closes a successful current-project import without opening statistics', async () => {
