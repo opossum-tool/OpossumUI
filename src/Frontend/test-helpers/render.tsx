@@ -15,6 +15,7 @@ import { VirtuosoMockContext } from 'react-virtuoso';
 import type { ParsedFileContent } from '../../shared/shared-types';
 import { setupBackendIntegration } from '../../testing/backend-integration';
 import { theme } from '../Components/App/App.style';
+import { DialogProvider } from '../Components/Dialog/dialog-provider';
 import { type Action, createAppStore } from '../state/configure-store';
 import { setDatabaseInitialized } from '../util/backendClient';
 
@@ -29,7 +30,11 @@ export function makeReactQueryClient() {
 }
 
 function ThemedChildren({ children }: { children: React.ReactNode }) {
-  return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
+  return (
+    <ThemeProvider theme={theme}>
+      <DialogProvider>{children}</DialogProvider>
+    </ThemeProvider>
+  );
 }
 
 export function makeProviderWrapper(

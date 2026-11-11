@@ -4,13 +4,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { SxProps } from '@mui/material';
 import MuiButton, { type ButtonProps } from '@mui/material/Button';
-import MuiDialog from '@mui/material/Dialog';
 import MuiDialogActions from '@mui/material/DialogActions';
 import MuiDialogContent from '@mui/material/DialogContent';
 import MuiDialogContentText from '@mui/material/DialogContentText';
 import MuiDialogTitle from '@mui/material/DialogTitle';
 
 import { OpossumColors } from '../../shared-styles';
+import { Dialog } from '../Dialog/dialog';
 
 interface NotificationPopupProps {
   header: string;
@@ -38,7 +38,7 @@ export function NotificationPopup(
   props: React.PropsWithChildren<NotificationPopupProps>,
 ) {
   return (
-    <MuiDialog
+    <Dialog
       fullWidth={props.fullWidth}
       maxWidth={'xl'}
       open={props.isOpen}
@@ -119,6 +119,6 @@ export function NotificationPopup(
           </MuiButton>
         ) : null}
       </MuiDialogActions>
-    </MuiDialog>
+    </Dialog>
   );
 }

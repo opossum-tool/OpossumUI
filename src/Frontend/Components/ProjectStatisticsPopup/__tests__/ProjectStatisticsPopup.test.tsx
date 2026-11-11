@@ -128,6 +128,48 @@ describe('The ProjectStatisticsPopup', () => {
     ).toBeVisible();
   });
 
+  it('shows a retryable error when a statistics query fails', async () => {
+    const api = vi.mocked(window.electronAPI.api);
+    const previousApiImplementation = api.getMockImplementation();
+    const { executeCommand } =
+      await import('../../../../ElectronBackend/api/commands');
+    let shouldFailStatisticsQuery = true;
+    api.mockImplementation(async (command, params) => {
+      if (
+        command === 'manualAttributionStatistics' &&
+        shouldFailStatisticsQuery
+      ) {
+        shouldFailStatisticsQuery = false;
+        throw new Error('Statistics query failed');
+      }
+      return executeCommand(command, params);
+    });
+
+    try {
+      await renderComponent(<ProjectStatisticsPopup />, {
+        data: getParsedInputFileEnrichedWithTestData(fileSetup),
+      });
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        text.projectStatisticsPopup.loadError,
+      );
+      await userEvent.click(
+        screen.getByRole('button', { name: text.buttons.retry }),
+      );
+      expect(
+        await screen.findByText(
+          text.projectStatisticsPopup.charts.attributionProperties.title,
+        ),
+      ).toBeVisible();
+    } finally {
+      if (previousApiImplementation) {
+        api.mockImplementation(previousApiImplementation);
+      } else {
+        api.mockReset();
+      }
+    }
+  });
+
   it('does not render pie charts when there are no signals and no attributions', async () => {
     const testExternalAttributions: Attributions = {};
     await renderComponent(<ProjectStatisticsPopup />, {

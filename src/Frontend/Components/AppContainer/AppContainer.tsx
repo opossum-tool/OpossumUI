@@ -13,6 +13,7 @@ import { Provider } from 'react-redux';
 import { createAppStore } from '../../state/configure-store';
 import { App } from '../App/App';
 import { theme } from '../App/App.style';
+import { DialogProvider } from '../Dialog/dialog-provider';
 import { Toaster } from '../Toaster/Toaster';
 import { queryClient } from './queryClient';
 
@@ -27,8 +28,10 @@ export function AppContainer() {
         <StrictMode>
           <StyledEngineProvider injectFirst>
             <ThemeProvider theme={theme}>
-              <App />
-              <Toaster />
+              <DialogProvider>
+                <App />
+                <Toaster />
+              </DialogProvider>
             </ThemeProvider>
           </StyledEngineProvider>
         </StrictMode>

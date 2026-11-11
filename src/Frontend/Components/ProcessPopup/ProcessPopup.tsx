@@ -2,32 +2,21 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiDialog from '@mui/material/Dialog';
 import MuiDialogTitle from '@mui/material/DialogTitle';
 
 import { text } from '../../../shared/text';
-import { useAppSelector } from '../../state/hooks';
-import { getOpenPopup } from '../../state/selectors/view-selector';
-import { useFrontendPopupOpen } from '../../util/use-app-menu-disabled';
 import { useProcessingStatusUpdated } from '../../util/use-processing-status-updated';
+import { Dialog } from '../Dialog/dialog';
 import { DialogContent, GridLogDisplay } from './ProcessPopup.style';
 
 export function ProcessPopup() {
-  const openPopup = useAppSelector(getOpenPopup);
-
   const { processingStatusUpdatedEvents, processing } =
     useProcessingStatusUpdated();
-
-  const showPopup = processing;
-
-  // Let GlobalPopup own menu updates while another popup is open.
-  useFrontendPopupOpen(processing, !openPopup);
-
   return (
-    <MuiDialog open={showPopup} fullWidth>
+    <Dialog open={processing} fullWidth>
       <MuiDialogTitle>{text.processPopup.title}</MuiDialogTitle>
       {renderDialogContent()}
-    </MuiDialog>
+    </Dialog>
   );
 
   function renderDialogContent() {
