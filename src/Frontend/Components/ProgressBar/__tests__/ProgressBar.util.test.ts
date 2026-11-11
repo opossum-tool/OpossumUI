@@ -14,6 +14,7 @@ import type {
   ResourceCriticalityCounts,
 } from '../../../types/types';
 import {
+  calculateAiBarSteps,
   calculateAttributionBarSteps,
   calculateClassificationBarSteps,
   calculateCriticalityBarSteps,
@@ -22,6 +23,87 @@ import {
 } from '../ProgressBar.util';
 
 describe('ProgressBar helpers', () => {
+  describe('calculateAiBarSteps', () => {
+    it('assigns the count, percentage, and color to each AI review state in display order', () => {
+      const steps = calculateAiBarSteps({
+        nonDeferredModified: 10,
+        nonDeferredUnmodified: 20,
+        deferredModified: 30,
+        deferredUnmodified: 40,
+      });
+
+      expect(Object.entries(steps)).toEqual([
+        [
+          'nonDeferredModified',
+          {
+            count: 10,
+            widthInPercent: 10,
+            color: OpossumColors.pastelDarkGreen,
+          },
+        ],
+        [
+          'nonDeferredUnmodified',
+          {
+            count: 20,
+            widthInPercent: 20,
+            color: OpossumColors.pastelLightGreen,
+          },
+        ],
+        [
+          'deferredModified',
+          {
+            count: 30,
+            widthInPercent: 30,
+            color: OpossumColors.pastelMiddleGreen,
+          },
+        ],
+        [
+          'deferredUnmodified',
+          {
+            count: 40,
+            widthInPercent: 40,
+            color: OpossumColors.pastelRed,
+          },
+        ],
+      ]);
+    });
+
+    it.each([
+      {
+        scenario: 'no AI attributions',
+        counts: [0, 0, 0, 0],
+        percentages: [0, 0, 0, 0],
+      },
+      {
+        scenario: 'only one nonempty state',
+        counts: [0, 0, 0, 5],
+        percentages: [0, 0, 0, 100],
+      },
+      {
+        scenario: 'a small pending segment',
+        counts: [1000, 0, 0, 1],
+        percentages: [99, 0, 0, 1],
+      },
+      {
+        scenario: 'percentages requiring rounding',
+        counts: [1, 1, 1, 0],
+        percentages: [34, 33, 33, 0],
+      },
+    ])('normalizes widths for $scenario', ({ counts, percentages }) => {
+      const steps = calculateAiBarSteps({
+        nonDeferredModified: counts[0],
+        nonDeferredUnmodified: counts[1],
+        deferredModified: counts[2],
+        deferredUnmodified: counts[3],
+      });
+
+      expect(Object.values(steps).map((step) => step.widthInPercent)).toEqual(
+        percentages,
+      );
+      expect(Object.values(steps).map((step) => step.count)).toEqual(counts);
+    });
+  });
+
   describe('createBackgroundFromProgressBarSteps', () => {
     it('gets correct background for attribution bar', () => {
       const testProgressBarData: FileWithAttributionsCounts = {
