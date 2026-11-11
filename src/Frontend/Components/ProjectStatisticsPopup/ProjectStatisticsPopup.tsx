@@ -15,7 +15,6 @@ import type { LicenseOption } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { criticalityColor, OpossumColors, Sizing } from '../../shared-styles';
 import { navigateFromStatistics } from '../../state/actions/popup-actions/popup-actions';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { initialAttributionFilters } from '../../state/variables/use-filters';
 import { useUserSettings } from '../../state/variables/use-user-setting';
@@ -24,6 +23,10 @@ import { useClassifications } from '../../util/use-classifications';
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
 import { BarChart } from '../BarChart/BarChart';
 import { Checkbox } from '../Checkbox/Checkbox';
+import {
+  useCloseGlobalPopup,
+  useGlobalPopupId,
+} from '../GlobalPopup/popup-close-context';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { PieChart } from '../PieChart/PieChart';
 import { Spinner } from '../Spinner/Spinner';
@@ -42,6 +45,8 @@ const POPUP_MIN_SIZE = '550px';
 
 export const ProjectStatisticsPopup: React.FC = () => {
   const dispatch = useAppDispatch();
+  const closePopup = useCloseGlobalPopup();
+  const popupId = useGlobalPopupId();
 
   const classifications = useClassifications();
 
@@ -61,12 +66,12 @@ export const ProjectStatisticsPopup: React.FC = () => {
   const licenseTable = backend.licenseTable.useQuery();
 
   function close(): void {
-    dispatch(closePopup());
+    closePopup();
   }
 
   function handleLicenseClick(licenseOption: LicenseOption): void {
     dispatch(
-      navigateFromStatistics({
+      navigateFromStatistics(popupId, {
         external: true,
         filters: {
           ...initialAttributionFilters,
@@ -184,7 +189,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
                         ? undefined
                         : () =>
                             dispatch(
-                              navigateFromStatistics({
+                              navigateFromStatistics(popupId, {
                                 external: false,
                                 filters: {
                                   ...initialAttributionFilters,
@@ -271,7 +276,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
                         ? undefined
                         : () =>
                             dispatch(
-                              navigateFromStatistics({
+                              navigateFromStatistics(popupId, {
                                 external: true,
                                 filters: {
                                   ...initialAttributionFilters,
@@ -318,7 +323,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
                         ? undefined
                         : () =>
                             dispatch(
-                              navigateFromStatistics({
+                              navigateFromStatistics(popupId, {
                                 external: true,
                                 filters: {
                                   ...initialAttributionFilters,

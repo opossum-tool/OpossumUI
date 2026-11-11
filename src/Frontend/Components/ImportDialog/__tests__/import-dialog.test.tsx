@@ -60,9 +60,9 @@ describe('ImportDialog statistics behavior', () => {
         PopupType.ProjectStatisticsPopup,
       ),
     );
-    expect(store.getState().viewState.popupInfo).toEqual([
-      { popup: PopupType.ProjectStatisticsPopup },
-    ]);
+    expect(
+      store.getState().viewState.popupInfo.map(({ info }) => info),
+    ).toEqual([{ popup: PopupType.ProjectStatisticsPopup }]);
   });
 
   it('closes a successful current-project import without opening statistics', async () => {

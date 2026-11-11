@@ -3,16 +3,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { text } from '../../../shared/text';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
-import { useAppDispatch } from '../../state/hooks';
+import { useCloseGlobalPopup } from '../GlobalPopup/popup-close-context';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { ProjectMetadataTable } from '../ProjectMetadataTable/ProjectMetadataTable';
 
 export const ProjectMetadataPopup: React.FC = () => {
-  const dispatch = useAppDispatch();
+  const closePopup = useCloseGlobalPopup();
 
   function close(): void {
-    dispatch(closePopup());
+    closePopup();
   }
 
   return (

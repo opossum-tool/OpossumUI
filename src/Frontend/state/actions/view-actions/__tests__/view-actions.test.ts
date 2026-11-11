@@ -133,7 +133,9 @@ describe('popup actions', () => {
   it('close NotSavedPopup', () => {
     const testStore = createAppStore();
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
-    testStore.dispatch(closePopup());
+    testStore.dispatch(
+      closePopup(testStore.getState().viewState.popupInfo.at(-1)!.id),
+    );
     expect(getOpenPopup(testStore.getState())).toBeFalsy();
   });
 
@@ -167,7 +169,9 @@ describe('popup actions', () => {
       PopupType.ProjectMetadataPopup,
     );
 
-    testStore.dispatch(closePopup());
+    testStore.dispatch(
+      closePopup(testStore.getState().viewState.popupInfo.at(-1)!.id),
+    );
     expect(getPopupAttributionId(testStore.getState())).toEqual(
       testAttributionId,
     );
@@ -175,7 +179,9 @@ describe('popup actions', () => {
       PopupType.NotSavedPopup,
     );
 
-    testStore.dispatch(closePopup());
+    testStore.dispatch(
+      closePopup(testStore.getState().viewState.popupInfo.at(-1)!.id),
+    );
     expect(getPopupAttributionId(testStore.getState())).toBeNull();
     expect(getOpenPopup(testStore.getState())).toBeNull();
   });
@@ -191,7 +197,27 @@ describe('popup actions', () => {
     );
 
     // there should be only one search popup open
-    testStore.dispatch(closePopup());
+    testStore.dispatch(
+      closePopup(testStore.getState().viewState.popupInfo.at(-1)!.id),
+    );
     expect(getOpenPopup(testStore.getState())).toBeNull();
+  });
+
+  it('closes only the requested popup instance and ignores stale ids', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(openPopup(PopupType.NotSavedPopup));
+    const originalId = testStore.getState().viewState.popupInfo[0].id;
+    testStore.dispatch(openPopup(PopupType.ProjectMetadataPopup));
+    const metadataId = testStore.getState().viewState.popupInfo[1].id;
+
+    testStore.dispatch(closePopup(originalId));
+    expect(
+      testStore.getState().viewState.popupInfo.map(({ id }) => id),
+    ).toEqual([metadataId]);
+
+    testStore.dispatch(closePopup(originalId));
+    expect(
+      testStore.getState().viewState.popupInfo.map(({ id }) => id),
+    ).toEqual([metadataId]);
   });
 });

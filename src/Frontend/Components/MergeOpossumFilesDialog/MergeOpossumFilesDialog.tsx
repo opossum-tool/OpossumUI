@@ -22,10 +22,10 @@ import {
 import { text } from '../../../shared/text';
 import { fileDialogMaxWidth } from '../../shared-styles';
 import { mergeOpossumFilesIntoCurrentFile } from '../../state/actions/popup-actions/popup-actions';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { backend } from '../../util/backendClient';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
+import { useCloseGlobalPopup } from '../GlobalPopup/popup-close-context';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
   popupColumnContentSx,
@@ -42,6 +42,7 @@ export const MergeOpossumFilesDialog: React.FC<
   MergeOpossumFilesDialogProps
 > = ({ canMergeIntoCurrentFile, currentFilePath }) => {
   const dispatch = useAppDispatch();
+  const closePopup = useCloseGlobalPopup();
   const [inputFilePaths, setInputFilePaths] = useState<Array<string>>([]);
   const [outputFilePath, setOutputFilePath] = useState('');
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -139,7 +140,7 @@ export const MergeOpossumFilesDialog: React.FC<
       );
       setIgnoreReadonlyResourceOutputConflicts(false);
     } else {
-      dispatch(closePopup());
+      closePopup();
     }
     setMergeInProgress(false);
   }
@@ -156,7 +157,7 @@ export const MergeOpossumFilesDialog: React.FC<
       }
       isOpen={true}
       rightButtonConfig={{
-        onClick: () => dispatch(closePopup()),
+        onClick: closePopup,
         buttonText: text.buttons.cancel,
         color: 'secondary',
         disabled: mergeInProgress,

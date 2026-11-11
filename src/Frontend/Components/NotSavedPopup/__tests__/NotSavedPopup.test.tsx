@@ -31,7 +31,7 @@ import {
   getSelectedView,
 } from '../../../state/selectors/view-selector';
 import { renderComponent } from '../../../test-helpers/render';
-import { NotSavedPopup } from '../NotSavedPopup';
+import { GlobalPopup } from '../../GlobalPopup/GlobalPopup';
 
 describe('NotSavedPopup', () => {
   it('cancels without changes', async () => {
@@ -42,7 +42,7 @@ describe('NotSavedPopup', () => {
     const currentAttributionId = faker.string.uuid();
     const targetAttributionId = faker.string.uuid();
     const packageInfo = faker.opossum.packageInfo();
-    const { store } = await renderComponent(<NotSavedPopup />, {
+    const { store } = await renderComponent(<GlobalPopup />, {
       actions: [
         openPopup(PopupType.NotSavedPopup),
         setSelectedAttributionId(currentAttributionId),
@@ -76,7 +76,7 @@ describe('NotSavedPopup', () => {
     const currentAttributionId = faker.string.uuid();
     const targetAttributionId = faker.string.uuid();
     const packageInfo = faker.opossum.packageInfo();
-    const { store } = await renderComponent(<NotSavedPopup />, {
+    const { store } = await renderComponent(<GlobalPopup />, {
       actions: [
         openPopup(PopupType.NotSavedPopup),
         setSelectedAttributionId(currentAttributionId),
@@ -102,7 +102,7 @@ describe('NotSavedPopup', () => {
   it('handles request to open a file', async () => {
     const filePath = '/path/to/project.opossum';
 
-    await renderComponent(<NotSavedPopup />, {
+    await renderComponent(<GlobalPopup />, {
       actions: [
         openPopup(PopupType.NotSavedPopup),
         setOpenFileRequest({ kind: 'path', filePath }),

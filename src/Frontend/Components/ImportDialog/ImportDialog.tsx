@@ -11,14 +11,12 @@ import type { FileFormatInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file-utils';
 import { fileDialogMaxWidth } from '../../shared-styles';
-import {
-  closePopup,
-  openStatisticsPopupAfterFileLoadIfEnabled,
-} from '../../state/actions/view-actions/view-actions';
+import { openStatisticsPopupAfterFileLoadIfEnabled } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { useProcessingStatusUpdated } from '../../util/use-processing-status-updated';
 import { DialogLogDisplay } from '../DialogLogDisplay/DialogLogDisplay.style';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
+import { useCloseGlobalPopup } from '../GlobalPopup/popup-close-context';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import {
   popupColumnContentSx,
@@ -35,6 +33,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
   fileFormat,
 }) => {
   const dispatch = useAppDispatch();
+  const closePopup = useCloseGlobalPopup();
 
   const [inputFilePath, setInputFilePath] = useState<string>('');
   const [opossumFilePath, setOpossumFilePath] = useState<string>('');
@@ -90,7 +89,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
   }
 
   function onCancel(): void {
-    dispatch(closePopup());
+    closePopup();
   }
 
   async function onConfirm(): Promise<void> {
@@ -107,7 +106,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
         );
 
     if (success) {
-      dispatch(closePopup());
+      closePopup();
       if (!importIntoCurrentProject) {
         await dispatch(openStatisticsPopupAfterFileLoadIfEnabled);
       }

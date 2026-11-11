@@ -39,6 +39,7 @@ import {
   getMergeOpossumFilesRequest,
   getOpenFileRequest,
   getOpenPopup,
+  getOpenPopups,
   getSelectedView,
   getSplitFileRequest,
   getTargetView,
@@ -140,7 +141,9 @@ describe.each([
         PopupType.NotSavedPopup,
       );
 
-      store.dispatch(proceedFromUnsavedPopup());
+      store.dispatch(
+        proceedFromUnsavedPopup(getOpenPopups(store.getState()).at(-1)!.id),
+      );
 
       expect(getSelectedResourceId(store.getState())).toBe('/');
       expect(getSelectedAttributionId(store.getState())).toBe(attribution.id);
@@ -164,7 +167,9 @@ describe.each([
       );
 
       store.dispatch(navigate('/', policy));
-      store.dispatch(closePopupAndUnsetTargets());
+      store.dispatch(
+        closePopupAndUnsetTargets(getOpenPopups(store.getState()).at(-1)!.id),
+      );
 
       expect(getSelectedResourceId(store.getState())).toBe('/origin/');
       expect(getSelectedAttributionId(store.getState())).toBe(attribution.id);
@@ -282,7 +287,9 @@ describe('The actions checking for unsaved changes', () => {
         PopupType.NotSavedPopup,
       );
 
-      testStore.dispatch(proceedFromUnsavedPopup());
+      testStore.dispatch(
+        proceedFromUnsavedPopup(getOpenPopups(testStore.getState()).at(-1)!.id),
+      );
 
       expect(
         testStore.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
@@ -725,6 +732,20 @@ describe('The actions checking for unsaved changes', () => {
 });
 
 describe('proceedFromUnsavedPopup', () => {
+  it('ignores a stale popup ID without executing pending requests', () => {
+    const store = createAppStore();
+    vi.spyOn(window.electronAPI, 'openFile').mockResolvedValue({});
+    store.dispatch(setOpenFileRequest({ kind: 'dialog' }));
+    store.dispatch(openPopup(PopupType.NotSavedPopup));
+    const originalEntries = getOpenPopups(store.getState());
+
+    store.dispatch(proceedFromUnsavedPopup('removed-popup'));
+
+    expect(getOpenPopups(store.getState())).toEqual(originalEntries);
+    expect(getOpenFileRequest(store.getState())).toEqual({ kind: 'dialog' });
+    expect(window.electronAPI.openFile).not.toHaveBeenCalled();
+  });
+
   function prepareTestState(): State {
     const testStore = createAppStore();
     testStore.dispatch(setSelectedResourceId('selectedResource', 'auto'));
@@ -739,7 +760,9 @@ describe('proceedFromUnsavedPopup', () => {
     testStore.dispatch(setTargetView(View.Audit));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
     testStore.dispatch(setTargetSelectedResourceId('newSelectedResource'));
-    testStore.dispatch(proceedFromUnsavedPopup());
+    testStore.dispatch(
+      proceedFromUnsavedPopup(getOpenPopups(testStore.getState()).at(-1)!.id),
+    );
     return testStore.getState();
   }
 
@@ -775,7 +798,9 @@ describe('proceedFromUnsavedPopup', () => {
     const testStore = createAppStore();
     testStore.dispatch(setOpenFileRequest({ kind: 'dialog' }));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
-    testStore.dispatch(proceedFromUnsavedPopup());
+    testStore.dispatch(
+      proceedFromUnsavedPopup(getOpenPopups(testStore.getState()).at(-1)!.id),
+    );
 
     expect(window.electronAPI.openFile).toHaveBeenCalledWith();
     expect(getOpenFileRequest(testStore.getState())).toBeNull();
@@ -795,7 +820,9 @@ describe('proceedFromUnsavedPopup', () => {
       }),
     );
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
-    testStore.dispatch(proceedFromUnsavedPopup());
+    testStore.dispatch(
+      proceedFromUnsavedPopup(getOpenPopups(testStore.getState()).at(-1)!.id),
+    );
 
     expect(getOpenPopup(testStore.getState())).toStrictEqual({
       popup: PopupType.ImportDialog,
@@ -815,7 +842,9 @@ describe('proceedFromUnsavedPopup', () => {
       }),
     );
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
-    testStore.dispatch(proceedFromUnsavedPopup());
+    testStore.dispatch(
+      proceedFromUnsavedPopup(getOpenPopups(testStore.getState()).at(-1)!.id),
+    );
 
     expect(getOpenPopup(testStore.getState())).toStrictEqual({
       popup: PopupType.MergeOpossumFilesDialog,
@@ -831,7 +860,9 @@ describe('proceedFromUnsavedPopup', () => {
     const testStore = createAppStore();
     testStore.dispatch(setExportFileRequest(ExportType.FollowUp));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
-    testStore.dispatch(proceedFromUnsavedPopup());
+    testStore.dispatch(
+      proceedFromUnsavedPopup(getOpenPopups(testStore.getState()).at(-1)!.id),
+    );
 
     expect(window.electronAPI.exportFile).toHaveBeenCalledWith(
       ExportType.FollowUp,
@@ -845,7 +876,9 @@ describe('proceedFromUnsavedPopup', () => {
     testStore.dispatch(setSplitFileRequest({ resourcePath }));
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
 
-    testStore.dispatch(proceedFromUnsavedPopup());
+    testStore.dispatch(
+      proceedFromUnsavedPopup(getOpenPopups(testStore.getState()).at(-1)!.id),
+    );
 
     expect(getOpenPopup(testStore.getState())).toStrictEqual({
       popup: PopupType.SplitDialog,
@@ -876,7 +909,9 @@ describe('closePopupAndUnsetTargets', () => {
     );
     testStore.dispatch(setExportFileRequest(ExportType.FollowUp));
 
-    testStore.dispatch(closePopupAndUnsetTargets());
+    testStore.dispatch(
+      closePopupAndUnsetTargets(getOpenPopups(testStore.getState()).at(-1)!.id),
+    );
 
     expect(getTargetView(testStore.getState())).toBeNull();
     expect(getTargetSelectedResourceId(testStore.getState())).toBeNull();
@@ -953,6 +988,26 @@ describe('closePopupAndUnsetTargets', () => {
 });
 
 describe('statistics navigation', () => {
+  it('ignores navigation from a removed or wrong-type popup', () => {
+    const store = createAppStore();
+    const filters: AttributionFilters = {
+      filters: [],
+      search: '',
+      valueFilters: {},
+      sorting: 'alphabetically',
+    };
+    store.dispatch(openPopup(PopupType.NotSavedPopup));
+    const wrongTypeId = getOpenPopups(store.getState()).at(-1)!.id;
+    store.dispatch(
+      navigateFromStatistics(wrongTypeId, { external: false, filters }),
+    );
+    store.dispatch(
+      navigateFromStatistics('removed-popup', { external: false, filters }),
+    );
+    expect(getOpenPopups(store.getState())).toHaveLength(1);
+    expect(getSelectedView(store.getState())).toBe(View.Audit);
+  });
+
   it.each(['cancel', 'discard'] as const)(
     'preserves state until %s',
     (choice) => {
@@ -970,7 +1025,11 @@ describe('statistics navigation', () => {
       store.dispatch(
         setTemporaryDisplayPackageInfo({ ...attribution, comment: 'unsaved' }),
       );
-      store.dispatch(navigateFromStatistics({ external: false, filters }));
+      store.dispatch(openPopup(PopupType.ProjectStatisticsPopup));
+      const statisticsId = getOpenPopups(store.getState()).at(-1)!.id;
+      store.dispatch(
+        navigateFromStatistics(statisticsId, { external: false, filters }),
+      );
       expect(getOpenPopup(store.getState())?.popup).toBe(
         PopupType.NotSavedPopup,
       );
@@ -981,8 +1040,10 @@ describe('statistics navigation', () => {
       ).toBeUndefined();
       store.dispatch(
         choice === 'cancel'
-          ? closePopupAndUnsetTargets()
-          : proceedFromUnsavedPopup(),
+          ? closePopupAndUnsetTargets(
+              getOpenPopups(store.getState()).at(-1)!.id,
+            )
+          : proceedFromUnsavedPopup(getOpenPopups(store.getState()).at(-1)!.id),
       );
       expect(getSelectedResourceId(store.getState())).toBe(
         choice === 'cancel' ? '/nested/' : '/',
