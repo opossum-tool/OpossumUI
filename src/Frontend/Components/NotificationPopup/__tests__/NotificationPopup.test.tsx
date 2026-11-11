@@ -2,8 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 
+import { renderWithTheme as render } from '../../../test-helpers/render';
 import { NotificationPopup } from '../NotificationPopup';
 
 describe('NotificationPopup', () => {

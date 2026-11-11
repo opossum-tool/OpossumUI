@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 
 import { text } from '../../../../shared/text';
 import { PopupType } from '../../../enums/enums';
@@ -32,9 +32,11 @@ describe('The GlobalPopUp', () => {
     expect(
       screen.getByText(text.unsavedChangesPopup.title),
     ).toBeInTheDocument();
-    expect(
-      global.window.electronAPI.setFrontendPopupOpen,
-    ).toHaveBeenLastCalledWith(true);
+    await waitFor(() =>
+      expect(
+        global.window.electronAPI.setFrontendPopupOpen,
+      ).toHaveBeenLastCalledWith(true),
+    );
   });
 
   it('opens the ProjectMetadataPopup', async () => {
@@ -43,9 +45,11 @@ describe('The GlobalPopUp', () => {
     });
 
     expect(screen.getByText('Project Metadata')).toBeInTheDocument();
-    expect(
-      global.window.electronAPI.setFrontendPopupOpen,
-    ).toHaveBeenLastCalledWith(true);
+    await waitFor(() =>
+      expect(
+        global.window.electronAPI.setFrontendPopupOpen,
+      ).toHaveBeenLastCalledWith(true),
+    );
   });
 
   it('opens the ProjectStatisticsPopup', async () => {
@@ -55,9 +59,11 @@ describe('The GlobalPopUp', () => {
     });
 
     expect(await screen.findByText('Project Statistics')).toBeInTheDocument();
-    expect(
-      global.window.electronAPI.setFrontendPopupOpen,
-    ).toHaveBeenLastCalledWith(true);
+    await waitFor(() =>
+      expect(
+        global.window.electronAPI.setFrontendPopupOpen,
+      ).toHaveBeenLastCalledWith(true),
+    );
   });
 
   it('opens the SplitDialog', async () => {
@@ -68,8 +74,10 @@ describe('The GlobalPopUp', () => {
     expect(
       screen.getByRole('dialog', { name: text.splitDialog.title }),
     ).toBeVisible();
-    expect(
-      global.window.electronAPI.setFrontendPopupOpen,
-    ).toHaveBeenLastCalledWith(true);
+    await waitFor(() =>
+      expect(
+        global.window.electronAPI.setFrontendPopupOpen,
+      ).toHaveBeenLastCalledWith(true),
+    );
   });
 });

@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, screen } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import type { IpcRendererEvent } from 'electron';
 import { noop } from 'lodash-es';
 
@@ -17,6 +17,7 @@ import {
   openPopup,
 } from '../../../state/actions/view-actions/view-actions';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
+import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { GlobalPopup } from '../../GlobalPopup/GlobalPopup';
 import { ProcessPopup } from '../ProcessPopup';
@@ -28,6 +29,7 @@ const electronAPI: {
   on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;
   send: (channel: AllowedFrontendChannels, ...args: Array<unknown>) => void;
   setFrontendPopupOpen: () => void;
+  api: ElectronAPI['api'];
 } = {
   events: {},
   on(channel: AllowedFrontendChannels, listener: Listener): () => void {
@@ -38,6 +40,7 @@ const electronAPI: {
     this.events[channel]?.({} as IpcRendererEvent, ...args);
   },
   setFrontendPopupOpen: vi.fn(),
+  api: window.electronAPI.api,
 };
 
 function simulateMessageFromBackend(message: string) {
@@ -126,16 +129,40 @@ describe('ProcessPopup', () => {
     expect(getOpenPopup(store.getState())).toBeNull();
   });
 
-  it('keeps menus disabled when processing hands off to the statistics popup', async () => {
+  it('keeps menus disabled while statistics loads after processing', async () => {
     const { store } = await renderComponent(
       <>
         <GlobalPopup />
         <ProcessPopup />
       </>,
+      { data: getParsedInputFileEnrichedWithTestData({}) },
     );
 
     simulateBackendProcessingStarted();
+    await waitFor(() =>
+      expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true),
+    );
     vi.mocked(electronAPI.setFrontendPopupOpen).mockClear();
+
+    let resolveStatisticsRequests!: () => void;
+    const statisticsRequestsPending = new Promise<void>((resolve) => {
+      resolveStatisticsRequests = resolve;
+    });
+    const api = vi.mocked(electronAPI.api);
+    const originalApiImplementation = api.getMockImplementation();
+    if (!originalApiImplementation) {
+      throw new Error('Expected backend API integration to be initialized');
+    }
+    api.mockImplementation(async (command, params) => {
+      if (
+        command === 'manualAttributionStatistics' ||
+        command === 'externalAttributionStatistics' ||
+        command === 'licenseTable'
+      ) {
+        await statisticsRequestsPending;
+      }
+      return originalApiImplementation(command, params);
+    });
 
     act(() => {
       electronAPI.send(AllowedFrontendChannels.ProcessingStateChanged, {
@@ -144,14 +171,26 @@ describe('ProcessPopup', () => {
       store.dispatch(openPopup(PopupType.ProjectStatisticsPopup));
     });
 
-    expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true);
-    expect(electronAPI.setFrontendPopupOpen).not.toHaveBeenCalledWith(false);
+    expect(await screen.findByRole('dialog')).toBeVisible();
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      text.projectStatisticsPopup.loading,
+    );
+    expect(electronAPI.setFrontendPopupOpen).not.toHaveBeenCalled();
+
+    resolveStatisticsRequests();
+    await screen.findByText(
+      text.projectStatisticsPopup.charts.attributionProperties.title,
+    );
+    api.mockImplementation(originalApiImplementation);
+    expect(electronAPI.setFrontendPopupOpen).toHaveBeenCalledTimes(0);
 
     act(() => {
       store.dispatch(closePopup());
     });
 
-    expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(false);
+    await waitFor(() =>
+      expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(false),
+    );
   });
 
   it('resumes menu updates when a global popup closes during processing', async () => {
@@ -160,13 +199,16 @@ describe('ProcessPopup', () => {
         <GlobalPopup />
         <ProcessPopup />
       </>,
+      { data: getParsedInputFileEnrichedWithTestData({}) },
     );
 
     simulateBackendProcessingStarted();
     act(() => {
       store.dispatch(openPopup(PopupType.ProjectStatisticsPopup));
     });
-    expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true);
+    await waitFor(() =>
+      expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true),
+    );
 
     act(() => {
       store.dispatch(closePopup());
@@ -175,6 +217,8 @@ describe('ProcessPopup', () => {
 
     simulateBackendProcessingDone();
 
-    expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(false);
+    await waitFor(() =>
+      expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(false),
+    );
   });
 });

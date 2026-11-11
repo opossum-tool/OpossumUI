@@ -19,7 +19,10 @@ import {
   selectFiles,
   selectSaveFile,
 } from '../dialogs';
-import { setGlobalBackendState } from '../globalBackendState';
+import {
+  getGlobalBackendState,
+  setGlobalBackendState,
+} from '../globalBackendState';
 import {
   handleOpeningFile,
   importFileListener,
@@ -169,6 +172,27 @@ describe('openFileListener', () => {
         ],
       ],
     );
+  });
+
+  it('preserves an open dialog while initializing another project', async () => {
+    const mainWindow = initWindowAndBackendState();
+    setGlobalBackendState({ frontendPopupOpen: true });
+    vi.mocked(loadInputAndOutputFromFilePath).mockResolvedValue(true);
+    const updateMenu = vi.fn().mockImplementation(() => {
+      expect(getGlobalBackendState().frontendPopupOpen).toBe(true);
+      return Promise.resolve();
+    });
+
+    await openFileListener(mainWindow, updateMenu)(
+      {} as Electron.IpcMainInvokeEvent,
+      '/home/another-project.opossum',
+    );
+
+    expect(updateMenu).toHaveBeenCalled();
+    expect(getGlobalBackendState()).toMatchObject({
+      frontendPopupOpen: true,
+      opossumFilePath: '/home/another-project.opossum',
+    });
   });
 
   it('does not notify the frontend after a handled load failure and ends processing', async () => {
