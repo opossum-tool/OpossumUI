@@ -72,30 +72,30 @@ interface ProgressBarTooltipProps {
   steps: Array<ProgressBarStep>;
 }
 
-type NextResourceRefetch = () => Promise<{
-  data: string | null | undefined;
-}>;
-
 export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const dispatch = useAppDispatch();
   const nextResourceRequestInFlightRef = useRef(false);
 
-  function goToResource(resourcePath: string | null | undefined) {
-    if (!resourcePath) {
-      return;
-    }
+  function goToResource(resourcePath: string) {
     dispatch(navigateToSelectedPathOrOpenUnsavedPopup(resourcePath, 'auto'));
   }
 
-  async function goToNextResource(refetch: NextResourceRefetch) {
+  async function goToNextItem<T>(
+    refetch: (options: { cancelRefetch: boolean }) => Promise<{
+      data: T | null | undefined;
+    }>,
+    navigate: (target: T) => void,
+  ) {
     if (nextResourceRequestInFlightRef.current) {
       return;
     }
 
     nextResourceRequestInFlightRef.current = true;
     try {
-      const { data } = await refetch();
-      goToResource(data);
+      const { data } = await refetch({ cancelRefetch: false });
+      if (data) {
+        navigate(data);
+      }
     } finally {
       nextResourceRequestInFlightRef.current = false;
     }
@@ -110,23 +110,6 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
     { selectedResourcePath, selectedAttributionUuid },
     { enabled: false },
   );
-
-  async function goToNextAiAttribution() {
-    if (nextResourceRequestInFlightRef.current) {
-      return;
-    }
-    nextResourceRequestInFlightRef.current = true;
-    try {
-      const { data } = await nextAiAttribution.refetch({
-        cancelRefetch: false,
-      });
-      if (data) {
-        dispatch(navigateToAiReviewOrOpenUnsavedPopup(data));
-      }
-    } finally {
-      nextResourceRequestInFlightRef.current = false;
-    }
-  }
 
   const attributionsProgressBarData =
     backend.getAttributionProgressBarData.useQuery(undefined, {
@@ -196,7 +179,9 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
         ? Object.values(aiBarSteps).filter((step) => step.count > 0)
         : undefined,
       onClickHandler: () => {
-        void goToNextAiAttribution();
+        void goToNextItem(nextAiAttribution.refetch, (target) => {
+          dispatch(navigateToAiReviewOrOpenUnsavedPopup(target));
+        });
       },
     },
     attribution: {
@@ -206,9 +191,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
         ? calculateAttributionBarSteps(attributionsProgressBarData.data)
         : undefined,
       onClickHandler: () => {
-        void goToNextResource(() =>
-          getNextAttributionResource.refetch({ cancelRefetch: false }),
-        );
+        void goToNextItem(getNextAttributionResource.refetch, goToResource);
       },
     },
     criticality: {
@@ -218,9 +201,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
         ? calculateCriticalityBarSteps(criticalityProgressBarData.data)
         : undefined,
       onClickHandler: () => {
-        void goToNextResource(() =>
-          getNextCriticalityResource.refetch({ cancelRefetch: false }),
-        );
+        void goToNextItem(getNextCriticalityResource.refetch, goToResource);
       },
     },
     classification: {
@@ -233,9 +214,7 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
           )
         : undefined,
       onClickHandler: () => {
-        void goToNextResource(() =>
-          getNextClassificationResource.refetch({ cancelRefetch: false }),
-        );
+        void goToNextItem(getNextClassificationResource.refetch, goToResource);
       },
     },
   };

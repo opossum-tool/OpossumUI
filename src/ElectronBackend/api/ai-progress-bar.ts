@@ -2,10 +2,54 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { sql } from 'kysely';
+import { type ExpressionBuilder, sql } from 'kysely';
 
 import { getDb } from '../db/db';
+import type { DB } from '../db/generated/databaseTypes';
 import { GET_LEGACY_RESOURCE_PATH, getResourceOrThrow } from './utils';
+
+function getReviewableAiAttributions() {
+  return getDb()
+    .selectFrom('attribution_ai')
+    .innerJoin(
+      'attribution',
+      'attribution.uuid',
+      'attribution_ai.attribution_uuid',
+    )
+    .where('attribution.is_external', '=', 0)
+    .where('attribution.is_resolved', '=', 0);
+}
+
+function getWritableResourceLinks(
+  eb: ExpressionBuilder<DB, 'attribution' | 'attribution_ai'>,
+) {
+  return eb
+    .selectFrom('resource_to_attribution')
+    .innerJoin('resource', 'resource.id', 'resource_to_attribution.resource_id')
+    .select('resource_to_attribution.resource_id')
+    .whereRef(
+      'resource_to_attribution.attribution_uuid',
+      '=',
+      'attribution.uuid',
+    )
+    .where('resource.is_readonly', '=', 0);
+}
+
+function getAiReviewStatus(
+  eb: ExpressionBuilder<DB, 'attribution' | 'attribution_ai'>,
+) {
+  const deferred = eb('attribution_ai.deferred_fields', 'is not', null);
+  const modified = eb(
+    eb.fn.coalesce('attribution_ai.human_modified', eb.val(0)),
+    '=',
+    1,
+  );
+  return {
+    deferred,
+    modified,
+    pending: eb.and([deferred, eb.not(modified)]),
+  };
+}
 
 export async function hasAiAttributions() {
   const result = Boolean(
@@ -23,40 +67,10 @@ export async function getAiProgressBarData() {
   // attribution_uuid/resource_id index and stops at the first writable link.
   // In particular, do not reuse the navigation query: finding the first
   // resource for every attribution unnecessarily expands all resource links.
-  const result = await getDb()
-    .selectFrom('attribution_ai')
-    .innerJoin(
-      'attribution',
-      'attribution.uuid',
-      'attribution_ai.attribution_uuid',
-    )
-    .where('attribution.is_external', '=', 0)
-    .where('attribution.is_resolved', '=', 0)
-    .where((eb) =>
-      eb.exists(
-        eb
-          .selectFrom('resource_to_attribution')
-          .innerJoin(
-            'resource',
-            'resource.id',
-            'resource_to_attribution.resource_id',
-          )
-          .select('resource_to_attribution.resource_id')
-          .whereRef(
-            'resource_to_attribution.attribution_uuid',
-            '=',
-            'attribution.uuid',
-          )
-          .where('resource.is_readonly', '=', 0),
-      ),
-    )
+  const result = await getReviewableAiAttributions()
+    .where((eb) => eb.exists(getWritableResourceLinks(eb)))
     .select((eb) => {
-      const deferred = eb('attribution_ai.deferred_fields', 'is not', null);
-      const modified = eb(
-        eb.fn.coalesce('attribution_ai.human_modified', eb.val(0)),
-        '=',
-        1,
-      );
+      const { deferred, modified, pending } = getAiReviewStatus(eb);
       return [
         eb.fn
           .countAll<number>()
@@ -70,10 +84,7 @@ export async function getAiProgressBarData() {
           .countAll<number>()
           .filterWhere(eb.and([deferred, modified]))
           .as('deferredModified'),
-        eb.fn
-          .countAll<number>()
-          .filterWhere(eb.and([deferred, eb.not(modified)]))
-          .as('deferredUnmodified'),
+        eb.fn.countAll<number>().filterWhere(pending).as('deferredUnmodified'),
       ];
     })
     .executeTakeFirstOrThrow();
@@ -98,39 +109,12 @@ export async function getNextAttributionToReviewForAi({
     // than joining and grouping every link of every AI attribution.
     .with(
       (cte) => cte('pending_ai_attributions').materialized(),
-      (db) =>
-        db
-          .selectFrom('attribution_ai')
-          .innerJoin(
-            'attribution',
-            'attribution.uuid',
-            'attribution_ai.attribution_uuid',
-          )
-          .where('attribution.is_external', '=', 0)
-          .where('attribution.is_resolved', '=', 0)
-          .where('attribution_ai.deferred_fields', 'is not', null)
-          .where((eb) =>
-            eb.or([
-              eb('attribution_ai.human_modified', '=', 0),
-              eb('attribution_ai.human_modified', 'is', null),
-            ]),
-          )
+      () =>
+        getReviewableAiAttributions()
+          .where((eb) => getAiReviewStatus(eb).pending)
           .select('attribution.uuid')
           .select((eb) =>
-            eb
-              .selectFrom('resource_to_attribution')
-              .innerJoin(
-                'resource',
-                'resource.id',
-                'resource_to_attribution.resource_id',
-              )
-              .whereRef(
-                'resource_to_attribution.attribution_uuid',
-                '=',
-                'attribution.uuid',
-              )
-              .where('resource.is_readonly', '=', 0)
-              .select('resource_to_attribution.resource_id')
+            getWritableResourceLinks(eb)
               .orderBy('resource_to_attribution.resource_id')
               .limit(1)
               .as('resource_id'),
