@@ -12,11 +12,13 @@ import { faker } from '../testing/Faker';
 import { renderApp } from '../testing/render-app';
 import {
   addLicenseSearchFilter,
+  clickFilterMenuButton,
   clickFilterMenuItem,
   clickTreeFilterMenuButton,
   closeFilterMenu,
   expandTreeResourceAtPath,
   expectLicenseFilterOption,
+  expectPackageCards,
   expectResourceAtPathVisibility,
   expectResourceVisibility,
   expectTreeResourceCountIs,
@@ -264,5 +266,40 @@ describe('filtering resources', () => {
       `/${autoExpansionRootName}/${matchingDirectoryName}/`,
       `/${autoExpansionRootName}/${matchingDirectoryName}/${matchingLeafName}`,
     ]);
+  });
+
+  it('applies license filters from the attributions panel to the resource tree', async () => {
+    await renderApp({ data: multiLicenseData });
+    await clickFilterMenuButton(screen.getByTestId('attributions-panel'));
+    await selectFilterLicenseName('MIT');
+    await closeFilterMenu();
+
+    await expectResourceVisibility(
+      [externalResourceName],
+      [
+        preselectedResourceName,
+        reviewedMitResourceName,
+        reviewedApacheResourceName,
+      ],
+    );
+  });
+
+  it('applies license filters from the resource tree to the attributions panel', async () => {
+    await renderApp({ data: multiLicenseData });
+    await clickTreeFilterMenuButton();
+    await selectFilterLicenseName('Apache-2.0');
+    await closeFilterMenu();
+
+    await expectPackageCards(
+      'attributions-panel',
+      [reviewedApachePackageInfo],
+      [
+        preselectedPackageInfo,
+        reviewedMitPackageInfo,
+        deferredPackageInfo,
+        aiNotDeferredPackageInfo,
+        plainPackageInfo,
+      ],
+    );
   });
 });
