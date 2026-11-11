@@ -94,6 +94,20 @@ describe('quickfilters in the filter menu', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('hides the save row while the selection comes from an applied quickfilter', async () => {
+    const quickfilter = makeQuickfilter({ name: 'My quickfilter' });
+    await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [quickfilter] }),
+    ]);
+
+    const panel = await openQuickfiltersPanel();
+    await userEvent.click(row(panel, quickfilter.name));
+
+    expect(
+      within(panel).queryByRole('button', { name: text.quickfilters.save }),
+    ).not.toBeInTheDocument();
+  });
+
   it('focuses the save action when opening the panel with active filters', async () => {
     await renderQuickfilterButton();
 
@@ -242,6 +256,34 @@ describe('quickfilters in the filter menu', () => {
       'aria-pressed',
       'true',
     );
+  });
+
+  it('deselects a quickfilter when one of its conditions is removed manually', async () => {
+    const quickfilter = makeQuickfilter({ name: 'My quickfilter' });
+    const { store } = await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [quickfilter] }),
+    ]);
+
+    const panel = await openQuickfiltersPanel();
+    await userEvent.click(row(panel, quickfilter.name));
+    expect(
+      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toMatchObject({ activeQuickfilterIds: [quickfilter.id] });
+
+    // Removing the quickfilter's firstParty filter no longer meets its
+    // conditions, so the quickfilter deselects itself.
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: text.filters.firstParty }),
+    );
+
+    expect(
+      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toEqual({
+      filters: [],
+      search: '',
+      valueFilters: {},
+      sorting: 'alphabetically',
+    });
   });
 
   it('selects only the quickfilter that was applied when duplicates exist', async () => {
@@ -554,6 +596,7 @@ describe('quickfilters in the filter menu', () => {
       setUserSetting({ savedQuickfilters: [incompatible] }),
       setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
         ...initialAttributionFilters,
+        valueFilters: { classification: 7 },
         activeQuickfilterIds: [incompatible.id],
       }),
     ]);
@@ -636,7 +679,7 @@ describe('quickfilters in the filter menu', () => {
     ]);
   });
 
-  it('lists quickfilters in creation order and allows deleting them', async () => {
+  it('lists quickfilters in creation order and allows deleting them in the edit view', async () => {
     const quickfilters = [
       makeQuickfilter({ name: 'oldest', lastUsedAt: 1 }),
       makeQuickfilter({ name: 'intermediate', lastUsedAt: 2 }),
@@ -666,6 +709,18 @@ describe('quickfilters in the filter menu', () => {
       text.quickfilters.apply('newest'),
     ]);
 
+    // The selection list offers no delete buttons; editing (and deleting)
+    // happens in the edit view.
+    expect(
+      within(panel).queryByRole('button', {
+        name: text.quickfilters.delete('oldest'),
+      }),
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(
+      within(panel).getByRole('button', { name: text.quickfilters.edit }),
+    );
+
     await userEvent.click(
       within(panel).getByRole('button', {
         name: text.quickfilters.delete('oldest'),
@@ -674,12 +729,65 @@ describe('quickfilters in the filter menu', () => {
 
     expect(
       within(panel).queryByRole('button', {
-        name: text.quickfilters.apply('oldest'),
+        name: text.quickfilters.delete('oldest'),
       }),
     ).not.toBeInTheDocument();
     expect(store.getState().userSettingsState.savedQuickfilters).toHaveLength(
       4,
     );
+  });
+
+  it('reorders quickfilters via the drag handles in the edit view and persists the order', async () => {
+    const quickfilters = [
+      makeQuickfilter({ name: 'First', lastUsedAt: 1 }),
+      makeQuickfilter({ name: 'Second', lastUsedAt: 2 }),
+      makeQuickfilter({ name: 'Third', lastUsedAt: 3 }),
+    ];
+    const { store } = await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: quickfilters }),
+    ]);
+
+    const panel = await openQuickfiltersPanel();
+    await userEvent.click(
+      within(panel).getByRole('button', { name: text.quickfilters.edit }),
+    );
+
+    const dragHandle = () =>
+      within(panel).getByRole('button', {
+        name: text.quickfilters.reorder('Third'),
+      });
+
+    // Keyboard reordering via the handle (drag is pointer-based and cannot be
+    // simulated in happy-dom).
+    dragHandle().focus();
+    await userEvent.keyboard('{ArrowUp}');
+    await userEvent.keyboard('{ArrowUp}');
+
+    // The order persists to the saved settings.
+    expect(
+      store.getState().userSettingsState.savedQuickfilters.map(({ name }) => {
+        return name;
+      }),
+    ).toEqual(['Third', 'First', 'Second']);
+
+    await userEvent.click(
+      within(panel).getByRole('button', {
+        name: text.quickfilters.finishEditing,
+      }),
+    );
+    const applyRowLabels = within(panel)
+      .getAllByRole('button')
+      .filter((button) =>
+        button
+          .getAttribute('aria-label')
+          ?.startsWith(text.quickfilters.apply('')),
+      )
+      .map((button) => button.getAttribute('aria-label'));
+    expect(applyRowLabels).toEqual([
+      text.quickfilters.apply('Third'),
+      text.quickfilters.apply('First'),
+      text.quickfilters.apply('Second'),
+    ]);
   });
 
   it('stays open while toggling quickfilters so combinations can be composed', async () => {
