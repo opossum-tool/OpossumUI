@@ -40,7 +40,8 @@ export function useQuickfilterOptions({
   setFilters: SetFilters;
   scope: QuickfilterScope;
 }): Array<FilterOption> {
-  const { quickfilters, deleteQuickfilter } = useQuickfilters(scope);
+  const { quickfilters, deleteQuickfilter, reorderQuickfilter } =
+    useQuickfilters(scope);
   const classifications = useClassifications();
   const [userSettings] = useUserSettings();
   const hasActiveFilters = hasActiveAttributionFilters(filters);
@@ -148,6 +149,7 @@ export function useQuickfilterOptions({
               .map(({ id }) => id)}
             onApply={applyQuickfilter}
             onDelete={deleteQuickfilter}
+            onReorder={reorderQuickfilter}
             onSaved={activateSavedQuickfilter}
             onClose={onClose}
             initialFocusRef={initialFocusRef}
@@ -163,5 +165,6 @@ export function useQuickfilterOptions({
     hasActiveFilters,
     scope,
     deleteQuickfilter,
+    reorderQuickfilter,
   ]);
 }

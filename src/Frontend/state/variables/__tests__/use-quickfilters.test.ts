@@ -7,11 +7,13 @@ import { act } from '@testing-library/react';
 import type { SavedQuickfilter } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
 import { renderHook } from '../../../test-helpers/render';
+import { setUserSetting } from '../../actions/user-settings-actions/user-settings-actions';
 import {
   type AttributionFilters,
   initialAttributionFilters,
 } from '../use-filters';
 import {
+  areQuickfilterConditionsMet,
   combineQuickfilters,
   isQuickfilterCompatible,
   isQuickfilterUsableInProject,
@@ -112,6 +114,105 @@ describe('isQuickfilterCompatible', () => {
     expect(isQuickfilterCompatible(current, conflictingClassification)).toBe(
       false,
     );
+  });
+});
+
+describe('areQuickfilterConditionsMet', () => {
+  it('holds when the filters contain everything the quickfilter contributed', () => {
+    const quickfilter = makeQuickfilter({
+      filters: {
+        filters: ['firstParty'],
+        search: 'react',
+        valueFilters: {
+          classification: 1,
+          license: [{ id: 'MIT', label: 'MIT' }],
+          licenseSearches: ['apache'],
+        },
+      },
+    });
+    const current: AttributionFilters = {
+      ...initialAttributionFilters,
+      filters: ['firstParty'],
+      search: 'react',
+      valueFilters: {
+        classification: 1,
+        license: [{ id: 'MIT', label: 'MIT' }],
+        licenseSearches: ['apache'],
+      },
+      activeQuickfilterIds: [quickfilter.id],
+    };
+
+    expect(areQuickfilterConditionsMet(current, quickfilter)).toBe(true);
+  });
+
+  it('holds when further filters are added on top', () => {
+    const quickfilter = makeQuickfilter({
+      filters: { filters: ['firstParty'], search: '', valueFilters: {} },
+    });
+    const current: AttributionFilters = {
+      ...initialAttributionFilters,
+      filters: ['firstParty', 'thirdParty'],
+      valueFilters: { criticality: 2 },
+      activeQuickfilterIds: [quickfilter.id],
+    };
+
+    expect(areQuickfilterConditionsMet(current, quickfilter)).toBe(true);
+  });
+
+  it('breaks when one of the quickfilter filter keys is removed', () => {
+    const quickfilter = makeQuickfilter({
+      filters: { filters: ['firstParty'], search: '', valueFilters: {} },
+    });
+    const current: AttributionFilters = {
+      ...initialAttributionFilters,
+      filters: [],
+      activeQuickfilterIds: [quickfilter.id],
+    };
+
+    expect(areQuickfilterConditionsMet(current, quickfilter)).toBe(false);
+  });
+
+  it('breaks when the search text is changed', () => {
+    const quickfilter = makeQuickfilter({
+      filters: { filters: [], search: 'react', valueFilters: {} },
+    });
+    const current: AttributionFilters = {
+      ...initialAttributionFilters,
+      search: 'vue',
+      activeQuickfilterIds: [quickfilter.id],
+    };
+
+    expect(areQuickfilterConditionsMet(current, quickfilter)).toBe(false);
+  });
+
+  it('breaks when a scalar value filter is changed', () => {
+    const quickfilter = makeQuickfilter({
+      filters: { filters: [], search: '', valueFilters: { classification: 1 } },
+    });
+    const current: AttributionFilters = {
+      ...initialAttributionFilters,
+      valueFilters: { classification: 2 },
+      activeQuickfilterIds: [quickfilter.id],
+    };
+
+    expect(areQuickfilterConditionsMet(current, quickfilter)).toBe(false);
+  });
+
+  it('breaks when a license condition is removed', () => {
+    const quickfilter = makeQuickfilter({
+      filters: {
+        filters: [],
+        search: '',
+        valueFilters: { license: [{ id: 'MIT', label: 'MIT' }] },
+      },
+    });
+    const current: AttributionFilters = {
+      ...initialAttributionFilters,
+      valueFilters: {},
+      activeQuickfilterIds: [quickfilter.id],
+    };
+
+    expect(areQuickfilterConditionsMet(current, quickfilter)).toBe(false);
   });
 });
 
@@ -235,17 +336,19 @@ describe('isQuickfilterUsableInProject', () => {
 function makeQuickfilter({
   id = faker.string.uuid(),
   name = faker.string.sample(),
+  scope = 'attribution',
   filters = { filters: [], search: '', valueFilters: {} },
 }: {
   id?: string;
   name?: string;
+  scope?: SavedQuickfilter['scope'];
   filters?: SavedQuickfilter['filters'];
 } = {}): SavedQuickfilter {
   return {
     id,
     name,
     lastUsedAt: faker.number.int(),
-    scope: 'attribution',
+    scope,
     filters,
   };
 }
@@ -360,5 +463,38 @@ describe('useQuickfilters', () => {
       first,
       second,
     ]);
+  });
+
+  it('reorders within the scope and keeps other scopes in place', async () => {
+    const first = makeQuickfilter({ name: 'A', scope: 'attribution' });
+    const signalQuickfilter = makeQuickfilter({ name: 'S', scope: 'signal' });
+    const second = makeQuickfilter({ name: 'B', scope: 'attribution' });
+    const third = makeQuickfilter({ name: 'C', scope: 'attribution' });
+    const { result, store } = await renderHook(
+      () => useQuickfilters('attribution'),
+      {
+        actions: [
+          setUserSetting({
+            savedQuickfilters: [first, signalQuickfilter, second, third],
+          }),
+        ],
+      },
+    );
+
+    await act(async () => {
+      result.current.reorderQuickfilter(third.id, 1);
+      await Promise.resolve();
+    });
+
+    expect(result.current.quickfilters.map(({ name }) => name)).toEqual([
+      'A',
+      'C',
+      'B',
+    ]);
+    expect(
+      store
+        .getState()
+        .userSettingsState.savedQuickfilters.map(({ name }) => name),
+    ).toEqual(['A', 'S', 'C', 'B']);
   });
 });

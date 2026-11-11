@@ -443,11 +443,15 @@ export const text = {
     saveHint: 'Some filters are selected — save them as a quickfilter',
     nameLabel: 'Quickfilter name',
     saveAction: 'Save',
-    incompatibleWithProject: 'Quickfilter incompatible with current project/settings',
+    incompatibleWithProject:
+      'Quickfilter incompatible with current project/settings',
     conflictsWithFilters: 'Quickfilter conflicts with current filters',
     apply: (name: string) => `Apply quickfilter ${name}`,
     delete: (name: string) => `Delete quickfilter ${name}`,
     deleteIconLabel: 'Delete quickfilter',
+    edit: 'Edit quickfilters',
+    finishEditing: 'Finish editing quickfilters',
+    reorder: (name: string) => `Reorder quickfilter ${name}`,
   },
   sortings: {
     criticality: 'By Criticality',
