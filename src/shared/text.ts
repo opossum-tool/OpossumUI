@@ -438,11 +438,12 @@ export const text = {
   },
   quickfilters: {
     title: 'Quickfilters',
+    titleSelected: 'Quickfilters selected',
     save: 'Save current filters…',
     saveHint: 'Some filters are selected — save them as a quickfilter',
     nameLabel: 'Quickfilter name',
     saveAction: 'Save',
-    incompatibleWithProject: 'Quickfilter incompatible with current project',
+    incompatibleWithProject: 'Quickfilter incompatible with current project/settings',
     conflictsWithFilters: 'Quickfilter conflicts with current filters',
     apply: (name: string) => `Apply quickfilter ${name}`,
     delete: (name: string) => `Delete quickfilter ${name}`,

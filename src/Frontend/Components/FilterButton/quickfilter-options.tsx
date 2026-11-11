@@ -5,7 +5,6 @@
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import MuiTooltip from '@mui/material/Tooltip';
 import { useMemo } from 'react';
 
 import type {
@@ -119,21 +118,16 @@ export function useQuickfilterOptions({
         kind: 'panel' as const,
         id: 'quickfilters',
         selected: false,
-        label: text.quickfilters.title,
-        // The tooltip on the icon renders hidden text inside the menu item;
-        // an explicit label keeps the accessible name stable.
+        label: activeIds.length
+          ? text.quickfilters.titleSelected
+          : text.quickfilters.title,
+        // The visible label reflects the selection; the accessible name
+        // stays stable so tests and assistive tech can rely on it.
         ariaLabel: text.quickfilters.title,
         tinted: true,
+        tooltip: showSaveHint ? text.quickfilters.saveHint : undefined,
         icon: showSaveHint ? (
-          <MuiTooltip
-            title={text.quickfilters.saveHint}
-            disableInteractive
-            placement={'bottom'}
-          >
-            <span>
-              <BookmarkAddIcon sx={baseIcon} color={'primary'} />
-            </span>
-          </MuiTooltip>
+          <BookmarkAddIcon sx={baseIcon} color={'primary'} />
         ) : (
           <BookmarkIcon sx={baseIcon} />
         ),

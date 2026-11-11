@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiListItemIcon from '@mui/material/ListItemIcon';
 import MuiListItemText from '@mui/material/ListItemText';
+import MuiTooltip from '@mui/material/Tooltip';
 
 import { auditingOptionIconSize } from '../../shared-styles';
 import { MenuContainer } from './menu-container';
@@ -33,6 +34,7 @@ interface MenuOptionBase {
   label: React.ReactNode;
   selected: boolean;
   tinted?: boolean;
+  tooltip?: string;
 }
 
 export interface ToggleMenuOption extends MenuOptionBase {
@@ -146,10 +148,14 @@ export function renderSelectMenuItems({
         }
       }
 
-      return (
+      const menuItem = (
         <StyledMenuItem
           key={id}
-          title={typeof label === 'string' ? label : undefined}
+          title={
+            option.tooltip === undefined && typeof label === 'string'
+              ? label
+              : undefined
+          }
           data-option-id={id}
           selected={selected}
           aria-label={option.ariaLabel}
@@ -195,6 +201,19 @@ export function renderSelectMenuItems({
             label
           )}
         </StyledMenuItem>
+      );
+
+      return option.tooltip === undefined ? (
+        menuItem
+      ) : (
+        <MuiTooltip
+          key={id}
+          title={option.tooltip}
+          disableInteractive
+          placement={'bottom'}
+        >
+          {menuItem}
+        </MuiTooltip>
       );
     });
   }
