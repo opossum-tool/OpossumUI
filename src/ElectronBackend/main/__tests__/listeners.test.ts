@@ -21,6 +21,7 @@ import {
 } from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
 import {
+  handleOpeningFile,
   importFileListener,
   linkHasHttpSchema,
   openFileListener,
@@ -31,6 +32,7 @@ import {
   selectSaveFileListener,
 } from '../listeners';
 import { importFileFormats } from '../menu/fileMenu';
+import { UserSettingsService } from '../user-settings-service';
 
 vi.mock('electron', async () => ({
   app: {
@@ -158,6 +160,15 @@ describe('openFileListener', () => {
     expect(mainWindow.webContents.send).toHaveBeenCalledWith(
       AllowedFrontendChannels.ProjectOpened,
     );
+    expect(vi.mocked(mainWindow.webContents.send).mock.calls.slice(-2)).toEqual(
+      [
+        [AllowedFrontendChannels.ProjectOpened],
+        [
+          AllowedFrontendChannels.ProcessingStateChanged,
+          { type: 'ProcessingDone' },
+        ],
+      ],
+    );
   });
 
   it('does not notify the frontend after a handled load failure and ends processing', async () => {
@@ -190,6 +201,73 @@ describe('openFileListener', () => {
 
     expect(mainWindow.webContents.send).not.toHaveBeenCalledWith(
       AllowedFrontendChannels.ProjectOpened,
+    );
+  });
+});
+
+describe('handleOpeningFile', () => {
+  it.each(['recent paths read', 'recent paths update', 'final menu update'])(
+    'notifies despite a failed %s and still ends processing',
+    async (operation) => {
+      const mainWindow = initWindowAndBackendState();
+      const error = new Error(`${operation} failed`);
+      const updateMenu = vi
+        .fn<() => Promise<void>>()
+        .mockResolvedValue(undefined);
+      vi.mocked(loadInputAndOutputFromFilePath).mockResolvedValue(true);
+
+      switch (operation) {
+        case 'recent paths read':
+          vi.mocked(UserSettingsService.get).mockRejectedValueOnce(error);
+          break;
+        case 'recent paths update':
+          vi.mocked(UserSettingsService.update).mockRejectedValueOnce(error);
+          break;
+        case 'final menu update':
+          updateMenu
+            .mockResolvedValueOnce(undefined)
+            .mockRejectedValueOnce(error);
+          break;
+      }
+
+      await expect(
+        handleOpeningFile(mainWindow, '/home/input.opossum', updateMenu),
+      ).rejects.toBe(error);
+
+      expect(
+        vi.mocked(mainWindow.webContents.send).mock.calls.slice(-2),
+      ).toEqual([
+        [AllowedFrontendChannels.ProjectOpened],
+        [
+          AllowedFrontendChannels.ProcessingStateChanged,
+          { type: 'ProcessingDone' },
+        ],
+      ]);
+      expect(
+        vi
+          .mocked(mainWindow.webContents.send)
+          .mock.calls.filter(
+            ([channel]) => channel === AllowedFrontendChannels.ProjectOpened,
+          ),
+      ).toHaveLength(1);
+    },
+  );
+
+  it('ends processing without notifying when loading throws', async () => {
+    const mainWindow = initWindowAndBackendState();
+    const error = new Error('loading failed');
+    vi.mocked(loadInputAndOutputFromFilePath).mockRejectedValueOnce(error);
+
+    await expect(
+      handleOpeningFile(mainWindow, '/home/input.opossum', vi.fn()),
+    ).rejects.toBe(error);
+
+    expect(mainWindow.webContents.send).not.toHaveBeenCalledWith(
+      AllowedFrontendChannels.ProjectOpened,
+    );
+    expect(mainWindow.webContents.send).toHaveBeenLastCalledWith(
+      AllowedFrontendChannels.ProcessingStateChanged,
+      { type: 'ProcessingDone' },
     );
   });
 });

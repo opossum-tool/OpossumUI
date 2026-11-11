@@ -320,12 +320,12 @@ export async function handleOpeningFile(
     if (!(await openFile(mainWindow, filePath, updateMenu))) {
       return;
     }
+    mainWindow.webContents.send(AllowedFrontendChannels.ProjectOpened);
     await updateRecentlyOpenedPaths(filePath);
     await updateMenu();
   } finally {
     statusUpdater.endProcessing();
   }
-  mainWindow.webContents.send(AllowedFrontendChannels.ProjectOpened);
 }
 
 export const importFileListener =
