@@ -17,7 +17,7 @@ import { renderHook } from '../../test-helpers/render';
 import { backend } from '../backendClient';
 import {
   useFilterProperties,
-  useResourceTreeFilterProperties,
+  useProjectLicenseOptions,
 } from '../use-filter-properties';
 
 const data = getParsedInputFileEnrichedWithTestData({
@@ -211,10 +211,7 @@ test('refreshes options for other filters while ignoring selected licenses', asy
 test('refreshes license options after resolving an attribution', async () => {
   const { result } = await renderHook(
     () => ({
-      options: useResourceTreeFilterProperties({
-        external: true,
-        enabled: true,
-      }),
+      options: useProjectLicenseOptions({ external: true }),
       resolve: backend.resolveAttributions.useMutation(),
     }),
     { data },
