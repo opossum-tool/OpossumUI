@@ -3,8 +3,6 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { DEFAULT_USER_SETTINGS } from '../../../../../shared/shared-constants';
-import type { UserSettings } from '../../../../../shared/shared-types';
 import { PopupType, View } from '../../../../enums/enums';
 import { createAppStore } from '../../../configure-store';
 import {
@@ -19,7 +17,6 @@ import {
   closePopup,
   navigateToView,
   openPopup,
-  openStatisticsPopupAfterFileLoadIfEnabled,
   resetViewState,
   setTargetView,
 } from '../view-actions';
@@ -72,51 +69,6 @@ describe('view actions', () => {
 });
 
 describe('popup actions', () => {
-  it('waits for persisted user settings before deciding to show statistics', async () => {
-    const testStore = createAppStore();
-    let resolveSettings: ((settings: UserSettings) => void) | undefined;
-    vi.mocked(window.electronAPI.getUserSettings).mockReturnValueOnce(
-      new Promise((resolve) => {
-        resolveSettings = resolve;
-      }),
-    );
-
-    const openStatistics = testStore.dispatch(
-      openStatisticsPopupAfterFileLoadIfEnabled,
-    );
-    expect(getOpenPopup(testStore.getState())).toBeNull();
-
-    resolveSettings?.({
-      ...DEFAULT_USER_SETTINGS,
-      showProjectStatistics: true,
-    });
-    await openStatistics;
-
-    expect(getOpenPopup(testStore.getState())?.popup).toBe(
-      PopupType.ProjectStatisticsPopup,
-    );
-  });
-
-  it('logs and skips statistics when persisted settings cannot be loaded', async () => {
-    const testStore = createAppStore();
-    const error = new Error('settings unavailable');
-    const consoleError = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
-    vi.mocked(window.electronAPI.getUserSettings).mockRejectedValueOnce(error);
-
-    await expect(
-      testStore.dispatch(openStatisticsPopupAfterFileLoadIfEnabled),
-    ).resolves.toBeUndefined();
-
-    expect(consoleError).toHaveBeenCalledWith(
-      'Could not load user settings for project statistics',
-      error,
-    );
-    expect(getOpenPopup(testStore.getState())).toBeNull();
-    consoleError.mockRestore();
-  });
-
   it('popup is closed by default', () => {
     const testStore = createAppStore();
     expect(getOpenPopup(testStore.getState())).toBeFalsy();

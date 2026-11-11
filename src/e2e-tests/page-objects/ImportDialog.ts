@@ -65,6 +65,14 @@ export class ImportDialog {
     await this.assert.titleIsHidden();
   }
 
+  async focusImportButton(): Promise<void> {
+    await this.importButton.focus();
+  }
+
+  async selectInputFile(): Promise<void> {
+    await this.inputFileSelection.click();
+  }
+
   public assert = {
     titleIsVisible: async (): Promise<void> => {
       await expect(this.title).toBeVisible();
@@ -83,6 +91,9 @@ export class ImportDialog {
     },
     importsIntoCurrentProject: async (): Promise<void> => {
       await expect(this.importIntoCurrentProjectSwitch).toBeChecked();
+    },
+    importButtonIsFocused: async (): Promise<void> => {
+      await expect(this.importButton).toBeFocused();
     },
   };
 }

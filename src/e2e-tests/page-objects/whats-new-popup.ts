@@ -9,13 +9,19 @@ import { text } from '../../shared/text';
 
 export class WhatsNewPopup {
   private readonly node: Locator;
+  private readonly dialogContainer: Locator;
   readonly closeButton: Locator;
+  readonly screenshotViewer: WhatsNewScreenshotViewer;
 
   constructor(private readonly window: Page) {
     this.node = window.getByRole('dialog', { name: text.whatsNew.title });
+    this.dialogContainer = window.locator(
+      `[aria-label="${text.whatsNew.title}"]`,
+    );
     this.closeButton = this.node.getByRole('button', {
       name: text.buttons.close,
     });
+    this.screenshotViewer = new WhatsNewScreenshotViewer(window, this.node);
   }
 
   async getSeenRevision(): Promise<number> {
@@ -34,11 +40,65 @@ export class WhatsNewPopup {
     isHidden: async (): Promise<void> => {
       await expect(this.node).toBeHidden();
     },
+    isPresent: async (): Promise<void> => {
+      await expect(this.dialogContainer).toBeAttached();
+    },
     seenRevisionIsRecorded: async (): Promise<void> => {
       await expect.poll(() => this.getSeenRevision()).toBeGreaterThan(0);
     },
     seenRevisionIs: async (revision: number): Promise<void> => {
       await expect.poll(() => this.getSeenRevision()).toBe(revision);
+    },
+  };
+}
+
+class WhatsNewScreenshotViewer {
+  private readonly window: Page;
+  private readonly node: Locator;
+  private readonly image: Locator;
+  private readonly invokingButton: Locator;
+  private readonly closeButton: Locator;
+
+  constructor(window: Page, whatsNewDialog: Locator) {
+    this.window = window;
+    this.invokingButton = whatsNewDialog
+      .getByRole('button', { name: /View full size/ })
+      .first();
+    const screenshotRegion = window.getByRole('region', {
+      name: text.whatsNew.screenshot,
+    });
+    this.node = window.getByRole('dialog').filter({ has: screenshotRegion });
+    this.image = this.node.getByRole('img');
+    this.closeButton = this.node.getByRole('button', {
+      name: text.buttons.close,
+      exact: true,
+    });
+  }
+
+  async open(): Promise<void> {
+    await this.invokingButton.click();
+    await this.assert.isVisible();
+  }
+
+  async close(): Promise<void> {
+    await this.closeButton.click();
+    await this.assert.isHidden();
+  }
+
+  async closeWithEscape(): Promise<void> {
+    await this.window.keyboard.press('Escape');
+    await this.assert.isHidden();
+  }
+
+  public assert = {
+    isVisible: async (): Promise<void> => {
+      await expect(this.image).toBeVisible();
+    },
+    isHidden: async (): Promise<void> => {
+      await expect(this.image).toBeHidden();
+    },
+    invokingButtonIsFocused: async (): Promise<void> => {
+      await expect(this.invokingButton).toBeFocused();
     },
   };
 }

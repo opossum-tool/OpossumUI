@@ -5,7 +5,10 @@
 import { app, type BrowserWindow, ipcMain } from 'electron';
 
 import { IpcChannel } from '../../shared/ipc-channels';
-import type { UserSettings } from '../../shared/shared-types';
+import type {
+  FrontendDialogState,
+  UserSettings,
+} from '../../shared/shared-types';
 import { getAppVersion } from './app-version';
 import { getGlobalBackendState } from './globalBackendState';
 import {
@@ -85,10 +88,14 @@ export function setupIpcHandling(
     (_, userSettings: Partial<UserSettings>) =>
       UserSettingsService.update(userSettings, { skipNotification: true }),
   );
-  ipcMain.handle(IpcChannel.SetFrontendPopupOpen, async (_, open: boolean) => {
-    getGlobalBackendState().frontendPopupOpen = open;
-    await updateMenu();
-  });
+  ipcMain.handle(
+    IpcChannel.SetFrontendDialogState,
+    async (_, state: FrontendDialogState) => {
+      getGlobalBackendState().frontendPopupOpen = state.anyDialogOpen;
+      getGlobalBackendState().frontendActivityActive = state.activityActive;
+      await updateMenu();
+    },
+  );
   ipcMain.handle(IpcChannel.GetMacArchitectureMismatch, () =>
     getMacArchitectureMismatch(
       process.platform,

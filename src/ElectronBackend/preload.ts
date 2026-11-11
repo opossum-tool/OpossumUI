@@ -83,8 +83,8 @@ const electronAPI: ElectronAPI = {
   getUserSettings: () => ipcRenderer.invoke(IpcChannel.GetUserSettings),
   updateUserSettings: (userSettings: Partial<UserSettings>) =>
     ipcRenderer.invoke(IpcChannel.UpdateUserSettings, userSettings),
-  setFrontendPopupOpen: (open: boolean) =>
-    ipcRenderer.invoke(IpcChannel.SetFrontendPopupOpen, open),
+  setFrontendDialogState: (state) =>
+    ipcRenderer.invoke(IpcChannel.SetFrontendDialogState, state),
   getMacArchitectureMismatch: () =>
     ipcRenderer.invoke(IpcChannel.GetMacArchitectureMismatch),
   getAppVersion: () => ipcRenderer.invoke(IpcChannel.GetAppVersion),

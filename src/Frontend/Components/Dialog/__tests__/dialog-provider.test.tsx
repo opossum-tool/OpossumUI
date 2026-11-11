@@ -2,15 +2,25 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { StrictMode, useState } from 'react';
 
 import { Dialog } from '../dialog';
-import { DialogProvider } from '../dialog-provider';
+import {
+  DialogProvider,
+  useDialogRegistration,
+  useDialogRegistrySnapshot,
+} from '../dialog-provider';
 
 describe('DialogProvider', () => {
   beforeEach(() => {
-    vi.mocked(window.electronAPI.setFrontendPopupOpen).mockClear();
+    vi.mocked(window.electronAPI.setFrontendDialogState).mockClear();
   });
 
   it('reports only aggregate open-state transitions and handles a handoff', async () => {
@@ -45,32 +55,42 @@ describe('DialogProvider', () => {
     );
 
     await waitFor(() =>
-      expect(window.electronAPI.setFrontendPopupOpen).not.toHaveBeenCalled(),
+      expect(window.electronAPI.setFrontendDialogState).not.toHaveBeenCalled(),
     );
 
     fireEvent.click(screen.getByText('Open first'));
     await waitFor(() =>
-      expect(window.electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(
-        true,
-      ),
+      expect(
+        window.electronAPI.setFrontendDialogState,
+      ).toHaveBeenLastCalledWith({
+        anyDialogOpen: true,
+        activityActive: false,
+      }),
     );
 
     fireEvent.click(screen.getByText('Open second'));
     fireEvent.click(screen.getByText('Close second'));
     await waitFor(() =>
-      expect(window.electronAPI.setFrontendPopupOpen).toHaveBeenCalledTimes(1),
+      expect(window.electronAPI.setFrontendDialogState).toHaveBeenCalledTimes(
+        1,
+      ),
     );
 
     fireEvent.click(screen.getByText('Handoff'));
     await waitFor(() =>
-      expect(window.electronAPI.setFrontendPopupOpen).toHaveBeenCalledTimes(1),
+      expect(window.electronAPI.setFrontendDialogState).toHaveBeenCalledTimes(
+        1,
+      ),
     );
 
     unmount();
     await waitFor(() =>
-      expect(window.electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(
-        false,
-      ),
+      expect(
+        window.electronAPI.setFrontendDialogState,
+      ).toHaveBeenLastCalledWith({
+        anyDialogOpen: false,
+        activityActive: false,
+      }),
     );
   });
 
@@ -98,34 +118,127 @@ describe('DialogProvider', () => {
     );
 
     await waitFor(() =>
-      expect(window.electronAPI.setFrontendPopupOpen).toHaveBeenCalledTimes(1),
+      expect(window.electronAPI.setFrontendDialogState).toHaveBeenCalledTimes(
+        1,
+      ),
     );
-    expect(window.electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(
-      true,
-    );
+    expect(window.electronAPI.setFrontendDialogState).toHaveBeenLastCalledWith({
+      anyDialogOpen: true,
+      activityActive: false,
+    });
 
     fireEvent.click(screen.getByText('Close first'));
     await waitFor(() =>
-      expect(window.electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(
-        false,
-      ),
+      expect(
+        window.electronAPI.setFrontendDialogState,
+      ).toHaveBeenLastCalledWith({
+        anyDialogOpen: false,
+        activityActive: false,
+      }),
     );
 
     fireEvent.click(screen.getByText('Reopen first'));
     await waitFor(() =>
-      expect(window.electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(
-        true,
-      ),
+      expect(
+        window.electronAPI.setFrontendDialogState,
+      ).toHaveBeenLastCalledWith({
+        anyDialogOpen: true,
+        activityActive: false,
+      }),
     );
 
     fireEvent.click(screen.getByText('Open second'));
     fireEvent.click(screen.getByText('Close first'));
     await waitFor(() =>
-      expect(window.electronAPI.setFrontendPopupOpen).toHaveBeenCalledTimes(3),
+      expect(window.electronAPI.setFrontendDialogState).toHaveBeenCalledTimes(
+        3,
+      ),
     );
-    expect(window.electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(
-      true,
+    expect(window.electronAPI.setFrontendDialogState).toHaveBeenLastCalledWith({
+      anyDialogOpen: true,
+      activityActive: false,
+    });
+  });
+
+  it('leaves stacking of simultaneously open dialogs to MUI', async () => {
+    render(
+      <DialogProvider>
+        <Dialog open={true} aria-label={'first dialog'}>
+          First
+        </Dialog>
+        <Dialog open={true} aria-label={'second dialog'}>
+          Second
+        </Dialog>
+      </DialogProvider>,
     );
+
+    expect(await screen.findByText('First')).toBeVisible();
+    expect(screen.getByText('Second')).toBeVisible();
+  });
+
+  it('reports reference dialogs separately without clearing workflow activity', async () => {
+    let registerActivity: (id: string) => void;
+
+    function Probe() {
+      const registry = useDialogRegistration();
+      const snapshot = useDialogRegistrySnapshot();
+      registerActivity = registry.registerActivity;
+      return <output data-testid="registry">{JSON.stringify(snapshot)}</output>;
+    }
+
+    const { rerender } = render(
+      <DialogProvider>
+        <Probe />
+        <Dialog
+          open={false}
+          classification={'reference'}
+          aria-label={'reference'}
+        />
+      </DialogProvider>,
+    );
+
+    act(() => registerActivity('workflow-activity'));
+
+    rerender(
+      <DialogProvider>
+        <Probe />
+        <Dialog
+          open={true}
+          classification={'reference'}
+          aria-label={'reference'}
+        />
+      </DialogProvider>,
+    );
+
+    await waitFor(() => {
+      expect(
+        JSON.parse(screen.getByTestId('registry').textContent ?? ''),
+      ).toEqual({
+        referenceDialogOpen: true,
+        anyDialogOpen: true,
+        activityActive: true,
+      });
+    });
+
+    rerender(
+      <DialogProvider>
+        <Probe />
+        <Dialog
+          open={false}
+          classification={'reference'}
+          aria-label={'reference'}
+        />
+      </DialogProvider>,
+    );
+    await waitFor(() => {
+      expect(
+        JSON.parse(screen.getByTestId('registry').textContent ?? ''),
+      ).toEqual({
+        referenceDialogOpen: false,
+        anyDialogOpen: false,
+        activityActive: true,
+      });
+    });
   });
 
   it('rejects dialogs rendered without a provider', () => {

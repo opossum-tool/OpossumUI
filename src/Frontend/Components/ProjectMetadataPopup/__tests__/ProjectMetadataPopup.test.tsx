@@ -5,9 +5,11 @@
 import { screen } from '@testing-library/react';
 
 import type { ProjectMetadata } from '../../../../shared/shared-types';
+import { PopupType } from '../../../enums/enums';
+import { openPopup } from '../../../state/actions/view-actions/view-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import { ProjectMetadataPopup } from '../ProjectMetadataPopup';
+import { GlobalPopup } from '../../GlobalPopup/GlobalPopup';
 
 describe('The ProjectMetadataPopup', () => {
   it('displays metadata', async () => {
@@ -16,7 +18,8 @@ describe('The ProjectMetadataPopup', () => {
       fileCreationDate: 'test-date',
     };
 
-    await renderComponent(<ProjectMetadataPopup />, {
+    await renderComponent(<GlobalPopup />, {
+      actions: [openPopup(PopupType.ProjectMetadataPopup)],
       data: getParsedInputFileEnrichedWithTestData({ metadata: testMetadata }),
     });
     expect(await screen.findByText('test-id')).toBeInTheDocument();
@@ -29,7 +32,8 @@ describe('The ProjectMetadataPopup', () => {
       fileCreationDate: 'test-date',
     };
 
-    await renderComponent(<ProjectMetadataPopup />, {
+    await renderComponent(<GlobalPopup />, {
+      actions: [openPopup(PopupType.ProjectMetadataPopup)],
       data: getParsedInputFileEnrichedWithTestData({ metadata: testMetadata }),
     });
     expect(await screen.findByText('Project Title')).toBeInTheDocument();
@@ -46,7 +50,8 @@ describe('The ProjectMetadataPopup', () => {
       },
     };
 
-    await renderComponent(<ProjectMetadataPopup />, {
+    await renderComponent(<GlobalPopup />, {
+      actions: [openPopup(PopupType.ProjectMetadataPopup)],
       data: getParsedInputFileEnrichedWithTestData({ metadata: testMetadata }),
     });
     expect(

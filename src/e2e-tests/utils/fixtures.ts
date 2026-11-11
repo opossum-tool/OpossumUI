@@ -155,6 +155,8 @@ export const test = base.extend<
     measureStartup: boolean;
     /** Show the automatic announcement on the initial app launch. */
     showStartupWhatsNew: boolean;
+    /** Enable automatic project statistics after a successful file load. */
+    showProjectStatistics: boolean;
     /** Run this function at any point in a test to abort the test at that point and inspect the opossum file. */
     debug: () => void;
     modKey: string;
@@ -176,6 +178,7 @@ export const test = base.extend<
   appLoadTimeout: [LOAD_TIMEOUT, { option: true }],
   measureStartup: [false, { option: true }],
   showStartupWhatsNew: [false, { option: true }],
+  showProjectStatistics: [false, { option: true }],
   openFromCLI: true,
   filePaths: async ({ data }, use, info) => {
     if (!data) {
@@ -200,6 +203,7 @@ export const test = base.extend<
       releasePathOverride,
       measureStartup,
       showStartupWhatsNew,
+      showProjectStatistics,
     },
     use,
     info,
@@ -226,6 +230,7 @@ export const test = base.extend<
         lastSeenWhatsNewRevision: showStartupWhatsNew
           ? 0
           : Number.MAX_SAFE_INTEGER,
+        showProjectStatistics,
       }),
     );
     const startupStartedAt = performance.now();

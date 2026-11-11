@@ -117,6 +117,28 @@ describe('comparing attribution via selection mode', () => {
     });
   });
 
+  it('retains comparison drafts when the global save confirmation is canceled', async () => {
+    const draftName = 'retained comparison draft';
+    await renderApp({ data });
+    await gotoResource(resourceName1);
+    await clickAttributionColumnButton('compare-with');
+    await gotoResource(resourceName2);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, manualPackageInfo2);
+    await clickAttributionColumnButton('compare-confirm');
+
+    fillDiffPopupField('right', 'packageName', draftName);
+    await clickDiffPopupButton('save');
+    await clickPopupButton(
+      text.saveAttributionsPopup.ariaLabel,
+      text.buttons.cancel,
+    );
+    await expectPopupHidden(text.saveAttributionsPopup.ariaLabel);
+    await expectDiffPopupVisibility(true);
+    await expectDiffPopupPackageName('right', draftName);
+    await clickDiffPopupButton('cancel');
+    await expectDiffPopupVisibility(false);
+  });
+
   it('saves edits made to both sides of a comparison', async () => {
     const preexistingLeftPackageName = 'preexisting-left-edit';
     const editedLeftPackageName = faker.lorem.word();

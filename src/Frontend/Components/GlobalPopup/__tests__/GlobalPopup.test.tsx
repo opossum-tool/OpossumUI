@@ -23,8 +23,10 @@ describe('The GlobalPopUp', () => {
 
     expect(screen.queryByText('Warning')).not.toBeInTheDocument();
     expect(
-      global.window.electronAPI.setFrontendPopupOpen,
-    ).not.toHaveBeenCalledWith(true);
+      global.window.electronAPI.setFrontendDialogState,
+    ).not.toHaveBeenCalledWith(
+      expect.objectContaining({ anyDialogOpen: true }),
+    );
   });
 
   it('opens the NotSavedPopup', async () => {
@@ -37,8 +39,11 @@ describe('The GlobalPopUp', () => {
     ).toBeInTheDocument();
     await waitFor(() =>
       expect(
-        global.window.electronAPI.setFrontendPopupOpen,
-      ).toHaveBeenLastCalledWith(true),
+        global.window.electronAPI.setFrontendDialogState,
+      ).toHaveBeenLastCalledWith({
+        anyDialogOpen: true,
+        activityActive: false,
+      }),
     );
   });
 
@@ -50,8 +55,11 @@ describe('The GlobalPopUp', () => {
     expect(await screen.findByText('Project Metadata')).toBeInTheDocument();
     await waitFor(() =>
       expect(
-        global.window.electronAPI.setFrontendPopupOpen,
-      ).toHaveBeenLastCalledWith(true),
+        global.window.electronAPI.setFrontendDialogState,
+      ).toHaveBeenLastCalledWith({
+        anyDialogOpen: true,
+        activityActive: false,
+      }),
     );
   });
 
@@ -64,8 +72,11 @@ describe('The GlobalPopUp', () => {
     expect(await screen.findByText('Project Statistics')).toBeInTheDocument();
     await waitFor(() =>
       expect(
-        global.window.electronAPI.setFrontendPopupOpen,
-      ).toHaveBeenLastCalledWith(true),
+        global.window.electronAPI.setFrontendDialogState,
+      ).toHaveBeenLastCalledWith({
+        anyDialogOpen: true,
+        activityActive: false,
+      }),
     );
   });
 
@@ -79,8 +90,11 @@ describe('The GlobalPopUp', () => {
     ).toBeVisible();
     await waitFor(() =>
       expect(
-        global.window.electronAPI.setFrontendPopupOpen,
-      ).toHaveBeenLastCalledWith(true),
+        global.window.electronAPI.setFrontendDialogState,
+      ).toHaveBeenLastCalledWith({
+        anyDialogOpen: true,
+        activityActive: false,
+      }),
     );
   });
 

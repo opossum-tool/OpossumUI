@@ -28,7 +28,7 @@ const electronAPI: {
   events: Partial<Record<AllowedFrontendChannels, Listener>>;
   on: (channel: AllowedFrontendChannels, listener: Listener) => () => void;
   send: (channel: AllowedFrontendChannels, ...args: Array<unknown>) => void;
-  setFrontendPopupOpen: () => void;
+  setFrontendDialogState: ElectronAPI['setFrontendDialogState'];
   api: ElectronAPI['api'];
 } = {
   events: {},
@@ -39,7 +39,7 @@ const electronAPI: {
   send(channel: AllowedFrontendChannels, ...args: Array<unknown>): void {
     this.events[channel]?.({} as IpcRendererEvent, ...args);
   },
-  setFrontendPopupOpen: vi.fn(),
+  setFrontendDialogState: vi.fn(),
   api: window.electronAPI.api,
 };
 
@@ -93,7 +93,202 @@ describe('ProcessPopup', () => {
 
     expect(screen.getByText(text.processPopup.title)).toBeInTheDocument();
     expect(screen.getByText(message)).toBeInTheDocument();
-    expect(electronAPI.setFrontendPopupOpen).not.toHaveBeenLastCalledWith(true);
+    expect(electronAPI.setFrontendDialogState).not.toHaveBeenLastCalledWith({
+      anyDialogOpen: true,
+      activityActive: false,
+    });
+  });
+
+  it.each([false, true])(
+    'coordinates progress presentation with notes opened first: %s',
+    async (openNotesFirst) => {
+      const { store } = await renderComponent(
+        <>
+          <GlobalPopup />
+          <ProcessPopup />
+        </>,
+        {
+          actions: openNotesFirst ? [openPopup(PopupType.WhatsNewPopup)] : [],
+        },
+      );
+
+      if (!openNotesFirst) {
+        simulateBackendProcessingStarted();
+        await act(() => store.dispatch(openPopup(PopupType.WhatsNewPopup)));
+      } else {
+        simulateBackendProcessingStarted();
+      }
+
+      await waitFor(() =>
+        expect(screen.getByRole('dialog')).toHaveTextContent(
+          text.whatsNew.title,
+        ),
+      );
+      expect(screen.queryByText(text.processPopup.title) !== null).toBe(
+        !openNotesFirst,
+      );
+
+      simulateBackendProcessingDone();
+      await waitFor(() =>
+        expect(screen.getByRole('dialog')).toHaveTextContent(
+          text.whatsNew.title,
+        ),
+      );
+      expect(getOpenPopup(store.getState())?.popup).toBe(
+        PopupType.WhatsNewPopup,
+      );
+    },
+  );
+
+  it('waits for notes to close when another popup covers it', async () => {
+    const { store } = await renderComponent(
+      <>
+        <GlobalPopup />
+        <ProcessPopup />
+      </>,
+      { actions: [openPopup(PopupType.WhatsNewPopup)] },
+    );
+
+    simulateBackendProcessingStarted();
+    act(() => {
+      store.dispatch(openPopup(PopupType.ProjectMetadataPopup));
+    });
+
+    expect(screen.getByRole('dialog')).toHaveTextContent('Project Metadata');
+    expect(screen.queryByText(text.processPopup.title)).not.toBeInTheDocument();
+
+    act(() => {
+      store.dispatch(
+        closePopup(store.getState().viewState.popupInfo.at(-1)!.id),
+      );
+    });
+    expect(screen.getByRole('dialog')).toHaveTextContent(text.whatsNew.title);
+    expect(screen.queryByText(text.processPopup.title)).not.toBeInTheDocument();
+
+    act(() => {
+      store.dispatch(
+        closePopup(store.getState().viewState.popupInfo.at(-1)!.id),
+      );
+    });
+    expect(screen.getByText(text.processPopup.title)).toBeInTheDocument();
+  });
+
+  it('clears waiting progress when processing completes under notes', async () => {
+    const { store } = await renderComponent(
+      <>
+        <GlobalPopup />
+        <ProcessPopup />
+      </>,
+      { actions: [openPopup(PopupType.WhatsNewPopup)] },
+    );
+
+    simulateBackendProcessingStarted();
+    await waitFor(() =>
+      expect(electronAPI.setFrontendDialogState).toHaveBeenLastCalledWith({
+        anyDialogOpen: true,
+        activityActive: true,
+      }),
+    );
+    simulateBackendProcessingDone();
+    await waitFor(() =>
+      expect(electronAPI.setFrontendDialogState).toHaveBeenLastCalledWith({
+        anyDialogOpen: true,
+        activityActive: false,
+      }),
+    );
+
+    simulateBackendProcessingStarted();
+    expect(screen.queryByText(text.processPopup.title)).not.toBeInTheDocument();
+    act(() => {
+      store.dispatch(
+        closePopup(store.getState().viewState.popupInfo.at(-1)!.id),
+      );
+    });
+
+    expect(screen.getByText(text.processPopup.title)).toBeInTheDocument();
+  });
+
+  it('keeps presented progress mounted underneath a new reference view', async () => {
+    const { store } = await renderComponent(
+      <>
+        <GlobalPopup />
+        <ProcessPopup />
+      </>,
+    );
+
+    simulateBackendProcessingStarted();
+    expect(screen.getByText(text.processPopup.title)).toBeInTheDocument();
+
+    act(() => {
+      store.dispatch(openPopup(PopupType.WhatsNewPopup));
+    });
+    expect(screen.getByText(text.processPopup.title)).toBeInTheDocument();
+    expect(screen.getByText(text.whatsNew.title)).toBeInTheDocument();
+
+    simulateBackendProcessingDone();
+    await waitFor(() =>
+      expect(
+        screen.queryByText(text.processPopup.title),
+      ).not.toBeInTheDocument(),
+    );
+    expect(screen.getByText(text.whatsNew.title)).toBeInTheDocument();
+  });
+
+  it('waits until every reference dialog closes before presenting progress', async () => {
+    const { store } = await renderComponent(
+      <>
+        <GlobalPopup />
+        <ProcessPopup />
+      </>,
+      {
+        actions: [
+          openPopup(PopupType.WhatsNewPopup),
+          openPopup(PopupType.ProjectMetadataPopup),
+        ],
+      },
+    );
+
+    simulateBackendProcessingStarted();
+    expect(screen.queryByText(text.processPopup.title)).not.toBeInTheDocument();
+
+    act(() => {
+      store.dispatch(
+        closePopup(store.getState().viewState.popupInfo.at(-1)!.id),
+      );
+    });
+    expect(screen.getByRole('dialog')).toHaveTextContent(text.whatsNew.title);
+    expect(screen.queryByText(text.processPopup.title)).not.toBeInTheDocument();
+
+    act(() => {
+      store.dispatch(
+        closePopup(store.getState().viewState.popupInfo.at(-1)!.id),
+      );
+    });
+    expect(screen.getByText(text.processPopup.title)).toBeInTheDocument();
+  });
+
+  it('waits for project metadata before presenting progress', async () => {
+    const processingMessage = faker.lorem.sentence();
+    const { store } = await renderComponent(
+      <>
+        <GlobalPopup />
+        <ProcessPopup />
+      </>,
+      { actions: [openPopup(PopupType.ProjectMetadataPopup)] },
+    );
+
+    simulateBackendProcessingStarted();
+    simulateMessageFromBackend(processingMessage);
+    expect(screen.getByRole('dialog')).toHaveTextContent('Project Metadata');
+    expect(screen.queryByText(text.processPopup.title)).not.toBeInTheDocument();
+
+    act(() => {
+      store.dispatch(
+        closePopup(store.getState().viewState.popupInfo.at(-1)!.id),
+      );
+    });
+    expect(screen.getByText(text.processPopup.title)).toBeInTheDocument();
+    expect(screen.getByText(processingMessage)).toBeInTheDocument();
   });
 
   it('shows every processing message', async () => {
@@ -140,9 +335,12 @@ describe('ProcessPopup', () => {
 
     simulateBackendProcessingStarted();
     await waitFor(() =>
-      expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true),
+      expect(electronAPI.setFrontendDialogState).toHaveBeenLastCalledWith({
+        anyDialogOpen: true,
+        activityActive: true,
+      }),
     );
-    vi.mocked(electronAPI.setFrontendPopupOpen).mockClear();
+    vi.mocked(electronAPI.setFrontendDialogState).mockClear();
 
     let resolveStatisticsRequests!: () => void;
     const statisticsRequestsPending = new Promise<void>((resolve) => {
@@ -175,14 +373,19 @@ describe('ProcessPopup', () => {
     expect(await screen.findByRole('status')).toHaveTextContent(
       text.projectStatisticsPopup.loading,
     );
-    expect(electronAPI.setFrontendPopupOpen).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(electronAPI.setFrontendDialogState).toHaveBeenLastCalledWith({
+        anyDialogOpen: true,
+        activityActive: false,
+      }),
+    );
 
     resolveStatisticsRequests();
     await screen.findByText(
       text.projectStatisticsPopup.charts.attributionProperties.title,
     );
     api.mockImplementation(originalApiImplementation);
-    expect(electronAPI.setFrontendPopupOpen).toHaveBeenCalledTimes(0);
+    expect(electronAPI.setFrontendDialogState).toHaveBeenCalled();
 
     act(() => {
       store.dispatch(
@@ -191,7 +394,10 @@ describe('ProcessPopup', () => {
     });
 
     await waitFor(() =>
-      expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(false),
+      expect(electronAPI.setFrontendDialogState).toHaveBeenLastCalledWith({
+        anyDialogOpen: false,
+        activityActive: false,
+      }),
     );
   });
 
@@ -209,7 +415,10 @@ describe('ProcessPopup', () => {
       store.dispatch(openPopup(PopupType.ProjectStatisticsPopup));
     });
     await waitFor(() =>
-      expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true),
+      expect(electronAPI.setFrontendDialogState).toHaveBeenLastCalledWith({
+        anyDialogOpen: true,
+        activityActive: true,
+      }),
     );
 
     act(() => {
@@ -217,12 +426,18 @@ describe('ProcessPopup', () => {
         closePopup(store.getState().viewState.popupInfo.at(-1)!.id),
       );
     });
-    expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true);
+    expect(electronAPI.setFrontendDialogState).toHaveBeenLastCalledWith({
+      anyDialogOpen: true,
+      activityActive: true,
+    });
 
     simulateBackendProcessingDone();
 
     await waitFor(() =>
-      expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(false),
+      expect(electronAPI.setFrontendDialogState).toHaveBeenLastCalledWith({
+        anyDialogOpen: false,
+        activityActive: false,
+      }),
     );
   });
 });

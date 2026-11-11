@@ -84,9 +84,12 @@ describe('What’s new popup', () => {
       await waitFor(() =>
         expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
       );
-      expect(window.electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(
-        false,
-      );
+      expect(
+        window.electronAPI.setFrontendDialogState,
+      ).toHaveBeenLastCalledWith({
+        anyDialogOpen: false,
+        activityActive: false,
+      });
     },
   );
 
