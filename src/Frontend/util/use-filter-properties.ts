@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { keepPreviousData } from '@tanstack/react-query';
 
+import type { LicenseOption } from '../../shared/shared-types';
 import { ROOT_PATH } from '../shared-constants';
 import { useAppSelector } from '../state/hooks';
 import { getSelectedResourceId } from '../state/selectors/resource-selectors';
@@ -111,13 +112,15 @@ export function useFilterProperties({
   };
 }
 
-export function useResourceTreeFilterProperties({
-  enabled,
-  external,
-}: {
-  enabled?: boolean;
-  external: boolean;
-}) {
+const EMPTY_LICENSES: Array<LicenseOption> = [];
+
+/**
+ * Project-wide license options for one attribution kind. The query is stable
+ * and cheap (no filters, search, or resource scoping), so it stays enabled
+ * regardless of whether a filter menu is open — license filter syncing needs
+ * the offered licenses at all times.
+ */
+export function useProjectLicenseOptions({ external }: { external: boolean }) {
   const licenseOptionsQuery = backend.licenseOptions.useQuery(
     {
       external,
@@ -126,11 +129,12 @@ export function useResourceTreeFilterProperties({
       resourcePathForRelationships: ROOT_PATH,
       includeReadonly: true,
     },
-    { enabled, placeholderData: keepPreviousData },
+    { placeholderData: keepPreviousData },
   );
 
   return {
-    licenses: licenseOptionsQuery.data ?? [],
+    licenses: licenseOptionsQuery.data ?? EMPTY_LICENSES,
+    licensesLoaded: licenseOptionsQuery.data !== undefined,
     licenseOptionsLoading: licenseOptionsQuery.isFetching,
   };
 }

@@ -17,7 +17,8 @@ import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { useVariable } from '../../state/variables/use-variable';
 import { backend } from '../../util/backendClient';
 import { useDebouncedInput } from '../../util/use-debounced-input';
-import { useResourceTreeFilterProperties } from '../../util/use-filter-properties';
+import { useProjectLicenseOptions } from '../../util/use-filter-properties';
+import { useSharedLicenseFilters } from '../../util/use-shared-license-filters';
 import { FilterButton } from '../FilterButton/FilterButton';
 import { createLicenseFilterOption } from '../FilterButton/license-editor';
 import { DeferredIcon, UnreviewedIcon } from '../Icons/Icons';
@@ -123,10 +124,10 @@ export function ResourceBrowser() {
       },
       { enabled: isResourceTreeFilterOpen, placeholderData: keepPreviousData },
     );
-  const { licenses, licenseOptionsLoading } = useResourceTreeFilterProperties({
+  const { licenses, licenseOptionsLoading } = useProjectLicenseOptions({
     external: IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS,
-    enabled: isResourceTreeFilterOpen,
   });
+  useSharedLicenseFilters();
   const isResourceTreeFilterActive =
     onlyUnreviewedFiles ||
     onlyWithAiDeferredAttributions ||
