@@ -74,6 +74,60 @@ export function isQuickfilterCompatible(
   );
 }
 
+const SCALAR_VALUE_FILTER_KEYS = [
+  'classification',
+  'criticality',
+  'incompleteCoordinates',
+  'incompleteLegal',
+] as const;
+
+/**
+ * Whether every condition the quickfilter contributes is still present in the
+ * given filters. Quickfilters stay selected while this holds: adding further
+ * filters on top keeps them selected, but removing or changing one of their
+ * conditions deselects them.
+ */
+export function areQuickfilterConditionsMet(
+  current: AttributionFilters,
+  quickfilter: SavedQuickfilter,
+): boolean {
+  const incoming = quickfilter.filters;
+  const incomingValues = incoming.valueFilters;
+  const currentValues = current.valueFilters;
+
+  if (
+    incoming.filters.some((filterKey) => !current.filters.includes(filterKey))
+  ) {
+    return false;
+  }
+  if (incoming.search && current.search !== incoming.search) {
+    return false;
+  }
+  for (const key of SCALAR_VALUE_FILTER_KEYS) {
+    if (
+      incomingValues[key] !== undefined &&
+      currentValues[key] !== incomingValues[key]
+    ) {
+      return false;
+    }
+  }
+  if (
+    incomingValues.license?.some(
+      (option) => !currentValues.license?.some(({ id }) => id === option.id),
+    )
+  ) {
+    return false;
+  }
+  if (
+    incomingValues.licenseSearches?.some(
+      (search) => !(currentValues.licenseSearches ?? []).includes(search),
+    )
+  ) {
+    return false;
+  }
+  return true;
+}
+
 function mergeUnique<T>(current: Array<T>, incoming: Array<T>): Array<T> {
   return [...new Set([...current, ...incoming])];
 }
@@ -187,6 +241,7 @@ export function useQuickfilters(scope: QuickfilterScope): {
   quickfilters: Array<SavedQuickfilter>;
   saveQuickfilter: (name: string, filters: AttributionFilters) => string;
   deleteQuickfilter: (id: string) => void;
+  reorderQuickfilter: (id: string, targetIndex: number) => void;
 } {
   const [userSettings, updateUserSettings] = useUserSettings();
 
@@ -227,9 +282,39 @@ export function useQuickfilters(scope: QuickfilterScope): {
     }));
   };
 
+  // Reorders within the scope by absolute index while keeping the array
+  // positions of all other scopes untouched: savedQuickfilters is the
+  // display order.
+  const reorderQuickfilter = (id: string, targetIndex: number): void => {
+    updateUserSettings((settings) => {
+      const scoped = settings.savedQuickfilters.filter(
+        (quickfilter) => quickfilter.scope === scope,
+      );
+      const index = scoped.findIndex((quickfilter) => quickfilter.id === id);
+      if (
+        index === -1 ||
+        targetIndex < 0 ||
+        targetIndex >= scoped.length ||
+        targetIndex === index
+      ) {
+        return {};
+      }
+      const reordered = [...scoped];
+      const [moved] = reordered.splice(index, 1);
+      reordered.splice(targetIndex, 0, moved);
+      let cursor = 0;
+      return {
+        savedQuickfilters: settings.savedQuickfilters.map((quickfilter) =>
+          quickfilter.scope === scope ? reordered[cursor++] : quickfilter,
+        ),
+      };
+    });
+  };
+
   return {
     quickfilters,
     saveQuickfilter,
     deleteQuickfilter,
+    reorderQuickfilter,
   };
 }
