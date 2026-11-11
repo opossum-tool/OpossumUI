@@ -7,13 +7,12 @@ import MuiTypography from '@mui/material/Typography';
 import { useState } from 'react';
 
 import { text } from '../../../shared/text';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
-import { useAppDispatch } from '../../state/hooks';
 import { invalidateBackendQueries } from '../../util/backendClient';
+import { useCloseGlobalPopup } from '../GlobalPopup/popup-close-context';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 export function ForceUnlockPopup() {
-  const dispatch = useAppDispatch();
+  const close = useCloseGlobalPopup();
   const [forceUnlockInProgress, setForceUnlockInProgress] = useState(false);
 
   async function forceUnlock(): Promise<void> {
@@ -21,7 +20,7 @@ export function ForceUnlockPopup() {
     try {
       await window.electronAPI.forceUnlock();
       await invalidateBackendQueries();
-      dispatch(closePopup());
+      close();
     } finally {
       setForceUnlockInProgress(false);
     }
@@ -41,7 +40,7 @@ export function ForceUnlockPopup() {
       rightButtonConfig={{
         buttonText: text.buttons.cancel,
         disabled: forceUnlockInProgress,
-        onClick: () => dispatch(closePopup()),
+        onClick: close,
       }}
       aria-label={'force unlock popup'}
     >

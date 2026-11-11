@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { ExportType } from '../../../shared/shared-types';
 import { View } from '../../enums/enums';
-import type { PopupInfo } from '../../types/types';
+import type { PopupEntry } from '../../types/types';
 import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
@@ -27,7 +27,7 @@ import {
 export interface ViewState {
   view: View;
   targetView: View | null;
-  popupInfo: Array<PopupInfo>;
+  popupInfo: Array<PopupEntry>;
   openFileRequest: OpenFileRequest | null;
   importFileRequest: ImportFileRequest | null;
   mergeOpossumFilesRequest: MergeOpossumFilesRequest | null;
@@ -66,14 +66,14 @@ export function viewState(
     case ACTION_CLOSE_POPUP:
       return {
         ...state,
-        popupInfo: state.popupInfo.slice(0, -1),
+        popupInfo: state.popupInfo.filter(({ id }) => id !== action.payload),
       };
     case ACTION_OPEN_POPUP:
       return {
         ...state,
         popupInfo: state.popupInfo
-          .map((popupInfo) => popupInfo.popup)
-          .includes(action.payload.popup)
+          .map(({ info }) => info.popup)
+          .includes(action.payload.info.popup)
           ? state.popupInfo
           : state.popupInfo.concat(action.payload),
       };

@@ -87,7 +87,14 @@ describe('automatic release announcements', () => {
           PopupType.WhatsNewPopup,
         ),
       );
-      expect(dispatch).toHaveBeenCalledWith(openPopup(PopupType.WhatsNewPopup));
+      expect(
+        dispatch.mock.calls.some(
+          ([action]) =>
+            typeof action !== 'function' &&
+            action.type === openPopup(PopupType.WhatsNewPopup).type &&
+            action.payload.info.popup === PopupType.WhatsNewPopup,
+        ),
+      ).toBe(true);
       await waitFor(() =>
         expect(savedSettings.lastSeenWhatsNewRevision).toBe(current),
       );
@@ -215,7 +222,9 @@ describe('automatic release announcements', () => {
       expect(window.electronAPI.updateUserSettings).toHaveBeenCalledTimes(1),
     );
     act(() => {
-      store.dispatch(closePopup());
+      store.dispatch(
+        closePopup(store.getState().viewState.popupInfo.at(-1)!.id),
+      );
     });
     rerender();
     await act(async () => {
@@ -245,7 +254,9 @@ describe('automatic release announcements', () => {
       store.dispatch(openPopup(PopupType.WhatsNewPopup));
     });
     act(() => {
-      store.dispatch(closePopup());
+      store.dispatch(
+        closePopup(store.getState().viewState.popupInfo.at(-1)!.id),
+      );
     });
     act(() => resolve(savedSettings));
     await waitFor(() => expect(savedSettings.lastSeenWhatsNewRevision).toBe(1));

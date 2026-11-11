@@ -33,12 +33,16 @@ import {
 } from '../../../../state/actions/resource-actions/audit-view-simple-actions';
 import { openResourceInResourceBrowser } from '../../../../state/actions/resource-actions/navigation-actions';
 import { setVariable } from '../../../../state/actions/variables-actions/variables-actions';
+import { openPopup } from '../../../../state/actions/view-actions/view-actions';
 import type { Action } from '../../../../state/configure-store';
 import {
   getAttributionSelectionPendingResourceId,
   getTemporaryDisplayPackageInfo,
 } from '../../../../state/selectors/resource-selectors';
-import { getOpenPopup } from '../../../../state/selectors/view-selector';
+import {
+  getOpenPopup,
+  getOpenPopups,
+} from '../../../../state/selectors/view-selector';
 import { ATTRIBUTION_SELECTION_FOR_REPLACEMENT } from '../../../../state/variables/use-attribution-selection-for-replacement';
 import {
   initialAttributionFilters,
@@ -535,7 +539,11 @@ describe('PackagesPanel', () => {
       'alphabetically',
     );
 
-    act(() => store.dispatch(proceedFromUnsavedPopup()));
+    act(() =>
+      store.dispatch(
+        proceedFromUnsavedPopup(getOpenPopups(store.getState()).at(-1)!.id),
+      ),
+    );
 
     expect(getOpenPopup(store.getState())).toBeNull();
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
@@ -598,7 +606,11 @@ describe('PackagesPanel', () => {
       'alphabetically',
     );
 
-    act(() => store.dispatch(proceedFromUnsavedPopup()));
+    act(() =>
+      store.dispatch(
+        proceedFromUnsavedPopup(getOpenPopups(store.getState()).at(-1)!.id),
+      ),
+    );
 
     expect(getOpenPopup(store.getState())).toBeNull();
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
@@ -1025,12 +1037,17 @@ describe('PackagesPanel', () => {
       }),
       scopeByRelation: false,
       actions: [
+        openPopup(PopupType.NotSavedPopup),
         setSelectedAttributionId(selectedAttribution.id),
         setTargetSelectedResourceId('/cancelled-resource'),
       ],
     });
 
-    act(() => store.dispatch(closePopupAndUnsetTargets()));
+    act(() =>
+      store.dispatch(
+        closePopupAndUnsetTargets(getOpenPopups(store.getState()).at(-1)!.id),
+      ),
+    );
 
     expect(store.getState().resourceState.selectedAttributionId).toBe(
       selectedAttribution.id,

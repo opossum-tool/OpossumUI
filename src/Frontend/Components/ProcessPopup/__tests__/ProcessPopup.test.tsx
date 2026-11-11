@@ -185,7 +185,9 @@ describe('ProcessPopup', () => {
     expect(electronAPI.setFrontendPopupOpen).toHaveBeenCalledTimes(0);
 
     act(() => {
-      store.dispatch(closePopup());
+      store.dispatch(
+        closePopup(store.getState().viewState.popupInfo.at(-1)!.id),
+      );
     });
 
     await waitFor(() =>
@@ -211,7 +213,9 @@ describe('ProcessPopup', () => {
     );
 
     act(() => {
-      store.dispatch(closePopup());
+      store.dispatch(
+        closePopup(store.getState().viewState.popupInfo.at(-1)!.id),
+      );
     });
     expect(electronAPI.setFrontendPopupOpen).toHaveBeenLastCalledWith(true);
 

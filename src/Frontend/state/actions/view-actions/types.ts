@@ -7,7 +7,7 @@ import type {
   FileFormatInfo,
 } from '../../../../shared/shared-types';
 import type { View } from '../../../enums/enums';
-import type { PopupInfo } from '../../../types/types';
+import type { PopupEntry } from '../../../types/types';
 
 export const ACTION_SET_TARGET_VIEW = 'ACTION_SET_TARGET_VIEW';
 export const ACTION_SET_VIEW = 'ACTION_SET_VIEW';
@@ -62,11 +62,12 @@ export interface SetView {
 
 export interface ClosePopupAction {
   type: typeof ACTION_CLOSE_POPUP;
+  payload: string;
 }
 
 export interface OpenPopupAction {
   type: typeof ACTION_OPEN_POPUP;
-  payload: PopupInfo;
+  payload: PopupEntry;
 }
 
 export interface SetOpenFileRequestAction {

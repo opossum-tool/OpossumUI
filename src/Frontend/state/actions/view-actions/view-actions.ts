@@ -2,12 +2,18 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { v4 as uuid4 } from 'uuid';
+
 import type {
   ExportType,
   FileFormatInfo,
 } from '../../../../shared/shared-types';
 import { PopupType, type View } from '../../../enums/enums';
-import type { PopupWithoutPayload, State } from '../../../types/types';
+import type {
+  PopupInfo,
+  PopupWithoutPayload,
+  State,
+} from '../../../types/types';
 import {
   getUserSettings,
   getUserSettingsLoaded,
@@ -89,6 +95,13 @@ export function setTargetView(targetView: View | null): SetTargetView {
   };
 }
 
+function createOpenPopupAction(info: PopupInfo): OpenPopupAction {
+  return {
+    type: ACTION_OPEN_POPUP,
+    payload: { id: uuid4(), info },
+  };
+}
+
 export function openPopup(popup: PopupWithoutPayload): OpenPopupAction;
 export function openPopup(
   popup: PopupType.NotSavedPopup,
@@ -98,67 +111,53 @@ export function openPopup(
   popup: PopupWithoutPayload | PopupType.NotSavedPopup,
   attributionId?: string,
 ): OpenPopupAction {
-  return {
-    type: ACTION_OPEN_POPUP,
-    payload:
-      popup === PopupType.NotSavedPopup ? { popup, attributionId } : { popup },
-  };
+  return createOpenPopupAction(
+    popup === PopupType.NotSavedPopup ? { popup, attributionId } : { popup },
+  );
 }
 
 export function openNotSavedPopup(
   attributionId?: string,
   continuation?: 'restart-and-update',
 ): OpenPopupAction {
-  return {
-    type: ACTION_OPEN_POPUP,
-    payload: {
-      popup: PopupType.NotSavedPopup,
-      attributionId,
-      ...(continuation && { continuation }),
-    },
-  };
+  return createOpenPopupAction({
+    popup: PopupType.NotSavedPopup,
+    attributionId,
+    ...(continuation && { continuation }),
+  });
 }
 
 export function openImportDialog(
   fileFormat: FileFormatInfo,
   canImportIntoCurrentProject = false,
 ): OpenPopupAction {
-  return {
-    type: ACTION_OPEN_POPUP,
-    payload: {
-      popup: PopupType.ImportDialog,
-      fileFormat,
-      canImportIntoCurrentProject,
-    },
-  };
+  return createOpenPopupAction({
+    popup: PopupType.ImportDialog,
+    fileFormat,
+    canImportIntoCurrentProject,
+  });
 }
 
 export function openMergeOpossumFilesDialog(
   canMergeIntoCurrentFile: boolean,
   currentFilePath?: string,
 ): OpenPopupAction {
-  return {
-    type: ACTION_OPEN_POPUP,
-    payload: {
-      popup: PopupType.MergeOpossumFilesDialog,
-      canMergeIntoCurrentFile,
-      currentFilePath,
-    },
-  };
+  return createOpenPopupAction({
+    popup: PopupType.MergeOpossumFilesDialog,
+    canMergeIntoCurrentFile,
+    currentFilePath,
+  });
 }
 
 export function openSplitDialog(resourcePath?: string): OpenPopupAction {
-  return {
-    type: ACTION_OPEN_POPUP,
-    payload: {
-      popup: PopupType.SplitDialog,
-      ...(resourcePath && { resourcePath }),
-    },
-  };
+  return createOpenPopupAction({
+    popup: PopupType.SplitDialog,
+    ...(resourcePath && { resourcePath }),
+  });
 }
 
-export function closePopup(): ClosePopupAction {
-  return { type: ACTION_CLOSE_POPUP };
+export function closePopup(popupId: string): ClosePopupAction {
+  return { type: ACTION_CLOSE_POPUP, payload: popupId };
 }
 
 export function setOpenFileRequest(
