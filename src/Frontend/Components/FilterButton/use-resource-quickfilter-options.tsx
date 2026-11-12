@@ -11,9 +11,20 @@ import type { SavedResourceQuickfilter } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon } from '../../shared-styles';
 import {
+  isShareableWithAttributionPanel,
+  toAttributionQuickfilterModel,
+  useVisibleQuickfilters,
+  useVisibleQuickfiltersForResources,
+} from '../../state/variables/quickfilter-sharing';
+import {
   hasActiveResourceTreeFilters,
   type ResourceTreeFilters,
+  useManualAttributionFilters,
 } from '../../state/variables/use-filters';
+import {
+  combineQuickfilters,
+  mergeQuickfilterIntoFilters,
+} from '../../state/variables/use-quickfilters';
 import {
   combineResourceQuickfilters,
   mergeResourceQuickfilterIntoFilters,
@@ -40,41 +51,96 @@ export function useResourceQuickfilterOption({
   setFilters: SetResourceTreeFilters;
 }): Array<FilterOption> {
   const {
-    quickfilters,
     saveQuickfilter,
     deleteQuickfilter,
     renameQuickfilter,
     reorderQuickfilter,
   } = useResourceQuickfilters();
+  const visibleQuickfilters = useVisibleQuickfiltersForResources();
+  const visibleAttributionQuickfilters = useVisibleQuickfilters('attribution');
+  // Cross-panel membership: shared license-only quickfilters show as pressed
+  // on the attributions panel too, applying the converted model there (the
+  // live license sync keeps the license selections identical anyway).
+  const [, setManualAttributionFilters] = useManualAttributionFilters();
   const hasActiveFilters = hasActiveResourceTreeFilters(filters);
 
   return useMemo(() => {
     const activeIds = filters.activeQuickfilterIds ?? [];
 
+    const sharedAttributionModel = (quickfilter: SavedResourceQuickfilter) =>
+      isShareableWithAttributionPanel(quickfilter, 'attribution')
+        ? toAttributionQuickfilterModel(quickfilter, 'attribution')
+        : null;
+
     const applyResourceQuickfilter = (
       quickfilter: SavedResourceQuickfilter,
     ): void => {
       if (activeIds.includes(quickfilter.id)) {
-        // The removed quickfilter's conditions are recomputed from the
-        // remaining ids, mirroring the attribution behaviour.
         setFilters((prev) =>
           combineResourceQuickfilters({
             ids: (prev.activeQuickfilterIds ?? []).filter(
               (id) => id !== quickfilter.id,
             ),
-            quickfilters,
+            quickfilters: visibleQuickfilters,
           }),
         );
+        const model = sharedAttributionModel(quickfilter);
+        if (model) {
+          setManualAttributionFilters((prev) =>
+            combineQuickfilters({
+              ids: (prev.activeQuickfilterIds ?? []).filter(
+                (id) => id !== quickfilter.id,
+              ),
+              quickfilters: visibleAttributionQuickfilters,
+              sorting: prev.sorting,
+            }),
+          );
+        }
         return;
       }
       setFilters((prev) =>
         mergeResourceQuickfilterIntoFilters(prev, quickfilter),
       );
+      const model = sharedAttributionModel(quickfilter);
+      if (model) {
+        setManualAttributionFilters((prev) =>
+          mergeQuickfilterIntoFilters(prev, model),
+        );
+      }
     };
 
-    // Same rebuild semantics as removing a single quickfilter.
+    // Same rebuild semantics as removing a single quickfilter. Shared
+    // quickfilters are also removed from the paired attributions panel.
     const clearAllResourceQuickfilters = (): void => {
-      setFilters(combineResourceQuickfilters({ ids: [], quickfilters }));
+      setFilters(
+        combineResourceQuickfilters({
+          ids: [],
+          quickfilters: visibleQuickfilters,
+        }),
+      );
+      const sharedIds = new Set(
+        activeIds
+          .map((id) =>
+            visibleQuickfilters.find((quickfilter) => quickfilter.id === id),
+          )
+          .filter(
+            (quickfilter): quickfilter is SavedResourceQuickfilter =>
+              quickfilter !== undefined &&
+              !!sharedAttributionModel(quickfilter),
+          )
+          .map(({ id }) => id),
+      );
+      if (sharedIds.size) {
+        setManualAttributionFilters((prev) =>
+          combineQuickfilters({
+            ids: (prev.activeQuickfilterIds ?? []).filter(
+              (id) => !sharedIds.has(id),
+            ),
+            quickfilters: visibleAttributionQuickfilters,
+            sorting: prev.sorting,
+          }),
+        );
+      }
     };
 
     const activateSavedResourceQuickfilter = (id: string): void => {
@@ -117,7 +183,7 @@ export function useResourceQuickfilterOption({
             id={id}
             activeQuickfilterIds={activeIds}
             hasActiveFilters={hasActiveFilters}
-            quickfilters={quickfilters}
+            quickfilters={visibleQuickfilters}
             onApply={applyResourceQuickfilter}
             onDelete={deleteQuickfilter}
             onRename={renameQuickfilter}
@@ -134,9 +200,11 @@ export function useResourceQuickfilterOption({
       },
     ];
   }, [
-    quickfilters,
+    visibleQuickfilters,
+    visibleAttributionQuickfilters,
     filters,
     setFilters,
+    setManualAttributionFilters,
     hasActiveFilters,
     saveQuickfilter,
     deleteQuickfilter,
