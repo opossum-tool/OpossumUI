@@ -574,6 +574,20 @@ export const text = {
     report: 'Report',
     switchableProgressBar: {
       selectAriaLabel: 'ProgressBar Switcher',
+      aiBar: {
+        selectLabel: 'AI Review',
+        ariaLabel: 'Progress bar for AI review',
+        intro: 'AI attributions',
+        status: 'AI status',
+        nonDeferred: 'Non-deferred',
+        deferred: 'Deferred',
+        unmodified: 'Unmodified',
+        humanModified: 'Human-modified',
+        needsManualInput: 'Needs manual input',
+        navigationHint:
+          'Click the bar to jump to the next item needing manual input.',
+        completed: 'No items need manual input.',
+      },
       attributionBar: {
         intro: 'Number of files',
         selectLabel: 'Attributions',

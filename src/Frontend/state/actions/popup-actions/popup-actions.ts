@@ -31,6 +31,10 @@ import {
 } from '../../selectors/view-selector';
 import type { AppThunkAction } from '../../types';
 import {
+  AI_REVIEW_DESTINATION,
+  type AiReviewDestination,
+} from '../../variables/ai-review-destination';
+import {
   STATISTICS_DESTINATION,
   type StatisticsDestination,
 } from '../../variables/statistics-destination';
@@ -41,6 +45,7 @@ import {
 } from '../resource-actions/all-views-simple-actions';
 import {
   setAttributionFilters,
+  setPendingAttributionNavigation,
   setSelectedAttributionId,
   setSelectedResourceId,
   setTargetAttributionFilterChange,
@@ -49,6 +54,7 @@ import {
 } from '../resource-actions/audit-view-simple-actions';
 import {
   openResourceInResourceBrowser,
+  resetManualAuditFiltersPreservingSort,
   setSelectedResourceOrAttributionIdToTargetValue,
 } from '../resource-actions/navigation-actions';
 import type { AttributionSelectionPolicy } from '../resource-actions/types';
@@ -134,6 +140,35 @@ export function navigateFromStatistics(
       }),
     );
   };
+}
+
+function executeAiReviewDestination(
+  destination: AiReviewDestination,
+): AppThunkAction {
+  return (dispatch) => {
+    dispatch(resetManualAuditFiltersPreservingSort());
+    dispatch(navigateToView(View.Audit));
+    dispatch(
+      openResourceInResourceBrowser(destination.resourcePath, 'preserve'),
+    );
+    dispatch(
+      setPendingAttributionNavigation({
+        attributionUuid: destination.attributionUuid,
+        fallbackResourcePath: destination.resourcePath,
+      }),
+    );
+    dispatch(setSelectedAttributionId(destination.attributionUuid));
+  };
+}
+
+export function navigateToAiReviewOrOpenUnsavedPopup(
+  destination: AiReviewDestination,
+): AppThunkAction {
+  return withUnsavedCheck({
+    executeImmediately: executeAiReviewDestination(destination),
+    requestContinuation: (dispatch) =>
+      dispatch(setVariable(AI_REVIEW_DESTINATION, destination)),
+  });
 }
 
 export function navigateToSelectedPathOrOpenUnsavedPopup(
@@ -348,6 +383,14 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
       dispatch(executeStatisticsDestination(statisticsDestination));
     }
 
+    const aiReviewDestination = getState().variablesState[
+      AI_REVIEW_DESTINATION
+    ] as AiReviewDestination | null | undefined;
+    if (aiReviewDestination) {
+      dispatch(setVariable(AI_REVIEW_DESTINATION, null));
+      dispatch(executeAiReviewDestination(aiReviewDestination));
+    }
+
     if (
       popup?.popup === PopupType.NotSavedPopup &&
       popup.continuation === 'restart-and-update'
@@ -427,6 +470,7 @@ export function closePopupAndUnsetTargets(): AppThunkAction {
     dispatch(setTargetSelectedAttributionId(null));
     dispatch(setTargetAttributionFilterChange(null));
     dispatch(setVariable(STATISTICS_DESTINATION, null));
+    dispatch(setVariable(AI_REVIEW_DESTINATION, null));
     dispatch(closePopup());
     dispatch(setOpenFileRequest(null));
     dispatch(setImportFileRequest(null));

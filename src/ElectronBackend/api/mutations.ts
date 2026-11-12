@@ -135,6 +135,9 @@ export type MutationResponse = {
 type MutationFunction = (params?: any) => Promise<MutationResponse>;
 
 const PROGRESS_BAR_INVALIDATIONS: Array<MutationInvalidation> = [
+  { queryName: 'hasAiAttributions' },
+  { queryName: 'getAiProgressBarData' },
+  { queryName: 'getNextAttributionToReviewForAi' },
   { queryName: 'getAttributionProgressBarData' },
   { queryName: 'getNextFileToReviewForAttribution' },
   { queryName: 'getCriticalityProgressBarData' },

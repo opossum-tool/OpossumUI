@@ -29,6 +29,11 @@ import {
   AttributionResourceAccess,
   EDITABLE_ATTRIBUTION_RESOURCE_ACCESS,
 } from '../types/types';
+import {
+  getAiProgressBarData,
+  getNextAttributionToReviewForAi,
+  hasAiAttributions,
+} from './ai-progress-bar';
 import { listAttributionRelationCounts } from './attributions/attribution-relation-counts';
 import { getAttributionSelectionSummary } from './attributions/attribution-selection-queries';
 import { getAttributionPreview } from './attributions/get-attribution-preview';
@@ -482,6 +487,9 @@ export const queries = {
   getAttributionProgressBarData,
   getCriticalityProgressBarData,
   getClassificationProgressBarData,
+  getAiProgressBarData,
+  getNextAttributionToReviewForAi,
+  hasAiAttributions,
   getNextFileToReviewForAttribution,
   getNextFileToReviewForCriticality,
   getNextFileToReviewForClassification,

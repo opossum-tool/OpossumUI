@@ -18,7 +18,7 @@ export type State = {
 };
 
 export type SelectedProgressBar =
-  'attribution' | 'criticality' | 'classification';
+  'attribution' | 'criticality' | 'classification' | 'ai';
 
 export type ClassificationStatistics = Record<number, number>;
 
