@@ -2353,9 +2353,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rolldown/plugin-babel@npm:0.3.0":
-  version: 0.3.0
-  resolution: "@rolldown/plugin-babel@npm:0.3.0"
+"@rolldown/plugin-babel@npm:0.3.1":
+  version: 0.3.1
+  resolution: "@rolldown/plugin-babel@npm:0.3.1"
   dependencies:
     artichokie: "npm:^0.4.5"
     picomatch: "npm:^4.0.7"
@@ -2372,7 +2372,7 @@ __metadata:
       optional: true
     vite:
       optional: true
-  checksum: 10/42aea0ad11f290bf818dee6a9b86017cc6d4d24094b997e25436647e7ec8055120cbd1eaef1a668be62cda80fd3086b90fd07063494bc4a291caacc1930d8daf
+  checksum: 10/7e6d739cafc15a8b0a482beca8316767edd66e4653eeb8c1fec485a87dd05b6c1859b5a2dd342c6b015dbe4d431ea1c32ca2f83d3dcad84d40c267933b6a84f6
   languageName: node
   linkType: hard
 
@@ -6895,7 +6895,7 @@ __metadata:
     "@mui/utils": "npm:9.5.0"
     "@playwright/test": "npm:1.65.0"
     "@reduxjs/toolkit": "npm:2.14.0"
-    "@rolldown/plugin-babel": "npm:0.3.0"
+    "@rolldown/plugin-babel": "npm:0.3.1"
     "@tanstack/eslint-plugin-query": "npm:5.107.1"
     "@tanstack/react-query": "npm:5.107.1"
     "@testing-library/dom": "npm:10.4.2"
