@@ -65,6 +65,7 @@ export const OpossumColors = {
   mediumOrange: 'hsl(20, 100%, 72%)',
   orange: 'hsl(16, 100%, 50%)',
   pastelRed: 'hsl(0, 70%, 70%)',
+  midRed: 'hsl(0, 75%, 55%)',
   darkOrange: 'hsl(20, 80%, 78%)',
   darkOrangeOnHover: 'hsl(20, 80%, 65%)',
   red: 'hsl(0, 100%, 45%)',

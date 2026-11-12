@@ -869,6 +869,7 @@ export const PackagesPanel = ({
                 setFiltersWithUnsavedCheck({
                   ...filters,
                   filters: [],
+                  search: '',
                   valueFilters: {},
                   activeQuickfilterIds: undefined,
                 })

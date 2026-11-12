@@ -43,6 +43,7 @@ export const TableFilterButton: React.FC<{
         setFilteredAttributions({
           ...filters,
           filters: [],
+          search: '',
           valueFilters: {},
           activeQuickfilterIds: undefined,
         })

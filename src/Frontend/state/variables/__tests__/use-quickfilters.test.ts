@@ -18,6 +18,7 @@ import {
   isQuickfilterCompatible,
   isQuickfilterUsableInProject,
   mergeQuickfilterIntoFilters,
+  quickfiltersConflict,
   useQuickfilters,
 } from '../use-quickfilters';
 
@@ -213,6 +214,121 @@ describe('areQuickfilterConditionsMet', () => {
     };
 
     expect(areQuickfilterConditionsMet(current, quickfilter)).toBe(false);
+  });
+});
+
+describe('quickfiltersConflict', () => {
+  it('detects clashing search texts between two quickfilters', () => {
+    const first = makeQuickfilter({
+      filters: { filters: [], search: 'react', valueFilters: {} },
+    });
+    const second = makeQuickfilter({
+      filters: { filters: [], search: 'vue', valueFilters: {} },
+    });
+
+    expect(quickfiltersConflict(first, second)).toBe(true);
+  });
+
+  it('detects different scalar value filters', () => {
+    const first = makeQuickfilter({
+      filters: { filters: [], search: '', valueFilters: { classification: 1 } },
+    });
+    const second = makeQuickfilter({
+      filters: { filters: [], search: '', valueFilters: { classification: 2 } },
+    });
+
+    expect(quickfiltersConflict(first, second)).toBe(true);
+  });
+
+  it('allows scalars that only one of the quickfilters defines', () => {
+    const first = makeQuickfilter({
+      filters: { filters: [], search: '', valueFilters: { classification: 1 } },
+    });
+    const second = makeQuickfilter({
+      filters: { filters: [], search: 'vue', valueFilters: {} },
+    });
+
+    expect(quickfiltersConflict(first, second)).toBe(false);
+  });
+
+  it('does not conflict on unioned filter keys and licenses', () => {
+    const first = makeQuickfilter({
+      filters: {
+        filters: ['firstParty'],
+        search: 'react',
+        valueFilters: { license: [{ id: 'MIT', label: 'MIT' }] },
+      },
+    });
+    const second = makeQuickfilter({
+      filters: {
+        filters: ['thirdParty'],
+        search: 'react',
+        valueFilters: {
+          license: [{ id: 'Apache-2.0', label: 'Apache-2.0' }],
+        },
+      },
+    });
+
+    expect(quickfiltersConflict(first, second)).toBe(false);
+  });
+});
+
+describe('mergeQuickfilterIntoFilters with replaceConflictingScalars', () => {
+  it('overwrites clashing scalars and keeps unrelated filters', () => {
+    const current: AttributionFilters = {
+      ...initialAttributionFilters,
+      filters: ['firstParty'],
+      search: 'react',
+      valueFilters: {
+        classification: 1,
+        license: [{ id: 'MIT', label: 'MIT' }],
+      },
+      activeQuickfilterIds: ['current-id'],
+    };
+    const quickfilter = makeQuickfilter({
+      id: 'incoming-id',
+      filters: {
+        filters: ['thirdParty'],
+        search: 'vue',
+        valueFilters: { classification: 2, criticality: 3 },
+      },
+    });
+
+    expect(
+      mergeQuickfilterIntoFilters(current, quickfilter, {
+        replaceConflictingScalars: true,
+      }),
+    ).toEqual({
+      ...current,
+      filters: ['firstParty', 'thirdParty'],
+      search: 'vue',
+      valueFilters: {
+        classification: 2,
+        criticality: 3,
+        license: [{ id: 'MIT', label: 'MIT' }],
+      },
+      activeQuickfilterIds: ['current-id', 'incoming-id'],
+    });
+  });
+
+  it('keeps current scalars the quickfilter does not define', () => {
+    const current: AttributionFilters = {
+      ...initialAttributionFilters,
+      search: 'react',
+      valueFilters: { classification: 1 },
+    };
+    const quickfilter = makeQuickfilter({
+      filters: { filters: [], search: 'vue', valueFilters: {} },
+    });
+
+    expect(
+      mergeQuickfilterIntoFilters(current, quickfilter, {
+        replaceConflictingScalars: true,
+      }),
+    ).toMatchObject({
+      search: 'vue',
+      valueFilters: { classification: 1 },
+    });
   });
 });
 
