@@ -38,7 +38,7 @@ describe('MergeOpossumFilesDialog', () => {
       text.mergeOpossumFilesDialog.noReadonlyPathsWarning,
     );
     expect(screen.getByRole('alert')).toHaveClass('MuiAlert-colorWarning');
-    expect(screen.getByRole('switch')).toBeEnabled();
+    expect(getMergeIntoCurrentProjectSwitch()).toBeEnabled();
     expect(
       screen.getByRole('button', { name: text.buttons.merge }),
     ).toBeDisabled();
@@ -48,7 +48,7 @@ describe('MergeOpossumFilesDialog', () => {
     );
     expect(window.electronAPI.selectFiles).not.toHaveBeenCalled();
 
-    await userEvent.click(screen.getByRole('switch'));
+    await userEvent.click(getMergeIntoCurrentProjectSwitch());
     expect(
       screen.queryByText(text.mergeOpossumFilesDialog.noReadonlyPathsWarning),
     ).not.toBeInTheDocument();
@@ -100,6 +100,7 @@ describe('MergeOpossumFilesDialog', () => {
       expect(window.electronAPI.mergeOpossumFiles).toHaveBeenCalledWith({
         partitionPaths: inputFilePaths,
         ignoreReadonlyResourceOutputConflicts: false,
+        deleteSplitFilesAfterMerge: true,
       }),
     );
 
@@ -155,6 +156,51 @@ describe('MergeOpossumFilesDialog', () => {
         inputPaths: inputFilePaths,
         outputPath: outputFilePath,
         ignoreReadonlyResourceOutputConflicts: false,
+        deleteSplitFilesAfterMerge: true,
+      }),
+    );
+  });
+
+  it('keeps the split files when the user disables deleting them', async () => {
+    const inputFilePaths = [
+      '/partitions/first.opossum',
+      '/partitions/second.opossum',
+    ];
+    const outputFilePath = '/merged/output.opossum';
+    vi.mocked(window.electronAPI.selectFiles).mockResolvedValue(inputFilePaths);
+    vi.mocked(window.electronAPI.selectSaveFile).mockResolvedValue(
+      outputFilePath,
+    );
+    vi.mocked(window.electronAPI.mergeOpossumFilesFromPaths).mockResolvedValue({
+      status: 'success',
+    });
+
+    await renderComponent(
+      <MergeOpossumFilesDialog canMergeIntoCurrentFile={false} />,
+    );
+
+    expect(getDeleteSplitFilesSwitch()).toBeChecked();
+    await userEvent.click(getDeleteSplitFilesSwitch());
+    expect(getDeleteSplitFilesSwitch()).not.toBeChecked();
+
+    fireEvent.click(
+      screen.getByTestId('merge-opossum-files-input-paths-input'),
+    );
+    expect(await screen.findByText(inputFilePaths[0])).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByTestId('merge-opossum-files-output-path-input'),
+    );
+    expect(await screen.findByText(outputFilePath)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: text.buttons.merge }));
+
+    await waitFor(() =>
+      expect(
+        window.electronAPI.mergeOpossumFilesFromPaths,
+      ).toHaveBeenCalledWith({
+        inputPaths: inputFilePaths,
+        outputPath: outputFilePath,
+        ignoreReadonlyResourceOutputConflicts: false,
+        deleteSplitFilesAfterMerge: false,
       }),
     );
   });
@@ -210,6 +256,7 @@ describe('MergeOpossumFilesDialog', () => {
         inputPaths: inputFilePaths,
         outputPath: outputFilePath,
         ignoreReadonlyResourceOutputConflicts: true,
+        deleteSplitFilesAfterMerge: true,
       }),
     );
   });
@@ -236,7 +283,7 @@ describe('MergeOpossumFilesDialog', () => {
       <MergeOpossumFilesDialog canMergeIntoCurrentFile={true} />,
     );
 
-    await userEvent.click(screen.getByRole('switch'));
+    await userEvent.click(getMergeIntoCurrentProjectSwitch());
     expect(
       screen.getByTestId('merge-opossum-files-output-path-input'),
     ).toBeInTheDocument();
@@ -257,7 +304,7 @@ describe('MergeOpossumFilesDialog', () => {
       }),
     ).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole('switch'));
+    await userEvent.click(getMergeIntoCurrentProjectSwitch());
 
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(
@@ -273,6 +320,7 @@ describe('MergeOpossumFilesDialog', () => {
       expect(window.electronAPI.mergeOpossumFiles).toHaveBeenCalledWith({
         partitionPaths: inputFilePaths,
         ignoreReadonlyResourceOutputConflicts: false,
+        deleteSplitFilesAfterMerge: true,
       }),
     );
   });
@@ -315,3 +363,15 @@ describe('MergeOpossumFilesDialog', () => {
     ).toBeEnabled();
   });
 });
+
+function getMergeIntoCurrentProjectSwitch(): HTMLElement {
+  return screen.getByRole('switch', {
+    name: text.mergeOpossumFilesDialog.mergeIntoCurrentProject,
+  });
+}
+
+function getDeleteSplitFilesSwitch(): HTMLElement {
+  return screen.getByRole('switch', {
+    name: text.mergeOpossumFilesDialog.deleteSplitFilesAfterMerge,
+  });
+}

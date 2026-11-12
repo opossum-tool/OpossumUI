@@ -237,12 +237,12 @@ describe('mergeCurrentOpossumFilesListener', () => {
           '/partitions/frontend.opossum',
         ],
         ignoreReadonlyResourceOutputConflicts: false,
+        deleteSplitFilesAfterMerge: true,
       },
     );
 
     expect(mockMergeOpossumFiles).toHaveBeenCalledWith(
       {
-        ignoreReadonlyResourceOutputConflicts: false,
         saveFileParams: {
           projectId: 'uuid_1',
           opossumFilePath: '/my/file.opossum',
@@ -251,6 +251,8 @@ describe('mergeCurrentOpossumFilesListener', () => {
           '/partitions/docs.opossum',
           '/partitions/frontend.opossum',
         ],
+        ignoreReadonlyResourceOutputConflicts: false,
+        deleteSplitFilesAfterMerge: true,
       },
       expect.any(Function),
     );
@@ -265,6 +267,7 @@ describe('mergeCurrentOpossumFilesListener', () => {
         {
           partitionPaths: ['/partitions/docs.opossum'],
           ignoreReadonlyResourceOutputConflicts: false,
+          deleteSplitFilesAfterMerge: false,
         },
       ),
     ).resolves.toEqual({
@@ -294,17 +297,19 @@ describe('mergeOpossumFilesFromPathsListener', () => {
         ],
         outputPath: '/merged/project.opossum',
         ignoreReadonlyResourceOutputConflicts: false,
+        deleteSplitFilesAfterMerge: true,
       },
     );
 
     expect(mockMergeOpossumFilesFromPaths).toHaveBeenCalledWith(
       expect.objectContaining({
-        ignoreReadonlyResourceOutputConflicts: false,
         inputPaths: [
           '/partitions/docs.opossum',
           '/partitions/frontend.opossum',
         ],
         outputPath: '/merged/project.opossum',
+        ignoreReadonlyResourceOutputConflicts: false,
+        deleteSplitFilesAfterMerge: true,
       }),
       expect.any(Function),
     );
@@ -327,6 +332,7 @@ describe('mergeOpossumFilesFromPathsListener', () => {
           ],
           outputPath: '/merged/project.opossum',
           ignoreReadonlyResourceOutputConflicts: false,
+          deleteSplitFilesAfterMerge: false,
         },
       ),
     ).resolves.toEqual({
@@ -353,6 +359,7 @@ describe('mergeOpossumFilesFromPathsListener', () => {
           ],
           outputPath: '/merged/project.opossum',
           ignoreReadonlyResourceOutputConflicts: false,
+          deleteSplitFilesAfterMerge: false,
         },
       ),
     ).resolves.toEqual({

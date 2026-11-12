@@ -31,9 +31,10 @@ describe('mergeOpossumFiles', () => {
     await expect(
       mergeOpossumFiles(
         {
-          ignoreReadonlyResourceOutputConflicts: true,
           saveFileParams,
           partitionPaths: ['/partitions/docs.opossum'],
+          ignoreReadonlyResourceOutputConflicts: true,
+          deleteSplitFilesAfterMerge: true,
         },
         opossumZip,
       ),
@@ -42,9 +43,10 @@ describe('mergeOpossumFiles', () => {
     expect(saveFile).toHaveBeenCalledWith(saveFileParams, opossumZip);
     expect(mergeOpossumArchives).toHaveBeenCalledWith(
       {
-        ignoreReadonlyResourceOutputConflicts: true,
         inputPaths: ['/partitions/open.opossum', '/partitions/docs.opossum'],
         outputPath: '/partitions/open.opossum',
+        ignoreReadonlyResourceOutputConflicts: true,
+        deleteSplitFilesAfterMerge: true,
       },
       undefined,
     );
@@ -57,9 +59,10 @@ describe('mergeOpossumFiles', () => {
 
     await expect(
       mergeOpossumFilesFromPaths({
-        ignoreReadonlyResourceOutputConflicts: false,
         inputPaths: ['/partitions/docs.opossum'],
         outputPath: '/merged/project.opossum',
+        ignoreReadonlyResourceOutputConflicts: false,
+        deleteSplitFilesAfterMerge: false,
       }),
     ).resolves.toEqual({
       errorType: 'readonly-resource-output-conflict',
@@ -74,9 +77,10 @@ describe('mergeOpossumFiles', () => {
 
     await expect(
       mergeOpossumFilesFromPaths({
-        ignoreReadonlyResourceOutputConflicts: false,
         inputPaths: ['/partitions/docs.opossum'],
         outputPath: '/merged/project.opossum',
+        ignoreReadonlyResourceOutputConflicts: false,
+        deleteSplitFilesAfterMerge: false,
       }),
     ).resolves.toEqual({
       errorMessage: 'Output directory does not exist',
@@ -91,12 +95,13 @@ describe('mergeOpossumFiles', () => {
     await expect(
       mergeOpossumFiles(
         {
-          ignoreReadonlyResourceOutputConflicts: false,
           saveFileParams: {
             opossumFilePath: '/partitions/open.opossum',
             projectId: 'project-id',
           },
           partitionPaths: ['/partitions/docs.opossum'],
+          ignoreReadonlyResourceOutputConflicts: false,
+          deleteSplitFilesAfterMerge: false,
         },
         new AdmZip(),
       ),
