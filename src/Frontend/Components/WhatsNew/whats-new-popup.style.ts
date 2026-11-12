@@ -11,18 +11,16 @@ export const releaseNotesContentSx: SxProps<Theme> = (theme) => ({
   color: theme.palette.text.primary,
   display: 'flex',
   flexDirection: 'column',
-  gap: theme.spacing(Sizing.Section),
+  gap: theme.spacing(Sizing.MediumPad),
+  marginInline: theme.spacing(Sizing.SmallGap),
   overflowWrap: 'anywhere',
-  '& > section': {
-    display: 'flex',
-    flexDirection: 'column',
-    marginInline: theme.spacing(Sizing.SmallGap),
-    gap: theme.spacing(Sizing.MediumPad),
-  },
   '& h2': {
     ...theme.typography.subtitle1,
     fontWeight: theme.typography.fontWeightBold,
     margin: 0,
+  },
+  '& h2:not(:first-of-type)': {
+    marginTop: theme.spacing(Sizing.Section - Sizing.MediumPad),
   },
   '& p': {
     margin: 0,
