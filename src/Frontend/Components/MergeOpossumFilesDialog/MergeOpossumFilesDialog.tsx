@@ -50,6 +50,8 @@ export const MergeOpossumFilesDialog: React.FC<
     ignoreReadonlyResourceOutputConflicts,
     setIgnoreReadonlyResourceOutputConflicts,
   ] = useState(false);
+  const [deleteSplitFilesAfterMerge, setDeleteSplitFilesAfterMerge] =
+    useState(true);
   const [mergeInProgress, setMergeInProgress] = useState(false);
   const [mergeIntoCurrentFile, setMergeIntoCurrentFile] = useState(
     canMergeIntoCurrentFile,
@@ -117,12 +119,14 @@ export const MergeOpossumFilesDialog: React.FC<
           mergeOpossumFilesIntoCurrentFile({
             partitionPaths: inputFilePaths,
             ignoreReadonlyResourceOutputConflicts,
+            deleteSplitFilesAfterMerge,
           }),
         )
       : await window.electronAPI.mergeOpossumFilesFromPaths({
           inputPaths: inputFilePaths,
           outputPath: outputFilePath,
           ignoreReadonlyResourceOutputConflicts,
+          deleteSplitFilesAfterMerge,
         });
     if (
       result.status === 'error' &&
@@ -255,6 +259,17 @@ export const MergeOpossumFilesDialog: React.FC<
           disabled={mergeInProgress}
         />
       ) : null}
+      <MuiFormControlLabel
+        control={
+          <MuiSwitch
+            checked={deleteSplitFilesAfterMerge}
+            onChange={(_, checked) => setDeleteSplitFilesAfterMerge(checked)}
+            disabled={mergeInProgress}
+          />
+        }
+        label={text.mergeOpossumFilesDialog.deleteSplitFilesAfterMerge}
+        sx={{ ...popupFixedSectionSx, mt: 2.5 }}
+      />
       {errorMessage ? (
         <MuiAlert
           severity={ignoreReadonlyResourceOutputConflicts ? 'warning' : 'error'}
