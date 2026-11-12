@@ -39,7 +39,6 @@ const projectCommandsWithoutFilePrerequisites = [
   menuItemIds.importOwaspDependencyCheckFile,
   menuItemIds.mergeOpossumFiles,
   menuItemIds.setBaseUrl,
-  menuItemIds.helpCheckForUpdates,
 ];
 
 const projectCommandsWithFilePrerequisites = [
@@ -132,6 +131,12 @@ export class MenuBar {
     },
     forceUnlockIsDisabled: async (): Promise<void> => {
       await this.assertMenuItemEnabledState(menuItemIds.forceUnlock, false);
+    },
+    checkForUpdatesIsEnabled: async (): Promise<void> => {
+      await this.assertMenuItemEnabledState(
+        menuItemIds.helpCheckForUpdates,
+        true,
+      );
     },
     initiallyDisabledEntriesAreEnabled: async (): Promise<void> => {
       await this.assertMenuItemsEnabledState(initiallyDisabledMenuItems, true);

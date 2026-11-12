@@ -152,24 +152,37 @@ describe('create menu', () => {
     expect(itemById(menuItemIds.saveFile)?.enabled).toBe(false);
   });
 
-  it('requests an update check from the shared banner when the help item is clicked', async () => {
-    await UserSettingsService.init();
-    const send = vi.fn();
-    const mainWindow = {
-      webContents: { send },
-    } as unknown as BrowserWindow;
-    const helpMenu = await getHelpMenu(mainWindow.webContents, vi.fn());
-    const items = helpMenu.submenu as Array<MenuItemConstructorOptions>;
-    const checkForUpdates = items.find(
-      ({ label }) => label === text.menu.helpSubmenu.checkForUpdates,
-    );
+  it.each([
+    { dialogOpen: false, activityActive: false },
+    { dialogOpen: true, activityActive: false },
+    { dialogOpen: false, activityActive: true },
+    { dialogOpen: true, activityActive: true },
+  ])(
+    'keeps the update check available and sends its event ($dialogOpen, $activityActive)',
+    async ({ dialogOpen, activityActive }) => {
+      await UserSettingsService.init();
+      setGlobalBackendState({
+        frontendPopupOpen: dialogOpen,
+        frontendActivityActive: activityActive,
+      });
+      const send = vi.fn();
+      const mainWindow = {
+        webContents: { send },
+      } as unknown as BrowserWindow;
+      const helpMenu = await getHelpMenu(mainWindow.webContents, vi.fn());
+      const items = helpMenu.submenu as Array<MenuItemConstructorOptions>;
+      const checkForUpdates = items.find(
+        ({ id }) => id === menuItemIds.helpCheckForUpdates,
+      );
 
-    checkForUpdates?.click?.({} as Electron.MenuItem, mainWindow, {});
+      expect(checkForUpdates?.enabled).toBe(true);
+      checkForUpdates?.click?.({} as Electron.MenuItem, mainWindow, {});
 
-    expect(send).toHaveBeenCalledWith(
-      AllowedFrontendChannels.CheckForUpdatesRequested,
-    );
-  });
+      expect(send).toHaveBeenCalledWith(
+        AllowedFrontendChannels.CheckForUpdatesRequested,
+      );
+    },
+  );
 
   it.each([false, true])(
     'opens release notes from Help regardless of dialog state (open: %s)',
