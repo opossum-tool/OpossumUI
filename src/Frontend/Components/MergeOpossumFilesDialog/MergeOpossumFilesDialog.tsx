@@ -113,16 +113,16 @@ export const MergeOpossumFilesDialog: React.FC<
 
     const result = mergeIntoCurrentFile
       ? await dispatch(
-          mergeOpossumFilesIntoCurrentFile(
-            inputFilePaths,
+          mergeOpossumFilesIntoCurrentFile({
+            partitionPaths: inputFilePaths,
             ignoreReadonlyResourceOutputConflicts,
-          ),
+          }),
         )
-      : await window.electronAPI.mergeOpossumFilesFromPaths(
-          inputFilePaths,
-          outputFilePath,
+      : await window.electronAPI.mergeOpossumFilesFromPaths({
+          inputPaths: inputFilePaths,
+          outputPath: outputFilePath,
           ignoreReadonlyResourceOutputConflicts,
-        );
+        });
     if (
       result.status === 'error' &&
       result.errorType ===

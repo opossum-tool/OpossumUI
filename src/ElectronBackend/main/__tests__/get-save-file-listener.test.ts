@@ -231,8 +231,13 @@ describe('mergeCurrentOpossumFilesListener', () => {
     mockMergeOpossumFiles.mockResolvedValue({ status: 'success' });
     await mergeCurrentOpossumFilesListener(mainWindow)(
       {} as Electron.IpcMainInvokeEvent,
-      ['/partitions/docs.opossum', '/partitions/frontend.opossum'],
-      false,
+      {
+        partitionPaths: [
+          '/partitions/docs.opossum',
+          '/partitions/frontend.opossum',
+        ],
+        ignoreReadonlyResourceOutputConflicts: false,
+      },
     );
 
     expect(mockMergeOpossumFiles).toHaveBeenCalledWith(
@@ -257,8 +262,10 @@ describe('mergeCurrentOpossumFilesListener', () => {
     await expect(
       mergeCurrentOpossumFilesListener(mainWindow)(
         {} as Electron.IpcMainInvokeEvent,
-        ['/partitions/docs.opossum'],
-        false,
+        {
+          partitionPaths: ['/partitions/docs.opossum'],
+          ignoreReadonlyResourceOutputConflicts: false,
+        },
       ),
     ).resolves.toEqual({
       errorMessage: 'No .opossum project is currently open.',
@@ -280,9 +287,14 @@ describe('mergeOpossumFilesFromPathsListener', () => {
     await mergeOpossumFilesFromPathsListener(
       mainWindow,
       {} as Electron.IpcMainInvokeEvent,
-      ['/partitions/docs.opossum', '/partitions/frontend.opossum'],
-      '/merged/project.opossum',
-      false,
+      {
+        inputPaths: [
+          '/partitions/docs.opossum',
+          '/partitions/frontend.opossum',
+        ],
+        outputPath: '/merged/project.opossum',
+        ignoreReadonlyResourceOutputConflicts: false,
+      },
     );
 
     expect(mockMergeOpossumFilesFromPaths).toHaveBeenCalledWith(
@@ -308,9 +320,14 @@ describe('mergeOpossumFilesFromPathsListener', () => {
       mergeOpossumFilesFromPathsListener(
         mainWindow,
         {} as Electron.IpcMainInvokeEvent,
-        ['/partitions/docs.opossum', '/partitions/frontend.opossum'],
-        '/merged/project.opossum',
-        false,
+        {
+          inputPaths: [
+            '/partitions/docs.opossum',
+            '/partitions/frontend.opossum',
+          ],
+          outputPath: '/merged/project.opossum',
+          ignoreReadonlyResourceOutputConflicts: false,
+        },
       ),
     ).resolves.toEqual({
       errorType: 'readonly-resource-output-conflict',
@@ -329,9 +346,14 @@ describe('mergeOpossumFilesFromPathsListener', () => {
       mergeOpossumFilesFromPathsListener(
         mainWindow,
         {} as Electron.IpcMainInvokeEvent,
-        ['/partitions/docs.opossum', '/partitions/frontend.opossum'],
-        '/merged/project.opossum',
-        false,
+        {
+          inputPaths: [
+            '/partitions/docs.opossum',
+            '/partitions/frontend.opossum',
+          ],
+          outputPath: '/merged/project.opossum',
+          ignoreReadonlyResourceOutputConflicts: false,
+        },
       ),
     ).resolves.toEqual({
       errorMessage: 'Output directory does not exist',

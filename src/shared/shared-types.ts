@@ -323,15 +323,15 @@ export interface ElectronAPI {
     splitPaths: Array<string>,
     splitOpossumFilePath: string,
   ) => Promise<SplitFileResult>;
-  mergeOpossumFiles: (
-    partitionPaths: Array<string>,
-    ignoreReadonlyResourceOutputConflicts?: boolean,
-  ) => Promise<MergeOpossumFilesResult>;
-  mergeOpossumFilesFromPaths: (
-    inputPaths: Array<string>,
-    outputPath: string,
-    ignoreReadonlyResourceOutputConflicts?: boolean,
-  ) => Promise<MergeOpossumFilesResult>;
+  mergeOpossumFiles: (props: {
+    partitionPaths: Array<string>;
+    ignoreReadonlyResourceOutputConflicts: boolean;
+  }) => Promise<MergeOpossumFilesResult>;
+  mergeOpossumFilesFromPaths: (props: {
+    inputPaths: Array<string>;
+    outputPath: string;
+    ignoreReadonlyResourceOutputConflicts: boolean;
+  }) => Promise<MergeOpossumFilesResult>;
   saveFile: () => void;
   forceUnlock: () => Promise<void>;
   exportFile: (exportType: ExportType) => Promise<void>;

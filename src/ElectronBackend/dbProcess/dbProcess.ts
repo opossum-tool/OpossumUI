@@ -25,6 +25,8 @@ import { forceUnlockOpossumFile } from '../api/forceUnlock';
 import {
   mergeOpossumFiles,
   mergeOpossumFilesFromPaths,
+  type MergeOpossumFilesFromPathsParams,
+  type MergeOpossumFilesParams,
 } from '../api/mergeOpossumFiles';
 import { saveFile } from '../api/saveFile';
 import { splitOpossumFile } from '../api/splitOpossumFile';
@@ -56,19 +58,13 @@ interface SplitOpossumFileMessage {
 }
 
 interface MergeOpossumFilesMessage {
-  ignoreReadonlyResourceOutputConflicts: boolean;
   type: 'mergeOpossumFiles';
-  projectId: string;
-  inputFileChecksum?: string;
-  opossumFilePath: string;
-  partitionPaths: Array<string>;
+  params: MergeOpossumFilesParams;
 }
 
 interface MergeOpossumFilesFromPathsMessage {
-  ignoreReadonlyResourceOutputConflicts: boolean;
-  inputPaths: Array<string>;
-  outputPath: string;
   type: 'mergeOpossumFilesFromPaths';
+  params: MergeOpossumFilesFromPathsParams;
 }
 
 interface ExportFileMessage {
@@ -191,19 +187,9 @@ async function executeDbProcessMessage(
           status: 'error',
         };
       }
-      const {
-        id: _,
-        type: __,
-        ignoreReadonlyResourceOutputConflicts,
-        partitionPaths,
-        ...saveFileParams
-      } = msg;
+      const { id: _, type: __, params } = msg;
       const result = await mergeOpossumFiles(
-        {
-          ignoreReadonlyResourceOutputConflicts,
-          saveFileParams,
-          partitionPaths,
-        },
+        params,
         storedOpossumZip,
         onProgress,
       );
@@ -211,7 +197,7 @@ async function executeDbProcessMessage(
         return result;
       }
       const loadResult = await loadFile(
-        saveFileParams.opossumFilePath,
+        params.saveFileParams.opossumFilePath,
         onProgress,
       );
       if (!loadResult.ok) {
@@ -225,21 +211,8 @@ async function executeDbProcessMessage(
       return result;
     }
     case 'mergeOpossumFilesFromPaths': {
-      const {
-        id: _,
-        type: __,
-        ignoreReadonlyResourceOutputConflicts,
-        inputPaths,
-        outputPath,
-      } = msg;
-      return mergeOpossumFilesFromPaths(
-        {
-          ignoreReadonlyResourceOutputConflicts,
-          inputPaths,
-          outputPath,
-        },
-        onProgress,
-      );
+      const { id: _, type: __, params } = msg;
+      return mergeOpossumFilesFromPaths(params, onProgress);
     }
     case 'exportFile': {
       await exportFile(msg.exportType, msg.filePath);
