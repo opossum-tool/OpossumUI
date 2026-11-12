@@ -172,6 +172,35 @@ describe('quickfilters in the filter menu', () => {
     );
   });
 
+  it('keeps the quickfilters menu row mounted when the save hint disappears after saving', async () => {
+    await renderQuickfilterButton();
+
+    const panel = await openQuickfiltersPanelWithActiveFilters();
+    const menuRow = screen.getByRole('menuitem', {
+      name: text.quickfilters.title,
+    });
+
+    await userEvent.click(
+      within(panel).getByRole('button', {
+        name: text.quickfilters.save,
+      }),
+    );
+    await userEvent.type(
+      screen.getByRole('textbox', { name: text.quickfilters.nameLabel }),
+      faker.string.alphanumeric(8),
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: text.quickfilters.saveAction }),
+    );
+
+    await screen.findByRole('dialog', { name: text.quickfilters.title });
+    // The menu row anchors the open side panel; remounting it (e.g. because
+    // its tooltip is removed) detaches the anchor and makes the panel jump.
+    expect(
+      screen.getByRole('menuitem', { name: text.quickfilters.title }),
+    ).toBe(menuRow);
+  });
+
   it('applies a quickfilter from the panel and preserves the current sorting', async () => {
     const quickfilter = makeQuickfilter({ name: 'My quickfilter' });
     const { store } = await renderQuickfilterButton([
@@ -735,6 +764,36 @@ describe('quickfilters in the filter menu', () => {
     expect(store.getState().userSettingsState.savedQuickfilters).toHaveLength(
       4,
     );
+  });
+
+  it('keeps the row contents the same size when switching to the edit view', async () => {
+    const quickfilters = [makeQuickfilter({ name: 'Only', lastUsedAt: 1 })];
+    await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: quickfilters }),
+    ]);
+
+    await openQuickfiltersPanel();
+    await userEvent.click(
+      screen.getByRole('button', { name: text.quickfilters.edit }),
+    );
+
+    // The action slots must not exceed the 20px icon slots of the apply view,
+    // otherwise the rows grow taller when toggling the edit view.
+    const deleteButton = screen.getByRole('button', {
+      name: text.quickfilters.delete('Only'),
+    });
+    const deleteButtonStyles = getComputedStyle(deleteButton);
+    expect(deleteButtonStyles.width).toBe('20px');
+    expect(deleteButtonStyles.height).toBe('20px');
+    expect(deleteButtonStyles.padding).toBe('0px');
+
+    const dragHandle = screen.getByRole('button', {
+      name: text.quickfilters.reorder('Only'),
+    });
+    expect(
+      getComputedStyle(within(dragHandle).getByTestId('DragIndicatorIcon'))
+        .fontSize,
+    ).toBe('20px');
   });
 
   it('reorders quickfilters via the drag handles in the edit view and persists the order', async () => {

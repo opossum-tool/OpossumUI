@@ -259,56 +259,69 @@ export function useQuickfilters(scope: QuickfilterScope): {
     filters: AttributionFilters,
   ): string => {
     const id = uuid4();
-    updateUserSettings((settings) => ({
-      savedQuickfilters: [
-        ...settings.savedQuickfilters,
-        {
-          id,
-          name,
-          lastUsedAt: Date.now(),
-          scope,
-          filters: toQuickfilterFilters(filters),
-        },
-      ],
-    }));
+    // Optimistic: the saved quickfilter must show up in the lists right away
+    // (e.g. when the user opens the edit view immediately), without waiting
+    // for the persistence round-trip.
+    updateUserSettings(
+      (settings) => ({
+        savedQuickfilters: [
+          ...settings.savedQuickfilters,
+          {
+            id,
+            name,
+            lastUsedAt: Date.now(),
+            scope,
+            filters: toQuickfilterFilters(filters),
+          },
+        ],
+      }),
+      { optimistic: true },
+    );
     return id;
   };
 
   const deleteQuickfilter = (id: string): void => {
-    updateUserSettings((settings) => ({
-      savedQuickfilters: settings.savedQuickfilters.filter(
-        (quickfilter) => quickfilter.id !== id,
-      ),
-    }));
+    updateUserSettings(
+      (settings) => ({
+        savedQuickfilters: settings.savedQuickfilters.filter(
+          (quickfilter) => quickfilter.id !== id,
+        ),
+      }),
+      { optimistic: true },
+    );
   };
 
   // Reorders within the scope by absolute index while keeping the array
   // positions of all other scopes untouched: savedQuickfilters is the
-  // display order.
+  // display order. Optimistic so the reordered list renders immediately
+  // (the drop freeze clears as soon as it has rendered).
   const reorderQuickfilter = (id: string, targetIndex: number): void => {
-    updateUserSettings((settings) => {
-      const scoped = settings.savedQuickfilters.filter(
-        (quickfilter) => quickfilter.scope === scope,
-      );
-      const index = scoped.findIndex((quickfilter) => quickfilter.id === id);
-      if (
-        index === -1 ||
-        targetIndex < 0 ||
-        targetIndex >= scoped.length ||
-        targetIndex === index
-      ) {
-        return {};
-      }
-      const reordered = [...scoped];
-      const [moved] = reordered.splice(index, 1);
-      reordered.splice(targetIndex, 0, moved);
-      let cursor = 0;
-      return {
-        savedQuickfilters: settings.savedQuickfilters.map((quickfilter) =>
-          quickfilter.scope === scope ? reordered[cursor++] : quickfilter,
-        ),
-      };
-    });
+    updateUserSettings(
+      (settings) => {
+        const scoped = settings.savedQuickfilters.filter(
+          (quickfilter) => quickfilter.scope === scope,
+        );
+        const index = scoped.findIndex((quickfilter) => quickfilter.id === id);
+        if (
+          index === -1 ||
+          targetIndex < 0 ||
+          targetIndex >= scoped.length ||
+          targetIndex === index
+        ) {
+          return {};
+        }
+        const reordered = [...scoped];
+        const [moved] = reordered.splice(index, 1);
+        reordered.splice(targetIndex, 0, moved);
+        let cursor = 0;
+        return {
+          savedQuickfilters: settings.savedQuickfilters.map((quickfilter) =>
+            quickfilter.scope === scope ? reordered[cursor++] : quickfilter,
+          ),
+        };
+      },
+      { optimistic: true },
+    );
   };
 
   return {

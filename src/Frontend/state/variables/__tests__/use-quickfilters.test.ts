@@ -386,6 +386,34 @@ describe('useQuickfilters', () => {
     });
   });
 
+  it('shows a saved quickfilter immediately, before the persistence round-trip resolves', async () => {
+    const { result } = await renderHook(() => useQuickfilters('attribution'));
+    const name = faker.string.sample();
+    const { promise, resolve } = Promise.withResolvers<void>();
+    vi.mocked(window.electronAPI.updateUserSettings).mockReturnValueOnce(
+      promise,
+    );
+
+    let savedId: string | undefined;
+    act(() => {
+      savedId = result.current.saveQuickfilter(name, initialAttributionFilters);
+    });
+
+    expect(result.current.quickfilters).toHaveLength(1);
+    expect(result.current.quickfilters[0]).toMatchObject({
+      id: savedId,
+      name,
+    });
+    expect(window.electronAPI.updateUserSettings).toHaveBeenCalledWith({
+      savedQuickfilters: [expect.objectContaining({ name })],
+    });
+
+    resolve();
+    await act(async () => {
+      await promise;
+    });
+  });
+
   it('hides quickfilters saved under another scope', async () => {
     const { result: attributionResult } = await renderHook(() =>
       useQuickfilters('attribution'),
@@ -443,6 +471,35 @@ describe('useQuickfilters', () => {
     });
 
     expect(result.current.quickfilters).toEqual([]);
+  });
+
+  it('removes a deleted quickfilter immediately, before the persistence round-trip resolves', async () => {
+    const { result } = await renderHook(() => useQuickfilters('attribution'));
+    const name = faker.string.sample();
+
+    await act(async () => {
+      result.current.saveQuickfilter(name, initialAttributionFilters);
+      await Promise.resolve();
+    });
+    const { promise, resolve } = Promise.withResolvers<void>();
+    vi.mocked(window.electronAPI.updateUserSettings).mockReturnValueOnce(
+      promise,
+    );
+
+    let id: string | undefined;
+    act(() => {
+      id = result.current.quickfilters[0]?.id;
+      if (id) {
+        result.current.deleteQuickfilter(id);
+      }
+    });
+
+    expect(result.current.quickfilters).toEqual([]);
+
+    resolve();
+    await act(async () => {
+      await promise;
+    });
   });
 
   it('lists quickfilters in creation order regardless of use', async () => {

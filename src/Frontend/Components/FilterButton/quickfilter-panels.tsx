@@ -149,8 +149,8 @@ export function QuickfiltersPanel({
   // During a drag the row order stays untouched; the dragged row follows the
   // pointer visually and the reorder is committed on drop. After the drop,
   // the transforms stay in their final configuration until the reordered
-  // list has actually rendered (the settings update round-trips through
-  // IPC), so the rows never flash back to their old positions.
+  // list has actually rendered (the optimistic settings update supplies the
+  // new order), so the rows never flash back to their old positions.
   const [drag, setDrag] = useState<{
     id: string;
     pointerDeltaY: number;

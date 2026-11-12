@@ -203,12 +203,13 @@ export function renderSelectMenuItems({
         </StyledMenuItem>
       );
 
-      return option.tooltip === undefined ? (
-        menuItem
-      ) : (
+      // Always wrap in a Tooltip so the underlying DOM node survives a
+      // tooltip appearing or disappearing (e.g. the quickfilters save hint);
+      // otherwise the row remounts and anchors pointing at it are detached.
+      return (
         <MuiTooltip
           key={id}
-          title={option.tooltip}
+          title={option.tooltip ?? ''}
           disableInteractive
           placement={'bottom'}
         >
