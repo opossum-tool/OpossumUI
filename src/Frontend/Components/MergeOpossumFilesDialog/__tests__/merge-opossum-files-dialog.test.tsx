@@ -102,10 +102,10 @@ describe('MergeOpossumFilesDialog', () => {
     fireEvent.click(screen.getByRole('button', { name: text.buttons.merge }));
 
     await waitFor(() =>
-      expect(window.electronAPI.mergeOpossumFiles).toHaveBeenCalledWith(
-        [inputFilePaths[1]],
-        false,
-      ),
+      expect(window.electronAPI.mergeOpossumFiles).toHaveBeenCalledWith({
+        partitionPaths: [inputFilePaths[1]],
+        ignoreReadonlyResourceOutputConflicts: false,
+      }),
     );
   });
 
@@ -147,7 +147,11 @@ describe('MergeOpossumFilesDialog', () => {
     await waitFor(() =>
       expect(
         window.electronAPI.mergeOpossumFilesFromPaths,
-      ).toHaveBeenCalledWith(inputFilePaths, outputFilePath, false),
+      ).toHaveBeenCalledWith({
+        inputPaths: inputFilePaths,
+        outputPath: outputFilePath,
+        ignoreReadonlyResourceOutputConflicts: false,
+      }),
     );
   });
 
@@ -198,7 +202,11 @@ describe('MergeOpossumFilesDialog', () => {
     await waitFor(() =>
       expect(
         window.electronAPI.mergeOpossumFilesFromPaths,
-      ).toHaveBeenLastCalledWith(inputFilePaths, outputFilePath, true),
+      ).toHaveBeenLastCalledWith({
+        inputPaths: inputFilePaths,
+        outputPath: outputFilePath,
+        ignoreReadonlyResourceOutputConflicts: true,
+      }),
     );
   });
 
@@ -258,10 +266,10 @@ describe('MergeOpossumFilesDialog', () => {
     fireEvent.click(screen.getByRole('button', { name: text.buttons.merge }));
 
     await waitFor(() =>
-      expect(window.electronAPI.mergeOpossumFiles).toHaveBeenCalledWith(
-        inputFilePaths,
-        false,
-      ),
+      expect(window.electronAPI.mergeOpossumFiles).toHaveBeenCalledWith({
+        partitionPaths: inputFilePaths,
+        ignoreReadonlyResourceOutputConflicts: false,
+      }),
     );
   });
 

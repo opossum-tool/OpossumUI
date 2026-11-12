@@ -145,38 +145,26 @@ export class DbProcessClient {
   }
 
   mergeOpossumFiles(
-    {
-      ignoreReadonlyResourceOutputConflicts,
-      saveFileParams,
-      partitionPaths,
-    }: MergeOpossumFilesParams,
+    params: MergeOpossumFilesParams,
     onProgress?: ProgressCallback,
   ): Promise<MergeOpossumFilesResult> {
     return this.request(
       {
-        ignoreReadonlyResourceOutputConflicts,
         type: 'mergeOpossumFiles',
-        ...saveFileParams,
-        partitionPaths,
+        params,
       },
       { onProgress },
     ) as Promise<MergeOpossumFilesResult>;
   }
 
   mergeOpossumFilesFromPaths(
-    {
-      ignoreReadonlyResourceOutputConflicts,
-      inputPaths,
-      outputPath,
-    }: MergeOpossumFilesFromPathsParams,
+    params: MergeOpossumFilesFromPathsParams,
     onProgress?: ProgressCallback,
   ): Promise<MergeOpossumFilesResult> {
     return this.request(
       {
-        ignoreReadonlyResourceOutputConflicts,
-        inputPaths,
-        outputPath,
         type: 'mergeOpossumFilesFromPaths',
+        params,
       },
       { onProgress },
     ) as Promise<MergeOpossumFilesResult>;

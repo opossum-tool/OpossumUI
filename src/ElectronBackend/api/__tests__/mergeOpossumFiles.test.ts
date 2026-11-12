@@ -40,11 +40,14 @@ describe('mergeOpossumFiles', () => {
     ).resolves.toEqual({ status: 'success' });
 
     expect(saveFile).toHaveBeenCalledWith(saveFileParams, opossumZip);
-    expect(mergeOpossumArchives).toHaveBeenCalledWith({
-      ignoreReadonlyResourceOutputConflicts: true,
-      inputPaths: ['/partitions/open.opossum', '/partitions/docs.opossum'],
-      outputPath: '/partitions/open.opossum',
-    });
+    expect(mergeOpossumArchives).toHaveBeenCalledWith(
+      {
+        ignoreReadonlyResourceOutputConflicts: true,
+        inputPaths: ['/partitions/open.opossum', '/partitions/docs.opossum'],
+        outputPath: '/partitions/open.opossum',
+      },
+      undefined,
+    );
   });
 
   it('returns a readonly conflict result', async () => {
