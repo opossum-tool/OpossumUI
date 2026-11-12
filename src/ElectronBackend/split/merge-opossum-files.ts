@@ -7,6 +7,7 @@ import fs from 'fs';
 import { isDeepStrictEqual } from 'node:util';
 import path from 'path';
 
+import type { ProgressCallback } from '../../shared/shared-types';
 import { writeOpossumFile } from '../../shared/write-file';
 import {
   INPUT_FILE_NAME,
@@ -26,7 +27,6 @@ export interface MergeOpossumArchivesArgs {
   ignoreReadonlyResourceOutputConflicts?: boolean;
   inputPaths: Array<string>;
   outputPath: string;
-  reportProgress?: (message: string) => void;
 }
 
 interface MergeArchive {
@@ -42,28 +42,30 @@ export class ReadonlyResourceOutputConflictError extends Error {
   }
 }
 
-export async function mergeOpossumArchives({
-  ignoreReadonlyResourceOutputConflicts = false,
-  inputPaths,
-  outputPath,
-  reportProgress = () => {},
-}: MergeOpossumArchivesArgs): Promise<void> {
-  reportProgress('Validating input archives');
+export async function mergeOpossumArchives(
+  {
+    ignoreReadonlyResourceOutputConflicts = false,
+    inputPaths,
+    outputPath,
+  }: MergeOpossumArchivesArgs,
+  onProgress?: ProgressCallback,
+): Promise<void> {
+  onProgress?.('Validating input archives');
   validatePaths(inputPaths, outputPath);
   const archives = inputPaths.map((inputPath) => {
-    reportProgress(`Reading archive ${inputPath}`);
+    onProgress?.(`Reading archive ${inputPath}`);
     return readMergeArchive(inputPath);
   });
-  reportProgress('Checking project compatibility');
+  onProgress?.('Checking project compatibility');
   validateProjectIds(archives);
 
-  reportProgress('Merging readonly rules and attribution data');
+  onProgress?.('Merging readonly rules and attribution data');
   const readonlyRules = mergeReadonlyRules(
     archives.map((archive) => archive.readonlyRulesByPath),
   );
   const output = mergeOutput(archives, ignoreReadonlyResourceOutputConflicts);
 
-  reportProgress('Writing merged .opossum file');
+  onProgress?.('Writing merged .opossum file');
   await writeOpossumFile({
     path: outputPath,
     zip: new AdmZip(archives[0].zip.toBuffer()),

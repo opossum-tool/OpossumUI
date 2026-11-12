@@ -8,6 +8,7 @@ import path from 'path';
 import type {
   ExportType,
   MergeOpossumFilesResult,
+  ProgressCallback,
 } from '../../shared/shared-types';
 import type {
   CommandName,
@@ -26,8 +27,6 @@ import type {
   DbProcessRequest,
   DbProcessResponse,
 } from './dbProcess';
-
-type ProgressCallback = (message: string, level?: 'info' | 'warn') => void;
 
 interface PendingRequest {
   resolve: (value: unknown) => void;
