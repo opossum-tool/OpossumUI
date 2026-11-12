@@ -198,12 +198,14 @@ describe('mergeOpossumFilesIntoCurrentFile', () => {
       mergeOpossumFilesIntoCurrentFile({
         partitionPaths,
         ignoreReadonlyResourceOutputConflicts: false,
+        deleteSplitFilesAfterMerge: true,
       }),
     );
 
     expect(window.electronAPI.mergeOpossumFiles).toHaveBeenCalledWith({
       partitionPaths,
       ignoreReadonlyResourceOutputConflicts: false,
+      deleteSplitFilesAfterMerge: true,
     });
     expect(getSelectedResourceId(testStore.getState())).toBe('/');
     expect(getSelectedAttributionId(testStore.getState())).toBe('');
