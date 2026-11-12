@@ -307,6 +307,7 @@ export function createSplit(
 export function mergeOpossumFilesIntoCurrentFile(props: {
   partitionPaths: Array<string>;
   ignoreReadonlyResourceOutputConflicts: boolean;
+  deleteSplitFilesAfterMerge: boolean;
 }): AppThunkAction<Promise<MergeOpossumFilesResult>> {
   return async (dispatch) => {
     const result = await window.electronAPI.mergeOpossumFiles(props);

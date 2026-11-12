@@ -24,9 +24,10 @@ import {
 } from './readonly-rules';
 
 export interface MergeOpossumArchivesArgs {
-  ignoreReadonlyResourceOutputConflicts?: boolean;
   inputPaths: Array<string>;
   outputPath: string;
+  ignoreReadonlyResourceOutputConflicts: boolean;
+  deleteSplitFilesAfterMerge: boolean;
 }
 
 interface MergeArchive {
@@ -44,9 +45,10 @@ export class ReadonlyResourceOutputConflictError extends Error {
 
 export async function mergeOpossumArchives(
   {
-    ignoreReadonlyResourceOutputConflicts = false,
     inputPaths,
     outputPath,
+    ignoreReadonlyResourceOutputConflicts,
+    deleteSplitFilesAfterMerge,
   }: MergeOpossumArchivesArgs,
   onProgress?: ProgressCallback,
 ): Promise<void> {
@@ -72,6 +74,19 @@ export async function mergeOpossumArchives(
     output,
     readonlyRules,
   });
+
+  if (deleteSplitFilesAfterMerge) {
+    onProgress?.('Deleting split files');
+    inputPaths.forEach((inputPath) => {
+      if (path.resolve(inputPath) !== path.resolve(outputPath)) {
+        try {
+          fs.unlinkSync(inputPath);
+        } catch {
+          onProgress?.(`Deleting file ${inputPath} failed`);
+        }
+      }
+    });
+  }
 }
 
 function readMergeArchive(filePath: string): MergeArchive {

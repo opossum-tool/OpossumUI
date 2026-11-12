@@ -510,6 +510,7 @@ export const text = {
   },
   mergeOpossumFilesDialog: {
     mergeIntoCurrentProject: 'Merge into current project',
+    deleteSplitFilesAfterMerge: 'Delete split files after successful merge',
     title: 'Merge split Opossum files',
     titleForCurrentFile: 'Merge split files into current file',
     explanationText:

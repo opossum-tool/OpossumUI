@@ -16,31 +16,35 @@ import {
 import { saveFile, type SaveFileParams } from './saveFile';
 
 export interface MergeOpossumFilesParams {
-  ignoreReadonlyResourceOutputConflicts: boolean;
   saveFileParams: SaveFileParams;
   partitionPaths: Array<string>;
+  ignoreReadonlyResourceOutputConflicts: boolean;
+  deleteSplitFilesAfterMerge: boolean;
 }
 
 export interface MergeOpossumFilesFromPathsParams {
-  ignoreReadonlyResourceOutputConflicts: boolean;
   inputPaths: Array<string>;
   outputPath: string;
+  ignoreReadonlyResourceOutputConflicts: boolean;
+  deleteSplitFilesAfterMerge: boolean;
 }
 
 export async function mergeOpossumFilesFromPaths(
   {
-    ignoreReadonlyResourceOutputConflicts,
     inputPaths,
     outputPath,
+    ignoreReadonlyResourceOutputConflicts,
+    deleteSplitFilesAfterMerge,
   }: MergeOpossumFilesFromPathsParams,
   onProgress?: ProgressCallback,
 ): Promise<MergeOpossumFilesResult> {
   try {
     await mergeOpossumArchives(
       {
-        ignoreReadonlyResourceOutputConflicts,
         inputPaths,
         outputPath,
+        ignoreReadonlyResourceOutputConflicts,
+        deleteSplitFilesAfterMerge,
       },
       onProgress,
     );
@@ -52,9 +56,10 @@ export async function mergeOpossumFilesFromPaths(
 
 export async function mergeOpossumFiles(
   {
-    ignoreReadonlyResourceOutputConflicts,
     saveFileParams,
     partitionPaths,
+    ignoreReadonlyResourceOutputConflicts,
+    deleteSplitFilesAfterMerge,
   }: MergeOpossumFilesParams,
   opossumZip: AdmZip,
   onProgress?: ProgressCallback,
@@ -67,6 +72,7 @@ export async function mergeOpossumFiles(
         ignoreReadonlyResourceOutputConflicts,
         inputPaths: [saveFileParams.opossumFilePath, ...partitionPaths],
         outputPath: saveFileParams.opossumFilePath,
+        deleteSplitFilesAfterMerge,
       },
       onProgress,
     );
