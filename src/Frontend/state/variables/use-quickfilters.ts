@@ -11,6 +11,7 @@ import type {
   SavedAttributionQuickfilter,
   SavedQuickfilter,
 } from '../../../shared/shared-types';
+import { isVisibleForAttributionPanel } from './quickfilter-sharing';
 import {
   type AttributionFilters,
   initialAttributionFilters,
@@ -362,32 +363,32 @@ export function useQuickfilters(scope: Exclude<QuickfilterScope, 'resource'>): {
     );
   };
 
-  // Reorders within the scope by absolute index while keeping the array
-  // positions of all other scopes untouched: savedQuickfilters is the
-  // display order. Optimistic so the reordered list renders immediately
-  // (the drop freeze clears as soon as it has rendered).
+  // Reorders within the panel's visible subset (own-scope quickfilters plus
+  // shared license-only resource quickfilters) while keeping the array
+  // positions of everything else untouched: savedQuickfilters is the display
+  // order. Optimistic so the reordered list renders immediately (the drop
+  // freeze clears as soon as it has rendered).
   const reorderQuickfilter = (id: string, targetIndex: number): void => {
+    const isVisible = isVisibleForAttributionPanel(scope);
     updateUserSettings(
       (settings) => {
-        const scoped = settings.savedQuickfilters.filter(
-          (quickfilter) => quickfilter.scope === scope,
-        );
-        const index = scoped.findIndex((quickfilter) => quickfilter.id === id);
+        const visible = settings.savedQuickfilters.filter(isVisible);
+        const index = visible.findIndex((quickfilter) => quickfilter.id === id);
         if (
           index === -1 ||
           targetIndex < 0 ||
-          targetIndex >= scoped.length ||
+          targetIndex >= visible.length ||
           targetIndex === index
         ) {
           return {};
         }
-        const reordered = [...scoped];
+        const reordered = [...visible];
         const [moved] = reordered.splice(index, 1);
         reordered.splice(targetIndex, 0, moved);
         let cursor = 0;
         return {
           savedQuickfilters: settings.savedQuickfilters.map((quickfilter) =>
-            quickfilter.scope === scope ? reordered[cursor++] : quickfilter,
+            isVisible(quickfilter) ? reordered[cursor++] : quickfilter,
           ),
         };
       },

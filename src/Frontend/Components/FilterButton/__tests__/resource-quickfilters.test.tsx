@@ -5,7 +5,10 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import type { SavedResourceQuickfilter } from '../../../../shared/shared-types';
+import type {
+  SavedAttributionQuickfilter,
+  SavedResourceQuickfilter,
+} from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
@@ -193,6 +196,104 @@ describe('quickfilters in the resource tree filter menu', () => {
       'false',
     );
     expect(row(panel, 'MIT license')).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('lists and applies a shared license-only attribution quickfilter on both panels', async () => {
+    const attributionQuickfilter: SavedAttributionQuickfilter = {
+      id: 'shared-license',
+      name: 'MIT license',
+      lastUsedAt: 1,
+      scope: 'attribution',
+      filters: {
+        filters: [],
+        search: '',
+        valueFilters: { license: [{ id: 'MIT', label: 'MIT' }] },
+      },
+    };
+    const { store } = await renderResourceFilterButton([
+      setUserSetting({ savedQuickfilters: [attributionQuickfilter] }),
+    ]);
+
+    const panel = await openQuickfiltersPanel();
+    await userEvent.click(row(panel, 'MIT license'));
+
+    expect(resourceFilters(store)).toEqual({
+      onlyUnreviewedFiles: false,
+      onlyWithAiDeferredAttributions: false,
+      selectedLicenses: [{ id: 'MIT', label: 'MIT' }],
+      activeQuickfilterIds: ['shared-license'],
+    });
+    expect(
+      store.getState().variablesState['manual-attribution-filters-audit'],
+    ).toMatchObject({ activeQuickfilterIds: ['shared-license'] });
+    expect(row(panel, 'MIT license')).toHaveAttribute('aria-pressed', 'true');
+
+    await userEvent.click(row(panel, 'MIT license'));
+    expect(resourceFilters(store).activeQuickfilterIds).toBeUndefined();
+    expect(
+      (
+        store.getState().variablesState['manual-attribution-filters-audit'] as
+          { activeQuickfilterIds?: Array<string> } | undefined
+      )?.activeQuickfilterIds,
+    ).toBeUndefined();
+  });
+
+  it('hides attribution quickfilters the resource tree cannot express', async () => {
+    const searchQuickfilter: SavedAttributionQuickfilter = {
+      id: 'search-only',
+      name: 'React search',
+      lastUsedAt: 1,
+      scope: 'attribution',
+      filters: { filters: [], search: 'react', valueFilters: {} },
+    };
+    await renderResourceFilterButton([
+      setUserSetting({ savedQuickfilters: [searchQuickfilter] }),
+    ]);
+
+    const panel = await openQuickfiltersPanel();
+    expect(
+      within(panel).queryByRole('button', {
+        name: text.quickfilters.apply('React search'),
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(panel).getByText(text.quickfilters.empty),
+    ).toBeInTheDocument();
+  });
+
+  it('reorders shared quickfilters together with the resource ones', async () => {
+    const resourceQuickfilter = makeQuickfilter({ name: 'Resource' });
+    const sharedQuickfilter: SavedAttributionQuickfilter = {
+      id: 'shared-license',
+      name: 'Shared',
+      lastUsedAt: 2,
+      scope: 'attribution',
+      filters: {
+        filters: [],
+        search: '',
+        valueFilters: { license: [{ id: 'MIT', label: 'MIT' }] },
+      },
+    };
+    const { store } = await renderResourceFilterButton([
+      setUserSetting({
+        savedQuickfilters: [resourceQuickfilter, sharedQuickfilter],
+      }),
+    ]);
+
+    const panel = await openQuickfiltersPanel();
+    await userEvent.click(
+      within(panel).getByRole('button', { name: text.quickfilters.edit }),
+    );
+    within(panel)
+      .getByRole('button', { name: text.quickfilters.reorder('Shared') })
+      .focus();
+    await userEvent.keyboard('{ArrowUp}');
+
+    expect(
+      store
+        .getState()
+        .userSettingsState.savedQuickfilters.map(({ name }) => name),
+    ).toEqual(['Shared', 'Resource']);
   });
 });
 

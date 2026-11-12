@@ -175,6 +175,54 @@ describe('filtering resources', () => {
     );
   });
 
+  it('applies a license-only attribution quickfilter from the tree filter menu', async () => {
+    await renderApp({
+      data: multiLicenseData,
+      userSettings: {
+        savedQuickfilters: [
+          {
+            id: 'license-quickfilter',
+            name: 'MIT license',
+            lastUsedAt: 1,
+            scope: 'attribution',
+            filters: {
+              filters: [],
+              search: '',
+              valueFilters: {
+                // License ids are the canonical license names used by the
+                // database (lower-cased, without dashes/spaces).
+                license: [{ id: 'mit', label: 'MIT' }],
+              },
+            },
+          },
+        ],
+      },
+    });
+    await clickTreeFilterMenuButton();
+    await clickFilterMenuItem(text.quickfilters.title);
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.quickfilters.apply('MIT license'),
+      }),
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', {
+          name: text.quickfilters.apply('MIT license'),
+        }),
+      ).toHaveAttribute('aria-pressed', 'true');
+    });
+    await closeFilterMenu();
+    await expectResourceVisibility(
+      [externalResourceName],
+      [
+        preselectedResourceName,
+        reviewedMitResourceName,
+        reviewedApacheResourceName,
+      ],
+    );
+  });
+
   it('filters the resource tree to unreviewed files', async () => {
     await renderApp({ data });
     await clickTreeFilterMenuButton();

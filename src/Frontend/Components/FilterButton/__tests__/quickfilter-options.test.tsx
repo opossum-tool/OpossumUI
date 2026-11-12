@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event';
 import type {
   QuickfilterScope,
   SavedAttributionQuickfilter,
+  SavedResourceQuickfilter,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
@@ -255,6 +256,76 @@ describe('quickfilters in the filter menu', () => {
     expect(
       screen.getByRole('menuitem', { name: text.quickfilters.title }),
     ).toBe(menuRow);
+  });
+
+  it('lists and applies a shared license-only resource quickfilter on both panels', async () => {
+    const resourceQuickfilter: SavedResourceQuickfilter = {
+      id: 'shared-license',
+      name: 'MIT license',
+      lastUsedAt: 1,
+      scope: 'resource',
+      filters: {
+        onlyUnreviewedFiles: false,
+        onlyWithAiDeferredAttributions: false,
+        selectedLicenses: [{ id: 'MIT', label: 'MIT' }],
+      },
+    };
+    const { store } = await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [resourceQuickfilter] }),
+    ]);
+
+    const panel = await openQuickfiltersPanel();
+    await userEvent.click(row(panel, 'MIT license'));
+
+    expect(
+      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toEqual({
+      filters: [],
+      search: '',
+      valueFilters: { license: [{ id: 'MIT', label: 'MIT' }] },
+      sorting: 'alphabetically',
+      activeQuickfilterIds: ['shared-license'],
+    });
+    expect(readResourceFilters(store)).toEqual(['shared-license']);
+    expect(row(panel, 'MIT license')).toHaveAttribute('aria-pressed', 'true');
+
+    await userEvent.click(row(panel, 'MIT license'));
+    expect(
+      (
+        store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT] as {
+          activeQuickfilterIds?: Array<string>;
+        }
+      ).activeQuickfilterIds,
+    ).toBeUndefined();
+    expect(readResourceFilters(store)).toBeUndefined();
+  });
+
+  it('hides resource quickfilters the attributions panel cannot express', async () => {
+    const unreviewedQuickfilter: SavedResourceQuickfilter = {
+      id: 'unreviewed-only',
+      name: 'Unreviewed only',
+      lastUsedAt: 1,
+      scope: 'resource',
+      filters: {
+        onlyUnreviewedFiles: true,
+        onlyWithAiDeferredAttributions: false,
+        selectedLicenses: [],
+      },
+    };
+    const shareableQuickfilter = makeQuickfilter({ name: 'Shareable' });
+    await renderQuickfilterButton([
+      setUserSetting({
+        savedQuickfilters: [unreviewedQuickfilter, shareableQuickfilter],
+      }),
+    ]);
+
+    const panel = await openQuickfiltersPanel();
+    expect(
+      within(panel).queryByRole('button', {
+        name: text.quickfilters.apply('Unreviewed only'),
+      }),
+    ).not.toBeInTheDocument();
+    expect(row(panel, 'Shareable')).toBeInTheDocument();
   });
 
   it('applies a quickfilter from the panel and preserves the current sorting', async () => {
@@ -1107,6 +1178,14 @@ function row(panel: HTMLElement, name: string): HTMLElement {
   });
 }
 
+function readResourceFilters(store: {
+  getState(): { variablesState: Record<string, unknown> };
+}): Array<string> | undefined {
+  const filters = store.getState().variablesState['resource-tree-filters'] as
+    { activeQuickfilterIds?: Array<string> } | undefined;
+  return filters?.activeQuickfilterIds;
+}
+
 function makeQuickfilter({
   name = faker.string.sample(),
   lastUsedAt = faker.number.int(),
@@ -1140,6 +1219,7 @@ function TestFilterButton({
     filters,
     setFilters,
     quickfilterScope: scope,
+    crossActivateResource: true,
   });
   return (
     <FilterButton

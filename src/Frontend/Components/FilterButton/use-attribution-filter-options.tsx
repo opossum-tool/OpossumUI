@@ -74,6 +74,7 @@ export function useAttributionFilterOptions({
   filters,
   setFilters,
   quickfilterScope,
+  crossActivateResource = false,
 }: {
   filterOptions: Array<AttributionFilterOption>;
   filterProps: FilterProperties | null;
@@ -82,6 +83,7 @@ export function useAttributionFilterOptions({
   filters: AttributionFilters;
   setFilters: SetFilters;
   quickfilterScope: Exclude<QuickfilterScope, 'resource'>;
+  crossActivateResource?: boolean;
 }): Array<FilterOption> {
   const classificationFilterOption = useClassificationFilterOption({
     filters,
@@ -95,6 +97,7 @@ export function useAttributionFilterOptions({
     filters,
     setFilters,
     scope: quickfilterScope,
+    crossActivateResource,
   });
   return useMemo(
     () =>
