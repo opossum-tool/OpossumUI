@@ -412,13 +412,17 @@ export type TableOrdering = {
   orderedColumn: string;
 };
 
-export type QuickfilterScope = 'attribution' | 'signal';
+export type QuickfilterScope = 'attribution' | 'signal' | 'resource';
 
-export interface SavedQuickfilter {
+interface SavedQuickfilterBase {
   id: string;
   name: string;
   lastUsedAt: number;
   scope: QuickfilterScope;
+}
+
+export interface SavedAttributionQuickfilter extends SavedQuickfilterBase {
+  scope: 'attribution' | 'signal';
   filters: {
     filters: Array<AttributionFilterKey>;
     search: string;
@@ -426,6 +430,31 @@ export interface SavedQuickfilter {
       license?: Array<LicenseOption>;
     };
   };
+}
+
+export interface SavedResourceQuickfilter extends SavedQuickfilterBase {
+  scope: 'resource';
+  filters: {
+    onlyUnreviewedFiles: boolean;
+    onlyWithAiDeferredAttributions: boolean;
+    selectedLicenses: Array<LicenseOption>;
+    licenseSearches?: Array<string>;
+  };
+}
+
+export type SavedQuickfilter =
+  SavedAttributionQuickfilter | SavedResourceQuickfilter;
+
+export function isAttributionQuickfilter(
+  quickfilter: SavedQuickfilter,
+): quickfilter is SavedAttributionQuickfilter {
+  return quickfilter.scope !== 'resource';
+}
+
+export function isResourceQuickfilter(
+  quickfilter: SavedQuickfilter,
+): quickfilter is SavedResourceQuickfilter {
+  return quickfilter.scope === 'resource';
 }
 
 export interface UserSettings {

@@ -4,7 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 import { act } from '@testing-library/react';
 
-import type { SavedQuickfilter } from '../../../../shared/shared-types';
+import type {
+  QuickfilterScope,
+  SavedAttributionQuickfilter,
+} from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
 import { renderHook } from '../../../test-helpers/render';
 import { setUserSetting } from '../../actions/user-settings-actions/user-settings-actions';
@@ -457,9 +460,9 @@ function makeQuickfilter({
 }: {
   id?: string;
   name?: string;
-  scope?: SavedQuickfilter['scope'];
-  filters?: SavedQuickfilter['filters'];
-} = {}): SavedQuickfilter {
+  scope?: Exclude<QuickfilterScope, 'resource'>;
+  filters?: SavedAttributionQuickfilter['filters'];
+} = {}): SavedAttributionQuickfilter {
   return {
     id,
     name,

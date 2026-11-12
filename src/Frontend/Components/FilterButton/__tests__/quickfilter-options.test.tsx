@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 
 import type {
   QuickfilterScope,
-  SavedQuickfilter,
+  SavedAttributionQuickfilter,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
@@ -1115,9 +1115,9 @@ function makeQuickfilter({
 }: {
   name?: string;
   lastUsedAt?: number;
-  scope?: SavedQuickfilter['scope'];
-  filters?: SavedQuickfilter['filters'];
-} = {}): SavedQuickfilter {
+  scope?: Exclude<QuickfilterScope, 'resource'>;
+  filters?: SavedAttributionQuickfilter['filters'];
+} = {}): SavedAttributionQuickfilter {
   return {
     id: faker.string.uuid(),
     name,
@@ -1130,7 +1130,7 @@ function makeQuickfilter({
 function TestFilterButton({
   scope = 'attribution',
 }: {
-  scope?: QuickfilterScope;
+  scope?: Exclude<QuickfilterScope, 'resource'>;
 }) {
   const [filters, setFilters] = useManualAttributionFilters();
   const options = useAttributionFilterOptions({
@@ -1164,7 +1164,7 @@ async function openFilterMenu(): Promise<void> {
 
 async function renderQuickfilterButton(
   actions?: Array<Action>,
-  scope?: QuickfilterScope,
+  scope?: Exclude<QuickfilterScope, 'resource'>,
 ) {
   return renderComponent(<TestFilterButton scope={scope} />, { actions });
 }
