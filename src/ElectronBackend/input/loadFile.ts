@@ -9,6 +9,7 @@ import { v4 as uuid4 } from 'uuid';
 
 import type {
   PersistedAttributions,
+  ProgressCallback,
   ResourcesToAttributions,
 } from '../../shared/shared-types';
 import { saveFile } from '../api/saveFile';
@@ -49,11 +50,6 @@ type LoadFileResult = LoadFileSuccess | LoadFileError;
 export type LoadFileIpcResult =
   Omit<LoadFileSuccess, 'opossumZip'> | LoadFileError;
 
-export type LoadFileProgressCallback = (
-  message: string,
-  level?: 'info' | 'warn',
-) => void;
-
 const PARSING_ERROR_TYPES: ReadonlySet<string> = new Set<ParsingError['type']>([
   'fileNotFoundError',
   'jsonParsingError',
@@ -72,7 +68,7 @@ function isParsingError(parsingResult: unknown): parsingResult is ParsingError {
 
 export async function loadFile(
   filePath: string,
-  reportProgress: LoadFileProgressCallback = () => {},
+  reportProgress: ProgressCallback = () => {},
 ): Promise<LoadFileResult> {
   if (!fs.existsSync(filePath)) {
     return {
@@ -184,7 +180,7 @@ export async function loadFile(
 
 function mergeExternalAttributions(
   parsedInputData: ParsedOpossumInputFile,
-  reportProgress: LoadFileProgressCallback,
+  reportProgress: ProgressCallback,
 ): {
   externalAttributions: PersistedAttributions;
   resourcesToExternalAttributions: ResourcesToAttributions;

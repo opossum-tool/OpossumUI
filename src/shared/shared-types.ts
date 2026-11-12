@@ -434,3 +434,8 @@ export interface UserSettings {
 export type PanelSizes = UserSettings['panelSizes'];
 
 export type LicenseOption = { id: string; label: string };
+
+export type ProgressCallback = (
+  message: string,
+  level?: 'info' | 'warn',
+) => void;

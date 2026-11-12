@@ -12,6 +12,7 @@ import {
   type ExportType,
   MergeOpossumFilesErrorType,
   type MergeOpossumFilesResult,
+  type ProgressCallback,
 } from '../../shared/shared-types';
 import {
   type CommandName,
@@ -27,11 +28,7 @@ import {
 } from '../api/mergeOpossumFiles';
 import { saveFile } from '../api/saveFile';
 import { splitOpossumFile } from '../api/splitOpossumFile';
-import {
-  loadFile,
-  type LoadFileIpcResult,
-  type LoadFileProgressCallback,
-} from '../input/loadFile';
+import { loadFile, type LoadFileIpcResult } from '../input/loadFile';
 
 interface LoadFileMessage {
   type: 'loadFile';
@@ -136,7 +133,7 @@ let storedOpossumZip: AdmZip | undefined;
 
 async function executeDbProcessMessage(
   msg: DbProcessRequest,
-  onProgress?: LoadFileProgressCallback,
+  onProgress?: ProgressCallback,
 ): Promise<SuccessPayload> {
   switch (msg.type) {
     case 'loadFile': {
@@ -206,9 +203,9 @@ async function executeDbProcessMessage(
           ignoreReadonlyResourceOutputConflicts,
           saveFileParams,
           partitionPaths,
-          reportProgress: onProgress,
         },
         storedOpossumZip,
+        onProgress,
       );
       if (result.status === 'error') {
         return result;
@@ -235,12 +232,14 @@ async function executeDbProcessMessage(
         inputPaths,
         outputPath,
       } = msg;
-      return mergeOpossumFilesFromPaths({
-        ignoreReadonlyResourceOutputConflicts,
-        inputPaths,
-        outputPath,
-        reportProgress: onProgress,
-      });
+      return mergeOpossumFilesFromPaths(
+        {
+          ignoreReadonlyResourceOutputConflicts,
+          inputPaths,
+          outputPath,
+        },
+        onProgress,
+      );
     }
     case 'exportFile': {
       await exportFile(msg.exportType, msg.filePath);
