@@ -83,10 +83,19 @@ export function useQuickfilterOptions({
         removeQuickfilter(quickfilter);
         return;
       }
-      if (!isQuickfilterCompatible(filters, quickfilter)) {
-        return;
-      }
-      setFilters(mergeQuickfilterIntoFilters(filters, quickfilter));
+      // Conflicting quickfilters apply as well: the clashing scalar filters
+      // (search text, classification, …) are overwritten with the
+      // quickfilter's values and everything else is kept. Quickfilters whose
+      // conditions are no longer met are deselected automatically (see the
+      // pruning of active quickfilter ids when filters change).
+      setFilters(
+        mergeQuickfilterIntoFilters(filters, quickfilter, {
+          replaceConflictingScalars: !isQuickfilterCompatible(
+            filters,
+            quickfilter,
+          ),
+        }),
+      );
     };
 
     const removeQuickfilter = (quickfilter: SavedQuickfilter): void => {
