@@ -14,7 +14,6 @@ import {
   stopAutomaticUpdateChecks,
 } from '../update-service';
 import { menuItemIds } from './menuItemIds';
-import { isProjectCommandBlocked } from './project-command-blocking';
 import { switchableMenuItem } from './switchableMenuItem';
 
 function getOpenLogFiles(): MenuItemConstructorOptions {
@@ -39,7 +38,7 @@ function getCheckForUpdates(
     click: () => {
       webContents.send(AllowedFrontendChannels.CheckForUpdatesRequested);
     },
-    enabled: !isProjectCommandBlocked(),
+    enabled: true,
   };
 }
 

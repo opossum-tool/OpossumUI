@@ -22,6 +22,7 @@ test('disables menu bar when importing into the current project', async ({
   await menuBar.assert.projectCommandsAreDisabled();
   await menuBar.assert.referenceAvailableEntriesAreEnabled();
   await menuBar.assert.modalFocusSensitiveEntriesAreDisabled();
+  await menuBar.assert.checkForUpdatesIsEnabled();
 
   await importDialog.cancelButton.click();
   await importDialog.assert.titleIsHidden();
