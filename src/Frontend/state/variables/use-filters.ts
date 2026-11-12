@@ -39,6 +39,11 @@ export interface ResourceTreeFilters {
   onlyWithAiDeferredAttributions: boolean;
   selectedLicenses: Array<LicenseOption>;
   licenseSearches?: Array<string>;
+  /**
+   * Ids of the resource quickfilters currently combined into these filters.
+   * Selection is membership-based, mirroring {@link AttributionFilters}.
+   */
+  activeQuickfilterIds?: Array<string>;
 }
 
 export const initialAttributionFilters: AttributionFilters = {
@@ -110,5 +115,19 @@ export function hasActiveAttributionFilters({
     Object.values(valueFilters).some((value) =>
       Array.isArray(value) ? value.length > 0 : value !== undefined,
     )
+  );
+}
+
+export function hasActiveResourceTreeFilters({
+  onlyUnreviewedFiles,
+  onlyWithAiDeferredAttributions,
+  selectedLicenses,
+  licenseSearches = [],
+}: ResourceTreeFilters): boolean {
+  return (
+    onlyUnreviewedFiles ||
+    onlyWithAiDeferredAttributions ||
+    !!selectedLicenses.length ||
+    !!licenseSearches.length
   );
 }

@@ -9,7 +9,7 @@ import { useMemo } from 'react';
 
 import type {
   QuickfilterScope,
-  SavedQuickfilter,
+  SavedAttributionQuickfilter,
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon } from '../../shared-styles';
@@ -38,10 +38,11 @@ export function useQuickfilterOptions({
 }: {
   filters: AttributionFilters;
   setFilters: SetFilters;
-  scope: QuickfilterScope;
+  scope: Exclude<QuickfilterScope, 'resource'>;
 }): Array<FilterOption> {
   const {
     quickfilters,
+    saveQuickfilter,
     deleteQuickfilter,
     renameQuickfilter,
     reorderQuickfilter,
@@ -78,7 +79,9 @@ export function useQuickfilterOptions({
   return useMemo(() => {
     const activeIds = filters.activeQuickfilterIds ?? [];
 
-    const applyQuickfilter = (quickfilter: SavedQuickfilter): void => {
+    const applyQuickfilter = (
+      quickfilter: SavedAttributionQuickfilter,
+    ): void => {
       if (activeIds.includes(quickfilter.id)) {
         removeQuickfilter(quickfilter);
         return;
@@ -98,7 +101,9 @@ export function useQuickfilterOptions({
       );
     };
 
-    const removeQuickfilter = (quickfilter: SavedQuickfilter): void => {
+    const removeQuickfilter = (
+      quickfilter: SavedAttributionQuickfilter,
+    ): void => {
       // The sorting is intentionally kept from the current filters.
       setFilters(
         combineQuickfilters({
@@ -162,8 +167,6 @@ export function useQuickfilterOptions({
         renderPanel: ({ id, onClose, initialFocusRef }) => (
           <QuickfiltersPanel
             id={id}
-            filters={filters}
-            scope={scope}
             activeQuickfilterIds={activeIds}
             hasActiveFilters={hasActiveFilters}
             quickfilters={quickfilters}
@@ -177,8 +180,11 @@ export function useQuickfilterOptions({
             onDelete={deleteQuickfilter}
             onRename={renameQuickfilter}
             onReorder={reorderQuickfilter}
+            onSave={(name) => {
+              const savedId = saveQuickfilter(name, filters);
+              activateSavedQuickfilter(savedId);
+            }}
             onClearAll={clearAllQuickfilters}
-            onSaved={activateSavedQuickfilter}
             onClose={onClose}
             initialFocusRef={initialFocusRef}
           />
@@ -191,7 +197,7 @@ export function useQuickfilterOptions({
     filters,
     setFilters,
     hasActiveFilters,
-    scope,
+    saveQuickfilter,
     deleteQuickfilter,
     renameQuickfilter,
     reorderQuickfilter,

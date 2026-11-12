@@ -81,7 +81,7 @@ export function useAttributionFilterOptions({
   licenseOptionsLoading?: boolean;
   filters: AttributionFilters;
   setFilters: SetFilters;
-  quickfilterScope: QuickfilterScope;
+  quickfilterScope: Exclude<QuickfilterScope, 'resource'>;
 }): Array<FilterOption> {
   const classificationFilterOption = useClassificationFilterOption({
     filters,
