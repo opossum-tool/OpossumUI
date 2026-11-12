@@ -314,16 +314,18 @@ export async function handleOpeningFile(
 ): Promise<void> {
   const statusUpdater = new ProcessingStatusUpdater(mainWindow.webContents);
   statusUpdater.startProcessing();
-  statusUpdater.info('Initializing global backend state');
-  initializeGlobalBackendState(filePath);
-
-  await openFile(mainWindow, filePath, updateMenu);
-
-  await updateRecentlyOpenedPaths(filePath);
-
-  await updateMenu();
-
-  statusUpdater.endProcessing();
+  try {
+    statusUpdater.info('Initializing global backend state');
+    initializeGlobalBackendState(filePath);
+    if (!(await openFile(mainWindow, filePath, updateMenu))) {
+      return;
+    }
+    mainWindow.webContents.send(AllowedFrontendChannels.ProjectOpened);
+    await updateRecentlyOpenedPaths(filePath);
+    await updateMenu();
+  } finally {
+    statusUpdater.endProcessing();
+  }
 }
 
 export const importFileListener =
@@ -435,9 +437,7 @@ export const importFileConvertAndLoadListener =
       processingStatusUpdater.info('Updating global backend state');
       initializeGlobalBackendState(opossumFilePath);
 
-      await openFile(mainWindow, opossumFilePath, updateMenu);
-
-      return true;
+      return await openFile(mainWindow, opossumFilePath, updateMenu);
     } catch (error) {
       sendListenerErrorToFrontend(processingStatusUpdater, error);
       return false;
@@ -495,9 +495,7 @@ export const mergeFileAndLoadListener =
         fileType,
       );
 
-      await openFile(mainWindow, currentOpossumFilePath, updateMenu);
-
-      return true;
+      return await openFile(mainWindow, currentOpossumFilePath, updateMenu);
     } catch (error) {
       sendListenerErrorToFrontend(processingStatusUpdater, error);
       return false;
@@ -552,10 +550,14 @@ async function openFile(
   mainWindow: BrowserWindow,
   filePath: string,
   updateMenu: () => Promise<void>,
-): Promise<void> {
-  await loadInputAndOutputFromFilePath(mainWindow, filePath);
+): Promise<boolean> {
+  const loaded = await loadInputAndOutputFromFilePath(mainWindow, filePath);
+  if (!loaded) {
+    return false;
+  }
   setTitle(mainWindow, filePath);
   await updateMenu();
+  return true;
 }
 
 async function updateRecentlyOpenedPaths(filePath: string): Promise<void> {

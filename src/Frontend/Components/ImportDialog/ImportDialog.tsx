@@ -11,7 +11,10 @@ import type { FileFormatInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file-utils';
 import { fileDialogMaxWidth } from '../../shared-styles';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
+import {
+  closePopup,
+  openStatisticsPopupAfterFileLoadIfEnabled,
+} from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { useProcessingStatusUpdated } from '../../util/use-processing-status-updated';
 import { DialogLogDisplay } from '../DialogLogDisplay/DialogLogDisplay.style';
@@ -105,6 +108,9 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
 
     if (success) {
       dispatch(closePopup());
+      if (!importIntoCurrentProject) {
+        await dispatch(openStatisticsPopupAfterFileLoadIfEnabled);
+      }
     }
     setImportInProgress(false);
   }

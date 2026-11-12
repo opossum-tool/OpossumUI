@@ -4,15 +4,18 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useEffect, useRef } from 'react';
 
-export function useFrontendPopupOpen(open: boolean) {
+export function useFrontendPopupOpen(open: boolean, enabled = true) {
   const wasEverDisabledRef = useRef(false);
 
   useEffect(() => {
+    if (!enabled) {
+      return;
+    }
     if (open) {
       wasEverDisabledRef.current = true;
     }
     if (wasEverDisabledRef.current) {
       void window.electronAPI.setFrontendPopupOpen(open);
     }
-  }, [open]);
+  }, [open, enabled]);
 }

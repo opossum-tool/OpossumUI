@@ -28,7 +28,6 @@ async function handleParsingError(
       await getMessageBoxForParsingError(parsingError.message);
       return;
     case 'invalidDotOpossumFileError':
-      processingStatusUpdater.endProcessing();
       await getMessageBoxForInvalidDotOpossumFileError();
   }
 }
@@ -36,7 +35,7 @@ async function handleParsingError(
 export async function loadInputAndOutputFromFilePath(
   mainWindow: BrowserWindow,
   filePath: string,
-): Promise<void> {
+): Promise<boolean> {
   mainWindow.webContents.send(
     AllowedFrontendChannels.SetDatabaseInitialized,
     false,
@@ -60,7 +59,7 @@ export async function loadInputAndOutputFromFilePath(
 
   if (!result.ok) {
     await handleParsingError(result.error, processingStatusUpdater);
-    return;
+    return false;
   }
 
   mainWindow.webContents.send(
@@ -71,6 +70,7 @@ export async function loadInputAndOutputFromFilePath(
   processingStatusUpdater.info('Finalizing global state');
   globalState.projectTitle = result.projectTitle;
   globalState.projectId = result.projectId;
+  return true;
 }
 
 async function getMessageBoxForParsingError(
