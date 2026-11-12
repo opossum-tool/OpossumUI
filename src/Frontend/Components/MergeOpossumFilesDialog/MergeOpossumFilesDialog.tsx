@@ -67,6 +67,10 @@ export const MergeOpossumFilesDialog: React.FC<
   const mergeInteractionDisabled =
     mergeInProgress || showNoReadonlyPathsMessage;
 
+  const deletableSplitFileCount = inputFilePaths.filter(
+    (i) => i !== outputFilePath,
+  ).length;
+
   async function addInputFilePaths(): Promise<void> {
     const selectedPaths =
       await window.electronAPI.selectFiles(OPOSSUM_FILE_FORMAT);
@@ -266,7 +270,9 @@ export const MergeOpossumFilesDialog: React.FC<
             disabled={mergeInProgress}
           />
         }
-        label={text.mergeOpossumFilesDialog.deleteSplitFilesAfterMerge}
+        label={text.mergeOpossumFilesDialog.deleteSplitFilesAfterMerge(
+          deletableSplitFileCount,
+        )}
         sx={{ ...popupFixedSectionSx, mt: 2.5 }}
       />
       {errorMessage ? (
