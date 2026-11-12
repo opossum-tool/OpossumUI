@@ -8,6 +8,7 @@ import { v4 as uuid4 } from 'uuid';
 import type {
   LicenseOption,
   QuickfilterScope,
+  SavedAttributionQuickfilter,
   SavedQuickfilter,
 } from '../../../shared/shared-types';
 import {
@@ -20,7 +21,7 @@ function toQuickfilterFilters({
   filters,
   search,
   valueFilters,
-}: AttributionFilters): SavedQuickfilter['filters'] {
+}: AttributionFilters): SavedAttributionQuickfilter['filters'] {
   return {
     filters: [...filters],
     search,
@@ -45,7 +46,7 @@ function scalarValuesCompatible(
  */
 export function isQuickfilterCompatible(
   current: AttributionFilters,
-  quickfilter: SavedQuickfilter,
+  quickfilter: SavedAttributionQuickfilter,
 ): boolean {
   const currentValues = current.valueFilters;
   const incomingValues = quickfilter.filters.valueFilters;
@@ -89,7 +90,7 @@ const SCALAR_VALUE_FILTER_KEYS = [
  */
 export function areQuickfilterConditionsMet(
   current: AttributionFilters,
-  quickfilter: SavedQuickfilter,
+  quickfilter: SavedAttributionQuickfilter,
 ): boolean {
   const incoming = quickfilter.filters;
   const incomingValues = incoming.valueFilters;
@@ -142,6 +143,11 @@ export function quickfiltersConflict(
   first: SavedQuickfilter,
   second: SavedQuickfilter,
 ): boolean {
+  // Resource quickfilters combine by OR-ing booleans and unioning licenses;
+  // they never conflict.
+  if (first.scope === 'resource' || second.scope === 'resource') {
+    return false;
+  }
   if (
     first.filters.search &&
     second.filters.search &&
@@ -168,7 +174,7 @@ export function quickfiltersConflict(
  * are hidden from the menus.
  */
 export function isQuickfilterUsableInProject(
-  quickfilter: SavedQuickfilter,
+  quickfilter: SavedAttributionQuickfilter,
   {
     classificationIds,
     showClassifications,
@@ -218,7 +224,7 @@ function mergeLicenseOptions(
  */
 export function mergeQuickfilterIntoFilters(
   current: AttributionFilters,
-  quickfilter: SavedQuickfilter,
+  quickfilter: SavedAttributionQuickfilter,
   { replaceConflictingScalars = false } = {},
 ): AttributionFilters {
   const incoming = quickfilter.filters.valueFilters;
@@ -277,7 +283,7 @@ export function combineQuickfilters({
   sorting,
 }: {
   ids: Array<string>;
-  quickfilters: Array<SavedQuickfilter>;
+  quickfilters: Array<SavedAttributionQuickfilter>;
   sorting: AttributionFilters['sorting'];
 }): AttributionFilters {
   return quickfilters
@@ -289,8 +295,8 @@ export function combineQuickfilters({
     );
 }
 
-export function useQuickfilters(scope: QuickfilterScope): {
-  quickfilters: Array<SavedQuickfilter>;
+export function useQuickfilters(scope: Exclude<QuickfilterScope, 'resource'>): {
+  quickfilters: Array<SavedAttributionQuickfilter>;
   saveQuickfilter: (name: string, filters: AttributionFilters) => string;
   deleteQuickfilter: (id: string) => void;
   renameQuickfilter: (id: string, name: string) => void;
@@ -302,7 +308,8 @@ export function useQuickfilters(scope: QuickfilterScope): {
   const quickfilters = useMemo(
     () =>
       userSettings.savedQuickfilters.filter(
-        (quickfilter) => quickfilter.scope === scope,
+        (quickfilter): quickfilter is SavedAttributionQuickfilter =>
+          quickfilter.scope === scope,
       ),
     [userSettings.savedQuickfilters, scope],
   );

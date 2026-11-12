@@ -21,16 +21,9 @@ import {
   useState,
 } from 'react';
 
-import type {
-  QuickfilterScope,
-  SavedQuickfilter,
-} from '../../../shared/shared-types';
+import type { SavedQuickfilter } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
-import type { AttributionFilters } from '../../state/variables/use-filters';
-import {
-  quickfiltersConflict,
-  useQuickfilters,
-} from '../../state/variables/use-quickfilters';
+import { quickfiltersConflict } from '../../state/variables/use-quickfilters';
 import { Input } from '../Autocomplete/Autocomplete.style';
 import { styles } from './quickfilter-panels.style';
 
@@ -49,23 +42,22 @@ function handleActivationKeyDown(
 }
 
 function SaveQuickfilterPanel({
-  filters,
-  scope,
-  onSaved,
+  onSave,
   onCancel,
   onClose,
   id,
   initialFocusRef,
 }: {
-  filters: AttributionFilters;
-  scope: QuickfilterScope;
-  onSaved: (id: string) => void;
+  /**
+   * The panel hands the (non-empty, trimmed) name to the parent, which owns
+   * the actual saving and activation against the current filters.
+   */
+  onSave: (name: string) => void;
   onCancel?: () => void;
   onClose: () => void;
   id: string;
   initialFocusRef?: (element: HTMLElement | null) => void;
 }) {
-  const { saveQuickfilter } = useQuickfilters(scope);
   const [name, setName] = useState('');
   const trimmedName = name.trim();
   const cancel = onCancel ?? onClose;
@@ -73,8 +65,7 @@ function SaveQuickfilterPanel({
     if (!trimmedName) {
       return;
     }
-    const savedId = saveQuickfilter(trimmedName, filters);
-    onSaved(savedId);
+    onSave(trimmedName);
   };
 
   return (
@@ -117,37 +108,34 @@ function SaveQuickfilterPanel({
   );
 }
 
-export function QuickfiltersPanel({
+export function QuickfiltersPanel<T extends SavedQuickfilter>({
   quickfilters,
   incompatibleProjectIds = [],
   conflictingIds = [],
   activeQuickfilterIds,
   hasActiveFilters,
-  filters,
-  scope,
+  onSave,
   onApply,
   onDelete,
   onRename,
   onReorder,
   onClearAll,
-  onSaved,
   onClose,
   id,
   initialFocusRef,
 }: {
-  quickfilters: Array<SavedQuickfilter>;
+  quickfilters: Array<T>;
   incompatibleProjectIds?: Array<string>;
   conflictingIds?: Array<string>;
   activeQuickfilterIds: Array<string>;
   hasActiveFilters: boolean;
-  filters: AttributionFilters;
-  scope: QuickfilterScope;
-  onApply: (quickfilter: SavedQuickfilter) => void;
+  /** Called with a non-empty, trimmed name; the parent saves and activates. */
+  onSave: (name: string) => void;
+  onApply: (quickfilter: T) => void;
   onDelete: (id: string) => void;
   onRename: (id: string, name: string) => void;
   onReorder: (id: string, targetIndex: number) => void;
   onClearAll: () => void;
-  onSaved: (id: string) => void;
   onClose: () => void;
   id: string;
   initialFocusRef?: (element: HTMLElement | null) => void;
@@ -235,10 +223,8 @@ export function QuickfiltersPanel({
   if (isSaving) {
     return (
       <SaveQuickfilterPanel
-        filters={filters}
-        scope={scope}
-        onSaved={(savedId) => {
-          onSaved(savedId);
+        onSave={(name) => {
+          onSave(name);
           // Return to the list so the newly saved quickfilter is visible and
           // immediately active; the panel closes only on dismiss.
           setIsSaving(false);
@@ -452,6 +438,11 @@ export function QuickfiltersPanel({
         </Box>
       )}
       <Box sx={styles.list}>
+        {!quickfilters.length && !isSaving && !isEditing && (
+          <Typography sx={styles.emptyHint}>
+            {text.quickfilters.empty}
+          </Typography>
+        )}
         {isEditing
           ? quickfilters.map((quickfilter, index) => {
               const isDragged = effectiveDrag?.id === quickfilter.id;

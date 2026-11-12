@@ -447,6 +447,7 @@ export const text = {
   quickfilters: {
     title: 'Quickfilters',
     titleSelected: 'Quickfilters selected',
+    empty: 'No quickfilters saved yet',
     save: 'Save current filters…',
     saveHint: 'Some filters are selected — save them as a quickfilter',
     nameLabel: 'Quickfilter name',

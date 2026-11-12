@@ -2,7 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it } from 'vitest';
 
 import { deserializeAttributions } from '../ElectronBackend/input/parseInputData';
@@ -121,6 +122,59 @@ const multiLicenseData = getParsedInputFileEnrichedWithTestData({
 });
 
 describe('filtering resources', () => {
+  it('offers the quickfilters menu entry in the tree filter menu while filters are active', async () => {
+    await renderApp({ data });
+    await clickTreeFilterMenuButton();
+    await clickFilterMenuItem('Unreviewed');
+    // The menu stays open while toggling; the quickfilters entry follows.
+    expect(
+      screen.getByRole('menuitem', { name: text.quickfilters.title }),
+    ).toBeInTheDocument();
+  });
+
+  it('applies a saved resource quickfilter from the tree filter menu', async () => {
+    await renderApp({
+      data,
+      userSettings: {
+        savedQuickfilters: [
+          {
+            id: 'resource-quickfilter',
+            name: 'Ai deferred only',
+            lastUsedAt: 1,
+            scope: 'resource',
+            filters: {
+              onlyUnreviewedFiles: false,
+              onlyWithAiDeferredAttributions: true,
+              selectedLicenses: [],
+            },
+          },
+        ],
+      },
+    });
+    await clickTreeFilterMenuButton();
+    expect(
+      screen.getByRole('menuitem', { name: text.quickfilters.title }),
+    ).toBeInTheDocument();
+    await clickFilterMenuItem(text.quickfilters.title);
+    await userEvent.click(
+      await screen.findByRole('button', {
+        name: text.quickfilters.apply('Ai deferred only'),
+      }),
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', {
+          name: text.quickfilters.apply('Ai deferred only'),
+        }),
+      ).toHaveAttribute('aria-pressed', 'true');
+    });
+    await closeFilterMenu();
+    await expectResourceVisibility(
+      [deferredResourceName],
+      [aiNotDeferredResourceName, plainResourceName],
+    );
+  });
+
   it('filters the resource tree to unreviewed files', async () => {
     await renderApp({ data });
     await clickTreeFilterMenuButton();

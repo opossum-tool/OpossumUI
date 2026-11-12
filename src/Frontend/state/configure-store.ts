@@ -4,6 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 import { configureStore, type Middleware } from '@reduxjs/toolkit';
 
+import {
+  isAttributionQuickfilter,
+  isResourceQuickfilter,
+} from '../../shared/shared-types';
 import type { State } from '../types/types';
 import { isProductionBuild } from '../util/environment';
 import { SET_VARIABLE } from './actions/variables-actions/types';
@@ -14,12 +18,16 @@ import {
   type AttributionFilters,
   MANUAL_ATTRIBUTION_FILTERS_AUDIT,
   MANUAL_ATTRIBUTION_FILTERS_REPORT,
+  RESOURCE_TREE_FILTERS,
+  type ResourceTreeFilters,
 } from './variables/use-filters';
 import { areQuickfilterConditionsMet } from './variables/use-quickfilters';
+import { areResourceQuickfilterConditionsMet } from './variables/use-resource-quickfilters';
 
 const FILTER_VARIABLES_WITH_QUICKFILTERS = new Set<string>([
   MANUAL_ATTRIBUTION_FILTERS_AUDIT,
   MANUAL_ATTRIBUTION_FILTERS_REPORT,
+  RESOURCE_TREE_FILTERS,
 ]);
 
 /**
@@ -39,7 +47,8 @@ const pruneDeselectedQuickfilters: Middleware<unknown, State> =
       variableAction.name !== undefined &&
       FILTER_VARIABLES_WITH_QUICKFILTERS.has(variableAction.name)
     ) {
-      const filters = variableAction.value as AttributionFilters;
+      const filters = variableAction.value as AttributionFilters &
+        ResourceTreeFilters;
       const activeIds = filters?.activeQuickfilterIds;
       if (activeIds?.length) {
         const { savedQuickfilters } = store.getState().userSettingsState;
@@ -49,10 +58,23 @@ const pruneDeselectedQuickfilters: Middleware<unknown, State> =
           );
           // Unresolvable ids (e.g. just saved, persistence still pending) are
           // kept; only conditions we can check may deselect a quickfilter.
-          return (
-            quickfilter === undefined ||
-            areQuickfilterConditionsMet(filters, quickfilter)
-          );
+          if (quickfilter === undefined) {
+            return true;
+          }
+          // Attribution and resource quickfilters live in different filter
+          // variables; a quickfilter can only be deselected by changes to
+          // the variable kind it belongs to.
+          if (isResourceQuickfilter(quickfilter)) {
+            return variableAction.name === RESOURCE_TREE_FILTERS
+              ? areResourceQuickfilterConditionsMet(filters, quickfilter)
+              : true;
+          }
+          if (isAttributionQuickfilter(quickfilter)) {
+            return variableAction.name === RESOURCE_TREE_FILTERS
+              ? true
+              : areQuickfilterConditionsMet(filters, quickfilter);
+          }
+          return true;
         });
         if (keptIds.length !== activeIds.length) {
           return next(

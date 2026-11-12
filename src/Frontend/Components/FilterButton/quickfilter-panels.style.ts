@@ -46,6 +46,11 @@ export const styles = {
     flexShrink: 0,
   } satisfies SxProps<Theme>,
   titleButton: { p: Sizing.Tiny, flexShrink: 0 } satisfies SxProps<Theme>,
+  emptyHint: {
+    typography: 'body2',
+    color: OpossumColors.mediumGrey,
+    py: Sizing.SmallGap,
+  } satisfies SxProps<Theme>,
   list: {
     display: 'flex',
     flexDirection: 'column',
