@@ -2,6 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { useCallback, useEffect } from 'react';
+
 import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
@@ -15,11 +17,17 @@ interface ErrorPopupProps {
 export const ErrorPopup: React.FC<ErrorPopupProps> = (props) => {
   const dispatch = useAppDispatch();
 
-  function close(): void {
+  const close = useCallback((): void => {
     dispatch(closePopup());
-  }
+  }, [dispatch]);
 
-  setTimeout(() => close(), TIME_POPUP_IS_DISPLAYED);
+  useEffect(() => {
+    const timeout = setTimeout(
+      () => dispatch(closePopup()),
+      TIME_POPUP_IS_DISPLAYED,
+    );
+    return () => clearTimeout(timeout);
+  }, [dispatch]);
 
   return (
     <NotificationPopup
