@@ -79,6 +79,15 @@ export const styles = {
     cursor: 'default',
     '&:hover': { bgcolor: 'transparent' },
   } satisfies SxProps<Theme>,
+  // Conflicting quickfilters stay clickable and look like normal rows; the
+  // mid-red warning sign (see conflictIcon) announces that applying them
+  // overwrites the clashing scalar filters.
+  conflictIcon: {
+    width: checkIconSize,
+    height: checkIconSize,
+    flexShrink: 0,
+    color: OpossumColors.midRed,
+  } satisfies SxProps<Theme>,
   label: {
     minWidth: 0,
     flex: 1,

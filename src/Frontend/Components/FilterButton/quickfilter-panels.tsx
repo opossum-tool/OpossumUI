@@ -10,6 +10,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import EditIcon from '@mui/icons-material/Edit';
 import EditOffIcon from '@mui/icons-material/EditOff';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { Box, Button, IconButton, Typography } from '@mui/material';
 import MuiTooltip from '@mui/material/Tooltip';
 import {
@@ -26,7 +27,10 @@ import type {
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import type { AttributionFilters } from '../../state/variables/use-filters';
-import { useQuickfilters } from '../../state/variables/use-quickfilters';
+import {
+  quickfiltersConflict,
+  useQuickfilters,
+} from '../../state/variables/use-quickfilters';
 import { Input } from '../Autocomplete/Autocomplete.style';
 import { styles } from './quickfilter-panels.style';
 
@@ -588,35 +592,54 @@ export function QuickfiltersPanel({
             })
           : quickfilters.map((quickfilter) => {
               const active = activeQuickfilterIds.includes(quickfilter.id);
-              // Active quickfilters can always be removed; conflicts with the
-              // current filters only prevent applying them. Quickfilters that the
-              // project or settings cannot express stay disabled like before.
-              const disabledReason = (() => {
-                if (incompatibleProjectIds.includes(quickfilter.id)) {
-                  return text.quickfilters.incompatibleWithProject;
+              // Quickfilters that the project or settings cannot express
+              // cannot be applied at all. Conflicting quickfilters apply and
+              // overwrite the clashing scalar filters; they warn about that
+              // in the tooltip.
+              const inapplicableReason = incompatibleProjectIds.includes(
+                quickfilter.id,
+              )
+                ? text.quickfilters.incompatibleWithProject
+                : undefined;
+              const conflicting =
+                !active && conflictingIds.includes(quickfilter.id);
+              const conflictWarning = ((): string | undefined => {
+                if (!conflicting) {
+                  return undefined;
                 }
-                if (!active && conflictingIds.includes(quickfilter.id)) {
-                  return text.quickfilters.conflictsWithFilters;
-                }
-                return undefined;
+                const names = quickfilters
+                  .filter(
+                    (other) =>
+                      activeQuickfilterIds.includes(other.id) &&
+                      quickfiltersConflict(other, quickfilter),
+                  )
+                  .map(({ name }) => `'${name}'`)
+                  .join(' and ');
+                return names
+                  ? text.quickfilters.replacesQuickfilters(names)
+                  : text.quickfilters.replacesConflictingFilters;
               })();
               const apply = (): void => {
-                if (disabledReason === undefined) {
+                if (!inapplicableReason) {
                   onApply(quickfilter);
                 }
               };
               return (
-                <MuiTooltip key={quickfilter.id} title={disabledReason ?? ''}>
+                <MuiTooltip
+                  key={quickfilter.id}
+                  title={inapplicableReason ?? conflictWarning ?? ''}
+                >
                   <Box
                     role="button"
                     tabIndex={0}
                     aria-label={text.quickfilters.apply(quickfilter.name)}
                     aria-pressed={active}
-                    aria-disabled={disabledReason !== undefined}
+                    aria-disabled={inapplicableReason !== undefined}
                     sx={[
                       styles.row,
                       active && styles.selectedRow,
-                      disabledReason !== undefined && styles.inapplicableRow,
+                      inapplicableReason !== undefined &&
+                        styles.inapplicableRow,
                     ]}
                     onClick={apply}
                     onKeyDown={(event) => {
@@ -640,10 +663,17 @@ export function QuickfiltersPanel({
                     >
                       {quickfilter.name}
                     </Box>
-                    <CheckIcon
-                      fontSize="small"
-                      sx={[styles.checkIcon, !active && styles.hiddenIcon]}
-                    />
+                    {conflicting ? (
+                      <WarningAmberIcon
+                        fontSize="small"
+                        sx={styles.conflictIcon}
+                      />
+                    ) : (
+                      <CheckIcon
+                        fontSize="small"
+                        sx={[styles.checkIcon, !active && styles.hiddenIcon]}
+                      />
+                    )}
                   </Box>
                 </MuiTooltip>
               );

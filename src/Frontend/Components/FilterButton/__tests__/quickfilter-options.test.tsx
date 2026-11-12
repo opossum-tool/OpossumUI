@@ -47,6 +47,42 @@ describe('quickfilters in the filter menu', () => {
     await userEvent.keyboard('{Escape}');
   });
 
+  it('lets the user save a quickfilter when only the search box filter is active', async () => {
+    const { store } = await renderQuickfilterButton();
+    store.dispatch(
+      setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+        ...initialAttributionFilters,
+        search: 'react',
+      }),
+    );
+
+    await openFilterMenu();
+    const entry = screen.getByRole('menuitem', {
+      name: text.quickfilters.title,
+    });
+    expect(within(entry).getByTestId('BookmarkAddIcon')).toBeInTheDocument();
+
+    const panel = await openQuickfiltersPanelFromMenu();
+    await userEvent.click(
+      within(panel).getByRole('button', { name: text.quickfilters.save }),
+    );
+    await userEvent.type(
+      screen.getByRole('textbox', { name: text.quickfilters.nameLabel }),
+      'React quickfilter',
+    );
+    await userEvent.keyboard('{Enter}');
+
+    const savedQuickfilter = store
+      .getState()
+      .userSettingsState.savedQuickfilters.at(0);
+    expect(savedQuickfilter?.name).toBe('React quickfilter');
+    expect(savedQuickfilter?.filters).toEqual({
+      filters: [],
+      search: 'react',
+      valueFilters: {},
+    });
+  });
+
   it('highlights the quickfilters entry while manual filters are active and explains why on hover', async () => {
     await renderQuickfilterButton();
 
@@ -578,7 +614,7 @@ describe('quickfilters in the filter menu', () => {
     expect(row(panel, 'Second')).toHaveAttribute('aria-pressed', 'false');
   });
 
-  it('disables conflicting quickfilters with a tooltip and ignores applying them', async () => {
+  it('applies a conflicting quickfilter and replaces the conflicting quickfilter', async () => {
     const first = makeQuickfilter({
       name: 'React search',
       filters: { filters: [], search: 'react', valueFilters: {} },
@@ -594,23 +630,67 @@ describe('quickfilters in the filter menu', () => {
     const panel = await openQuickfiltersPanel();
     await userEvent.click(row(panel, 'React search'));
     const conflictingRow = row(panel, 'Vue search');
+    expect(conflictingRow).not.toHaveAttribute('aria-disabled', 'true');
+    // Conflicts are announced by a warning sign instead of greying out the
+    // clickable row.
     expect(
-      within(panel).getByRole('button', {
-        name: text.quickfilters.apply('React search'),
-      }),
-    ).not.toHaveAttribute('aria-disabled', 'true');
-
-    expect(conflictingRow).toHaveAttribute('aria-disabled', 'true');
+      within(conflictingRow).getByTestId('WarningAmberIcon'),
+    ).toBeVisible();
+    expect(getComputedStyle(conflictingRow).opacity).not.toBe('0.5');
     await userEvent.hover(conflictingRow);
     expect(
-      await screen.findByText(text.quickfilters.conflictsWithFilters),
+      await screen.findByText(
+        text.quickfilters.replacesQuickfilters("'React search'"),
+      ),
     ).toBeInTheDocument();
 
     await userEvent.click(conflictingRow);
-    expect(panel).toBeInTheDocument();
     expect(
       store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
-    ).toMatchObject({ search: 'react' });
+    ).toEqual({
+      filters: [],
+      search: 'vue',
+      valueFilters: {},
+      sorting: 'alphabetically',
+      activeQuickfilterIds: [second.id],
+    });
+    expect(row(panel, 'Vue search')).toHaveAttribute('aria-pressed', 'true');
+    expect(row(panel, 'React search')).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('applies a quickfilter conflicting with manual filters and clears only the clashing filters', async () => {
+    const candidate = makeQuickfilter({
+      name: 'Vue search',
+      filters: { filters: [], search: 'vue', valueFilters: {} },
+    });
+    const { store } = await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [candidate] }),
+    ]);
+    store.dispatch(
+      setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+        ...initialAttributionFilters,
+        filters: ['firstParty'],
+        search: 'react',
+      }),
+    );
+
+    const panel = await openQuickfiltersPanel();
+    const conflictingRow = row(panel, 'Vue search');
+    await userEvent.hover(conflictingRow);
+    expect(
+      await screen.findByText(text.quickfilters.replacesConflictingFilters),
+    ).toBeInTheDocument();
+
+    await userEvent.click(conflictingRow);
+    expect(
+      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toEqual({
+      filters: ['firstParty'],
+      search: 'vue',
+      valueFilters: {},
+      sorting: 'alphabetically',
+      activeQuickfilterIds: [candidate.id],
+    });
   });
 
   it('disables quickfilters with classifications the project does not define', async () => {

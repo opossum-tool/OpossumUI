@@ -445,7 +445,9 @@ export const text = {
     saveAction: 'Save',
     incompatibleWithProject:
       'Quickfilter incompatible with current project/settings',
-    conflictsWithFilters: 'Quickfilter conflicts with current filters',
+    replacesQuickfilters: (names: string) =>
+      `Applying this replaces the filters of ${names}`,
+    replacesConflictingFilters: 'Applying this clears conflicting filters',
     apply: (name: string) => `Apply quickfilter ${name}`,
     delete: (name: string) => `Delete quickfilter ${name}`,
     deleteIconLabel: 'Delete quickfilter',

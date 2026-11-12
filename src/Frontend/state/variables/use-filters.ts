@@ -97,10 +97,15 @@ export function toAttributionValueFilters(
 
 export function hasActiveAttributionFilters({
   filters,
+  search,
   valueFilters,
 }: AttributionFilters): boolean {
+  // The search box of the packages/signal panels filters the list just like
+  // the menu filters, so it counts as an active filter (e.g. when deciding
+  // whether a quickfilter can be saved).
   return (
     !!filters.length ||
+    !!search ||
     Object.values(valueFilters).some((value) =>
       Array.isArray(value) ? value.length > 0 : value !== undefined,
     )

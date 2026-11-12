@@ -133,6 +133,34 @@ function mergeUnique<T>(current: Array<T>, incoming: Array<T>): Array<T> {
 }
 
 /**
+ * Whether the two quickfilters cannot be applied together because both
+ * define a scalar filter (search text, classification, criticality,
+ * incomplete coordinates/legal) with different values. Filter keys and
+ * license conditions always combine by union and never conflict.
+ */
+export function quickfiltersConflict(
+  first: SavedQuickfilter,
+  second: SavedQuickfilter,
+): boolean {
+  if (
+    first.filters.search &&
+    second.filters.search &&
+    first.filters.search !== second.filters.search
+  ) {
+    return true;
+  }
+  return SCALAR_VALUE_FILTER_KEYS.some((key) => {
+    const firstScalar = first.filters.valueFilters[key];
+    const secondScalar = second.filters.valueFilters[key];
+    return (
+      firstScalar !== undefined &&
+      secondScalar !== undefined &&
+      firstScalar !== secondScalar
+    );
+  });
+}
+
+/**
  * Whether a quickfilter fits the current project and settings. Classification
  * ids are project-local, so a saved classification that the current project
  * does not define cannot be expressed here; classification and criticality
@@ -181,19 +209,41 @@ function mergeLicenseOptions(
  * licenses, and license searches combine by union; scalar value filters and
  * the search text keep the current value unless it is unset. Compatibility
  * is assumed and must be checked with {@link isQuickfilterCompatible}.
+ *
+ * With `replaceConflictingScalars`, scalar fields defined by the quickfilter
+ * win over the current values instead. This resolves conflicts detected by
+ * {@link isQuickfilterCompatible}: applying a quickfilter that clashes with
+ * the current search text or scalar value filter overwrites exactly those
+ * values and keeps everything else.
  */
 export function mergeQuickfilterIntoFilters(
   current: AttributionFilters,
   quickfilter: SavedQuickfilter,
+  { replaceConflictingScalars = false } = {},
 ): AttributionFilters {
   const incoming = quickfilter.filters.valueFilters;
   const currentValues = current.valueFilters;
+  const pickScalar = <T>(
+    incomingScalar: T | undefined,
+    currentScalar: T | undefined,
+  ): T | undefined =>
+    replaceConflictingScalars
+      ? (incomingScalar ?? currentScalar)
+      : (currentScalar ?? incomingScalar);
   const mergedValueFilters: AttributionFilters['valueFilters'] = {
-    classification: currentValues.classification ?? incoming.classification,
-    criticality: currentValues.criticality ?? incoming.criticality,
-    incompleteCoordinates:
-      currentValues.incompleteCoordinates ?? incoming.incompleteCoordinates,
-    incompleteLegal: currentValues.incompleteLegal ?? incoming.incompleteLegal,
+    classification: pickScalar(
+      incoming.classification,
+      currentValues.classification,
+    ),
+    criticality: pickScalar(incoming.criticality, currentValues.criticality),
+    incompleteCoordinates: pickScalar(
+      incoming.incompleteCoordinates,
+      currentValues.incompleteCoordinates,
+    ),
+    incompleteLegal: pickScalar(
+      incoming.incompleteLegal,
+      currentValues.incompleteLegal,
+    ),
     license: mergeLicenseOptions(currentValues.license, incoming.license),
   };
   const mergedLicenseSearches = mergeUnique(
@@ -207,7 +257,9 @@ export function mergeQuickfilterIntoFilters(
   return {
     ...current,
     filters: mergeUnique(current.filters, quickfilter.filters.filters),
-    search: current.search || quickfilter.filters.search,
+    search: replaceConflictingScalars
+      ? quickfilter.filters.search || current.search
+      : current.search || quickfilter.filters.search,
     valueFilters: mergedValueFilters,
     activeQuickfilterIds: mergeUnique(current.activeQuickfilterIds ?? [], [
       quickfilter.id,
