@@ -40,8 +40,12 @@ export function useQuickfilterOptions({
   setFilters: SetFilters;
   scope: QuickfilterScope;
 }): Array<FilterOption> {
-  const { quickfilters, deleteQuickfilter, reorderQuickfilter } =
-    useQuickfilters(scope);
+  const {
+    quickfilters,
+    deleteQuickfilter,
+    renameQuickfilter,
+    reorderQuickfilter,
+  } = useQuickfilters(scope);
   const classifications = useClassifications();
   const [userSettings] = useUserSettings();
   const hasActiveFilters = hasActiveAttributionFilters(filters);
@@ -90,6 +94,19 @@ export function useQuickfilterOptions({
       setFilters(
         combineQuickfilters({
           ids: activeIds.filter((id) => id !== quickfilter.id),
+          quickfilters,
+          sorting: filters.sorting,
+        }),
+      );
+    };
+
+    // Same rebuild semantics as removing a single quickfilter: everything
+    // the quickfilters contributed is dropped, manual filters on top go with
+    // it, and the sorting is kept.
+    const clearAllQuickfilters = (): void => {
+      setFilters(
+        combineQuickfilters({
+          ids: [],
           quickfilters,
           sorting: filters.sorting,
         }),
@@ -149,7 +166,9 @@ export function useQuickfilterOptions({
               .map(({ id }) => id)}
             onApply={applyQuickfilter}
             onDelete={deleteQuickfilter}
+            onRename={renameQuickfilter}
             onReorder={reorderQuickfilter}
+            onClearAll={clearAllQuickfilters}
             onSaved={activateSavedQuickfilter}
             onClose={onClose}
             initialFocusRef={initialFocusRef}
@@ -165,6 +184,7 @@ export function useQuickfilterOptions({
     hasActiveFilters,
     scope,
     deleteQuickfilter,
+    renameQuickfilter,
     reorderQuickfilter,
   ]);
 }

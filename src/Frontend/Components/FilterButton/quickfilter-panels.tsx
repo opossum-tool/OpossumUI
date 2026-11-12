@@ -9,6 +9,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import EditIcon from '@mui/icons-material/Edit';
+import EditOffIcon from '@mui/icons-material/EditOff';
 import { Box, Button, IconButton, Typography } from '@mui/material';
 import MuiTooltip from '@mui/material/Tooltip';
 import {
@@ -122,7 +123,9 @@ export function QuickfiltersPanel({
   scope,
   onApply,
   onDelete,
+  onRename,
   onReorder,
+  onClearAll,
   onSaved,
   onClose,
   id,
@@ -137,7 +140,9 @@ export function QuickfiltersPanel({
   scope: QuickfilterScope;
   onApply: (quickfilter: SavedQuickfilter) => void;
   onDelete: (id: string) => void;
+  onRename: (id: string, name: string) => void;
   onReorder: (id: string, targetIndex: number) => void;
+  onClearAll: () => void;
   onSaved: (id: string) => void;
   onClose: () => void;
   id: string;
@@ -146,6 +151,11 @@ export function QuickfiltersPanel({
   const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const rowElementsRef = useRef(new Map<string, HTMLDivElement>());
+  // Mirrors the renaming state in a ref so blur/Escape handlers can never
+  // commit a rename that was just cancelled.
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renamingName, setRenamingName] = useState('');
+  const renamingIdRef = useRef<string | null>(null);
   // During a drag the row order stays untouched; the dragged row follows the
   // pointer visually and the reorder is committed on drop. After the drop,
   // the transforms stay in their final configuration until the reordered
@@ -335,23 +345,74 @@ export function QuickfiltersPanel({
       onReorder(activeDrag.id, activeDrag.targetIndex);
     }
   };
+  const startRename = (quickfilter: SavedQuickfilter): void => {
+    renamingIdRef.current = quickfilter.id;
+    setRenamingId(quickfilter.id);
+    setRenamingName(quickfilter.name);
+  };
+
+  const endRename = (): void => {
+    renamingIdRef.current = null;
+    setRenamingId(null);
+  };
+
+  const commitRename = (): void => {
+    const id = renamingIdRef.current;
+    if (id === null) {
+      return;
+    }
+    const trimmedName = renamingName.trim();
+    const original = quickfilters.find((quickfilter) => quickfilter.id === id);
+    if (original && trimmedName && trimmedName !== original.name) {
+      onRename(id, trimmedName);
+    }
+    endRename();
+  };
+
+  const cancelRename = (): void => {
+    endRename();
+  };
 
   const titleRow = (
     <Box sx={styles.titleRow}>
       <Typography sx={styles.title}>{text.quickfilters.title}</Typography>
-      <IconButton
-        size={'small'}
-        aria-label={
-          isEditing ? text.quickfilters.finishEditing : text.quickfilters.edit
-        }
-        onClick={() => setIsEditing((editing) => !editing)}
-        sx={styles.titleButton}
-      >
-        <EditIcon fontSize={'small'} />
-      </IconButton>
+      <Box sx={styles.titleActions}>
+        <Button
+          size="small"
+          aria-label={text.quickfilters.clearAllLabel}
+          sx={styles.clearButton}
+          disabled={!activeQuickfilterIds.length}
+          onClick={onClearAll}
+        >
+          {text.quickfilters.clearAll}
+        </Button>
+        <MuiTooltip
+          title={
+            isEditing ? text.quickfilters.finishEditing : text.quickfilters.edit
+          }
+          disableInteractive
+          placement={'bottom'}
+        >
+          <IconButton
+            size={'small'}
+            aria-label={
+              isEditing
+                ? text.quickfilters.finishEditing
+                : text.quickfilters.edit
+            }
+            onClick={() => setIsEditing((editing) => !editing)}
+            sx={styles.titleButton}
+          >
+            {isEditing ? (
+              <EditOffIcon fontSize={'small'} />
+            ) : (
+              <EditIcon fontSize={'small'} />
+            )}
+          </IconButton>
+        </MuiTooltip>
+      </Box>
     </Box>
   );
-
   return (
     <Box
       id={id}
@@ -386,161 +447,208 @@ export function QuickfiltersPanel({
           </Box>
         </Box>
       )}
-      {isEditing
-        ? quickfilters.map((quickfilter, index) => {
-            const isDragged = effectiveDrag?.id === quickfilter.id;
-            // Rows between the dragged row and its target slot glide aside
-            // to make room for it, by exactly one slot pitch so that they
-            // already rest on the positions they will occupy after the drop.
-            let shiftY = 0;
-            if (effectiveDrag && !isDragged) {
-              const { fromIndex, targetIndex, rowPitch } = effectiveDrag;
-              if (
-                fromIndex < targetIndex &&
-                index > fromIndex &&
-                index <= targetIndex
-              ) {
-                shiftY = -rowPitch;
-              } else if (
-                fromIndex > targetIndex &&
-                index >= targetIndex &&
-                index < fromIndex
-              ) {
-                shiftY = rowPitch;
+      <Box sx={styles.list}>
+        {isEditing
+          ? quickfilters.map((quickfilter, index) => {
+              const isDragged = effectiveDrag?.id === quickfilter.id;
+              // Rows between the dragged row and its target slot glide aside
+              // to make room for it, by exactly one slot pitch so that they
+              // already rest on the positions they will occupy after the drop.
+              let shiftY = 0;
+              if (effectiveDrag && !isDragged) {
+                const { fromIndex, targetIndex, rowPitch } = effectiveDrag;
+                if (
+                  fromIndex < targetIndex &&
+                  index > fromIndex &&
+                  index <= targetIndex
+                ) {
+                  shiftY = -rowPitch;
+                } else if (
+                  fromIndex > targetIndex &&
+                  index >= targetIndex &&
+                  index < fromIndex
+                ) {
+                  shiftY = rowPitch;
+                }
               }
-            }
-            return (
-              <Box
-                key={quickfilter.id}
-                ref={(element: HTMLDivElement | null) => {
-                  if (element) {
-                    rowElementsRef.current.set(quickfilter.id, element);
-                  } else {
-                    rowElementsRef.current.delete(quickfilter.id);
-                  }
-                }}
-                sx={[
-                  styles.editRow,
-                  // Only rows gliding aside animate; the dragged row itself
-                  // must track the pointer exactly, and drops commit without
-                  // any transition so nothing flickers.
-                  effectiveDrag && !isDragged ? styles.smoothRow : false,
-                  shiftY !== 0 && styles.shiftedRow,
-                  isDragged && styles.draggingRow,
-                ]}
-                style={{
-                  transform: `translateY(${
-                    isDragged ? (effectiveDrag?.pointerDeltaY ?? 0) : shiftY
-                  }px)`,
-                }}
-              >
+              return (
                 <Box
-                  component="span"
-                  role="button"
-                  tabIndex={0}
-                  aria-label={text.quickfilters.reorder(quickfilter.name)}
-                  sx={[styles.dragHandle, isDragged && styles.dragHandleActive]}
-                  onPointerDown={(event) => startDrag(event, quickfilter)}
-                  onPointerMove={handleDragPointerMove}
-                  onPointerUp={endDrag}
-                  onPointerCancel={endDrag}
-                  onKeyDown={(event) => {
-                    const index = quickfilters.findIndex(
-                      ({ id }) => id === quickfilter.id,
-                    );
-                    if (event.key === 'ArrowUp' && index > 0) {
-                      event.preventDefault();
-                      onReorder(quickfilter.id, index - 1);
-                    } else if (
-                      event.key === 'ArrowDown' &&
-                      index < quickfilters.length - 1
-                    ) {
-                      event.preventDefault();
-                      onReorder(quickfilter.id, index + 1);
-                    }
-                  }}
-                >
-                  <DragIndicatorIcon
-                    fontSize={'small'}
-                    sx={styles.dragHandleIcon}
-                  />
-                </Box>
-                <Box component="span" sx={styles.label}>
-                  {quickfilter.name}
-                </Box>
-                <IconButton
-                  size={'small'}
-                  aria-label={text.quickfilters.delete(quickfilter.name)}
-                  onClick={() => onDelete(quickfilter.id)}
-                  sx={styles.editButton}
-                >
-                  <DeleteIcon fontSize={'small'} />
-                </IconButton>
-              </Box>
-            );
-          })
-        : quickfilters.map((quickfilter) => {
-            const active = activeQuickfilterIds.includes(quickfilter.id);
-            // Active quickfilters can always be removed; conflicts with the
-            // current filters only prevent applying them. Quickfilters that the
-            // project or settings cannot express stay disabled like before.
-            const disabledReason = (() => {
-              if (incompatibleProjectIds.includes(quickfilter.id)) {
-                return text.quickfilters.incompatibleWithProject;
-              }
-              if (!active && conflictingIds.includes(quickfilter.id)) {
-                return text.quickfilters.conflictsWithFilters;
-              }
-              return undefined;
-            })();
-            const apply = (): void => {
-              if (disabledReason === undefined) {
-                onApply(quickfilter);
-              }
-            };
-            return (
-              <MuiTooltip key={quickfilter.id} title={disabledReason ?? ''}>
-                <Box
-                  role="button"
-                  tabIndex={0}
-                  aria-label={text.quickfilters.apply(quickfilter.name)}
-                  aria-pressed={active}
-                  aria-disabled={disabledReason !== undefined}
-                  sx={[
-                    styles.row,
-                    active && styles.selectedRow,
-                    disabledReason !== undefined && styles.inapplicableRow,
-                  ]}
-                  onClick={apply}
-                  onKeyDown={(event) => {
-                    if (event.key === 'ArrowLeft') {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      onClose();
+                  key={quickfilter.id}
+                  ref={(element: HTMLDivElement | null) => {
+                    if (element) {
+                      rowElementsRef.current.set(quickfilter.id, element);
                     } else {
-                      handleActivationKeyDown(event, apply);
+                      rowElementsRef.current.delete(quickfilter.id);
                     }
                   }}
+                  sx={[
+                    styles.editRow,
+                    // Only rows gliding aside animate; the dragged row itself
+                    // must track the pointer exactly, and drops commit without
+                    // any transition so nothing flickers.
+                    effectiveDrag && !isDragged ? styles.smoothRow : false,
+                    shiftY !== 0 && styles.shiftedRow,
+                    isDragged && styles.draggingRow,
+                  ]}
+                  style={{
+                    transform: `translateY(${
+                      isDragged ? (effectiveDrag?.pointerDeltaY ?? 0) : shiftY
+                    }px)`,
+                  }}
                 >
-                  {active ? (
-                    <BookmarkIcon fontSize="small" sx={styles.icon} />
+                  {renamingId === quickfilter.id ? (
+                    <Input
+                      autoFocus
+                      size="small"
+                      variant="outlined"
+                      numberOfEndAdornments={0}
+                      value={renamingName}
+                      onChange={(event) => setRenamingName(event.target.value)}
+                      slotProps={{
+                        htmlInput: {
+                          'aria-label': text.quickfilters.nameLabel,
+                        },
+                      }}
+                      sx={styles.renameInput}
+                      onBlur={commitRename}
+                      onKeyDown={(event) => {
+                        if (
+                          event.key === 'Enter' &&
+                          !event.nativeEvent.isComposing
+                        ) {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          commitRename();
+                        } else if (event.key === 'Escape') {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          cancelRename();
+                        }
+                      }}
+                    />
                   ) : (
-                    <BookmarkBorderIcon fontSize="small" sx={styles.icon} />
+                    <>
+                      <Box
+                        component="span"
+                        role="button"
+                        tabIndex={0}
+                        aria-label={text.quickfilters.reorder(quickfilter.name)}
+                        sx={[
+                          styles.dragHandle,
+                          isDragged && styles.dragHandleActive,
+                        ]}
+                        onPointerDown={(event) => startDrag(event, quickfilter)}
+                        onPointerMove={handleDragPointerMove}
+                        onPointerUp={endDrag}
+                        onPointerCancel={endDrag}
+                        onKeyDown={(event) => {
+                          const index = quickfilters.findIndex(
+                            ({ id }) => id === quickfilter.id,
+                          );
+                          if (event.key === 'ArrowUp' && index > 0) {
+                            event.preventDefault();
+                            onReorder(quickfilter.id, index - 1);
+                          } else if (
+                            event.key === 'ArrowDown' &&
+                            index < quickfilters.length - 1
+                          ) {
+                            event.preventDefault();
+                            onReorder(quickfilter.id, index + 1);
+                          }
+                        }}
+                      >
+                        <DragIndicatorIcon
+                          fontSize={'small'}
+                          sx={styles.dragHandleIcon}
+                        />
+                      </Box>
+                      <Box component="span" sx={styles.label}>
+                        {quickfilter.name}
+                      </Box>
+                      <IconButton
+                        size={'small'}
+                        aria-label={text.quickfilters.rename(quickfilter.name)}
+                        onClick={() => startRename(quickfilter)}
+                        sx={styles.editButton}
+                      >
+                        <EditIcon fontSize={'small'} />
+                      </IconButton>
+                      <IconButton
+                        size={'small'}
+                        aria-label={text.quickfilters.delete(quickfilter.name)}
+                        onClick={() => onDelete(quickfilter.id)}
+                        sx={styles.editButton}
+                      >
+                        <DeleteIcon fontSize={'small'} />
+                      </IconButton>
+                    </>
                   )}
-                  <Box
-                    component="span"
-                    sx={[styles.label, active && styles.activeLabel]}
-                  >
-                    {quickfilter.name}
-                  </Box>
-                  <CheckIcon
-                    fontSize="small"
-                    sx={[styles.checkIcon, !active && styles.hiddenIcon]}
-                  />
                 </Box>
-              </MuiTooltip>
-            );
-          })}
+              );
+            })
+          : quickfilters.map((quickfilter) => {
+              const active = activeQuickfilterIds.includes(quickfilter.id);
+              // Active quickfilters can always be removed; conflicts with the
+              // current filters only prevent applying them. Quickfilters that the
+              // project or settings cannot express stay disabled like before.
+              const disabledReason = (() => {
+                if (incompatibleProjectIds.includes(quickfilter.id)) {
+                  return text.quickfilters.incompatibleWithProject;
+                }
+                if (!active && conflictingIds.includes(quickfilter.id)) {
+                  return text.quickfilters.conflictsWithFilters;
+                }
+                return undefined;
+              })();
+              const apply = (): void => {
+                if (disabledReason === undefined) {
+                  onApply(quickfilter);
+                }
+              };
+              return (
+                <MuiTooltip key={quickfilter.id} title={disabledReason ?? ''}>
+                  <Box
+                    role="button"
+                    tabIndex={0}
+                    aria-label={text.quickfilters.apply(quickfilter.name)}
+                    aria-pressed={active}
+                    aria-disabled={disabledReason !== undefined}
+                    sx={[
+                      styles.row,
+                      active && styles.selectedRow,
+                      disabledReason !== undefined && styles.inapplicableRow,
+                    ]}
+                    onClick={apply}
+                    onKeyDown={(event) => {
+                      if (event.key === 'ArrowLeft') {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        onClose();
+                      } else {
+                        handleActivationKeyDown(event, apply);
+                      }
+                    }}
+                  >
+                    {active ? (
+                      <BookmarkIcon fontSize="small" sx={styles.icon} />
+                    ) : (
+                      <BookmarkBorderIcon fontSize="small" sx={styles.icon} />
+                    )}
+                    <Box
+                      component="span"
+                      sx={[styles.label, active && styles.activeLabel]}
+                    >
+                      {quickfilter.name}
+                    </Box>
+                    <CheckIcon
+                      fontSize="small"
+                      sx={[styles.checkIcon, !active && styles.hiddenIcon]}
+                    />
+                  </Box>
+                </MuiTooltip>
+              );
+            })}
+      </Box>
     </Box>
   );
 }
