@@ -175,10 +175,6 @@ describe('MergeOpossumFilesDialog', () => {
       actions: [openMergeOpossumFilesDialog(false)],
     });
 
-    expect(getDeleteSplitFilesSwitch()).toBeChecked();
-    await userEvent.click(getDeleteSplitFilesSwitch());
-    expect(getDeleteSplitFilesSwitch()).not.toBeChecked();
-
     fireEvent.click(
       screen.getByTestId('merge-opossum-files-input-paths-input'),
     );
@@ -187,6 +183,11 @@ describe('MergeOpossumFilesDialog', () => {
       screen.getByTestId('merge-opossum-files-output-path-input'),
     );
     expect(await screen.findByText(outputFilePath)).toBeInTheDocument();
+
+    expect(getDeleteSplitFilesSwitch(2)).toBeChecked();
+    await userEvent.click(getDeleteSplitFilesSwitch(2));
+    expect(getDeleteSplitFilesSwitch(2)).not.toBeChecked();
+
     fireEvent.click(screen.getByRole('button', { name: text.buttons.merge }));
 
     await waitFor(() =>
@@ -366,8 +367,10 @@ function getMergeIntoCurrentProjectSwitch(): HTMLElement {
   });
 }
 
-function getDeleteSplitFilesSwitch(): HTMLElement {
+function getDeleteSplitFilesSwitch(splitFilesCount: number): HTMLElement {
   return screen.getByRole('switch', {
-    name: text.mergeOpossumFilesDialog.deleteSplitFilesAfterMerge,
+    name: text.mergeOpossumFilesDialog.deleteSplitFilesAfterMerge(
+      splitFilesCount,
+    ),
   });
 }
