@@ -5,7 +5,6 @@
 import type { SxProps, Theme } from '@mui/material/styles';
 
 import {
-  auditingOptionIconSize,
   borderThin,
   checkIconSize,
   OpossumColors,
@@ -120,9 +119,17 @@ export const styles = {
     cursor: 'grabbing',
   } satisfies SxProps<Theme>,
   dragHandleIcon: {
-    fontSize: auditingOptionIconSize,
+    // Same slot size as the bookmark icon in the apply view so the rows keep
+    // their height and the label keeps its width when toggling the edit view.
+    fontSize: checkIconSize,
   } satisfies SxProps<Theme>,
-  editButton: { p: Sizing.Tiny, flexShrink: 0 } satisfies SxProps<Theme>,
+  editButton: {
+    // Sized to the icon slot so rows stay as compact as in the apply view.
+    p: 0,
+    width: checkIconSize,
+    height: checkIconSize,
+    flexShrink: 0,
+  } satisfies SxProps<Theme>,
   actions: {
     display: 'flex',
     justifyContent: 'flex-end',

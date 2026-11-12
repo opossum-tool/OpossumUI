@@ -10,6 +10,7 @@ import {
   fetchUserSettings,
   setUserSetting,
   updateUserSettings,
+  updateUserSettingsOptimistically,
 } from '../user-settings-actions';
 
 describe('user-settings-actions', () => {
@@ -67,5 +68,45 @@ describe('user-settings-actions', () => {
       store.dispatch(updateUserSettings({ qaMode: true })),
     ).rejects.toBe(error);
     expect(store.getState().userSettingsState.qaMode).toBe(false);
+  });
+
+  describe('updateUserSettingsOptimistically', () => {
+    it('applies the update before it has been persisted and persists it', async () => {
+      const store = createAppStore();
+      const { promise, resolve } = Promise.withResolvers<void>();
+      vi.mocked(window.electronAPI.updateUserSettings).mockReturnValueOnce(
+        promise,
+      );
+
+      const saving = store.dispatch(
+        updateUserSettingsOptimistically({ qaMode: true }),
+      );
+
+      expect(store.getState().userSettingsState.qaMode).toBe(true);
+
+      resolve();
+      await saving;
+      expect(window.electronAPI.updateUserSettings).toHaveBeenCalledWith({
+        qaMode: true,
+      });
+    });
+
+    it('rolls back to the persisted settings when persistence fails', async () => {
+      const store = createAppStore();
+      const error = new Error('settings are read-only');
+      vi.mocked(window.electronAPI.updateUserSettings).mockRejectedValueOnce(
+        error,
+      );
+      vi.mocked(window.electronAPI.getUserSettings).mockResolvedValueOnce({
+        ...DEFAULT_USER_SETTINGS,
+        qaMode: false,
+      });
+
+      await expect(
+        store.dispatch(updateUserSettingsOptimistically({ qaMode: true })),
+      ).rejects.toBe(error);
+
+      expect(store.getState().userSettingsState.qaMode).toBe(false);
+    });
   });
 });

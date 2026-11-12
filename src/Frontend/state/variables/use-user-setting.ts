@@ -15,6 +15,7 @@ import {
   fetchUserSettings,
   setUserSetting,
   updateUserSettings,
+  updateUserSettingsOptimistically,
 } from '../actions/user-settings-actions/user-settings-actions';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { getUserSettings } from '../selectors/user-settings-selector';
@@ -22,6 +23,14 @@ import { getUserSettings } from '../selectors/user-settings-selector';
 type UpdateUserSettingsArguments =
   | Partial<UserSettings>
   | ((currentSettings: UserSettings) => Partial<UserSettings>);
+
+interface UpdateUserSettingsOptions {
+  /**
+   * Apply the change to the shared state immediately, before it has been
+   * persisted. Use for changes the user interacts with right away.
+   */
+  optimistic?: boolean;
+}
 
 export function useInitUserSettings() {
   const dispatch = useAppDispatch();
@@ -53,18 +62,26 @@ function getUserSettingsToSet(
 export function useUserSettings(): [
   UserSettings,
   (
-    userSettings:
-      | Partial<UserSettings>
-      | ((settings: UserSettings) => Partial<UserSettings>),
+    userSettings: UpdateUserSettingsArguments,
+    options?: UpdateUserSettingsOptions,
   ) => void,
 ] {
   const userSettings = useAppSelector(getUserSettings);
   const dispatch = useAppDispatch();
 
-  const updateSettings = (userSettings: UpdateUserSettingsArguments): void => {
-    void dispatch((dispatch, getState) => {
+  const updateSettings = (
+    userSettings: UpdateUserSettingsArguments,
+    { optimistic = false }: UpdateUserSettingsOptions = {},
+  ): void => {
+    dispatch((dispatch, getState) => {
       const userSettingsToSet = getUserSettingsToSet(userSettings, getState);
-      return dispatch(updateUserSettings(userSettingsToSet));
+      return dispatch(
+        optimistic
+          ? updateUserSettingsOptimistically(userSettingsToSet)
+          : updateUserSettings(userSettingsToSet),
+      );
+    }).catch((error: unknown) => {
+      console.error('Could not update user settings.', error);
     });
   };
   return [userSettings, updateSettings];
