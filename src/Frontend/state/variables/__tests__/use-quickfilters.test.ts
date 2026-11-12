@@ -502,6 +502,30 @@ describe('useQuickfilters', () => {
     });
   });
 
+  it('renames a quickfilter in place and persists the change', async () => {
+    const { result } = await renderHook(() => useQuickfilters('attribution'));
+    const name = faker.string.sample();
+
+    await act(async () => {
+      result.current.saveQuickfilter(name, initialAttributionFilters);
+      await Promise.resolve();
+    });
+
+    const newName = faker.string.sample();
+    await act(async () => {
+      result.current.renameQuickfilter(
+        result.current.quickfilters[0]?.id ?? '',
+        newName,
+      );
+      await Promise.resolve();
+    });
+
+    expect(result.current.quickfilters[0]?.name).toBe(newName);
+    expect(window.electronAPI.updateUserSettings).toHaveBeenLastCalledWith({
+      savedQuickfilters: [expect.objectContaining({ name: newName })],
+    });
+  });
+
   it('lists quickfilters in creation order regardless of use', async () => {
     const { result } = await renderHook(() => useQuickfilters('attribution'));
     const first = faker.string.sample();

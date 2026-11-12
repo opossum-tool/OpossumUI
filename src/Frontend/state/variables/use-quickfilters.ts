@@ -241,6 +241,7 @@ export function useQuickfilters(scope: QuickfilterScope): {
   quickfilters: Array<SavedQuickfilter>;
   saveQuickfilter: (name: string, filters: AttributionFilters) => string;
   deleteQuickfilter: (id: string) => void;
+  renameQuickfilter: (id: string, name: string) => void;
   reorderQuickfilter: (id: string, targetIndex: number) => void;
 } {
   const [userSettings, updateUserSettings] = useUserSettings();
@@ -291,6 +292,17 @@ export function useQuickfilters(scope: QuickfilterScope): {
     );
   };
 
+  const renameQuickfilter = (id: string, name: string): void => {
+    updateUserSettings(
+      (settings) => ({
+        savedQuickfilters: settings.savedQuickfilters.map((quickfilter) =>
+          quickfilter.id === id ? { ...quickfilter, name } : quickfilter,
+        ),
+      }),
+      { optimistic: true },
+    );
+  };
+
   // Reorders within the scope by absolute index while keeping the array
   // positions of all other scopes untouched: savedQuickfilters is the
   // display order. Optimistic so the reordered list renders immediately
@@ -328,6 +340,7 @@ export function useQuickfilters(scope: QuickfilterScope): {
     quickfilters,
     saveQuickfilter,
     deleteQuickfilter,
+    renameQuickfilter,
     reorderQuickfilter,
   };
 }

@@ -451,6 +451,9 @@ export const text = {
     deleteIconLabel: 'Delete quickfilter',
     edit: 'Edit quickfilters',
     finishEditing: 'Finish editing quickfilters',
+    rename: (name: string) => `Rename quickfilter ${name}`,
+    clearAll: 'Clear all',
+    clearAllLabel: 'Clear all quickfilters',
     reorder: (name: string) => `Reorder quickfilter ${name}`,
   },
   sortings: {

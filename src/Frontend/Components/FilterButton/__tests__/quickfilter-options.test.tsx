@@ -117,6 +117,26 @@ describe('quickfilters in the filter menu', () => {
     ).toHaveFocus();
   });
 
+  it('lays out the quickfilter rows contiguously like the filter menu', async () => {
+    const quickfilters = [
+      makeQuickfilter({ name: 'First', lastUsedAt: 1 }),
+      makeQuickfilter({ name: 'Second', lastUsedAt: 2 }),
+    ];
+    await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: quickfilters }),
+    ]);
+
+    const panel = await openQuickfiltersPanel();
+    // Rows must not be separated by gaps: selected quickfilters then form a
+    // continuous block like the selected items in the filter menu.
+    expect(getComputedStyle(row(panel, 'First')).borderBottomStyle).toBe(
+      'solid',
+    );
+    expect(getComputedStyle(row(panel, 'Second')).borderBottomStyle).not.toBe(
+      'solid',
+    );
+  });
+
   it('saves the current filters as a quickfilter and activates it', async () => {
     const { store } = await renderQuickfilterButton();
     const name = faker.string.alphanumeric(8);
@@ -516,6 +536,48 @@ describe('quickfilters in the filter menu', () => {
     expect(row(panel, 'MIT license')).toHaveAttribute('aria-pressed', 'true');
   });
 
+  it('clears all applied quickfilters from the panel and keeps the sorting', async () => {
+    const first = makeQuickfilter({ name: 'First' });
+    const second = makeQuickfilter({
+      name: 'Second',
+      filters: {
+        filters: [],
+        search: '',
+        valueFilters: { license: [{ id: 'MIT', label: 'MIT' }] },
+      },
+    });
+    const { store } = await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [first, second] }),
+    ]);
+    store.dispatch(
+      setVariable(MANUAL_ATTRIBUTION_FILTERS_AUDIT, {
+        ...initialAttributionFilters,
+        sorting: 'criticality',
+      }),
+    );
+
+    const panel = await openQuickfiltersPanel();
+    const clearAll = within(panel).getByRole('button', {
+      name: text.quickfilters.clearAllLabel,
+    });
+    expect(clearAll).toBeDisabled();
+
+    await userEvent.click(row(panel, 'First'));
+    await userEvent.click(row(panel, 'Second'));
+    expect(clearAll).toBeEnabled();
+
+    await userEvent.click(clearAll);
+
+    expect(
+      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toEqual({
+      ...initialAttributionFilters,
+      sorting: 'criticality',
+    });
+    expect(row(panel, 'First')).toHaveAttribute('aria-pressed', 'false');
+    expect(row(panel, 'Second')).toHaveAttribute('aria-pressed', 'false');
+  });
+
   it('disables conflicting quickfilters with a tooltip and ignores applying them', async () => {
     const first = makeQuickfilter({
       name: 'React search',
@@ -706,6 +768,100 @@ describe('quickfilters in the filter menu', () => {
       expect.objectContaining({ scope: 'attribution' }),
       expect.objectContaining({ name, scope: 'signal' }),
     ]);
+  });
+
+  it('explains the edit button with a tooltip and marks the editing state with a crossed-out pencil', async () => {
+    const quickfilters = [makeQuickfilter({ name: 'Only', lastUsedAt: 1 })];
+    await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: quickfilters }),
+    ]);
+
+    const panel = await openQuickfiltersPanel();
+    const editButton = within(panel).getByRole('button', {
+      name: text.quickfilters.edit,
+    });
+    await userEvent.hover(editButton);
+    expect(await screen.findByText(text.quickfilters.edit)).toBeInTheDocument();
+
+    await userEvent.click(editButton);
+    const finishButton = within(panel).getByRole('button', {
+      name: text.quickfilters.finishEditing,
+    });
+    expect(within(finishButton).getByTestId('EditOffIcon')).toBeInTheDocument();
+
+    await userEvent.hover(finishButton);
+    expect(
+      await screen.findByText(text.quickfilters.finishEditing),
+    ).toBeInTheDocument();
+  });
+
+  it('renames a quickfilter in the edit view and persists the new name', async () => {
+    const quickfilter = makeQuickfilter({ name: 'Old name' });
+    const { store } = await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [quickfilter] }),
+    ]);
+
+    const panel = await openQuickfiltersPanel();
+    await userEvent.click(
+      within(panel).getByRole('button', { name: text.quickfilters.edit }),
+    );
+    await userEvent.click(
+      within(panel).getByRole('button', {
+        name: text.quickfilters.rename('Old name'),
+      }),
+    );
+
+    const input = screen.getByRole('textbox', {
+      name: text.quickfilters.nameLabel,
+    });
+    await userEvent.clear(input);
+    await userEvent.type(input, 'New name');
+    await userEvent.keyboard('{Enter}');
+
+    expect(
+      screen.queryByRole('textbox', { name: text.quickfilters.nameLabel }),
+    ).not.toBeInTheDocument();
+    expect(within(panel).getByText('New name')).toBeInTheDocument();
+    expect(store.getState().userSettingsState.savedQuickfilters[0]?.name).toBe(
+      'New name',
+    );
+    expect(window.electronAPI.updateUserSettings).toHaveBeenCalledWith(
+      expect.objectContaining({
+        savedQuickfilters: [expect.objectContaining({ name: 'New name' })],
+      }),
+    );
+  });
+
+  it('keeps the original name when renaming is cancelled with Escape', async () => {
+    const quickfilter = makeQuickfilter({ name: 'Original name' });
+    const { store } = await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [quickfilter] }),
+    ]);
+
+    const panel = await openQuickfiltersPanel();
+    await userEvent.click(
+      within(panel).getByRole('button', { name: text.quickfilters.edit }),
+    );
+    await userEvent.click(
+      within(panel).getByRole('button', {
+        name: text.quickfilters.rename('Original name'),
+      }),
+    );
+
+    const input = screen.getByRole('textbox', {
+      name: text.quickfilters.nameLabel,
+    });
+    await userEvent.clear(input);
+    await userEvent.type(input, 'Discarded name');
+    await userEvent.keyboard('{Escape}');
+
+    expect(
+      screen.queryByRole('textbox', { name: text.quickfilters.nameLabel }),
+    ).not.toBeInTheDocument();
+    expect(within(panel).getByText('Original name')).toBeInTheDocument();
+    expect(store.getState().userSettingsState.savedQuickfilters[0]?.name).toBe(
+      'Original name',
+    );
   });
 
   it('lists quickfilters in creation order and allows deleting them in the edit view', async () => {

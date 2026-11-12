@@ -33,12 +33,30 @@ export const styles = {
     alignItems: 'center',
     justifyContent: 'space-between',
   } satisfies SxProps<Theme>,
+  titleActions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: Sizing.SmallGap,
+  } satisfies SxProps<Theme>,
+  // Mirrors the clear button of the license editor header.
+  clearButton: {
+    textTransform: 'none',
+    typography: 'body2',
+    minWidth: 0,
+    flexShrink: 0,
+  } satisfies SxProps<Theme>,
   titleButton: { p: Sizing.Tiny, flexShrink: 0 } satisfies SxProps<Theme>,
   list: {
     display: 'flex',
     flexDirection: 'column',
     overflowY: 'auto',
     minHeight: 0,
+    // Rows sit directly on top of each other like the filter menu items; a
+    // thin divider separates them so selected rows form a continuous block.
+    '& > :not(:last-child)': {
+      borderBottom: `${borderThin} solid`,
+      borderColor: 'divider',
+    },
   } satisfies SxProps<Theme>,
   row: {
     display: 'flex',
@@ -129,6 +147,10 @@ export const styles = {
     width: checkIconSize,
     height: checkIconSize,
     flexShrink: 0,
+  } satisfies SxProps<Theme>,
+  renameInput: {
+    flex: 1,
+    minWidth: 0,
   } satisfies SxProps<Theme>,
   actions: {
     display: 'flex',
