@@ -9,6 +9,7 @@ import {
   isResourceQuickfilter,
   type SavedResourceQuickfilter,
 } from '../../../shared/shared-types';
+import { isVisibleForResourcePanel } from './quickfilter-sharing';
 import type { ResourceTreeFilters } from './use-filters';
 import { useUserSettings } from './use-user-setting';
 
@@ -180,29 +181,32 @@ export function useResourceQuickfilters(): {
     );
   };
 
-  // Reorders within the scope by absolute index while keeping the array
-  // positions of all other scopes untouched: savedQuickfilters is the
+  // Reorders within the panel's visible subset (resource quickfilters plus
+  // shared license-only attribution/signal quickfilters) while keeping the
+  // array positions of everything else untouched: savedQuickfilters is the
   // display order. Optimistic so the reordered list renders immediately.
   const reorderQuickfilter = (id: string, targetIndex: number): void => {
     updateUserSettings(
       (settings) => {
-        const scoped = settings.savedQuickfilters.filter(isResourceQuickfilter);
-        const index = scoped.findIndex((quickfilter) => quickfilter.id === id);
+        const visible = settings.savedQuickfilters.filter(
+          isVisibleForResourcePanel,
+        );
+        const index = visible.findIndex((quickfilter) => quickfilter.id === id);
         if (
           index === -1 ||
           targetIndex < 0 ||
-          targetIndex >= scoped.length ||
+          targetIndex >= visible.length ||
           targetIndex === index
         ) {
           return {};
         }
-        const reordered = [...scoped];
+        const reordered = [...visible];
         const [moved] = reordered.splice(index, 1);
         reordered.splice(targetIndex, 0, moved);
         let cursor = 0;
         return {
           savedQuickfilters: settings.savedQuickfilters.map((quickfilter) =>
-            isResourceQuickfilter(quickfilter)
+            isVisibleForResourcePanel(quickfilter)
               ? reordered[cursor++]
               : quickfilter,
           ),
