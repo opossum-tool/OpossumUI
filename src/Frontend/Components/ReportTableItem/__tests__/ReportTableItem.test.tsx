@@ -2,12 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 
 import {
   type Attributions,
   Criticality,
   DiscreteConfidence,
+  type PackageInfo,
 } from '../../../../shared/shared-types';
 import { renderComponent } from '../../../test-helpers/render';
 import { ReportTableItem } from '../ReportTableItem';
@@ -102,4 +103,99 @@ describe('The ReportTableItem', () => {
     expect(screen.getByLabelText('Needs-review icon')).toBeInTheDocument();
     expect(screen.getByLabelText('Preferred icon')).toBeInTheDocument();
   });
+
+  it('renders AI status badges for non-deferred unmodified AI attribution', async () => {
+    await renderReportTableItemWithAiStatus({
+      deferred: false,
+    });
+
+    expect(screen.getByText('AI generated')).toBeInTheDocument();
+    expect(screen.queryByText('Deferred')).not.toBeInTheDocument();
+    expect(screen.queryByText('Human-modified')).not.toBeInTheDocument();
+  });
+
+  it('renders AI status badges for non-deferred human-modified AI attribution', async () => {
+    await renderReportTableItemWithAiStatus({
+      deferred: false,
+      humanModified: true,
+    });
+
+    expect(screen.getByText('AI generated')).toBeInTheDocument();
+    expect(screen.getByText('Human-modified')).toBeInTheDocument();
+    expect(screen.queryByText('Deferred')).not.toBeInTheDocument();
+  });
+
+  it('renders AI status badges for deferred unmodified AI attribution', async () => {
+    await renderReportTableItemWithAiStatus({
+      deferred: true,
+    });
+
+    expect(screen.getByText('Deferred')).toBeInTheDocument();
+    expect(screen.queryByText('AI generated')).not.toBeInTheDocument();
+    expect(screen.queryByText('Human-modified')).not.toBeInTheDocument();
+  });
+
+  it('renders AI status badges for deferred human-modified AI attribution', async () => {
+    await renderReportTableItemWithAiStatus({
+      deferred: true,
+      humanModified: true,
+    });
+
+    expect(screen.getByText('Deferred')).toBeInTheDocument();
+    expect(screen.getByText('Human-modified')).toBeInTheDocument();
+    expect(screen.queryByText('AI generated')).not.toBeInTheDocument();
+  });
+
+  it('renders no AI status badges for attribution without AI metadata', async () => {
+    await renderReportTableItemWithAiStatus(undefined);
+
+    expect(screen.queryByText('AI generated')).not.toBeInTheDocument();
+    expect(screen.queryByText('Deferred')).not.toBeInTheDocument();
+    expect(screen.queryByText('Human-modified')).not.toBeInTheDocument();
+  });
+
+  it('shows AI status badge tooltip on hover', async () => {
+    await renderReportTableItemWithAiStatus({
+      deferred: true,
+    });
+
+    fireEvent.mouseOver(screen.getByText('Deferred'));
+
+    expect(
+      await screen.findByText(
+        'AI marked one or more fields as needing human review.',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('renders AI status badge icons', async () => {
+    await renderReportTableItemWithAiStatus({
+      deferred: true,
+      humanModified: true,
+    });
+
+    expect(screen.getByLabelText('Deferred AI icon')).toBeInTheDocument();
+    expect(screen.getByLabelText('Human-modified AI icon')).toBeInTheDocument();
+  });
 });
+
+async function renderReportTableItemWithAiStatus(
+  aiStatus: PackageInfo['aiStatus'],
+) {
+  const testAttribution: PackageInfo = {
+    packageName: 'React',
+    resources: ['/'],
+    criticality: Criticality.None,
+    id: 'uuid1',
+    aiStatus,
+  };
+  await renderComponent(
+    <table>
+      <tbody>
+        <tr>
+          <ReportTableItem packageInfo={testAttribution} />
+        </tr>
+      </tbody>
+    </table>,
+  );
+}
