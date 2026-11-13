@@ -379,7 +379,7 @@ describe('filtering resources', () => {
     ]);
   });
 
-  it('applies license filters from the attributions panel to the resource tree', async () => {
+  it('keeps resource tree filtering independent from attribution license filters', async () => {
     await renderApp({ data: multiLicenseData });
     await clickFilterMenuButton(screen.getByTestId('attributions-panel'));
     await selectFilterLicenseName('MIT');
@@ -393,22 +393,19 @@ describe('filtering resources', () => {
     ]);
   });
 
-  it('applies license filters from the resource tree to the attributions panel', async () => {
+  it('keeps attribution filtering independent from resource tree license filters', async () => {
     await renderApp({ data: multiLicenseData });
     await clickTreeFilterMenuButton();
     await selectFilterLicenseName('Apache-2.0');
     await closeFilterMenu();
 
-    await expectPackageCards(
-      'attributions-panel',
-      [reviewedApachePackageInfo],
-      [
-        preselectedPackageInfo,
-        reviewedMitPackageInfo,
-        deferredPackageInfo,
-        aiNotDeferredPackageInfo,
-        plainPackageInfo,
-      ],
-    );
+    await expectPackageCards('attributions-panel', [
+      preselectedPackageInfo,
+      reviewedMitPackageInfo,
+      reviewedApachePackageInfo,
+      deferredPackageInfo,
+      aiNotDeferredPackageInfo,
+      plainPackageInfo,
+    ]);
   });
 });
