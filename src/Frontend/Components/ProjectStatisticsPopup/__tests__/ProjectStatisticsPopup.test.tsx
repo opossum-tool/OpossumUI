@@ -10,6 +10,11 @@ import {
   Criticality,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
+import {
+  clickProjectStatisticsTab,
+  expectStatisticsCharts,
+  expectTextVisible,
+} from '../../../../testing/ui';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
@@ -94,10 +99,10 @@ describe('The ProjectStatisticsPopup', () => {
 
     await userEvent.click(await screen.findByText('Licenses'));
 
-    expect(screen.getByText('Apache License Version 2.0')).toBeVisible();
-    expect(screen.getByText('The MIT License (MIT)')).toBeVisible();
-    expect(screen.getByText('Scancode')).toBeVisible();
-    expect(screen.getByText('Reuser')).toBeVisible();
+    await expectTextVisible('Apache License Version 2.0', true);
+    await expectTextVisible('The MIT License (MIT)', true);
+    await expectTextVisible('Scancode', true);
+    await expectTextVisible('Reuser', true);
   });
 
   it('renders expected pie charts when there are signals and attributions', async () => {
@@ -105,27 +110,12 @@ describe('The ProjectStatisticsPopup', () => {
       data: getParsedInputFileEnrichedWithTestData(fileSetup),
     });
 
-    expect(
-      await screen.findByText(
-        text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
-      ),
-    ).toBeVisible();
-    expect(
-      screen.getByText(
-        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
-      ),
-    ).toBeVisible();
-    expect(
-      screen.getByText(
-        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
-          .title,
-      ),
-    ).toBeVisible();
-    expect(
-      screen.getAllByText(
-        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
-      )[0],
-    ).toBeVisible();
+    await expectStatisticsCharts([
+      'mostFrequentLicenseCountPieChart',
+      'criticalSignalsCountPieChart',
+      'signalCountByClassificationPieChart',
+      'incompleteAttributionsPieChart',
+    ]);
   });
 
   it('does not render pie charts when there are no signals and no attributions', async () => {
@@ -136,30 +126,19 @@ describe('The ProjectStatisticsPopup', () => {
         externalAttributions: testExternalAttributions,
       }),
     });
-    await screen.findByText(
+    await expectTextVisible(
       text.projectStatisticsPopup.charts.attributionProperties.title,
+      true,
     );
-    expect(
-      screen.queryByText(
-        text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
-      ),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText(
-        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
-      ),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText(
-        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
-          .title,
-      ),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText(
-        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
-      ),
-    ).not.toBeInTheDocument();
+    await expectStatisticsCharts(
+      [],
+      [
+        'mostFrequentLicenseCountPieChart',
+        'criticalSignalsCountPieChart',
+        'signalCountByClassificationPieChart',
+        'incompleteAttributionsPieChart',
+      ],
+    );
   });
 
   it('renders expected pie charts related to signals even if there are no attributions', async () => {
@@ -191,22 +170,11 @@ describe('The ProjectStatisticsPopup', () => {
         externalAttributions: testExternalAttributions,
       }),
     });
-    expect(
-      await screen.findByText(
-        text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
-      ),
-    ).toBeVisible();
-    expect(
-      screen.getByText(
-        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
-      ),
-    ).toBeVisible();
-    expect(
-      screen.getByText(
-        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
-          .title,
-      ),
-    ).toBeVisible();
+    await expectStatisticsCharts([
+      'mostFrequentLicenseCountPieChart',
+      'criticalSignalsCountPieChart',
+      'signalCountByClassificationPieChart',
+    ]);
   });
 
   it('renders attribution bar chart and signals per sources table even when there are no attributions and no signals', async () => {
@@ -217,21 +185,17 @@ describe('The ProjectStatisticsPopup', () => {
       }),
     });
 
-    expect(
-      await screen.findByText(
-        text.projectStatisticsPopup.charts.attributionProperties.title,
-      ),
-    ).toBeVisible();
-
-    await userEvent.click(
-      screen.getByText(text.projectStatisticsPopup.tabs.details),
+    await expectTextVisible(
+      text.projectStatisticsPopup.charts.attributionProperties.title,
+      true,
     );
 
-    expect(
-      screen.getByText(
-        text.attributionCountPerSourcePerLicenseTable.columns.licenseInfo,
-      ),
-    ).toBeVisible();
+    await clickProjectStatisticsTab('details');
+
+    await expectTextVisible(
+      text.attributionCountPerSourcePerLicenseTable.columns.licenseInfo,
+      true,
+    );
   });
 
   it('supports sorting the signals per sources table', async () => {
@@ -298,15 +262,11 @@ describe('The ProjectStatisticsPopup', () => {
       actions: [setUserSetting({ showClassifications: false })],
     });
 
-    await screen.findByText(
+    await expectTextVisible(
       text.projectStatisticsPopup.charts.attributionProperties.title,
+      true,
     );
-    expect(
-      screen.queryByText(
-        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
-          .title,
-      ),
-    ).not.toBeInTheDocument();
+    await expectStatisticsCharts([], ['signalCountByClassificationPieChart']);
   });
 
   it('does not show the criticality statistics if it has been disabled', async () => {
@@ -315,14 +275,11 @@ describe('The ProjectStatisticsPopup', () => {
       actions: [setUserSetting({ showCriticality: false })],
     });
 
-    await screen.findByText(
+    await expectTextVisible(
       text.projectStatisticsPopup.charts.attributionProperties.title,
+      true,
     );
-    expect(
-      screen.queryByText(
-        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
-      ),
-    ).not.toBeInTheDocument();
+    await expectStatisticsCharts([], ['criticalSignalsCountPieChart']);
   });
 
   it('allows toggling of show-on-startup checkbox', async () => {

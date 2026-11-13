@@ -96,7 +96,7 @@ export async function expectMergeDialogShowsCurrentFile(
   }, SETTLED_TIMEOUT);
 }
 
-const SPLIT_DIALOG_LABEL = 'split dialog';
+export const SPLIT_DIALOG_LABEL = 'split dialog';
 
 export function openSplitDialogFromMenu(sendToChannel: SendToChannel): void {
   // The native File-menu item sends this exact IPC channel; simulate the menu
@@ -167,7 +167,14 @@ export async function expectUnsavedChangesPopupVisibility(
   }, SETTLED_TIMEOUT);
 }
 
-const CONFIRM_SAVE_POPUP_LABEL = text.saveAttributionsPopup.ariaLabel;
+export const CONFIRM_SAVE_POPUP_LABEL = text.saveAttributionsPopup.ariaLabel;
+
+export const CONFIRM_DELETE_POPUP_LABEL =
+  text.deleteAttributionsPopup.ariaLabel;
+
+export const CONFIRM_REPLACE_POPUP_LABEL = 'confirm replace popup';
+
+export const FORCE_UNLOCK_POPUP_LABEL = 'force unlock popup';
 
 export async function expectConfirmSavePopupIsVisible(): Promise<void> {
   await waitFor(() => {
