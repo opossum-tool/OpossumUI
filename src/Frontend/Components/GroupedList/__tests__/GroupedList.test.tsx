@@ -6,6 +6,7 @@ import { screen } from '@testing-library/react';
 
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import { expectTextVisible } from '../../../../testing/ui';
 import { renderComponent } from '../../../test-helpers/render';
 import { GroupedList } from '../GroupedList';
 
@@ -19,7 +20,7 @@ describe('GroupedList', () => {
       />,
     );
 
-    expect(screen.getByText('source')).toBeInTheDocument();
+    await expectTextVisible('source', true);
   });
 
   it('does not render a header for a synthesized unloaded group', async () => {
@@ -49,7 +50,7 @@ describe('GroupedList', () => {
       expect(screen.getByText(id)).toBeInTheDocument();
     });
     expect(screen.queryByTestId('loading')).not.toBeInTheDocument();
-    expect(screen.queryByText(text.generic.noResults)).not.toBeInTheDocument();
+    await expectTextVisible(text.generic.noResults, false);
   });
 
   it('renders loading state', async () => {
@@ -63,7 +64,7 @@ describe('GroupedList', () => {
     );
 
     expect(screen.getByTestId('loading')).toBeInTheDocument();
-    expect(screen.queryByText(text.generic.noResults)).not.toBeInTheDocument();
+    await expectTextVisible(text.generic.noResults, false);
   });
 
   it('renders empty placeholder when no results', async () => {
@@ -71,6 +72,6 @@ describe('GroupedList', () => {
       <GroupedList grouped={{}} renderItemContent={(id) => <div>{id}</div>} />,
     );
 
-    expect(screen.getByText(text.generic.noResults)).toBeInTheDocument();
+    await expectTextVisible(text.generic.noResults, true);
   });
 });

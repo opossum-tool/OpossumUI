@@ -7,6 +7,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import type { BaseUrlsForSources } from '../../../../shared/shared-types';
+import { expectButtonVisibility, getButton } from '../../../../testing/ui';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
@@ -46,10 +47,8 @@ describe('The GoToLinkButton', () => {
       });
 
       expect(window.electronAPI.openLink).toHaveBeenCalledTimes(0);
-      const linkButton = await screen.findByRole('button', {
-        name: 'Open resource in browser',
-      });
-      await userEvent.click(linkButton);
+      await expectButtonVisibility('Open resource in browser', true);
+      await userEvent.click(getButton('Open resource in browser'));
 
       expect(window.electronAPI.openLink).toHaveBeenCalledTimes(1);
       expect(window.electronAPI.openLink).toHaveBeenCalledWith(expected_link);

@@ -2,11 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import {
+  clickPopupButton,
+  CONFIRMATION_DIALOG_LABEL,
+  expectPopupVisibility,
+} from '../../../../testing/ui';
 import { renderComponent } from '../../../test-helpers/render';
 import {
   ConfirmationDialog,
@@ -47,7 +52,7 @@ describe('ConfirmationDialog', () => {
 
     await userEvent.click(screen.getByRole('button'));
 
-    expect(screen.getByLabelText('confirmation dialog')).toBeInTheDocument();
+    await expectPopupVisibility(CONFIRMATION_DIALOG_LABEL, true);
   });
 
   it('does not show confirmation dialog and calls confirm handler immediately when no confirmation is required', async () => {
@@ -61,9 +66,7 @@ describe('ConfirmationDialog', () => {
 
     expect(onConfirm).toHaveBeenCalledTimes(1);
     expect(onCancel).not.toHaveBeenCalled();
-    expect(
-      screen.queryByLabelText('confirmation dialog'),
-    ).not.toBeInTheDocument();
+    await expectPopupVisibility(CONFIRMATION_DIALOG_LABEL, false);
   });
 
   it('closes confirmation dialog and calls confirm handler when user confirms confirmation dialog', async () => {
@@ -74,16 +77,10 @@ describe('ConfirmationDialog', () => {
     );
 
     await userEvent.click(screen.getByRole('button'));
-    await userEvent.click(
-      screen.getByRole('button', { name: text.buttons.ok }),
-    );
+    await clickPopupButton(CONFIRMATION_DIALOG_LABEL, text.buttons.ok);
 
     expect(onConfirm).toHaveBeenCalledTimes(1);
-    await waitFor(() =>
-      expect(
-        screen.queryByLabelText('confirmation dialog'),
-      ).not.toBeInTheDocument(),
-    );
+    await expectPopupVisibility(CONFIRMATION_DIALOG_LABEL, false);
     expect(onCancel).not.toHaveBeenCalled();
   });
 
@@ -95,16 +92,10 @@ describe('ConfirmationDialog', () => {
     );
 
     await userEvent.click(screen.getByRole('button'));
-    await userEvent.click(
-      screen.getByRole('button', { name: text.buttons.cancel }),
-    );
+    await clickPopupButton(CONFIRMATION_DIALOG_LABEL, text.buttons.cancel);
 
     expect(onCancel).toHaveBeenCalledTimes(1);
-    await waitFor(() =>
-      expect(
-        screen.queryByLabelText('confirmation dialog'),
-      ).not.toBeInTheDocument(),
-    );
+    await expectPopupVisibility(CONFIRMATION_DIALOG_LABEL, false);
     expect(onConfirm).not.toHaveBeenCalled();
   });
 });

@@ -5,7 +5,11 @@
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 
 import { importFileFormats } from '../../../../ElectronBackend/main/menu/fileMenu';
-import { text } from '../../../../shared/text';
+import {
+  expectPopupVisibility,
+  expectSplitDialogVisibility,
+  expectUnsavedChangesPopupVisibility,
+} from '../../../../testing/ui';
 import { PopupType } from '../../../enums/enums';
 import {
   closePopup,
@@ -22,6 +26,7 @@ describe('The GlobalPopUp', () => {
     await renderComponent(<GlobalPopup />);
 
     expect(screen.queryByText('Warning')).not.toBeInTheDocument();
+    await expectUnsavedChangesPopupVisibility(false);
     expect(
       global.window.electronAPI.setFrontendDialogState,
     ).not.toHaveBeenCalledWith(
@@ -34,9 +39,7 @@ describe('The GlobalPopUp', () => {
       actions: [openPopup(PopupType.NotSavedPopup)],
     });
 
-    expect(
-      screen.getByText(text.unsavedChangesPopup.title),
-    ).toBeInTheDocument();
+    await expectUnsavedChangesPopupVisibility(true);
     await waitFor(() =>
       expect(
         global.window.electronAPI.setFrontendDialogState,
@@ -52,7 +55,7 @@ describe('The GlobalPopUp', () => {
       actions: [openPopup(PopupType.ProjectMetadataPopup)],
     });
 
-    expect(await screen.findByText('Project Metadata')).toBeInTheDocument();
+    await expectPopupVisibility('project metadata', true);
     await waitFor(() =>
       expect(
         global.window.electronAPI.setFrontendDialogState,
@@ -69,7 +72,7 @@ describe('The GlobalPopUp', () => {
       actions: [openPopup(PopupType.ProjectStatisticsPopup)],
     });
 
-    expect(await screen.findByText('Project Statistics')).toBeInTheDocument();
+    await expectPopupVisibility('project statistics', true);
     await waitFor(() =>
       expect(
         global.window.electronAPI.setFrontendDialogState,
@@ -85,9 +88,7 @@ describe('The GlobalPopUp', () => {
       actions: [openSplitDialog()],
     });
 
-    expect(
-      screen.getByRole('dialog', { name: text.splitDialog.title }),
-    ).toBeVisible();
+    await expectSplitDialogVisibility(true);
     await waitFor(() =>
       expect(
         global.window.electronAPI.setFrontendDialogState,
