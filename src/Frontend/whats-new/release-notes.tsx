@@ -101,6 +101,20 @@ export function ReleaseNotes(): React.ReactNode {
           signals.
         </Screenshot>
       </section>
+
+      <section>
+        <h2>AI review states in project statistics</h2>
+        <p>
+          {text.projectStatisticsPopup.title} now shows how many attributions
+          were AI-assisted and in which review state — the same{' '}
+          {text.topBar.switchableProgressBar.aiBar.nonDeferred}/
+          {text.topBar.switchableProgressBar.aiBar.deferred} and{' '}
+          {text.topBar.switchableProgressBar.aiBar.unmodified}/
+          {text.topBar.switchableProgressBar.aiBar.humanModified} states as the
+          AI Review progress bar, so you can see the amount and progress of
+          AI-assisted review work at a glance.
+        </p>
+      </section>
     </>
   );
 }

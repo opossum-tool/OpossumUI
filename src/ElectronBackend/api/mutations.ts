@@ -164,6 +164,7 @@ const ATTRIBUTION_AGGREGATE_INVALIDATIONS: Array<MutationInvalidation> = [
 const MANUAL_ATTRIBUTION_STATISTICS_INVALIDATIONS: Array<MutationInvalidation> =
   [
     { queryName: 'manualAttributionStatistics' },
+    { queryName: 'aiAttributionStatistics' },
     { queryName: 'resourceHasIncompleteManualAttributions' },
   ];
 
@@ -688,6 +689,11 @@ async function setAttributionsResolvedStatus(
     invalidates: [
       ...ATTRIBUTION_AGGREGATE_INVALIDATIONS,
       ...EXTERNAL_ATTRIBUTION_INVALIDATIONS,
+      // aiAttributionStatistics counts unresolved rows. Resolving currently
+      // only applies to external attributions, which the statistics exclude
+      // via is_external; invalidate anyway so the statistics stay correct if
+      // the eligibility semantics change.
+      { queryName: 'aiAttributionStatistics' } as const,
       { queryName: 'getResourceTree' } as const,
       { queryName: 'getLinkedResourceTree' } as const,
     ],

@@ -2,7 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { describe, it } from 'vitest';
+import { act, screen, waitFor, within } from '@testing-library/react';
+import type { ComponentProps } from 'react';
+import type * as Recharts from 'recharts';
+import { describe, expect, it, vi } from 'vitest';
 
 import { deserializeAttributions } from '../ElectronBackend/input/parseInputData';
 import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers/general-test-helpers';
@@ -11,6 +14,7 @@ import { text } from '../shared/text';
 import { faker } from '../testing/Faker';
 import { renderApp } from '../testing/render-app';
 import {
+  ATTRIBUTIONS_PANEL,
   clickAttributionColumnButton,
   clickLicenseTableCell,
   clickLicenseTableColumnHeader,
@@ -25,10 +29,24 @@ import {
   expectProjectStatisticsTitleIsVisible,
   expectStatisticsChartContainsText,
   expectStatisticsCharts,
+  fillFormField,
   gotoResource,
   openProjectStatisticsPopup,
+  saveChangesInAttributionColumn,
   SIGNALS_PANEL,
 } from '../testing/ui';
+
+// Happy DOM cannot lay out responsive charts. Fix only their container size;
+// render the real chart, labels, legends, and activation handlers.
+vi.mock('recharts', async (importOriginal) => {
+  const recharts = await importOriginal<typeof Recharts>();
+  return {
+    ...recharts,
+    ResponsiveContainer: (
+      props: ComponentProps<typeof recharts.ResponsiveContainer>,
+    ) => <recharts.ResponsiveContainer {...props} width={800} height={600} />,
+  };
+});
 
 const [resourceName1] = faker.opossum.resourceNames({ count: 1 });
 const [attributionId1, packageInfo1] = faker.opossum.rawAttribution({
@@ -64,6 +82,102 @@ describe('project statistics', () => {
     await openProjectStatisticsPopup(sendToChannel);
     await expectProjectStatisticsTitleIsVisible();
     await closeProjectStatisticsPopup();
+  });
+
+  const aiStatesText = text.projectStatisticsPopup.charts.aiAttributionStates;
+  const [aiResourceName] = faker.opossum.resourceNames({ count: 1 });
+  const [deferredId, deferredPackageInfo] = faker.opossum.rawAttribution({
+    criticality: RawCriticality[Criticality.Medium],
+    packageName: 'AI deferred',
+    aiAttributions: { deferredFields: {} },
+  });
+  const [deferredModifiedId, deferredModifiedPackageInfo] =
+    faker.opossum.rawAttribution({
+      criticality: RawCriticality[Criticality.Medium],
+      packageName: 'AI deferred modified',
+      aiAttributions: { deferredFields: {}, humanModified: true },
+    });
+  const [aiOutputId, aiOutputPackageInfo] = faker.opossum.rawAttribution({
+    criticality: RawCriticality[Criticality.Medium],
+    packageName: 'AI output',
+    aiAttributions: {},
+  });
+  const [aiOutputModifiedId, aiOutputModifiedPackageInfo] =
+    faker.opossum.rawAttribution({
+      criticality: RawCriticality[Criticality.Medium],
+      packageName: 'AI output modified',
+      aiAttributions: { humanModified: true },
+    });
+  const [ordinaryId, ordinaryPackageInfo] = faker.opossum.rawAttribution({
+    criticality: RawCriticality[Criticality.Medium],
+    packageName: 'Ordinary',
+  });
+
+  const aiStatisticsData = getParsedInputFileEnrichedWithTestData({
+    config: faker.opossum.inputData().config,
+    resources: faker.opossum.resources({ [aiResourceName]: 1 }),
+    manualAttributions: deserializeAttributions({
+      [deferredId]: deferredPackageInfo,
+      [deferredModifiedId]: deferredModifiedPackageInfo,
+      [aiOutputId]: aiOutputPackageInfo,
+      [aiOutputModifiedId]: aiOutputModifiedPackageInfo,
+      [ordinaryId]: ordinaryPackageInfo,
+    }),
+    resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+      [faker.opossum.filePath(aiResourceName)]: [
+        deferredId,
+        deferredModifiedId,
+        aiOutputId,
+        aiOutputModifiedId,
+        ordinaryId,
+      ],
+    }),
+  });
+
+  it('displays AI attribution states and updates after an edit', async () => {
+    const { sendToChannel } = await renderApp({ data: aiStatisticsData });
+    await openProjectStatisticsPopup(sendToChannel);
+    await expectProjectStatisticsTitleIsVisible();
+
+    const chartTestId = 'aiAttributionStatesBarChart';
+    for (const label of [
+      aiStatesText.title,
+      aiStatesText.count,
+      aiStatesText.nonDeferredUnmodified,
+      aiStatesText.nonDeferredModified,
+      aiStatesText.deferredUnmodified,
+      aiStatesText.deferredModified,
+      aiStatesText.nonAi,
+    ]) {
+      await expectStatisticsChartContainsText(chartTestId, label);
+    }
+
+    const assertAnnouncedCount = async (label: string, count: number) => {
+      const chart = within(screen.getByTestId(chartTestId));
+      act(() => chart.getByRole('application').focus());
+      await waitFor(() => {
+        expect(chart.getByRole('status')).toHaveTextContent(
+          `${label}: ${count}`,
+        );
+      });
+    };
+
+    // The accessible status announces the first chart entry.
+    await assertAnnouncedCount(aiStatesText.nonDeferredUnmodified, 1);
+
+    await closeProjectStatisticsPopup();
+
+    await gotoResource(aiResourceName);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, aiOutputPackageInfo);
+    fillFormField('comment', 'Human input');
+    await saveChangesInAttributionColumn();
+
+    await openProjectStatisticsPopup(sendToChannel);
+    await assertAnnouncedCount(aiStatesText.nonDeferredUnmodified, 0);
+    await expectStatisticsChartContainsText(
+      chartTestId,
+      aiStatesText.deferredModified,
+    );
   });
 
   it('displays bar and pie charts in the overview tab', async () => {

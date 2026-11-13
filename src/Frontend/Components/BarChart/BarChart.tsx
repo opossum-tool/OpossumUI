@@ -67,7 +67,7 @@ function BarChartLabel({
       >
         <div
           className={tick.className}
-          style={{ width: 'min-content', flexShrink: 0 }}
+          style={{ width: 'max-content', flexShrink: 0 }}
         >
           {item?.onActivate ? (
             <ChartActionTooltip
@@ -101,11 +101,13 @@ function BarChartLabel({
 
 interface BarChartProps {
   data: Array<ChartDataItem>;
+  axisLabel?: string;
 }
 
 export const BarChart: React.FC<BarChartProps> = (props) => {
   const theme = useTheme();
   const [actionTooltipOpen, setActionTooltipOpen] = useState(false);
+  const axisLabel = props.axisLabel ?? text.projectStatisticsPopup.charts.count;
 
   const tickStyle = {
     fontFamily: 'sans-serif',
@@ -136,7 +138,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
       >
         <RcXAxis type={'number'} tick={tickStyle}>
           <RcLabel
-            value={text.projectStatisticsPopup.charts.count}
+            value={axisLabel}
             offset={-X_AXIS_LABEL_OFFSET}
             position={'insideBottom'}
             style={tickStyle}
@@ -170,7 +172,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
           )}
         />
         <RcBar
-          name={text.projectStatisticsPopup.charts.count}
+          name={axisLabel}
           dataKey={'count'}
           fill={OpossumColors.darkBlue}
           isAnimationActive={false}

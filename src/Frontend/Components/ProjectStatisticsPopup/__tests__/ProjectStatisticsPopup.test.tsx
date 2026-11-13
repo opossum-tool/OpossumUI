@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event';
 import {
   type Attributions,
   Criticality,
+  type PersistedAttributions,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
@@ -322,6 +323,68 @@ describe('The ProjectStatisticsPopup', () => {
       screen.queryByText(
         text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
       ),
+    ).not.toBeInTheDocument();
+  });
+
+  const aiAttributionStatesText =
+    text.projectStatisticsPopup.charts.aiAttributionStates;
+
+  it('renders the AI attribution states chart when AI attributions exist', async () => {
+    const testManualAttributions: PersistedAttributions = {
+      uuid_1: {
+        source: {
+          name: 'reuser',
+          documentConfidence: 90,
+        },
+        criticality: Criticality.None,
+        id: 'uuid_1',
+        aiAttributions: { deferredFields: {} },
+      },
+      uuid_2: {
+        source: {
+          name: 'reuser',
+          documentConfidence: 90,
+        },
+        criticality: Criticality.None,
+        id: 'uuid_2',
+        aiAttributions: { humanModified: true },
+      },
+      uuid_3: {
+        source: {
+          name: 'reuser',
+          documentConfidence: 90,
+        },
+        criticality: Criticality.None,
+        id: 'uuid_3',
+      },
+    };
+
+    await renderComponent(<ProjectStatisticsPopup />, {
+      data: getParsedInputFileEnrichedWithTestData({
+        config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
+        manualAttributions: testManualAttributions,
+      }),
+    });
+
+    expect(
+      await screen.findByText(aiAttributionStatesText.title),
+    ).toBeVisible();
+    expect(screen.getByTestId('aiAttributionStatesBarChart')).toBeVisible();
+  });
+
+  it('does not render the AI attribution states chart without AI attributions', async () => {
+    await renderComponent(<ProjectStatisticsPopup />, {
+      data: getParsedInputFileEnrichedWithTestData(fileSetup),
+    });
+
+    await screen.findByText(
+      text.projectStatisticsPopup.charts.attributionProperties.title,
+    );
+    expect(
+      screen.queryByText(aiAttributionStatesText.title),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(aiAttributionStatesText.deferredUnmodified),
     ).not.toBeInTheDocument();
   });
 

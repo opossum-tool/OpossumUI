@@ -13,6 +13,7 @@ export class ProjectStatisticsPopup {
   readonly detailsTab: Locator;
   readonly totalSignalCount: Locator;
   readonly attributionsOverviewChart: Locator;
+  readonly aiAttributionStatesChart: Locator;
   readonly mostFrequentLicensesChart: Locator;
   readonly signalsByCriticalityChart: Locator;
   readonly signalsByClassificationChart: Locator;
@@ -39,6 +40,9 @@ export class ProjectStatisticsPopup {
       .last();
     this.attributionsOverviewChart = this.node.getByTestId(
       'attributionBarChart',
+    );
+    this.aiAttributionStatesChart = this.node.getByTestId(
+      'aiAttributionStatesBarChart',
     );
     this.mostFrequentLicensesChart = this.node.getByTestId(
       'mostFrequentLicenseCountPieChart',
@@ -76,11 +80,24 @@ export class ProjectStatisticsPopup {
     overviewChartsAreVisible: async (): Promise<void> => {
       await Promise.all([
         expect(this.attributionsOverviewChart).toBeVisible(),
+        expect(this.aiAttributionStatesChart).toBeVisible(),
         expect(this.mostFrequentLicensesChart).toBeVisible(),
         expect(this.signalsByCriticalityChart).toBeVisible(),
         expect(this.signalsByClassificationChart).toBeVisible(),
         expect(this.incompleteAttributionsChart).toBeVisible(),
       ]);
+    },
+    aiAttributionStatesIsVisible: async (): Promise<void> => {
+      await expect(this.aiAttributionStatesChart).toContainText(
+        text.projectStatisticsPopup.charts.aiAttributionStates.title,
+      );
+      await expect(this.aiAttributionStatesChart).toContainText(
+        text.projectStatisticsPopup.charts.aiAttributionStates
+          .nonDeferredUnmodified,
+      );
+      await expect(this.aiAttributionStatesChart).toContainText(
+        text.projectStatisticsPopup.charts.aiAttributionStates.nonAi,
+      );
     },
     mostFrequentLicensesPieChartIsVisible: async (
       licenseName: string,
