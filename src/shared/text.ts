@@ -510,6 +510,8 @@ export const text = {
   },
   mergeOpossumFilesDialog: {
     mergeIntoCurrentProject: 'Merge into current project',
+    deleteSplitFilesAfterMerge: (count: number) =>
+      `Delete ${count === 0 ? '' : count} split file${count === 1 ? '' : 's'} after successful merge`,
     title: 'Merge split Opossum files',
     titleForCurrentFile: 'Merge split files into current file',
     explanationText:

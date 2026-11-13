@@ -49,6 +49,8 @@ export const MergeOpossumFilesDialog: React.FC<
     ignoreReadonlyResourceOutputConflicts,
     setIgnoreReadonlyResourceOutputConflicts,
   ] = useState(false);
+  const [deleteSplitFilesAfterMerge, setDeleteSplitFilesAfterMerge] =
+    useState(true);
   const [mergeInProgress, setMergeInProgress] = useState(false);
   const [mergeIntoCurrentFile, setMergeIntoCurrentFile] = useState(
     canMergeIntoCurrentFile,
@@ -64,6 +66,10 @@ export const MergeOpossumFilesDialog: React.FC<
     mergeIntoCurrentFile && isProjectSplit === false;
   const mergeInteractionDisabled =
     mergeInProgress || showNoReadonlyPathsMessage;
+
+  const deletableSplitFileCount = inputFilePaths.filter(
+    (i) => i !== outputFilePath,
+  ).length;
 
   async function addInputFilePaths(): Promise<void> {
     const selectedPaths =
@@ -113,16 +119,18 @@ export const MergeOpossumFilesDialog: React.FC<
 
     const result = mergeIntoCurrentFile
       ? await dispatch(
-          mergeOpossumFilesIntoCurrentFile(
-            inputFilePaths,
+          mergeOpossumFilesIntoCurrentFile({
+            partitionPaths: inputFilePaths,
             ignoreReadonlyResourceOutputConflicts,
-          ),
+            deleteSplitFilesAfterMerge,
+          }),
         )
-      : await window.electronAPI.mergeOpossumFilesFromPaths(
-          inputFilePaths,
-          outputFilePath,
+      : await window.electronAPI.mergeOpossumFilesFromPaths({
+          inputPaths: inputFilePaths,
+          outputPath: outputFilePath,
           ignoreReadonlyResourceOutputConflicts,
-        );
+          deleteSplitFilesAfterMerge,
+        });
     if (
       result.status === 'error' &&
       result.errorType ===
@@ -254,6 +262,19 @@ export const MergeOpossumFilesDialog: React.FC<
           disabled={mergeInProgress}
         />
       ) : null}
+      <MuiFormControlLabel
+        control={
+          <MuiSwitch
+            checked={deleteSplitFilesAfterMerge}
+            onChange={(_, checked) => setDeleteSplitFilesAfterMerge(checked)}
+            disabled={mergeInProgress}
+          />
+        }
+        label={text.mergeOpossumFilesDialog.deleteSplitFilesAfterMerge(
+          deletableSplitFileCount,
+        )}
+        sx={{ ...popupFixedSectionSx, mt: 2.5 }}
+      />
       {errorMessage ? (
         <MuiAlert
           severity={ignoreReadonlyResourceOutputConflicts ? 'warning' : 'error'}

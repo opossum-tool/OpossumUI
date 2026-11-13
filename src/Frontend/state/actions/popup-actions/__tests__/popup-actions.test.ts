@@ -190,13 +190,18 @@ describe('mergeOpossumFilesIntoCurrentFile', () => {
     });
 
     await testStore.dispatch(
-      mergeOpossumFilesIntoCurrentFile(partitionPaths, false),
+      mergeOpossumFilesIntoCurrentFile({
+        partitionPaths,
+        ignoreReadonlyResourceOutputConflicts: false,
+        deleteSplitFilesAfterMerge: true,
+      }),
     );
 
-    expect(window.electronAPI.mergeOpossumFiles).toHaveBeenCalledWith(
+    expect(window.electronAPI.mergeOpossumFiles).toHaveBeenCalledWith({
       partitionPaths,
-      false,
-    );
+      ignoreReadonlyResourceOutputConflicts: false,
+      deleteSplitFilesAfterMerge: true,
+    });
     expect(getSelectedResourceId(testStore.getState())).toBe('/');
     expect(getSelectedAttributionId(testStore.getState())).toBe('');
   });

@@ -323,15 +323,17 @@ export interface ElectronAPI {
     splitPaths: Array<string>,
     splitOpossumFilePath: string,
   ) => Promise<SplitFileResult>;
-  mergeOpossumFiles: (
-    partitionPaths: Array<string>,
-    ignoreReadonlyResourceOutputConflicts?: boolean,
-  ) => Promise<MergeOpossumFilesResult>;
-  mergeOpossumFilesFromPaths: (
-    inputPaths: Array<string>,
-    outputPath: string,
-    ignoreReadonlyResourceOutputConflicts?: boolean,
-  ) => Promise<MergeOpossumFilesResult>;
+  mergeOpossumFiles: (props: {
+    partitionPaths: Array<string>;
+    ignoreReadonlyResourceOutputConflicts: boolean;
+    deleteSplitFilesAfterMerge: boolean;
+  }) => Promise<MergeOpossumFilesResult>;
+  mergeOpossumFilesFromPaths: (props: {
+    inputPaths: Array<string>;
+    outputPath: string;
+    ignoreReadonlyResourceOutputConflicts: boolean;
+    deleteSplitFilesAfterMerge: boolean;
+  }) => Promise<MergeOpossumFilesResult>;
   saveFile: () => void;
   forceUnlock: () => Promise<void>;
   exportFile: (exportType: ExportType) => Promise<void>;
@@ -429,3 +431,8 @@ export interface UserSettings {
 export type PanelSizes = UserSettings['panelSizes'];
 
 export type LicenseOption = { id: string; label: string };
+
+export type ProgressCallback = (
+  message: string,
+  level?: 'info' | 'warn',
+) => void;

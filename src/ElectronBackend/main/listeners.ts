@@ -23,6 +23,10 @@ import {
   type SplitFileResult,
 } from '../../shared/shared-types';
 import { text } from '../../shared/text';
+import type {
+  MergeOpossumFilesFromPathsParams,
+  MergeOpossumFilesParams,
+} from '../api/mergeOpossumFiles';
 import { getMainDbClient } from '../dbProcess/dbProcessClient';
 import {
   sendListenerErrorToFrontend,
@@ -134,12 +138,15 @@ export const splitCurrentOpossumFileListener =
     }
   };
 
+export type MergeCurrentOpossumFilesListenerProps = Omit<
+  MergeOpossumFilesParams,
+  'saveFileParams'
+>;
 export const mergeCurrentOpossumFilesListener =
   (mainWindow: BrowserWindow) =>
   async (
     _: Electron.IpcMainInvokeEvent,
-    partitionPaths: Array<string>,
-    ignoreReadonlyResourceOutputConflicts: boolean,
+    props: MergeCurrentOpossumFilesListenerProps,
   ): Promise<MergeOpossumFilesResult> => {
     const processingStatusUpdater = new ProcessingStatusUpdater(
       mainWindow.webContents,
@@ -162,12 +169,11 @@ export const mergeCurrentOpossumFilesListener =
 
       const result = await getMainDbClient().mergeOpossumFiles(
         {
-          ignoreReadonlyResourceOutputConflicts,
           saveFileParams: {
             projectId: globalBackendState.projectId,
             opossumFilePath: globalBackendState.opossumFilePath,
           },
-          partitionPaths,
+          ...props,
         },
         (message, level) => {
           if (level === 'warn') {
@@ -184,12 +190,12 @@ export const mergeCurrentOpossumFilesListener =
     }
   };
 
+export type MergeOpossumFilesFromPathsListenerProps =
+  MergeOpossumFilesFromPathsParams;
 export async function mergeOpossumFilesFromPathsListener(
   mainWindow: BrowserWindow,
   _: Electron.IpcMainInvokeEvent,
-  inputPaths: Array<string>,
-  outputPath: string,
-  ignoreReadonlyResourceOutputConflicts: boolean,
+  props: MergeOpossumFilesFromPathsListenerProps,
 ): Promise<MergeOpossumFilesResult> {
   const processingStatusUpdater = new ProcessingStatusUpdater(
     mainWindow.webContents,
@@ -197,11 +203,7 @@ export async function mergeOpossumFilesFromPathsListener(
   processingStatusUpdater.startProcessing();
   try {
     const result = await getMainDbClient().mergeOpossumFilesFromPaths(
-      {
-        ignoreReadonlyResourceOutputConflicts,
-        inputPaths,
-        outputPath,
-      },
+      props,
       (message) => processingStatusUpdater.info(message),
     );
     reportMergeResult(processingStatusUpdater, result);

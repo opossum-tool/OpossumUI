@@ -339,15 +339,13 @@ export function createSplit(
   };
 }
 
-export function mergeOpossumFilesIntoCurrentFile(
-  partitionPaths: Array<string>,
-  ignoreReadonlyResourceOutputConflicts: boolean,
-): AppThunkAction<Promise<MergeOpossumFilesResult>> {
+export function mergeOpossumFilesIntoCurrentFile(props: {
+  partitionPaths: Array<string>;
+  ignoreReadonlyResourceOutputConflicts: boolean;
+  deleteSplitFilesAfterMerge: boolean;
+}): AppThunkAction<Promise<MergeOpossumFilesResult>> {
   return async (dispatch) => {
-    const result = await window.electronAPI.mergeOpossumFiles(
-      partitionPaths,
-      ignoreReadonlyResourceOutputConflicts,
-    );
+    const result = await window.electronAPI.mergeOpossumFiles(props);
     if (result.status === 'error') {
       return result;
     }

@@ -12,6 +12,7 @@ import {
   type ExportType,
   MergeOpossumFilesErrorType,
   type MergeOpossumFilesResult,
+  type ProgressCallback,
 } from '../../shared/shared-types';
 import {
   type CommandName,
@@ -24,14 +25,12 @@ import { forceUnlockOpossumFile } from '../api/forceUnlock';
 import {
   mergeOpossumFiles,
   mergeOpossumFilesFromPaths,
+  type MergeOpossumFilesFromPathsParams,
+  type MergeOpossumFilesParams,
 } from '../api/mergeOpossumFiles';
 import { saveFile } from '../api/saveFile';
 import { splitOpossumFile } from '../api/splitOpossumFile';
-import {
-  loadFile,
-  type LoadFileIpcResult,
-  type LoadFileProgressCallback,
-} from '../input/loadFile';
+import { loadFile, type LoadFileIpcResult } from '../input/loadFile';
 
 interface LoadFileMessage {
   type: 'loadFile';
@@ -59,19 +58,13 @@ interface SplitOpossumFileMessage {
 }
 
 interface MergeOpossumFilesMessage {
-  ignoreReadonlyResourceOutputConflicts: boolean;
   type: 'mergeOpossumFiles';
-  projectId: string;
-  inputFileChecksum?: string;
-  opossumFilePath: string;
-  partitionPaths: Array<string>;
+  params: MergeOpossumFilesParams;
 }
 
 interface MergeOpossumFilesFromPathsMessage {
-  ignoreReadonlyResourceOutputConflicts: boolean;
-  inputPaths: Array<string>;
-  outputPath: string;
   type: 'mergeOpossumFilesFromPaths';
+  params: MergeOpossumFilesFromPathsParams;
 }
 
 interface ExportFileMessage {
@@ -136,7 +129,7 @@ let storedOpossumZip: AdmZip | undefined;
 
 async function executeDbProcessMessage(
   msg: DbProcessRequest,
-  onProgress?: LoadFileProgressCallback,
+  onProgress?: ProgressCallback,
 ): Promise<SuccessPayload> {
   switch (msg.type) {
     case 'loadFile': {
@@ -194,27 +187,17 @@ async function executeDbProcessMessage(
           status: 'error',
         };
       }
-      const {
-        id: _,
-        type: __,
-        ignoreReadonlyResourceOutputConflicts,
-        partitionPaths,
-        ...saveFileParams
-      } = msg;
+      const { id: _, type: __, params } = msg;
       const result = await mergeOpossumFiles(
-        {
-          ignoreReadonlyResourceOutputConflicts,
-          saveFileParams,
-          partitionPaths,
-          reportProgress: onProgress,
-        },
+        params,
         storedOpossumZip,
+        onProgress,
       );
       if (result.status === 'error') {
         return result;
       }
       const loadResult = await loadFile(
-        saveFileParams.opossumFilePath,
+        params.saveFileParams.opossumFilePath,
         onProgress,
       );
       if (!loadResult.ok) {
@@ -228,19 +211,8 @@ async function executeDbProcessMessage(
       return result;
     }
     case 'mergeOpossumFilesFromPaths': {
-      const {
-        id: _,
-        type: __,
-        ignoreReadonlyResourceOutputConflicts,
-        inputPaths,
-        outputPath,
-      } = msg;
-      return mergeOpossumFilesFromPaths({
-        ignoreReadonlyResourceOutputConflicts,
-        inputPaths,
-        outputPath,
-        reportProgress: onProgress,
-      });
+      const { id: _, type: __, params } = msg;
+      return mergeOpossumFilesFromPaths(params, onProgress);
     }
     case 'exportFile': {
       await exportFile(msg.exportType, msg.filePath);

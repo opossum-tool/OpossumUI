@@ -7,6 +7,7 @@ import fs from 'fs';
 import { isDeepStrictEqual } from 'node:util';
 import path from 'path';
 
+import type { ProgressCallback } from '../../shared/shared-types';
 import { writeOpossumFile } from '../../shared/write-file';
 import {
   INPUT_FILE_NAME,
@@ -23,10 +24,10 @@ import {
 } from './readonly-rules';
 
 export interface MergeOpossumArchivesArgs {
-  ignoreReadonlyResourceOutputConflicts?: boolean;
   inputPaths: Array<string>;
   outputPath: string;
-  reportProgress?: (message: string) => void;
+  ignoreReadonlyResourceOutputConflicts: boolean;
+  deleteSplitFilesAfterMerge: boolean;
 }
 
 interface MergeArchive {
@@ -42,34 +43,50 @@ export class ReadonlyResourceOutputConflictError extends Error {
   }
 }
 
-export async function mergeOpossumArchives({
-  ignoreReadonlyResourceOutputConflicts = false,
-  inputPaths,
-  outputPath,
-  reportProgress = () => {},
-}: MergeOpossumArchivesArgs): Promise<void> {
-  reportProgress('Validating input archives');
+export async function mergeOpossumArchives(
+  {
+    inputPaths,
+    outputPath,
+    ignoreReadonlyResourceOutputConflicts,
+    deleteSplitFilesAfterMerge,
+  }: MergeOpossumArchivesArgs,
+  onProgress?: ProgressCallback,
+): Promise<void> {
+  onProgress?.('Validating input archives');
   validatePaths(inputPaths, outputPath);
   const archives = inputPaths.map((inputPath) => {
-    reportProgress(`Reading archive ${inputPath}`);
+    onProgress?.(`Reading archive ${inputPath}`);
     return readMergeArchive(inputPath);
   });
-  reportProgress('Checking project compatibility');
+  onProgress?.('Checking project compatibility');
   validateProjectIds(archives);
 
-  reportProgress('Merging readonly rules and attribution data');
+  onProgress?.('Merging readonly rules and attribution data');
   const readonlyRules = mergeReadonlyRules(
     archives.map((archive) => archive.readonlyRulesByPath),
   );
   const output = mergeOutput(archives, ignoreReadonlyResourceOutputConflicts);
 
-  reportProgress('Writing merged .opossum file');
+  onProgress?.('Writing merged .opossum file');
   await writeOpossumFile({
     path: outputPath,
     zip: new AdmZip(archives[0].zip.toBuffer()),
     output,
     readonlyRules,
   });
+
+  if (deleteSplitFilesAfterMerge) {
+    onProgress?.('Deleting split files');
+    inputPaths.forEach((inputPath) => {
+      if (path.resolve(inputPath) !== path.resolve(outputPath)) {
+        try {
+          fs.unlinkSync(inputPath);
+        } catch {
+          onProgress?.(`Deleting file ${inputPath} failed`);
+        }
+      }
+    });
+  }
 }
 
 function readMergeArchive(filePath: string): MergeArchive {

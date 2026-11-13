@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import AdmZip from 'adm-zip';
+import fs from 'fs';
 
 import type {
   AiAttributions,
@@ -64,6 +65,8 @@ describe('mergeOpossumArchives', () => {
     await mergeOpossumArchives({
       inputPaths: [sourcePath, selectedPath],
       outputPath,
+      ignoreReadonlyResourceOutputConflicts: false,
+      deleteSplitFilesAfterMerge: false,
     });
 
     const parsed = await parseMergedArchive(outputPath);
@@ -121,7 +124,12 @@ describe('mergeOpossumArchives', () => {
         [frontendPath, docsPath],
       ]) {
         const outputPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
-        await mergeOpossumArchives({ inputPaths, outputPath });
+        await mergeOpossumArchives({
+          inputPaths,
+          outputPath,
+          ignoreReadonlyResourceOutputConflicts: false,
+          deleteSplitFilesAfterMerge: false,
+        });
 
         const mergedAttribution = readOutputAttribution(outputPath, 'shared');
         expectAiMetadata(mergedAttribution, metadata);
@@ -206,7 +214,12 @@ describe('mergeOpossumArchives', () => {
     ])) {
       const outputPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
 
-      await mergeOpossumArchives({ inputPaths, outputPath });
+      await mergeOpossumArchives({
+        inputPaths,
+        outputPath,
+        ignoreReadonlyResourceOutputConflicts: false,
+        deleteSplitFilesAfterMerge: false,
+      });
 
       const parsed = await parseMergedArchive(outputPath);
       expect(parsed.readonlyRules).toEqual([]);
@@ -239,6 +252,8 @@ describe('mergeOpossumArchives', () => {
         }),
       ],
       outputPath,
+      ignoreReadonlyResourceOutputConflicts: false,
+      deleteSplitFilesAfterMerge: false,
     });
 
     expect(getReadonlyRules(outputPath)).toEqual([
@@ -277,6 +292,8 @@ describe('mergeOpossumArchives', () => {
         }),
       ],
       outputPath,
+      ignoreReadonlyResourceOutputConflicts: false,
+      deleteSplitFilesAfterMerge: false,
     });
 
     await expect(mergePromise).rejects.toBeInstanceOf(
@@ -298,7 +315,6 @@ describe('mergeOpossumArchives', () => {
     const outputPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
 
     await mergeOpossumArchives({
-      ignoreReadonlyResourceOutputConflicts: true,
       inputPaths: [
         firstPath,
         await createArchive({
@@ -310,6 +326,8 @@ describe('mergeOpossumArchives', () => {
         }),
       ],
       outputPath,
+      ignoreReadonlyResourceOutputConflicts: true,
+      deleteSplitFilesAfterMerge: false,
     });
 
     expect((await parseMergedArchive(outputPath)).output).toMatchObject({
@@ -345,6 +363,8 @@ describe('mergeOpossumArchives', () => {
           }),
         ],
         outputPath,
+        ignoreReadonlyResourceOutputConflicts: false,
+        deleteSplitFilesAfterMerge: false,
       }),
     ).rejects.toThrow("readonly resource output for paths: '/shared/'");
   });
@@ -367,6 +387,8 @@ describe('mergeOpossumArchives', () => {
           }),
         ],
         outputPath,
+        ignoreReadonlyResourceOutputConflicts: false,
+        deleteSplitFilesAfterMerge: false,
       }),
     ).rejects.toThrow('same project ID');
   });
@@ -389,6 +411,8 @@ describe('mergeOpossumArchives', () => {
         }),
       ],
       outputPath,
+      ignoreReadonlyResourceOutputConflicts: false,
+      deleteSplitFilesAfterMerge: false,
     });
 
     expect(new AdmZip(outputPath).getEntry('output.json')).toBeDefined();
@@ -414,8 +438,89 @@ describe('mergeOpossumArchives', () => {
           }),
         ],
         outputPath,
+        ignoreReadonlyResourceOutputConflicts: false,
+        deleteSplitFilesAfterMerge: false,
       }),
     ).rejects.toThrow("Input archives overlap on editable path '/docs'");
+  });
+
+  it.each([
+    { description: 'a new archive', outputIsInput: false },
+    { description: 'one of the input archives', outputIsInput: true },
+  ])(
+    'deletes the split files after merging into $description',
+    async ({ outputIsInput }) => {
+      const sourcePath = await createArchive({
+        readonlyRules: [{ path: '/docs', readonly: true }],
+      });
+      const selectedPath = await createArchive({
+        readonlyRules: [
+          { path: '/', readonly: true },
+          { path: '/docs', readonly: false },
+        ],
+      });
+      const outputPath = outputIsInput
+        ? sourcePath
+        : faker.outputPath(`${faker.string.uuid()}.opossum`);
+
+      await mergeOpossumArchives({
+        inputPaths: [sourcePath, selectedPath],
+        outputPath,
+        ignoreReadonlyResourceOutputConflicts: false,
+        deleteSplitFilesAfterMerge: true,
+      });
+
+      expect((await parseMergedArchive(outputPath)).readonlyRules).toEqual([]);
+      expect(fs.existsSync(sourcePath)).toBe(outputIsInput);
+      expect(fs.existsSync(selectedPath)).toBe(false);
+    },
+  );
+
+  it('keeps the split files when deletion is disabled', async () => {
+    const sourcePath = await createArchive({
+      readonlyRules: [{ path: '/docs', readonly: true }],
+    });
+    const selectedPath = await createArchive({
+      readonlyRules: [
+        { path: '/', readonly: true },
+        { path: '/docs', readonly: false },
+      ],
+    });
+
+    await mergeOpossumArchives({
+      inputPaths: [sourcePath, selectedPath],
+      outputPath: faker.outputPath(`${faker.string.uuid()}.opossum`),
+      ignoreReadonlyResourceOutputConflicts: false,
+      deleteSplitFilesAfterMerge: false,
+    });
+
+    expect(fs.existsSync(sourcePath)).toBe(true);
+    expect(fs.existsSync(selectedPath)).toBe(true);
+  });
+
+  it('keeps the split files when the merge fails', async () => {
+    const sourcePath = await createArchive({
+      readonlyRules: [{ path: '/docs', readonly: true }],
+    });
+    const otherProjectPath = await createArchive({
+      projectId: 'other-project-id',
+      readonlyRules: [
+        { path: '/', readonly: true },
+        { path: '/docs', readonly: false },
+      ],
+    });
+
+    await expect(
+      mergeOpossumArchives({
+        inputPaths: [sourcePath, otherProjectPath],
+        outputPath: faker.outputPath(`${faker.string.uuid()}.opossum`),
+        ignoreReadonlyResourceOutputConflicts: false,
+        deleteSplitFilesAfterMerge: true,
+      }),
+    ).rejects.toThrow('same project ID');
+
+    expect(fs.existsSync(sourcePath)).toBe(true);
+    expect(fs.existsSync(otherProjectPath)).toBe(true);
   });
 });
 

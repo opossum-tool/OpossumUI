@@ -109,7 +109,7 @@ test('scrolls a long merge file list while keeping the controls visible', async 
   menuBar,
   mergeOpossumFilesDialog,
 }) => {
-  await window.setViewportSize({ width: 800, height: 600 });
+  await window.setViewportSize({ width: 800, height: 650 });
   await menuBar.mergeSplitFilesIntoCurrentFile();
   await mergeOpossumFilesDialog.selectNewOutputFile();
   const filePaths = Array.from(

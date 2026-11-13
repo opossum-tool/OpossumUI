@@ -8,6 +8,7 @@ import path from 'path';
 import type {
   ExportType,
   MergeOpossumFilesResult,
+  ProgressCallback,
 } from '../../shared/shared-types';
 import type {
   CommandName,
@@ -26,8 +27,6 @@ import type {
   DbProcessRequest,
   DbProcessResponse,
 } from './dbProcess';
-
-type ProgressCallback = (message: string, level?: 'info' | 'warn') => void;
 
 interface PendingRequest {
   resolve: (value: unknown) => void;
@@ -146,38 +145,26 @@ export class DbProcessClient {
   }
 
   mergeOpossumFiles(
-    {
-      ignoreReadonlyResourceOutputConflicts,
-      saveFileParams,
-      partitionPaths,
-    }: MergeOpossumFilesParams,
+    params: MergeOpossumFilesParams,
     onProgress?: ProgressCallback,
   ): Promise<MergeOpossumFilesResult> {
     return this.request(
       {
-        ignoreReadonlyResourceOutputConflicts,
         type: 'mergeOpossumFiles',
-        ...saveFileParams,
-        partitionPaths,
+        params,
       },
       { onProgress },
     ) as Promise<MergeOpossumFilesResult>;
   }
 
   mergeOpossumFilesFromPaths(
-    {
-      ignoreReadonlyResourceOutputConflicts,
-      inputPaths,
-      outputPath,
-    }: MergeOpossumFilesFromPathsParams,
+    params: MergeOpossumFilesFromPathsParams,
     onProgress?: ProgressCallback,
   ): Promise<MergeOpossumFilesResult> {
     return this.request(
       {
-        ignoreReadonlyResourceOutputConflicts,
-        inputPaths,
-        outputPath,
         type: 'mergeOpossumFilesFromPaths',
+        params,
       },
       { onProgress },
     ) as Promise<MergeOpossumFilesResult>;
