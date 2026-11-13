@@ -62,6 +62,55 @@ export async function hasAiAttributions() {
   return { result };
 }
 
+export async function aiAttributionStatistics() {
+  const { result: aiStates } = await getAiProgressBarData();
+
+  // Eligible attributions without AI metadata;
+  // eligibility matches the AI review progress bar otherwise.
+  const nonAi = await getDb()
+    .selectFrom('attribution')
+    .where('is_external', '=', 0)
+    .where('is_resolved', '=', 0)
+    .where((eb) =>
+      eb.and([
+        eb.exists(getWritableResourceLinks(eb)),
+        eb.not(
+          eb.exists(
+            eb
+              .selectFrom('attribution_ai')
+              .select('attribution_uuid')
+              .whereRef(
+                'attribution_ai.attribution_uuid',
+                '=',
+                'attribution.uuid',
+              ),
+          ),
+        ),
+      ]),
+    )
+    .select((eb) => eb.fn.countAll<number>().as('count'))
+    .executeTakeFirstOrThrow();
+
+  return {
+    result: [
+      {
+        name: 'nonDeferredUnmodified' as const,
+        count: aiStates.nonDeferredUnmodified,
+      },
+      {
+        name: 'nonDeferredModified' as const,
+        count: aiStates.nonDeferredModified,
+      },
+      {
+        name: 'deferredUnmodified' as const,
+        count: aiStates.deferredUnmodified,
+      },
+      { name: 'deferredModified' as const, count: aiStates.deferredModified },
+      { name: 'nonAi' as const, count: nonAi.count },
+    ],
+  };
+}
+
 export async function getAiProgressBarData() {
   // Count attribution rows, not links. The correlated EXISTS probes the
   // attribution_uuid/resource_id index and stops at the first writable link.

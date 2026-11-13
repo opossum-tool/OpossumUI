@@ -3,7 +3,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { Criticality } from '../../../shared/shared-types';
-import { initializeDbWithTestData as initializeDbWithRawTestData } from '../../../testing/global-test-helpers';
+import {
+  initializeDbWithTestData as initializeDbWithRawTestData,
+  pathsToResources,
+} from '../../../testing/global-test-helpers';
+import { aiAttributionStatistics } from '../ai-progress-bar';
 import {
   externalAttributionStatistics,
   licenseTable,
@@ -987,5 +991,140 @@ describe('licenseTable', () => {
 
     expect(result.perLicense).toHaveLength(1);
     expect(result.perLicense[0].licenseName).toBeNull();
+  });
+});
+
+describe('aiAttributionStatistics', () => {
+  it('counts eligible attributions per AI review state and non-AI attributions', async () => {
+    await initializeDbWithRawTestData({
+      resources: pathsToResources(['/folder/file.ts', '/other.ts', '/file.ts']),
+      readonlyRules: [{ path: '/file.ts', readonly: true }],
+      manualAttributions: {
+        attributions: {
+          pendingNonDeferred: {
+            id: 'pendingNonDeferred',
+            criticality: Criticality.None,
+            aiAttributions: {},
+          },
+          nonDeferredModified: {
+            id: 'nonDeferredModified',
+            criticality: Criticality.None,
+            aiAttributions: { humanModified: true },
+          },
+          deferredModified: {
+            id: 'deferredModified',
+            criticality: Criticality.None,
+            aiAttributions: { deferredFields: {}, humanModified: true },
+          },
+          deferredUnmodified: {
+            id: 'deferredUnmodified',
+            criticality: Criticality.None,
+            aiAttributions: { deferredFields: {} },
+          },
+          unlinkedNonDeferred: {
+            id: 'unlinkedNonDeferred',
+            criticality: Criticality.None,
+            aiAttributions: {},
+          },
+          nonAi: {
+            id: 'nonAi',
+            criticality: Criticality.None,
+          },
+        },
+        resourcesToAttributions: {
+          '/folder': [
+            'pendingNonDeferred',
+            'nonDeferredModified',
+            'deferredModified',
+            'nonAi',
+          ],
+          '/other.ts': ['deferredUnmodified'],
+        },
+        attributionsToResources: {
+          pendingNonDeferred: ['/folder'],
+          nonDeferredModified: ['/folder'],
+          deferredModified: ['/folder'],
+          deferredUnmodified: ['/other.ts'],
+          unlinkedNonDeferred: [],
+          nonAi: ['/folder'],
+        },
+      },
+      externalAttributions: {
+        attributions: {
+          signal: { id: 'signal', criticality: Criticality.None },
+        },
+        resourcesToAttributions: { '/other.ts': ['signal'] },
+        attributionsToResources: { signal: ['/other.ts'] },
+      },
+    });
+
+    const { result } = await aiAttributionStatistics();
+
+    expect(result).toEqual([
+      { name: 'nonDeferredUnmodified', count: 1 },
+      { name: 'nonDeferredModified', count: 1 },
+      { name: 'deferredUnmodified', count: 1 },
+      { name: 'deferredModified', count: 1 },
+      { name: 'nonAi', count: 1 },
+    ]);
+  });
+
+  it('reports zero AI states and zero non-AI for a project with only readonly links', async () => {
+    await initializeDbWithRawTestData({
+      resources: pathsToResources(['/file.ts']),
+      readonlyRules: [{ path: '/', readonly: true }],
+      manualAttributions: {
+        attributions: {
+          deferred: {
+            id: 'deferred',
+            criticality: Criticality.None,
+            aiAttributions: { deferredFields: {} },
+          },
+          nonAi: { id: 'nonAi', criticality: Criticality.None },
+        },
+        resourcesToAttributions: { '/file.ts': ['deferred', 'nonAi'] },
+        attributionsToResources: {
+          deferred: ['/file.ts'],
+          nonAi: ['/file.ts'],
+        },
+      },
+    });
+
+    const { result } = await aiAttributionStatistics();
+
+    expect(result).toEqual([
+      { name: 'nonDeferredUnmodified', count: 0 },
+      { name: 'nonDeferredModified', count: 0 },
+      { name: 'deferredUnmodified', count: 0 },
+      { name: 'deferredModified', count: 0 },
+      { name: 'nonAi', count: 0 },
+    ]);
+  });
+
+  it('represents a project with only non-deferred AI attributions meaningfully', async () => {
+    await initializeDbWithRawTestData({
+      resources: pathsToResources(['/file.ts']),
+      manualAttributions: {
+        attributions: {
+          aiUnmodified: {
+            id: 'aiUnmodified',
+            criticality: Criticality.None,
+            aiAttributions: {},
+          },
+        },
+        resourcesToAttributions: { '/file.ts': ['aiUnmodified'] },
+        attributionsToResources: { aiUnmodified: ['/file.ts'] },
+      },
+    });
+
+    const { result } = await aiAttributionStatistics();
+
+    expect(result).toEqual([
+      { name: 'nonDeferredUnmodified', count: 1 },
+      { name: 'nonDeferredModified', count: 0 },
+      { name: 'deferredUnmodified', count: 0 },
+      { name: 'deferredModified', count: 0 },
+      { name: 'nonAi', count: 0 },
+    ]);
   });
 });
