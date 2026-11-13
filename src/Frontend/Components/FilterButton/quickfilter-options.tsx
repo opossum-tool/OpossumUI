@@ -53,8 +53,8 @@ export function useQuickfilterOptions({
   /**
    * Whether applying quickfilters should press license-only quickfilters on
    * the paired resources panel as well. Only the audit attributions panel
-   * pairs with the resource tree via the live license sync, so it opts in;
-   * the report view and the signals panel keep their membership local.
+   * opts in; the report view and the signals panel keep their membership
+   * local.
    */
   crossActivateResource?: boolean;
 }): Array<FilterOption> {
@@ -126,9 +126,9 @@ export function useQuickfilterOptions({
       );
       const sharedResource = sharedResourceModel(quickfilter);
       if (sharedResource) {
-        // License filters are mirrored live between the attributions and the
-        // resources panels; apply the shared quickfilter there as well so
-        // its row is pressed on both panels.
+        // License-only quickfilters are shared with the resource tree;
+        // apply the converted model there as well so its row is pressed on
+        // both panels.
         setResourceTreeFilters((prev) =>
           mergeResourceQuickfilterIntoFilters(prev, sharedResource),
         );
