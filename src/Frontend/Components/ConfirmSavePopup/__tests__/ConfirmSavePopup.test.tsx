@@ -255,7 +255,7 @@ describe('AttributionFormConfirmSavePopup', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('confirms a query-wide selection without loading its IDs in the renderer', async () => {
+  it('confirms a query-wide selection', async () => {
     const first = faker.opossum.packageInfo({
       packageName: 'first',
       preSelected: true,
@@ -339,6 +339,109 @@ describe('AttributionFormConfirmSavePopup', () => {
     ).toBeUndefined();
   });
 
+  it('shows the linked resources tree for a small query-wide selection', async () => {
+    const first = faker.opossum.packageInfo({
+      packageName: 'first',
+      preSelected: true,
+    });
+    const second = faker.opossum.packageInfo({
+      packageName: 'second',
+      preSelected: true,
+    });
+    const firstResource = '/parent/first-resource';
+    const secondResource = '/parent/second-resource';
+
+    await renderComponent(
+      <ConfirmSavePopup
+        open
+        onClose={noop}
+        selection={{
+          mode: 'allMatching',
+          query: {
+            external: false,
+            filters: ['preSelected'],
+            search: '',
+            valueFilters: {},
+            resourcePathForRelationships: '/parent',
+            showResolved: false,
+            excludeUnrelated: false,
+            relation: 'children',
+          },
+          excludedAttributionUuids: [],
+        }}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions({
+            [first.id]: first,
+            [second.id]: second,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [firstResource]: [first.id],
+            [secondResource]: [second.id],
+          }),
+          resources: pathsToResources([firstResource, secondResource]),
+        }),
+      },
+    );
+
+    const tree = await screen.findByTestId('linked-resources-tree');
+    expect(await within(tree).findByText('first-resource')).toBeVisible();
+    expect(await within(tree).findByText('second-resource')).toBeVisible();
+    expect(
+      screen.getByText(text.confirmAttributionActionPopup.affectedResources),
+    ).toBeVisible();
+  });
+
+  it('keeps hiding the linked resources tree for a query-wide selection too large to resolve', async () => {
+    const attributions = Array.from({ length: 101 }, () =>
+      faker.opossum.packageInfo(),
+    );
+    const resource = '/parent/resource';
+
+    await renderComponent(
+      <ConfirmSavePopup
+        open
+        onClose={noop}
+        selection={{
+          mode: 'allMatching',
+          query: {
+            external: false,
+            filters: [],
+            search: '',
+            valueFilters: {},
+            resourcePathForRelationships: resource,
+            showResolved: false,
+            excludeUnrelated: false,
+            relation: 'resource',
+          },
+          excludedAttributionUuids: [],
+        }}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: faker.opossum.attributions(
+            Object.fromEntries(
+              attributions.map((attribution) => [attribution.id, attribution]),
+            ),
+          ),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            [resource]: attributions.map((attribution) => attribution.id),
+          }),
+          resources: pathsToResources([resource]),
+        }),
+      },
+    );
+
+    const saveButton = await screen.findByRole('button', {
+      name: text.saveAttributionsPopup.save,
+    });
+    await waitFor(() => expect(saveButton).toBeEnabled());
+    expect(
+      screen.queryByTestId('linked-resources-tree'),
+    ).not.toBeInTheDocument();
+  });
+
   it('preserves focus when a query-wide save matches an existing attribution', async () => {
     const focused = faker.opossum.packageInfo({
       packageName: 'matching-package',
@@ -393,6 +496,7 @@ describe('AttributionFormConfirmSavePopup', () => {
     const confirmButton = await screen.findByRole('button', {
       name: text.saveAttributionsPopup.confirm,
     });
+    await screen.findByTestId('linked-resources-tree');
     await waitFor(() => expect(confirmButton).toBeEnabled());
     await userEvent.click(confirmButton);
 

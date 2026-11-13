@@ -158,6 +158,7 @@ const ATTRIBUTION_AGGREGATE_INVALIDATIONS: Array<MutationInvalidation> = [
   { queryName: 'listAttributionsPage', awaitRefetch: true },
   { queryName: 'listAttributionPreview' },
   { queryName: 'getAttributionSelectionSummary' },
+  { queryName: 'getAttributionSelectionUuids' },
   { queryName: 'locateAttribution' },
 ];
 

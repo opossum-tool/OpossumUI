@@ -66,7 +66,7 @@ export const ConfirmReplacePopup = ({
   const {
     attributions: attributionsForReplacement,
     attributionIds,
-    isQueryWideSelection,
+    canShowLinkedResourcesTree,
     isSelectionDataReady,
     selectionMetadata,
   } = useAttributionSelectionData({
@@ -89,12 +89,15 @@ export const ConfirmReplacePopup = ({
       ]),
     ],
     enabled:
-      open && !isReplacing && isSelectionDataReady && !isQueryWideSelection,
+      open &&
+      !isReplacing &&
+      isSelectionDataReady &&
+      canShowLinkedResourcesTree,
     onlyWritable: true,
   });
   const isResourceInfoReady =
     isSelectionDataReady &&
-    (isQueryWideSelection || (!isTreeLoading && !hasTreeError));
+    (!canShowLinkedResourcesTree || (!isTreeLoading && !hasTreeError));
   const mixedAttributionCount =
     selectionMetadata.mixedAttributionCount +
     (selectedAttribution.preSelected &&

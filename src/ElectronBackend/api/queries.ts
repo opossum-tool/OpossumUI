@@ -35,7 +35,10 @@ import {
   hasAiAttributions,
 } from './ai-progress-bar';
 import { listAttributionRelationCounts } from './attributions/attribution-relation-counts';
-import { getAttributionSelectionSummary } from './attributions/attribution-selection-queries';
+import {
+  getAttributionSelectionSummary,
+  getAttributionSelectionUuids,
+} from './attributions/attribution-selection-queries';
 import { getAttributionPreview } from './attributions/get-attribution-preview';
 import {
   listAttributionPreview,
@@ -252,6 +255,7 @@ export const queries = {
   listAttributionPreview,
   locateAttribution,
   getAttributionSelectionSummary,
+  getAttributionSelectionUuids,
   getResourceTree,
   getLinkedResourceTree,
   getResourceTreeUnreviewedCount,

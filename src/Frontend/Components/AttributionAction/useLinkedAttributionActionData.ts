@@ -21,7 +21,7 @@ export function useLinkedAttributionActionData({
     selectedResourceId,
     attributions,
     attributionIds,
-    isQueryWideSelection,
+    canShowLinkedResourcesTree,
     isSelectionDataReady,
     selectionMetadata,
   } = useAttributionSelectionData({ open, isMutationPending, selection });
@@ -35,12 +35,12 @@ export function useLinkedAttributionActionData({
       open &&
       !isMutationPending &&
       isSelectionDataReady &&
-      !isQueryWideSelection,
+      canShowLinkedResourcesTree,
     onlyWritable: true,
   });
-  const linkedResourceCount = isQueryWideSelection
-    ? selectionMetadata.writableLinkedResourceCount
-    : linkedResourcesTreeState?.count;
+  const linkedResourceCount =
+    linkedResourcesTreeState?.count ??
+    selectionMetadata.writableLinkedResourceCount;
   const actionSummary = {
     selectedAttributionCount: selectionMetadata.selectedAttributionCount,
     mixedAttributionCount: selectionMetadata.mixedAttributionCount,
@@ -49,7 +49,7 @@ export function useLinkedAttributionActionData({
     linkedResourceCount,
     isResourceInfoReady:
       isSelectionDataReady &&
-      (isQueryWideSelection ||
+      (!canShowLinkedResourcesTree ||
         (!isLinkedResourcesTreeLoading && !hasLinkedResourcesTreeError)),
     isLocalActionAvailable: Boolean(
       linkedResourceCount &&

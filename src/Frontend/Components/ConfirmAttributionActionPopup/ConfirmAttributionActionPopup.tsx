@@ -150,12 +150,12 @@ export function ConfirmAttributionActionPopup({
         </>
       )}
       {children}
-      {selection.mode === 'explicit' && (
+      {linkedResourcesTreeState && (
         <MuiTypography variant={'subtitle2'} sx={popupFixedSectionSx}>
           {text.confirmAttributionActionPopup.affectedResources}
         </MuiTypography>
       )}
-      {selection.mode === 'explicit' && linkedResourcesTreeState && (
+      {linkedResourcesTreeState && (
         <LinkedResourcesTree
           readOnly
           fitContent
