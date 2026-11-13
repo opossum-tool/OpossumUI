@@ -70,6 +70,9 @@ describe('ConfirmDeletePopup', () => {
     expect(
       screen.getByLabelText(text.resourceBrowser.directlyLinked),
     ).toBeInTheDocument();
+    expect(
+      await screen.findByTestId('linked-resources-tree'),
+    ).toBeInTheDocument();
     await clickPopupButton(
       CONFIRM_DELETE_POPUP_LABEL,
       text.deleteAttributionsPopup.delete,

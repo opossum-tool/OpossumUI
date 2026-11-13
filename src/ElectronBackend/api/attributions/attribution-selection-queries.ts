@@ -100,6 +100,70 @@ function getSelectionMembershipQuery(
     ) as AttributionMembershipQuery;
 }
 
+export type GetAttributionSelectionUuidsProps = {
+  selection: AttributionSelection;
+  limit: number;
+};
+
+/**
+ * Resolve the full set of attribution UUIDs for a selection, but only while
+ * it does not exceed the given limit. Renderer-side clients use this to show
+ * interactive details (e.g. the linked resources tree) also for query-wide
+ * selections that are small enough to be materialized.
+ */
+export async function getAttributionSelectionUuids(
+  props: GetAttributionSelectionUuidsProps,
+): Promise<{
+  result: { attributionUuids: Array<string>; limitExceeded: boolean };
+}> {
+  const { selection } = props;
+  if (selection.mode === 'explicit') {
+    return {
+      result: {
+        attributionUuids: selection.attributionUuids,
+        limitExceeded: false,
+      },
+    };
+  }
+
+  const result = await getDb()
+    .transaction()
+    .execute(async (trx) => {
+      const { resource, closestAncestor } =
+        await getAttributionResultSetContext(trx, selection.query);
+      const membership = applyExcludedAttributionUuids(
+        getFilteredQuery(
+          trx,
+          {
+            ...selection.query,
+            includeReadonly: false,
+          },
+          resource,
+          closestAncestor,
+          true,
+          false,
+        ),
+        selection.excludedAttributionUuids,
+      );
+      const aggregate = await membership
+        .clearSelect()
+        .select(sql<number>`count(distinct uuid)`.as('count'))
+        .executeTakeFirstOrThrow();
+
+      if (aggregate.count > props.limit) {
+        return { attributionUuids: [], limitExceeded: true };
+      }
+
+      const rows = await membership.execute();
+      return {
+        attributionUuids: rows.map((row) => (row as { uuid: string }).uuid),
+        limitExceeded: false,
+      };
+    });
+
+  return { result };
+}
+
 export async function getAttributionSelectionSummary(
   props: GetAttributionSelectionSummaryProps,
 ): Promise<{ result: AttributionSelectionSummary }> {

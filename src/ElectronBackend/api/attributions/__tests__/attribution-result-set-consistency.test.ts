@@ -10,6 +10,7 @@ import {
 import { getDb } from '../../../db/db';
 import {
   getAttributionSelectionSummary,
+  getAttributionSelectionUuids,
   resolveAttributionSelection,
 } from '../attribution-selection-queries';
 import {
@@ -49,6 +50,66 @@ describe('attribution result-set consistency', () => {
       selectedCount: 1,
       writableLinkedResourceCount: 2,
       allLinkedToSelectedResource: true,
+    });
+  });
+
+  it('resolves a small query-wide selection into its UUIDs', async () => {
+    const result = await getAttributionSelectionUuids({
+      selection: {
+        mode: 'allMatching',
+        query: {
+          external: false,
+          filters: [],
+          search: '',
+          valueFilters: {},
+          resourcePathForRelationships: '/parent/resource',
+          showResolved: false,
+          excludeUnrelated: false,
+          relation: 'resource',
+        },
+        excludedAttributionUuids: ['resourceOne'],
+      },
+      limit: 100,
+    });
+
+    expect(result.result.limitExceeded).toBe(false);
+    expect(result.result.attributionUuids).toEqual(['resourceTwo']);
+  });
+
+  it('skips UUID resolution for a query-wide selection beyond the limit', async () => {
+    const result = await getAttributionSelectionUuids({
+      selection: {
+        mode: 'allMatching',
+        query: {
+          external: false,
+          filters: [],
+          search: '',
+          valueFilters: {},
+          resourcePathForRelationships: '/parent/resource',
+          showResolved: false,
+          excludeUnrelated: false,
+          relation: 'resource',
+        },
+        excludedAttributionUuids: [],
+      },
+      limit: 1,
+    });
+
+    expect(result.result).toMatchObject({
+      attributionUuids: [],
+      limitExceeded: true,
+    });
+  });
+
+  it('resolves an explicit selection without applying the limit', async () => {
+    const result = await getAttributionSelectionUuids({
+      selection: { mode: 'explicit', attributionUuids: ['a', 'b'] },
+      limit: 1,
+    });
+
+    expect(result.result).toMatchObject({
+      attributionUuids: ['a', 'b'],
+      limitExceeded: false,
     });
   });
 

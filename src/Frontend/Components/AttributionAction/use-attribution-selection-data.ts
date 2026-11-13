@@ -9,6 +9,13 @@ import { useAppSelector } from '../../state/hooks';
 import { getSelectedResourceId } from '../../state/selectors/resource-selectors';
 import { backend } from '../../util/backendClient';
 
+/**
+ * Largest query-wide selection for which the attribution UUIDs are
+ * materialized so the linked resources tree can be rendered in confirmation
+ * popups. Larger (symbolic) select-all selections keep hiding the tree.
+ */
+const QUERY_WIDE_TREE_LIMIT = 100;
+
 export function useAttributionSelectionData({
   open,
   isMutationPending = false,
@@ -19,16 +26,15 @@ export function useAttributionSelectionData({
   selection: AttributionSelection;
 }) {
   const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const attributionIds =
-    selection.mode === 'explicit' ? selection.attributionUuids : [];
   const isQueryWideSelection = selection.mode === 'allMatching';
-  const isEmptySelection = !isQueryWideSelection && attributionIds.length === 0;
+  const isEmptySelection =
+    !isQueryWideSelection && selection.attributionUuids.length === 0;
 
   const { data: fetchedAttributions, isSuccess: areAttributionsReady } =
     backend.getAttributionPreview.useQuery(
       open && !isMutationPending && !isQueryWideSelection && !isEmptySelection
         ? {
-            attributionUuids: attributionIds,
+            attributionUuids: selection.attributionUuids,
             resourcePathForRelationships: selectedResourceId,
           }
         : skipToken,
@@ -38,8 +44,30 @@ export function useAttributionSelectionData({
     { selection },
     { enabled: open && !isMutationPending && isQueryWideSelection },
   );
-
   const summary = selectionSummaryQuery.data;
+  // Rendering the linked resources tree requires the attribution UUIDs. They
+  // are only materialized for query-wide selections small enough to be
+  // resolved as a whole.
+  const canShowLinkedResourcesTree = isQueryWideSelection
+    ? summary !== undefined && summary.selectedCount <= QUERY_WIDE_TREE_LIMIT
+    : !isEmptySelection;
+  const attributionUuidsQuery = backend.getAttributionSelectionUuids.useQuery(
+    open &&
+      !isMutationPending &&
+      isQueryWideSelection &&
+      summary !== undefined &&
+      summary.selectedCount <= QUERY_WIDE_TREE_LIMIT
+      ? { selection, limit: QUERY_WIDE_TREE_LIMIT }
+      : skipToken,
+  );
+  const resolvedAttributionUuids =
+    attributionUuidsQuery.data && !attributionUuidsQuery.data.limitExceeded
+      ? attributionUuidsQuery.data.attributionUuids
+      : [];
+  const attributionIds = isQueryWideSelection
+    ? resolvedAttributionUuids
+    : selection.attributionUuids;
+
   const attributions: typeof fetchedAttributions = isEmptySelection
     ? {}
     : fetchedAttributions;
@@ -50,13 +78,14 @@ export function useAttributionSelectionData({
     attributions,
     attributionIds,
     isQueryWideSelection,
+    canShowLinkedResourcesTree,
     isSelectionDataReady: isQueryWideSelection
       ? selectionSummaryQuery.isSuccess
       : isEmptySelection || areAttributionsReady,
     selectionMetadata: {
       selectedAttributionCount: isQueryWideSelection
         ? (summary?.selectedCount ?? 0)
-        : attributionIds.length,
+        : selection.attributionUuids.length,
       mixedAttributionCount: isQueryWideSelection
         ? (summary?.mixedCount ?? 0)
         : (attributionValues?.filter(
