@@ -36,6 +36,7 @@ import {
   gotoReportView,
   gotoResource,
   openProjectStatisticsPopup,
+  PROJECT_STATISTICS_POPUP_LABEL,
   selectFilterMenuDropdown,
   SIGNALS_PANEL,
   type StatisticsChartTestId,
@@ -187,7 +188,7 @@ describe('statistics navigation', () => {
         .highlyCritical,
     );
 
-    await expectPopupHidden('project statistics');
+    await expectPopupHidden(PROJECT_STATISTICS_POPUP_LABEL);
     await expectViewIsActive('audit');
     await expectPathBarCrumbs(['Home'], ['nested', 'current.ts']);
     await clickPanelFilterMenuButton(SIGNALS_PANEL);

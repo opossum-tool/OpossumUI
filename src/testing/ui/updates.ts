@@ -95,7 +95,7 @@ export async function expectUpdateDownloadLinkVisible(
 }
 
 export async function expectUpdateProgressbarVisible(
-  visible: boolean = true,
+  visible: boolean,
 ): Promise<void> {
   await waitFor(() => {
     const progressbar = screen.queryByRole('progressbar');
@@ -105,5 +105,17 @@ export async function expectUpdateProgressbarVisible(
     } else {
       expect(progressbar).toBeNull();
     }
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectUpdateProgressbarShowsPercent(
+  percent: number,
+): Promise<void> {
+  await waitFor(() => {
+    expect(
+      screen.getByRole('progressbar', {
+        name: text.updateApp.downloading(percent),
+      }),
+    ).toHaveAttribute('aria-valuenow', String(percent));
   }, SETTLED_TIMEOUT);
 }

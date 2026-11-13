@@ -16,6 +16,7 @@ import {
   expectUpdateAlertVisible,
   expectUpdateDownloadLinkVisible,
   expectUpdateMessage,
+  expectUpdateProgressbarShowsPercent,
   expectUpdateProgressbarVisible,
   getButton,
 } from '../../../../testing/ui';
@@ -97,9 +98,7 @@ describe('UpdateBanner', () => {
       await pending.promise;
     });
     await expectUpdateMessage(text.updateApp.downloading(50), true);
-    expect(
-      screen.getByRole('progressbar', { name: text.updateApp.downloading(50) }),
-    ).toHaveAttribute('aria-valuenow', '50');
+    await expectUpdateProgressbarShowsPercent(50);
     emit(AllowedFrontendChannels.UpdateStateChanged, {
       status: 'downloaded',
       tag,
@@ -218,7 +217,7 @@ describe('UpdateBanner', () => {
       firstCheck.resolve(available);
       await firstCheck.promise;
     });
-    await expectUpdateProgressbarVisible();
+    await expectUpdateProgressbarVisible(true);
     emit(AllowedFrontendChannels.UpdateStateChanged, available);
     await expectUpdateDownloadLinkVisible(true);
 
@@ -304,7 +303,7 @@ describe('UpdateBanner', () => {
       );
       await renderComponent(<UpdateBanner />);
       emit(AllowedFrontendChannels.CheckForUpdatesRequested);
-      await expectUpdateProgressbarVisible();
+      await expectUpdateProgressbarVisible(true);
       if (dismissed) {
         await dismissUpdateAlert();
       }
@@ -486,7 +485,7 @@ describe('UpdateBanner', () => {
       );
       await renderComponent(<UpdateBanner />);
       emit(AllowedFrontendChannels.CheckForUpdatesRequested);
-      await expectUpdateProgressbarVisible();
+      await expectUpdateProgressbarVisible(true);
       await expectUpdateDownloadLinkVisible(false);
       await dismissUpdateAlert();
       await expectUpdateAlertVisible(false);

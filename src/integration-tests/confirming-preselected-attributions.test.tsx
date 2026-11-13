@@ -16,6 +16,7 @@ import {
   clickPackageCard,
   clickPackageCardCheckbox,
   clickPopupButton,
+  CONFIRM_SAVE_POPUP_LABEL,
   expectAttributionColumnButtonVisibility,
   expectAttributionFormMatchesPackageInfo,
   expectAuditingOptionChip,
@@ -78,10 +79,10 @@ describe('confirming pre-selected attributions', () => {
 
     await clickAttributionColumnButton('confirm');
     await clickPopupButton(
-      text.saveAttributionsPopup.ariaLabel,
+      CONFIRM_SAVE_POPUP_LABEL,
       text.saveAttributionsPopup.confirmLocally,
     );
-    await expectPopupHidden(text.saveAttributionsPopup.ariaLabel);
+    await expectPopupHidden(CONFIRM_SAVE_POPUP_LABEL);
     await expectResourceVisibility(
       [resourceName1],
       [resourceName2, resourceName3],
@@ -105,10 +106,10 @@ describe('confirming pre-selected attributions', () => {
 
     await clickAttributionColumnButton('confirm');
     await clickPopupButton(
-      text.saveAttributionsPopup.ariaLabel,
+      CONFIRM_SAVE_POPUP_LABEL,
       text.saveAttributionsPopup.confirmGlobally,
     );
-    await expectPopupHidden(text.saveAttributionsPopup.ariaLabel);
+    await expectPopupHidden(CONFIRM_SAVE_POPUP_LABEL);
     await expectResourceVisibility(
       [resourceName1, resourceName2, resourceName3],
       [],
@@ -139,17 +140,17 @@ describe('confirming pre-selected attributions', () => {
       text.packageLists.confirm,
     );
     await expectPopupHasText(
-      text.saveAttributionsPopup.ariaLabel,
+      CONFIRM_SAVE_POPUP_LABEL,
       `${text.saveAttributionsPopup.confirmAttributions({
         attributions: '2 attributions',
       })} 4 resources:`,
     );
 
     await clickPopupButton(
-      text.saveAttributionsPopup.ariaLabel,
+      CONFIRM_SAVE_POPUP_LABEL,
       text.saveAttributionsPopup.confirmGlobally,
     );
-    await expectPopupHidden(text.saveAttributionsPopup.ariaLabel);
+    await expectPopupHidden(CONFIRM_SAVE_POPUP_LABEL);
 
     await gotoResource(resourceName1);
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);

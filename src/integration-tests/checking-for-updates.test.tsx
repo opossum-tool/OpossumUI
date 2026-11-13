@@ -80,7 +80,7 @@ describe('checking for updates in the app', () => {
         check.promise,
       );
       sendToChannel(AllowedFrontendChannels.CheckForUpdatesRequested);
-      await expectUpdateProgressbarVisible();
+      await expectUpdateProgressbarVisible(true);
       await act(async () => {
         check.resolve(result);
         await check.promise;

@@ -21,6 +21,7 @@ import {
   clickProgressBar,
   clickProjectStatisticsTab,
   closeFilterMenu,
+  CONFIRM_SAVE_POPUP_LABEL,
   expectAttributionColumnButtonVisibility,
   expectConfirmSavePopupIsVisible,
   expectConfirmSavePopupSaveOnlyOnSelectedIsHidden,
@@ -182,17 +183,17 @@ describe('readonly partition', () => {
     await clickAttributionColumnButton('save');
     await expectConfirmSavePopupIsVisible();
     await expectPopupHasText(
-      text.saveAttributionsPopup.ariaLabel,
+      CONFIRM_SAVE_POPUP_LABEL,
       `${text.saveAttributionsPopup.saveAttributions({
         attributions: 'attribution',
       })} 1 resource:`,
     );
     await expectConfirmSavePopupSaveOnlyOnSelectedIsHidden();
     await clickPopupButton(
-      text.saveAttributionsPopup.ariaLabel,
+      CONFIRM_SAVE_POPUP_LABEL,
       text.saveAttributionsPopup.save,
     );
-    await expectPopupHidden(text.saveAttributionsPopup.ariaLabel);
+    await expectPopupHidden(CONFIRM_SAVE_POPUP_LABEL);
     await expectFormFieldValues({ name: updatedName });
 
     await gotoResourceTreeRoot();

@@ -22,6 +22,7 @@ import {
   clickTopBarOpenFileButton,
   clickTopBarViewButton,
   clickValidationSuggestion,
+  CONFIRM_SAVE_POPUP_LABEL,
   expectAttributionColumnButtonEnabled,
   expectAttributionFormIsEmpty,
   expectAttributionFormLicenseText,
@@ -256,7 +257,7 @@ describe('updating attributions', () => {
     await expectConfirmSavePopupIsVisible();
 
     await clickPopupButton(
-      text.saveAttributionsPopup.ariaLabel,
+      CONFIRM_SAVE_POPUP_LABEL,
       text.saveAttributionsPopup.saveLocally,
     );
     await expectAttributionColumnButtonEnabled('save', false);
@@ -283,13 +284,13 @@ describe('updating attributions', () => {
     await clickAttributionColumnButton('save');
     await expectConfirmSavePopupIsVisible();
     await clickPopupButton(
-      text.saveAttributionsPopup.ariaLabel,
+      CONFIRM_SAVE_POPUP_LABEL,
       text.saveAttributionsPopup.saveGlobally,
     );
     // need to make sure that the confirmSavePopup is closed before any assertions
     // are run on linkedResourcesTree, because the confirmSavePopup also contains
     // a LinkedResourcesTree which makes locators resolve to 2 elements
-    await expectPopupHidden(text.saveAttributionsPopup.ariaLabel);
+    await expectPopupHidden(CONFIRM_SAVE_POPUP_LABEL);
     await expectFormFieldValues({ name: newPackageName });
     await expectResourceVisibility(
       [resourceName1, resourceName2],

@@ -72,12 +72,6 @@ async function getPopup(popupLabel: string): Promise<HTMLElement> {
 
 export { expectPanelsSettled, getPopup };
 
-export async function expectPopupHidden(popupLabel: string): Promise<void> {
-  await waitFor(() => {
-    expect(screen.queryByLabelText(popupLabel)).toBeNull();
-  }, SETTLED_TIMEOUT);
-}
-
 export async function expectPanelReplacementDimmed(
   panelTestId: PanelTestId,
   dimmed: boolean,

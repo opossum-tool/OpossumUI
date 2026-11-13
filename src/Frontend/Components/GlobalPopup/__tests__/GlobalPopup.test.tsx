@@ -8,6 +8,8 @@ import {
   expectPopupVisibility,
   expectSplitDialogVisibility,
   expectUnsavedChangesPopupVisibility,
+  PROJECT_METADATA_POPUP_LABEL,
+  PROJECT_STATISTICS_POPUP_LABEL,
 } from '../../../../testing/ui';
 import { PopupType } from '../../../enums/enums';
 import {
@@ -45,7 +47,7 @@ describe('The GlobalPopUp', () => {
       actions: [openPopup(PopupType.ProjectMetadataPopup)],
     });
 
-    await expectPopupVisibility('project metadata', true);
+    await expectPopupVisibility(PROJECT_METADATA_POPUP_LABEL, true);
     expect(
       global.window.electronAPI.setFrontendPopupOpen,
     ).toHaveBeenLastCalledWith(true);
@@ -57,7 +59,7 @@ describe('The GlobalPopUp', () => {
       actions: [openPopup(PopupType.ProjectStatisticsPopup)],
     });
 
-    await expectPopupVisibility('project statistics', true);
+    await expectPopupVisibility(PROJECT_STATISTICS_POPUP_LABEL, true);
     expect(
       global.window.electronAPI.setFrontendPopupOpen,
     ).toHaveBeenLastCalledWith(true);

@@ -16,6 +16,7 @@ import {
   clickDiffPopupButton,
   clickPackageCard,
   clickPopupButton,
+  CONFIRM_SAVE_POPUP_LABEL,
   expectAttributionColumnButtonVisibility,
   expectAuditingOptionChip,
   expectComparingWithAlertIsVisible,
@@ -142,10 +143,10 @@ describe('comparing attribution via selection mode', () => {
     fillDiffPopupField('right', 'packageName', editedRightPackageName);
     await clickDiffPopupButton('save');
     await clickPopupButton(
-      text.saveAttributionsPopup.ariaLabel,
+      CONFIRM_SAVE_POPUP_LABEL,
       text.saveAttributionsPopup.saveGlobally,
     );
-    await expectPopupHidden(text.saveAttributionsPopup.ariaLabel);
+    await expectPopupHidden(CONFIRM_SAVE_POPUP_LABEL);
     await expectDiffPopupVisibility(false);
 
     await expectFormFieldValues({ name: editedRightPackageName });

@@ -8,6 +8,7 @@ import { expect } from 'vitest';
 
 import type { RawPackageInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
+import { AI_STATUS_BADGE_TEST_ID, AI_STATUS_ICON_LABEL } from './ai-status';
 import { isNodeEnabled, SETTLED_TIMEOUT } from './common';
 
 export type AttributionColumnField =
@@ -447,8 +448,11 @@ export async function removeAuditingOption(optionId: string): Promise<void> {
   );
 }
 
-const AI_STATUS_BADGE_TEST_ID =
-  /^auditing-option-(ai-generated|human-modified|deferred)$/;
+function queryAuditingOptionChip(optionId: string): HTMLElement | null {
+  return within(getAttributionColumn()).queryByTestId(
+    `auditing-option-${optionId}`,
+  );
+}
 
 export async function expectAiStatusBadges(
   badges: Array<string>,
@@ -470,18 +474,10 @@ export async function expectAiStatusIcons(
   await waitFor(() => {
     expect(
       within(container)
-        .queryAllByLabelText(
-          /^(AI generated|Human-modified AI|Deferred AI) icon$/,
-        )
+        .queryAllByLabelText(AI_STATUS_ICON_LABEL)
         .map((icon) => icon.getAttribute('aria-label')),
     ).toEqual(icons);
   }, SETTLED_TIMEOUT);
-}
-
-function queryAuditingOptionChip(optionId: string): HTMLElement | null {
-  return within(getAttributionColumn()).queryByTestId(
-    `auditing-option-${optionId}`,
-  );
 }
 
 function getAuditingOptionChip(optionId: string): HTMLElement {

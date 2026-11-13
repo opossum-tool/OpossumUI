@@ -10,6 +10,7 @@ import {
   getCardLabels,
   type PackageInfoForLabels,
 } from '../../Frontend/util/get-card-labels';
+import { AI_STATUS_ICON_LABEL } from './ai-status';
 import {
   expectReadonlyIndicator,
   getPanel,
@@ -144,9 +145,6 @@ export async function clickPackageCardByLabel(
   await userEvent.click(within(card).getByText(label, { exact: true }));
 }
 
-export const AI_STATUS_ICON_LABEL =
-  /^(AI generated|Human-modified AI|Deferred AI) icon$/;
-
 export async function expectPackageCardAiIcons(
   panelTestId: PanelTestId,
   label: string,
@@ -192,11 +190,7 @@ export async function expectPackageCardCheckbox(
 export async function clickSelectAllCheckbox(
   panelTestId: PanelTestId,
 ): Promise<void> {
-  await userEvent.click(
-    within(getPanel(panelTestId)).getByRole('checkbox', {
-      name: /select all/i,
-    }),
-  );
+  await userEvent.click(getSelectAllCheckbox(panelTestId));
 }
 
 function getSelectAllCheckbox(panelTestId: PanelTestId): HTMLElement {
