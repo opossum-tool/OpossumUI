@@ -11,7 +11,7 @@ import type { Theme } from '@mui/material/styles';
 import MuiTooltip from '@mui/material/Tooltip';
 import MuiTypography from '@mui/material/Typography';
 import { skipToken } from '@tanstack/react-query';
-import { Fragment } from 'react';
+import { Fragment, type ReactElement } from 'react';
 
 import type { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -90,11 +90,13 @@ const classes = {
     py: PADDING,
     px: 0.5,
   },
-  aiChip: {
-    backgroundColor: OpossumColors.lightBlue,
-  },
-  deferredChip: {
-    backgroundColor: OpossumColors.mediumOrange,
+  aiStatusChip: {
+    maxWidth: '100%',
+    '& .MuiChip-label': {
+      whiteSpace: 'normal',
+      overflow: 'visible',
+      textOverflow: 'unset',
+    },
   },
   borders: {
     borderRight: `${borderThin} solid ${OpossumColors.mediumGrey}`,
@@ -236,53 +238,48 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
     }
     return (
       <MuiBox sx={classes.aiStatusCell}>
-        {aiStatus.deferred ? (
-          <MuiTooltip
-            title={text.auditingOptions.deferredTooltip}
-            disableInteractive
-            placement={'right'}
-          >
-            <MuiChip
-              label={text.auditingOptions.deferred}
-              size={'small'}
-              icon={
-                <DeferredIcon
-                  noTooltip
-                  sx={{ color: `${OpossumColors.black} !important` }}
-                />
-              }
-              sx={classes.deferredChip}
-            />
-          </MuiTooltip>
-        ) : (
-          <MuiTooltip
-            title={text.auditingOptions.aiGenerated}
-            disableInteractive
-            placement={'right'}
-          >
-            <MuiChip
-              label={text.auditingOptions.aiGenerated}
-              size={'small'}
-              icon={<AiGeneratedIcon noTooltip />}
-              sx={classes.aiChip}
-            />
-          </MuiTooltip>
-        )}
-        {aiStatus.humanModified && (
-          <MuiTooltip
-            title={text.auditingOptions.humanModified}
-            disableInteractive
-            placement={'right'}
-          >
-            <MuiChip
-              label={text.auditingOptions.humanModified}
-              size={'small'}
-              icon={<HumanModifiedIcon noTooltip />}
-              sx={classes.aiChip}
-            />
-          </MuiTooltip>
-        )}
+        {aiStatus.deferred
+          ? renderAiStatusChip(
+              text.auditingOptions.deferred,
+              text.auditingOptions.deferredTooltip,
+              <DeferredIcon
+                noTooltip
+                sx={{ color: `${OpossumColors.black} !important` }}
+              />,
+              OpossumColors.mediumOrange,
+            )
+          : renderAiStatusChip(
+              text.auditingOptions.aiGenerated,
+              text.auditingOptions.aiGeneratedTooltip,
+              <AiGeneratedIcon noTooltip />,
+              OpossumColors.lightBlue,
+            )}
+        {aiStatus.humanModified &&
+          renderAiStatusChip(
+            text.auditingOptions.humanModified,
+            text.auditingOptions.humanModifiedTooltip,
+            <HumanModifiedIcon noTooltip />,
+            OpossumColors.lightBlue,
+          )}
       </MuiBox>
+    );
+  }
+
+  function renderAiStatusChip(
+    label: string,
+    tooltip: string,
+    icon: ReactElement,
+    backgroundColor: string,
+  ) {
+    return (
+      <MuiTooltip title={tooltip} disableInteractive placement={'right'}>
+        <MuiChip
+          label={label}
+          size={'small'}
+          icon={icon}
+          sx={{ ...classes.aiStatusChip, backgroundColor }}
+        />
+      </MuiTooltip>
     );
   }
 
