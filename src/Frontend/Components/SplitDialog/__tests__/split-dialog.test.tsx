@@ -6,6 +6,12 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 
 import { text } from '../../../../shared/text';
 import {
+  clickPopupButton,
+  expectSplitDialogCreateButtonEnabled,
+  expectTextVisible,
+  SPLIT_DIALOG_LABEL,
+} from '../../../../testing/ui';
+import {
   setExpandedIds,
   setSelectedResourceId,
 } from '../../../state/actions/resource-actions/audit-view-simple-actions';
@@ -33,9 +39,7 @@ describe('SplitDialog', () => {
       <SplitDialog open={true} resourcePath={resourcePath} onClose={vi.fn()} />,
     );
 
-    expect(
-      screen.getByRole('button', { name: text.splitDialog.create }),
-    ).toBeDisabled();
+    await expectSplitDialogCreateButtonEnabled(false);
 
     fireEvent.click(screen.getByTestId('split-destination-path-input'));
 
@@ -44,9 +48,7 @@ describe('SplitDialog', () => {
         resourcePath,
       ]);
     });
-    expect(
-      screen.getByRole('button', { name: text.splitDialog.create }),
-    ).toBeEnabled();
+    await expectSplitDialogCreateButtonEnabled(true);
   });
 
   it('keeps the dialog open and displays a split error', async () => {
@@ -64,16 +66,10 @@ describe('SplitDialog', () => {
     );
 
     fireEvent.click(screen.getByTestId('split-destination-path-input'));
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', { name: text.splitDialog.create }),
-      ).toBeEnabled(),
-    );
-    fireEvent.click(
-      screen.getByRole('button', { name: text.splitDialog.create }),
-    );
+    await expectSplitDialogCreateButtonEnabled(true);
+    await clickPopupButton(SPLIT_DIALOG_LABEL, text.splitDialog.create);
 
-    expect(await screen.findByText(errorMessage)).toBeInTheDocument();
+    await expectTextVisible(errorMessage, true);
 
     rerender(
       <SplitDialog
@@ -86,10 +82,8 @@ describe('SplitDialog', () => {
       <SplitDialog open={true} resourcePath={resourcePath} onClose={vi.fn()} />,
     );
 
-    expect(screen.queryByText(errorMessage)).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: text.splitDialog.create }),
-    ).toBeDisabled();
+    await expectTextVisible(errorMessage, false);
+    await expectSplitDialogCreateButtonEnabled(false);
   });
 
   it('resets the split inputs after a successful split', async () => {
@@ -113,31 +107,21 @@ describe('SplitDialog', () => {
     );
 
     fireEvent.click(screen.getByTestId('split-destination-path-input'));
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', { name: text.splitDialog.create }),
-      ).toBeEnabled(),
-    );
-    fireEvent.click(
-      screen.getByRole('button', { name: text.splitDialog.create }),
-    );
+    await expectSplitDialogCreateButtonEnabled(true);
+    await clickPopupButton(SPLIT_DIALOG_LABEL, text.splitDialog.create);
 
     expect(window.electronAPI.splitFile).toHaveBeenCalledWith(
       [resourcePath],
       '/partitions/source.opossum',
     );
-    expect(
-      await screen.findByText(text.splitDialog.success),
-    ).toBeInTheDocument();
+    await expectTextVisible(text.splitDialog.success, true);
     expect(
       screen.getByTestId('split-destination-path-input'),
     ).toBeEmptyDOMElement();
     expect(
       screen.queryByRole('button', { name: resourcePath }),
     ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: text.splitDialog.create }),
-    ).toBeDisabled();
+    await expectSplitDialogCreateButtonEnabled(false);
     expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: ['backend'],
     });
@@ -145,7 +129,7 @@ describe('SplitDialog', () => {
     expect(getExpandedIds(store.getState())).toEqual(['/', resourcePath]);
     expect(onClose).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: text.buttons.close }));
+    await clickPopupButton(SPLIT_DIALOG_LABEL, text.buttons.close);
     expect(onClose).toHaveBeenCalledOnce();
   });
 
@@ -166,22 +150,14 @@ describe('SplitDialog', () => {
     );
 
     fireEvent.click(screen.getByTestId('split-destination-path-input'));
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', { name: text.splitDialog.create }),
-      ).toBeEnabled(),
-    );
-    fireEvent.click(
-      screen.getByRole('button', { name: text.splitDialog.create }),
-    );
+    await expectSplitDialogCreateButtonEnabled(true);
+    await clickPopupButton(SPLIT_DIALOG_LABEL, text.splitDialog.create);
 
-    expect(await screen.findByText(text.splitDialog.inProgress)).toBeVisible();
+    await expectTextVisible(text.splitDialog.inProgress, true);
     expect(screen.getByRole('progressbar')).toBeVisible();
     resolveSplit!({ status: 'success' });
-    expect(await screen.findByText(text.splitDialog.success)).toBeVisible();
-    expect(
-      screen.queryByText(text.splitDialog.inProgress),
-    ).not.toBeInTheDocument();
+    await expectTextVisible(text.splitDialog.success, true);
+    await expectTextVisible(text.splitDialog.inProgress, false);
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
   });
 });

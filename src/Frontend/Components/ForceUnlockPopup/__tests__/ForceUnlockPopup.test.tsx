@@ -6,6 +6,11 @@ import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
+import {
+  clickPopupButton,
+  expectButtonDisabled,
+  FORCE_UNLOCK_POPUP_LABEL,
+} from '../../../../testing/ui';
 import { PopupType } from '../../../enums/enums';
 import {
   closePopup,
@@ -31,17 +36,11 @@ describe('ForceUnlockPopup', () => {
     await renderComponent(<GlobalPopup />, {
       actions: [openPopup(PopupType.ForceUnlockPopup)],
     });
-    const forceUnlockButton = screen.getByRole('button', {
-      name: text.forceUnlock.confirm,
-    });
-    const cancelButton = screen.getByRole('button', {
-      name: text.buttons.cancel,
-    });
 
-    await userEvent.click(forceUnlockButton);
+    await clickPopupButton(FORCE_UNLOCK_POPUP_LABEL, text.forceUnlock.confirm);
 
-    expect(forceUnlockButton).toBeDisabled();
-    expect(cancelButton).toBeDisabled();
+    expectButtonDisabled(text.forceUnlock.confirm);
+    expectButtonDisabled(text.buttons.cancel);
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
 
     resolveForceUnlock();
@@ -53,9 +52,7 @@ describe('ForceUnlockPopup', () => {
       actions: [openPopup(PopupType.ForceUnlockPopup)],
     });
 
-    await userEvent.click(
-      screen.getByRole('button', { name: text.forceUnlock.confirm }),
-    );
+    await clickPopupButton(FORCE_UNLOCK_POPUP_LABEL, text.forceUnlock.confirm);
 
     await waitFor(() => {
       expect(getOpenPopup(store.getState())).toBeNull();
@@ -122,9 +119,7 @@ describe('ForceUnlockPopup', () => {
       actions: [openPopup(PopupType.ForceUnlockPopup)],
     });
 
-    await userEvent.click(
-      screen.getByRole('button', { name: text.buttons.cancel }),
-    );
+    await clickPopupButton(FORCE_UNLOCK_POPUP_LABEL, text.buttons.cancel);
 
     await waitFor(() => {
       expect(getOpenPopup(store.getState())).toBeNull();

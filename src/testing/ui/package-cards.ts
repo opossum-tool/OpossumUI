@@ -144,7 +144,7 @@ export async function clickPackageCardByLabel(
   await userEvent.click(within(card).getByText(label, { exact: true }));
 }
 
-const AI_STATUS_ICON_LABEL =
+export const AI_STATUS_ICON_LABEL =
   /^(AI generated|Human-modified AI|Deferred AI) icon$/;
 
 export async function expectPackageCardAiIcons(

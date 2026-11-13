@@ -98,6 +98,12 @@ const PROGRESS_BAR_MODE_TEXT: Record<
   Classifications: text.topBar.switchableProgressBar.classificationBar,
 };
 
+const PROGRESS_BAR_MODE_INTROS: Record<ProgressBarMode, string> = {
+  Attributions: text.topBar.switchableProgressBar.attributionBar.intro,
+  Criticalities: text.topBar.switchableProgressBar.criticalityBar.intro,
+  Classifications: text.topBar.switchableProgressBar.classificationBar.intro,
+};
+
 async function expectProgressBarModeIs(mode: ProgressBarMode): Promise<void> {
   await waitFor(() => {
     expect(screen.getByTestId('progress-bar')).toHaveAttribute(
@@ -123,28 +129,64 @@ export interface ProgressBarTooltipValues {
   filesWithAttributions?: number;
   filesWithOnlyPreSelectedAttributions?: number;
   filesWithOnlySignals?: number;
+  filesWithHighlyCriticalSignals?: number;
+  filesWithMediumCriticalSignals?: number;
+  classifications?: Array<{ classification: string; count: number }>;
 }
 
 export async function expectProgressBarTooltipShowsValues(
   values: ProgressBarTooltipValues,
+  mode: ProgressBarMode = 'Attributions',
 ): Promise<void> {
-  const expectedValues = [
-    [
+  // Like the component, missing (or zero) segments render no tooltip line and
+  // must not be asserted.
+  const expectedValues: Array<[number, string]> = [];
+  if (values.filesWithAttributions) {
+    expectedValues.push([
       values.filesWithAttributions,
       text.topBar.switchableProgressBar.attributionBar
         .filesWithManualAttribution,
-    ],
-    [
+    ]);
+  }
+  if (values.filesWithOnlyPreSelectedAttributions) {
+    expectedValues.push([
       values.filesWithOnlyPreSelectedAttributions,
       text.topBar.switchableProgressBar.attributionBar
         .filesWithOnlyPreSelectedAttribution,
-    ],
-    [
+    ]);
+  }
+  if (values.filesWithOnlySignals) {
+    expectedValues.push([
       values.filesWithOnlySignals,
       text.topBar.switchableProgressBar.attributionBar
         .filesWithOnlyExternalAttribution,
-    ],
-  ] as Array<[number | undefined, string]>;
+    ]);
+  }
+  if (values.filesWithHighlyCriticalSignals) {
+    expectedValues.push([
+      values.filesWithHighlyCriticalSignals,
+      text.topBar.switchableProgressBar.criticalityBar
+        .filesWithHighlyCriticalSignals,
+    ]);
+  }
+  if (values.filesWithMediumCriticalSignals) {
+    expectedValues.push([
+      values.filesWithMediumCriticalSignals,
+      text.topBar.switchableProgressBar.criticalityBar
+        .filesWithMediumCriticalSignals,
+    ]);
+  }
+  for (const { classification, count } of values.classifications ?? []) {
+    if (count) {
+      expectedValues.push([
+        count,
+        `${
+          text.topBar.switchableProgressBar.classificationBar
+            .containingClassification
+        } "${classification.toLowerCase()}"`,
+      ]);
+    }
+  }
   const progressBar = await waitFor(
     () => screen.getByTestId('progress-bar'),
     SETTLED_TIMEOUT,
@@ -155,23 +197,17 @@ export async function expectProgressBarTooltipShowsValues(
     const tooltip = tooltips.find((candidate) => {
       return (
         within(candidate).queryByText(
-          new RegExp(
-            escapeRegExp(
-              text.topBar.switchableProgressBar.attributionBar.intro,
-            ),
-          ),
+          new RegExp(escapeRegExp(PROGRESS_BAR_MODE_INTROS[mode])),
         ) !== null
       );
     });
     expect(tooltip).toBeTruthy();
     for (const [count, label] of expectedValues) {
-      if (count) {
-        expect(
-          within(tooltip as HTMLElement).getByText(
-            new RegExp(`${escapeRegExp(label)}: ${count}`),
-          ),
-        ).toBeVisible();
-      }
+      expect(
+        within(tooltip as HTMLElement).getByText(
+          new RegExp(`${escapeRegExp(label)}: ${count}`),
+        ),
+      ).toBeVisible();
     }
   }, SETTLED_TIMEOUT);
 }

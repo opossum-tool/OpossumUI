@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event';
 
 import type { SortOption } from '../../../../shared/attribution-result-set';
 import { text } from '../../../../shared/text';
+import { expectButtonDisabled, getButton } from '../../../../testing/ui';
 import {
   type AttributionFilters,
   initialAttributionFilters,
@@ -30,7 +31,7 @@ describe('SortButton', () => {
     ];
     await renderComponent(<SortButton useFilteredData={useFilteredData} />);
 
-    await userEvent.click(screen.getByRole('button', { name: 'sort button' }));
+    await userEvent.click(getButton('sort button'));
     await userEvent.click(
       screen.getByRole('menuitem', { name: text.sortings.criticality }),
     );
@@ -47,7 +48,7 @@ describe('SortButton', () => {
       <SortButton useFilteredData={useFilteredData} disabled />,
     );
 
-    expect(screen.getByRole('button', { name: 'sort button' })).toBeDisabled();
+    expectButtonDisabled('sort button');
   });
 
   it('calls onSortingChange instead of writing the filters when provided', async () => {
@@ -64,7 +65,7 @@ describe('SortButton', () => {
       />,
     );
 
-    await userEvent.click(screen.getByRole('button', { name: 'sort button' }));
+    await userEvent.click(getButton('sort button'));
     await userEvent.click(
       screen.getByRole('menuitem', { name: text.sortings.criticality }),
     );
@@ -80,7 +81,7 @@ describe('SortButton', () => {
     ];
     await renderComponent(<SortButton useFilteredData={useFilteredData} />);
 
-    await userEvent.click(screen.getByRole('button', { name: 'sort button' }));
+    await userEvent.click(getButton('sort button'));
     Object.values(text.sortings).forEach((menuItemText) => {
       expect(
         screen.getByRole('menuitem', { name: menuItemText }),

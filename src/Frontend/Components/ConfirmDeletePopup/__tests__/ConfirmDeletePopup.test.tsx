@@ -2,13 +2,18 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { noop } from 'lodash-es';
 
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
+import {
+  clickPopupButton,
+  CONFIRM_DELETE_POPUP_LABEL,
+  expectTextVisible,
+} from '../../../../testing/ui';
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { getSelectedAttributionId } from '../../../state/selectors/resource-selectors';
 import { expectManualAttributions } from '../../../test-helpers/expectations';
@@ -56,21 +61,19 @@ describe('ConfirmDeletePopup', () => {
       },
     );
 
-    const deleteButton = await screen.findByRole('button', {
-      name: text.deleteAttributionsPopup.delete,
-    });
-    expect(
-      await screen.findByText(
-        `${text.deleteAttributionsPopup.deleteAttributions({
-          attributions: 'attribution',
-        })} 1 resource:`,
-      ),
-    ).toBeInTheDocument();
+    await expectTextVisible(
+      `${text.deleteAttributionsPopup.deleteAttributions({
+        attributions: 'attribution',
+      })} 1 resource:`,
+      true,
+    );
     expect(
       screen.getByLabelText(text.resourceBrowser.directlyLinked),
     ).toBeInTheDocument();
-    await waitFor(() => expect(deleteButton).toBeEnabled());
-    await userEvent.click(deleteButton);
+    await clickPopupButton(
+      CONFIRM_DELETE_POPUP_LABEL,
+      text.deleteAttributionsPopup.delete,
+    );
 
     await expectManualAttributions({ [second.id]: second });
     expect(getSelectedAttributionId(store.getState())).toBe('');
@@ -107,19 +110,16 @@ describe('ConfirmDeletePopup', () => {
       },
     );
 
-    expect(
-      await screen.findByText(
-        `${text.deleteAttributionsPopup.deleteAttributions({
-          attributions: '2 attributions',
-        })} 2 resources:`,
-      ),
-    ).toBeInTheDocument();
+    await expectTextVisible(
+      `${text.deleteAttributionsPopup.deleteAttributions({
+        attributions: '2 attributions',
+      })} 2 resources:`,
+      true,
+    );
     expect(
       screen.getAllByLabelText(text.resourceBrowser.directlyLinked).length,
     ).toBeGreaterThanOrEqual(1);
-    expect(
-      screen.getByText(text.deleteAttributionsPopup.title),
-    ).toBeInTheDocument();
+    await expectTextVisible(text.deleteAttributionsPopup.title, true);
   });
 
   it('deletes attributions', async () => {

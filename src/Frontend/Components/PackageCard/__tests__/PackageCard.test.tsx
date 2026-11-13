@@ -6,6 +6,7 @@ import { screen } from '@testing-library/react';
 
 import { Criticality, RawCriticality } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
+import { AI_STATUS_ICON_LABEL } from '../../../../testing/ui';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
@@ -49,9 +50,7 @@ describe('The PackageCard', () => {
       <PackageCard packageInfo={faker.opossum.packageInfo({ aiStatus })} />,
     );
 
-    const icons = screen.queryAllByLabelText(
-      /^(AI generated|Human-modified AI|Deferred AI) icon$/,
-    );
+    const icons = screen.queryAllByLabelText(AI_STATUS_ICON_LABEL);
     expect(icons.map((icon) => icon.getAttribute('aria-label'))).toEqual(
       expected,
     );

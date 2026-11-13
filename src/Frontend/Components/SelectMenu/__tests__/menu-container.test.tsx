@@ -7,6 +7,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 
+import { getButton } from '../../../../testing/ui';
 import { renderComponent } from '../../../test-helpers/render';
 import { MenuContainer } from '../menu-container';
 
@@ -37,7 +38,7 @@ describe('MenuContainer', () => {
     'dismisses with %s and restores focus',
     async (key) => {
       await renderComponent(<Example />);
-      const trigger = screen.getByRole('button', { name: 'Open' });
+      const trigger = getButton('Open');
       await userEvent.click(trigger);
       expect(screen.getByRole('menuitem', { name: 'First' })).toHaveFocus();
       await userEvent.keyboard('{ArrowDown}');
@@ -48,7 +49,7 @@ describe('MenuContainer', () => {
   );
   it('dismisses on backdrop click', async () => {
     await renderComponent(<Example />);
-    const trigger = screen.getByRole('button', { name: 'Open' });
+    const trigger = getButton('Open');
     await userEvent.click(trigger);
     fireEvent.click(
       within(screen.getByRole('presentation')).getAllByRole('generic', {
@@ -60,12 +61,10 @@ describe('MenuContainer', () => {
   });
   it('keeps the menu open when tabbing in adjacent content', async () => {
     await renderComponent(<Example />);
-    await userEvent.click(screen.getByRole('button', { name: 'Open' }));
+    await userEvent.click(getButton('Open'));
     screen.getByRole('button', { name: 'First panel control' }).focus();
     await userEvent.keyboard('{Tab}');
-    expect(
-      screen.getByRole('button', { name: 'Second panel control' }),
-    ).toHaveFocus();
+    expect(getButton('Second panel control')).toHaveFocus();
     expect(screen.getByRole('menuitem', { name: 'First' })).toBeVisible();
   });
 });
