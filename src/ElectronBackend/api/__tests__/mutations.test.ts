@@ -190,6 +190,30 @@ describe('attribution resource access', () => {
     expect(response.invalidates).toContainEqual({
       queryName: 'getLinkedResourceTree',
     });
+    expect(response.invalidates).toContainEqual({
+      queryName: 'aiAttributionStatistics',
+    });
+  });
+
+  it('invalidates the AI attribution statistics after unresolving', async () => {
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/writable/file.ts']),
+      externalAttributions: {
+        attributions: {
+          signal: { id: 'signal', criticality: Criticality.None },
+        },
+        resourcesToAttributions: { '/writable/file.ts': ['signal'] },
+        attributionsToResources: {},
+      },
+    });
+
+    const response = await mutations.unresolveAttributions({
+      selection: { mode: 'explicit', attributionUuids: ['signal'] },
+    });
+
+    expect(response.invalidates).toContainEqual({
+      queryName: 'aiAttributionStatistics',
+    });
   });
 
   it('invalidates the resource tree count queries after manual attribution updates', async () => {
