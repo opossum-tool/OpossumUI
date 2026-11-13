@@ -2,13 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 
 import {
   type Attributions,
   Criticality,
   DiscreteConfidence,
+  type PackageInfo,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { renderComponent } from '../../../test-helpers/render';
 import { ReportTableItem } from '../ReportTableItem';
 
@@ -102,4 +104,123 @@ describe('The ReportTableItem', () => {
     expect(screen.getByLabelText('Needs-review icon')).toBeInTheDocument();
     expect(screen.getByLabelText('Preferred icon')).toBeInTheDocument();
   });
+
+  it('renders AI status badges for non-deferred unmodified AI attribution', async () => {
+    await renderReportTableItemWithAiStatus({
+      deferred: false,
+    });
+
+    expect(
+      screen.getByText(text.auditingOptions.aiGenerated),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(text.auditingOptions.deferred),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(text.auditingOptions.humanModified),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders AI status badges for non-deferred human-modified AI attribution', async () => {
+    await renderReportTableItemWithAiStatus({
+      deferred: false,
+      humanModified: true,
+    });
+
+    expect(
+      screen.getByText(text.auditingOptions.aiGenerated),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(text.auditingOptions.humanModified),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(text.auditingOptions.deferred),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders AI status badges for deferred unmodified AI attribution', async () => {
+    await renderReportTableItemWithAiStatus({
+      deferred: true,
+    });
+
+    expect(screen.getByText(text.auditingOptions.deferred)).toBeInTheDocument();
+    expect(
+      screen.queryByText(text.auditingOptions.aiGenerated),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(text.auditingOptions.humanModified),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders AI status badges for deferred human-modified AI attribution', async () => {
+    await renderReportTableItemWithAiStatus({
+      deferred: true,
+      humanModified: true,
+    });
+
+    expect(screen.getByText(text.auditingOptions.deferred)).toBeInTheDocument();
+    expect(
+      screen.getByText(text.auditingOptions.humanModified),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(text.auditingOptions.aiGenerated),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders no AI status badges for attribution without AI metadata', async () => {
+    await renderReportTableItemWithAiStatus(undefined);
+
+    expect(
+      screen.queryByText(text.auditingOptions.aiGenerated),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(text.auditingOptions.deferred),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(text.auditingOptions.humanModified),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows AI status badge tooltip on hover', async () => {
+    await renderReportTableItemWithAiStatus({
+      deferred: true,
+    });
+
+    fireEvent.mouseOver(screen.getByText(text.auditingOptions.deferred));
+
+    expect(
+      await screen.findByText(text.auditingOptions.deferredTooltip),
+    ).toBeInTheDocument();
+  });
+
+  it('renders AI status badge icons', async () => {
+    await renderReportTableItemWithAiStatus({
+      deferred: true,
+      humanModified: true,
+    });
+
+    expect(screen.getByLabelText('Deferred AI icon')).toBeInTheDocument();
+    expect(screen.getByLabelText('Human-modified AI icon')).toBeInTheDocument();
+  });
 });
+
+async function renderReportTableItemWithAiStatus(
+  aiStatus: PackageInfo['aiStatus'],
+) {
+  const testAttribution: PackageInfo = {
+    packageName: 'React',
+    resources: ['/'],
+    criticality: Criticality.None,
+    id: 'uuid1',
+    aiStatus,
+  };
+  await renderComponent(
+    <table>
+      <tbody>
+        <tr>
+          <ReportTableItem packageInfo={testAttribution} />
+        </tr>
+      </tbody>
+    </table>,
+  );
+}
