@@ -21,6 +21,7 @@ const COLUMN_WIDTHS_IN_THEME_UNITS = {
   small: 25,
   medium: 80,
   wide: 115,
+  aiStatus: 33,
 };
 
 export interface TableConfig {
@@ -39,6 +40,11 @@ export const tableConfigs: Array<TableConfig> = [
     attributionProperty: 'id',
     displayName: null,
     width: COLUMN_WIDTHS_IN_THEME_UNITS.verySmall,
+  },
+  {
+    attributionProperty: 'aiStatus',
+    displayName: 'AI Status',
+    width: COLUMN_WIDTHS_IN_THEME_UNITS.aiStatus,
   },
   {
     attributionProperty: 'packageName',

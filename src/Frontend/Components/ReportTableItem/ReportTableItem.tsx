@@ -5,8 +5,10 @@
 import EditorIcon from '@mui/icons-material/Edit';
 import { type SxProps, TableCell } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import MuiChip from '@mui/material/Chip';
 import MuiLink from '@mui/material/Link';
 import type { Theme } from '@mui/material/styles';
+import MuiTooltip from '@mui/material/Tooltip';
 import MuiTypography from '@mui/material/Typography';
 import { skipToken } from '@tanstack/react-query';
 import { Fragment } from 'react';
@@ -35,9 +37,12 @@ import {
 import { openUrl } from '../../util/open-url';
 import { IconButton } from '../IconButton/IconButton';
 import {
+  AiGeneratedIcon,
+  DeferredIcon,
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
   FollowUpIcon,
+  HumanModifiedIcon,
   NeedsReviewIcon,
   PreferredIcon,
   PreSelectedIcon,
@@ -75,6 +80,21 @@ const classes = {
     position: 'sticky',
     left: 0,
     background: '#e3e3e3',
+  },
+  aiStatusCell: {
+    height: REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: 0.5,
+    py: PADDING,
+    px: 0.5,
+  },
+  aiChip: {
+    backgroundColor: OpossumColors.lightBlue,
+  },
+  deferredChip: {
+    backgroundColor: OpossumColors.mediumOrange,
   },
   borders: {
     borderRight: `${borderThin} solid ${OpossumColors.mediumGrey}`,
@@ -184,6 +204,8 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
       >
         {config.attributionProperty === 'id' ? (
           getIcons(packageInfo)
+        ) : config.attributionProperty === 'aiStatus' ? (
+          getAiStatusCell(packageInfo)
         ) : (
           <MuiTypography
             sx={{
@@ -204,6 +226,63 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
           </MuiTypography>
         )}
       </TableCell>
+    );
+  }
+
+  function getAiStatusCell(packageInfo: PackageInfo) {
+    const aiStatus = packageInfo.aiStatus;
+    if (!aiStatus) {
+      return null;
+    }
+    return (
+      <MuiBox sx={classes.aiStatusCell}>
+        {aiStatus.deferred ? (
+          <MuiTooltip
+            title={text.auditingOptions.deferredTooltip}
+            disableInteractive
+            placement={'right'}
+          >
+            <MuiChip
+              label={text.auditingOptions.deferred}
+              size={'small'}
+              icon={
+                <DeferredIcon
+                  noTooltip
+                  sx={{ color: `${OpossumColors.black} !important` }}
+                />
+              }
+              sx={classes.deferredChip}
+            />
+          </MuiTooltip>
+        ) : (
+          <MuiTooltip
+            title={text.auditingOptions.aiGenerated}
+            disableInteractive
+            placement={'right'}
+          >
+            <MuiChip
+              label={text.auditingOptions.aiGenerated}
+              size={'small'}
+              icon={<AiGeneratedIcon noTooltip />}
+              sx={classes.aiChip}
+            />
+          </MuiTooltip>
+        )}
+        {aiStatus.humanModified && (
+          <MuiTooltip
+            title={text.auditingOptions.humanModified}
+            disableInteractive
+            placement={'right'}
+          >
+            <MuiChip
+              label={text.auditingOptions.humanModified}
+              size={'small'}
+              icon={<HumanModifiedIcon noTooltip />}
+              sx={classes.aiChip}
+            />
+          </MuiTooltip>
+        )}
+      </MuiBox>
     );
   }
 
