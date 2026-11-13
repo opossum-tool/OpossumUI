@@ -6,6 +6,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
+import { classificationStepDescription } from '../../Frontend/Components/ProgressBar/ProgressBar.util';
 import { text } from '../../shared/text';
 import { escapeRegExp, SETTLED_TIMEOUT } from './common';
 
@@ -136,13 +137,22 @@ export interface ProgressBarTooltipValues {
   classifications?: Array<{ classification: string; count: number }>;
 }
 
+export async function hoverProgressBar(): Promise<void> {
+  const progressBar = await waitFor(
+    () => screen.getByTestId('progress-bar'),
+    SETTLED_TIMEOUT,
+  );
+  fireEvent.mouseOver(progressBar, { clientX: 10, clientY: 10 });
+}
+
 export async function expectProgressBarTooltipShowsValues(
   values: ProgressBarTooltipValues,
   mode: ProgressBarMode = 'Attributions',
 ): Promise<void> {
-  // The component renders one "…label: count" line per nonzero segment and
-  // omits zero segments entirely, so zero or unprovided segments must render
-  // no line. The full set of lines has to match the provided values: both a
+  // Pure assertion: hover the progress bar first via hoverProgressBar(). The
+  // component renders one "…label: count" line per nonzero segment and omits
+  // zero segments entirely, so zero or unprovided segments must render no
+  // line. The full set of lines has to match the provided values: both a
   // wrongly counted and an unexpected extra line fail the assertion.
   const expectedValues: Array<[number, string]> = [];
   if (values.filesWithAttributions) {
@@ -198,21 +208,13 @@ export async function expectProgressBarTooltipShowsValues(
     if (count) {
       expectedValues.push([
         count,
-        `${
-          text.topBar.switchableProgressBar.classificationBar
-            .containingClassification
-        } "${classification.toLowerCase()}"`,
+        classificationStepDescription(classification),
       ]);
     }
   }
   const expectedLines = expectedValues
     .map(([count, label]) => `…${label}: ${count}`)
     .sort();
-  const progressBar = await waitFor(
-    () => screen.getByTestId('progress-bar'),
-    SETTLED_TIMEOUT,
-  );
-  fireEvent.mouseOver(progressBar, { clientX: 10, clientY: 10 });
   await waitFor(() => {
     const tooltips = screen.getAllByRole('tooltip');
     const tooltip = tooltips.find((candidate) => {

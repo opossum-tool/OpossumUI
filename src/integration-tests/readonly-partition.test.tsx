@@ -48,6 +48,7 @@ import {
   gotoReportView,
   gotoResource,
   gotoResourceTreeRoot,
+  hoverProgressBar,
   openProjectStatisticsPopup,
   openReportAttributionInAuditView,
   openSplitDialogFromMenu,
@@ -220,6 +221,7 @@ describe('readonly partition', () => {
 
   it('uses only editable data for statistics and progress navigation', async () => {
     const { sendToChannel } = await renderApp({ data });
+    await hoverProgressBar();
     await expectProgressBarTooltipShowsValues({
       filesWithAttributions: 2,
       filesWithOnlySignals: 1,

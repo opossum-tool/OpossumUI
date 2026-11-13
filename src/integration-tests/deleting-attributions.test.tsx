@@ -28,6 +28,7 @@ import {
   expectSelectedTabIs,
   expectTabVisibility,
   gotoResource,
+  hoverProgressBar,
 } from '../testing/ui';
 
 const [
@@ -84,12 +85,14 @@ describe('deleting attributions', () => {
       await gotoResource(resourceName1);
       await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo3);
       await expectAttributionFormMatchesPackageInfo(packageInfo3);
+      await hoverProgressBar();
       await expectProgressBarTooltipShowsValues({ filesWithAttributions: 5 });
 
       await clickAttributionColumnButton('delete');
       await clickPopupButton('confirm delete popup', 'Delete on All');
       await expectPopupHidden('confirm delete popup');
       await expectAttributionFormIsEmpty();
+      await hoverProgressBar();
       await expectProgressBarTooltipShowsValues({ filesWithAttributions: 5 });
 
       await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
@@ -109,6 +112,7 @@ describe('deleting attributions', () => {
       await expectTabVisibility(ATTRIBUTIONS_PANEL, [], ['resource']);
       await expectPackageCards(ATTRIBUTIONS_PANEL, [packageInfo1]);
       await expectAttributionFormIsEmpty();
+      await hoverProgressBar();
       await expectProgressBarTooltipShowsValues({
         filesWithAttributions: 4,
         filesWithNeitherAttributionsOrSignals: 1,
@@ -128,6 +132,7 @@ describe('deleting attributions', () => {
       await expectSelectedTabIs(ATTRIBUTIONS_PANEL, 'unrelated');
       await expectTabVisibility(ATTRIBUTIONS_PANEL, [], ['resource']);
       await expectPackageCards(ATTRIBUTIONS_PANEL, [], [packageInfo1]);
+      await hoverProgressBar();
       await expectProgressBarTooltipShowsValues({
         filesWithAttributions: 2,
         filesWithNeitherAttributionsOrSignals: 3,
@@ -144,6 +149,7 @@ describe('deleting attributions', () => {
       await clickAttributionColumnButton('delete');
       await clickPopupButton('confirm delete popup', 'Delete on All');
       await expectPopupHidden('confirm delete popup');
+      await hoverProgressBar();
       await expectProgressBarTooltipShowsValues({
         filesWithNeitherAttributionsOrSignals: 5,
       });

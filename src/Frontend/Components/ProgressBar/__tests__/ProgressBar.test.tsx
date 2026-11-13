@@ -13,7 +13,10 @@ import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../../testing/global-test-helpers';
-import { expectProgressBarTooltipShowsValues } from '../../../../testing/ui';
+import {
+  expectProgressBarTooltipShowsValues,
+  hoverProgressBar,
+} from '../../../../testing/ui';
 import {
   getAttributionSelectionPendingResourceId,
   getAttributionSelectionPolicy,
@@ -124,6 +127,7 @@ describe('ProgressBar', () => {
     const { store } = await renderComponent(
       <ProgressBar selectedProgressBar={'attribution'} />,
     );
+    await hoverProgressBar();
     await expectProgressBarTooltipShowsValues({ filesWithOnlySignals: 2 });
     // check that the clicks work
     expect(getSelectedResourceId(store.getState())).toBe('/');
@@ -141,6 +145,7 @@ describe('ProgressBar', () => {
     const { store } = await renderComponent(
       <ProgressBar selectedProgressBar={'criticality'} />,
     );
+    await hoverProgressBar();
     await expectProgressBarTooltipShowsValues(
       {
         filesWithHighlyCriticalSignals: 1,
@@ -161,6 +166,7 @@ describe('ProgressBar', () => {
     const { store } = await renderComponent(
       <ProgressBar selectedProgressBar={'classification'} />,
     );
+    await hoverProgressBar();
     await expectProgressBarTooltipShowsValues(
       {
         classifications: [
