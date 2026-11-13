@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, screen } from '@testing-library/react';
+import { act } from '@testing-library/react';
 import type { IpcRendererEvent } from 'electron';
 import { noop } from 'lodash-es';
 
@@ -10,6 +10,7 @@ import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import type { ElectronAPI } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import { expectTextVisible } from '../../../../testing/ui';
 import { PopupType } from '../../../enums/enums';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import {
@@ -76,7 +77,7 @@ describe('ProcessPopup', () => {
   it('renders no dialog when processing is false', async () => {
     await renderComponent(<ProcessPopup />);
 
-    expect(screen.queryByText(text.processPopup.title)).not.toBeInTheDocument();
+    await expectTextVisible(text.processPopup.title, false);
   });
 
   it('renders on top of another popup while processing', async () => {
@@ -88,8 +89,8 @@ describe('ProcessPopup', () => {
     simulateBackendProcessingStarted();
     simulateMessageFromBackend(message);
 
-    expect(screen.getByText(text.processPopup.title)).toBeInTheDocument();
-    expect(screen.getByText(message)).toBeInTheDocument();
+    await expectTextVisible(text.processPopup.title, true);
+    await expectTextVisible(message, true);
     expect(electronAPI.setFrontendPopupOpen).not.toHaveBeenLastCalledWith(true);
   });
 
@@ -102,8 +103,8 @@ describe('ProcessPopup', () => {
     simulateMessageFromBackend(firstMessage);
     simulateMessageFromBackend(secondMessage);
 
-    expect(screen.getByText(firstMessage)).toBeInTheDocument();
-    expect(screen.getByText(secondMessage)).toBeInTheDocument();
+    await expectTextVisible(firstMessage, true);
+    await expectTextVisible(secondMessage, true);
   });
 
   it('closes after processing has completed', async () => {
@@ -112,7 +113,7 @@ describe('ProcessPopup', () => {
     simulateBackendProcessingStarted();
     simulateBackendProcessingDone();
 
-    expect(screen.queryByText(text.processPopup.title)).not.toBeVisible();
+    await expectTextVisible(text.processPopup.title, false);
   });
 
   it('does not open statistics when generic processing completes', async () => {

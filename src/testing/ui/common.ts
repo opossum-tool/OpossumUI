@@ -11,11 +11,15 @@ import type { UserSettings } from '../../shared/shared-types';
 import type { RenderAppResult } from '../render-app';
 
 export type PanelTestId =
-  'signals-panel' | 'attributions-panel' | 'linked-resources-tree';
+  | 'signals-panel'
+  | 'attributions-panel'
+  | 'linked-resources-tree'
+  | 'packages-panel';
 
 export const ATTRIBUTIONS_PANEL: PanelTestId = 'attributions-panel';
 export const SIGNALS_PANEL: PanelTestId = 'signals-panel';
 export const LINKED_RESOURCES_TREE: PanelTestId = 'linked-resources-tree';
+export const PACKAGES_PANEL: PanelTestId = 'packages-panel';
 
 // Longer timeout (10s) so the shared assertions stay stable on
 // loaded CI runners even with several sequential waits per test
@@ -67,12 +71,6 @@ async function getPopup(popupLabel: string): Promise<HTMLElement> {
 }
 
 export { expectPanelsSettled, getPopup };
-
-export async function expectPopupHidden(popupLabel: string): Promise<void> {
-  await waitFor(() => {
-    expect(screen.queryByLabelText(popupLabel)).toBeNull();
-  }, SETTLED_TIMEOUT);
-}
 
 export async function expectPanelReplacementDimmed(
   panelTestId: PanelTestId,
@@ -186,6 +184,38 @@ export async function clearPanelSearch(headerTestId: string): Promise<void> {
   await userEvent.click(
     within(screen.getByTestId(headerTestId)).getByLabelText('clear search'),
   );
+}
+
+function getHeaderSearchbox(headerTestId: string): HTMLElement {
+  return within(screen.getByTestId(headerTestId)).getByRole('searchbox');
+}
+
+export async function expectSearchFocused(headerTestId: string): Promise<void> {
+  await waitFor(() => {
+    expect(getHeaderSearchbox(headerTestId)).toHaveFocus();
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectSearchValue(
+  headerTestId: string,
+  value: string,
+): Promise<void> {
+  await waitFor(() => {
+    expect(getHeaderSearchbox(headerTestId)).toHaveValue(value);
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectTextVisible(
+  text: string | RegExp,
+  visible: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    if (visible) {
+      expect(screen.getByText(text)).toBeVisible();
+    } else {
+      expect(screen.queryByText(text)).toBeNull();
+    }
+  }, SETTLED_TIMEOUT);
 }
 
 export function sendUserSettingsChange(

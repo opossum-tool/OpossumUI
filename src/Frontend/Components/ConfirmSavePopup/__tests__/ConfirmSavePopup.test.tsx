@@ -4,13 +4,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { act, screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { noop } from 'lodash-es';
 
 import { executeCommand } from '../../../../ElectronBackend/api/commands';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
+import {
+  clickPopupButton,
+  CONFIRM_SAVE_POPUP_LABEL,
+  expectButtonVisibility,
+  expectEventuallyButtonDisabled,
+  expectTextVisible,
+} from '../../../../testing/ui';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
   setSelectedAttributionId,
@@ -66,11 +72,10 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
     );
 
-    const saveButton = await screen.findByRole('button', {
-      name: text.saveAttributionsPopup.save,
-    });
-    await waitFor(() => expect(saveButton).toBeEnabled());
-    await userEvent.click(saveButton);
+    await clickPopupButton(
+      CONFIRM_SAVE_POPUP_LABEL,
+      text.saveAttributionsPopup.save,
+    );
 
     await expectManualAttributions({
       [selected.id]: updatedSelected,
@@ -109,11 +114,10 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
     );
 
-    const saveButton = await screen.findByRole('button', {
-      name: text.saveAttributionsPopup.save,
-    });
-    await waitFor(() => expect(saveButton).toBeEnabled());
-    await userEvent.click(saveButton);
+    await clickPopupButton(
+      CONFIRM_SAVE_POPUP_LABEL,
+      text.saveAttributionsPopup.save,
+    );
 
     await waitFor(() =>
       expect(events).toEqual(['accept', 'close', 'complete']),
@@ -153,12 +157,11 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
     );
 
-    const saveButton = await screen.findByRole('button', {
-      name: text.saveAttributionsPopup.save,
-    });
-    await waitFor(() => expect(saveButton).toBeEnabled());
-    await userEvent.click(saveButton);
-    await waitFor(() => expect(saveButton).toBeDisabled());
+    await clickPopupButton(
+      CONFIRM_SAVE_POPUP_LABEL,
+      text.saveAttributionsPopup.save,
+    );
+    await expectEventuallyButtonDisabled(text.saveAttributionsPopup.save);
     within(screen.getByRole('dialog'))
       .getAllByRole('button', { name: text.buttons.cancel })
       .forEach((button) => expect(button).toBeDisabled());
@@ -203,11 +206,10 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
     );
 
-    const saveButton = await screen.findByRole('button', {
-      name: text.saveAttributionsPopup.save,
-    });
-    await waitFor(() => expect(saveButton).toBeEnabled());
-    await userEvent.click(saveButton);
+    await clickPopupButton(
+      CONFIRM_SAVE_POPUP_LABEL,
+      text.saveAttributionsPopup.save,
+    );
 
     await waitFor(() => expect(toastError).toHaveBeenCalledWith(error.message));
     expect(onAcceptDrafts).not.toHaveBeenCalled();
@@ -243,16 +245,8 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
     );
 
-    expect(
-      await screen.findByRole('button', {
-        name: text.saveAttributionsPopup.saveGlobally,
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', {
-        name: text.saveAttributionsPopup.saveLocally,
-      }),
-    ).not.toBeInTheDocument();
+    await expectButtonVisibility(text.saveAttributionsPopup.saveGlobally, true);
+    await expectButtonVisibility(text.saveAttributionsPopup.saveLocally, false);
   });
 
   it('confirms a query-wide selection without loading its IDs in the renderer', async () => {
@@ -309,21 +303,19 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
     );
 
-    const confirmButton = await screen.findByRole('button', {
-      name: text.saveAttributionsPopup.confirm,
-    });
-    expect(
-      await screen.findByText(
-        `${text.saveAttributionsPopup.confirmAttributions({
-          attributions: '2 attributions',
-        })} 1 resource:`,
-      ),
-    ).toBeInTheDocument();
+    await expectTextVisible(
+      `${text.saveAttributionsPopup.confirmAttributions({
+        attributions: '2 attributions',
+      })} 1 resource:`,
+      true,
+    );
     expect(
       screen.getByLabelText(text.resourceBrowser.directlyLinked),
     ).toBeInTheDocument();
-    await waitFor(() => expect(confirmButton).toBeEnabled());
-    await userEvent.click(confirmButton);
+    await clickPopupButton(
+      CONFIRM_SAVE_POPUP_LABEL,
+      text.saveAttributionsPopup.confirm,
+    );
 
     await expectManualAttributions({
       [first.id]: {
@@ -390,11 +382,10 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
     );
 
-    const confirmButton = await screen.findByRole('button', {
-      name: text.saveAttributionsPopup.confirm,
-    });
-    await waitFor(() => expect(confirmButton).toBeEnabled());
-    await userEvent.click(confirmButton);
+    await clickPopupButton(
+      CONFIRM_SAVE_POPUP_LABEL,
+      text.saveAttributionsPopup.confirm,
+    );
 
     await waitFor(() =>
       expect(getSelectedAttributionId(store.getState())).toBe(matching.id),
@@ -431,9 +422,7 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
     );
 
-    await userEvent.click(
-      screen.getByRole('button', { name: text.buttons.cancel }),
-    );
+    await clickPopupButton(CONFIRM_SAVE_POPUP_LABEL, text.buttons.cancel);
 
     expect(onSaveComplete).not.toHaveBeenCalled();
   });
@@ -469,11 +458,10 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
     );
 
-    const saveButton = await screen.findByRole('button', {
-      name: text.saveAttributionsPopup.save,
-    });
-    await waitFor(() => expect(saveButton).toBeEnabled());
-    await userEvent.click(saveButton);
+    await clickPopupButton(
+      CONFIRM_SAVE_POPUP_LABEL,
+      text.saveAttributionsPopup.save,
+    );
 
     await waitFor(() => expect(toast.error).toHaveBeenCalled());
     expect(onSaveComplete).not.toHaveBeenCalled();
@@ -506,11 +494,10 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
     );
 
-    const saveButton = screen.getByRole('button', {
-      name: text.saveAttributionsPopup.save,
-    });
-    await waitFor(() => expect(saveButton).toBeEnabled());
-    await userEvent.click(saveButton);
+    await clickPopupButton(
+      CONFIRM_SAVE_POPUP_LABEL,
+      text.saveAttributionsPopup.save,
+    );
 
     await expectManualAttributions({
       [packageInfo1.id]: packageInfo2,
@@ -549,10 +536,9 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
     );
 
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.saveAttributionsPopup.saveGlobally,
-      }),
+    await clickPopupButton(
+      CONFIRM_SAVE_POPUP_LABEL,
+      text.saveAttributionsPopup.saveGlobally,
     );
 
     await expectManualAttributions({
@@ -594,10 +580,9 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
     );
 
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.saveAttributionsPopup.saveLocally,
-      }),
+    await clickPopupButton(
+      CONFIRM_SAVE_POPUP_LABEL,
+      text.saveAttributionsPopup.saveLocally,
     );
 
     const newId = getSelectedAttributionId(store.getState());
@@ -642,11 +627,10 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
     );
 
-    const confirmButton = await screen.findByRole('button', {
-      name: text.saveAttributionsPopup.confirm,
-    });
-    await waitFor(() => expect(confirmButton).toBeEnabled());
-    await userEvent.click(confirmButton);
+    await clickPopupButton(
+      CONFIRM_SAVE_POPUP_LABEL,
+      text.saveAttributionsPopup.confirm,
+    );
 
     await expectManualAttributions({
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },
@@ -684,10 +668,9 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
     );
 
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.saveAttributionsPopup.confirmGlobally,
-      }),
+    await clickPopupButton(
+      CONFIRM_SAVE_POPUP_LABEL,
+      text.saveAttributionsPopup.confirmGlobally,
     );
     await expectManualAttributions({
       [packageInfo.id]: { ...packageInfo, preSelected: undefined },
@@ -727,10 +710,9 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
     );
 
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.saveAttributionsPopup.confirmLocally,
-      }),
+    await clickPopupButton(
+      CONFIRM_SAVE_POPUP_LABEL,
+      text.saveAttributionsPopup.confirmLocally,
     );
 
     const newId = getSelectedAttributionId(store.getState());

@@ -11,6 +11,10 @@ import { VirtuosoMockContext } from 'react-virtuoso';
 import type { AllMatchingAttributionSelection } from '../../../../shared/attribution-selection';
 import { faker } from '../../../../testing/Faker';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
+import {
+  expectButtonDisabled,
+  expectButtonVisibility,
+} from '../../../../testing/ui';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { createTestStore, renderComponent } from '../../../test-helpers/render';
 import { backend } from '../../../util/backendClient';
@@ -55,10 +59,8 @@ describe('ConfirmAttributionActionPopup', () => {
       />,
     );
 
-    expect(screen.getByRole('button', { name: 'Save locally' })).toBeDisabled();
-    expect(
-      screen.getByRole('button', { name: 'Save globally' }),
-    ).toBeDisabled();
+    expectButtonDisabled('Save locally');
+    expectButtonDisabled('Save globally');
   });
 
   it('keeps a pending local action visible when availability is lost', async () => {
@@ -89,7 +91,7 @@ describe('ConfirmAttributionActionPopup', () => {
       />,
     );
 
-    expect(screen.getByRole('button', { name: 'Save locally' })).toBeVisible();
+    await expectButtonVisibility('Save locally', true);
     expect(screen.getByRole('progressbar')).toBeVisible();
   });
 

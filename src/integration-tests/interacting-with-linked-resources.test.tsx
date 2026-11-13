@@ -16,9 +16,9 @@ import {
   expectPackageCards,
   expectPathBarCrumbs,
   expectResourceVisibility,
+  expectSearchFocused,
   expectSelectedTabIs,
   expectTreeItemHighlight,
-  expectTreeSearchFocused,
   fillPanelSearch,
   gotoResource,
   gotoResourceInOtherTree,
@@ -111,7 +111,7 @@ describe('interacting with linked resources', () => {
 
     await gotoResourceInOtherTree(LINKED_TREE, resourceName1);
     await pressSearchShortcut();
-    await expectTreeSearchFocused('linked-resources-tree-header');
+    await expectSearchFocused('linked-resources-tree-header');
     await fillPanelSearch('linked-resources-tree-header', resourceName4);
     await expectResourceVisibility([], [resourceName1], LINKED_TREE);
     await expectResourceVisibility([resourceName4], [], LINKED_TREE);

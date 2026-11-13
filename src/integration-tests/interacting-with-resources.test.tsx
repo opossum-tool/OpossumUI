@@ -19,11 +19,12 @@ import {
   clickPathBarHistoryButton,
   clickProgressBar,
   closeFilterMenu,
+  closeLicenseEditorDialog,
   expectPackageCards,
   expectPathBarCrumbs,
   expectPathBarHistoryButton,
   expectResourceVisibility,
-  expectTreeSearchFocused,
+  expectSearchFocused,
   fillPanelSearch,
   focusResourceTreeItem,
   gotoResource,
@@ -250,7 +251,7 @@ describe('interacting with resources', () => {
     await gotoResourceTreeRoot();
     focusResourceTreeItem(resourceWithExternalSelectedLicense);
     await pressSearchShortcut();
-    await expectTreeSearchFocused('resources-tree-header');
+    await expectSearchFocused('resources-tree-header');
     await fillPanelSearch(
       'resources-tree-header',
       resourceWithExternalDifferentLicense,
@@ -266,7 +267,7 @@ describe('interacting with resources', () => {
     await gotoResourceTreeRoot();
     await clickFilterMenuButton(screen.getByTestId('resources-tree-header'));
     await selectFilterLicenseName(SELECTED_LICENSE);
-    await closeFilterMenu();
+    await closeLicenseEditorDialog();
     await closeFilterMenu();
     await expectResourceVisibility(
       [resourceWithExternalSelectedLicense],

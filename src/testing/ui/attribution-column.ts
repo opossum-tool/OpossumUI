@@ -8,6 +8,7 @@ import { expect } from 'vitest';
 
 import type { RawPackageInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
+import { AI_STATUS_BADGE_TEST_ID, AI_STATUS_ICON_LABEL } from './ai-status';
 import { isNodeEnabled, SETTLED_TIMEOUT } from './common';
 
 export type AttributionColumnField =
@@ -175,10 +176,10 @@ export async function expectAttributionFormIsEmpty(): Promise<void> {
 export async function expectAttributionSaveButtonIsEnabled(
   enabled: boolean = true,
 ): Promise<void> {
-  const button = within(getAttributionColumn()).getByRole('button', {
-    name: BUTTON_LABELS.save,
-  });
   await waitFor(() => {
+    const button = within(getAttributionColumn()).getByRole('button', {
+      name: BUTTON_LABELS.save,
+    });
     if (enabled) {
       expect(button).toBeEnabled();
     } else {
@@ -316,13 +317,15 @@ export async function expectAttributionColumnButtonVisibility(
     if (visible) {
       expect(node).not.toBeNull();
       expect(node).toBeVisible();
-    } else if (node !== null) {
-      expect(node).not.toBeVisible();
+    } else {
+      expect(node).toBeNull();
     }
   }, SETTLED_TIMEOUT);
 }
 
-async function expectAttributionColumnDirty(dirty: boolean): Promise<void> {
+export async function expectAttributionColumnDirty(
+  dirty: boolean,
+): Promise<void> {
   await waitFor(() => {
     expect(getAttributionColumn()).toHaveAttribute(
       'data-dirty',
@@ -449,6 +452,32 @@ function queryAuditingOptionChip(optionId: string): HTMLElement | null {
   return within(getAttributionColumn()).queryByTestId(
     `auditing-option-${optionId}`,
   );
+}
+
+export async function expectAiStatusBadges(
+  badges: Array<string>,
+  container: HTMLElement = getAttributionColumn(),
+): Promise<void> {
+  await waitFor(() => {
+    expect(
+      within(container)
+        .queryAllByTestId(AI_STATUS_BADGE_TEST_ID)
+        .map((badge) => badge.textContent),
+    ).toEqual(badges);
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectAiStatusIcons(
+  icons: Array<string>,
+  container: HTMLElement = getAttributionColumn(),
+): Promise<void> {
+  await waitFor(() => {
+    expect(
+      within(container)
+        .queryAllByLabelText(AI_STATUS_ICON_LABEL)
+        .map((icon) => icon.getAttribute('aria-label')),
+    ).toEqual(icons);
+  }, SETTLED_TIMEOUT);
 }
 
 function getAuditingOptionChip(optionId: string): HTMLElement {

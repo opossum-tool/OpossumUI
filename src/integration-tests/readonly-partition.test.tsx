@@ -21,6 +21,7 @@ import {
   clickProgressBar,
   clickProjectStatisticsTab,
   closeFilterMenu,
+  CONFIRM_SAVE_POPUP_LABEL,
   expectAttributionColumnButtonVisibility,
   expectConfirmSavePopupIsVisible,
   expectConfirmSavePopupSaveOnlyOnSelectedIsHidden,
@@ -48,6 +49,7 @@ import {
   gotoReportView,
   gotoResource,
   gotoResourceTreeRoot,
+  hoverProgressBar,
   openProjectStatisticsPopup,
   openReportAttributionInAuditView,
   openSplitDialogFromMenu,
@@ -181,17 +183,17 @@ describe('readonly partition', () => {
     await clickAttributionColumnButton('save');
     await expectConfirmSavePopupIsVisible();
     await expectPopupHasText(
-      text.saveAttributionsPopup.ariaLabel,
+      CONFIRM_SAVE_POPUP_LABEL,
       `${text.saveAttributionsPopup.saveAttributions({
         attributions: 'attribution',
       })} 1 resource:`,
     );
     await expectConfirmSavePopupSaveOnlyOnSelectedIsHidden();
     await clickPopupButton(
-      text.saveAttributionsPopup.ariaLabel,
+      CONFIRM_SAVE_POPUP_LABEL,
       text.saveAttributionsPopup.save,
     );
-    await expectPopupHidden(text.saveAttributionsPopup.ariaLabel);
+    await expectPopupHidden(CONFIRM_SAVE_POPUP_LABEL);
     await expectFormFieldValues({ name: updatedName });
 
     await gotoResourceTreeRoot();
@@ -220,6 +222,7 @@ describe('readonly partition', () => {
 
   it('uses only editable data for statistics and progress navigation', async () => {
     const { sendToChannel } = await renderApp({ data });
+    await hoverProgressBar();
     await expectProgressBarTooltipShowsValues({
       filesWithAttributions: 2,
       filesWithOnlySignals: 1,

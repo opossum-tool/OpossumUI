@@ -13,6 +13,11 @@ import {
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import {
+  expectAiStatusBadges,
+  expectAiStatusIcons,
+  expectTextVisible,
+} from '../../../../testing/ui';
 import { OpossumColors } from '../../../shared-styles';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
@@ -171,9 +176,7 @@ describe('AttributionForm', () => {
         data: getParsedInputFileEnrichedWithTestData({}),
       });
 
-      expect(
-        await screen.findByText(packageInfo.source!.name),
-      ).toBeInTheDocument();
+      await expectTextVisible(packageInfo.source!.name, true);
     });
 
     it('renders the name of the original source for external attributions', async () => {
@@ -188,9 +191,7 @@ describe('AttributionForm', () => {
         data: getParsedInputFileEnrichedWithTestData({}),
       });
 
-      expect(
-        await screen.findByText(source.additionalName!),
-      ).toBeInTheDocument();
+      await expectTextVisible(source.additionalName!, true);
     });
 
     it('renders from the DB if external attribution source is defined there', async () => {
@@ -209,7 +210,7 @@ describe('AttributionForm', () => {
         }),
       });
 
-      expect(await screen.findByText('pretty name')).toBeInTheDocument();
+      await expectTextVisible('pretty name', true);
     });
 
     it('renders original signal source for manual attributions', async () => {
@@ -222,11 +223,10 @@ describe('AttributionForm', () => {
         data: getParsedInputFileEnrichedWithTestData({}),
       });
 
-      expect(
-        await screen.findByText(
-          text.attributionColumn.originallyFrom + source.name,
-        ),
-      ).toBeInTheDocument();
+      await expectTextVisible(
+        text.attributionColumn.originallyFrom + source.name,
+        true,
+      );
     });
 
     it('renders a chip for follow-up', async () => {
@@ -298,9 +298,7 @@ describe('AttributionForm', () => {
         <AttributionForm packageInfo={packageInfo} onEdit={vi.fn()} />,
       );
 
-      expect(
-        screen.queryByText(text.auditingOptions.add),
-      ).not.toBeInTheDocument();
+      await expectTextVisible(text.auditingOptions.add, false);
     });
 
     it('renders a chip for preferred', async () => {
@@ -362,9 +360,7 @@ describe('AttributionForm', () => {
         }),
       });
 
-      expect(
-        await screen.findByText(text.auditingOptions.modifiedPreferred),
-      ).toBeInTheDocument();
+      await expectTextVisible(text.auditingOptions.modifiedPreferred, true);
     });
 
     describe('criticality chip', () => {
@@ -570,15 +566,13 @@ describe('AttributionForm', () => {
           data: getParsedInputFileEnrichedWithTestData({}),
         });
 
-        const badges = screen.queryAllByTestId(
-          /^auditing-option-(ai-generated|human-modified|deferred)$/,
+        await expectAiStatusBadges(
+          expected,
+          screen.getByTestId('attribution-form-wrapper'),
         );
-        expect(badges.map((badge) => badge.textContent)).toEqual(expected);
-        const icons = screen.queryAllByLabelText(
-          /^(AI generated|Human-modified AI|Deferred AI) icon$/,
-        );
-        expect(icons.map((icon) => icon.getAttribute('aria-label'))).toEqual(
+        await expectAiStatusIcons(
           expectedIcons,
+          screen.getByTestId('attribution-form-wrapper'),
         );
       },
     );

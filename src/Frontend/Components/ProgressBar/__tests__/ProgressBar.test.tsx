@@ -14,6 +14,10 @@ import {
   pathsToResources,
 } from '../../../../testing/global-test-helpers';
 import {
+  expectProgressBarTooltipShowsValues,
+  hoverProgressBar,
+} from '../../../../testing/ui';
+import {
   getAttributionSelectionPendingResourceId,
   getAttributionSelectionPolicy,
   getSelectedResourceId,
@@ -27,39 +31,6 @@ async function clickOnAttributionProgressBar() {
   await userEvent.click(
     await screen.findByLabelText(
       text.topBar.switchableProgressBar.attributionBar.ariaLabel,
-    ),
-    {
-      advanceTimers: vi.runOnlyPendingTimersAsync,
-    },
-  );
-}
-
-async function hoverOverAttributionProgressBar() {
-  await userEvent.hover(
-    await screen.findByLabelText(
-      text.topBar.switchableProgressBar.attributionBar.ariaLabel,
-    ),
-    {
-      advanceTimers: vi.runOnlyPendingTimersAsync,
-    },
-  );
-}
-
-async function hoverOverCriticalityProgressBar() {
-  await userEvent.hover(
-    await screen.findByLabelText(
-      text.topBar.switchableProgressBar.criticalityBar.ariaLabel,
-    ),
-    {
-      advanceTimers: vi.runOnlyPendingTimersAsync,
-    },
-  );
-}
-
-async function hoverOverClassificationProgressBar() {
-  await userEvent.hover(
-    await screen.findByLabelText(
-      text.topBar.switchableProgressBar.classificationBar.ariaLabel,
     ),
     {
       advanceTimers: vi.runOnlyPendingTimersAsync,
@@ -156,10 +127,8 @@ describe('ProgressBar', () => {
     const { store } = await renderComponent(
       <ProgressBar selectedProgressBar={'attribution'} />,
     );
-    // check that the text is right when hovering over the progress bar
-    await hoverOverAttributionProgressBar();
-    expect(await screen.findByText(/Number of files/)).toBeInTheDocument();
-    expect(screen.getByText(/with only signals: 2/)).toBeInTheDocument();
+    await hoverProgressBar();
+    await expectProgressBarTooltipShowsValues({ filesWithOnlySignals: 2 });
     // check that the clicks work
     expect(getSelectedResourceId(store.getState())).toBe('/');
     await clickOnAttributionProgressBar();
@@ -176,14 +145,14 @@ describe('ProgressBar', () => {
     const { store } = await renderComponent(
       <ProgressBar selectedProgressBar={'criticality'} />,
     );
-    // check that the text is right when hovering over the progress bar
-    await hoverOverCriticalityProgressBar();
-    expect(
-      await screen.findByText(/containing highly critical signals: 1/),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/containing medium critical signals: 1/),
-    ).toBeInTheDocument();
+    await hoverProgressBar();
+    await expectProgressBarTooltipShowsValues(
+      {
+        filesWithHighlyCriticalSignals: 1,
+        filesWithMediumCriticalSignals: 1,
+      },
+      'Criticalities',
+    );
 
     // check that the clicks work
     expect(getSelectedResourceId(store.getState())).toBe('/');
@@ -197,14 +166,16 @@ describe('ProgressBar', () => {
     const { store } = await renderComponent(
       <ProgressBar selectedProgressBar={'classification'} />,
     );
-    // check that the text is right when hovering over the progress bar
-    await hoverOverClassificationProgressBar();
-    expect(
-      await screen.findByText(/containing classification "high": 1/),
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByText(/containing classification "low": 1/),
-    ).toBeInTheDocument();
+    await hoverProgressBar();
+    await expectProgressBarTooltipShowsValues(
+      {
+        classifications: [
+          { classification: 'High', count: 1 },
+          { classification: 'Low', count: 1 },
+        ],
+      },
+      'Classifications',
+    );
 
     // check that the clicks work
     expect(getSelectedResourceId(store.getState())).toBe('/');

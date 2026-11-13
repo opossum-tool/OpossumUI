@@ -2,11 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import {
+  clickPopupButton,
+  UNSAVED_CHANGES_POPUP_LABEL,
+} from '../../../../testing/ui';
 import { PopupType, View } from '../../../enums/enums';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
@@ -55,7 +56,7 @@ describe('NotSavedPopup', () => {
       ],
     });
 
-    await userEvent.click(screen.getByText(text.buttons.cancel));
+    await clickPopupButton(UNSAVED_CHANGES_POPUP_LABEL, text.buttons.cancel);
 
     expect(getOpenPopup(store.getState())).toBeFalsy();
     expect(getSelectedView(store.getState())).toBe(currentView);
@@ -89,7 +90,10 @@ describe('NotSavedPopup', () => {
       ],
     });
 
-    await userEvent.click(screen.getByText(text.unsavedChangesPopup.discard));
+    await clickPopupButton(
+      UNSAVED_CHANGES_POPUP_LABEL,
+      text.unsavedChangesPopup.discard,
+    );
 
     expect(getOpenPopup(store.getState())).toBeFalsy();
     expect(getSelectedView(store.getState())).toBe(targetView);
@@ -109,7 +113,10 @@ describe('NotSavedPopup', () => {
       ],
     });
 
-    await userEvent.click(screen.getByText(text.unsavedChangesPopup.discard));
+    await clickPopupButton(
+      UNSAVED_CHANGES_POPUP_LABEL,
+      text.unsavedChangesPopup.discard,
+    );
 
     expect(global.window.electronAPI.openFile).toHaveBeenCalledWith(filePath);
   });

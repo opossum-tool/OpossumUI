@@ -7,6 +7,7 @@ import { VirtuosoMockContext } from 'react-virtuoso';
 
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import { expectTextVisible } from '../../../../testing/ui';
 import { renderComponent } from '../../../test-helpers/render';
 import { List } from '../List';
 
@@ -21,7 +22,7 @@ describe('List', () => {
       expect(screen.getByText(item.id)).toBeInTheDocument();
     });
     expect(screen.queryByTestId('loading')).not.toBeInTheDocument();
-    expect(screen.queryByText(text.generic.noResults)).not.toBeInTheDocument();
+    await expectTextVisible(text.generic.noResults, false);
   });
 
   it('renders loading state', async () => {
@@ -35,7 +36,7 @@ describe('List', () => {
     );
 
     expect(screen.getByTestId('loading')).toBeInTheDocument();
-    expect(screen.queryByText(text.generic.noResults)).not.toBeInTheDocument();
+    await expectTextVisible(text.generic.noResults, false);
   });
 
   it('renders empty placeholder when no results', async () => {
@@ -46,7 +47,7 @@ describe('List', () => {
       />,
     );
 
-    expect(screen.getByText(text.generic.noResults)).toBeInTheDocument();
+    await expectTextVisible(text.generic.noResults, true);
   });
 
   it('reserves unloaded rows and requests the next page when they enter the range', async () => {

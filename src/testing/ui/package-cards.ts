@@ -10,6 +10,7 @@ import {
   getCardLabels,
   type PackageInfoForLabels,
 } from '../../Frontend/util/get-card-labels';
+import { AI_STATUS_ICON_LABEL } from './ai-status';
 import {
   expectReadonlyIndicator,
   getPanel,
@@ -123,6 +124,44 @@ export async function clickPackageCard(
   );
 }
 
+async function getPackageCardByLabelAfterItAppears(
+  panelTestId: PanelTestId,
+  label: string,
+): Promise<HTMLElement> {
+  return waitFor(() => {
+    const card = within(getPanel(panelTestId)).getByLabelText(
+      `package card ${label}`,
+    );
+    expect(card).toBeVisible();
+    return card;
+  }, SETTLED_TIMEOUT);
+}
+
+export async function clickPackageCardByLabel(
+  panelTestId: PanelTestId,
+  label: string,
+): Promise<void> {
+  const card = await getPackageCardByLabelAfterItAppears(panelTestId, label);
+  await userEvent.click(within(card).getByText(label, { exact: true }));
+}
+
+export async function expectPackageCardAiIcons(
+  panelTestId: PanelTestId,
+  label: string,
+  icons: Array<string>,
+): Promise<void> {
+  await waitFor(() => {
+    const card = within(getPanel(panelTestId)).getByLabelText(
+      `package card ${label}`,
+    );
+    expect(
+      within(card)
+        .queryAllByLabelText(AI_STATUS_ICON_LABEL)
+        .map((icon) => icon.getAttribute('aria-label')),
+    ).toEqual(icons);
+  }, SETTLED_TIMEOUT);
+}
+
 export async function clickPackageCardCheckbox(
   panelTestId: PanelTestId,
   packageInfo: PackageInfoForLabels,
@@ -151,11 +190,53 @@ export async function expectPackageCardCheckbox(
 export async function clickSelectAllCheckbox(
   panelTestId: PanelTestId,
 ): Promise<void> {
-  await userEvent.click(
-    within(getPanel(panelTestId)).getByRole('checkbox', {
-      name: /select all/i,
-    }),
-  );
+  await userEvent.click(getSelectAllCheckbox(panelTestId));
+}
+
+function getSelectAllCheckbox(panelTestId: PanelTestId): HTMLElement {
+  return within(getPanel(panelTestId)).getByRole('checkbox', {
+    name: /select all/i,
+  });
+}
+
+export async function expectSelectAllCheckboxChecked(
+  panelTestId: PanelTestId,
+  checked: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const checkbox = getSelectAllCheckbox(panelTestId);
+    if (checked) {
+      expect(checkbox).toBeChecked();
+    } else {
+      expect(checkbox).not.toBeChecked();
+    }
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectSelectAllCheckboxIndeterminate(
+  panelTestId: PanelTestId,
+  indeterminate: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    expect(getSelectAllCheckbox(panelTestId)).toHaveAttribute(
+      'data-indeterminate',
+      indeterminate ? 'true' : 'false',
+    );
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectSelectAllCheckboxEnabled(
+  panelTestId: PanelTestId,
+  enabled: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const checkbox = getSelectAllCheckbox(panelTestId);
+    if (enabled) {
+      expect(checkbox).toBeEnabled();
+    } else {
+      expect(checkbox).toBeDisabled();
+    }
+  }, SETTLED_TIMEOUT);
 }
 
 export async function expectPackageCardPartition(
