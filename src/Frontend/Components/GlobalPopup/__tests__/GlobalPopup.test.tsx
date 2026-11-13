@@ -4,7 +4,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen } from '@testing-library/react';
 
-import { text } from '../../../../shared/text';
+import {
+  expectPopupVisibility,
+  expectSplitDialogVisibility,
+  expectUnsavedChangesPopupVisibility,
+} from '../../../../testing/ui';
 import { PopupType } from '../../../enums/enums';
 import {
   openPopup,
@@ -19,6 +23,7 @@ describe('The GlobalPopUp', () => {
     await renderComponent(<GlobalPopup />);
 
     expect(screen.queryByText('Warning')).not.toBeInTheDocument();
+    await expectUnsavedChangesPopupVisibility(false);
     expect(
       global.window.electronAPI.setFrontendPopupOpen,
     ).not.toHaveBeenCalledWith(true);
@@ -29,9 +34,7 @@ describe('The GlobalPopUp', () => {
       actions: [openPopup(PopupType.NotSavedPopup)],
     });
 
-    expect(
-      screen.getByText(text.unsavedChangesPopup.title),
-    ).toBeInTheDocument();
+    await expectUnsavedChangesPopupVisibility(true);
     expect(
       global.window.electronAPI.setFrontendPopupOpen,
     ).toHaveBeenLastCalledWith(true);
@@ -42,7 +45,7 @@ describe('The GlobalPopUp', () => {
       actions: [openPopup(PopupType.ProjectMetadataPopup)],
     });
 
-    expect(screen.getByText('Project Metadata')).toBeInTheDocument();
+    await expectPopupVisibility('project metadata', true);
     expect(
       global.window.electronAPI.setFrontendPopupOpen,
     ).toHaveBeenLastCalledWith(true);
@@ -54,7 +57,7 @@ describe('The GlobalPopUp', () => {
       actions: [openPopup(PopupType.ProjectStatisticsPopup)],
     });
 
-    expect(await screen.findByText('Project Statistics')).toBeInTheDocument();
+    await expectPopupVisibility('project statistics', true);
     expect(
       global.window.electronAPI.setFrontendPopupOpen,
     ).toHaveBeenLastCalledWith(true);
@@ -65,9 +68,7 @@ describe('The GlobalPopUp', () => {
       actions: [openSplitDialog()],
     });
 
-    expect(
-      screen.getByRole('dialog', { name: text.splitDialog.title }),
-    ).toBeVisible();
+    await expectSplitDialogVisibility(true);
     expect(
       global.window.electronAPI.setFrontendPopupOpen,
     ).toHaveBeenLastCalledWith(true);

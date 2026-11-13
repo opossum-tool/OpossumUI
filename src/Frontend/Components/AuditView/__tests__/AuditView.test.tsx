@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import { expectButtonVisibility } from '../../../../testing/ui';
 import { View } from '../../../enums/enums';
 import { navigateToView } from '../../../state/actions/view-actions/view-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
@@ -40,9 +41,7 @@ describe('AuditView', () => {
       ),
     );
 
-    expect(
-      screen.getByRole('button', { name: text.attributionColumn.save }),
-    ).toBeInTheDocument();
+    await expectButtonVisibility(text.attributionColumn.save, true);
     expect(screen.getAllByText(resourceName)).not.toHaveLength(0);
   });
 });

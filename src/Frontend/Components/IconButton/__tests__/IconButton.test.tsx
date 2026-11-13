@@ -5,6 +5,7 @@
 import { render, screen } from '@testing-library/react';
 import { noop } from 'lodash-es';
 
+import { getButton } from '../../../../testing/ui';
 import { IconButton } from '../IconButton';
 
 describe('IconButton', () => {
@@ -19,7 +20,7 @@ describe('IconButton', () => {
       />,
     );
 
-    expect(screen.getByLabelText('Test')).toBeInTheDocument();
+    expect(getButton('Test')).toBeInTheDocument();
     expect(screen.getByText('Test Icon')).toBeInTheDocument();
   });
 

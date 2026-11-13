@@ -153,6 +153,8 @@ export async function expectSplitDialogResourceIsReadonly(
 
 const UNSAVED_CHANGES_POPUP_LABEL = 'unsaved changes popup';
 
+export { UNSAVED_CHANGES_POPUP_LABEL };
+
 export async function expectUnsavedChangesPopupVisibility(
   visible: boolean,
 ): Promise<void> {
@@ -167,6 +169,8 @@ export async function expectUnsavedChangesPopupVisibility(
   }, SETTLED_TIMEOUT);
 }
 
+export const CONFIRMATION_DIALOG_LABEL = 'confirmation dialog';
+
 export const CONFIRM_SAVE_POPUP_LABEL = text.saveAttributionsPopup.ariaLabel;
 
 export const CONFIRM_DELETE_POPUP_LABEL =
@@ -175,6 +179,21 @@ export const CONFIRM_DELETE_POPUP_LABEL =
 export const CONFIRM_REPLACE_POPUP_LABEL = 'confirm replace popup';
 
 export const FORCE_UNLOCK_POPUP_LABEL = 'force unlock popup';
+
+export async function expectPopupVisibility(
+  popupLabel: string,
+  visible: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const popup = screen.queryByLabelText(popupLabel);
+    if (visible) {
+      expect(popup).not.toBeNull();
+      expect(popup).toBeVisible();
+    } else {
+      expect(popup).toBeNull();
+    }
+  }, SETTLED_TIMEOUT);
+}
 
 export async function expectConfirmSavePopupIsVisible(): Promise<void> {
   await waitFor(() => {

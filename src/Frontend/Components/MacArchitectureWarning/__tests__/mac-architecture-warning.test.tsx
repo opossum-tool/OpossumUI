@@ -8,6 +8,10 @@ import {
   getLatestReleaseAssetDownloadUrl,
   UPDATE_ASSET_NAMES,
 } from '../../../../shared/release-assets';
+import {
+  expectButtonVisibility,
+  expectTextVisible,
+} from '../../../../testing/ui';
 import { renderComponent } from '../../../test-helpers/render';
 import { MacArchitectureWarning } from '../mac-architecture-warning';
 
@@ -18,9 +22,7 @@ describe('MacArchitectureWarning', () => {
     );
     const { rerender } = await renderComponent(<MacArchitectureWarning />);
 
-    expect(
-      await screen.findByText(/You’re running the Intel version/),
-    ).toBeInTheDocument();
+    await expectTextVisible(/You’re running the Intel version/, true);
     fireEvent.click(
       screen.getByRole('link', {
         name: 'Download Apple Silicon (ARM64) version',
@@ -30,11 +32,9 @@ describe('MacArchitectureWarning', () => {
       getLatestReleaseAssetDownloadUrl(UPDATE_ASSET_NAMES.macArm64),
     );
 
-    expect(screen.queryByRole('button', { name: 'Close warning' })).toBeNull();
+    await expectButtonVisibility('Close warning', false);
     rerender(<MacArchitectureWarning />);
-    expect(
-      screen.getByText(/You’re running the Intel version/),
-    ).toBeInTheDocument();
+    await expectTextVisible(/You’re running the Intel version/, true);
   });
 
   it('hides the warning when detection fails', async () => {
@@ -48,8 +48,6 @@ describe('MacArchitectureWarning', () => {
         queryClient.getQueryState(['macArchitectureMismatch'])?.status,
       ).toBe('error'),
     );
-    expect(
-      screen.queryByText(/You’re running the Intel version/),
-    ).not.toBeInTheDocument();
+    await expectTextVisible(/You’re running the Intel version/, false);
   });
 });
