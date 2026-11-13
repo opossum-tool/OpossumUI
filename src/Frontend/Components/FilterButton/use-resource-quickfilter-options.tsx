@@ -59,8 +59,7 @@ export function useResourceQuickfilterOption({
   const visibleQuickfilters = useVisibleQuickfiltersForResources();
   const visibleAttributionQuickfilters = useVisibleQuickfilters('attribution');
   // Cross-panel membership: shared license-only quickfilters show as pressed
-  // on the attributions panel too, applying the converted model there (the
-  // live license sync keeps the license selections identical anyway).
+  // on the attributions panel too, applying the converted model there.
   const [, setManualAttributionFilters] = useManualAttributionFilters();
   const hasActiveFilters = hasActiveResourceTreeFilters(filters);
 
