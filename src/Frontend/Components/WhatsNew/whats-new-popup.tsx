@@ -5,17 +5,16 @@
 import MuiBox from '@mui/material/Box';
 
 import { text } from '../../../shared/text';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
-import { useAppDispatch } from '../../state/hooks';
 import { ReleaseNotes, revision } from '../../whats-new/release-notes';
+import { useCloseGlobalPopup } from '../GlobalPopup/popup-close-context';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { releaseNotesContentSx } from './whats-new-popup.style';
 
 export function WhatsNewPopup() {
-  const dispatch = useAppDispatch();
+  const closePopup = useCloseGlobalPopup();
 
   function close() {
-    dispatch(closePopup());
+    closePopup();
   }
 
   return (
@@ -23,6 +22,7 @@ export function WhatsNewPopup() {
       header={text.whatsNew.title}
       aria-label={text.whatsNew.title}
       isOpen={true}
+      classification={'reference'}
       width="60rem"
       fullWidth
       rightButtonConfig={{ buttonText: text.buttons.close, onClick: close }}

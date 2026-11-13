@@ -8,7 +8,6 @@ import { app, type MenuItemConstructorOptions, shell } from 'electron';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { OPOSSUM_UI_USER_GUIDE_URL } from '../../../shared/shared-constants';
 import { text } from '../../../shared/text';
-import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
 import {
   startAutomaticUpdateChecks,
@@ -39,7 +38,7 @@ function getCheckForUpdates(
     click: () => {
       webContents.send(AllowedFrontendChannels.CheckForUpdatesRequested);
     },
-    enabled: !getGlobalBackendState().frontendPopupOpen,
+    enabled: true,
   };
 }
 
@@ -72,7 +71,7 @@ export async function getHelpMenu(
         label: text.menu.helpSubmenu.whatsNew,
         id: menuItemIds.helpWhatsNew,
         click: () => webContents.send(AllowedFrontendChannels.ShowWhatsNew),
-        enabled: !getGlobalBackendState().frontendPopupOpen,
+        enabled: true,
       },
       getOpenLogFiles(),
       getCheckForUpdates(webContents),

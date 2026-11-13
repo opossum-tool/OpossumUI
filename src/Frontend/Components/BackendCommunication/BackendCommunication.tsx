@@ -16,10 +16,7 @@ import {
   showSplitDialogOrOpenUnsavedPopup,
 } from '../../state/actions/popup-actions/popup-actions';
 import { resetResourceState } from '../../state/actions/resource-actions/all-views-simple-actions';
-import {
-  openPopup,
-  openStatisticsPopupAfterFileLoadIfEnabled,
-} from '../../state/actions/view-actions/view-actions';
+import { openPopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { backend, setDatabaseInitialized } from '../../util/backendClient';
 import {
@@ -35,10 +32,12 @@ import {
 } from '../../util/use-ipc-renderer';
 import { useSyncProcessingStatusUpdatesToFrontendLogs } from '../../util/use-processing-status-updated';
 import { useWhatsNew } from '../WhatsNew/use-whats-new';
+import { useProjectStatisticsAfterLoad } from './use-project-statistics-after-load';
 
 export const BackendCommunication: React.FC = () => {
   const dispatch = useAppDispatch();
   useWhatsNew();
+  useProjectStatisticsAfterLoad();
   function showProjectMetadataPopupListener(
     _: IpcRendererEvent,
     showProjectMetadataPopup: boolean,
@@ -75,11 +74,6 @@ export const BackendCommunication: React.FC = () => {
   useIpcRenderer(
     AllowedFrontendChannels.ShowProjectStatisticsPopup,
     showProjectStatisticsPopupListener,
-    [dispatch],
-  );
-  useIpcRenderer(
-    AllowedFrontendChannels.ProjectOpened,
-    () => dispatch(openStatisticsPopupAfterFileLoadIfEnabled),
     [dispatch],
   );
   useIpcRenderer(

@@ -437,7 +437,11 @@ export const importFileConvertAndLoadListener =
       processingStatusUpdater.info('Updating global backend state');
       initializeGlobalBackendState(opossumFilePath);
 
-      return await openFile(mainWindow, opossumFilePath, updateMenu);
+      const opened = await openFile(mainWindow, opossumFilePath, updateMenu);
+      if (opened) {
+        mainWindow.webContents.send(AllowedFrontendChannels.ProjectOpened);
+      }
+      return opened;
     } catch (error) {
       sendListenerErrorToFrontend(processingStatusUpdater, error);
       return false;
@@ -506,6 +510,8 @@ export const mergeFileAndLoadListener =
 
 function initializeGlobalBackendState(filePath: string): void {
   const newGlobalBackendState: GlobalBackendState = {
+    frontendPopupOpen: getGlobalBackendState().frontendPopupOpen,
+    frontendActivityActive: getGlobalBackendState().frontendActivityActive,
     opossumFilePath: filePath,
     followUpFilePath: getFilePathWithAppendix(filePath, '_follow_up.csv'),
     compactBomFilePath: getFilePathWithAppendix(

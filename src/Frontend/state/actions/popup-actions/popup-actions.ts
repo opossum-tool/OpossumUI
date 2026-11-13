@@ -25,7 +25,6 @@ import {
   getImportFileRequest,
   getMergeOpossumFilesRequest,
   getOpenFileRequest,
-  getOpenPopup,
   getSplitFileRequest,
   getTargetView,
 } from '../../selectors/view-selector';
@@ -128,10 +127,17 @@ function executeStatisticsDestination(
 }
 
 export function navigateFromStatistics(
+  popupId: string,
   destination: StatisticsDestination,
 ): AppThunkAction {
-  return (dispatch) => {
-    dispatch(closePopup());
+  return (dispatch, getState) => {
+    const entry = getState().viewState.popupInfo.find(
+      ({ id }) => id === popupId,
+    );
+    if (entry?.info.popup !== PopupType.ProjectStatisticsPopup) {
+      return;
+    }
+    dispatch(closePopup(entry.id));
     dispatch(
       withUnsavedCheck({
         executeImmediately: executeStatisticsDestination(destination),
@@ -357,14 +363,20 @@ export function mergeOpossumFilesIntoCurrentFile(
   };
 }
 
-export function proceedFromUnsavedPopup(): AppThunkAction {
+export function proceedFromUnsavedPopup(popupId: string): AppThunkAction {
   return (dispatch, getState) => {
+    const entry = getState().viewState.popupInfo.find(
+      ({ id }) => id === popupId,
+    );
+    if (entry?.info.popup !== PopupType.NotSavedPopup) {
+      return;
+    }
     dispatch(
       initializePackageInfoEditing(
         getState().resourceState.originalDisplayPackageInfo,
       ),
     );
-    const popup = getOpenPopup(getState());
+    const popup = entry.info;
     const targetView = getTargetView(getState());
     const openFileRequest = getOpenFileRequest(getState());
     const importFileRequest = getImportFileRequest(getState());
@@ -377,7 +389,7 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     const statisticsDestination = getState().variablesState[
       STATISTICS_DESTINATION
     ] as StatisticsDestination | null | undefined;
-    dispatch(closePopup());
+    dispatch(closePopup(entry.id));
     if (statisticsDestination) {
       dispatch(setVariable(STATISTICS_DESTINATION, null));
       dispatch(executeStatisticsDestination(statisticsDestination));
@@ -463,15 +475,21 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
   };
 }
 
-export function closePopupAndUnsetTargets(): AppThunkAction {
-  return (dispatch) => {
+export function closePopupAndUnsetTargets(popupId: string): AppThunkAction {
+  return (dispatch, getState) => {
+    const entry = getState().viewState.popupInfo.find(
+      ({ id }) => id === popupId,
+    );
+    if (entry?.info.popup !== PopupType.NotSavedPopup) {
+      return;
+    }
     dispatch(setTargetView(null));
     dispatch(setTargetSelectedResourceId(null));
     dispatch(setTargetSelectedAttributionId(null));
     dispatch(setTargetAttributionFilterChange(null));
     dispatch(setVariable(STATISTICS_DESTINATION, null));
     dispatch(setVariable(AI_REVIEW_DESTINATION, null));
-    dispatch(closePopup());
+    dispatch(closePopup(entry.id));
     dispatch(setOpenFileRequest(null));
     dispatch(setImportFileRequest(null));
     dispatch(setMergeOpossumFilesRequest(null));

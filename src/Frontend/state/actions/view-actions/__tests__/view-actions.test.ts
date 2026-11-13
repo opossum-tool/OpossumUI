@@ -3,8 +3,6 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { DEFAULT_USER_SETTINGS } from '../../../../../shared/shared-constants';
-import type { UserSettings } from '../../../../../shared/shared-types';
 import { PopupType, View } from '../../../../enums/enums';
 import { createAppStore } from '../../../configure-store';
 import {
@@ -19,7 +17,6 @@ import {
   closePopup,
   navigateToView,
   openPopup,
-  openStatisticsPopupAfterFileLoadIfEnabled,
   resetViewState,
   setTargetView,
 } from '../view-actions';
@@ -72,51 +69,6 @@ describe('view actions', () => {
 });
 
 describe('popup actions', () => {
-  it('waits for persisted user settings before deciding to show statistics', async () => {
-    const testStore = createAppStore();
-    let resolveSettings: ((settings: UserSettings) => void) | undefined;
-    vi.mocked(window.electronAPI.getUserSettings).mockReturnValueOnce(
-      new Promise((resolve) => {
-        resolveSettings = resolve;
-      }),
-    );
-
-    const openStatistics = testStore.dispatch(
-      openStatisticsPopupAfterFileLoadIfEnabled,
-    );
-    expect(getOpenPopup(testStore.getState())).toBeNull();
-
-    resolveSettings?.({
-      ...DEFAULT_USER_SETTINGS,
-      showProjectStatistics: true,
-    });
-    await openStatistics;
-
-    expect(getOpenPopup(testStore.getState())?.popup).toBe(
-      PopupType.ProjectStatisticsPopup,
-    );
-  });
-
-  it('logs and skips statistics when persisted settings cannot be loaded', async () => {
-    const testStore = createAppStore();
-    const error = new Error('settings unavailable');
-    const consoleError = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
-    vi.mocked(window.electronAPI.getUserSettings).mockRejectedValueOnce(error);
-
-    await expect(
-      testStore.dispatch(openStatisticsPopupAfterFileLoadIfEnabled),
-    ).resolves.toBeUndefined();
-
-    expect(consoleError).toHaveBeenCalledWith(
-      'Could not load user settings for project statistics',
-      error,
-    );
-    expect(getOpenPopup(testStore.getState())).toBeNull();
-    consoleError.mockRestore();
-  });
-
   it('popup is closed by default', () => {
     const testStore = createAppStore();
     expect(getOpenPopup(testStore.getState())).toBeFalsy();
@@ -133,7 +85,9 @@ describe('popup actions', () => {
   it('close NotSavedPopup', () => {
     const testStore = createAppStore();
     testStore.dispatch(openPopup(PopupType.NotSavedPopup));
-    testStore.dispatch(closePopup());
+    testStore.dispatch(
+      closePopup(testStore.getState().viewState.popupInfo.at(-1)!.id),
+    );
     expect(getOpenPopup(testStore.getState())).toBeFalsy();
   });
 
@@ -167,7 +121,9 @@ describe('popup actions', () => {
       PopupType.ProjectMetadataPopup,
     );
 
-    testStore.dispatch(closePopup());
+    testStore.dispatch(
+      closePopup(testStore.getState().viewState.popupInfo.at(-1)!.id),
+    );
     expect(getPopupAttributionId(testStore.getState())).toEqual(
       testAttributionId,
     );
@@ -175,7 +131,9 @@ describe('popup actions', () => {
       PopupType.NotSavedPopup,
     );
 
-    testStore.dispatch(closePopup());
+    testStore.dispatch(
+      closePopup(testStore.getState().viewState.popupInfo.at(-1)!.id),
+    );
     expect(getPopupAttributionId(testStore.getState())).toBeNull();
     expect(getOpenPopup(testStore.getState())).toBeNull();
   });
@@ -191,7 +149,27 @@ describe('popup actions', () => {
     );
 
     // there should be only one search popup open
-    testStore.dispatch(closePopup());
+    testStore.dispatch(
+      closePopup(testStore.getState().viewState.popupInfo.at(-1)!.id),
+    );
     expect(getOpenPopup(testStore.getState())).toBeNull();
+  });
+
+  it('closes only the requested popup instance and ignores stale ids', () => {
+    const testStore = createAppStore();
+    testStore.dispatch(openPopup(PopupType.NotSavedPopup));
+    const originalId = testStore.getState().viewState.popupInfo[0].id;
+    testStore.dispatch(openPopup(PopupType.ProjectMetadataPopup));
+    const metadataId = testStore.getState().viewState.popupInfo[1].id;
+
+    testStore.dispatch(closePopup(originalId));
+    expect(
+      testStore.getState().viewState.popupInfo.map(({ id }) => id),
+    ).toEqual([metadataId]);
+
+    testStore.dispatch(closePopup(originalId));
+    expect(
+      testStore.getState().viewState.popupInfo.map(({ id }) => id),
+    ).toEqual([metadataId]);
   });
 });

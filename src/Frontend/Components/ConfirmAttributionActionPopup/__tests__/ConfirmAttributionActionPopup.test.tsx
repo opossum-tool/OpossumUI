@@ -15,6 +15,7 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/ge
 import { createTestStore, renderComponent } from '../../../test-helpers/render';
 import { backend } from '../../../util/backendClient';
 import { queryClient } from '../../AppContainer/queryClient';
+import { DialogProvider } from '../../Dialog/dialog-provider';
 import { ConfirmAttributionActionPopup } from '../ConfirmAttributionActionPopup';
 
 describe('ConfirmAttributionActionPopup', () => {
@@ -215,13 +216,17 @@ describe('ConfirmAttributionActionPopup', () => {
       );
     };
     const view = render(
-      <Provider store={store}>
-        <QueryClientProvider client={queryClient}>
-          <VirtuosoMockContext value={{ itemHeight: 40, viewportHeight: 1200 }}>
-            {popup(true)}
-          </VirtuosoMockContext>
-        </QueryClientProvider>
-      </Provider>,
+      <DialogProvider>
+        <Provider store={store}>
+          <QueryClientProvider client={queryClient}>
+            <VirtuosoMockContext
+              value={{ itemHeight: 40, viewportHeight: 1200 }}
+            >
+              {popup(true)}
+            </VirtuosoMockContext>
+          </QueryClientProvider>
+        </Provider>
+      </DialogProvider>,
     );
 
     expect(await screen.findByLabelText('package card before')).toBeVisible();
@@ -232,25 +237,33 @@ describe('ConfirmAttributionActionPopup', () => {
     ).toHaveLength(1);
 
     view.rerender(
-      <Provider store={store}>
-        <QueryClientProvider client={queryClient}>
-          <VirtuosoMockContext value={{ itemHeight: 40, viewportHeight: 1200 }}>
-            {popup(false)}
-          </VirtuosoMockContext>
-        </QueryClientProvider>
-      </Provider>,
+      <DialogProvider>
+        <Provider store={store}>
+          <QueryClientProvider client={queryClient}>
+            <VirtuosoMockContext
+              value={{ itemHeight: 40, viewportHeight: 1200 }}
+            >
+              {popup(false)}
+            </VirtuosoMockContext>
+          </QueryClientProvider>
+        </Provider>
+      </DialogProvider>,
     );
     await backend.updateAttributions.mutate({
       attributions: { [attribution.id]: updatedAttribution },
     });
     view.rerender(
-      <Provider store={store}>
-        <QueryClientProvider client={queryClient}>
-          <VirtuosoMockContext value={{ itemHeight: 40, viewportHeight: 1200 }}>
-            {popup(true)}
-          </VirtuosoMockContext>
-        </QueryClientProvider>
-      </Provider>,
+      <DialogProvider>
+        <Provider store={store}>
+          <QueryClientProvider client={queryClient}>
+            <VirtuosoMockContext
+              value={{ itemHeight: 40, viewportHeight: 1200 }}
+            >
+              {popup(true)}
+            </VirtuosoMockContext>
+          </QueryClientProvider>
+        </Provider>
+      </DialogProvider>,
     );
 
     expect(await screen.findByLabelText('package card after')).toBeVisible();

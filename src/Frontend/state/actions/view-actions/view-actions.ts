@@ -2,19 +2,20 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { v4 as uuid4 } from 'uuid';
+
 import type {
   ExportType,
   FileFormatInfo,
 } from '../../../../shared/shared-types';
 import { PopupType, type View } from '../../../enums/enums';
-import type { PopupWithoutPayload, State } from '../../../types/types';
-import {
-  getUserSettings,
-  getUserSettingsLoaded,
-} from '../../selectors/user-settings-selector';
+import type {
+  PopupInfo,
+  PopupWithoutPayload,
+  State,
+} from '../../../types/types';
 import { getSelectedView } from '../../selectors/view-selector';
 import type { AppThunkAction, AppThunkDispatch } from '../../types';
-import { fetchUserSettings } from '../user-settings-actions/user-settings-actions';
 import {
   ACTION_CLOSE_POPUP,
   ACTION_OPEN_POPUP,
@@ -57,24 +58,6 @@ export function navigateToView(view: View): AppThunkAction {
   };
 }
 
-export async function openStatisticsPopupAfterFileLoadIfEnabled(
-  dispatch: AppThunkDispatch,
-  getState: () => State,
-): Promise<void> {
-  try {
-    if (!getUserSettingsLoaded(getState())) {
-      await dispatch(fetchUserSettings());
-    }
-    const showStatisticsPopup =
-      getUserSettings(getState()).showProjectStatistics;
-    if (showStatisticsPopup) {
-      dispatch(openPopup(PopupType.ProjectStatisticsPopup));
-    }
-  } catch (error) {
-    console.error('Could not load user settings for project statistics', error);
-  }
-}
-
 export function setView(view: View): SetView {
   return {
     type: ACTION_SET_VIEW,
@@ -89,6 +72,13 @@ export function setTargetView(targetView: View | null): SetTargetView {
   };
 }
 
+function createOpenPopupAction(info: PopupInfo): OpenPopupAction {
+  return {
+    type: ACTION_OPEN_POPUP,
+    payload: { id: uuid4(), info },
+  };
+}
+
 export function openPopup(popup: PopupWithoutPayload): OpenPopupAction;
 export function openPopup(
   popup: PopupType.NotSavedPopup,
@@ -98,67 +88,53 @@ export function openPopup(
   popup: PopupWithoutPayload | PopupType.NotSavedPopup,
   attributionId?: string,
 ): OpenPopupAction {
-  return {
-    type: ACTION_OPEN_POPUP,
-    payload:
-      popup === PopupType.NotSavedPopup ? { popup, attributionId } : { popup },
-  };
+  return createOpenPopupAction(
+    popup === PopupType.NotSavedPopup ? { popup, attributionId } : { popup },
+  );
 }
 
 export function openNotSavedPopup(
   attributionId?: string,
   continuation?: 'restart-and-update',
 ): OpenPopupAction {
-  return {
-    type: ACTION_OPEN_POPUP,
-    payload: {
-      popup: PopupType.NotSavedPopup,
-      attributionId,
-      ...(continuation && { continuation }),
-    },
-  };
+  return createOpenPopupAction({
+    popup: PopupType.NotSavedPopup,
+    attributionId,
+    ...(continuation && { continuation }),
+  });
 }
 
 export function openImportDialog(
   fileFormat: FileFormatInfo,
   canImportIntoCurrentProject = false,
 ): OpenPopupAction {
-  return {
-    type: ACTION_OPEN_POPUP,
-    payload: {
-      popup: PopupType.ImportDialog,
-      fileFormat,
-      canImportIntoCurrentProject,
-    },
-  };
+  return createOpenPopupAction({
+    popup: PopupType.ImportDialog,
+    fileFormat,
+    canImportIntoCurrentProject,
+  });
 }
 
 export function openMergeOpossumFilesDialog(
   canMergeIntoCurrentFile: boolean,
   currentFilePath?: string,
 ): OpenPopupAction {
-  return {
-    type: ACTION_OPEN_POPUP,
-    payload: {
-      popup: PopupType.MergeOpossumFilesDialog,
-      canMergeIntoCurrentFile,
-      currentFilePath,
-    },
-  };
+  return createOpenPopupAction({
+    popup: PopupType.MergeOpossumFilesDialog,
+    canMergeIntoCurrentFile,
+    currentFilePath,
+  });
 }
 
 export function openSplitDialog(resourcePath?: string): OpenPopupAction {
-  return {
-    type: ACTION_OPEN_POPUP,
-    payload: {
-      popup: PopupType.SplitDialog,
-      ...(resourcePath && { resourcePath }),
-    },
-  };
+  return createOpenPopupAction({
+    popup: PopupType.SplitDialog,
+    ...(resourcePath && { resourcePath }),
+  });
 }
 
-export function closePopup(): ClosePopupAction {
-  return { type: ACTION_CLOSE_POPUP };
+export function closePopup(popupId: string): ClosePopupAction {
+  return { type: ACTION_CLOSE_POPUP, payload: popupId };
 }
 
 export function setOpenFileRequest(

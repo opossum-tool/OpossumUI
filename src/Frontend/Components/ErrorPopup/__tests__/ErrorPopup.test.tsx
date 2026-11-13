@@ -6,8 +6,14 @@ import { act, screen } from '@testing-library/react';
 import { StrictMode } from 'react';
 
 import { PopupType } from '../../../enums/enums';
-import { openPopup } from '../../../state/actions/view-actions/view-actions';
-import { getOpenPopup } from '../../../state/selectors/view-selector';
+import {
+  closePopup,
+  openPopup,
+} from '../../../state/actions/view-actions/view-actions';
+import {
+  getOpenPopup,
+  getOpenPopups,
+} from '../../../state/selectors/view-selector';
 import { renderComponent } from '../../../test-helpers/render';
 import { GlobalPopup } from '../../GlobalPopup/GlobalPopup';
 
@@ -52,12 +58,30 @@ describe('Error popup', () => {
       actions: [openPopup(PopupType.InvalidLinkPopup)],
     });
 
+    const [errorPopup] = getOpenPopups(store.getState());
     act(() => {
+      store.dispatch(closePopup(errorPopup.id));
       store.dispatch(openPopup(PopupType.NotSavedPopup));
     });
     expect(getOpenPopup(store.getState())?.popup).toBe(PopupType.NotSavedPopup);
 
     await act(() => vi.advanceTimersByTime(ERROR_POPUP_TIMEOUT));
+    expect(getOpenPopup(store.getState())?.popup).toBe(PopupType.NotSavedPopup);
+  });
+
+  it('dismisses only itself when covered by another popup', async () => {
+    const { store } = await renderComponent(<GlobalPopup />, {
+      actions: [openPopup(PopupType.InvalidLinkPopup)],
+    });
+
+    await act(() => vi.advanceTimersByTime(ERROR_POPUP_TIMEOUT / 2));
+    act(() => {
+      store.dispatch(openPopup(PopupType.NotSavedPopup));
+    });
+    expect(getOpenPopups(store.getState())).toHaveLength(2);
+
+    await act(() => vi.advanceTimersByTime(ERROR_POPUP_TIMEOUT / 2));
+    expect(getOpenPopups(store.getState())).toHaveLength(1);
     expect(getOpenPopup(store.getState())?.popup).toBe(PopupType.NotSavedPopup);
   });
 

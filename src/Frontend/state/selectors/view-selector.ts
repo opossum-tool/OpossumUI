@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import type { ExportType } from '../../../shared/shared-types';
 import { PopupType, View } from '../../enums/enums';
-import type { PopupInfo, State } from '../../types/types';
+import type { PopupEntry, PopupInfo, State } from '../../types/types';
 import type {
   ImportFileRequest,
   MergeOpossumFilesRequest,
@@ -29,16 +29,20 @@ export function getTargetView(state: State): View | null {
   return state.viewState.targetView;
 }
 
+export function getOpenPopups(state: State): Array<PopupEntry> {
+  return state.viewState.popupInfo;
+}
+
 export function getOpenPopup(state: State): null | PopupInfo {
   const popup = state.viewState.popupInfo.slice(-1);
 
-  return popup.length === 1 ? popup[0] : null;
+  return popup.length === 1 ? popup[0].info : null;
 }
 
 export function getPopupAttributionId(state: State): string | null {
   const popup = state.viewState.popupInfo.slice(-1);
-  return popup[0]?.popup === PopupType.NotSavedPopup
-    ? (popup[0].attributionId ?? null)
+  return popup[0]?.info.popup === PopupType.NotSavedPopup
+    ? (popup[0].info.attributionId ?? null)
     : null;
 }
 

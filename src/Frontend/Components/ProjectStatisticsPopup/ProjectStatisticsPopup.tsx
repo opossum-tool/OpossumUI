@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { createTheme, Grid as MuiGrid, useTheme } from '@mui/material';
+import MuiButton from '@mui/material/Button';
 import { type Theme, ThemeProvider } from '@mui/material/styles';
 import MuiTab from '@mui/material/Tab';
 import MuiTabs from '@mui/material/Tabs';
@@ -14,7 +15,6 @@ import type { LicenseOption } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { criticalityColor, OpossumColors, Sizing } from '../../shared-styles';
 import { navigateFromStatistics } from '../../state/actions/popup-actions/popup-actions';
-import { closePopup } from '../../state/actions/view-actions/view-actions';
 import { useAppDispatch } from '../../state/hooks';
 import { initialAttributionFilters } from '../../state/variables/use-filters';
 import { useUserSettings } from '../../state/variables/use-user-setting';
@@ -23,8 +23,13 @@ import { useClassifications } from '../../util/use-classifications';
 import { AttributionCountPerSourcePerLicenseTable } from '../AttributionCountPerSourcePerLicenseTable/AttributionCountPerSourcePerLicenseTable';
 import { BarChart } from '../BarChart/BarChart';
 import { Checkbox } from '../Checkbox/Checkbox';
+import {
+  useCloseGlobalPopup,
+  useGlobalPopupId,
+} from '../GlobalPopup/popup-close-context';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { PieChart } from '../PieChart/PieChart';
+import { Spinner } from '../Spinner/Spinner';
 import { ChartCard } from './ProjectStatisticsPopup.style';
 import {
   CRITICALITY_LABEL,
@@ -40,6 +45,8 @@ const POPUP_MIN_SIZE = '550px';
 
 export const ProjectStatisticsPopup: React.FC = () => {
   const dispatch = useAppDispatch();
+  const closePopup = useCloseGlobalPopup();
+  const popupId = useGlobalPopupId();
 
   const classifications = useClassifications();
 
@@ -59,12 +66,12 @@ export const ProjectStatisticsPopup: React.FC = () => {
   const licenseTable = backend.licenseTable.useQuery();
 
   function close(): void {
-    dispatch(closePopup());
+    closePopup();
   }
 
   function handleLicenseClick(licenseOption: LicenseOption): void {
     dispatch(
-      navigateFromStatistics({
+      navigateFromStatistics(popupId, {
         external: true,
         filters: {
           ...initialAttributionFilters,
@@ -81,10 +88,10 @@ export const ProjectStatisticsPopup: React.FC = () => {
   const showCriticality = userSettings.showCriticality;
 
   const [selectedTab, setSelectedTab] = useState(0);
-
-  if (!statistics || !licenseTable.data) {
-    return null;
-  }
+  const hasQueryError =
+    manualAttributionStatistics.isError ||
+    externalAttributionStatistics.isError ||
+    licenseTable.isError;
 
   return (
     <NotificationPopup
@@ -97,225 +104,274 @@ export const ProjectStatisticsPopup: React.FC = () => {
       onEscapeKeyDown={close}
       aria-label={'project statistics'}
       customAction={
-        <Checkbox
-          checked={showProjectStatistics}
-          onChange={(event) =>
-            updateUserSettings({ showProjectStatistics: event.target.checked })
-          }
-          label={text.projectStatisticsPopup.toggleStartupCheckbox}
-        />
+        <>
+          {hasQueryError ? (
+            <MuiButton
+              variant={'contained'}
+              onClick={() => {
+                void Promise.all([
+                  manualAttributionStatistics.refetch(),
+                  externalAttributionStatistics.refetch(),
+                  licenseTable.refetch(),
+                ]);
+              }}
+            >
+              {text.buttons.retry}
+            </MuiButton>
+          ) : (
+            <Checkbox
+              checked={showProjectStatistics}
+              onChange={(event) =>
+                updateUserSettings({
+                  showProjectStatistics: event.target.checked,
+                })
+              }
+              label={text.projectStatisticsPopup.toggleStartupCheckbox}
+            />
+          )}
+        </>
       }
     >
-      <MuiBox sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <MuiTabs
-          value={selectedTab}
-          onChange={(_, tab) => setSelectedTab(tab)}
-          sx={{ mb: Sizing.MediumPad, borderBottom: 1, borderColor: 'divider' }}
+      {hasQueryError ? (
+        <MuiBox role={'alert'}>{text.projectStatisticsPopup.loadError}</MuiBox>
+      ) : !statistics || !licenseTable.data ? (
+        <MuiBox
+          role={'status'}
+          aria-busy={true}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '20rem',
+            gap: Sizing.MediumPad,
+          }}
         >
-          <MuiTab label={text.projectStatisticsPopup.tabs.overview} />
-          <MuiTab label={text.projectStatisticsPopup.tabs.details} />
-        </MuiTabs>
-        <TabPanel tabIndex={0} selectedTab={selectedTab}>
-          <ChartGrid>
-            <ChartGridItem testId={'attributionBarChart'}>
-              <MuiTypography variant="subtitle1">
-                {text.projectStatisticsPopup.charts.attributionProperties.title}
-              </MuiTypography>
-              <BarChart
-                data={statistics.attributionsOverview.map((item) => ({
-                  ...item,
-                  id: item.name,
-                  name: text.projectStatisticsPopup.charts
-                    .attributionProperties[item.name],
-                  actionDescription:
-                    item.name === 'incomplete'
-                      ? undefined
-                      : text.projectStatisticsPopup.actions.attributions,
-                  onActivate:
-                    item.name === 'incomplete'
-                      ? undefined
-                      : () =>
-                          dispatch(
-                            navigateFromStatistics({
-                              external: false,
-                              filters: {
-                                ...initialAttributionFilters,
-                                filters:
-                                  item.name === 'total'
-                                    ? []
-                                    : [
-                                        item.name === 'followUp'
-                                          ? 'needsFollowUp'
-                                          : item.name,
-                                      ],
-                              },
-                            }),
-                          ),
-                }))}
-              />
-            </ChartGridItem>
-            <ChartGridItem
-              shouldRender={statistics.mostFrequentLicenses.some(
-                (l) => l.count > 0,
-              )}
-              testId={'mostFrequentLicenseCountPieChart'}
-            >
-              <MuiTypography variant="subtitle1">
-                {
-                  text.projectStatisticsPopup.charts
-                    .mostFrequentLicenseCountPieChart
-                }
-              </MuiTypography>
-              <PieChart
-                segments={statistics.mostFrequentLicenses.map((item) => {
-                  const licenseId = item.licenseId;
-                  return {
+          <Spinner />
+          <MuiTypography>{text.projectStatisticsPopup.loading}</MuiTypography>
+        </MuiBox>
+      ) : (
+        <MuiBox
+          sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+        >
+          <MuiTabs
+            value={selectedTab}
+            onChange={(_, tab) => setSelectedTab(tab)}
+            sx={{
+              mb: Sizing.MediumPad,
+              borderBottom: 1,
+              borderColor: 'divider',
+            }}
+          >
+            <MuiTab label={text.projectStatisticsPopup.tabs.overview} />
+            <MuiTab label={text.projectStatisticsPopup.tabs.details} />
+          </MuiTabs>
+          <TabPanel tabIndex={0} selectedTab={selectedTab}>
+            <ChartGrid>
+              <ChartGridItem testId={'attributionBarChart'}>
+                <MuiTypography variant="subtitle1">
+                  {
+                    text.projectStatisticsPopup.charts.attributionProperties
+                      .title
+                  }
+                </MuiTypography>
+                <BarChart
+                  data={statistics.attributionsOverview.map((item) => ({
                     ...item,
-                    id: item.isOther
-                      ? 'aggregate-other'
-                      : `license:${licenseId}`,
-                    actionDescription: item.isOther
-                      ? undefined
-                      : text.projectStatisticsPopup.actions.signals,
+                    id: item.name,
+                    name: text.projectStatisticsPopup.charts
+                      .attributionProperties[item.name],
+                    actionDescription:
+                      item.name === 'incomplete'
+                        ? undefined
+                        : text.projectStatisticsPopup.actions.attributions,
                     onActivate:
-                      licenseId === null
+                      item.name === 'incomplete'
                         ? undefined
                         : () =>
-                            handleLicenseClick({
-                              id: licenseId,
-                              label: item.name,
-                            }),
-                  };
-                })}
-              />
-            </ChartGridItem>
-            <ChartGridItem
-              shouldRender={
-                statistics.signalsByCriticality.some((s) => s.count > 0) &&
-                showCriticality
-              }
-              testId={'criticalSignalsCountPieChart'}
-            >
-              <MuiTypography variant="subtitle1">
-                {
-                  text.projectStatisticsPopup.charts
-                    .criticalSignalsCountPieChart.title
-                }
-              </MuiTypography>
-              <PieChart
-                segments={statistics.signalsByCriticality.map((item) => ({
-                  ...item,
-                  id: item.name ?? 'no-license',
-                  actionDescription:
-                    item.name === null
-                      ? undefined
-                      : text.projectStatisticsPopup.actions.signals,
-                  name:
-                    item.name === null
-                      ? text.projectStatisticsPopup.charts.noLicense
-                      : criticalityLabels[item.name],
-                  color:
-                    item.name === null
-                      ? OpossumColors.lightGrey
-                      : criticalityColors[item.name],
-                  onActivate:
-                    item.name === null
-                      ? undefined
-                      : () =>
-                          dispatch(
-                            navigateFromStatistics({
-                              external: true,
-                              filters: {
-                                ...initialAttributionFilters,
-                                valueFilters: {
-                                  criticality: item.name ?? undefined,
+                            dispatch(
+                              navigateFromStatistics(popupId, {
+                                external: false,
+                                filters: {
+                                  ...initialAttributionFilters,
+                                  filters:
+                                    item.name === 'total'
+                                      ? []
+                                      : [
+                                          item.name === 'followUp'
+                                            ? 'needsFollowUp'
+                                            : item.name,
+                                        ],
                                 },
-                              },
-                            }),
-                          ),
-                }))}
-              />
-            </ChartGridItem>
-            <ChartGridItem
-              shouldRender={
-                statistics.signalsByClassification.some((s) => s.count > 0) &&
-                showClassifications
-              }
-              testId={'signalCountByClassificationPieChart'}
-            >
-              <MuiTypography variant="subtitle1">
-                {
-                  text.projectStatisticsPopup.charts
-                    .signalCountByClassificationPieChart.title
-                }
-              </MuiTypography>
-              <PieChart
-                segments={statistics.signalsByClassification.map((item) => ({
-                  ...item,
-                  id: item.name ?? 'no-license',
-                  actionDescription:
-                    item.name === null
-                      ? undefined
-                      : text.projectStatisticsPopup.actions.signals,
-                  name:
-                    item.name === null
-                      ? text.projectStatisticsPopup.charts.noLicense
-                      : classifications[item.name].description,
-                  color:
-                    item.name === null
-                      ? OpossumColors.lightGrey
-                      : classifications[item.name].color,
-                  onActivate:
-                    item.name === null
-                      ? undefined
-                      : () =>
-                          dispatch(
-                            navigateFromStatistics({
-                              external: true,
-                              filters: {
-                                ...initialAttributionFilters,
-                                valueFilters: {
-                                  classification: item.name ?? undefined,
-                                },
-                              },
-                            }),
-                          ),
-                }))}
-              />
-            </ChartGridItem>
-            <ChartGridItem
-              shouldRender={statistics.incompleteAttributions.some(
-                (a) => a.count > 0,
-              )}
-              testId={'incompleteAttributionsPieChart'}
-            >
-              <MuiTypography variant="subtitle1">
-                {
-                  text.projectStatisticsPopup.charts
-                    .incompleteAttributionsPieChart.title
-                }
-              </MuiTypography>
-              <PieChart
-                segments={transformName(
-                  statistics.incompleteAttributions,
-                  (k) =>
-                    k === 'incomplete'
-                      ? text.projectStatisticsPopup.charts
-                          .incompleteAttributionsPieChart.incompleteAttributions
-                      : text.projectStatisticsPopup.charts
-                          .incompleteAttributionsPieChart.completeAttributions,
+                              }),
+                            ),
+                  }))}
+                />
+              </ChartGridItem>
+              <ChartGridItem
+                shouldRender={statistics.mostFrequentLicenses.some(
+                  (l) => l.count > 0,
                 )}
-              />
-            </ChartGridItem>
-          </ChartGrid>
-        </TabPanel>
-        <TabPanel tabIndex={1} selectedTab={selectedTab}>
-          <AttributionCountPerSourcePerLicenseTable
-            tableData={licenseTable.data}
-            setSelectedLicense={handleLicenseClick}
-          />
-        </TabPanel>
-      </MuiBox>
+                testId={'mostFrequentLicenseCountPieChart'}
+              >
+                <MuiTypography variant="subtitle1">
+                  {
+                    text.projectStatisticsPopup.charts
+                      .mostFrequentLicenseCountPieChart
+                  }
+                </MuiTypography>
+                <PieChart
+                  segments={statistics.mostFrequentLicenses.map((item) => {
+                    const licenseId = item.licenseId;
+                    return {
+                      ...item,
+                      id: item.isOther
+                        ? 'aggregate-other'
+                        : `license:${licenseId}`,
+                      actionDescription: item.isOther
+                        ? undefined
+                        : text.projectStatisticsPopup.actions.signals,
+                      onActivate:
+                        licenseId === null
+                          ? undefined
+                          : () =>
+                              handleLicenseClick({
+                                id: licenseId,
+                                label: item.name,
+                              }),
+                    };
+                  })}
+                />
+              </ChartGridItem>
+              <ChartGridItem
+                shouldRender={
+                  statistics.signalsByCriticality.some((s) => s.count > 0) &&
+                  showCriticality
+                }
+                testId={'criticalSignalsCountPieChart'}
+              >
+                <MuiTypography variant="subtitle1">
+                  {
+                    text.projectStatisticsPopup.charts
+                      .criticalSignalsCountPieChart.title
+                  }
+                </MuiTypography>
+                <PieChart
+                  segments={statistics.signalsByCriticality.map((item) => ({
+                    ...item,
+                    id: item.name ?? 'no-license',
+                    actionDescription:
+                      item.name === null
+                        ? undefined
+                        : text.projectStatisticsPopup.actions.signals,
+                    name:
+                      item.name === null
+                        ? text.projectStatisticsPopup.charts.noLicense
+                        : criticalityLabels[item.name],
+                    color:
+                      item.name === null
+                        ? OpossumColors.lightGrey
+                        : criticalityColors[item.name],
+                    onActivate:
+                      item.name === null
+                        ? undefined
+                        : () =>
+                            dispatch(
+                              navigateFromStatistics(popupId, {
+                                external: true,
+                                filters: {
+                                  ...initialAttributionFilters,
+                                  valueFilters: {
+                                    criticality: item.name ?? undefined,
+                                  },
+                                },
+                              }),
+                            ),
+                  }))}
+                />
+              </ChartGridItem>
+              <ChartGridItem
+                shouldRender={
+                  statistics.signalsByClassification.some((s) => s.count > 0) &&
+                  showClassifications
+                }
+                testId={'signalCountByClassificationPieChart'}
+              >
+                <MuiTypography variant="subtitle1">
+                  {
+                    text.projectStatisticsPopup.charts
+                      .signalCountByClassificationPieChart.title
+                  }
+                </MuiTypography>
+                <PieChart
+                  segments={statistics.signalsByClassification.map((item) => ({
+                    ...item,
+                    id: item.name ?? 'no-license',
+                    actionDescription:
+                      item.name === null
+                        ? undefined
+                        : text.projectStatisticsPopup.actions.signals,
+                    name:
+                      item.name === null
+                        ? text.projectStatisticsPopup.charts.noLicense
+                        : classifications[item.name].description,
+                    color:
+                      item.name === null
+                        ? OpossumColors.lightGrey
+                        : classifications[item.name].color,
+                    onActivate:
+                      item.name === null
+                        ? undefined
+                        : () =>
+                            dispatch(
+                              navigateFromStatistics(popupId, {
+                                external: true,
+                                filters: {
+                                  ...initialAttributionFilters,
+                                  valueFilters: {
+                                    classification: item.name ?? undefined,
+                                  },
+                                },
+                              }),
+                            ),
+                  }))}
+                />
+              </ChartGridItem>
+              <ChartGridItem
+                shouldRender={statistics.incompleteAttributions.some(
+                  (a) => a.count > 0,
+                )}
+                testId={'incompleteAttributionsPieChart'}
+              >
+                <MuiTypography variant="subtitle1">
+                  {
+                    text.projectStatisticsPopup.charts
+                      .incompleteAttributionsPieChart.title
+                  }
+                </MuiTypography>
+                <PieChart
+                  segments={transformName(
+                    statistics.incompleteAttributions,
+                    (k) =>
+                      k === 'incomplete'
+                        ? text.projectStatisticsPopup.charts
+                            .incompleteAttributionsPieChart
+                            .incompleteAttributions
+                        : text.projectStatisticsPopup.charts
+                            .incompleteAttributionsPieChart
+                            .completeAttributions,
+                  )}
+                />
+              </ChartGridItem>
+            </ChartGrid>
+          </TabPanel>
+          <TabPanel tabIndex={1} selectedTab={selectedTab}>
+            <AttributionCountPerSourcePerLicenseTable
+              tableData={licenseTable.data}
+              setSelectedLicense={handleLicenseClick}
+            />
+          </TabPanel>
+        </MuiBox>
+      )}
     </NotificationPopup>
   );
 };

@@ -11,6 +11,7 @@ import {
   IpcChannel,
 } from '../../../shared/ipc-channels';
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
+import { convertToOpossum } from '../../opossum-file/opossum-file';
 import { createWindow } from '../createWindow';
 import {
   openOpossumFileDialog,
@@ -19,9 +20,13 @@ import {
   selectFiles,
   selectSaveFile,
 } from '../dialogs';
-import { setGlobalBackendState } from '../globalBackendState';
+import {
+  getGlobalBackendState,
+  setGlobalBackendState,
+} from '../globalBackendState';
 import {
   handleOpeningFile,
+  importFileConvertAndLoadListener,
   importFileListener,
   linkHasHttpSchema,
   openFileListener,
@@ -74,6 +79,11 @@ vi.mock('electron', async () => ({
 
 vi.mock('../../input/importFromFile', () => ({
   loadInputAndOutputFromFilePath: vi.fn(),
+}));
+
+vi.mock('../../opossum-file/opossum-file', () => ({
+  convertToOpossum: vi.fn().mockResolvedValue(undefined),
+  mergeFileIntoOpossum: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock('../dialogs', () => ({
@@ -171,6 +181,32 @@ describe('openFileListener', () => {
     );
   });
 
+  it('preserves dialog and workflow state while initializing another project', async () => {
+    const mainWindow = initWindowAndBackendState();
+    setGlobalBackendState({
+      frontendPopupOpen: true,
+      frontendActivityActive: true,
+    });
+    vi.mocked(loadInputAndOutputFromFilePath).mockResolvedValue(true);
+    const updateMenu = vi.fn().mockImplementation(() => {
+      expect(getGlobalBackendState().frontendPopupOpen).toBe(true);
+      expect(getGlobalBackendState().frontendActivityActive).toBe(true);
+      return Promise.resolve();
+    });
+
+    await openFileListener(mainWindow, updateMenu)(
+      {} as Electron.IpcMainInvokeEvent,
+      '/home/another-project.opossum',
+    );
+
+    expect(updateMenu).toHaveBeenCalled();
+    expect(getGlobalBackendState()).toMatchObject({
+      frontendPopupOpen: true,
+      frontendActivityActive: true,
+      opossumFilePath: '/home/another-project.opossum',
+    });
+  });
+
   it('does not notify the frontend after a handled load failure and ends processing', async () => {
     const mainWindow = initWindowAndBackendState();
     vi.mocked(loadInputAndOutputFromFilePath).mockResolvedValue(false);
@@ -203,6 +239,44 @@ describe('openFileListener', () => {
       AllowedFrontendChannels.ProjectOpened,
     );
   });
+});
+
+describe('importFileConvertAndLoadListener', () => {
+  it.each([true, false])(
+    'notifies exactly once for successful loads and not for failed loads: %s',
+    async (opened) => {
+      const mainWindow = initWindowAndBackendState();
+      const updateMenu = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(loadInputAndOutputFromFilePath).mockResolvedValueOnce(opened);
+
+      const result = await importFileConvertAndLoadListener(
+        mainWindow,
+        updateMenu,
+      )(
+        {} as Electron.IpcMainInvokeEvent,
+        `${process.cwd()}/package.json`,
+        importFileFormats[0].fileType,
+        `${process.cwd()}/imported.opossum`,
+      );
+
+      expect(result).toBe(opened);
+      expect(convertToOpossum).toHaveBeenCalledOnce();
+      const sentEvents = vi.mocked(mainWindow.webContents.send).mock.calls;
+      const projectOpenedEvents = sentEvents.filter(
+        ([channel]) => channel === AllowedFrontendChannels.ProjectOpened,
+      );
+      expect(projectOpenedEvents).toHaveLength(Number(opened));
+      expect(
+        sentEvents.findIndex(
+          ([channel]) => channel === AllowedFrontendChannels.ProjectOpened,
+        ),
+      ).toBe(opened ? sentEvents.length - 2 : -1);
+      expect(sentEvents.at(-1)).toEqual([
+        AllowedFrontendChannels.ProcessingStateChanged,
+        { type: 'ProcessingDone' },
+      ]);
+    },
+  );
 });
 
 describe('handleOpeningFile', () => {
