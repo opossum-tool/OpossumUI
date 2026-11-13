@@ -129,8 +129,10 @@ export interface ProgressBarTooltipValues {
   filesWithAttributions?: number;
   filesWithOnlyPreSelectedAttributions?: number;
   filesWithOnlySignals?: number;
+  filesWithNeitherAttributionsOrSignals?: number;
   filesWithHighlyCriticalSignals?: number;
   filesWithMediumCriticalSignals?: number;
+  filesWithOnlyNonCriticalSignals?: number;
   classifications?: Array<{ classification: string; count: number }>;
 }
 
@@ -138,8 +140,10 @@ export async function expectProgressBarTooltipShowsValues(
   values: ProgressBarTooltipValues,
   mode: ProgressBarMode = 'Attributions',
 ): Promise<void> {
-  // Like the component, missing (or zero) segments render no tooltip line and
-  // must not be asserted.
+  // The component renders one "…label: count" line per nonzero segment and
+  // omits zero segments entirely, so zero or unprovided segments must render
+  // no line. The full set of lines has to match the provided values: both a
+  // wrongly counted and an unexpected extra line fail the assertion.
   const expectedValues: Array<[number, string]> = [];
   if (values.filesWithAttributions) {
     expectedValues.push([
@@ -162,6 +166,13 @@ export async function expectProgressBarTooltipShowsValues(
         .filesWithOnlyExternalAttribution,
     ]);
   }
+  if (values.filesWithNeitherAttributionsOrSignals) {
+    expectedValues.push([
+      values.filesWithNeitherAttributionsOrSignals,
+      text.topBar.switchableProgressBar.attributionBar
+        .filesWithNeitherAttributionsOrSignals,
+    ]);
+  }
   if (values.filesWithHighlyCriticalSignals) {
     expectedValues.push([
       values.filesWithHighlyCriticalSignals,
@@ -176,6 +187,13 @@ export async function expectProgressBarTooltipShowsValues(
         .filesWithMediumCriticalSignals,
     ]);
   }
+  if (values.filesWithOnlyNonCriticalSignals) {
+    expectedValues.push([
+      values.filesWithOnlyNonCriticalSignals,
+      text.topBar.switchableProgressBar.criticalityBar
+        .filesWithOnlyNonCriticalSignals,
+    ]);
+  }
   for (const { classification, count } of values.classifications ?? []) {
     if (count) {
       expectedValues.push([
@@ -187,6 +205,9 @@ export async function expectProgressBarTooltipShowsValues(
       ]);
     }
   }
+  const expectedLines = expectedValues
+    .map(([count, label]) => `…${label}: ${count}`)
+    .sort();
   const progressBar = await waitFor(
     () => screen.getByTestId('progress-bar'),
     SETTLED_TIMEOUT,
@@ -202,12 +223,12 @@ export async function expectProgressBarTooltipShowsValues(
       );
     });
     expect(tooltip).toBeTruthy();
-    for (const [count, label] of expectedValues) {
-      expect(
-        within(tooltip as HTMLElement).getByText(
-          new RegExp(`${escapeRegExp(label)}: ${count}`),
-        ),
-      ).toBeVisible();
-    }
+    // Count lines are the only tooltip lines starting with the ellipsis that
+    // prefixes them; the intro line ends with one and does not match.
+    const actualLines = within(tooltip as HTMLElement)
+      .queryAllByText(/^…/)
+      .map((line) => line.textContent ?? '')
+      .sort();
+    expect(actualLines).toEqual(expectedLines);
   }, SETTLED_TIMEOUT);
 }

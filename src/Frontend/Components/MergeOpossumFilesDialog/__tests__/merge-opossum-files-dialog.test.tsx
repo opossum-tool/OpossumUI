@@ -19,6 +19,7 @@ import {
   expectButtonVisibility,
   expectTextVisible,
   getButton,
+  MERGE_DIALOG_LABEL,
 } from '../../../../testing/ui';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
@@ -45,6 +46,8 @@ describe('MergeOpossumFilesDialog', () => {
     await expectAlert(
       text.mergeOpossumFilesDialog.noReadonlyPathsWarning,
       true,
+      'warning',
+      screen.getByLabelText(MERGE_DIALOG_LABEL),
     );
     expect(screen.getByRole('switch')).toBeEnabled();
     expectButtonDisabled(text.buttons.merge);
@@ -58,6 +61,8 @@ describe('MergeOpossumFilesDialog', () => {
     await expectAlert(
       text.mergeOpossumFilesDialog.noReadonlyPathsWarning,
       false,
+      'warning',
+      screen.getByLabelText(MERGE_DIALOG_LABEL),
     );
     expect(
       screen.getByTestId('merge-opossum-files-output-path-input'),
@@ -195,6 +200,8 @@ describe('MergeOpossumFilesDialog', () => {
     await expectAlert(
       text.mergeOpossumFilesDialog.readonlyResourceOutputConflictWarning,
       true,
+      'warning',
+      screen.getByLabelText(MERGE_DIALOG_LABEL),
     );
 
     await userEvent.click(
@@ -249,6 +256,8 @@ describe('MergeOpossumFilesDialog', () => {
     await expectAlert(
       text.mergeOpossumFilesDialog.readonlyResourceOutputConflictWarning,
       true,
+      'warning',
+      screen.getByLabelText(MERGE_DIALOG_LABEL),
     );
 
     await userEvent.click(screen.getByRole('switch'));
@@ -256,6 +265,8 @@ describe('MergeOpossumFilesDialog', () => {
     await expectAlert(
       text.mergeOpossumFilesDialog.readonlyResourceOutputConflictWarning,
       false,
+      'warning',
+      screen.getByLabelText(MERGE_DIALOG_LABEL),
     );
     await expectButtonVisibility(
       text.mergeOpossumFilesDialog.mergeIgnoringReadonlyResourceOutputConflicts,
@@ -304,7 +315,12 @@ describe('MergeOpossumFilesDialog', () => {
     await expectTextVisible(outputFilePath, true);
     await userEvent.click(getButton(text.buttons.merge));
 
-    await expectAlert(errorMessage, true, 'error');
+    await expectAlert(
+      errorMessage,
+      true,
+      'error',
+      screen.getByLabelText(MERGE_DIALOG_LABEL),
+    );
     expectButtonEnabled(text.buttons.merge);
   });
 });

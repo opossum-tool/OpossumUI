@@ -316,8 +316,8 @@ export async function expectAttributionColumnButtonVisibility(
     if (visible) {
       expect(node).not.toBeNull();
       expect(node).toBeVisible();
-    } else if (node !== null) {
-      expect(node).not.toBeVisible();
+    } else {
+      expect(node).toBeNull();
     }
   }, SETTLED_TIMEOUT);
 }
@@ -452,20 +452,24 @@ const AI_STATUS_BADGE_TEST_ID =
 
 export async function expectAiStatusBadges(
   badges: Array<string>,
+  container: HTMLElement = getAttributionColumn(),
 ): Promise<void> {
   await waitFor(() => {
     expect(
-      screen
+      within(container)
         .queryAllByTestId(AI_STATUS_BADGE_TEST_ID)
         .map((badge) => badge.textContent),
     ).toEqual(badges);
   }, SETTLED_TIMEOUT);
 }
 
-export async function expectAiStatusIcons(icons: Array<string>): Promise<void> {
+export async function expectAiStatusIcons(
+  icons: Array<string>,
+  container: HTMLElement = getAttributionColumn(),
+): Promise<void> {
   await waitFor(() => {
     expect(
-      screen
+      within(container)
         .queryAllByLabelText(
           /^(AI generated|Human-modified AI|Deferred AI) icon$/,
         )

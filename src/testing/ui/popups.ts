@@ -59,6 +59,7 @@ export async function clickPopupButton(
 }
 
 const MERGE_DIALOG_LABEL = 'merge split Opossum files dialog';
+export { MERGE_DIALOG_LABEL };
 
 export async function expectMergeDialogVisibility(
   visible: boolean,
@@ -222,15 +223,20 @@ export async function expectAlert(
   message: string | RegExp,
   visible: boolean,
   severity: AlertSeverity = 'warning',
+  container?: HTMLElement,
 ): Promise<void> {
   await waitFor(() => {
-    const alert = screen.queryByRole('alert');
+    // Scoped alerts assert on all alerts within the container so a second
+    // banner elsewhere on the page cannot interfere.
+    const alerts = container
+      ? within(container).queryAllByRole('alert')
+      : screen.queryAllByRole('alert');
     if (visible) {
-      expect(alert).not.toBeNull();
-      expect(alert).toHaveTextContent(message);
-      expect(alert).toHaveClass(`MuiAlert-color${capitalize(severity)}`);
+      expect(alerts).toHaveLength(1);
+      expect(alerts[0]).toHaveTextContent(message);
+      expect(alerts[0]).toHaveClass(`MuiAlert-color${capitalize(severity)}`);
     } else {
-      expect(alert).toBeNull();
+      expect(alerts).toEqual([]);
     }
   }, SETTLED_TIMEOUT);
 }

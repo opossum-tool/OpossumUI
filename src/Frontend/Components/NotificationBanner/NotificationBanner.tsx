@@ -15,6 +15,7 @@ export function NotificationBanner({
   dismissLabel,
   icon,
   sx = [],
+  testId,
 }: {
   children: ReactNode;
   severity: AlertColor;
@@ -22,9 +23,11 @@ export function NotificationBanner({
   dismissLabel?: string;
   icon?: ReactNode;
   sx?: SxProps<Theme>;
+  testId?: string;
 }): React.ReactNode {
   return (
     <MuiAlert
+      data-testid={testId}
       severity={severity}
       variant={'standard'}
       icon={icon}
