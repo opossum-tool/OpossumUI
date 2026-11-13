@@ -100,6 +100,7 @@ const PROGRESS_BAR_MODE_TEXT: Record<
 };
 
 const PROGRESS_BAR_MODE_INTROS: Record<ProgressBarMode, string> = {
+  AI: text.topBar.switchableProgressBar.aiBar.intro,
   Attributions: text.topBar.switchableProgressBar.attributionBar.intro,
   Criticalities: text.topBar.switchableProgressBar.criticalityBar.intro,
   Classifications: text.topBar.switchableProgressBar.classificationBar.intro,
