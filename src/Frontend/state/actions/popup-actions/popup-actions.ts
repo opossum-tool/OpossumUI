@@ -26,6 +26,7 @@ import {
   getMergeOpossumFilesRequest,
   getOpenFileRequest,
   getOpenPopup,
+  getQuitAppRequested,
   getSplitFileRequest,
   getTargetView,
 } from '../../selectors/view-selector';
@@ -69,11 +70,33 @@ import {
   openSplitDialog,
   setExportFileRequest,
   setImportFileRequest,
+  setIsSavingBeforeQuit,
   setMergeOpossumFilesRequest,
   setOpenFileRequest,
+  setQuitAppRequest,
   setSplitFileRequest,
   setTargetView,
 } from '../view-actions/view-actions';
+
+/** Shows the saving indicator and confirms the quit in the main process. */
+function confirmQuitShowingSavingIndicator(): AppThunkAction {
+  return (dispatch) => {
+    dispatch(setIsSavingBeforeQuit(true));
+    void window.electronAPI.confirmQuit();
+  };
+}
+
+/**
+ * Shows the saving indicator to make the waiting time visible, then
+ * confirms the quit once the backend has no pending tracked work.
+ */
+function confirmQuitWhenBackendIdle(): AppThunkAction<Promise<void>> {
+  return async (dispatch) => {
+    dispatch(setIsSavingBeforeQuit(true));
+    await window.electronAPI.whenBackendIdle();
+    void window.electronAPI.confirmQuit();
+  };
+}
 
 function withUnsavedCheck({
   executeImmediately,
@@ -323,6 +346,14 @@ export function showSplitDialogOrOpenUnsavedPopup(
   });
 }
 
+export function quitAppOrOpenUnsavedPopup(): AppThunkAction {
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) =>
+      void dispatch(confirmQuitWhenBackendIdle()),
+    requestContinuation: (dispatch) => dispatch(setQuitAppRequest(true)),
+  });
+}
+
 export function createSplit(
   selectedResourcePaths: Array<string>,
   destinationPath: string,
@@ -357,8 +388,8 @@ export function mergeOpossumFilesIntoCurrentFile(
   };
 }
 
-export function proceedFromUnsavedPopup(): AppThunkAction {
-  return (dispatch, getState) => {
+export function proceedFromUnsavedPopup(): AppThunkAction<Promise<void>> {
+  return async (dispatch, getState) => {
     dispatch(
       initializePackageInfoEditing(
         getState().resourceState.originalDisplayPackageInfo,
@@ -373,6 +404,26 @@ export function proceedFromUnsavedPopup(): AppThunkAction {
     const splitFileRequest = getSplitFileRequest(getState());
     const targetAttributionFilterChange =
       getTargetAttributionFilterChange(getState());
+    const quitAppRequested = getQuitAppRequested(getState());
+
+    if (quitAppRequested) {
+      // The popup stays open, with a spinning button, until the backend has
+      // settled, so that the quit cannot silently lose writes.
+      await window.electronAPI.whenBackendIdle();
+      dispatch(closePopup());
+      dispatch(setTargetView(null));
+      dispatch(setTargetSelectedResourceId(null));
+      dispatch(setTargetSelectedAttributionId(null));
+      dispatch(setTargetAttributionFilterChange(null));
+      dispatch(setOpenFileRequest(null));
+      dispatch(setImportFileRequest(null));
+      dispatch(setMergeOpossumFilesRequest(null));
+      dispatch(setExportFileRequest(null));
+      dispatch(setSplitFileRequest(null));
+      dispatch(setQuitAppRequest(false));
+      dispatch(confirmQuitShowingSavingIndicator());
+      return;
+    }
 
     const statisticsDestination = getState().variablesState[
       STATISTICS_DESTINATION
@@ -477,6 +528,7 @@ export function closePopupAndUnsetTargets(): AppThunkAction {
     dispatch(setMergeOpossumFilesRequest(null));
     dispatch(setExportFileRequest(null));
     dispatch(setSplitFileRequest(null));
+    dispatch(setQuitAppRequest(false));
     window.electronAPI.stopLoading();
   };
 }

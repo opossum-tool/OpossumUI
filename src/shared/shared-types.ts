@@ -302,7 +302,14 @@ export interface SelectSaveFileOptions {
 type Listener = (event: IpcRendererEvent, ...args: Array<any>) => void;
 
 export interface ElectronAPI {
-  quit: () => void;
+  confirmQuit: () => Promise<void>;
+  quitRequestHandled: () => void;
+  /**
+   * Resolves once every mutation has finished executing in the DB process
+   * and its automatic file write has concluded. Safe to call before
+   * triggering a quit.
+   */
+  whenBackendIdle: () => Promise<void>;
   relaunch: () => void;
   openLink: (link: string) => Promise<unknown>;
   openFile: (filePath?: string) => Promise<unknown>;

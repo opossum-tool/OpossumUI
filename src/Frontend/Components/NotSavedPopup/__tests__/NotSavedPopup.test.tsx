@@ -18,6 +18,7 @@ import {
 import {
   openPopup,
   setOpenFileRequest,
+  setQuitAppRequest,
   setTargetView,
   setView,
 } from '../../../state/actions/view-actions/view-actions';
@@ -28,6 +29,7 @@ import {
 } from '../../../state/selectors/resource-selectors';
 import {
   getOpenPopup,
+  getQuitAppRequested,
   getSelectedView,
 } from '../../../state/selectors/view-selector';
 import { renderComponent } from '../../../test-helpers/render';
@@ -112,5 +114,68 @@ describe('NotSavedPopup', () => {
     await userEvent.click(screen.getByText(text.unsavedChangesPopup.discard));
 
     expect(global.window.electronAPI.openFile).toHaveBeenCalledWith(filePath);
+  });
+
+  it('shows the discard-and-quit label and confirms quit when quitting', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const { store } = await renderComponent(<NotSavedPopup />, {
+      actions: [
+        openPopup(PopupType.NotSavedPopup),
+        setQuitAppRequest(true),
+        setTemporaryDisplayPackageInfo(packageInfo),
+      ],
+    });
+
+    expect(
+      screen.getByText(text.unsavedChangesPopup.discardAndQuit),
+    ).toBeInTheDocument();
+
+    await userEvent.click(
+      screen.getByText(text.unsavedChangesPopup.discardAndQuit),
+    );
+
+    await vi.waitFor(() =>
+      expect(global.window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
+    );
+    expect(getQuitAppRequested(store.getState())).toBe(false);
+    expect(getOpenPopup(store.getState())).toBeFalsy();
+  });
+
+  it('shows a spinner and disables cancel while the backend has pending mutations', async () => {
+    const packageInfo = faker.opossum.packageInfo();
+    const { store } = await renderComponent(<NotSavedPopup />, {
+      actions: [
+        openPopup(PopupType.NotSavedPopup),
+        setQuitAppRequest(true),
+        setTemporaryDisplayPackageInfo(packageInfo),
+      ],
+    });
+
+    let resolveWhenBackendIdle!: () => void;
+    vi.mocked(global.window.electronAPI.whenBackendIdle).mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        resolveWhenBackendIdle = resolve;
+      }),
+    );
+
+    await userEvent.click(
+      screen.getByText(text.unsavedChangesPopup.discardAndQuit),
+    );
+
+    expect(getOpenPopup(store.getState())?.popup).toBe(PopupType.NotSavedPopup);
+    expect(
+      screen.getByRole('button', {
+        name: text.unsavedChangesPopup.discardAndQuit,
+      }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: text.buttons.cancel }),
+    ).toBeDisabled();
+
+    resolveWhenBackendIdle();
+    await vi.waitFor(() =>
+      expect(global.window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
+    );
+    expect(getOpenPopup(store.getState())).toBeFalsy();
   });
 });

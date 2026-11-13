@@ -858,9 +858,13 @@ describe('AttributionDetails', () => {
             : setSelectedResourceId('/other/file.ts', 'preserve'),
         ),
       );
+      const apiCallsBeforeSettling = vi.mocked(window.electronAPI.api).mock
+        .calls.length;
       act(() => response.resolve());
       await waitFor(() =>
-        expect(window.electronAPI.saveFile).toHaveBeenCalled(),
+        expect(
+          vi.mocked(window.electronAPI.api).mock.calls.length,
+        ).toBeGreaterThan(apiCallsBeforeSettling),
       );
       await waitForAttributionDetailsReady();
       expect(

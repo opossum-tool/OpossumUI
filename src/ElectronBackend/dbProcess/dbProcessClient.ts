@@ -26,6 +26,7 @@ import type {
   DbProcessRequest,
   DbProcessResponse,
 } from './dbProcess';
+import type { SaveResult } from './save-worker';
 
 type ProgressCallback = (message: string, level?: 'info' | 'warn') => void;
 
@@ -52,6 +53,7 @@ type ClientPort = ElectronPort | WebPort;
 
 export class DbProcessClient {
   private nextId = 0;
+  private dead = false;
   private readonly pending = new Map<number, PendingRequest>();
   private readonly port: { postMessage(data: DbProcessRequest): void };
 
@@ -92,6 +94,11 @@ export class DbProcessClient {
     msg: DbProcessPayload,
     options?: { onProgress?: ProgressCallback },
   ): Promise<unknown> {
+    if (this.dead) {
+      return Promise.reject(
+        new Error('The DB process has exited; no further requests are sent.'),
+      );
+    }
     const id = this.nextId++;
     return new Promise((resolve, reject) => {
       this.pending.set(id, {
@@ -101,6 +108,40 @@ export class DbProcessClient {
       });
       this.port.postMessage({ ...msg, id });
     });
+  }
+
+  /**
+   * Resolves once every tracked operation and every scheduled save in the
+   * DB process — from any port — has concluded, and returns the outcome of
+   * the latest save. `undefined` means no write happened since the file
+   * was loaded.
+   */
+  waitForPendingSaves(): Promise<SaveResult | undefined> {
+    return this.request({ type: 'waitForPendingSaves' }) as Promise<
+      SaveResult | undefined
+    >;
+  }
+
+  /**
+   * Whether the DB process has exited and this client rejects new requests
+   * (see `failPendingRequests`).
+   */
+  isDead(): boolean {
+    return this.dead;
+  }
+
+  /**
+   * Rejects all requests that are still waiting for a DB process response.
+   * Called when the DB process exits; afterwards this client rejects any
+   * new request immediately.
+   */
+  failPendingRequests(error: Error): void {
+    this.dead = true;
+    const requests = Array.from(this.pending.values());
+    this.pending.clear();
+    for (const request of requests) {
+      request.reject(error);
+    }
   }
 
   api<C extends CommandName>(
@@ -202,6 +243,9 @@ function ensureUtilityProcess(): Electron.UtilityProcess {
     child.on('exit', (code) => {
       console.error(`DB utility process exited with code ${code}`);
       child = null;
+      mainClient?.failPendingRequests(
+        new Error(`The DB process exited with code ${code}.`),
+      );
     });
   }
   return child;
