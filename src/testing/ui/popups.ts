@@ -65,15 +65,7 @@ export { MERGE_DIALOG_LABEL };
 export async function expectMergeDialogVisibility(
   visible: boolean,
 ): Promise<void> {
-  await waitFor(() => {
-    const dialog = screen.queryByLabelText(MERGE_DIALOG_LABEL);
-    if (visible) {
-      expect(dialog).not.toBeNull();
-      expect(dialog).toBeVisible();
-    } else {
-      expect(dialog).toBeNull();
-    }
-  }, SETTLED_TIMEOUT);
+  await expectPopupVisibility(MERGE_DIALOG_LABEL, visible);
 }
 
 export async function expectMergeDialogMergesIntoCurrentProject(): Promise<void> {
@@ -109,20 +101,17 @@ export function openSplitDialogFromMenu(sendToChannel: SendToChannel): void {
 export async function expectSplitDialogVisibility(
   visible: boolean,
 ): Promise<void> {
-  await waitFor(() => {
-    const popup = screen.queryByLabelText(SPLIT_DIALOG_LABEL);
-    if (visible) {
-      expect(popup).not.toBeNull();
-      expect(popup).toBeVisible();
+  await expectPopupVisibility(SPLIT_DIALOG_LABEL, visible);
+  if (visible) {
+    const popup = await getPopup(SPLIT_DIALOG_LABEL);
+    await waitFor(() => {
       expect(
-        within(popup as HTMLElement).getByRole('heading', {
+        within(popup).getByRole('heading', {
           name: text.splitDialog.title,
         }),
       ).toBeVisible();
-    } else {
-      expect(popup).toBeNull();
-    }
-  }, SETTLED_TIMEOUT);
+    }, SETTLED_TIMEOUT);
+  }
 }
 
 export async function expectSplitDialogCreateButtonEnabled(
@@ -153,7 +142,7 @@ export async function expectSplitDialogResourceIsReadonly(
   }, SETTLED_TIMEOUT);
 }
 
-const UNSAVED_CHANGES_POPUP_LABEL = 'unsaved changes popup';
+export const UNSAVED_CHANGES_POPUP_LABEL = 'unsaved changes popup';
 export const IMPORT_DIALOG_LABEL = 'import dialog';
 
 export function openImportDialogFromMenu(
@@ -202,20 +191,10 @@ export async function expectImportOutputFilePath(path: string): Promise<void> {
   }, SETTLED_TIMEOUT);
 }
 
-export { UNSAVED_CHANGES_POPUP_LABEL };
-
 export async function expectUnsavedChangesPopupVisibility(
   visible: boolean,
 ): Promise<void> {
-  await waitFor(() => {
-    const popup = screen.queryByLabelText(UNSAVED_CHANGES_POPUP_LABEL);
-    if (visible) {
-      expect(popup).not.toBeNull();
-      expect(popup).toBeVisible();
-    } else {
-      expect(popup).toBeNull();
-    }
-  }, SETTLED_TIMEOUT);
+  await expectPopupVisibility(UNSAVED_CHANGES_POPUP_LABEL, visible);
 }
 
 export const CONFIRMATION_DIALOG_LABEL = 'confirmation dialog';
@@ -228,6 +207,8 @@ export const CONFIRM_DELETE_POPUP_LABEL =
 export const CONFIRM_REPLACE_POPUP_LABEL = 'confirm replace popup';
 
 export const FORCE_UNLOCK_POPUP_LABEL = 'force unlock popup';
+
+export const PROJECT_METADATA_POPUP_LABEL = 'project metadata';
 
 export async function expectPopupVisibility(
   popupLabel: string,
@@ -242,6 +223,10 @@ export async function expectPopupVisibility(
       expect(popup).toBeNull();
     }
   }, SETTLED_TIMEOUT);
+}
+
+export async function expectPopupHidden(popupLabel: string): Promise<void> {
+  await expectPopupVisibility(popupLabel, false);
 }
 
 export async function expectConfirmSavePopupIsVisible(): Promise<void> {

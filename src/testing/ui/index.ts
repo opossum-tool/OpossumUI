@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 export * from './panel-tabs';
 export * from './package-cards';
+export * from './ai-status';
 export * from './top-bar';
 export * from './path-bar';
 export * from './trees';
@@ -22,7 +23,6 @@ export {
   clearPanelSearch,
   expectPanelButtonEnabled,
   expectPanelReplacementDimmed,
-  expectPopupHidden,
   expectSearchFocused,
   expectSearchValue,
   expectTextVisible,

@@ -8,14 +8,10 @@ import { expect } from 'vitest';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import { text } from '../../shared/text';
-import {
-  expectPopupHidden,
-  type SendToChannel,
-  SETTLED_TIMEOUT,
-} from './common';
-import { clickPopupButton } from './popups';
+import { type SendToChannel, SETTLED_TIMEOUT } from './common';
+import { clickPopupButton, expectPopupHidden } from './popups';
 
-const PROJECT_STATISTICS_POPUP_LABEL = 'project statistics';
+export const PROJECT_STATISTICS_POPUP_LABEL = 'project statistics';
 
 export async function openProjectStatisticsPopup(
   sendToChannel: SendToChannel,

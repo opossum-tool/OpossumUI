@@ -22,6 +22,7 @@ import {
   clickAttributionColumnButton,
   clickDiffPopupButton,
   clickPopupButton,
+  CONFIRM_SAVE_POPUP_LABEL,
   expectAttributionColumnButtonEnabled,
   expectAttributionColumnButtonVisibility,
   expectAttributionColumnDirty,
@@ -737,7 +738,7 @@ describe('AttributionDetails', () => {
         // A local save unlinks this resource; subsequent saves are direct.
         if (mode !== 'direct' && !(mode === 'local' && revision === 2)) {
           await clickPopupButton(
-            text.saveAttributionsPopup.ariaLabel,
+            CONFIRM_SAVE_POPUP_LABEL,
             mode === 'local'
               ? text.saveAttributionsPopup.saveLocally
               : text.saveAttributionsPopup.saveGlobally,
@@ -2051,7 +2052,7 @@ describe('AttributionDetails', () => {
       });
       await clickAttributionColumnButton('save');
       await clickPopupButton(
-        text.saveAttributionsPopup.ariaLabel,
+        CONFIRM_SAVE_POPUP_LABEL,
         text.saveAttributionsPopup.saveLocally,
       );
       await waitFor(() =>
@@ -2136,7 +2137,7 @@ describe('AttributionDetails', () => {
     );
     await clickAttributionColumnButton('save');
     await clickPopupButton(
-      text.saveAttributionsPopup.ariaLabel,
+      CONFIRM_SAVE_POPUP_LABEL,
       text.saveAttributionsPopup.saveGlobally,
     );
 
@@ -2197,7 +2198,7 @@ describe('AttributionDetails', () => {
     );
     await clickAttributionColumnButton('save');
     await clickPopupButton(
-      text.saveAttributionsPopup.ariaLabel,
+      CONFIRM_SAVE_POPUP_LABEL,
       text.saveAttributionsPopup.saveLocally,
     );
     await waitFor(() =>
@@ -2242,7 +2243,7 @@ describe('AttributionDetails', () => {
 
     await waitForAttributionDetailsReady();
     await clickPopupButton(
-      text.saveAttributionsPopup.ariaLabel,
+      CONFIRM_SAVE_POPUP_LABEL,
       text.saveAttributionsPopup.saveGlobally,
     );
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
