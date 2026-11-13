@@ -2,10 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
 import { StrictMode } from 'react';
 
-import { expectTextVisible } from '../../../../testing/ui';
 import { PopupType } from '../../../enums/enums';
 import { openPopup } from '../../../state/actions/view-actions/view-actions';
 import { getOpenPopup } from '../../../state/selectors/view-selector';
@@ -23,7 +22,7 @@ describe('Error popup', () => {
       actions: [openPopup(PopupType.InvalidLinkPopup)],
     });
 
-    await expectTextVisible('Error', true);
+    expect(screen.getByText('Error')).toBeInTheDocument();
     await act(() => vi.advanceTimersByTime(ERROR_POPUP_TIMEOUT - 1));
     expect(getOpenPopup(store.getState())?.popup).toBe(
       PopupType.InvalidLinkPopup,
