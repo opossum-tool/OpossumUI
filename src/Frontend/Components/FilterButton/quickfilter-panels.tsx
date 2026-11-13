@@ -1,0 +1,675 @@
+// SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+// SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+//
+// SPDX-License-Identifier: Apache-2.0
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import CheckIcon from '@mui/icons-material/Check';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+import EditIcon from '@mui/icons-material/Edit';
+import EditOffIcon from '@mui/icons-material/EditOff';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import { Box, Button, IconButton, Typography } from '@mui/material';
+import MuiTooltip from '@mui/material/Tooltip';
+import {
+  type KeyboardEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+
+import type { SavedQuickfilter } from '../../../shared/shared-types';
+import { text } from '../../../shared/text';
+import { quickfiltersConflict } from '../../state/variables/use-quickfilters';
+import { Input } from '../Autocomplete/Autocomplete.style';
+import { styles } from './quickfilter-panels.style';
+
+// Safety net for the frozen drop state in case the settings round-trip
+// (which carries the reordered list) never completes.
+const DRAG_COMMIT_TIMEOUT_MS = 1000;
+
+function handleActivationKeyDown(
+  event: KeyboardEvent,
+  onActivate: () => void,
+): void {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    onActivate();
+  }
+}
+
+function SaveQuickfilterPanel({
+  onSave,
+  onCancel,
+  onClose,
+  id,
+  initialFocusRef,
+}: {
+  /**
+   * The panel hands the (non-empty, trimmed) name to the parent, which owns
+   * the actual saving and activation against the current filters.
+   */
+  onSave: (name: string) => void;
+  onCancel?: () => void;
+  onClose: () => void;
+  id: string;
+  initialFocusRef?: (element: HTMLElement | null) => void;
+}) {
+  const [name, setName] = useState('');
+  const trimmedName = name.trim();
+  const cancel = onCancel ?? onClose;
+  const save = (): void => {
+    if (!trimmedName) {
+      return;
+    }
+    onSave(trimmedName);
+  };
+
+  return (
+    <Box
+      id={id}
+      role="dialog"
+      aria-label={text.quickfilters.save}
+      sx={styles.panel}
+    >
+      <Input
+        inputRef={initialFocusRef}
+        label={text.quickfilters.nameLabel}
+        variant="outlined"
+        size="small"
+        numberOfEndAdornments={0}
+        value={name}
+        onChange={(event) => setName(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
+            event.preventDefault();
+            event.stopPropagation();
+            save();
+          }
+        }}
+      />
+      <Box sx={styles.actions}>
+        <Button
+          size="small"
+          sx={styles.actionButton}
+          disabled={!trimmedName}
+          onClick={save}
+        >
+          {text.quickfilters.saveAction}
+        </Button>
+        <Button size="small" sx={styles.actionButton} onClick={cancel}>
+          {text.buttons.cancel}
+        </Button>
+      </Box>
+    </Box>
+  );
+}
+
+export function QuickfiltersPanel<T extends SavedQuickfilter>({
+  quickfilters,
+  incompatibleProjectIds = [],
+  conflictingIds = [],
+  activeQuickfilterIds,
+  hasActiveFilters,
+  onSave,
+  onApply,
+  onDelete,
+  onRename,
+  onReorder,
+  onClearAll,
+  onClose,
+  id,
+  initialFocusRef,
+}: {
+  quickfilters: Array<T>;
+  incompatibleProjectIds?: Array<string>;
+  conflictingIds?: Array<string>;
+  activeQuickfilterIds: Array<string>;
+  hasActiveFilters: boolean;
+  /** Called with a non-empty, trimmed name; the parent saves and activates. */
+  onSave: (name: string) => void;
+  onApply: (quickfilter: T) => void;
+  onDelete: (id: string) => void;
+  onRename: (id: string, name: string) => void;
+  onReorder: (id: string, targetIndex: number) => void;
+  onClearAll: () => void;
+  onClose: () => void;
+  id: string;
+  initialFocusRef?: (element: HTMLElement | null) => void;
+}) {
+  const [isSaving, setIsSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const rowElementsRef = useRef(new Map<string, HTMLDivElement>());
+  // Mirrors the renaming state in a ref so blur/Escape handlers can never
+  // commit a rename that was just cancelled.
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renamingName, setRenamingName] = useState('');
+  const renamingIdRef = useRef<string | null>(null);
+  // During a drag the row order stays untouched; the dragged row follows the
+  // pointer visually and the reorder is committed on drop. After the drop,
+  // the transforms stay in their final configuration until the reordered
+  // list has actually rendered (the optimistic settings update supplies the
+  // new order), so the rows never flash back to their old positions.
+  const [drag, setDrag] = useState<{
+    id: string;
+    pointerDeltaY: number;
+    fromIndex: number;
+    targetIndex: number;
+    rowHeight: number;
+    rowPitch: number;
+    dropped: boolean;
+  } | null>(null);
+  const activeDragRef = useRef<{
+    id: string;
+    pointerId: number;
+    startPointerY: number;
+    fromIndex: number;
+    targetIndex: number;
+    rowHeight: number;
+    rowPitch: number;
+  } | null>(null);
+  const showSaveRow = hasActiveFilters && !activeQuickfilterIds.length;
+  // Snapshot at panel open: focus the save row only when the panel was opened
+  // with manual filters; later appearing rows must not steal focus mid-flow.
+  const [focusSaveRowOnOpen] = useState(showSaveRow);
+  const setFocusTarget = useCallback(
+    (element: HTMLDivElement | null) => {
+      initialFocusRef?.(element);
+    },
+    [initialFocusRef],
+  );
+
+  // After a drop the transforms stay frozen until the reordered list renders.
+  const effectiveDrag = (() => {
+    if (!drag) {
+      return null;
+    }
+    if (drag.dropped) {
+      const index = quickfilters.findIndex(({ id }) => id === drag.id);
+      if (index === -1 || index === drag.targetIndex) {
+        return null;
+      }
+    }
+    return drag;
+  })();
+
+  // Clears the frozen drop state as soon as the reordered list has rendered.
+  useEffect(() => {
+    if (!drag?.dropped) {
+      return;
+    }
+    const index = quickfilters.findIndex(({ id }) => id === drag.id);
+    if (index === -1 || index === drag.targetIndex) {
+      setDrag(null);
+    }
+  }, [drag, quickfilters]);
+
+  // Safety net: never stay frozen if the reorder does not arrive.
+  useEffect(() => {
+    if (!drag?.dropped) {
+      return;
+    }
+    const timeout = window.setTimeout(() => {
+      setDrag((current) => (current?.dropped ? null : current));
+    }, DRAG_COMMIT_TIMEOUT_MS);
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [drag]);
+
+  if (isSaving) {
+    return (
+      <SaveQuickfilterPanel
+        onSave={(name) => {
+          onSave(name);
+          // Return to the list so the newly saved quickfilter is visible and
+          // immediately active; the panel closes only on dismiss.
+          setIsSaving(false);
+        }}
+        onCancel={() => setIsSaving(false)}
+        onClose={onClose}
+        id={id}
+        initialFocusRef={initialFocusRef}
+      />
+    );
+  }
+
+  const startDrag = (
+    event: React.PointerEvent,
+    quickfilter: SavedQuickfilter,
+  ): void => {
+    const fromIndex = quickfilters.findIndex(({ id }) => id === quickfilter.id);
+    const rect = rowElementsRef.current
+      .get(quickfilter.id)
+      ?.getBoundingClientRect();
+    if (fromIndex === -1 || !rect) {
+      return;
+    }
+    // Distance between neighbouring row tops, measured before any transforms
+    // exist.
+    const [firstRow, secondRow] = quickfilters;
+    const firstRect = firstRow
+      ? rowElementsRef.current.get(firstRow.id)?.getBoundingClientRect()
+      : undefined;
+    const secondRect = secondRow
+      ? rowElementsRef.current.get(secondRow.id)?.getBoundingClientRect()
+      : undefined;
+    const rowPitch =
+      firstRect && secondRect ? secondRect.top - firstRect.top : rect.height;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    activeDragRef.current = {
+      id: quickfilter.id,
+      pointerId: event.pointerId,
+      startPointerY: event.clientY,
+      fromIndex,
+      targetIndex: fromIndex,
+      rowHeight: rect.height,
+      rowPitch,
+    };
+    setDrag({
+      id: quickfilter.id,
+      pointerDeltaY: 0,
+      fromIndex,
+      targetIndex: fromIndex,
+      rowHeight: rect.height,
+      rowPitch,
+      dropped: false,
+    });
+  };
+
+  const handleDragPointerMove = (event: React.PointerEvent): void => {
+    const activeDrag = activeDragRef.current;
+    if (activeDrag?.pointerId !== event.pointerId) {
+      return;
+    }
+    // The target slot is the number of neighbouring row midpoints the
+    // pointer has passed.
+    let targetIndex = 0;
+    quickfilters.forEach((quickfilter) => {
+      if (quickfilter.id === activeDrag.id) {
+        return;
+      }
+      const rect = rowElementsRef.current
+        .get(quickfilter.id)
+        ?.getBoundingClientRect();
+      if (rect && event.clientY > rect.top + rect.height / 2) {
+        targetIndex += 1;
+      }
+    });
+    activeDragRef.current = { ...activeDrag, targetIndex };
+    setDrag({
+      id: activeDrag.id,
+      pointerDeltaY: event.clientY - activeDrag.startPointerY,
+      fromIndex: activeDrag.fromIndex,
+      targetIndex,
+      rowHeight: activeDrag.rowHeight,
+      rowPitch: activeDrag.rowPitch,
+      dropped: false,
+    });
+  };
+
+  const endDrag = (event: React.PointerEvent): void => {
+    const activeDrag = activeDragRef.current;
+    if (activeDrag?.pointerId !== event.pointerId) {
+      return;
+    }
+    activeDragRef.current = null;
+    // Freeze every row at the exact position it will occupy after the
+    // reorder: the dragged row jumps to its target slot and the others to
+    // theirs.
+    const dropDelta =
+      (activeDrag.targetIndex - activeDrag.fromIndex) * activeDrag.rowPitch;
+    setDrag({
+      id: activeDrag.id,
+      pointerDeltaY: dropDelta,
+      fromIndex: activeDrag.fromIndex,
+      targetIndex: activeDrag.targetIndex,
+      rowHeight: activeDrag.rowHeight,
+      rowPitch: activeDrag.rowPitch,
+      dropped: true,
+    });
+    if (activeDrag.targetIndex !== activeDrag.fromIndex) {
+      onReorder(activeDrag.id, activeDrag.targetIndex);
+    }
+  };
+  const startRename = (quickfilter: SavedQuickfilter): void => {
+    renamingIdRef.current = quickfilter.id;
+    setRenamingId(quickfilter.id);
+    setRenamingName(quickfilter.name);
+  };
+
+  const endRename = (): void => {
+    renamingIdRef.current = null;
+    setRenamingId(null);
+  };
+
+  const commitRename = (): void => {
+    const id = renamingIdRef.current;
+    if (id === null) {
+      return;
+    }
+    const trimmedName = renamingName.trim();
+    const original = quickfilters.find((quickfilter) => quickfilter.id === id);
+    if (original && trimmedName && trimmedName !== original.name) {
+      onRename(id, trimmedName);
+    }
+    endRename();
+  };
+
+  const cancelRename = (): void => {
+    endRename();
+  };
+
+  const titleRow = (
+    <Box sx={styles.titleRow}>
+      <Typography sx={styles.title}>{text.quickfilters.title}</Typography>
+      <Box sx={styles.titleActions}>
+        <Button
+          size="small"
+          aria-label={text.quickfilters.clearAllLabel}
+          sx={styles.clearButton}
+          disabled={!activeQuickfilterIds.length}
+          onClick={onClearAll}
+        >
+          {text.quickfilters.clearAll}
+        </Button>
+        <MuiTooltip
+          title={
+            isEditing ? text.quickfilters.finishEditing : text.quickfilters.edit
+          }
+          disableInteractive
+          placement={'bottom'}
+        >
+          <IconButton
+            size={'small'}
+            aria-label={
+              isEditing
+                ? text.quickfilters.finishEditing
+                : text.quickfilters.edit
+            }
+            onClick={() => setIsEditing((editing) => !editing)}
+            sx={styles.titleButton}
+          >
+            {isEditing ? (
+              <EditOffIcon fontSize={'small'} />
+            ) : (
+              <EditIcon fontSize={'small'} />
+            )}
+          </IconButton>
+        </MuiTooltip>
+      </Box>
+    </Box>
+  );
+  return (
+    <Box
+      id={id}
+      ref={focusSaveRowOnOpen && !isEditing ? undefined : setFocusTarget}
+      tabIndex={-1}
+      role="dialog"
+      aria-label={text.quickfilters.title}
+      sx={styles.panel}
+    >
+      {titleRow}
+      {!isEditing && showSaveRow && (
+        <Box
+          role="button"
+          tabIndex={0}
+          ref={focusSaveRowOnOpen ? setFocusTarget : undefined}
+          aria-label={text.quickfilters.save}
+          sx={styles.row}
+          onClick={() => setIsSaving(true)}
+          onKeyDown={(event) => {
+            if (event.key === 'ArrowLeft') {
+              event.preventDefault();
+              event.stopPropagation();
+              onClose();
+            } else {
+              handleActivationKeyDown(event, () => setIsSaving(true));
+            }
+          }}
+        >
+          <BookmarkAddIcon fontSize="small" sx={styles.icon} />
+          <Box component="span" sx={styles.label}>
+            {text.quickfilters.save}
+          </Box>
+        </Box>
+      )}
+      <Box sx={styles.list}>
+        {!quickfilters.length && !isSaving && !isEditing && (
+          <Typography sx={styles.emptyHint}>
+            {text.quickfilters.empty}
+          </Typography>
+        )}
+        {isEditing
+          ? quickfilters.map((quickfilter, index) => {
+              const isDragged = effectiveDrag?.id === quickfilter.id;
+              // Rows between the dragged row and its target slot glide aside
+              // to make room for it, by exactly one slot pitch so that they
+              // already rest on the positions they will occupy after the drop.
+              let shiftY = 0;
+              if (effectiveDrag && !isDragged) {
+                const { fromIndex, targetIndex, rowPitch } = effectiveDrag;
+                if (
+                  fromIndex < targetIndex &&
+                  index > fromIndex &&
+                  index <= targetIndex
+                ) {
+                  shiftY = -rowPitch;
+                } else if (
+                  fromIndex > targetIndex &&
+                  index >= targetIndex &&
+                  index < fromIndex
+                ) {
+                  shiftY = rowPitch;
+                }
+              }
+              return (
+                <Box
+                  key={quickfilter.id}
+                  ref={(element: HTMLDivElement | null) => {
+                    if (element) {
+                      rowElementsRef.current.set(quickfilter.id, element);
+                    } else {
+                      rowElementsRef.current.delete(quickfilter.id);
+                    }
+                  }}
+                  sx={[
+                    styles.editRow,
+                    // Only rows gliding aside animate; the dragged row itself
+                    // must track the pointer exactly, and drops commit without
+                    // any transition so nothing flickers.
+                    effectiveDrag && !isDragged ? styles.smoothRow : false,
+                    shiftY !== 0 && styles.shiftedRow,
+                    isDragged && styles.draggingRow,
+                  ]}
+                  style={{
+                    transform: `translateY(${
+                      isDragged ? (effectiveDrag?.pointerDeltaY ?? 0) : shiftY
+                    }px)`,
+                  }}
+                >
+                  {renamingId === quickfilter.id ? (
+                    <Input
+                      autoFocus
+                      size="small"
+                      variant="outlined"
+                      numberOfEndAdornments={0}
+                      value={renamingName}
+                      onChange={(event) => setRenamingName(event.target.value)}
+                      slotProps={{
+                        htmlInput: {
+                          'aria-label': text.quickfilters.nameLabel,
+                        },
+                      }}
+                      sx={styles.renameInput}
+                      onBlur={commitRename}
+                      onKeyDown={(event) => {
+                        if (
+                          event.key === 'Enter' &&
+                          !event.nativeEvent.isComposing
+                        ) {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          commitRename();
+                        } else if (event.key === 'Escape') {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          cancelRename();
+                        }
+                      }}
+                    />
+                  ) : (
+                    <>
+                      <Box
+                        component="span"
+                        role="button"
+                        tabIndex={0}
+                        aria-label={text.quickfilters.reorder(quickfilter.name)}
+                        sx={[
+                          styles.dragHandle,
+                          isDragged && styles.dragHandleActive,
+                        ]}
+                        onPointerDown={(event) => startDrag(event, quickfilter)}
+                        onPointerMove={handleDragPointerMove}
+                        onPointerUp={endDrag}
+                        onPointerCancel={endDrag}
+                        onKeyDown={(event) => {
+                          const index = quickfilters.findIndex(
+                            ({ id }) => id === quickfilter.id,
+                          );
+                          if (event.key === 'ArrowUp' && index > 0) {
+                            event.preventDefault();
+                            onReorder(quickfilter.id, index - 1);
+                          } else if (
+                            event.key === 'ArrowDown' &&
+                            index < quickfilters.length - 1
+                          ) {
+                            event.preventDefault();
+                            onReorder(quickfilter.id, index + 1);
+                          }
+                        }}
+                      >
+                        <DragIndicatorIcon
+                          fontSize={'small'}
+                          sx={styles.dragHandleIcon}
+                        />
+                      </Box>
+                      <Box component="span" sx={styles.label}>
+                        {quickfilter.name}
+                      </Box>
+                      <IconButton
+                        size={'small'}
+                        aria-label={text.quickfilters.rename(quickfilter.name)}
+                        onClick={() => startRename(quickfilter)}
+                        sx={styles.editButton}
+                      >
+                        <EditIcon fontSize={'small'} />
+                      </IconButton>
+                      <IconButton
+                        size={'small'}
+                        aria-label={text.quickfilters.delete(quickfilter.name)}
+                        onClick={() => onDelete(quickfilter.id)}
+                        sx={styles.editButton}
+                      >
+                        <DeleteIcon fontSize={'small'} />
+                      </IconButton>
+                    </>
+                  )}
+                </Box>
+              );
+            })
+          : quickfilters.map((quickfilter) => {
+              const active = activeQuickfilterIds.includes(quickfilter.id);
+              // Quickfilters that the project or settings cannot express
+              // cannot be applied at all. Conflicting quickfilters apply and
+              // overwrite the clashing scalar filters; they warn about that
+              // in the tooltip.
+              const inapplicableReason = incompatibleProjectIds.includes(
+                quickfilter.id,
+              )
+                ? text.quickfilters.incompatibleWithProject
+                : undefined;
+              const conflicting =
+                !active && conflictingIds.includes(quickfilter.id);
+              const conflictWarning = ((): string | undefined => {
+                if (!conflicting) {
+                  return undefined;
+                }
+                const names = quickfilters
+                  .filter(
+                    (other) =>
+                      activeQuickfilterIds.includes(other.id) &&
+                      quickfiltersConflict(other, quickfilter),
+                  )
+                  .map(({ name }) => `'${name}'`)
+                  .join(' and ');
+                return names
+                  ? text.quickfilters.replacesQuickfilters(names)
+                  : text.quickfilters.replacesConflictingFilters;
+              })();
+              const apply = (): void => {
+                if (!inapplicableReason) {
+                  onApply(quickfilter);
+                }
+              };
+              return (
+                <MuiTooltip
+                  key={quickfilter.id}
+                  title={inapplicableReason ?? conflictWarning ?? ''}
+                >
+                  <Box
+                    role="button"
+                    tabIndex={0}
+                    aria-label={text.quickfilters.apply(quickfilter.name)}
+                    aria-pressed={active}
+                    aria-disabled={inapplicableReason !== undefined}
+                    sx={[
+                      styles.row,
+                      active && styles.selectedRow,
+                      inapplicableReason !== undefined &&
+                        styles.inapplicableRow,
+                    ]}
+                    onClick={apply}
+                    onKeyDown={(event) => {
+                      if (event.key === 'ArrowLeft') {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        onClose();
+                      } else {
+                        handleActivationKeyDown(event, apply);
+                      }
+                    }}
+                  >
+                    {active ? (
+                      <BookmarkIcon fontSize="small" sx={styles.icon} />
+                    ) : (
+                      <BookmarkBorderIcon fontSize="small" sx={styles.icon} />
+                    )}
+                    <Box
+                      component="span"
+                      sx={[styles.label, active && styles.activeLabel]}
+                    >
+                      {quickfilter.name}
+                    </Box>
+                    {conflicting ? (
+                      <WarningAmberIcon
+                        fontSize="small"
+                        sx={styles.conflictIcon}
+                      />
+                    ) : (
+                      <CheckIcon
+                        fontSize="small"
+                        sx={[styles.checkIcon, !active && styles.hiddenIcon]}
+                      />
+                    )}
+                  </Box>
+                </MuiTooltip>
+              );
+            })}
+      </Box>
+    </Box>
+  );
+}

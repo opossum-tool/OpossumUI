@@ -11,6 +11,10 @@ import type {
   CommandParams,
   CommandReturn,
 } from '../ElectronBackend/api/commands';
+import type {
+  AttributionFilterKey,
+  AttributionValueFilters,
+} from './attribution-filters';
 import type { AllowedFrontendChannels } from './ipc-channels';
 
 export interface Resources {
@@ -408,6 +412,51 @@ export type TableOrdering = {
   orderedColumn: string;
 };
 
+export type QuickfilterScope = 'attribution' | 'signal' | 'resource';
+
+interface SavedQuickfilterBase {
+  id: string;
+  name: string;
+  lastUsedAt: number;
+  scope: QuickfilterScope;
+}
+
+export interface SavedAttributionQuickfilter extends SavedQuickfilterBase {
+  scope: 'attribution' | 'signal';
+  filters: {
+    filters: Array<AttributionFilterKey>;
+    search: string;
+    valueFilters: Omit<AttributionValueFilters, 'licenseIds'> & {
+      license?: Array<LicenseOption>;
+    };
+  };
+}
+
+export interface SavedResourceQuickfilter extends SavedQuickfilterBase {
+  scope: 'resource';
+  filters: {
+    onlyUnreviewedFiles: boolean;
+    onlyWithAiDeferredAttributions: boolean;
+    selectedLicenses: Array<LicenseOption>;
+    licenseSearches?: Array<string>;
+  };
+}
+
+export type SavedQuickfilter =
+  SavedAttributionQuickfilter | SavedResourceQuickfilter;
+
+export function isAttributionQuickfilter(
+  quickfilter: SavedQuickfilter,
+): quickfilter is SavedAttributionQuickfilter {
+  return quickfilter.scope !== 'resource';
+}
+
+export function isResourceQuickfilter(
+  quickfilter: SavedQuickfilter,
+): quickfilter is SavedResourceQuickfilter {
+  return quickfilter.scope === 'resource';
+}
+
 export interface UserSettings {
   qaMode: boolean;
   showProjectStatistics: boolean;
@@ -422,6 +471,7 @@ export interface UserSettings {
   };
   recentlyOpenedPaths: Array<string>;
   attributionTableOrdering: TableOrdering;
+  savedQuickfilters: Array<SavedQuickfilter>;
   automaticallyCheckForUpdates: boolean;
   lastSeenWhatsNewRevision: number;
 }

@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { keepPreviousData } from '@tanstack/react-query';
 
+import type { LicenseOption } from '../../shared/shared-types';
 import { ROOT_PATH } from '../shared-constants';
 import { useAppSelector } from '../state/hooks';
 import { getSelectedResourceId } from '../state/selectors/resource-selectors';
@@ -111,6 +112,8 @@ export function useFilterProperties({
   };
 }
 
+const EMPTY_LICENSES: Array<LicenseOption> = [];
+
 export function useResourceTreeFilterProperties({
   enabled,
   external,
@@ -130,7 +133,7 @@ export function useResourceTreeFilterProperties({
   );
 
   return {
-    licenses: licenseOptionsQuery.data ?? [],
+    licenses: licenseOptionsQuery.data ?? EMPTY_LICENSES,
     licenseOptionsLoading: licenseOptionsQuery.isFetching,
   };
 }

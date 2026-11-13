@@ -76,7 +76,7 @@ export class AttributionsPanel {
     });
     this.filterButton = this.node.getByLabel('filter button', { exact: true });
     this.filterMenu = window.getByRole('menu');
-    this.licenseTrigger = this.filterMenu.locator('[aria-haspopup="dialog"]');
+    this.licenseTrigger = this.filterMenu.locator('[data-option-id="license"]');
     this.licenseEditor = window.getByRole('dialog', {
       name: text.licenseEditor.title,
     });

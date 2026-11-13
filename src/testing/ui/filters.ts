@@ -86,13 +86,17 @@ export async function applyPanelFilter(
 }
 
 async function openLicenseEditor() {
-  if (!screen.queryByRole('dialog', { name: 'Licenses' })) {
-    await userEvent.click(
-      within(screen.getByRole('menu'))
-        .getAllByRole('menuitem')
-        .find((item) => item.getAttribute('aria-haspopup') === 'dialog')!,
-    );
+  if (screen.queryByRole('dialog', { name: 'Licenses' })) {
+    return;
   }
+  const menu = screen.getByRole('menu');
+  const licenseTrigger = menu.querySelector<HTMLElement>(
+    '[data-option-id="license"]',
+  );
+  if (!licenseTrigger) {
+    throw new Error('License filter menu item not found');
+  }
+  await userEvent.click(licenseTrigger);
 }
 const LICENSE_FILTER_INPUT_LABEL = 'Search licenses';
 

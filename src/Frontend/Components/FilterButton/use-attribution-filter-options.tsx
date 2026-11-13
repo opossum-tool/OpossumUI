@@ -10,7 +10,11 @@ import {
   INCOMPLETE_COORDINATE_FILTER_VALUES,
   INCOMPLETE_LEGAL_FILTER_VALUES,
 } from '../../../shared/attribution-filters';
-import { Criticality, type LicenseOption } from '../../../shared/shared-types';
+import {
+  Criticality,
+  type LicenseOption,
+  type QuickfilterScope,
+} from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import type { AttributionFilters } from '../../state/variables/use-filters';
 import { useUserSettings } from '../../state/variables/use-user-setting';
@@ -23,6 +27,7 @@ import {
 } from '../Icons/Icons';
 import type { FilterOption } from './FilterButton';
 import { createLicenseFilterOption } from './license-editor';
+import { useQuickfilterOptions } from './quickfilter-options';
 import { ValueFilterAutocomplete } from './ValueFilterAutocomplete/ValueFilterAutocomplete';
 
 const incompleteCoordinateLabels = {
@@ -68,6 +73,8 @@ export function useAttributionFilterOptions({
   licenseOptionsLoading,
   filters,
   setFilters,
+  quickfilterScope,
+  crossActivateResource = false,
 }: {
   filterOptions: Array<AttributionFilterOption>;
   filterProps: FilterProperties | null;
@@ -75,6 +82,8 @@ export function useAttributionFilterOptions({
   licenseOptionsLoading?: boolean;
   filters: AttributionFilters;
   setFilters: SetFilters;
+  quickfilterScope: Exclude<QuickfilterScope, 'resource'>;
+  crossActivateResource?: boolean;
 }): Array<FilterOption> {
   const classificationFilterOption = useClassificationFilterOption({
     filters,
@@ -84,9 +93,16 @@ export function useAttributionFilterOptions({
     filters,
     setFilters,
   });
+  const quickfilterOptions = useQuickfilterOptions({
+    filters,
+    setFilters,
+    scope: quickfilterScope,
+    crossActivateResource,
+  });
   return useMemo(
     () =>
       compact([
+        ...quickfilterOptions,
         ...filterOptions.map(({ key, label, icon }) => {
           const count = filterProps?.[key];
 
@@ -126,6 +142,7 @@ export function useAttributionFilterOptions({
         criticalityFilterOption,
       ]),
     [
+      quickfilterOptions,
       filterOptions,
       filterProps,
       licenses,

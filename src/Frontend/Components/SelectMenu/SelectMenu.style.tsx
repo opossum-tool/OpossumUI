@@ -10,14 +10,19 @@ import { styled, type Theme } from '@mui/material/styles';
 import { checkIconSize, OpossumColors, Sizing } from '../../shared-styles';
 
 export const StyledMenuItem = styled(MuiMenuItem, {
-  shouldForwardProp: (name: string) => name !== 'faded',
+  shouldForwardProp: (name: string) => name !== 'faded' && name !== 'tinted',
 })<{
   faded: boolean | undefined;
-}>(({ faded }) => ({
+  tinted: boolean | undefined;
+}>(({ faded, tinted }) => ({
   padding: 0,
   // 0.5: faded menu items are dimmed
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   opacity: faded ? 0.5 : 1,
+  backgroundColor: tinted ? OpossumColors.almostWhiteBlue : undefined,
+  '&:hover': tinted
+    ? { backgroundColor: OpossumColors.lightestBlue }
+    : undefined,
   '&.Mui-selected, &.Mui-selected:hover': {
     backgroundColor: OpossumColors.lightestBlue,
   },

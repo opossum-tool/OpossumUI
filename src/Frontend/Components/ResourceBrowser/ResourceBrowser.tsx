@@ -12,7 +12,10 @@ import {
   getExpandedIds,
   getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
-import { useResourceTreeFilters } from '../../state/variables/use-filters';
+import {
+  hasActiveResourceTreeFilters,
+  useResourceTreeFilters,
+} from '../../state/variables/use-filters';
 import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { useVariable } from '../../state/variables/use-variable';
 import { backend } from '../../util/backendClient';
@@ -20,6 +23,7 @@ import { useDebouncedInput } from '../../util/use-debounced-input';
 import { useResourceTreeFilterProperties } from '../../util/use-filter-properties';
 import { FilterButton } from '../FilterButton/FilterButton';
 import { createLicenseFilterOption } from '../FilterButton/license-editor';
+import { useResourceQuickfilterOption } from '../FilterButton/use-resource-quickfilter-options';
 import { DeferredIcon, UnreviewedIcon } from '../Icons/Icons';
 import { LoadingIndicator } from '../LoadingIndicator/loading-indicator';
 import { ResizePanels } from '../ResizePanels/ResizePanels';
@@ -51,15 +55,14 @@ export function ResourceBrowser() {
 
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   // All resources
-  const [
-    {
-      onlyUnreviewedFiles,
-      onlyWithAiDeferredAttributions,
-      selectedLicenses: resourceTreeSelectedLicenses,
-      licenseSearches = [],
-    },
-    setResourceTreeFilters,
-  ] = useResourceTreeFilters();
+  const [resourceTreeFilters, setResourceTreeFilters] =
+    useResourceTreeFilters();
+  const {
+    onlyUnreviewedFiles,
+    onlyWithAiDeferredAttributions,
+    selectedLicenses: resourceTreeSelectedLicenses,
+    licenseSearches = [],
+  } = resourceTreeFilters;
   const [searchAll, setSearchAll] = useVariable(ALL_RESOURCES_SEARCH, '');
   const debouncedSearchAll = useDebouncedInput(searchAll);
   const expandedIdsAll = useAppSelector(getExpandedIds);
@@ -127,11 +130,12 @@ export function ResourceBrowser() {
     external: IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS,
     enabled: isResourceTreeFilterOpen,
   });
+  const quickfilterOption = useResourceQuickfilterOption({
+    filters: resourceTreeFilters,
+    setFilters: setResourceTreeFilters,
+  });
   const isResourceTreeFilterActive =
-    onlyUnreviewedFiles ||
-    onlyWithAiDeferredAttributions ||
-    !!resourceTreeSelectedLicenses.length ||
-    !!licenseSearches.length;
+    hasActiveResourceTreeFilters(resourceTreeFilters);
   // Linked resources
   const [searchLinked, setSearchLinked] = useVariable(
     LINKED_RESOURCES_SEARCH,
@@ -165,6 +169,7 @@ export function ResourceBrowser() {
           headerActions: (
             <FilterButton
               options={[
+                ...quickfilterOption,
                 {
                   kind: 'toggle',
                   id: 'unreviewed',
@@ -231,6 +236,7 @@ export function ResourceBrowser() {
                   onlyWithAiDeferredAttributions: false,
                   selectedLicenses: [],
                   licenseSearches: [],
+                  activeQuickfilterIds: undefined,
                 }))
               }
               anchorPosition={'right'}
