@@ -31,7 +31,8 @@ export type StatisticsChartTestId =
   | 'mostFrequentLicenseCountPieChart'
   | 'criticalSignalsCountPieChart'
   | 'signalCountByClassificationPieChart'
-  | 'incompleteAttributionsPieChart';
+  | 'incompleteAttributionsPieChart'
+  | 'aiAttributionStatesBarChart';
 
 export async function expectStatisticsCharts(
   visible: Array<StatisticsChartTestId>,
