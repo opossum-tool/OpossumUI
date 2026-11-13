@@ -109,7 +109,10 @@ describe('deleting attributions', () => {
       await expectTabVisibility(ATTRIBUTIONS_PANEL, [], ['resource']);
       await expectPackageCards(ATTRIBUTIONS_PANEL, [packageInfo1]);
       await expectAttributionFormIsEmpty();
-      await expectProgressBarTooltipShowsValues({ filesWithAttributions: 4 });
+      await expectProgressBarTooltipShowsValues({
+        filesWithAttributions: 4,
+        filesWithNeitherAttributionsOrSignals: 1,
+      });
 
       await gotoResource(resourceName2);
       await expectAttributionFormMatchesPackageInfo(packageInfo1);
@@ -125,7 +128,10 @@ describe('deleting attributions', () => {
       await expectSelectedTabIs(ATTRIBUTIONS_PANEL, 'unrelated');
       await expectTabVisibility(ATTRIBUTIONS_PANEL, [], ['resource']);
       await expectPackageCards(ATTRIBUTIONS_PANEL, [], [packageInfo1]);
-      await expectProgressBarTooltipShowsValues({ filesWithAttributions: 2 });
+      await expectProgressBarTooltipShowsValues({
+        filesWithAttributions: 2,
+        filesWithNeitherAttributionsOrSignals: 3,
+      });
 
       await gotoResource(resourceName3);
       await expectAttributionFormIsEmpty();
@@ -138,7 +144,9 @@ describe('deleting attributions', () => {
       await clickAttributionColumnButton('delete');
       await clickPopupButton('confirm delete popup', 'Delete on All');
       await expectPopupHidden('confirm delete popup');
-      await expectProgressBarTooltipShowsValues({ filesWithAttributions: 0 });
+      await expectProgressBarTooltipShowsValues({
+        filesWithNeitherAttributionsOrSignals: 5,
+      });
     } finally {
       consoleErrorSpy.mockRestore();
     }

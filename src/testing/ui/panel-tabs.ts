@@ -35,11 +35,15 @@ export async function expectSelectedTabIs(
   relation: AttributionRelation,
 ): Promise<void> {
   await waitFor(() => {
-    // A tablist has exactly one selected tab; assert the others explicitly so
-    // tests do not need to duplicate the exclusion check for every relation.
+    // A tablist has exactly one selected tab; assert the siblings within the
+    // tab's own tablist explicitly so tests do not need to duplicate the
+    // exclusion check for every relation. Other tablists rendered inside the
+    // panel are not affected.
     const selectedTab = getRelationTab(panelTestId, relation);
     expect(selectedTab).toHaveAttribute('aria-selected', 'true');
-    for (const tab of within(getPanel(panelTestId)).getAllByRole('tab')) {
+    const tablist = selectedTab.closest('[role="tablist"]');
+    expect(tablist).not.toBeNull();
+    for (const tab of within(tablist as HTMLElement).getAllByRole('tab')) {
       if (tab !== selectedTab) {
         expect(tab).toHaveAttribute('aria-selected', 'false');
       }

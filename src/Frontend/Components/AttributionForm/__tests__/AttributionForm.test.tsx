@@ -566,8 +566,14 @@ describe('AttributionForm', () => {
           data: getParsedInputFileEnrichedWithTestData({}),
         });
 
-        await expectAiStatusBadges(expected);
-        await expectAiStatusIcons(expectedIcons);
+        await expectAiStatusBadges(
+          expected,
+          screen.getByTestId('attribution-form-wrapper'),
+        );
+        await expectAiStatusIcons(
+          expectedIcons,
+          screen.getByTestId('attribution-form-wrapper'),
+        );
       },
     );
 

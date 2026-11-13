@@ -9,11 +9,15 @@ import { expect } from 'vitest';
 import { text } from '../../shared/text';
 import { SETTLED_TIMEOUT } from './common';
 
+const UPDATE_BANNER_TEST_ID = 'update-banner';
+
 export async function expectUpdateAlertVisible(
   visible: boolean,
 ): Promise<void> {
+  // Assert on the update banner itself (not just any role="alert") so other
+  // notification banners, e.g. the mac-architecture warning, do not interfere.
   await waitFor(() => {
-    const alert = screen.queryByRole('alert');
+    const alert = screen.queryByTestId(UPDATE_BANNER_TEST_ID);
     if (visible) {
       expect(alert).not.toBeNull();
       expect(alert).toBeVisible();
