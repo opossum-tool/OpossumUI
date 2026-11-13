@@ -20,8 +20,7 @@ import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { useVariable } from '../../state/variables/use-variable';
 import { backend } from '../../util/backendClient';
 import { useDebouncedInput } from '../../util/use-debounced-input';
-import { useProjectLicenseOptions } from '../../util/use-filter-properties';
-import { useSharedLicenseFilters } from '../../util/use-shared-license-filters';
+import { useResourceTreeFilterProperties } from '../../util/use-filter-properties';
 import { FilterButton } from '../FilterButton/FilterButton';
 import { createLicenseFilterOption } from '../FilterButton/license-editor';
 import { useResourceQuickfilterOption } from '../FilterButton/use-resource-quickfilter-options';
@@ -127,10 +126,10 @@ export function ResourceBrowser() {
       },
       { enabled: isResourceTreeFilterOpen, placeholderData: keepPreviousData },
     );
-  const { licenses, licenseOptionsLoading } = useProjectLicenseOptions({
+  const { licenses, licenseOptionsLoading } = useResourceTreeFilterProperties({
     external: IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS,
+    enabled: isResourceTreeFilterOpen,
   });
-  useSharedLicenseFilters();
   const quickfilterOption = useResourceQuickfilterOption({
     filters: resourceTreeFilters,
     setFilters: setResourceTreeFilters,

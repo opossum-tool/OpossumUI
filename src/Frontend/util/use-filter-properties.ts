@@ -114,13 +114,13 @@ export function useFilterProperties({
 
 const EMPTY_LICENSES: Array<LicenseOption> = [];
 
-/**
- * Project-wide license options for one attribution kind. The query is stable
- * and cheap (no filters, search, or resource scoping), so it stays enabled
- * regardless of whether a filter menu is open — license filter syncing needs
- * the offered licenses at all times.
- */
-export function useProjectLicenseOptions({ external }: { external: boolean }) {
+export function useResourceTreeFilterProperties({
+  enabled,
+  external,
+}: {
+  enabled?: boolean;
+  external: boolean;
+}) {
   const licenseOptionsQuery = backend.licenseOptions.useQuery(
     {
       external,
@@ -129,12 +129,11 @@ export function useProjectLicenseOptions({ external }: { external: boolean }) {
       resourcePathForRelationships: ROOT_PATH,
       includeReadonly: true,
     },
-    { placeholderData: keepPreviousData },
+    { enabled, placeholderData: keepPreviousData },
   );
 
   return {
     licenses: licenseOptionsQuery.data ?? EMPTY_LICENSES,
-    licensesLoaded: licenseOptionsQuery.data !== undefined,
     licenseOptionsLoading: licenseOptionsQuery.isFetching,
   };
 }
