@@ -222,7 +222,9 @@ export type AlertSeverity = 'error' | 'warning' | 'info' | 'success';
 export async function expectAlert(
   message: string | RegExp,
   visible: boolean,
-  severity: AlertSeverity = 'warning',
+  // No default: a forgotten severity would otherwise silently assert the
+  // wrong MUI color class.
+  severity: AlertSeverity,
   container?: HTMLElement,
 ): Promise<void> {
   await waitFor(() => {

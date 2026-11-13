@@ -7,7 +7,12 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
 import { text } from '../../shared/text';
-import { getPanel, type PanelTestId, SETTLED_TIMEOUT } from './common';
+import {
+  escapeRegExp,
+  getPanel,
+  type PanelTestId,
+  SETTLED_TIMEOUT,
+} from './common';
 
 const FILTER_MENU_LABELS = {
   needsFollowUp: text.filters.needsFollowUp,
@@ -107,17 +112,23 @@ export async function clickFilterMenuItem(
   );
 }
 
+const LICENSE_EDITOR_DIALOG_LABEL = text.licenseEditor.title;
+
 export async function closeFilterMenu(): Promise<void> {
   // Escape must be dispatched on the menu element itself, like the Playwright
   // page object does: after interacting with an autocomplete inside the menu,
   // document.activeElement may be outside the modal's key-handling subtree.
-  const menu =
-    screen.queryByRole('menu') ??
-    screen.queryByRole('dialog', { name: 'Licenses' });
-  if (menu) {
-    menu.focus();
-    await userEvent.keyboard('{Escape}');
-  }
+  const menu = await waitFor(() => {
+    // Fail fast when neither the menu nor the license editor is open instead
+    // of silently succeeding and masking a "did not open" regression.
+    const menu =
+      screen.queryByRole('menu') ??
+      screen.queryByRole('dialog', { name: LICENSE_EDITOR_DIALOG_LABEL });
+    expect(menu).not.toBeNull();
+    return menu!;
+  }, SETTLED_TIMEOUT);
+  menu.focus();
+  await userEvent.keyboard('{Escape}');
   await waitFor(() => {
     expect(screen.queryByRole('menu')).toBeNull();
   }, SETTLED_TIMEOUT);
@@ -204,17 +215,19 @@ export async function addLicenseSearchFilter(value: string): Promise<void> {
   );
 }
 
-const LICENSE_EDITOR_DIALOG_LABEL = text.licenseEditor.title;
-
 export async function closeLicenseEditorDialog(): Promise<void> {
   // Only the license editor dialog closes; the outer filter menu stays open.
-  const dialog = screen.queryByRole('dialog', {
-    name: LICENSE_EDITOR_DIALOG_LABEL,
-  });
-  if (dialog) {
-    dialog.focus();
-    await userEvent.keyboard('{Escape}');
-  }
+  // Fail fast when the editor was never opened instead of silently succeeding
+  // and masking a "did not open" regression.
+  const dialog = await waitFor(() => {
+    const dialog = screen.queryByRole('dialog', {
+      name: LICENSE_EDITOR_DIALOG_LABEL,
+    });
+    expect(dialog).not.toBeNull();
+    return dialog!;
+  }, SETTLED_TIMEOUT);
+  dialog.focus();
+  await userEvent.keyboard('{Escape}');
   await waitFor(() => {
     expect(
       screen.queryByRole('dialog', { name: LICENSE_EDITOR_DIALOG_LABEL }),
@@ -265,11 +278,19 @@ export async function removeLicenseFilterOption(
   );
 }
 
+// The counted menu item is named "{n} license filters" via
+// text.licenseEditor.selectionCount; derive the matcher from the text
+// template (with a 0 sentinel standing in for the count) so wording changes
+// stay in sync.
+const LICENSE_FILTERS_MENU_ITEM_PATTERN = new RegExp(
+  escapeRegExp(text.licenseEditor.selectionCount(0)).replaceAll('0', '\\d+'),
+);
+
 export async function clearAllLicenseFilters(): Promise<void> {
   // The counted "{n} license filters" menu item opens the license editor on
   // the selection list, from which all selected licenses can be cleared.
   await userEvent.click(
-    screen.getByRole('menuitem', { name: /\d+ license filters/ }),
+    screen.getByRole('menuitem', { name: LICENSE_FILTERS_MENU_ITEM_PATTERN }),
   );
   await userEvent.click(
     screen.getByRole('button', { name: text.licenseEditor.clearLicenses }),

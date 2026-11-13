@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
@@ -40,9 +40,18 @@ export async function expectUpdateMessage(
   }, SETTLED_TIMEOUT);
 }
 
-export async function dismissUpdateAlert(index = 0): Promise<void> {
+export async function dismissUpdateAlert(): Promise<void> {
+  // Click the dismiss button inside the update banner, not the first dismiss
+  // button on the page: other banners (e.g. the mac-architecture warning)
+  // render their own dismiss buttons.
   await userEvent.click(
-    screen.getAllByRole('button', { name: text.updateApp.dismissed })[index],
+    await waitFor(
+      () =>
+        within(screen.getByTestId(UPDATE_BANNER_TEST_ID)).getByRole('button', {
+          name: text.updateApp.dismissed,
+        }),
+      SETTLED_TIMEOUT,
+    ),
   );
 }
 

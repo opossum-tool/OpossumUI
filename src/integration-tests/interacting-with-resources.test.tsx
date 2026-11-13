@@ -19,6 +19,7 @@ import {
   clickPathBarHistoryButton,
   clickProgressBar,
   closeFilterMenu,
+  closeLicenseEditorDialog,
   expectPackageCards,
   expectPathBarCrumbs,
   expectPathBarHistoryButton,
@@ -266,7 +267,7 @@ describe('interacting with resources', () => {
     await gotoResourceTreeRoot();
     await clickFilterMenuButton(screen.getByTestId('resources-tree-header'));
     await selectFilterLicenseName(SELECTED_LICENSE);
-    await closeFilterMenu();
+    await closeLicenseEditorDialog();
     await closeFilterMenu();
     await expectResourceVisibility(
       [resourceWithExternalSelectedLicense],

@@ -25,6 +25,7 @@ import {
   expectResourceVisibility,
   gotoResource,
   gotoResourceTreeRoot,
+  hoverProgressBar,
   LINKED_RESOURCES_TREE,
 } from '../testing/ui';
 
@@ -61,6 +62,7 @@ describe('confirming pre-selected attributions', () => {
     await renderApp({ data });
     await gotoResource(resourceName1);
     await expectAttributionFormMatchesPackageInfo(packageInfo1);
+    await hoverProgressBar();
     await expectProgressBarTooltipShowsValues({
       filesWithOnlyPreSelectedAttributions: 4,
     });
@@ -85,6 +87,7 @@ describe('confirming pre-selected attributions', () => {
       [resourceName2, resourceName3],
       LINKED_RESOURCES_TREE,
     );
+    await hoverProgressBar();
     await expectProgressBarTooltipShowsValues({
       filesWithAttributions: 1,
       filesWithOnlyPreSelectedAttributions: 3,
@@ -111,6 +114,7 @@ describe('confirming pre-selected attributions', () => {
       [],
       LINKED_RESOURCES_TREE,
     );
+    await hoverProgressBar();
     await expectProgressBarTooltipShowsValues({
       filesWithAttributions: 3,
       filesWithOnlyPreSelectedAttributions: 1,

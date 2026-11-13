@@ -186,7 +186,7 @@ describe('checking for updates in the app', () => {
     await renderApp();
     await expectUpdateMessage(text.updateApp.available(releaseTag), true);
     await expectUpdateMessage(text.macArchitectureMismatch.warning, true);
-    await dismissUpdateAlert(0);
+    await dismissUpdateAlert();
     await expectUpdateMessage(text.updateApp.available(releaseTag), false);
     await expectUpdateMessage(text.macArchitectureMismatch.warning, true);
   });
