@@ -45,7 +45,7 @@
     "react-virtuoso": "4.18.21",
     "recharts": "3.10.1",
     "spdx-license-ids": "3.0.24",
-    "stream-json": "3.8.0",
+    "stream-json": "3.9.0",
     "upath": "3.0.8",
     "uuid": "14.0.3"
   },
