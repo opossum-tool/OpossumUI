@@ -3639,13 +3639,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"better-sqlite3@npm:13.0.3":
-  version: 13.0.3
-  resolution: "better-sqlite3@npm:13.0.3"
+"better-sqlite3@npm:13.1.1":
+  version: 13.1.1
+  resolution: "better-sqlite3@npm:13.1.1"
   dependencies:
     node-addon-api: "npm:^8.0.0"
     node-gyp: "npm:latest"
-  checksum: 10/035f8fa70784762fd73e1dbeb6f157186abb97705ff759b312cfb0dc1c675fd1c6b5378d2c036758000ce9da1d49bf61689531aa2718a7e32dc272c114a4c71f
+  checksum: 10/6fc6ecc7bdbb09ac3f70ca4e4330671ec9ef943ca9117ab5c8f408ecffbff17c5a20cca0e7ed049b953ea0e1b2a596608a43b3465873fd23c8b0e2bd779ce51f
   languageName: node
   linkType: hard
 
@@ -6919,7 +6919,7 @@ __metadata:
     adm-zip: "npm:0.6.1"
     ajv: "npm:8.20.0"
     babel-plugin-react-compiler: "npm:1.0.0"
-    better-sqlite3: "npm:13.0.3"
+    better-sqlite3: "npm:13.1.1"
     chroma-js: "npm:3.2.0"
     compare-versions: "npm:6.1.1"
     cross-env: "npm:10.1.0"
