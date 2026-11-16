@@ -19,7 +19,7 @@ function getUndo(): MenuItemConstructorOptions {
     id: menuItemIds.undo,
     accelerator: 'CmdOrCtrl+Z',
     role: 'undo',
-    enabled: !getGlobalBackendState().frontendPopupOpen,
+    enabled: !getGlobalBackendState().frontendDialogOpen,
   };
 }
 
@@ -30,7 +30,7 @@ function getRedo(): MenuItemConstructorOptions {
     id: menuItemIds.redo,
     accelerator: 'Shift+CmdOrCtrl+Z',
     role: 'redo',
-    enabled: !getGlobalBackendState().frontendPopupOpen,
+    enabled: !getGlobalBackendState().frontendDialogOpen,
   };
 }
 
@@ -96,7 +96,7 @@ function getSearchAttributions(
     },
     enabled:
       isFileLoaded(getGlobalBackendState()) &&
-      !getGlobalBackendState().frontendPopupOpen,
+      !getGlobalBackendState().frontendDialogOpen,
   };
 }
 
@@ -118,7 +118,7 @@ function getSearchSignals(
     },
     enabled:
       isFileLoaded(getGlobalBackendState()) &&
-      !getGlobalBackendState().frontendPopupOpen,
+      !getGlobalBackendState().frontendDialogOpen,
   };
 }
 
@@ -140,7 +140,7 @@ function getSearchResources(
     },
     enabled:
       isFileLoaded(getGlobalBackendState()) &&
-      !getGlobalBackendState().frontendPopupOpen,
+      !getGlobalBackendState().frontendDialogOpen,
   };
 }
 
@@ -162,7 +162,7 @@ function getSearchLinkedResources(
     },
     enabled:
       isFileLoaded(getGlobalBackendState()) &&
-      !getGlobalBackendState().frontendPopupOpen,
+      !getGlobalBackendState().frontendDialogOpen,
   };
 }
 

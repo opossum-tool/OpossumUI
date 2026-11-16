@@ -23,6 +23,7 @@ export {
   expectPanelReplacementDimmed,
   expectPopupHidden,
   fillPanelSearch,
+  getPopup,
   pressGoBackShortcut,
   pressGoForwardShortcut,
   pressSearchShortcut,

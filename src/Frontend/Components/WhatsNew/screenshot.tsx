@@ -3,10 +3,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiButton from '@mui/material/Button';
-import MuiDialog from '@mui/material/Dialog';
 import { useState } from 'react';
 
 import { text } from '../../../shared/text';
+import { Dialog } from '../Dialog/dialog';
 import {
   FullSizeScreenshot,
   ScreenshotFigure,
@@ -39,9 +39,10 @@ export function Screenshot({ src, alt, children }: ScreenshotProps) {
         </ScreenshotOpenButton>
         {children && <figcaption>{children}</figcaption>}
       </ScreenshotFigure>
-      <MuiDialog
+      <Dialog
         fullScreen
         open={viewerOpen}
+        classification={'reference'}
         onClose={() => setViewerOpen(false)}
       >
         <ScreenshotViewerHeader>
@@ -59,7 +60,7 @@ export function Screenshot({ src, alt, children }: ScreenshotProps) {
         >
           <FullSizeScreenshot src={src} alt={alt} />
         </ScreenshotViewerContent>
-      </MuiDialog>
+      </Dialog>
     </>
   );
 }

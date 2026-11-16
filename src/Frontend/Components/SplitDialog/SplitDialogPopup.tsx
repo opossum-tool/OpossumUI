@@ -2,8 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { closePopup } from '../../state/actions/view-actions/view-actions';
-import { useAppDispatch } from '../../state/hooks';
+import { useCloseGlobalPopup } from '../GlobalPopup/popup-close-context';
 import { SplitDialog } from './SplitDialog';
 
 interface SplitDialogPopupProps {
@@ -13,13 +12,9 @@ interface SplitDialogPopupProps {
 export const SplitDialogPopup: React.FC<SplitDialogPopupProps> = ({
   resourcePath,
 }) => {
-  const dispatch = useAppDispatch();
+  const closePopup = useCloseGlobalPopup();
 
   return (
-    <SplitDialog
-      open={true}
-      resourcePath={resourcePath}
-      onClose={() => dispatch(closePopup())}
-    />
+    <SplitDialog open={true} resourcePath={resourcePath} onClose={closePopup} />
   );
 };

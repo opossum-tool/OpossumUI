@@ -29,6 +29,7 @@ import {
 } from '../listeners';
 import { UserSettingsService } from '../user-settings-service';
 import { menuItemIds } from './menuItemIds';
+import { isProjectCommandBlocked } from './project-command-blocking';
 
 export const importFileFormats: Array<FileFormatInfo> = [
   {
@@ -55,7 +56,7 @@ function getOpenFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
     id: menuItemIds.openFile,
     accelerator: 'CmdOrCtrl+O',
     click: () => mainWindow.webContents.send(AllowedFrontendChannels.OpenFile),
-    enabled: !getGlobalBackendState().frontendPopupOpen,
+    enabled: !isProjectCommandBlocked(),
   };
 }
 
@@ -67,8 +68,7 @@ async function getOpenRecent(
     'recentlyOpenedPaths',
   );
 
-  const enabled =
-    !!recentlyOpenedPaths?.length && !getGlobalBackendState().frontendPopupOpen;
+  const enabled = !!recentlyOpenedPaths?.length && !isProjectCommandBlocked();
 
   return {
     icon: getIconBasedOnTheme('icons/open-white.png', 'icons/open-black.png'),
@@ -118,7 +118,7 @@ function getOpenRecentSubmenu(
 }
 
 function getImportFile(mainWindow: BrowserWindow): MenuItemConstructorOptions {
-  const enabled = !getGlobalBackendState().frontendPopupOpen;
+  const enabled = !isProjectCommandBlocked();
   return {
     icon: getIconBasedOnTheme(
       'icons/import-white.png',
@@ -148,7 +148,7 @@ function getImportFileMenuItemId(fileType: FileType): string {
 }
 
 function getMerge(mainWindow: BrowserWindow): MenuItemConstructorOptions {
-  const enabled = !getGlobalBackendState().frontendPopupOpen;
+  const enabled = !isProjectCommandBlocked();
 
   return {
     icon: getIconBasedOnTheme('icons/merge-white.png', 'icons/merge-black.png'),
@@ -178,8 +178,7 @@ function getSaveFile(webContents: WebContents): MenuItemConstructorOptions {
       });
     },
     enabled:
-      isFileLoaded(getGlobalBackendState()) &&
-      !getGlobalBackendState().frontendPopupOpen,
+      isFileLoaded(getGlobalBackendState()) && !isProjectCommandBlocked(),
   };
 }
 
@@ -190,8 +189,7 @@ function getSplit(webContents: WebContents): MenuItemConstructorOptions {
     label: text.menu.fileSubmenu.split,
     id: menuItemIds.splitOpossumFile,
     click: () => webContents.send(AllowedFrontendChannels.ShowSplitDialog),
-    enabled:
-      isFileLoaded(globalBackendState) && !globalBackendState.frontendPopupOpen,
+    enabled: isFileLoaded(globalBackendState) && !isProjectCommandBlocked(),
   };
 }
 
@@ -201,7 +199,7 @@ function getForceUnlock(
 ): MenuItemConstructorOptions {
   const globalBackendState = getGlobalBackendState();
   const enabled =
-    isFileLoaded(globalBackendState) && !globalBackendState.frontendPopupOpen;
+    isFileLoaded(globalBackendState) && !isProjectCommandBlocked();
   return {
     icon: getIconBasedOnTheme(
       'icons/lock-reset-white.png',
@@ -230,9 +228,7 @@ function getProjectMetadata(
         );
       }
     },
-    enabled:
-      isFileLoaded(getGlobalBackendState()) &&
-      !getGlobalBackendState().frontendPopupOpen,
+    enabled: isFileLoaded(getGlobalBackendState()),
   };
 }
 
@@ -255,8 +251,7 @@ function getProjectStatistics(
       }
     },
     enabled:
-      isFileLoaded(getGlobalBackendState()) &&
-      !getGlobalBackendState().frontendPopupOpen,
+      isFileLoaded(getGlobalBackendState()) && !isProjectCommandBlocked(),
   };
 }
 
@@ -269,7 +264,7 @@ function getSetBaseUrl(mainWindow: BrowserWindow): MenuItemConstructorOptions {
     label: text.menu.fileSubmenu.setBaseURL,
     id: menuItemIds.setBaseUrl,
     click: selectBaseURLListener(mainWindow),
-    enabled: !getGlobalBackendState().frontendPopupOpen,
+    enabled: !isProjectCommandBlocked(),
   };
 }
 
@@ -373,8 +368,7 @@ function getExportSubMenu(
   webContents: WebContents,
 ): MenuItemConstructorOptions {
   const enabled =
-    isFileLoaded(getGlobalBackendState()) &&
-    !getGlobalBackendState().frontendPopupOpen;
+    isFileLoaded(getGlobalBackendState()) && !isProjectCommandBlocked();
   return {
     label: text.menu.fileSubmenu.export,
     id: menuItemIds.export,

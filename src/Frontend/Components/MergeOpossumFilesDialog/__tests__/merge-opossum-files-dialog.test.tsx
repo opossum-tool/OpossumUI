@@ -12,9 +12,10 @@ import {
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
+import { openMergeOpossumFilesDialog } from '../../../state/actions/view-actions/view-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import { MergeOpossumFilesDialog } from '../MergeOpossumFilesDialog';
+import { GlobalPopup } from '../../GlobalPopup/GlobalPopup';
 
 describe('MergeOpossumFilesDialog', () => {
   beforeEach(() => {
@@ -24,15 +25,13 @@ describe('MergeOpossumFilesDialog', () => {
   it('informs the user when the current project has no readonly paths', async () => {
     vi.mocked(window.electronAPI.api).mockImplementation(executeCommand);
 
-    await renderComponent(
-      <MergeOpossumFilesDialog canMergeIntoCurrentFile={true} />,
-      {
-        data: getParsedInputFileEnrichedWithTestData({
-          resources: pathsToResources(['/editable/file.ts']),
-          readonlyRules: [],
-        }),
-      },
-    );
+    await renderComponent(<GlobalPopup />, {
+      actions: [openMergeOpossumFilesDialog(true)],
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: pathsToResources(['/editable/file.ts']),
+        readonlyRules: [],
+      }),
+    });
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       text.mergeOpossumFilesDialog.noReadonlyPathsWarning,
@@ -57,19 +56,16 @@ describe('MergeOpossumFilesDialog', () => {
     ).toBeInTheDocument();
   });
 
-  it('selects input files for merging into the current file', async () => {
+  it('selects and removes input files before merging into the current file', async () => {
     const inputFilePaths = [
       '/partitions/first.opossum',
       '/partitions/second.opossum',
     ];
     vi.mocked(window.electronAPI.selectFiles).mockResolvedValue(inputFilePaths);
 
-    await renderComponent(
-      <MergeOpossumFilesDialog
-        currentFilePath={'/current/project.opossum'}
-        canMergeIntoCurrentFile={true}
-      />,
-    );
+    await renderComponent(<GlobalPopup />, {
+      actions: [openMergeOpossumFilesDialog(true, '/current/project.opossum')],
+    });
 
     expect(
       screen.queryByTestId('merge-opossum-files-output-path-input'),
@@ -88,6 +84,15 @@ describe('MergeOpossumFilesDialog', () => {
     expect(screen.getByText(inputFilePaths[0])).toBeInTheDocument();
     expect(screen.getByText(inputFilePaths[1])).toBeInTheDocument();
 
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: text.mergeOpossumFilesDialog.removeSplitFile(inputFilePaths[0]),
+      }),
+    );
+
+    expect(screen.queryByText(inputFilePaths[0])).not.toBeInTheDocument();
+    expect(screen.getByText(inputFilePaths[1])).toBeInTheDocument();
+
     expect(
       screen.getByRole('button', { name: text.buttons.merge }),
     ).toBeEnabled();
@@ -98,19 +103,10 @@ describe('MergeOpossumFilesDialog', () => {
 
     await waitFor(() =>
       expect(window.electronAPI.mergeOpossumFiles).toHaveBeenCalledWith(
-        inputFilePaths,
+        [inputFilePaths[1]],
         false,
       ),
     );
-
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: text.mergeOpossumFilesDialog.removeSplitFile(inputFilePaths[0]),
-      }),
-    );
-
-    expect(screen.queryByText(inputFilePaths[0])).not.toBeInTheDocument();
-    expect(screen.getByText(inputFilePaths[1])).toBeInTheDocument();
   });
 
   it('merges selected files outside the current project', async () => {
@@ -124,9 +120,9 @@ describe('MergeOpossumFilesDialog', () => {
       outputFilePath,
     );
 
-    await renderComponent(
-      <MergeOpossumFilesDialog canMergeIntoCurrentFile={false} />,
-    );
+    await renderComponent(<GlobalPopup />, {
+      actions: [openMergeOpossumFilesDialog(false)],
+    });
 
     fireEvent.click(
       screen.getByTestId('merge-opossum-files-input-paths-input'),
@@ -172,9 +168,9 @@ describe('MergeOpossumFilesDialog', () => {
       })
       .mockResolvedValueOnce({ status: 'success' });
 
-    await renderComponent(
-      <MergeOpossumFilesDialog canMergeIntoCurrentFile={false} />,
-    );
+    await renderComponent(<GlobalPopup />, {
+      actions: [openMergeOpossumFilesDialog(false)],
+    });
 
     fireEvent.click(
       screen.getByTestId('merge-opossum-files-input-paths-input'),
@@ -224,9 +220,9 @@ describe('MergeOpossumFilesDialog', () => {
       status: 'success',
     });
 
-    await renderComponent(
-      <MergeOpossumFilesDialog canMergeIntoCurrentFile={true} />,
-    );
+    await renderComponent(<GlobalPopup />, {
+      actions: [openMergeOpossumFilesDialog(true)],
+    });
 
     await userEvent.click(screen.getByRole('switch'));
     expect(
@@ -287,9 +283,9 @@ describe('MergeOpossumFilesDialog', () => {
       status: 'error',
     });
 
-    await renderComponent(
-      <MergeOpossumFilesDialog canMergeIntoCurrentFile={false} />,
-    );
+    await renderComponent(<GlobalPopup />, {
+      actions: [openMergeOpossumFilesDialog(false)],
+    });
 
     fireEvent.click(
       screen.getByTestId('merge-opossum-files-input-paths-input'),

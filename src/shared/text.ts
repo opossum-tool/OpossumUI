@@ -196,6 +196,7 @@ export const text = {
     sort: 'Sort',
     import: 'Import',
     merge: 'Merge',
+    retry: 'Retry',
   },
   modifyWasPreferredPopup: {
     title: 'Modifying Previously Preferred Attribution',
@@ -207,6 +208,8 @@ export const text = {
   },
   projectStatisticsPopup: {
     title: 'Project Statistics',
+    loading: 'Loading project statistics…',
+    loadError: 'Project statistics could not be loaded.',
     tabs: {
       overview: 'Overview',
       details: 'Licenses',

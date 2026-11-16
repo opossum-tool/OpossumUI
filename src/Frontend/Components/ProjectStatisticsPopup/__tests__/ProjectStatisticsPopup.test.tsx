@@ -10,10 +10,24 @@ import {
   Criticality,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
+import { PopupType } from '../../../enums/enums';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
+import { openPopup } from '../../../state/actions/view-actions/view-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import { ProjectStatisticsPopup } from '../ProjectStatisticsPopup';
+import { GlobalPopup } from '../../GlobalPopup/GlobalPopup';
+
+function renderStatisticsPopup(
+  options: Parameters<typeof renderComponent>[1] = {},
+) {
+  return renderComponent(<GlobalPopup />, {
+    ...options,
+    actions: [
+      openPopup(PopupType.ProjectStatisticsPopup),
+      ...(options.actions ?? []),
+    ],
+  });
+}
 
 const testManualAttributions: Attributions = {
   uuid_1: {
@@ -85,7 +99,7 @@ describe('The ProjectStatisticsPopup', () => {
       },
     };
 
-    await renderComponent(<ProjectStatisticsPopup />, {
+    await renderStatisticsPopup({
       data: getParsedInputFileEnrichedWithTestData({
         config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
         externalAttributions: testExternalAttributions,
@@ -101,7 +115,7 @@ describe('The ProjectStatisticsPopup', () => {
   });
 
   it('renders expected pie charts when there are signals and attributions', async () => {
-    await renderComponent(<ProjectStatisticsPopup />, {
+    await renderStatisticsPopup({
       data: getParsedInputFileEnrichedWithTestData(fileSetup),
     });
 
@@ -128,9 +142,51 @@ describe('The ProjectStatisticsPopup', () => {
     ).toBeVisible();
   });
 
+  it('shows a retryable error when a statistics query fails', async () => {
+    const api = vi.mocked(window.electronAPI.api);
+    const previousApiImplementation = api.getMockImplementation();
+    const { executeCommand } =
+      await import('../../../../ElectronBackend/api/commands');
+    let shouldFailStatisticsQuery = true;
+    api.mockImplementation(async (command, params) => {
+      if (
+        command === 'manualAttributionStatistics' &&
+        shouldFailStatisticsQuery
+      ) {
+        shouldFailStatisticsQuery = false;
+        throw new Error('Statistics query failed');
+      }
+      return executeCommand(command, params);
+    });
+
+    try {
+      await renderStatisticsPopup({
+        data: getParsedInputFileEnrichedWithTestData(fileSetup),
+      });
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        text.projectStatisticsPopup.loadError,
+      );
+      await userEvent.click(
+        screen.getByRole('button', { name: text.buttons.retry }),
+      );
+      expect(
+        await screen.findByText(
+          text.projectStatisticsPopup.charts.attributionProperties.title,
+        ),
+      ).toBeVisible();
+    } finally {
+      if (previousApiImplementation) {
+        api.mockImplementation(previousApiImplementation);
+      } else {
+        api.mockReset();
+      }
+    }
+  });
+
   it('does not render pie charts when there are no signals and no attributions', async () => {
     const testExternalAttributions: Attributions = {};
-    await renderComponent(<ProjectStatisticsPopup />, {
+    await renderStatisticsPopup({
       data: getParsedInputFileEnrichedWithTestData({
         config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
         externalAttributions: testExternalAttributions,
@@ -184,7 +240,7 @@ describe('The ProjectStatisticsPopup', () => {
         id: 'uuid_2',
       },
     };
-    await renderComponent(<ProjectStatisticsPopup />, {
+    await renderStatisticsPopup({
       data: getParsedInputFileEnrichedWithTestData({
         config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
         manualAttributions: testManualAttributions,
@@ -211,7 +267,7 @@ describe('The ProjectStatisticsPopup', () => {
 
   it('renders attribution bar chart and signals per sources table even when there are no attributions and no signals', async () => {
     const testExternalAttributions: Attributions = {};
-    await renderComponent(<ProjectStatisticsPopup />, {
+    await renderStatisticsPopup({
       data: getParsedInputFileEnrichedWithTestData({
         externalAttributions: testExternalAttributions,
       }),
@@ -255,7 +311,7 @@ describe('The ProjectStatisticsPopup', () => {
         id: 'uuid_2',
       },
     };
-    await renderComponent(<ProjectStatisticsPopup />, {
+    await renderStatisticsPopup({
       data: getParsedInputFileEnrichedWithTestData({
         config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
         externalAttributions: testExternalAttributions,
@@ -293,7 +349,7 @@ describe('The ProjectStatisticsPopup', () => {
   });
 
   it('does not show the classification statistics if it has been disabled', async () => {
-    await renderComponent(<ProjectStatisticsPopup />, {
+    await renderStatisticsPopup({
       data: getParsedInputFileEnrichedWithTestData(fileSetup),
       actions: [setUserSetting({ showClassifications: false })],
     });
@@ -310,7 +366,7 @@ describe('The ProjectStatisticsPopup', () => {
   });
 
   it('does not show the criticality statistics if it has been disabled', async () => {
-    await renderComponent(<ProjectStatisticsPopup />, {
+    await renderStatisticsPopup({
       data: getParsedInputFileEnrichedWithTestData(fileSetup),
       actions: [setUserSetting({ showCriticality: false })],
     });
@@ -326,7 +382,7 @@ describe('The ProjectStatisticsPopup', () => {
   });
 
   it('allows toggling of show-on-startup checkbox', async () => {
-    await renderComponent(<ProjectStatisticsPopup />, {
+    await renderStatisticsPopup({
       data: getParsedInputFileEnrichedWithTestData({}),
       actions: [setUserSetting({ showProjectStatistics: true })],
     });

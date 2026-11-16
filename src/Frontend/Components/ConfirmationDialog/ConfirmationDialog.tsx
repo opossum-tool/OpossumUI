@@ -5,7 +5,6 @@
 import { useCallback, useImperativeHandle, useRef, useState } from 'react';
 
 import { text } from '../../../shared/text';
-import { useFrontendPopupOpen } from '../../util/use-app-menu-disabled';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 
 export interface ConfirmOptions {
@@ -82,8 +81,6 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const resolveRef = useRef<(value: boolean) => void>(undefined);
-
-  useFrontendPopupOpen(open);
 
   useImperativeHandle(
     ref,

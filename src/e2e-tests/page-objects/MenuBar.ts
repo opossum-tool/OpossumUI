@@ -31,14 +31,20 @@ const initiallyDisabledMenuItems = [
   menuItemIds.exportSpdxJson,
 ];
 
-const popupDisabledMenuItems = [
+const projectCommandsWithoutFilePrerequisites = [
   menuItemIds.openFile,
   menuItemIds.import,
   menuItemIds.importLegacyOpossumFile,
   menuItemIds.importScanCodeFile,
   menuItemIds.importOwaspDependencyCheckFile,
   menuItemIds.mergeOpossumFiles,
+  menuItemIds.setBaseUrl,
+];
+
+const projectCommandsWithFilePrerequisites = [
+  menuItemIds.openRecent,
   menuItemIds.splitOpossumFile,
+  menuItemIds.forceUnlock,
   menuItemIds.saveFile,
   menuItemIds.export,
   menuItemIds.exportFollowUp,
@@ -46,16 +52,26 @@ const popupDisabledMenuItems = [
   menuItemIds.exportDetailedBom,
   menuItemIds.exportSpdxYaml,
   menuItemIds.exportSpdxJson,
-  menuItemIds.projectMetadata,
   menuItemIds.projectStatistics,
-  menuItemIds.setBaseUrl,
+];
+
+const allProjectCommandMenuItems = [
+  ...projectCommandsWithoutFilePrerequisites,
+  ...projectCommandsWithFilePrerequisites,
+];
+
+const referenceAvailableMenuItems = [
+  menuItemIds.helpWhatsNew,
+  menuItemIds.projectMetadata,
+];
+
+const modalFocusSensitiveMenuItems = [
   menuItemIds.undo,
   menuItemIds.redo,
   menuItemIds.searchAttributions,
   menuItemIds.searchSignals,
   menuItemIds.searchResources,
   menuItemIds.searchLinkedResources,
-  menuItemIds.helpCheckForUpdates,
 ];
 
 export class MenuBar {
@@ -116,6 +132,12 @@ export class MenuBar {
     forceUnlockIsDisabled: async (): Promise<void> => {
       await this.assertMenuItemEnabledState(menuItemIds.forceUnlock, false);
     },
+    checkForUpdatesIsEnabled: async (): Promise<void> => {
+      await this.assertMenuItemEnabledState(
+        menuItemIds.helpCheckForUpdates,
+        true,
+      );
+    },
     initiallyDisabledEntriesAreEnabled: async (): Promise<void> => {
       await this.assertMenuItemsEnabledState(initiallyDisabledMenuItems, true);
 
@@ -131,11 +153,31 @@ export class MenuBar {
     initiallyDisabledEntriesAreDisabled: async (): Promise<void> => {
       await this.assertMenuItemsEnabledState(initiallyDisabledMenuItems, false);
     },
-    popupDisabledEntriesAreEnabled: async (): Promise<void> => {
-      await this.assertMenuItemsEnabledState(popupDisabledMenuItems, true);
+    projectCommandsAreEnabled: async (
+      isSplitProject = false,
+    ): Promise<void> => {
+      await this.assertMenuItemsEnabledState(
+        allProjectCommandMenuItems.filter(
+          (menuItemId) => menuItemId !== menuItemIds.forceUnlock,
+        ),
+        true,
+      );
+      await this.assertMenuItemEnabledState(
+        menuItemIds.forceUnlock,
+        isSplitProject,
+      );
     },
-    popupDisabledEntriesAreDisabled: async (): Promise<void> => {
-      await this.assertMenuItemsEnabledState(popupDisabledMenuItems, false);
+    projectCommandsAreDisabled: async (): Promise<void> => {
+      await this.assertMenuItemsEnabledState(allProjectCommandMenuItems, false);
+    },
+    referenceAvailableEntriesAreEnabled: async (): Promise<void> => {
+      await this.assertMenuItemsEnabledState(referenceAvailableMenuItems, true);
+    },
+    modalFocusSensitiveEntriesAreDisabled: async (): Promise<void> => {
+      await this.assertMenuItemsEnabledState(
+        modalFocusSensitiveMenuItems,
+        false,
+      );
     },
 
     hasRecentlyOpenedProject: async (filePath: string): Promise<void> => {

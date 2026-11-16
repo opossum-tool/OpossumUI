@@ -25,7 +25,7 @@ export enum IpcChannel {
   StopLoading = 'stop-loading',
   GetUserSettings = 'get-user-settings',
   UpdateUserSettings = 'update-user-settings',
-  SetFrontendPopupOpen = 'set-frontend-popup-open',
+  SetFrontendDialogState = 'set-frontend-dialog-state',
   GetMacArchitectureMismatch = 'get-mac-architecture-mismatch',
   GetAppVersion = 'get-app-version',
   GetUpdateState = 'get-update-state',

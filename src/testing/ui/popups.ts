@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
+import type { FileFormatInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import {
   expectReadonlyIndicator,
@@ -152,6 +153,53 @@ export async function expectSplitDialogResourceIsReadonly(
 }
 
 const UNSAVED_CHANGES_POPUP_LABEL = 'unsaved changes popup';
+export const IMPORT_DIALOG_LABEL = 'import dialog';
+
+export function openImportDialogFromMenu(
+  sendToChannel: SendToChannel,
+  fileFormat: FileFormatInfo,
+  canImportIntoCurrentProject: boolean,
+): void {
+  sendToChannel(
+    AllowedFrontendChannels.ShowImportDialog,
+    fileFormat,
+    canImportIntoCurrentProject,
+  );
+}
+
+async function getImportInputFilePathInput(): Promise<HTMLElement> {
+  const popup = await getPopup(IMPORT_DIALOG_LABEL);
+  return within(popup).getByTestId('import-input-file-path-input');
+}
+
+async function getImportOutputFilePathInput(): Promise<HTMLElement> {
+  const popup = await getPopup(IMPORT_DIALOG_LABEL);
+  return within(popup).getByTestId('import-opossum-file-path-input');
+}
+
+export async function selectImportInputFile(): Promise<void> {
+  await userEvent.click(await getImportInputFilePathInput());
+}
+
+export async function selectImportOutputFile(): Promise<void> {
+  await userEvent.click(await getImportOutputFilePathInput());
+}
+
+export async function expectImportInputFilePath(path: string): Promise<void> {
+  const input = await getImportInputFilePathInput();
+  await waitFor(() => {
+    expect(input).toBeVisible();
+    expect(input).toHaveTextContent(path);
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectImportOutputFilePath(path: string): Promise<void> {
+  const output = await getImportOutputFilePathInput();
+  await waitFor(() => {
+    expect(output).toBeVisible();
+    expect(output).toHaveTextContent(path);
+  }, SETTLED_TIMEOUT);
+}
 
 export async function expectUnsavedChangesPopupVisibility(
   visible: boolean,

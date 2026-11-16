@@ -24,6 +24,9 @@ export async function openProjectStatisticsPopup(
   await waitFor(() => {
     expect(screen.getByLabelText(PROJECT_STATISTICS_POPUP_LABEL)).toBeVisible();
   }, SETTLED_TIMEOUT);
+  await waitFor(() => {
+    expect(screen.getByTestId('attributionBarChart')).toBeVisible();
+  }, SETTLED_TIMEOUT);
 }
 
 export type StatisticsChartTestId =

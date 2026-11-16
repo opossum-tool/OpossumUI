@@ -37,7 +37,10 @@ import {
   getSelectedAttributionId,
   getTemporaryDisplayPackageInfo,
 } from '../../../state/selectors/resource-selectors';
-import { getOpenPopup } from '../../../state/selectors/view-selector';
+import {
+  getOpenPopup,
+  getOpenPopups,
+} from '../../../state/selectors/view-selector';
 import { ATTRIBUTION_SELECTION_FOR_REPLACEMENT } from '../../../state/variables/use-attribution-selection-for-replacement';
 import {
   expectManualAttributions,
@@ -2420,7 +2423,11 @@ describe('AttributionDetails', () => {
       ),
     );
     expect(getOpenPopup(store.getState())?.popup).toBe(PopupType.NotSavedPopup);
-    act(() => store.dispatch(closePopupAndUnsetTargets()));
+    act(() =>
+      store.dispatch(
+        closePopupAndUnsetTargets(getOpenPopups(store.getState()).at(-1)!.id),
+      ),
+    );
 
     await waitForAttributionDetailsReady();
     await user.click(

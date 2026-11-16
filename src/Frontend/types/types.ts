@@ -61,6 +61,11 @@ export type PopupInfo =
     }
   | { popup: PopupType.SplitDialog; resourcePath?: string };
 
+export interface PopupEntry {
+  id: string;
+  info: PopupInfo;
+}
+
 export interface ChartDataItem extends Record<string, unknown> {
   name: string;
   count: number;
