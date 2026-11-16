@@ -10,10 +10,12 @@ import type { AttributionFilterKey } from '../../../shared/attribution-filters';
 import { text } from '../../../shared/text';
 import { baseIcon, OpossumColors } from '../../shared-styles';
 import {
+  AiGeneratedIcon,
   DeferredIcon,
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
   FollowUpIcon,
+  HumanModifiedIcon,
   ModifiedPreferredIcon,
   NeedsReviewIcon,
   PreferredIcon,
@@ -69,6 +71,21 @@ export const attributionFilterOptions: Array<AttributionFilterOption> = [
   {
     key: 'aiDeferred',
     label: text.filters.aiDeferred,
+    icon: <DeferredIcon noTooltip />,
+  },
+  {
+    key: 'aiGenerated',
+    label: text.filters.aiGenerated,
+    icon: <AiGeneratedIcon noTooltip />,
+  },
+  {
+    key: 'aiHumanModified',
+    label: text.filters.aiHumanModified,
+    icon: <HumanModifiedIcon noTooltip />,
+  },
+  {
+    key: 'aiNeedsManualInput',
+    label: text.filters.aiNeedsManualInput,
     icon: <DeferredIcon noTooltip />,
   },
   {
