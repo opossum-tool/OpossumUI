@@ -255,7 +255,7 @@ describe('AttributionFormConfirmSavePopup', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('confirms a query-wide selection', async () => {
+  it('confirms a small query-wide selection', async () => {
     const first = faker.opossum.packageInfo({
       packageName: 'first',
       preSelected: true,
