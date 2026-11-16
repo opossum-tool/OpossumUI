@@ -38,7 +38,11 @@ import {
   STATISTICS_DESTINATION,
   type StatisticsDestination,
 } from '../../variables/statistics-destination';
-import type { AttributionFilters } from '../../variables/use-filters';
+import {
+  ALL_RESOURCES_SEARCH,
+  type AttributionFilters,
+  RESOURCE_TREE_FILTERS,
+} from '../../variables/use-filters';
 import {
   initializePackageInfoEditing,
   resetResourceState,
@@ -161,6 +165,10 @@ function executeStatisticsDestination(
     dispatch(navigateToView(View.Audit));
     dispatch(setSelectedResourceId(ROOT_PATH, 'auto'));
     setAttributionFilters(dispatch, destination.external, destination.filters);
+    if (destination.resourceFilters) {
+      dispatch(setVariable(RESOURCE_TREE_FILTERS, destination.resourceFilters));
+      dispatch(setVariable(ALL_RESOURCES_SEARCH, ''));
+    }
     if (destination.external) {
       dispatch(setUserSetting({ areHiddenSignalsVisible: false }));
       void window.electronAPI.updateUserSettings({

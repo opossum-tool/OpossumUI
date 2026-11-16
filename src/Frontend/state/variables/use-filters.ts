@@ -16,6 +16,7 @@ export const MANUAL_ATTRIBUTION_FILTERS_REPORT =
   'manual-attribution-filters-report';
 export const EXTERNAL_ATTRIBUTION_FILTERS = 'external-attribution-filters';
 export const RESOURCE_TREE_FILTERS = 'resource-tree-filters';
+export const ALL_RESOURCES_SEARCH = 'all-resources-search';
 
 export interface AttributionFilters {
   filters: Array<AttributionFilterKey>;
@@ -40,7 +41,7 @@ export const initialAttributionFilters: AttributionFilters = {
   sorting: 'alphabetically',
 };
 
-const initialResourceTreeFilters: ResourceTreeFilters = {
+export const initialResourceTreeFilters: ResourceTreeFilters = {
   onlyUnreviewedFiles: false,
   onlyWithAiDeferredAttributions: false,
   selectedLicenses: [],
