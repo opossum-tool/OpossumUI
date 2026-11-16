@@ -4,7 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 import { type Kysely, sql } from 'kysely';
 
-import type { AttributionSelection } from '../../../shared/attribution-selection';
+import type {
+  AllMatchingAttributionSelection,
+  AttributionSelection,
+} from '../../../shared/attribution-selection';
 import { getDb } from '../../db/db';
 import type { DB } from '../../db/generated/databaseTypes';
 import { jsonArraySelection } from '../../db/json-array-selection';
@@ -47,11 +50,46 @@ export async function resolveAttributionSelection(
     return selection.attributionUuids;
   }
 
+  const membership = await getQueryWideSelectionMembershipQuery(trx, selection);
+  const rows = await membership.membership.execute();
+  return rows.map((row) => (row as { uuid: string }).uuid);
+}
+
+type AttributionMembershipQuery = ReturnType<typeof getFilteredQuery>;
+
+function getExplicitSelectionMembershipQuery(
+  trx: Kysely<DB>,
+  attributionUuids: Array<string>,
+): AttributionMembershipQuery {
+  return trx
+    .selectFrom('attribution')
+    .select('uuid')
+    .where('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS)
+    .where('uuid', 'in', jsonArraySelection(attributionUuids))
+    .select((eb) =>
+      eb.val('same').as('relationship'),
+    ) as AttributionMembershipQuery;
+}
+
+/**
+ * The membership query for a query-wide selection: writable attributions
+ * matching the query, without the explicitly excluded ones. This is the
+ * single construction site so result-set semantics cannot drift between the
+ * selection resolver and the UUID materialization below.
+ */
+async function getQueryWideSelectionMembershipQuery(
+  trx: Kysely<DB>,
+  selection: AllMatchingAttributionSelection,
+): Promise<{
+  membership: AttributionMembershipQuery;
+  resource: { id: number; max_descendant_id: number } | undefined;
+  closestAncestor: number | undefined;
+}> {
   const { resource, closestAncestor } = await getAttributionResultSetContext(
     trx,
     selection.query,
   );
-  const rows = await applyExcludedAttributionUuids(
+  const membership = applyExcludedAttributionUuids(
     getFilteredQuery(
       trx,
       {
@@ -64,97 +102,41 @@ export async function resolveAttributionSelection(
       false,
     ),
     selection.excludedAttributionUuids,
-  ).execute();
-  return rows.map((row) => (row as { uuid: string }).uuid);
-}
-
-type AttributionMembershipQuery = ReturnType<typeof getFilteredQuery>;
-
-function getSelectionMembershipQuery(
-  trx: Kysely<DB>,
-  selection: AttributionSelection,
-  resource: { id: number; max_descendant_id: number } | undefined,
-  closestAncestor: number | undefined,
-): AttributionMembershipQuery {
-  if (selection.mode === 'allMatching') {
-    return getFilteredQuery(
-      trx,
-      {
-        ...selection.query,
-        includeReadonly: false,
-      },
-      resource,
-      closestAncestor,
-      true,
-      false,
-    );
-  }
-
-  return trx
-    .selectFrom('attribution')
-    .select('uuid')
-    .where('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS)
-    .where('uuid', 'in', jsonArraySelection(selection.attributionUuids))
-    .select((eb) =>
-      eb.val('same').as('relationship'),
-    ) as AttributionMembershipQuery;
+  ) as AttributionMembershipQuery;
+  return { membership, resource, closestAncestor };
 }
 
 export type GetAttributionSelectionUuidsProps = {
-  selection: AttributionSelection;
+  selection: AllMatchingAttributionSelection;
   limit: number;
 };
 
 /**
- * Resolve the full set of attribution UUIDs for a selection, but only while
- * it does not exceed the given limit. Renderer-side clients use this to show
- * interactive details (e.g. the linked resources tree) also for query-wide
- * selections that are small enough to be materialized.
+ * Resolve the full set of attribution UUIDs for a query-wide selection, but
+ * only while it does not exceed the given limit. Renderer-side clients use
+ * this to show interactive details (e.g. the linked resources tree) also for
+ * query-wide selections that are small enough to be materialized.
  */
 export async function getAttributionSelectionUuids(
   props: GetAttributionSelectionUuidsProps,
 ): Promise<{
   result: { attributionUuids: Array<string>; limitExceeded: boolean };
 }> {
-  const { selection } = props;
-  if (selection.mode === 'explicit') {
-    return {
-      result: {
-        attributionUuids: selection.attributionUuids,
-        limitExceeded: false,
-      },
-    };
-  }
-
   const result = await getDb()
     .transaction()
     .execute(async (trx) => {
-      const { resource, closestAncestor } =
-        await getAttributionResultSetContext(trx, selection.query);
-      const membership = applyExcludedAttributionUuids(
-        getFilteredQuery(
-          trx,
-          {
-            ...selection.query,
-            includeReadonly: false,
-          },
-          resource,
-          closestAncestor,
-          true,
-          false,
-        ),
-        selection.excludedAttributionUuids,
+      const { membership } = await getQueryWideSelectionMembershipQuery(
+        trx,
+        props.selection,
       );
-      const aggregate = await membership
-        .clearSelect()
-        .select(sql<number>`count(distinct uuid)`.as('count'))
-        .executeTakeFirstOrThrow();
+      // One extra row beyond the limit decides whether the selection is
+      // complete, without materializing an arbitrary number of UUIDs.
+      const rows = await membership.limit(props.limit + 1).execute();
 
-      if (aggregate.count > props.limit) {
+      if (rows.length > props.limit) {
         return { attributionUuids: [], limitExceeded: true };
       }
 
-      const rows = await membership.execute();
       return {
         attributionUuids: rows.map((row) => (row as { uuid: string }).uuid),
         limitExceeded: false,
@@ -170,82 +152,77 @@ export async function getAttributionSelectionSummary(
   const result = await getDb()
     .transaction()
     .execute(async (trx) => {
-      const query =
-        props.selection.mode === 'allMatching'
-          ? props.selection.query
-          : undefined;
-      const { resource, closestAncestor } = query
-        ? await getAttributionResultSetContext(trx, query)
-        : { resource: undefined, closestAncestor: undefined };
-      const membership = getSelectionMembershipQuery(
+      const { selection } = props;
+      if (selection.mode === 'allMatching') {
+        const { membership, resource } =
+          await getQueryWideSelectionMembershipQuery(trx, selection);
+        return computeAttributionSelectionSummary(trx, membership, resource);
+      }
+
+      const membership = getExplicitSelectionMembershipQuery(
         trx,
-        props.selection,
-        resource,
-        closestAncestor,
+        selection.attributionUuids,
       );
-      const membershipWithExclusions = applyExcludedAttributionUuids(
-        membership,
-        props.selection.mode === 'allMatching'
-          ? props.selection.excludedAttributionUuids
-          : undefined,
-      );
-      const aggregate = await membershipWithExclusions
-        .clearSelect()
-        .select([
-          sql<number>`count(distinct uuid)`.as('selected_count'),
-          sql<number>`sum(pre_selected)`.as('pre_selected_count'),
-          sql<number>`sum(case when resource_access = ${AttributionResourceAccess.Mixed} then 1 else 0 end)`.as(
-            'mixed_count',
-          ),
-          sql<number>`sum(is_resolved)`.as('resolved_count'),
-          sql<number>`sum(needs_review)`.as('needs_review_count'),
-          sql<number>`sum(follow_up)`.as('follow_up_count'),
-          sql<number>`sum(exclude_from_notice)`.as('exclude_from_notice_count'),
-        ])
-        .executeTakeFirstOrThrow();
-      const membershipUuids = membershipWithExclusions
-        .clearSelect()
-        .select('uuid');
-
-      // CROSS JOIN is intentional here: it prevents SQLite from starting with
-      // every writable resource and probing it once per selected attribution.
-      // Starting with the filtered selection lets the
-      // (attribution_uuid, resource_id) index drive this aggregate instead.
-      const resourceAggregate = await trx
-        .selectFrom(membershipUuids.as('selected_attribution'))
-        .crossJoin('resource_to_attribution as rta')
-        .crossJoin('resource as r')
-        .select(sql<number>`count(distinct r.id)`.as('writable_resource_count'))
-        .whereRef('rta.attribution_uuid', '=', 'selected_attribution.uuid')
-        .whereRef('r.id', '=', 'rta.resource_id')
-        .where('r.is_readonly', '=', 0)
-        .executeTakeFirstOrThrow();
-      const linkedToSelectedResource = resource
-        ? await trx
-            .selectFrom('resource_to_attribution as rta')
-            .select(
-              sql<number>`count(distinct rta.attribution_uuid)`.as('count'),
-            )
-            .where('rta.resource_id', '=', resource.id)
-            .where('rta.attribution_uuid', 'in', membershipUuids)
-            .executeTakeFirstOrThrow()
-        : { count: 0 };
-
-      return {
-        selectedCount: aggregate.selected_count ?? 0,
-        preSelectedCount: aggregate.pre_selected_count ?? 0,
-        mixedCount: aggregate.mixed_count ?? 0,
-        writableLinkedResourceCount:
-          resourceAggregate.writable_resource_count ?? 0,
-        allLinkedToSelectedResource:
-          (aggregate.selected_count ?? 0) > 0 &&
-          linkedToSelectedResource.count === aggregate.selected_count,
-        resolvedCount: aggregate.resolved_count ?? 0,
-        needsReviewCount: aggregate.needs_review_count ?? 0,
-        followUpCount: aggregate.follow_up_count ?? 0,
-        excludeFromNoticeCount: aggregate.exclude_from_notice_count ?? 0,
-      };
+      return computeAttributionSelectionSummary(trx, membership, undefined);
     });
 
   return { result };
+}
+
+async function computeAttributionSelectionSummary(
+  trx: Kysely<DB>,
+  membershipWithExclusions: AttributionMembershipQuery,
+  resource: { id: number; max_descendant_id: number } | undefined,
+): Promise<AttributionSelectionSummary> {
+  const aggregate = await membershipWithExclusions
+    .clearSelect()
+    .select([
+      sql<number>`count(distinct uuid)`.as('selected_count'),
+      sql<number>`sum(pre_selected)`.as('pre_selected_count'),
+      sql<number>`sum(case when resource_access = ${AttributionResourceAccess.Mixed} then 1 else 0 end)`.as(
+        'mixed_count',
+      ),
+      sql<number>`sum(is_resolved)`.as('resolved_count'),
+      sql<number>`sum(needs_review)`.as('needs_review_count'),
+      sql<number>`sum(follow_up)`.as('follow_up_count'),
+      sql<number>`sum(exclude_from_notice)`.as('exclude_from_notice_count'),
+    ])
+    .executeTakeFirstOrThrow();
+  const membershipUuids = membershipWithExclusions.clearSelect().select('uuid');
+
+  // CROSS JOIN is intentional here: it prevents SQLite from starting with
+  // every writable resource and probing it once per selected attribution.
+  // Starting with the filtered selection lets the
+  // (attribution_uuid, resource_id) index drive this aggregate instead.
+  const resourceAggregate = await trx
+    .selectFrom(membershipUuids.as('selected_attribution'))
+    .crossJoin('resource_to_attribution as rta')
+    .crossJoin('resource as r')
+    .select(sql<number>`count(distinct r.id)`.as('writable_resource_count'))
+    .whereRef('rta.attribution_uuid', '=', 'selected_attribution.uuid')
+    .whereRef('r.id', '=', 'rta.resource_id')
+    .where('r.is_readonly', '=', 0)
+    .executeTakeFirstOrThrow();
+  const linkedToSelectedResource = resource
+    ? await trx
+        .selectFrom('resource_to_attribution as rta')
+        .select(sql<number>`count(distinct rta.attribution_uuid)`.as('count'))
+        .where('rta.resource_id', '=', resource.id)
+        .where('rta.attribution_uuid', 'in', membershipUuids)
+        .executeTakeFirstOrThrow()
+    : { count: 0 };
+
+  return {
+    selectedCount: aggregate.selected_count ?? 0,
+    preSelectedCount: aggregate.pre_selected_count ?? 0,
+    mixedCount: aggregate.mixed_count ?? 0,
+    writableLinkedResourceCount: resourceAggregate.writable_resource_count ?? 0,
+    allLinkedToSelectedResource:
+      (aggregate.selected_count ?? 0) > 0 &&
+      linkedToSelectedResource.count === aggregate.selected_count,
+    resolvedCount: aggregate.resolved_count ?? 0,
+    needsReviewCount: aggregate.needs_review_count ?? 0,
+    followUpCount: aggregate.follow_up_count ?? 0,
+    excludeFromNoticeCount: aggregate.exclude_from_notice_count ?? 0,
+  };
 }

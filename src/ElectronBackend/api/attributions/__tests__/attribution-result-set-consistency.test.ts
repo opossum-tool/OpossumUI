@@ -101,18 +101,6 @@ describe('attribution result-set consistency', () => {
     });
   });
 
-  it('resolves an explicit selection without applying the limit', async () => {
-    const result = await getAttributionSelectionUuids({
-      selection: { mode: 'explicit', attributionUuids: ['a', 'b'] },
-      limit: 1,
-    });
-
-    expect(result.result).toMatchObject({
-      attributionUuids: ['a', 'b'],
-      limitExceeded: false,
-    });
-  });
-
   it('keeps page, counts, resolution, preview, and navigation on one result set', async () => {
     const criteria = {
       ...defaultCriteria,
