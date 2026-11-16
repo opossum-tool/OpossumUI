@@ -5,7 +5,7 @@
 import MuiBox from '@mui/material/Box';
 
 import { text } from '../../../shared/text';
-import { ReleaseNotes, revision } from '../../whats-new/release-notes';
+import { ReleaseNotes } from '../../whats-new/release-notes';
 import { useCloseGlobalPopup } from '../GlobalPopup/popup-close-context';
 import { NotificationPopup } from '../NotificationPopup/NotificationPopup';
 import { releaseNotesContentSx } from './whats-new-popup.style';
@@ -30,7 +30,7 @@ export function WhatsNewPopup() {
       onBackdropClick={close}
     >
       <MuiBox component="article" sx={releaseNotesContentSx}>
-        {revision > 0 ? <ReleaseNotes /> : <p>{text.whatsNew.empty}</p>}
+        <ReleaseNotes />
       </MuiBox>
     </NotificationPopup>
   );

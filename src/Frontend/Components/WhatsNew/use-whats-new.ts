@@ -35,7 +35,6 @@ export function useWhatsNew() {
     startupCheckCompletedRef.current = true;
     if (
       isProductionOrAutomatedRun() &&
-      revision > 0 &&
       settings.lastSeenWhatsNewRevision < revision
     ) {
       dispatch(openPopup(PopupType.WhatsNewPopup));
@@ -45,7 +44,6 @@ export function useWhatsNew() {
   useEffect(() => {
     if (
       displayedRevisionRef.current !== revision ||
-      revision <= 0 ||
       !settingsLoaded ||
       settings.lastSeenWhatsNewRevision >= revision ||
       recordedRevisionRef.current === revision

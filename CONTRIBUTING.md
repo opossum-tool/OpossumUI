@@ -67,7 +67,7 @@ When implementing a noteworthy user-facing feature, add or update its in-app hig
 Describe the benefit and how to use the feature; the highlights are a selection of useful improvements, not a list of every change.
 Build up the next announcement incrementally as features are implemented, rather than writing it from scratch at release time.
 
-Edit [release-notes.tsx](src/Frontend/whats-new/release-notes.tsx). The authoring instructions in that file explain
+Edit [WHATS_NEW.md](WHATS_NEW.md). The authoring instructions at the top of that file explain
 whether to start a new announcement or extend the one being prepared, and how to write and preview the content.
 Bugfix-only releases normally retain the existing announcement.
 

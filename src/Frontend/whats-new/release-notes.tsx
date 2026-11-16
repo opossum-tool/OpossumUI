@@ -6,9 +6,10 @@ import Markdown, { type Components } from 'react-markdown';
 
 import releaseNotes from '../../../WHATS_NEW.md?raw';
 import { Screenshot } from '../Components/WhatsNew/screenshot';
+import { parseReleaseNotesRevision } from './parse-release-notes';
 
-// When adding notes for the first new feature after a release, increment this flag and delete the previous notes and screenshots.
-export const revision = 1;
+// The revision and authoring instructions are at the top of WHATS_NEW.md.
+export const revision = parseReleaseNotesRevision(releaseNotes);
 
 // Image paths in WHATS_NEW.md are relative to the repository root.
 const screenshots = import.meta.glob<string>(
