@@ -26,15 +26,19 @@ export function useAttributionSelectionData({
   selection: AttributionSelection;
 }) {
   const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const isQueryWideSelection = selection.mode === 'allMatching';
+  const queryWideSelection =
+    selection.mode === 'allMatching' ? selection : undefined;
+  const isQueryWideSelection = queryWideSelection !== undefined;
+  const explicitAttributionUuids =
+    selection.mode === 'explicit' ? selection.attributionUuids : [];
   const isEmptySelection =
-    !isQueryWideSelection && selection.attributionUuids.length === 0;
+    !isQueryWideSelection && explicitAttributionUuids.length === 0;
 
   const { data: fetchedAttributions, isSuccess: areAttributionsReady } =
     backend.getAttributionPreview.useQuery(
       open && !isMutationPending && !isQueryWideSelection && !isEmptySelection
         ? {
-            attributionUuids: selection.attributionUuids,
+            attributionUuids: explicitAttributionUuids,
             resourcePathForRelationships: selectedResourceId,
           }
         : skipToken,
@@ -48,25 +52,33 @@ export function useAttributionSelectionData({
   // Rendering the linked resources tree requires the attribution UUIDs. They
   // are only materialized for query-wide selections small enough to be
   // resolved as a whole.
-  const canShowLinkedResourcesTree = isQueryWideSelection
-    ? summary !== undefined && summary.selectedCount <= QUERY_WIDE_TREE_LIMIT
-    : !isEmptySelection;
+  const isWithinQueryWideTreeLimit =
+    isQueryWideSelection &&
+    summary !== undefined &&
+    summary.selectedCount <= QUERY_WIDE_TREE_LIMIT;
   const attributionUuidsQuery = backend.getAttributionSelectionUuids.useQuery(
-    open &&
-      !isMutationPending &&
-      isQueryWideSelection &&
-      summary !== undefined &&
-      summary.selectedCount <= QUERY_WIDE_TREE_LIMIT
-      ? { selection, limit: QUERY_WIDE_TREE_LIMIT }
+    open && !isMutationPending && isWithinQueryWideTreeLimit
+      ? { selection: queryWideSelection, limit: QUERY_WIDE_TREE_LIMIT }
       : skipToken,
   );
+  // The tree needs the resolved UUIDs: it can only be shown once they are
+  // actually available. If they fail to resolve (or turn out to be more than
+  // expected), the popups gracefully fall back to hiding the tree.
+  const areAttributionUuidsResolved = !isWithinQueryWideTreeLimit
+    ? true
+    : attributionUuidsQuery.isSuccess || attributionUuidsQuery.isError;
   const resolvedAttributionUuids =
-    attributionUuidsQuery.data && !attributionUuidsQuery.data.limitExceeded
+    attributionUuidsQuery.data &&
+    !attributionUuidsQuery.data.limitExceeded &&
+    !attributionUuidsQuery.isError
       ? attributionUuidsQuery.data.attributionUuids
       : [];
+  const canShowLinkedResourcesTree = isQueryWideSelection
+    ? isWithinQueryWideTreeLimit && !attributionUuidsQuery.isError
+    : !isEmptySelection;
   const attributionIds = isQueryWideSelection
     ? resolvedAttributionUuids
-    : selection.attributionUuids;
+    : explicitAttributionUuids;
 
   const attributions: typeof fetchedAttributions = isEmptySelection
     ? {}
@@ -79,13 +91,15 @@ export function useAttributionSelectionData({
     attributionIds,
     isQueryWideSelection,
     canShowLinkedResourcesTree,
-    isSelectionDataReady: isQueryWideSelection
-      ? selectionSummaryQuery.isSuccess
-      : isEmptySelection || areAttributionsReady,
+    isSelectionDataReady:
+      (isQueryWideSelection
+        ? selectionSummaryQuery.isSuccess
+        : isEmptySelection || areAttributionsReady) &&
+      areAttributionUuidsResolved,
     selectionMetadata: {
       selectedAttributionCount: isQueryWideSelection
         ? (summary?.selectedCount ?? 0)
-        : selection.attributionUuids.length,
+        : explicitAttributionUuids.length,
       mixedAttributionCount: isQueryWideSelection
         ? (summary?.mixedCount ?? 0)
         : (attributionValues?.filter(
