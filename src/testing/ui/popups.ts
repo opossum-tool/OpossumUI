@@ -167,26 +167,38 @@ export function openImportDialogFromMenu(
   );
 }
 
-export async function selectImportInputFile(): Promise<void> {
+async function getImportInputFilePathInput(): Promise<HTMLElement> {
   const popup = await getPopup(IMPORT_DIALOG_LABEL);
-  await userEvent.click(
-    within(popup).getByTestId('import-input-file-path-input'),
-  );
+  return within(popup).getByTestId('import-input-file-path-input');
+}
+
+async function getImportOutputFilePathInput(): Promise<HTMLElement> {
+  const popup = await getPopup(IMPORT_DIALOG_LABEL);
+  return within(popup).getByTestId('import-opossum-file-path-input');
+}
+
+export async function selectImportInputFile(): Promise<void> {
+  await userEvent.click(await getImportInputFilePathInput());
 }
 
 export async function selectImportOutputFile(): Promise<void> {
-  const popup = await getPopup(IMPORT_DIALOG_LABEL);
-  await userEvent.click(
-    within(popup).getByTestId('import-opossum-file-path-input'),
-  );
+  await userEvent.click(await getImportOutputFilePathInput());
 }
 
 export async function expectImportInputFilePath(path: string): Promise<void> {
-  await expectPopupHasText(IMPORT_DIALOG_LABEL, path);
+  const input = await getImportInputFilePathInput();
+  await waitFor(() => {
+    expect(input).toBeVisible();
+    expect(input).toHaveTextContent(path);
+  }, SETTLED_TIMEOUT);
 }
 
 export async function expectImportOutputFilePath(path: string): Promise<void> {
-  await expectPopupHasText(IMPORT_DIALOG_LABEL, path);
+  const output = await getImportOutputFilePathInput();
+  await waitFor(() => {
+    expect(output).toBeVisible();
+    expect(output).toHaveTextContent(path);
+  }, SETTLED_TIMEOUT);
 }
 
 export async function expectUnsavedChangesPopupVisibility(

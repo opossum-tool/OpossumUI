@@ -111,7 +111,31 @@ describe('create menu', () => {
     expect(mergeMenu?.enabled).toBe(true);
   });
 
-  it('blocks project commands for references but leaves reference views available', async () => {
+  it.each([
+    { dialogOpen: true, activityActive: false },
+    { dialogOpen: false, activityActive: true },
+    { dialogOpen: true, activityActive: true },
+  ])(
+    'blocks project commands but leaves reference views available (dialog: $dialogOpen, activity: $activityActive)',
+    async ({ dialogOpen, activityActive }) => {
+      await UserSettingsService.init();
+      setGlobalBackendState({
+        opossumFilePath: '/project.opossum',
+        frontendDialogOpen: dialogOpen,
+        frontendActivityActive: activityActive,
+      });
+      const fileMenu = await getFileMenu(new BrowserWindow(), vi.fn(), false);
+      const fileItems = fileMenu.submenu as Array<MenuItemConstructorOptions>;
+      const itemById = (id: string) => fileItems.find((item) => item.id === id);
+
+      expect(itemById(menuItemIds.projectMetadata)?.enabled).toBe(true);
+      expect(itemById(menuItemIds.import)?.enabled).toBe(false);
+      expect(itemById(menuItemIds.projectStatistics)?.enabled).toBe(false);
+      expect(itemById(menuItemIds.saveFile)?.enabled).toBe(false);
+    },
+  );
+
+  it('blocks attribution search while a dialog is open', async () => {
     await UserSettingsService.init();
     setGlobalBackendState({
       opossumFilePath: '/project.opossum',
@@ -119,37 +143,13 @@ describe('create menu', () => {
       frontendActivityActive: false,
     });
     const mainWindow = new BrowserWindow();
-    const fileMenu = await getFileMenu(mainWindow, vi.fn(), false);
-    const fileItems = fileMenu.submenu as Array<MenuItemConstructorOptions>;
-    const itemById = (id: string) => fileItems.find((item) => item.id === id);
     const editMenu = getEditMenu(mainWindow.webContents);
     const editItems = editMenu.submenu as Array<MenuItemConstructorOptions>;
 
-    expect(itemById(menuItemIds.projectMetadata)?.enabled).toBe(true);
-    expect(itemById(menuItemIds.import)?.enabled).toBe(false);
-    expect(itemById(menuItemIds.projectStatistics)?.enabled).toBe(false);
-    expect(itemById(menuItemIds.saveFile)?.enabled).toBe(false);
     expect(
       editItems.find((item) => item.id === menuItemIds.searchAttributions)
         ?.enabled,
     ).toBe(false);
-  });
-
-  it('blocks unrelated workflows while allowing reference views above them', async () => {
-    await UserSettingsService.init();
-    setGlobalBackendState({
-      opossumFilePath: '/project.opossum',
-      frontendDialogOpen: true,
-      frontendActivityActive: true,
-    });
-    const fileMenu = await getFileMenu(new BrowserWindow(), vi.fn(), false);
-    const fileItems = fileMenu.submenu as Array<MenuItemConstructorOptions>;
-    const itemById = (id: string) => fileItems.find((item) => item.id === id);
-
-    expect(itemById(menuItemIds.projectMetadata)?.enabled).toBe(true);
-    expect(itemById(menuItemIds.import)?.enabled).toBe(false);
-    expect(itemById(menuItemIds.projectStatistics)?.enabled).toBe(false);
-    expect(itemById(menuItemIds.saveFile)?.enabled).toBe(false);
   });
 
   it.each([

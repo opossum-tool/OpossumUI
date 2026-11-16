@@ -56,7 +56,7 @@ describe('MergeOpossumFilesDialog', () => {
     ).toBeInTheDocument();
   });
 
-  it('selects input files for merging into the current file', async () => {
+  it('selects and removes input files before merging into the current file', async () => {
     const inputFilePaths = [
       '/partitions/first.opossum',
       '/partitions/second.opossum',
@@ -84,6 +84,15 @@ describe('MergeOpossumFilesDialog', () => {
     expect(screen.getByText(inputFilePaths[0])).toBeInTheDocument();
     expect(screen.getByText(inputFilePaths[1])).toBeInTheDocument();
 
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: text.mergeOpossumFilesDialog.removeSplitFile(inputFilePaths[0]),
+      }),
+    );
+
+    expect(screen.queryByText(inputFilePaths[0])).not.toBeInTheDocument();
+    expect(screen.getByText(inputFilePaths[1])).toBeInTheDocument();
+
     expect(
       screen.getByRole('button', { name: text.buttons.merge }),
     ).toBeEnabled();
@@ -94,7 +103,7 @@ describe('MergeOpossumFilesDialog', () => {
 
     await waitFor(() =>
       expect(window.electronAPI.mergeOpossumFiles).toHaveBeenCalledWith(
-        inputFilePaths,
+        [inputFilePaths[1]],
         false,
       ),
     );
