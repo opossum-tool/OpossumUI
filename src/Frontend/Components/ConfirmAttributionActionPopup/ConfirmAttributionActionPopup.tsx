@@ -151,23 +151,23 @@ export function ConfirmAttributionActionPopup({
       )}
       {children}
       {linkedResourcesTreeState && (
-        <MuiTypography variant={'subtitle2'} sx={popupFixedSectionSx}>
-          {text.confirmAttributionActionPopup.affectedResources}
-        </MuiTypography>
-      )}
-      {linkedResourcesTreeState && (
-        <LinkedResourcesTree
-          readOnly
-          fitContent
-          disableHighlightSelected={!isLocalActionAvailable}
-          state={linkedResourcesTreeState}
-          sx={{
-            ...popupScrollableSectionSx,
-            ...(linkedResourcesTreeState.treeNodes.length > 0 && {
-              minHeight: 0,
-            }),
-          }}
-        />
+        <>
+          <MuiTypography variant={'subtitle2'} sx={popupFixedSectionSx}>
+            {text.confirmAttributionActionPopup.affectedResources}
+          </MuiTypography>
+          <LinkedResourcesTree
+            readOnly
+            fitContent
+            disableHighlightSelected={!isLocalActionAvailable}
+            state={linkedResourcesTreeState}
+            sx={{
+              ...popupScrollableSectionSx,
+              ...(linkedResourcesTreeState.treeNodes.length > 0 && {
+                minHeight: 0,
+              }),
+            }}
+          />
+        </>
       )}
     </NotificationPopup>
   );

@@ -38,9 +38,14 @@ export function useLinkedAttributionActionData({
       canShowLinkedResourcesTree,
     onlyWritable: true,
   });
-  const linkedResourceCount =
-    linkedResourcesTreeState?.count ??
-    selectionMetadata.writableLinkedResourceCount;
+  // While the tree will be rendered, its count is authoritative and the
+  // description stays without a number until it arrives (the popup actions
+  // are disabled while the resource info is not ready). The summary count
+  // only serves as a fallback when the tree is hidden or failed to load,
+  // and always measures the same linked resources the tree would show.
+  const linkedResourceCount = canShowLinkedResourcesTree
+    ? linkedResourcesTreeState?.count
+    : selectionMetadata.writableLinkedResourceCount;
   const actionSummary = {
     selectedAttributionCount: selectionMetadata.selectedAttributionCount,
     mixedAttributionCount: selectionMetadata.mixedAttributionCount,

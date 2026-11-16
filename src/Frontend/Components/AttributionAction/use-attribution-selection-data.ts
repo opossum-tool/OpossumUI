@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { skipToken } from '@tanstack/react-query';
+import { useEffect } from 'react';
 
 import type { AttributionSelection } from '../../../shared/attribution-selection';
 import { useAppSelector } from '../../state/hooks';
@@ -49,36 +50,61 @@ export function useAttributionSelectionData({
     { enabled: open && !isMutationPending && isQueryWideSelection },
   );
   const summary = selectionSummaryQuery.data;
-  // Rendering the linked resources tree requires the attribution UUIDs. They
-  // are only materialized for query-wide selections small enough to be
-  // resolved as a whole.
-  const isWithinQueryWideTreeLimit =
-    isQueryWideSelection &&
-    summary !== undefined &&
-    summary.selectedCount <= QUERY_WIDE_TREE_LIMIT;
+  // The backend is the single size guard: it resolves the UUIDs only while
+  // the selection fits the limit and reports limitExceeded otherwise. Both
+  // queries run in parallel; the summary only feeds the counts metadata.
   const attributionUuidsQuery = backend.getAttributionSelectionUuids.useQuery(
-    open && !isMutationPending && isWithinQueryWideTreeLimit
+    open && !isMutationPending && queryWideSelection
       ? { selection: queryWideSelection, limit: QUERY_WIDE_TREE_LIMIT }
       : skipToken,
   );
-  // The tree needs the resolved UUIDs: it can only be shown once they are
-  // actually available. If they fail to resolve (or turn out to be more than
-  // expected), the popups gracefully fall back to hiding the tree.
-  const areAttributionUuidsResolved = !isWithinQueryWideTreeLimit
+  const limitExceeded = attributionUuidsQuery.data?.limitExceeded ?? false;
+  const areAttributionUuidsResolved = !isQueryWideSelection
     ? true
     : attributionUuidsQuery.isSuccess || attributionUuidsQuery.isError;
-  const resolvedAttributionUuids =
-    attributionUuidsQuery.data &&
-    !attributionUuidsQuery.data.limitExceeded &&
-    !attributionUuidsQuery.isError
-      ? attributionUuidsQuery.data.attributionUuids
-      : [];
-  const canShowLinkedResourcesTree = isQueryWideSelection
-    ? isWithinQueryWideTreeLimit && !attributionUuidsQuery.isError
-    : !isEmptySelection;
   const attributionIds = isQueryWideSelection
-    ? resolvedAttributionUuids
+    ? limitExceeded
+      ? []
+      : (attributionUuidsQuery.data?.attributionUuids ?? [])
     : explicitAttributionUuids;
+  // The linked resources tree needs the resolved UUIDs: it can only be shown
+  // once they are actually available. While they are being resolved, the
+  // tree is still awaited; a selection that turns out to be empty (or too
+  // large, or failed to resolve) cannot show a tree at all.
+  const areAttributionUuidsPending =
+    isQueryWideSelection && !areAttributionUuidsResolved;
+  const canShowLinkedResourcesTree = isQueryWideSelection
+    ? areAttributionUuidsPending || attributionIds.length > 0
+    : !isEmptySelection;
+
+  // The two queries resolve the same result set at different times. Only
+  // once both have settled can they genuinely disagree; without the UUIDs
+  // the tree would silently disappear, so surface the inconsistency.
+  const hasSelectionSizeDrift =
+    limitExceeded &&
+    !selectionSummaryQuery.isFetching &&
+    !attributionUuidsQuery.isFetching &&
+    summary !== undefined &&
+    summary.selectedCount <= QUERY_WIDE_TREE_LIMIT;
+  useEffect(() => {
+    if (hasSelectionSizeDrift) {
+      console.error(
+        'The summary count and the UUID resolution of a query-wide selection disagree on its size; hiding the linked resources tree.',
+        {
+          summarySelectedCount: summary?.selectedCount,
+          uuidResolutionLimitExceeded: limitExceeded,
+        },
+      );
+    }
+  }, [hasSelectionSizeDrift, summary, limitExceeded]);
+  useEffect(() => {
+    if (attributionUuidsQuery.isError) {
+      console.error(
+        'Failed to resolve the UUIDs of the query-wide selection; hiding the linked resources tree.',
+        attributionUuidsQuery.error,
+      );
+    }
+  }, [attributionUuidsQuery.isError, attributionUuidsQuery.error]);
 
   const attributions: typeof fetchedAttributions = isEmptySelection
     ? {}
