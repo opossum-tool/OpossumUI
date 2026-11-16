@@ -49,6 +49,55 @@ export function isAiDeferred(
   );
 }
 
+/**
+ * An attribution is AI-generated if it has AI metadata and is not deferred
+ * (matches the AI-generated chip in AuditingOptions). Use in query contexts
+ * that do not already join `attribution_ai`.
+ */
+export function isAiGenerated(
+  eb: ExpressionBuilder<DB, 'attribution'>,
+): AliasableExpression<SqlBool> {
+  return eb.and([hasAiMetadata(eb), eb.not(isAiDeferred(eb))]);
+}
+
+/**
+ * An attribution is AI human-modified if it has AI metadata with
+ * `human_modified = 1` (same semantics as the AI Review progress bar).
+ */
+export function isAiHumanModified(
+  eb: ExpressionBuilder<DB, 'attribution'>,
+): AliasableExpression<SqlBool> {
+  return eb.exists(
+    eb
+      .selectFrom('attribution_ai')
+      .select('attribution_uuid')
+      .whereRef('attribution_ai.attribution_uuid', '=', 'attribution.uuid')
+      .where('human_modified', '=', 1),
+  );
+}
+
+/**
+ * An AI-deferred attribution needs manual input if it has not been
+ * human-modified yet (same semantics as the AI Review progress bar's
+ * pending state: deferred AND NOT human-modified).
+ */
+export function isAiNeedsManualInput(
+  eb: ExpressionBuilder<DB, 'attribution'>,
+): AliasableExpression<SqlBool> {
+  return eb.and([isAiDeferred(eb), eb.not(isAiHumanModified(eb))]);
+}
+
+function hasAiMetadata(
+  eb: ExpressionBuilder<DB, 'attribution'>,
+): AliasableExpression<SqlBool> {
+  return eb.exists(
+    eb
+      .selectFrom('attribution_ai')
+      .select('attribution_uuid')
+      .whereRef('attribution_ai.attribution_uuid', '=', 'attribution.uuid'),
+  );
+}
+
 export function selectAttributionsWithAiStatus(db: Kysely<DB>) {
   return db
     .selectFrom('attribution')
