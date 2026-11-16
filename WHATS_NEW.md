@@ -5,6 +5,13 @@ SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 SPDX-License-Identifier: CC0-1.0
 -->
 
+<!--
+Users who have seen a lower revision are shown these notes on their next start.
+When adding notes for the first new feature after a release, increment the revision
+and delete the previous notes and screenshots.
+-->
+<!-- whats-new-revision: 1 -->
+
 ## Discover what’s new
 
 Release highlights now introduce new features directly in OpossumUI.
