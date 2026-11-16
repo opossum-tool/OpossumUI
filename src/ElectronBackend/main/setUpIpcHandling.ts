@@ -91,7 +91,7 @@ export function setupIpcHandling(
   ipcMain.handle(
     IpcChannel.SetFrontendDialogState,
     async (_, state: FrontendDialogState) => {
-      getGlobalBackendState().frontendPopupOpen = state.anyDialogOpen;
+      getGlobalBackendState().frontendDialogOpen = state.anyDialogOpen;
       getGlobalBackendState().frontendActivityActive = state.activityActive;
       await updateMenu();
     },

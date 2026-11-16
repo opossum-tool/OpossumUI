@@ -12,6 +12,7 @@ import {
 } from '../../../shared/ipc-channels';
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import { convertToOpossum } from '../../opossum-file/opossum-file';
+import type { GlobalBackendState } from '../../types/types';
 import { createWindow } from '../createWindow';
 import {
   openOpossumFileDialog,
@@ -184,12 +185,12 @@ describe('openFileListener', () => {
   it('preserves dialog and workflow state while initializing another project', async () => {
     const mainWindow = initWindowAndBackendState();
     setGlobalBackendState({
-      frontendPopupOpen: true,
+      frontendDialogOpen: true,
       frontendActivityActive: true,
     });
     vi.mocked(loadInputAndOutputFromFilePath).mockResolvedValue(true);
     const updateMenu = vi.fn().mockImplementation(() => {
-      expect(getGlobalBackendState().frontendPopupOpen).toBe(true);
+      expect(getGlobalBackendState().frontendDialogOpen).toBe(true);
       expect(getGlobalBackendState().frontendActivityActive).toBe(true);
       return Promise.resolve();
     });
@@ -201,10 +202,10 @@ describe('openFileListener', () => {
 
     expect(updateMenu).toHaveBeenCalled();
     expect(getGlobalBackendState()).toMatchObject({
-      frontendPopupOpen: true,
+      frontendDialogOpen: true,
       frontendActivityActive: true,
       opossumFilePath: '/home/another-project.opossum',
-    });
+    } satisfies Partial<GlobalBackendState>);
   });
 
   it('does not notify the frontend after a handled load failure and ends processing', async () => {

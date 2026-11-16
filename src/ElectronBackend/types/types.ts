@@ -64,7 +64,7 @@ export interface GlobalBackendState {
   spdxYamlFilePath?: string;
   spdxJsonFilePath?: string;
   projectId?: string;
-  frontendPopupOpen?: boolean;
+  frontendDialogOpen?: boolean;
   frontendActivityActive?: boolean;
 }
 

@@ -510,7 +510,7 @@ export const mergeFileAndLoadListener =
 
 function initializeGlobalBackendState(filePath: string): void {
   const newGlobalBackendState: GlobalBackendState = {
-    frontendPopupOpen: getGlobalBackendState().frontendPopupOpen,
+    frontendDialogOpen: getGlobalBackendState().frontendDialogOpen,
     frontendActivityActive: getGlobalBackendState().frontendActivityActive,
     opossumFilePath: filePath,
     followUpFilePath: getFilePathWithAppendix(filePath, '_follow_up.csv'),

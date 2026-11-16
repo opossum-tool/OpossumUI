@@ -115,7 +115,7 @@ describe('create menu', () => {
     await UserSettingsService.init();
     setGlobalBackendState({
       opossumFilePath: '/project.opossum',
-      frontendPopupOpen: true,
+      frontendDialogOpen: true,
       frontendActivityActive: false,
     });
     const mainWindow = new BrowserWindow();
@@ -139,7 +139,7 @@ describe('create menu', () => {
     await UserSettingsService.init();
     setGlobalBackendState({
       opossumFilePath: '/project.opossum',
-      frontendPopupOpen: true,
+      frontendDialogOpen: true,
       frontendActivityActive: true,
     });
     const fileMenu = await getFileMenu(new BrowserWindow(), vi.fn(), false);
@@ -162,7 +162,7 @@ describe('create menu', () => {
     async ({ dialogOpen, activityActive }) => {
       await UserSettingsService.init();
       setGlobalBackendState({
-        frontendPopupOpen: dialogOpen,
+        frontendDialogOpen: dialogOpen,
         frontendActivityActive: activityActive,
       });
       const send = vi.fn();
@@ -188,7 +188,7 @@ describe('create menu', () => {
     'opens release notes from Help regardless of dialog state (open: %s)',
     async (popupOpen) => {
       await UserSettingsService.init();
-      setGlobalBackendState({ frontendPopupOpen: popupOpen });
+      setGlobalBackendState({ frontendDialogOpen: popupOpen });
       const send = vi.fn();
       const mainWindow = {
         webContents: { send },

@@ -6,5 +6,5 @@ import { getGlobalBackendState } from '../globalBackendState';
 
 export function isProjectCommandBlocked(): boolean {
   const state = getGlobalBackendState();
-  return Boolean(state.frontendPopupOpen || state.frontendActivityActive);
+  return Boolean(state.frontendDialogOpen || state.frontendActivityActive);
 }
