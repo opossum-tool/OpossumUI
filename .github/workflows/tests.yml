@@ -16,7 +16,12 @@ on:
 
 jobs:
   unit-tests:
-    runs-on: ubuntu-latest
+    name: unit-tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     if: |
       !(github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/'))
     env:
