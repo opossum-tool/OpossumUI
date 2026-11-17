@@ -143,7 +143,7 @@ describe('NotSavedPopup', () => {
     expect(getOpenPopup(store.getState())).toBeFalsy();
   });
 
-  it('shows a spinner and disables cancel while the backend has pending mutations', async () => {
+  it('keeps discard-and-quit pending until backend mutations settle', async () => {
     const packageInfo = faker.opossum.packageInfo();
     const { store } = await renderComponent(<GlobalPopup />, {
       actions: [

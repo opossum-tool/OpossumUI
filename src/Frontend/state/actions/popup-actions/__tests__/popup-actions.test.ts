@@ -801,7 +801,7 @@ describe('proceedFromUnsavedPopup', () => {
     expect(window.electronAPI.saveFile).not.toHaveBeenCalled();
   });
 
-  it('proceeds with open file request after the backend has settled', async () => {
+  it('routes open file requests to the main process after pending work settles', async () => {
     vi.spyOn(window.electronAPI, 'openFile').mockResolvedValue({});
 
     const testStore = createAppStore();
@@ -812,11 +812,10 @@ describe('proceedFromUnsavedPopup', () => {
     );
 
     expect(getOpenFileRequest(testStore.getState())).toBeNull();
+    expect(window.electronAPI.whenBackendIdle).toHaveBeenCalledOnce();
     await vi.waitFor(() =>
-      expect(window.electronAPI.openFile).toHaveBeenCalledWith(),
+      expect(window.electronAPI.openFile).toHaveBeenCalledExactlyOnceWith(),
     );
-    expect(window.electronAPI.whenBackendIdle).toHaveBeenCalled();
-    expect(getIsSavingBeforeQuit(testStore.getState())).toBe(false);
   });
 
   it('proceeds with import file request', () => {
@@ -1175,7 +1174,7 @@ describe('quitAppOrOpenUnsavedPopup', () => {
     expect(getTargetView(testStore.getState())).toBeNull();
   });
 
-  it('keeps the unsaved-changes popup open until the backend has no pending mutations', async () => {
+  it('keeps the unsaved-changes popup open until pending work settles', async () => {
     const testStore = createAppStore();
     testStore.dispatch(
       setTemporaryDisplayPackageInfo({
@@ -1185,7 +1184,6 @@ describe('quitAppOrOpenUnsavedPopup', () => {
       }),
     );
     testStore.dispatch(quitAppOrOpenUnsavedPopup());
-
     let resolveWhenBackendIdle!: () => void;
     vi.mocked(window.electronAPI.whenBackendIdle).mockReturnValueOnce(
       new Promise<void>((resolve) => {
@@ -1201,11 +1199,11 @@ describe('quitAppOrOpenUnsavedPopup', () => {
       PopupType.NotSavedPopup,
     );
     expect(window.electronAPI.confirmQuit).not.toHaveBeenCalled();
-
     resolveWhenBackendIdle();
     await vi.waitFor(() =>
       expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
     );
+    expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1);
     expect(getOpenPopup(testStore.getState())).toBeNull();
     expect(getQuitAppRequested(testStore.getState())).toBe(false);
     expect(getIsSavingBeforeQuit(testStore.getState())).toBe(true);

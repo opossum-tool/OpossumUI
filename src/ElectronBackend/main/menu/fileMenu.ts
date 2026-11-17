@@ -22,11 +22,7 @@ import { text } from '../../../shared/text';
 import { isFileLoaded } from '../../utils/getLoadedFile';
 import { getGlobalBackendState } from '../globalBackendState';
 import { getIconBasedOnTheme } from '../iconHelpers';
-import {
-  handleOpeningFile,
-  importFileListener,
-  selectBaseURLListener,
-} from '../listeners';
+import { importFileListener, selectBaseURLListener } from '../listeners';
 import { UserSettingsService } from '../user-settings-service';
 import { menuItemIds } from './menuItemIds';
 import { isProjectCommandBlocked } from './project-command-blocking';
@@ -97,7 +93,8 @@ function getOpenRecentSubmenu(
   return [
     ...recentlyOpenedPaths.map<MenuItemConstructorOptions>((recentPath) => ({
       label: path.basename(recentPath, path.extname(recentPath)),
-      click: ({ id }) => handleOpeningFile(mainWindow, id, updateMenu),
+      click: ({ id }) =>
+        mainWindow.webContents.send(AllowedFrontendChannels.OpenFile, id),
       id: recentPath,
       enabled,
     })),
