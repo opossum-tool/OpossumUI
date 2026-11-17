@@ -59,3 +59,17 @@ export function getRawDb() {
   }
   return rawDb;
 }
+
+// Upper bound on rows inspected per table: https://www.sqlite.org/analyze.html#pragma_analysis_limit
+const ANALYSIS_LIMIT = 1000;
+
+/**
+ * Computes statistics (sqlite_stat1) that help the query planner choose good
+ * indexes. The analysis limit keeps this cheap even for very large files, at
+ * the cost of slightly approximate statistics, which is fine for planning.
+ */
+export function analyzeDb(): void {
+  const rawDb = getRawDb();
+  rawDb.pragma(`analysis_limit = ${ANALYSIS_LIMIT}`);
+  rawDb.exec('ANALYZE');
+}

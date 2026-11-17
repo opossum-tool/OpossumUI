@@ -31,7 +31,7 @@ import {
   AttributionResourceAccess,
 } from '../types/types';
 import { getAttributionPersistenceValues } from './attributionData';
-import { getDb, getRawDb, resetDb } from './db';
+import { analyzeDb, getDb, getRawDb, resetDb } from './db';
 import type {
   Attribution,
   AttributionAi,
@@ -220,6 +220,8 @@ export async function initializeDb(inputFile: DatabaseImportContent) {
 
       await initializeReadonlyRuleTable(trx, inputFile.readonlyRules);
     });
+
+  analyzeDb();
 }
 
 async function initializeFilteredResourcesTable(trx: Transaction<DB>) {
