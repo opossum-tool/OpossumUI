@@ -62,6 +62,9 @@ vi.mock('electron', async () => ({
   dialog: {
     showMessageBox: vi.fn(),
   },
+  systemPreferences: {
+    setUserDefault: vi.fn(),
+  },
 }));
 describe('The App backend', () => {
   afterEach(() => {
