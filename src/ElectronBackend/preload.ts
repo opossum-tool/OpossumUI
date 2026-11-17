@@ -12,6 +12,10 @@ import {
   DbProcessClient,
   FRONTEND_TO_DB_PROCESS_PORT,
 } from './dbProcess/dbProcessClient';
+import type {
+  MergeCurrentOpossumFilesListenerProps,
+  MergeOpossumFilesFromPathsListenerProps,
+} from './main/listeners';
 import { traceBackendCommand } from './performance-tracing';
 
 let client: DbProcessClient | null = null;
@@ -54,22 +58,15 @@ const electronAPI: ElectronAPI = {
     ipcRenderer.invoke(IpcChannel.SelectSplitDestination, splitPath),
   splitFile: (splitPaths, splitOpossumFilePath) =>
     ipcRenderer.invoke(IpcChannel.SplitFile, splitPaths, splitOpossumFilePath),
-  mergeOpossumFiles: (partitionPaths, ignoreReadonlyResourceOutputConflicts) =>
+  mergeOpossumFiles: (props) =>
     ipcRenderer.invoke(
       IpcChannel.MergeOpossumFiles,
-      partitionPaths,
-      ignoreReadonlyResourceOutputConflicts,
+      props satisfies MergeCurrentOpossumFilesListenerProps,
     ),
-  mergeOpossumFilesFromPaths: (
-    inputPaths,
-    outputPath,
-    ignoreReadonlyResourceOutputConflicts,
-  ) =>
+  mergeOpossumFilesFromPaths: (props) =>
     ipcRenderer.invoke(
       IpcChannel.MergeOpossumFilesFromPaths,
-      inputPaths,
-      outputPath,
-      ignoreReadonlyResourceOutputConflicts,
+      props satisfies MergeOpossumFilesFromPathsListenerProps,
     ),
   saveFile: () => ipcRenderer.invoke(IpcChannel.SaveFile),
   forceUnlock: () => ipcRenderer.invoke(IpcChannel.ForceUnlock),

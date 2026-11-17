@@ -7,6 +7,7 @@ import type AdmZip from 'adm-zip';
 import {
   MergeOpossumFilesErrorType,
   type MergeOpossumFilesResult,
+  type ProgressCallback,
 } from '../../shared/shared-types';
 import {
   mergeOpossumArchives,
@@ -15,32 +16,38 @@ import {
 import { saveFile, type SaveFileParams } from './saveFile';
 
 export interface MergeOpossumFilesParams {
-  ignoreReadonlyResourceOutputConflicts: boolean;
   saveFileParams: SaveFileParams;
   partitionPaths: Array<string>;
-  reportProgress?: (message: string) => void;
+  ignoreReadonlyResourceOutputConflicts: boolean;
+  deleteSplitFilesAfterMerge: boolean;
 }
 
 export interface MergeOpossumFilesFromPathsParams {
-  ignoreReadonlyResourceOutputConflicts: boolean;
   inputPaths: Array<string>;
   outputPath: string;
-  reportProgress?: (message: string) => void;
+  ignoreReadonlyResourceOutputConflicts: boolean;
+  deleteSplitFilesAfterMerge: boolean;
 }
 
-export async function mergeOpossumFilesFromPaths({
-  ignoreReadonlyResourceOutputConflicts,
-  inputPaths,
-  outputPath,
-  reportProgress,
-}: MergeOpossumFilesFromPathsParams): Promise<MergeOpossumFilesResult> {
+export async function mergeOpossumFilesFromPaths(
+  {
+    inputPaths,
+    outputPath,
+    ignoreReadonlyResourceOutputConflicts,
+    deleteSplitFilesAfterMerge,
+  }: MergeOpossumFilesFromPathsParams,
+  onProgress?: ProgressCallback,
+): Promise<MergeOpossumFilesResult> {
   try {
-    await mergeOpossumArchives({
-      ignoreReadonlyResourceOutputConflicts,
-      inputPaths,
-      outputPath,
-      reportProgress,
-    });
+    await mergeOpossumArchives(
+      {
+        inputPaths,
+        outputPath,
+        ignoreReadonlyResourceOutputConflicts,
+        deleteSplitFilesAfterMerge,
+      },
+      onProgress,
+    );
     return { status: 'success' };
   } catch (error) {
     return getMergeOpossumFilesErrorResult(error);
@@ -49,22 +56,26 @@ export async function mergeOpossumFilesFromPaths({
 
 export async function mergeOpossumFiles(
   {
-    ignoreReadonlyResourceOutputConflicts,
     saveFileParams,
     partitionPaths,
-    reportProgress,
+    ignoreReadonlyResourceOutputConflicts,
+    deleteSplitFilesAfterMerge,
   }: MergeOpossumFilesParams,
   opossumZip: AdmZip,
+  onProgress?: ProgressCallback,
 ): Promise<MergeOpossumFilesResult> {
   try {
-    reportProgress?.('Saving current .opossum file');
+    onProgress?.('Saving current .opossum file');
     await saveFile(saveFileParams, opossumZip);
-    await mergeOpossumArchives({
-      ignoreReadonlyResourceOutputConflicts,
-      inputPaths: [saveFileParams.opossumFilePath, ...partitionPaths],
-      outputPath: saveFileParams.opossumFilePath,
-      reportProgress,
-    });
+    await mergeOpossumArchives(
+      {
+        ignoreReadonlyResourceOutputConflicts,
+        inputPaths: [saveFileParams.opossumFilePath, ...partitionPaths],
+        outputPath: saveFileParams.opossumFilePath,
+        deleteSplitFilesAfterMerge,
+      },
+      onProgress,
+    );
     return { status: 'success' };
   } catch (error) {
     return getMergeOpossumFilesErrorResult(error);
