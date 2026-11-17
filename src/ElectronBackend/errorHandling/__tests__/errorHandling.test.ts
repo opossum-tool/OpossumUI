@@ -3,10 +3,11 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type BrowserWindow, dialog, type WebContents } from 'electron';
+import { dialog } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import type { SendErrorInformationArgs } from '../../../shared/shared-types';
+import { fakeMainWindow } from '../../../testing/fake-main-window';
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import {
   getMessageBoxContentForErrorsWrapper,
@@ -72,10 +73,7 @@ describe('error handling', () => {
         errorInfo: { componentStack: 'componentStack' },
       };
 
-      const mockCallback = vi.fn();
-      const mainWindow = {
-        webContents: { send: mockCallback as unknown } as WebContents,
-      } as unknown as BrowserWindow;
+      const { mainWindow, send } = fakeMainWindow();
 
       await getMessageBoxForErrors(
         sendErrorInformationArgs.error.message,
@@ -93,8 +91,8 @@ describe('error handling', () => {
         }),
       );
 
-      expect(mockCallback.mock.calls).toHaveLength(1);
-      expect(mockCallback.mock.calls[0][0]).toContain(
+      expect(send).toHaveBeenCalledTimes(1);
+      expect(send.mock.calls[0][0]).toContain(
         AllowedFrontendChannels.RestoreFrontend,
       );
       expect(loadInputAndOutputFromFilePath).toHaveBeenCalled();

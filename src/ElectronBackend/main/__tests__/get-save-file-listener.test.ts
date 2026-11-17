@@ -3,12 +3,13 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type BrowserWindow, dialog, type WebContents } from 'electron';
+import { dialog } from 'electron';
 import path from 'path';
 import type { Mock } from 'vitest';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { MergeOpossumFilesErrorType } from '../../../shared/shared-types';
+import { fakeMainWindow } from '../../../testing/fake-main-window';
 import { getMainDbClient } from '../../dbProcess/dbProcessClient';
 import { selectSaveFile } from '../dialogs';
 import { setGlobalBackendState } from '../globalBackendState';
@@ -70,10 +71,7 @@ describe('saveFileListener', () => {
   });
 
   it('shows error when projectId is not set', async () => {
-    const mockCallback = vi.fn();
-    const mainWindow = {
-      webContents: { send: mockCallback as unknown } as WebContents,
-    } as unknown as BrowserWindow;
+    const { mainWindow } = fakeMainWindow();
     setGlobalBackendState({});
 
     await saveFileListener(mainWindow)(AllowedFrontendChannels.SaveFileRequest);
@@ -91,10 +89,7 @@ describe('saveFileListener', () => {
   it('forwards global state to getMainDbClient().saveFile()', async () => {
     mockSaveFile.mockResolvedValue(undefined);
 
-    const mockCallback = vi.fn();
-    const mainWindow = {
-      webContents: { send: mockCallback as unknown } as WebContents,
-    } as unknown as BrowserWindow;
+    const { mainWindow } = fakeMainWindow();
 
     setGlobalBackendState({
       opossumFilePath: '/my/file.opossum',
@@ -113,10 +108,7 @@ describe('saveFileListener', () => {
   it('shows error dialog when saveFile rejects', async () => {
     mockSaveFile.mockRejectedValue(new Error('Save failed'));
 
-    const mockCallback = vi.fn();
-    const mainWindow = {
-      webContents: { send: mockCallback as unknown } as WebContents,
-    } as unknown as BrowserWindow;
+    const { mainWindow } = fakeMainWindow();
 
     setGlobalBackendState({
       projectId: 'uuid_1',
@@ -136,9 +128,7 @@ describe('saveFileListener', () => {
 });
 
 describe('splitCurrentOpossumFileListener', () => {
-  const mainWindow = {
-    webContents: { send: vi.fn() } as unknown,
-  } as BrowserWindow;
+  const { mainWindow } = fakeMainWindow();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -215,9 +205,7 @@ describe('splitCurrentOpossumFileListener', () => {
 });
 
 describe('mergeCurrentOpossumFilesListener', () => {
-  const mainWindow = {
-    webContents: { send: vi.fn() } as unknown,
-  } as BrowserWindow;
+  const { mainWindow } = fakeMainWindow();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -279,9 +267,7 @@ describe('mergeCurrentOpossumFilesListener', () => {
 });
 
 describe('mergeOpossumFilesFromPathsListener', () => {
-  const mainWindow = {
-    webContents: { send: vi.fn() } as unknown,
-  } as BrowserWindow;
+  const { mainWindow } = fakeMainWindow();
 
   it('forwards the selected archive paths without requiring an open project', async () => {
     mockMergeOpossumFilesFromPaths.mockResolvedValue({

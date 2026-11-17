@@ -10,6 +10,7 @@ import type { Mock } from 'vitest';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
+import { fakeMainWindow } from '../../../testing/fake-main-window';
 import { setGlobalBackendState } from '../globalBackendState';
 import { createMenu } from '../menu';
 import { getEditMenu } from '../menu/editMenu';
@@ -165,10 +166,7 @@ describe('create menu', () => {
         frontendDialogOpen: dialogOpen,
         frontendActivityActive: activityActive,
       });
-      const send = vi.fn();
-      const mainWindow = {
-        webContents: { send },
-      } as unknown as BrowserWindow;
+      const { mainWindow, send } = fakeMainWindow();
       const helpMenu = await getHelpMenu(mainWindow.webContents, vi.fn());
       const items = helpMenu.submenu as Array<MenuItemConstructorOptions>;
       const checkForUpdates = items.find(
@@ -189,10 +187,7 @@ describe('create menu', () => {
     async (popupOpen) => {
       await UserSettingsService.init();
       setGlobalBackendState({ frontendDialogOpen: popupOpen });
-      const send = vi.fn();
-      const mainWindow = {
-        webContents: { send },
-      } as unknown as BrowserWindow;
+      const { mainWindow, send } = fakeMainWindow();
       const menu = await getHelpMenu(mainWindow.webContents, vi.fn());
       const item = (menu.submenu as Array<MenuItemConstructorOptions>).find(
         ({ id }) => id === menuItemIds.helpWhatsNew,
@@ -287,10 +282,7 @@ describe('create menu', () => {
 
   it('uses the currently loaded file when the merge menu is clicked', async () => {
     await UserSettingsService.init();
-    const send = vi.fn();
-    const mainWindow = {
-      webContents: { send },
-    } as unknown as BrowserWindow;
+    const { mainWindow, send } = fakeMainWindow();
     setGlobalBackendState({ opossumFilePath: '/tmp/file-a.opossum' });
 
     const fileMenu = await getFileMenu(mainWindow, vi.fn(), false);

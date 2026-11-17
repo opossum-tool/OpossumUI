@@ -3,13 +3,14 @@
 // SPDX-FileCopyrightText: Nico Carl <nicocarl@protonmail.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type BrowserWindow, shell, type WebContents } from 'electron';
+import { type BrowserWindow, shell } from 'electron';
 import type { Mock } from 'vitest';
 
 import {
   AllowedFrontendChannels,
   IpcChannel,
 } from '../../../shared/ipc-channels';
+import { fakeMainWindow } from '../../../testing/fake-main-window';
 import { loadInputAndOutputFromFilePath } from '../../input/importFromFile';
 import { convertToOpossum } from '../../opossum-file/opossum-file';
 import type { GlobalBackendState } from '../../types/types';
@@ -104,10 +105,7 @@ vi.mock('../user-settings-service', () => ({
 
 describe('getSelectBaseURLListener', () => {
   it('opens base url dialog and sends selected path to frontend', async () => {
-    const mockCallback = vi.fn();
-    const mainWindow = {
-      webContents: { send: mockCallback as unknown } as WebContents,
-    } as unknown as BrowserWindow;
+    const { mainWindow, send } = fakeMainWindow();
     setGlobalBackendState({ projectId: 'test-project' });
     const baseURL = '/Users/path/to/sources';
     const expectedFormattedBaseURL = 'file:///Users/path/to/sources/{path}';
@@ -117,7 +115,7 @@ describe('getSelectBaseURLListener', () => {
     await selectBaseURLListener(mainWindow)();
 
     expect(selectBaseURLDialog).toHaveBeenCalled();
-    expect(mainWindow.webContents.send).toHaveBeenCalledWith(
+    expect(send).toHaveBeenCalledWith(
       AllowedFrontendChannels.SetBaseURLForRoot,
       expectedFormattedBaseURL,
     );
