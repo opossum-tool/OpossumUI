@@ -78,7 +78,7 @@ describe('backend client mutations', () => {
       .mockReturnValue(invalidation.promise);
     const onBeforeInvalidation = vi.fn();
     vi.mocked(window.electronAPI.api).mockResolvedValueOnce({
-      result: undefined,
+      result: { focusedAttributionOutcome: { status: 'unchanged' } },
       invalidates: [
         { queryName: 'resolvedAttributionUuids', awaitRefetch: true },
       ],

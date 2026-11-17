@@ -539,11 +539,11 @@ describe('PackagesPanel', () => {
       'alphabetically',
     );
 
-    act(() =>
-      store.dispatch(
+    await act(async () => {
+      await store.dispatch(
         proceedFromUnsavedPopup(getOpenPopups(store.getState()).at(-1)!.id),
-      ),
-    );
+      );
+    });
 
     expect(getOpenPopup(store.getState())).toBeNull();
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
@@ -606,11 +606,11 @@ describe('PackagesPanel', () => {
       'alphabetically',
     );
 
-    act(() =>
-      store.dispatch(
+    await act(async () => {
+      await store.dispatch(
         proceedFromUnsavedPopup(getOpenPopups(store.getState()).at(-1)!.id),
-      ),
-    );
+      );
+    });
 
     expect(getOpenPopup(store.getState())).toBeNull();
     expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
