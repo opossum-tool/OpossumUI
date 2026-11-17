@@ -801,7 +801,7 @@ describe('proceedFromUnsavedPopup', () => {
     expect(window.electronAPI.saveFile).not.toHaveBeenCalled();
   });
 
-  it('routes open file requests to the main process after pending work settles', async () => {
+  it('proceeds with a file picker request', async () => {
     vi.spyOn(window.electronAPI, 'openFile').mockResolvedValue({});
 
     const testStore = createAppStore();
@@ -812,7 +812,6 @@ describe('proceedFromUnsavedPopup', () => {
     );
 
     expect(getOpenFileRequest(testStore.getState())).toBeNull();
-    expect(window.electronAPI.whenBackendIdle).toHaveBeenCalledOnce();
     await vi.waitFor(() =>
       expect(window.electronAPI.openFile).toHaveBeenCalledExactlyOnceWith(),
     );

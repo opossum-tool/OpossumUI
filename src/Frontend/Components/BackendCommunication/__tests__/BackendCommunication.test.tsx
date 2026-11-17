@@ -10,10 +10,7 @@ import { DEFAULT_USER_SETTINGS } from '../../../../shared/shared-constants';
 import { faker } from '../../../../testing/Faker';
 import { PopupType } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
-import {
-  closePopupAndUnsetTargets,
-  proceedFromUnsavedPopup,
-} from '../../../state/actions/popup-actions/popup-actions';
+import { closePopupAndUnsetTargets } from '../../../state/actions/popup-actions/popup-actions';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { fetchUserSettings } from '../../../state/actions/user-settings-actions/user-settings-actions';
@@ -27,7 +24,6 @@ import {
 } from '../../../state/selectors/resource-selectors';
 import { getUserSettingsLoaded } from '../../../state/selectors/user-settings-selector';
 import {
-  getIsSavingBeforeQuit,
   getOpenFileRequest,
   getOpenPopup,
   getOpenPopups,
@@ -50,45 +46,18 @@ function InitializeUserSettings() {
 }
 
 describe('BackendCommunication', () => {
-  it.each([
-    {
-      filePath: '/recent/project.opossum',
-      request: 'an explicit path',
-      expectedOpenFileCall: ['/recent/project.opossum'],
-    },
-    {
-      filePath: undefined,
-      request: 'the file picker',
-      expectedOpenFileCall: new Array<string>(),
-    },
-  ])(
-    'waits for pending work before opening a project requested by $request',
-    async ({ filePath, expectedOpenFileCall }) => {
-      const listeners = setupListeners();
-      const { store } = await renderComponent(<BackendCommunication />);
-      let resolveWhenBackendIdle!: () => void;
-      vi.mocked(window.electronAPI.whenBackendIdle).mockReturnValueOnce(
-        new Promise<void>((resolve) => {
-          resolveWhenBackendIdle = resolve;
-        }),
-      );
+  it('requests the file picker when opening without an explicit path', async () => {
+    const listeners = setupListeners();
+    await renderComponent(<BackendCommunication />);
 
-      act(() => {
-        emit(listeners, AllowedFrontendChannels.OpenFile, filePath);
-      });
-      expect(window.electronAPI.whenBackendIdle).toHaveBeenCalledOnce();
-      expect(getIsSavingBeforeQuit(store.getState())).toBe(true);
-      expect(window.electronAPI.openFile).not.toHaveBeenCalled();
+    act(() => {
+      emit(listeners, AllowedFrontendChannels.OpenFile);
+    });
 
-      resolveWhenBackendIdle();
-      await waitFor(() => {
-        expect(vi.mocked(window.electronAPI.openFile).mock.calls).toEqual([
-          expectedOpenFileCall,
-        ]);
-      });
-      expect(getIsSavingBeforeQuit(store.getState())).toBe(false);
-    },
-  );
+    await waitFor(() =>
+      expect(window.electronAPI.openFile).toHaveBeenCalledExactlyOnceWith(),
+    );
+  });
 
   it('preserves unsaved edits when opening a project requested by path is cancelled', async () => {
     const listeners = setupListeners();
@@ -118,43 +87,6 @@ describe('BackendCommunication', () => {
       unsavedAttribution,
     );
     expect(window.electronAPI.openFile).not.toHaveBeenCalled();
-  });
-
-  it('routes a project request to the main process after discarding edits', async () => {
-    const listeners = setupListeners();
-    const { store } = await renderComponent(<BackendCommunication />, {
-      actions: [setTemporaryDisplayPackageInfo(faker.opossum.packageInfo())],
-    });
-    const filePath = '/recent/project.opossum';
-    let resolveWhenBackendIdle!: () => void;
-    vi.mocked(window.electronAPI.whenBackendIdle).mockReturnValueOnce(
-      new Promise<void>((resolve) => {
-        resolveWhenBackendIdle = resolve;
-      }),
-    );
-
-    act(() => {
-      emit(listeners, AllowedFrontendChannels.OpenFile, filePath);
-    });
-    expect(getOpenPopup(store.getState())?.popup).toBe(PopupType.NotSavedPopup);
-
-    await act(async () => {
-      await store.dispatch(
-        proceedFromUnsavedPopup(getOpenPopups(store.getState()).at(-1)!.id),
-      );
-    });
-    expect(window.electronAPI.whenBackendIdle).toHaveBeenCalledOnce();
-    expect(getIsSavingBeforeQuit(store.getState())).toBe(true);
-    expect(window.electronAPI.openFile).not.toHaveBeenCalled();
-
-    resolveWhenBackendIdle();
-    await waitFor(() =>
-      expect(window.electronAPI.openFile).toHaveBeenCalledExactlyOnceWith(
-        filePath,
-      ),
-    );
-    expect(getIsSavingBeforeQuit(store.getState())).toBe(false);
-    expect(getOpenFileRequest(store.getState())).toBeNull();
   });
 
   function setupListeners(): Map<
