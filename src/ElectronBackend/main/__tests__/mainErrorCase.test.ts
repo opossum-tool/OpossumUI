@@ -11,10 +11,16 @@ import {
 } from '../update-service';
 import { UserSettingsService } from '../user-settings-service';
 
+// setUpIpcHandling registers these as ipc handlers, which accesses them on
+// the mock; listing them here is required even though main() never calls them.
 vi.mock('../update-service', () => ({
   initializeUpdateService: vi.fn(),
   startAutomaticUpdateChecks: vi.fn(),
   stopAutomaticUpdateChecks: vi.fn(),
+  getUpdateState: vi.fn(),
+  checkForUpdates: vi.fn(),
+  downloadUpdate: vi.fn(),
+  installDownloadedUpdate: vi.fn(),
 }));
 vi.mock('../user-settings-service', () => ({
   UserSettingsService: {
@@ -32,40 +38,60 @@ vi.mock('electron-settings', () => ({
   },
 }));
 
-vi.mock('electron', async () => ({
-  ipcMain: {
-    handle: vi.fn(),
-  },
-  app: {
-    on: vi.fn(),
-    getPath: vi.fn(() => '/tmp'),
-    getName: vi.fn(() => 'OpossumUI'),
-    getVersion: vi.fn(() => '1.0.0'),
-    whenReady: (): Promise<boolean> => Promise.resolve(true),
-    isPackaged: true,
-  },
-  BrowserWindow: class BrowserWindowMock {
-    constructor() {
-      return {
-        loadURL: (): void => {
-          throw Error('TEST_ERROR');
-        },
-        maximize: vi.fn(),
-        webContents: {
-          openDevTools: vi.fn(),
-        },
-      };
-    }
-  },
-  ...(await import('./electron-mocks')).menuMock,
-  ...(await import('./electron-mocks')).screenMock,
-  dialog: {
-    showMessageBox: vi.fn(),
-  },
-  systemPreferences: {
-    setUserDefault: vi.fn(),
-  },
-}));
+vi.mock('electron', async () => {
+  const mockElectron = {
+    ipcMain: {
+      handle: vi.fn(),
+    },
+    app: {
+      on: vi.fn(),
+      getPath: vi.fn(() => '/tmp'),
+      getName: vi.fn(() => 'OpossumUI'),
+      getVersion: vi.fn(() => '1.0.0'),
+      whenReady: (): Promise<boolean> => Promise.resolve(true),
+      isPackaged: true,
+    },
+    BrowserWindow: class BrowserWindowMock {
+      constructor() {
+        return {
+          loadURL: (): void => {
+            throw Error('TEST_ERROR');
+          },
+          loadFile: (): void => {
+            throw Error('TEST_ERROR');
+          },
+          maximize: vi.fn(),
+          on: vi.fn(),
+          webContents: {
+            openDevTools: vi.fn(),
+            on: vi.fn(),
+            send: vi.fn(),
+            postMessage: vi.fn(),
+            session: {
+              webRequest: {
+                onBeforeSendHeaders: vi.fn(),
+                onHeadersReceived: vi.fn(),
+              },
+            },
+          },
+        };
+      }
+    },
+    ...(await import('./electron-mocks')).menuMock,
+    ...(await import('./electron-mocks')).screenMock,
+    dialog: {
+      showMessageBox: vi.fn(),
+    },
+    systemPreferences: {
+      setUserDefault: vi.fn(),
+    },
+    nativeTheme: {},
+  };
+  return {
+    default: mockElectron,
+    ...mockElectron,
+  };
+});
 describe('The App backend', () => {
   afterEach(() => {
     vi.clearAllMocks();
@@ -75,14 +101,18 @@ describe('The App backend', () => {
     await main();
 
     expect(initializeUpdateService).toHaveBeenCalledWith(app.getVersion());
+    expect(dialog.showMessageBox).toHaveBeenCalledTimes(1);
     expect(dialog.showMessageBox).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'error',
         title: 'Error',
+        message: 'Error in app backend: TEST_ERROR',
       }),
     );
 
-    expect(ipcMain.handle).toHaveBeenCalledTimes(0);
+    // setupIpcHandling runs before the web app is loaded, so its handlers
+    // must be registered even though loading then fails.
+    expect(ipcMain.handle).toHaveBeenCalled();
     expect(UserSettingsService.get).toHaveBeenCalledWith(
       'automaticallyCheckForUpdates',
     );
