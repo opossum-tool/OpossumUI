@@ -180,6 +180,12 @@ interface MutationScenario {
   readonly attribution: SyntheticAttributionRecord;
 }
 
+interface ReplaceScenario {
+  readonly resource: SyntheticResourceAnchor;
+  readonly source: SyntheticAttributionRecord;
+  readonly replacement: SyntheticAttributionRecord;
+}
+
 interface DenseSignalScenario {
   readonly resource: SyntheticResourceAnchor;
   readonly signals: readonly SyntheticAttributionRecord[];
@@ -247,6 +253,7 @@ export interface Fixture {
     readonly edit: MutationScenario;
     readonly denseSignals: DenseSignalScenario;
     readonly highFanout: HighFanoutScenario;
+    readonly replace: ReplaceScenario;
     readonly split: SplitScenario;
   };
 }
@@ -667,6 +674,21 @@ export function createSyntheticFileModel(
     'manual',
     profile.manualAttributionCount - 1,
   );
+  const replaceSourceRecord = getSyntheticAttributionRecord(
+    profile,
+    'manual',
+    profile.manualAttributionCount,
+  );
+  const replaceSource: SyntheticAttributionRecord = {
+    ...replaceSourceRecord,
+    packageInfo: {
+      ...replaceSourceRecord.packageInfo,
+      packageName: 'performance-replacement-source',
+      packageVersion: '1.0.0',
+      preSelected: false,
+      needsReview: false,
+    },
+  };
   const linkedResourceSignals = {
     open: getSyntheticAttributionRecord(
       profile,
@@ -859,6 +881,11 @@ export function createSyntheticFileModel(
       writableResource: highFanoutWritableResource,
       readonlyResource: highFanoutReadonlyResource,
     },
+    replace: {
+      resource: highFanoutWritableResource,
+      source: replaceSource,
+      replacement: defaultManual,
+    },
     split: {
       firstPartition,
       secondPartition,
@@ -899,11 +926,29 @@ export function getSyntheticLinksForResource(
   model: Fixture,
   kind: SyntheticAttributionKind,
 ): Array<string> {
-  const override = model.linkOverrides.get(resourcePath)?.[kind];
-  if (override !== undefined) {
-    return [...override];
+  const linkOverride = model.linkOverrides.get(resourcePath);
+  const override = linkOverride?.[kind];
+  const links =
+    override === undefined
+      ? generateSyntheticLinks(ordinal, profile, model, kind)
+      : [...override];
+  const includeReplaceSource =
+    kind === 'manual' &&
+    ordinal < profile.highFanoutLinkCount &&
+    (linkOverride === undefined ||
+      resourcePath === model.scenarios.replace.resource.resourcePath);
+  if (includeReplaceSource) {
+    links.push(model.scenarios.replace.source.id);
   }
+  return links;
+}
 
+function generateSyntheticLinks(
+  ordinal: number,
+  profile: SyntheticFileProfile,
+  model: Fixture,
+  kind: SyntheticAttributionKind,
+): Array<string> {
   const links: Array<string> = [];
   if (
     kind === 'external' &&

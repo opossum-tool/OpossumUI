@@ -2,6 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { expect } from '@playwright/test';
+
+import { ConfirmReplacePopup } from '../../e2e-tests/page-objects/ConfirmReplacePopup';
 import { navigateToResource } from './performance-test-helpers';
 import type { PerformanceWorkflowContext } from './performance-workflow-context';
 
@@ -16,6 +19,7 @@ export async function runMutationWorkflows({
   signalsPanel,
   testInfo,
   topBar,
+  window,
 }: PerformanceWorkflowContext): Promise<void> {
   const linkScenario = model.scenarios.link;
   const editScenario = model.scenarios.edit;
@@ -174,6 +178,76 @@ export async function runMutationWorkflows({
       await signalsPanel.filterButton.click();
       await signalsPanel.clearFilters();
       await signalsPanel.closeFilterMenu();
+    },
+  });
+
+  const replaceScenario = model.scenarios.replace;
+  const confirmReplacePopup = new ConfirmReplacePopup(window);
+  let preselectedFilterApplied = false;
+
+  await runScenario({
+    id: 'replace-high-fanout-attribution',
+    title: 'replace a high-fanout attribution with a preselected attribution',
+    setup: async () => {
+      await navigateToResource({
+        anchor: replaceScenario.resource,
+        attributionDetails,
+        attributionsPanel,
+        resourcesTree,
+        signalsPanel,
+      });
+      await attributionsPanel.searchField.fill(
+        replaceScenario.source.packageInfo.packageName!,
+      );
+      await expect(
+        attributionsPanel.packageCard.node(replaceScenario.source.packageInfo),
+      ).toHaveCount(1);
+      await attributionsPanel.selectAllCheckbox.click();
+      await expect(attributionsPanel.replaceButton).toBeEnabled();
+      await attributionsPanel.replaceButton.click();
+      await attributionsPanel.clearSearchButton.click();
+      await attributionsPanel.tabs.unrelated.click();
+      await attributionsPanel.filterButton.click();
+      await attributionsPanel.filters.preSelected.click();
+      preselectedFilterApplied = true;
+      await attributionsPanel.closeFilterMenu();
+      await attributionsPanel.searchField.fill(
+        replaceScenario.replacement.packageInfo.packageName!,
+      );
+      await expect(
+        attributionsPanel.packageCard.node(
+          replaceScenario.replacement.packageInfo,
+        ),
+      ).toHaveCount(1);
+      await attributionsPanel.packageCard.click(
+        replaceScenario.replacement.packageInfo,
+      );
+      await attributionDetails.replaceButton.click();
+      await confirmReplacePopup.assert.isVisible();
+      await expect(confirmReplacePopup.replaceButton).toBeEnabled();
+    },
+    execute: async () => {
+      await confirmReplacePopup.replaceButton.click();
+      await confirmReplacePopup.assert.isHidden();
+      await Promise.all([
+        attributionsPanel.assert.selectedAttributionIs(
+          replaceScenario.replacement.id,
+        ),
+        attributionsPanel.assert.loadingIndicatorIsHidden(),
+        attributionDetails.assert.loadingIndicatorIsHidden(),
+        signalsPanel.assert.loadingIndicatorIsHidden(),
+      ]);
+    },
+    teardown: async () => {
+      await attributionsPanel.searchField.fill('');
+      if (preselectedFilterApplied) {
+        if (!(await attributionsPanel.filterMenu.isVisible())) {
+          await attributionsPanel.filterButton.click();
+        }
+        await attributionsPanel.filters.preSelected.click();
+        await attributionsPanel.closeFilterMenu();
+      }
+      await attributionsPanel.assert.loadingIndicatorIsHidden();
     },
   });
 }
