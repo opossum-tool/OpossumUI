@@ -1445,84 +1445,106 @@ describe('mixed attribution mutations', () => {
     ).resolves.toEqual({ human_modified: 0 });
   });
 
-  it('replaces with the writable clone when confirming a mixed pre-selected attribution', async () => {
-    await initializeDbWithTestData({
-      resources: pathsToResources([
-        '/readonly/target.ts',
-        '/writable/target.ts',
-        '/readonly/replacement.ts',
-        '/writable/replacement.ts',
-      ]),
-      manualAttributions: {
-        attributions: {
-          target: {
-            id: 'target',
-            criticality: Criticality.None,
-            packageName: 'target',
-          },
-          replacement: {
-            id: 'replacement',
-            criticality: Criticality.None,
-            packageName: 'replacement',
-          },
-        },
-        resourcesToAttributions: {
-          '/readonly/target.ts': ['target'],
-          '/writable/target.ts': ['target'],
-          '/readonly/replacement.ts': ['replacement'],
-          '/writable/replacement.ts': ['replacement'],
-        },
-        attributionsToResources: {},
-      },
-      readonlyRules: [{ path: '/readonly', readonly: true }],
-    });
-    await getDb()
-      .updateTable('attribution')
-      .set({ pre_selected: 1 })
-      .where('uuid', '=', 'replacement')
-      .execute();
-
-    const { result } = await mutations.replaceAttributions({
-      selection: { mode: 'explicit', attributionUuids: ['target'] },
-      attributionUuidToReplaceWith: 'replacement',
-      attributions: {
-        replacement: packageInfo('replacement', 'replacement'),
-      },
+  it.each([
+    {
+      focus: 'replacement',
       focusedAttributionUuid: 'replacement',
-    });
-
-    expect(result).toEqual({
-      focusedAttributionOutcome: {
+      focusOutcome: (cloneUuid: string) => ({
         status: 'remapped',
         attributionUuid: 'replacement',
-        newAttributionUuid: expect.any(String),
-      },
-    });
-    if (result.focusedAttributionOutcome.status !== 'remapped') {
-      throw new Error('Expected focused attribution to be remapped');
-    }
-    const cloneUuid = result.focusedAttributionOutcome.newAttributionUuid;
-    expect(await attributionUuidsOn('/readonly/replacement.ts')).toEqual([
-      'replacement',
-    ]);
-    expect(await attributionUuidsOn('/writable/replacement.ts')).toEqual([
-      cloneUuid,
-    ]);
-    expect(await attributionUuidsOn('/writable/target.ts')).toEqual([
-      cloneUuid,
-    ]);
-    expect(await attributionUuidsOn('/readonly/target.ts')).toEqual(['target']);
-    await expect(
-      getDb()
+        newAttributionUuid: cloneUuid,
+      }),
+    },
+    {
+      focus: 'omitted',
+      focusedAttributionUuid: undefined,
+      focusOutcome: () => ({ status: 'unchanged' }),
+    },
+    {
+      focus: 'source',
+      focusedAttributionUuid: 'target',
+      focusOutcome: () => ({ status: 'unchanged' }),
+    },
+  ])(
+    'replaces with the writable clone when confirming a mixed pre-selected attribution ($focus focus)',
+    async ({ focusedAttributionUuid, focusOutcome }) => {
+      await initializeDbWithTestData({
+        resources: pathsToResources([
+          '/readonly/target.ts',
+          '/writable/target.ts',
+          '/readonly/replacement.ts',
+          '/writable/replacement.ts',
+        ]),
+        manualAttributions: {
+          attributions: {
+            target: {
+              id: 'target',
+              criticality: Criticality.None,
+              packageName: 'target',
+            },
+            replacement: {
+              id: 'replacement',
+              criticality: Criticality.None,
+              packageName: 'replacement',
+            },
+          },
+          resourcesToAttributions: {
+            '/readonly/target.ts': ['target'],
+            '/writable/target.ts': ['target'],
+            '/readonly/replacement.ts': ['replacement'],
+            '/writable/replacement.ts': ['replacement'],
+          },
+          attributionsToResources: {},
+        },
+        readonlyRules: [{ path: '/readonly', readonly: true }],
+      });
+      await getDb()
+        .updateTable('attribution')
+        .set({ pre_selected: 1 })
+        .where('uuid', '=', 'replacement')
+        .execute();
+
+      const { result } = await mutations.replaceAttributions({
+        selection: { mode: 'explicit', attributionUuids: ['target'] },
+        attributionUuidToReplaceWith: 'replacement',
+        attributions: {
+          replacement: packageInfo('replacement', 'replacement'),
+        },
+        focusedAttributionUuid,
+      });
+
+      const replacementAttributions = await getDb()
         .selectFrom('attribution')
         .select(['uuid', 'pre_selected'])
         .where('package_name', '=', 'replacement')
-        .execute(),
-    ).resolves.toEqual([
-      { uuid: 'replacement', pre_selected: 1 },
-      { uuid: cloneUuid, pre_selected: 0 },
-    ]);
-  });
+        .execute();
+      const clone = replacementAttributions.find(
+        ({ uuid }) => uuid !== 'replacement',
+      );
+      if (!clone) {
+        throw new Error('Expected a writable clone of the replacement');
+      }
+      const cloneUuid = clone.uuid;
+
+      expect(replacementAttributions).toEqual([
+        { uuid: 'replacement', pre_selected: 1 },
+        { uuid: cloneUuid, pre_selected: 0 },
+      ]);
+      expect(result.focusedAttributionOutcome).toEqual(focusOutcome(cloneUuid));
+      expect(await attributionUuidsOn('/readonly/replacement.ts')).toEqual([
+        'replacement',
+      ]);
+      expect(await attributionUuidsOn('/writable/replacement.ts')).toEqual([
+        cloneUuid,
+      ]);
+      expect(await attributionUuidsOn('/writable/target.ts')).toEqual([
+        cloneUuid,
+      ]);
+      expect(await attributionUuidsOn('/readonly/target.ts')).toEqual([
+        'target',
+      ]);
+    },
+  );
 
   it('matches mixed attribution edits using the writable clone metadata', async () => {
     await initializeMixedAttribution();

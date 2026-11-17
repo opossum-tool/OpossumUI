@@ -282,14 +282,9 @@ const mutationImplementations = {
             params.focusedAttributionUuid,
             oldUuidsToNewUuids,
           );
-          if (
-            params.focusedAttributionUuid !== undefined &&
-            params.attributionUuidToReplaceWith ===
-              params.focusedAttributionUuid
-          ) {
-            attributionUuidToReplaceWith =
-              oldUuidsToNewUuids[params.focusedAttributionUuid];
-          }
+          attributionUuidToReplaceWith =
+            oldUuidsToNewUuids[params.attributionUuidToReplaceWith] ??
+            params.attributionUuidToReplaceWith;
         }
 
         const selection = excludeAttributionFromAllMatchingSelection(
