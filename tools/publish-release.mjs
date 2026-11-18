@@ -28,7 +28,7 @@ export default async function publishRelease({ github, context, core }) {
   }
   const { data: commit } = await github.rest.repos.getCommit({
     ...repo,
-    ref: release.tag_name,
+    ref: `refs/tags/${release.tag_name}`,
   });
   if (commit.sha !== process.env.RELEASE_SHA) {
     throw new Error('Release tag changed');
