@@ -218,8 +218,9 @@ export const text = {
     criticalLicensesSignalCountColumnName: 'Signals Count',
     actions: {
       license: (name: string) =>
-        `Show signals with license ${name} in the Audit view`,
+        `Show resources and signals with license ${name} in the Audit view`,
       signals: 'Show these signals in the Audit view',
+      signalsAndResources: 'Show these signals and resources in the Audit view',
       attributions: 'Show these attributions in the Audit view',
       clickTo: (action: string) =>
         `Click to ${action.charAt(0).toLowerCase()}${action.slice(1)}.`,

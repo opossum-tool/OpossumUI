@@ -80,9 +80,9 @@ export function ReleaseNotes(): React.ReactNode {
         <h2>Navigate directly from project statistics</h2>
         <p>
           You can now jump directly from {text.projectStatisticsPopup.title} to
-          a filtered view of the corresponding attributions or signals. For
-          example, click a criticality category to inspect those signals in the{' '}
-          {text.topBar.audit} view, or{' '}
+          a filtered view of the corresponding attributions, signals, or
+          resources. For example, click a criticality category to inspect those
+          signals in the {text.topBar.audit} view, or{' '}
           <strong>
             {
               text.projectStatisticsPopup.charts.attributionProperties
@@ -91,14 +91,14 @@ export function ReleaseNotes(): React.ReactNode {
           </strong>{' '}
           to focus on attributions awaiting review. License names in the{' '}
           {text.projectStatisticsPopup.tabs.details} tab also link to the
-          matching signals.
+          matching resources and signals.
         </p>
         <Screenshot
           src={statisticsNavigationScreenshot}
-          alt={`${text.projectStatisticsPopup.title} with a license chart tooltip linking to matching signals in the ${text.topBar.audit} view`}
+          alt={`${text.projectStatisticsPopup.title} with a license chart tooltip linking to matching resources and signals in the ${text.topBar.audit} view`}
         >
-          Click a chart category to inspect the matching attributions or
-          signals.
+          Click a chart category to inspect the matching attributions, signals,
+          or resources.
         </Screenshot>
       </section>
     </>

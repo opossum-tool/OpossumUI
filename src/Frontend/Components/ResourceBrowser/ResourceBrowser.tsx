@@ -12,7 +12,10 @@ import {
   getExpandedIds,
   getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
-import { useResourceTreeFilters } from '../../state/variables/use-filters';
+import {
+  ALL_RESOURCES_SEARCH,
+  useResourceTreeFilters,
+} from '../../state/variables/use-filters';
 import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { useVariable } from '../../state/variables/use-variable';
 import { backend } from '../../util/backendClient';
@@ -28,7 +31,6 @@ import { resourceBrowserFilterButtonStyle } from './ResourceBrowser.style';
 import { ResourcesTree } from './ResourcesTree/ResourcesTree';
 import { useLinkedResourcesPanelState } from './use-linked-resources-panel-state';
 
-const ALL_RESOURCES_SEARCH = 'all-resources-search';
 const LINKED_RESOURCES_SEARCH = 'linked-resources-search';
 const IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS = true;
 

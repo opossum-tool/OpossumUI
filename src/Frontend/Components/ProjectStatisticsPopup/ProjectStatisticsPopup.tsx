@@ -16,7 +16,10 @@ import { text } from '../../../shared/text';
 import { criticalityColor, OpossumColors, Sizing } from '../../shared-styles';
 import { navigateFromStatistics } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch } from '../../state/hooks';
-import { initialAttributionFilters } from '../../state/variables/use-filters';
+import {
+  initialAttributionFilters,
+  initialResourceTreeFilters,
+} from '../../state/variables/use-filters';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { backend } from '../../util/backendClient';
 import { useClassifications } from '../../util/use-classifications';
@@ -76,6 +79,10 @@ export const ProjectStatisticsPopup: React.FC = () => {
         filters: {
           ...initialAttributionFilters,
           valueFilters: { license: [licenseOption] },
+        },
+        resourceFilters: {
+          ...initialResourceTreeFilters,
+          selectedLicenses: [licenseOption],
         },
       }),
     );
@@ -229,7 +236,8 @@ export const ProjectStatisticsPopup: React.FC = () => {
                         : `license:${licenseId}`,
                       actionDescription: item.isOther
                         ? undefined
-                        : text.projectStatisticsPopup.actions.signals,
+                        : text.projectStatisticsPopup.actions
+                            .signalsAndResources,
                       onActivate:
                         licenseId === null
                           ? undefined

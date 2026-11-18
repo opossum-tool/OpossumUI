@@ -9,6 +9,11 @@ import type * as Recharts from 'recharts';
 import { describe, expect, it, vi } from 'vitest';
 
 import { deserializeAttributions } from '../ElectronBackend/input/parseInputData';
+import { setVariable } from '../Frontend/state/actions/variables-actions/variables-actions';
+import {
+  ALL_RESOURCES_SEARCH,
+  RESOURCE_TREE_FILTERS,
+} from '../Frontend/state/variables/use-filters';
 import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers/general-test-helpers';
 import { Criticality, RawCriticality } from '../shared/shared-types';
 import { text } from '../shared/text';
@@ -24,6 +29,7 @@ import {
   expectPackageCards,
   expectPathBarCrumbs,
   expectPopupHidden,
+  expectResourceVisibility,
   expectViewIsActive,
   fillFormField,
   fillPanelSearch,
@@ -91,6 +97,21 @@ const navigationData = getParsedInputFileEnrichedWithTestData({
   resourcesToExternalAttributions: { '/package.ts': Object.keys(signals) },
   manualAttributions: deserializeAttributions(attributions),
   resourcesToManualAttributions: { '/package.ts': Object.keys(attributions) },
+});
+const licenseNavigationData = getParsedInputFileEnrichedWithTestData({
+  resources: { 'mit.ts': 1, 'apache.ts': 1, 'manual-only.ts': 1 },
+  externalAttributions: deserializeAttributions({
+    mitSignal: { packageName: 'mit-signal', licenseName: 'MIT' },
+    apacheSignal: { packageName: 'apache-signal', licenseName: 'Apache-2.0' },
+  }),
+  resourcesToExternalAttributions: {
+    '/mit.ts': ['mitSignal'],
+    '/apache.ts': ['apacheSignal'],
+  },
+  manualAttributions: deserializeAttributions({
+    manualMit: { packageName: 'manual-mit', licenseName: 'MIT' },
+  }),
+  resourcesToManualAttributions: { '/manual-only.ts': ['manualMit'] },
 });
 
 async function openStatistics(): Promise<void> {
@@ -256,15 +277,47 @@ describe('statistics navigation', () => {
     );
   });
 
-  it('a license shows only matching signals', async () => {
-    await openStatistics();
-    await clickChartLegend('mostFrequentLicenseCountPieChart', 'MIT');
-    await expectPackageCards(
-      SIGNALS_PANEL,
-      [signals.high],
-      [signals.medium, signals.none],
-    );
-  });
+  it.each(['chart', 'table'] as const)(
+    'a MIT %s link resets resource filters and shows only the resource with a MIT signal',
+    async (source) => {
+      const { sendToChannel, store } = await renderApp({
+        data: licenseNavigationData,
+      });
+      store.dispatch(
+        setVariable(RESOURCE_TREE_FILTERS, {
+          onlyUnreviewedFiles: true,
+          onlyWithAiDeferredAttributions: true,
+          selectedLicenses: [{ id: 'apache-2.0', label: 'Apache-2.0' }],
+          licenseSearches: ['stale-search'],
+        }),
+      );
+      store.dispatch(setVariable(ALL_RESOURCES_SEARCH, 'not-a-resource'));
+      await openProjectStatisticsPopup(sendToChannel);
+      if (source === 'chart') {
+        await clickChartLegend('mostFrequentLicenseCountPieChart', 'MIT');
+      } else {
+        await userEvent.click(screen.getByRole('tab', { name: 'Licenses' }));
+        await userEvent.click(screen.getByRole('button', { name: 'MIT' }));
+      }
+      await expectPopupHidden('project statistics');
+      await expectViewIsActive('audit');
+      await expectPackageCards(
+        SIGNALS_PANEL,
+        [{ packageName: 'mit-signal', licenseName: 'MIT' }],
+        [{ packageName: 'apache-signal', licenseName: 'Apache-2.0' }],
+      );
+      await expectResourceVisibility(
+        ['mit.ts'],
+        ['apache.ts', 'manual-only.ts'],
+      );
+      expect(store.getState().variablesState[RESOURCE_TREE_FILTERS]).toEqual({
+        onlyUnreviewedFiles: false,
+        onlyWithAiDeferredAttributions: false,
+        selectedLicenses: [{ id: 'mit', label: 'MIT' }],
+      });
+      expect(store.getState().variablesState[ALL_RESOURCES_SEARCH]).toBe('');
+    },
+  );
 
   it('a real license named Other is clickable', async () => {
     await openStatistics();

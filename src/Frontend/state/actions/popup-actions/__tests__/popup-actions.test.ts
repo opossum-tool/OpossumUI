@@ -48,8 +48,10 @@ import {
   getTargetView,
 } from '../../../selectors/view-selector';
 import {
+  ALL_RESOURCES_SEARCH,
   type AttributionFilters,
   MANUAL_ATTRIBUTION_FILTERS_AUDIT,
+  RESOURCE_TREE_FILTERS,
 } from '../../../variables/use-filters';
 import {
   initializePackageInfoEditing,
@@ -61,6 +63,7 @@ import {
   setTargetSelectedAttributionId,
   setTargetSelectedResourceId,
 } from '../../resource-actions/audit-view-simple-actions';
+import { setVariable } from '../../variables-actions/variables-actions';
 import {
   navigateToView,
   openPopup,
@@ -271,7 +274,6 @@ describe('The actions checking for unsaved changes', () => {
         valueFilters: {},
         sorting: 'alphabetically',
       };
-
       testStore.dispatch(
         setTemporaryDisplayPackageInfo({
           packageName: 'dirty',
@@ -1021,17 +1023,65 @@ describe('statistics navigation', () => {
     expect(getSelectedView(store.getState())).toBe(View.Audit);
   });
 
-  it.each(['cancel', 'discard'] as const)(
-    'preserves state until %s',
-    (choice) => {
+  const previousResourceFilters = {
+    onlyUnreviewedFiles: true,
+    onlyWithAiDeferredAttributions: true,
+    selectedLicenses: [{ id: 'apache', label: 'Apache-2.0' }],
+    licenseSearches: ['old'],
+  };
+  const nextResourceFilters = {
+    onlyUnreviewedFiles: false,
+    onlyWithAiDeferredAttributions: false,
+    selectedLicenses: [{ id: 'mit', label: 'MIT' }],
+  };
+  const statisticsAttributionFilters: AttributionFilters = {
+    filters: ['needsReview'],
+    search: '',
+    valueFilters: {},
+    sorting: 'alphabetically',
+  };
+  it.each([
+    {
+      choice: 'cancel',
+      continueNavigation: closePopupAndUnsetTargets,
+      selectedResourceId: '/nested/',
+      selectedView: View.Report,
+      expectedResourceFilters: previousResourceFilters,
+      resourceSearch: 'old resource search',
+      expectedAttributionFilters: undefined,
+      comment: 'unsaved',
+    },
+    {
+      choice: 'discard',
+      continueNavigation: proceedFromUnsavedPopup,
+      selectedResourceId: '/',
+      selectedView: View.Audit,
+      expectedResourceFilters: nextResourceFilters,
+      resourceSearch: '',
+      expectedAttributionFilters: statisticsAttributionFilters,
+      comment: 'original comment',
+    },
+  ] as const)(
+    '$choice applies the expected statistics-navigation state',
+    ({
+      continueNavigation,
+      selectedResourceId,
+      selectedView,
+      expectedResourceFilters,
+      resourceSearch,
+      expectedAttributionFilters,
+      comment,
+    }) => {
       const store = createAppStore();
-      const attribution = faker.opossum.packageInfo();
-      const filters: AttributionFilters = {
-        filters: ['needsReview'],
-        search: '',
-        valueFilters: {},
-        sorting: 'alphabetically',
+      const attribution = {
+        ...faker.opossum.packageInfo(),
+        comment: 'original comment',
       };
+      const filters = statisticsAttributionFilters;
+      store.dispatch(
+        setVariable(RESOURCE_TREE_FILTERS, previousResourceFilters),
+      );
+      store.dispatch(setVariable(ALL_RESOURCES_SEARCH, 'old resource search'));
       store.dispatch(navigateToView(View.Report));
       store.dispatch(setSelectedResourceId('/nested/', 'preserve'));
       store.dispatch(initializePackageInfoEditing(attribution));
@@ -1041,34 +1091,77 @@ describe('statistics navigation', () => {
       store.dispatch(openPopup(PopupType.ProjectStatisticsPopup));
       const statisticsId = getOpenPopups(store.getState()).at(-1)!.id;
       store.dispatch(
-        navigateFromStatistics(statisticsId, { external: false, filters }),
+        navigateFromStatistics(statisticsId, {
+          external: false,
+          filters,
+          resourceFilters: nextResourceFilters,
+        }),
       );
       expect(getOpenPopup(store.getState())?.popup).toBe(
         PopupType.NotSavedPopup,
       );
       expect(getSelectedResourceId(store.getState())).toBe('/nested/');
       expect(getSelectedView(store.getState())).toBe(View.Report);
+      expect(store.getState().variablesState[RESOURCE_TREE_FILTERS]).toEqual(
+        previousResourceFilters,
+      );
+      expect(store.getState().variablesState[ALL_RESOURCES_SEARCH]).toBe(
+        'old resource search',
+      );
       expect(
         store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
       ).toBeUndefined();
       store.dispatch(
-        choice === 'cancel'
-          ? closePopupAndUnsetTargets(
-              getOpenPopups(store.getState()).at(-1)!.id,
-            )
-          : proceedFromUnsavedPopup(getOpenPopups(store.getState()).at(-1)!.id),
+        continueNavigation(getOpenPopups(store.getState()).at(-1)!.id),
       );
-      expect(getSelectedResourceId(store.getState())).toBe(
-        choice === 'cancel' ? '/nested/' : '/',
+      expect(getSelectedResourceId(store.getState())).toBe(selectedResourceId);
+      expect(getSelectedView(store.getState())).toBe(selectedView);
+      expect(store.getState().variablesState[RESOURCE_TREE_FILTERS]).toEqual(
+        expectedResourceFilters,
       );
-      expect(getSelectedView(store.getState())).toBe(
-        choice === 'cancel' ? View.Report : View.Audit,
+      expect(store.getState().variablesState[ALL_RESOURCES_SEARCH]).toBe(
+        resourceSearch,
       );
       expect(
         store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
-      ).toEqual(choice === 'cancel' ? undefined : filters);
+      ).toEqual(expectedAttributionFilters);
       expect(getTemporaryDisplayPackageInfo(store.getState()).comment).toBe(
-        choice === 'cancel' ? 'unsaved' : attribution.comment,
+        comment,
+      );
+    },
+  );
+
+  it.each([false, true])(
+    'preserves resource state for destinations without resource filters (external: %s)',
+    (external) => {
+      const store = createAppStore();
+      const resourceFilters = {
+        onlyUnreviewedFiles: true,
+        onlyWithAiDeferredAttributions: false,
+        selectedLicenses: [{ id: 'apache', label: 'Apache-2.0' }],
+      };
+      store.dispatch(setVariable(RESOURCE_TREE_FILTERS, resourceFilters));
+      store.dispatch(setVariable(ALL_RESOURCES_SEARCH, 'keep this search'));
+      store.dispatch(openPopup(PopupType.ProjectStatisticsPopup));
+      const statisticsId = getOpenPopups(store.getState()).at(-1)!.id;
+
+      store.dispatch(
+        navigateFromStatistics(statisticsId, {
+          external,
+          filters: {
+            filters: [],
+            search: '',
+            valueFilters: {},
+            sorting: 'alphabetically',
+          },
+        }),
+      );
+
+      expect(store.getState().variablesState[RESOURCE_TREE_FILTERS]).toEqual(
+        resourceFilters,
+      );
+      expect(store.getState().variablesState[ALL_RESOURCES_SEARCH]).toBe(
+        'keep this search',
       );
     },
   );
