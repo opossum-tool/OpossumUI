@@ -66,8 +66,8 @@ yarn format-check && yarn check-exact-versions && yarn lint-check && yarn typech
 ## In-app release highlights
 
 Update the in-app highlights in the same PR as a noteworthy user-facing feature. Follow
-[the contribution guidance](CONTRIBUTING.md#in-app-release-highlights) and the authoring instructions in
-[`release-notes.tsx`](src/Frontend/whats-new/release-notes.tsx).
+[the contribution guidance](CONTRIBUTING.md#in-app-release-highlights) and the authoring instructions at the top of
+[`WHATS_NEW.md`](WHATS_NEW.md).
 
 ## Pre-commit hook
 

@@ -15,12 +15,8 @@ import { renderComponent } from '../../../test-helpers/render';
 import { BackendCommunication } from '../../BackendCommunication/BackendCommunication';
 import { GlobalPopup } from '../../GlobalPopup/GlobalPopup';
 
-const notes = vi.hoisted(() => ({ revision: 1 }));
-
 vi.mock('../../../whats-new/release-notes', () => ({
-  get revision() {
-    return notes.revision;
-  },
+  revision: 1,
   ReleaseNotes: () => (
     <>
       <h2>A useful new feature</h2>
@@ -33,7 +29,6 @@ vi.mock('../../../whats-new/release-notes', () => ({
 describe('What’s new popup', () => {
   beforeEach(() => {
     vi.stubEnv('PROD', false);
-    notes.revision = 1;
     vi.mocked(window.electronAPI.getUserSettings).mockResolvedValue(
       DEFAULT_USER_SETTINGS,
     );
@@ -93,8 +88,7 @@ describe('What’s new popup', () => {
     },
   );
 
-  it('opens and reopens the empty state from Help without a project', async () => {
-    notes.revision = 0;
+  it('opens and reopens from Help without a project', async () => {
     let showWhatsNew: Parameters<typeof window.electronAPI.on>[1] | undefined;
     vi.mocked(window.electronAPI.on).mockImplementation((channel, listener) => {
       if (channel === AllowedFrontendChannels.ShowWhatsNew) {
@@ -111,13 +105,17 @@ describe('What’s new popup', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(showWhatsNew).toBeDefined();
     act(() => showWhatsNew?.({} as IpcRendererEvent));
-    expect(await screen.findByText(text.whatsNew.empty)).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'A useful new feature' }),
+    ).toBeInTheDocument();
     expect(getOpenPopup(store.getState())?.popup).toBe(PopupType.WhatsNewPopup);
     fireEvent.click(screen.getByRole('button', { name: text.buttons.close }));
     await waitFor(() =>
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
     );
     act(() => showWhatsNew?.({} as IpcRendererEvent));
-    expect(await screen.findByText(text.whatsNew.empty)).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'A useful new feature' }),
+    ).toBeInTheDocument();
   });
 });

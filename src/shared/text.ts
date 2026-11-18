@@ -15,7 +15,6 @@ function menuLabelForFileFormat(fileFilter: FileFilter): string {
 export const text = {
   whatsNew: {
     title: 'What’s new',
-    empty: 'No release highlights are available yet.',
     viewFullSize: 'View full size',
     screenshot: 'Screenshot',
   },

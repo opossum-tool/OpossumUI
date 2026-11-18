@@ -135,10 +135,18 @@ jobs:
       - name: Create SPDX document
         run: yarn spdx
 
-      - name: Upload user guide and SPDX document
+      - name: Install pandoc
+        run: sudo apt-get update && sudo apt-get install -y pandoc
+
+      - name: Convert user guide and what's new to standalone HTML
+        run: |
+          pandoc USER_GUIDE.md -f gfm -s --embed-resources --metadata pagetitle="OpossumUI User Guide" -o USER_GUIDE.html
+          pandoc WHATS_NEW.md -f gfm -s --embed-resources --metadata pagetitle="OpossumUI What's New" -o WHATS_NEW.html
+
+      - name: Upload user guide, what's new and SPDX document
         run: |
           [[ "$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft)" == true ]]
-          gh release upload "$RELEASE_TAG" USER_GUIDE.md opossum-ui.spdx.json --clobber
+          gh release upload "$RELEASE_TAG" USER_GUIDE.html WHATS_NEW.html opossum-ui.spdx.json --clobber
 
   publish:
     needs: [prepare, publish-release, upload-docs]
