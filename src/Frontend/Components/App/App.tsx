@@ -21,6 +21,8 @@ import { MacArchitectureWarning } from '../MacArchitectureWarning/mac-architectu
 import { ProcessPopup } from '../ProcessPopup/ProcessPopup';
 import { QuitSaveIndicator } from '../QuitSaveIndicator/QuitSaveIndicator';
 import { ReportView } from '../ReportView/ReportView';
+import { SaveErrorNotification } from '../SaveErrorNotification/save-error-notification';
+import { SaveRecoveryDialog } from '../SaveRecoveryDialog/save-recovery-dialog';
 import { TopBar } from '../TopBar/TopBar';
 import { UpdateBanner } from '../UpdateBanner/UpdateBanner';
 import {
@@ -44,6 +46,8 @@ export function App() {
         <NotificationRegion>
           <QuitSaveIndicator />
           <UpdateBanner />
+          <SaveErrorNotification />
+          <SaveRecoveryDialog />
           <MacArchitectureWarning />
         </NotificationRegion>
         <Workspace>

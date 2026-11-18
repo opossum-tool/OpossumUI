@@ -20,7 +20,9 @@ export function useProjectSave(databaseInitialized: boolean) {
       if (!databaseInitialized) {
         return;
       }
-      const writeArchive = () => window.electronAPI.saveFile();
+      const writeArchive = async () => {
+        await window.electronAPI.saveFile();
+      };
       if (submitDraftRef.current) {
         await submitDraftRef.current(writeArchive);
       } else {

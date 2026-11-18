@@ -79,44 +79,48 @@ export function NotificationPopup(
         {props.customAction}
         {props.leftButtonConfig ? (
           <MuiButton
-            variant={'contained'}
+            variant={props.leftButtonConfig.variant ?? 'contained'}
             onClick={props.leftButtonConfig.onClick}
             color={props.leftButtonConfig.color}
             disabled={props.leftButtonConfig.disabled}
             loading={props.leftButtonConfig.loading}
+            loadingIndicator={props.leftButtonConfig.loadingIndicator}
           >
             {props.leftButtonConfig.buttonText}
           </MuiButton>
         ) : null}
         {props.centerLeftButtonConfig ? (
           <MuiButton
-            variant={'contained'}
+            variant={props.centerLeftButtonConfig.variant ?? 'contained'}
             onClick={props.centerLeftButtonConfig.onClick}
             color={props.centerLeftButtonConfig.color}
             disabled={props.centerLeftButtonConfig.disabled}
             loading={props.centerLeftButtonConfig.loading}
+            loadingIndicator={props.centerLeftButtonConfig.loadingIndicator}
           >
             {props.centerLeftButtonConfig.buttonText}
           </MuiButton>
         ) : null}
         {props.centerRightButtonConfig ? (
           <MuiButton
-            variant={'contained'}
+            variant={props.centerRightButtonConfig.variant ?? 'contained'}
             onClick={props.centerRightButtonConfig.onClick}
             color={props.centerRightButtonConfig.color}
             disabled={props.centerRightButtonConfig.disabled}
             loading={props.centerRightButtonConfig.loading}
+            loadingIndicator={props.centerRightButtonConfig.loadingIndicator}
           >
             {props.centerRightButtonConfig.buttonText}
           </MuiButton>
         ) : null}
         {props.rightButtonConfig ? (
           <MuiButton
-            variant={'contained'}
+            variant={props.rightButtonConfig.variant ?? 'contained'}
             onClick={props.rightButtonConfig.onClick}
             color={props.rightButtonConfig.color}
             disabled={props.rightButtonConfig.disabled}
             loading={props.rightButtonConfig.loading}
+            loadingIndicator={props.rightButtonConfig.loadingIndicator}
           >
             {props.rightButtonConfig.buttonText}
           </MuiButton>

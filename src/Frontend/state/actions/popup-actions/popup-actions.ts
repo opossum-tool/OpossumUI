@@ -8,6 +8,7 @@ import type {
   FileFormatInfo,
   MergeOpossumFilesResult,
   PackageInfo,
+  SaveFailure,
   SplitFileResult,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
@@ -15,6 +16,7 @@ import { toast } from '../../../Components/Toaster';
 import { PopupType, View } from '../../../enums/enums';
 import { ROOT_PATH } from '../../../shared-constants';
 import { invalidateBackendQueries } from '../../../util/backendClient';
+import { attemptToLeave } from '../../../util/save-recovery';
 import {
   getIsPackageInfoDirty,
   getSelectedResourceId,
@@ -81,19 +83,32 @@ import {
   setTargetView,
 } from '../view-actions/view-actions';
 
-/** Shows the saving indicator while the main process finishes pending work. */
-function confirmQuitShowingSavingIndicator(): AppThunkAction {
-  return (dispatch) => {
-    dispatch(setIsSavingBeforeQuit(true));
-    void window.electronAPI.confirmQuit();
-  };
-}
-
-function confirmQuitWhenBackendIdle(): AppThunkAction<Promise<void>> {
+function confirmQuitWhenBackendIdle(
+  onIdle?: () => void,
+): AppThunkAction<Promise<void>> {
   return async (dispatch) => {
-    dispatch(setIsSavingBeforeQuit(true));
-    await window.electronAPI.whenBackendIdle();
-    void window.electronAPI.confirmQuit();
+    let actionStarted = false;
+    try {
+      await attemptToLeave('quit', async (failureId) => {
+        actionStarted = true;
+        dispatch(setIsSavingBeforeQuit(true));
+        try {
+          await window.electronAPI.whenBackendIdle();
+          onIdle?.();
+          return failureId === undefined
+            ? window.electronAPI.confirmQuit()
+            : window.electronAPI.confirmQuit({ discardUnsavedChanges: true });
+        } finally {
+          dispatch(setIsSavingBeforeQuit(false));
+        }
+      });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : String(error));
+    } finally {
+      if (actionStarted) {
+        dispatch(setQuitAppRequest(false));
+      }
+    }
   };
 }
 
@@ -101,14 +116,34 @@ function openFileWhenBackendIdle(
   filePath?: string,
 ): AppThunkAction<Promise<void>> {
   return async (dispatch) => {
-    dispatch(setIsSavingBeforeQuit(true));
-    await window.electronAPI.whenBackendIdle();
-    if (filePath === undefined) {
-      void window.electronAPI.openFile();
-    } else {
-      void window.electronAPI.openFile(filePath);
+    let actionStarted = false;
+    try {
+      await attemptToLeave('open', async (failureId) => {
+        actionStarted = true;
+        dispatch(setIsSavingBeforeQuit(true));
+        let failure: SaveFailure | undefined;
+        try {
+          failure = await window.electronAPI.whenBackendIdle();
+        } finally {
+          dispatch(setIsSavingBeforeQuit(false));
+        }
+        if (failure && failureId === undefined) {
+          return { status: 'blocked', failure };
+        }
+        if (filePath === undefined) {
+          await window.electronAPI.openFile();
+        } else {
+          await window.electronAPI.openFile(filePath);
+        }
+        return undefined;
+      });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : String(error));
+    } finally {
+      if (actionStarted) {
+        dispatch(setOpenFileRequest(null));
+      }
     }
-    dispatch(setIsSavingBeforeQuit(false));
   };
 }
 
@@ -141,7 +176,9 @@ export function restartAndUpdateOrOpenUnsavedPopup(): AppThunkAction {
 }
 
 function restartAndUpdate(): void {
-  void window.electronAPI.restartAndUpdate().catch((error: unknown) => {
+  void attemptToLeave('restart-and-update', () =>
+    window.electronAPI.restartAndUpdate(),
+  ).catch((error: unknown) => {
     toast.error(
       error instanceof Error ? error.message : text.updateApp.restartFailed,
     );
@@ -439,19 +476,20 @@ export function proceedFromUnsavedPopup(
     const quitAppRequested = getQuitAppRequested(getState());
 
     if (quitAppRequested) {
-      await window.electronAPI.whenBackendIdle();
-      dispatch(closePopup(entry.id));
-      dispatch(setTargetView(null));
-      dispatch(setTargetSelectedResourceId(null));
-      dispatch(setTargetSelectedAttributionId(null));
-      dispatch(setTargetAttributionFilterChange(null));
-      dispatch(setOpenFileRequest(null));
-      dispatch(setImportFileRequest(null));
-      dispatch(setMergeOpossumFilesRequest(null));
-      dispatch(setExportFileRequest(null));
-      dispatch(setSplitFileRequest(null));
-      dispatch(setQuitAppRequest(false));
-      dispatch(confirmQuitShowingSavingIndicator());
+      await dispatch(
+        confirmQuitWhenBackendIdle(() => {
+          dispatch(closePopup(entry.id));
+          dispatch(setTargetView(null));
+          dispatch(setTargetSelectedResourceId(null));
+          dispatch(setTargetSelectedAttributionId(null));
+          dispatch(setTargetAttributionFilterChange(null));
+          dispatch(setOpenFileRequest(null));
+          dispatch(setImportFileRequest(null));
+          dispatch(setMergeOpossumFilesRequest(null));
+          dispatch(setExportFileRequest(null));
+          dispatch(setSplitFileRequest(null));
+        }),
+      );
       return;
     }
 

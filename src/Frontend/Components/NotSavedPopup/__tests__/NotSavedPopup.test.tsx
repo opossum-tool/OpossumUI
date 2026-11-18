@@ -155,8 +155,8 @@ describe('NotSavedPopup', () => {
 
     let resolveWhenBackendIdle!: () => void;
     vi.mocked(global.window.electronAPI.whenBackendIdle).mockReturnValueOnce(
-      new Promise<void>((resolve) => {
-        resolveWhenBackendIdle = resolve;
+      new Promise<undefined>((resolve) => {
+        resolveWhenBackendIdle = () => resolve(undefined);
       }),
     );
 
