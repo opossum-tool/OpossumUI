@@ -81,7 +81,7 @@ import {
   setTargetView,
 } from '../view-actions/view-actions';
 
-/** Shows the saving indicator and confirms the quit in the main process. */
+/** Shows the saving indicator while the main process finishes pending work. */
 function confirmQuitShowingSavingIndicator(): AppThunkAction {
   return (dispatch) => {
     dispatch(setIsSavingBeforeQuit(true));
@@ -89,10 +89,6 @@ function confirmQuitShowingSavingIndicator(): AppThunkAction {
   };
 }
 
-/**
- * Shows the saving indicator to make the waiting time visible, then
- * confirms the quit once the backend has no pending tracked work.
- */
 function confirmQuitWhenBackendIdle(): AppThunkAction<Promise<void>> {
   return async (dispatch) => {
     dispatch(setIsSavingBeforeQuit(true));
@@ -101,12 +97,6 @@ function confirmQuitWhenBackendIdle(): AppThunkAction<Promise<void>> {
   };
 }
 
-/**
- * Shows the saving indicator to make the waiting time visible (the same
- * blocking step as for quitting), then opens the file once the backend has
- * no pending tracked work. The indicator is reset afterwards, since the
- * renderer keeps running across the file load.
- */
 function openFileWhenBackendIdle(
   filePath?: string,
 ): AppThunkAction<Promise<void>> {
@@ -449,8 +439,6 @@ export function proceedFromUnsavedPopup(
     const quitAppRequested = getQuitAppRequested(getState());
 
     if (quitAppRequested) {
-      // The popup stays open, with a spinning button, until the backend has
-      // settled, so that the quit cannot silently lose writes.
       await window.electronAPI.whenBackendIdle();
       dispatch(closePopup(entry.id));
       dispatch(setTargetView(null));

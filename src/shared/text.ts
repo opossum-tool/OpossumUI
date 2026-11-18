@@ -299,7 +299,7 @@ export const text = {
     discardAndQuit: 'Discard and Quit',
   },
   quitSaveIndicator: {
-    saving: 'Saving project before quitting…',
+    saving: 'Saving project…',
   },
   resourceBrowser: {
     allResources: (selectedResources: number, totalCount: number) =>

@@ -10,6 +10,7 @@ import { DEFAULT_USER_SETTINGS } from '../../../../shared/shared-constants';
 import { faker } from '../../../../testing/Faker';
 import { PopupType } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
+import { closePopupAndUnsetTargets } from '../../../state/actions/popup-actions/popup-actions';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { fetchUserSettings } from '../../../state/actions/user-settings-actions/user-settings-actions';
@@ -45,28 +46,47 @@ function InitializeUserSettings() {
 }
 
 describe('BackendCommunication', () => {
-  it('stores the external file path in the unsaved-changes flow', async () => {
+  it('requests the file picker when opening without an explicit path', async () => {
     const listeners = setupListeners();
+    await renderComponent(<BackendCommunication />);
 
-    vi.mocked(window.electronAPI.on).mockImplementation((channel, listener) => {
-      listeners.set(channel, [
-        listener as (event: IpcRendererEvent, ...args: Array<unknown>) => void,
-      ]);
-      return vi.fn();
+    act(() => {
+      emit(listeners, AllowedFrontendChannels.OpenFile);
     });
 
+    await waitFor(() =>
+      expect(window.electronAPI.openFile).toHaveBeenCalledExactlyOnceWith(),
+    );
+  });
+
+  it('preserves unsaved edits when opening a project requested by path is cancelled', async () => {
+    const listeners = setupListeners();
+    const unsavedAttribution = faker.opossum.packageInfo();
     const { store } = await renderComponent(<BackendCommunication />, {
-      actions: [setTemporaryDisplayPackageInfo(faker.opossum.packageInfo())],
+      actions: [setTemporaryDisplayPackageInfo(unsavedAttribution)],
     });
-    const filePath = '/path/to/project.opossum';
+    const filePath = '/recent/project.opossum';
 
-    emit(listeners, AllowedFrontendChannels.OpenFile, filePath);
-
+    act(() => {
+      emit(listeners, AllowedFrontendChannels.OpenFile, filePath);
+    });
     expect(getOpenPopup(store.getState())?.popup).toBe(PopupType.NotSavedPopup);
     expect(getOpenFileRequest(store.getState())).toEqual({
       kind: 'path',
       filePath,
     });
+    expect(window.electronAPI.openFile).not.toHaveBeenCalled();
+
+    act(() => {
+      store.dispatch(
+        closePopupAndUnsetTargets(getOpenPopups(store.getState()).at(-1)!.id),
+      );
+    });
+    expect(getOpenFileRequest(store.getState())).toBeNull();
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toEqual(
+      unsavedAttribution,
+    );
+    expect(window.electronAPI.openFile).not.toHaveBeenCalled();
   });
 
   function setupListeners(): Map<

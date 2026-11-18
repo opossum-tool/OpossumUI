@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import type AdmZip from 'adm-zip';
+import { setImmediate } from 'node:timers/promises';
 
 import { ExportType } from '../../../shared/shared-types';
 import {
@@ -44,7 +45,10 @@ vi.mock('../../api/commands', () => ({
 const MUTATION_COMMAND = 'updateOrMatchAttributions';
 const QUERY_COMMAND = 'getResourceTree';
 
-type FakePort = { responses: Array<DbProcessResponse> };
+type FakePort = {
+  responses: Array<DbProcessResponse>;
+  postMessage: (message: DbProcessResponse) => void;
+};
 
 function createFakePort(): FakePort {
   const responses: Array<DbProcessResponse> = [];
@@ -53,17 +57,14 @@ function createFakePort(): FakePort {
     postMessage: vi.fn((msg: DbProcessResponse) => {
       responses.push(msg);
     }),
-  } as unknown as FakePort;
+  };
 }
 
 async function handle(
   msg: DbProcessRequest,
 ): Promise<DbProcessResponse | undefined> {
   const port = createFakePort();
-  await handleDbProcessMessage(
-    port as unknown as Parameters<typeof handleDbProcessMessage>[0],
-    msg,
-  );
+  await handleDbProcessMessage(port, msg);
   return port.responses.at(-1);
 }
 
@@ -224,6 +225,24 @@ describe('dbProcess save tracking', () => {
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
   });
 
+  it('saves to the newly loaded project', async () => {
+    await loadProject();
+    const secondArchive = {} as AdmZip;
+    loadFileMock.mockResolvedValueOnce({
+      ok: true,
+      projectId: 'uuid_2',
+      opossumZip: secondArchive,
+    });
+
+    await handle({ id: 1, type: 'loadFile', filePath: '/next' });
+    await save(2);
+
+    expect(saveFileApiMock).toHaveBeenLastCalledWith(
+      { projectId: 'uuid_2', opossumFilePath: '/next' },
+      secondArchive,
+    );
+  });
+
   it('skips the automatic save when no project is loaded', async () => {
     await runCommand(1, MUTATION_COMMAND, true);
     await waitForPendingSaves(2);
@@ -280,40 +299,59 @@ describe('dbProcess save tracking', () => {
 
   it('resolves waitForPendingSaves only after the scheduled write finished', async () => {
     await loadProject();
-
-    let resolveSave!: () => void;
-    saveFileApiMock.mockImplementationOnce(
-      () =>
-        new Promise<void>((resolve) => {
-          resolveSave = resolve;
-        }),
-    );
+    const write = Promise.withResolvers<void>();
+    saveFileApiMock.mockReturnValueOnce(write.promise);
 
     await runCommand(1, MUTATION_COMMAND, true);
-    const idlePromise = waitForPendingSaves(2);
-    resolveSave();
-    expect((await idlePromise)?.type).toBe('success');
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
+    const port = createFakePort();
+    const idleRequest = handleDbProcessMessage(port, {
+      id: 2,
+      type: 'waitForPendingSaves',
+    });
+
+    // Give an incorrectly immediate response a chance to arrive before checking.
+    await setImmediate();
+    expect(port.responses).toEqual([]);
+
+    write.resolve();
+    await idleRequest;
+    expect(port.responses).toEqual([
+      { id: 2, type: 'success', result: 'success' },
+    ]);
   });
 
   it('resolves waitForPendingSaves after all writes of a mutation burst', async () => {
     await loadProject();
-
-    let resolveFirstSave!: () => void;
-    saveFileApiMock.mockImplementationOnce(
-      () =>
-        new Promise<void>((resolve) => {
-          resolveFirstSave = resolve;
-        }),
-    );
+    const firstWrite = Promise.withResolvers<void>();
+    const lastWrite = Promise.withResolvers<void>();
+    saveFileApiMock
+      .mockReturnValueOnce(firstWrite.promise)
+      .mockResolvedValueOnce(undefined)
+      .mockReturnValueOnce(lastWrite.promise);
 
     await runCommand(1, MUTATION_COMMAND, true);
     await runCommand(2, MUTATION_COMMAND, true);
     await runCommand(3, MUTATION_COMMAND, true);
-    const idlePromise = waitForPendingSaves(4);
-    resolveFirstSave();
-    expect((await idlePromise)?.type).toBe('success');
+    const port = createFakePort();
+    const idleRequest = handleDbProcessMessage(port, {
+      id: 4,
+      type: 'waitForPendingSaves',
+    });
+
+    await setImmediate();
+    expect(port.responses).toEqual([]);
+
+    firstWrite.resolve();
+    await setImmediate();
     expect(saveFileApiMock).toHaveBeenCalledTimes(3);
+    expect(port.responses).toEqual([]);
+
+    lastWrite.resolve();
+    await idleRequest;
+    expect(port.responses).toEqual([
+      { id: 4, type: 'success', result: 'success' },
+    ]);
   });
 
   it('serializes a manual save behind a running automatic save', async () => {
