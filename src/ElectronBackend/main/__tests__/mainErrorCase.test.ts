@@ -60,6 +60,7 @@ vi.mock('electron', async () => {
           loadFile: (): void => {
             throw Error('TEST_ERROR');
           },
+          isDestroyed: vi.fn().mockReturnValue(false),
           maximize: vi.fn(),
           on: vi.fn(),
           webContents: {

@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, screen } from '@testing-library/react';
+import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AdmZip from 'adm-zip';
 import type {
@@ -11,7 +11,7 @@ import type {
   MenuItem,
   MenuItemConstructorOptions,
 } from 'electron';
-import { copyFileSync, mkdirSync, readFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 
 import * as saveFileModule from '../ElectronBackend/api/saveFile';
@@ -43,6 +43,7 @@ import * as converters from '../ElectronBackend/opossum-file/opossum-file';
 import '../ElectronBackend/preload';
 import type { OpossumOutputFile } from '../ElectronBackend/types/types';
 import { setDatabaseInitialized } from '../Frontend/util/backendClient';
+import { closeSaveRecovery } from '../Frontend/util/save-recovery';
 import { AllowedFrontendChannels, IpcChannel } from '../shared/ipc-channels';
 import type { ElectronAPI } from '../shared/shared-types';
 import { text } from '../shared/text';
@@ -131,6 +132,7 @@ let firstPath: string;
 let projectId: string;
 let secondPath: string;
 let releaseSave: () => void;
+let failSave: (error: Error) => void;
 let saveStarted: Promise<void>;
 
 beforeEach(async () => {
@@ -178,12 +180,17 @@ beforeEach(async () => {
     throw new Error(result.error.message);
   }
   projectId = result.projectId;
+  setGlobalBackendState({ projectId, opossumFilePath: firstPath });
+  vi.mocked(window.electronAPI.saveFile).mockImplementation(() =>
+    client.saveFile({ projectId, opossumFilePath: firstPath }),
+  );
   setDatabaseInitialized(true);
 
   const started = Promise.withResolvers<void>();
   const gate = Promise.withResolvers<void>();
   saveStarted = started.promise;
   releaseSave = gate.resolve;
+  failSave = gate.reject;
   const realSaveFile = saveFileModule.saveFile;
   // Pause before serialization, when the save still needs project A's database.
   // Loading B prematurely would replace precisely that state.
@@ -197,6 +204,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+  act(closeSaveRecovery);
   releaseSave?.();
   await client.flushSaves();
   resetDbProcessStateForTesting();
@@ -209,6 +217,9 @@ afterEach(async () => {
     .mockResolvedValue(undefined);
   vi.mocked(window.electronAPI.confirmQuit).mockReset();
   vi.mocked(window.electronAPI.whenBackendIdle).mockReset();
+  vi.mocked(window.electronAPI.importFileConvertAndLoad).mockReset();
+  vi.mocked(window.electronAPI.mergeFileAndLoad).mockReset();
+  vi.mocked(window.electronAPI.restartAndUpdate).mockReset();
   invoke.mockReset();
   quit.mockReset();
 });
@@ -338,77 +349,105 @@ async function prepareImport(intoCurrent: boolean) {
   } as unknown as BrowserWindow;
 }
 
-async function confirmImport() {
+async function expectBlockedByFailedSave() {
+  await act(async () => {
+    await saveStarted;
+    failSave(new Error('Disk full'));
+  });
+  const dialog = await screen.findByRole('dialog', {
+    name: text.saveError.heading,
+  });
+  expect(within(dialog).getByText('Disk full')).toBeVisible();
+  expect(within(dialog).getAllByRole('button')).toHaveLength(2);
+  expect(invoke).not.toHaveBeenCalled();
+  expect(packageNameInArchive(readFileSync(firstPath))).toBe(
+    packageInfo.packageName,
+  );
+}
+
+async function confirmImport(recover: boolean, destination: string) {
   expect(packageNameInArchive(readFileSync(firstPath))).toBe(
     packageInfo.packageName,
   );
   await clickPopupButton(IMPORT_DIALOG_LABEL, text.buttons.import);
-  releaseSave();
+  if (recover) {
+    await expectBlockedByFailedSave();
+    expect(existsSync(destination)).toBe(false);
+    await clickPopupButton('save recovery dialog', text.saveError.retry);
+  } else {
+    releaseSave();
+  }
   await expectPopupHidden(IMPORT_DIALOG_LABEL);
 }
 
-test('saves the current project before converting an import as a new project', async () => {
-  const mainWindow = await prepareImport(false);
-  const importFile = importFileConvertAndLoadListener(mainWindow, vi.fn());
-  const destination = faker.outputPath(`${faker.string.uuid()}.opossum`);
-  vi.mocked(window.electronAPI.selectSaveFile).mockResolvedValueOnce(
-    destination,
-  );
-  await selectImportOutputFile();
+test.each([false, true])(
+  'saves the current project before converting an import as a new project (recover: %s)',
+  async (recover) => {
+    const mainWindow = await prepareImport(false);
+    const importFile = importFileConvertAndLoadListener(mainWindow, vi.fn());
+    const destination = faker.outputPath(`${faker.string.uuid()}.opossum`);
+    vi.mocked(window.electronAPI.selectSaveFile).mockResolvedValueOnce(
+      destination,
+    );
+    await selectImportOutputFile();
 
-  const archiveAtConversion = Promise.withResolvers<Buffer>();
-  // Stand in for conversion with an archive the real load path can open.
-  using convert = vi
-    .spyOn(converters, 'convertToOpossum')
-    .mockImplementation((source, target) => {
-      archiveAtConversion.resolve(readFileSync(firstPath));
-      copyFileSync(source, target);
-      return Promise.resolve();
-    });
-  vi.mocked(window.electronAPI.importFileConvertAndLoad).mockImplementationOnce(
-    preloadAPI.importFileConvertAndLoad,
-  );
-  invoke.mockImplementationOnce((_, source, fileType, target) =>
-    importFile({} as IpcMainInvokeEvent, source, fileType, target),
-  );
+    const archiveAtConversion = Promise.withResolvers<Buffer>();
+    // Stand in for conversion with an archive the real load path can open.
+    using convert = vi
+      .spyOn(converters, 'convertToOpossum')
+      .mockImplementation((source, target) => {
+        archiveAtConversion.resolve(readFileSync(firstPath));
+        copyFileSync(source, target);
+        return Promise.resolve();
+      });
+    vi.mocked(window.electronAPI.importFileConvertAndLoad).mockImplementation(
+      preloadAPI.importFileConvertAndLoad,
+    );
+    invoke.mockImplementationOnce((_, source, fileType, target) =>
+      importFile({} as IpcMainInvokeEvent, source, fileType, target),
+    );
 
-  await confirmImport();
+    await confirmImport(recover, destination);
 
-  expect(convert).toHaveBeenCalledOnce();
-  expect(packageNameInArchive(await archiveAtConversion.promise)).toBe(
-    savedName,
-  );
-});
+    expect(convert).toHaveBeenCalledOnce();
+    expect(packageNameInArchive(await archiveAtConversion.promise)).toBe(
+      savedName,
+    );
+  },
+);
 
-test('includes the submitted edit in the backup when importing into the current project', async () => {
-  const mainWindow = await prepareImport(true);
-  const importFile = mergeFileAndLoadListener(mainWindow, vi.fn());
-  // The listener still creates the real backup before calling the converter.
-  using merge = vi
-    .spyOn(converters, 'mergeFileIntoOpossum')
-    .mockResolvedValue(undefined);
-  vi.mocked(window.electronAPI.mergeFileAndLoad).mockImplementationOnce(
-    preloadAPI.mergeFileAndLoad,
-  );
-  invoke.mockImplementationOnce((_, source, fileType) =>
-    importFile({} as IpcMainInvokeEvent, source, fileType),
-  );
+test.each([false, true])(
+  'includes the submitted edit in the backup when importing into the current project (recover: %s)',
+  async (recover) => {
+    const mainWindow = await prepareImport(true);
+    const importFile = mergeFileAndLoadListener(mainWindow, vi.fn());
+    // The listener still creates the real backup before calling the converter.
+    using merge = vi
+      .spyOn(converters, 'mergeFileIntoOpossum')
+      .mockResolvedValue(undefined);
+    vi.mocked(window.electronAPI.mergeFileAndLoad).mockImplementation(
+      preloadAPI.mergeFileAndLoad,
+    );
+    invoke.mockImplementationOnce((_, source, fileType) =>
+      importFile({} as IpcMainInvokeEvent, source, fileType),
+    );
 
-  await confirmImport();
+    await confirmImport(recover, `${firstPath}.backup`);
 
-  expect(merge).toHaveBeenCalledOnce();
-  expect(packageNameInArchive(readFileSync(`${firstPath}.backup`))).toBe(
-    savedName,
-  );
-});
+    expect(merge).toHaveBeenCalledOnce();
+    expect(packageNameInArchive(readFileSync(`${firstPath}.backup`))).toBe(
+      savedName,
+    );
+  },
+);
 
-test('persists the submitted change before restarting to install an update', async () => {
+async function prepareUpdateRestart() {
   vi.mocked(window.electronAPI.getUpdateState).mockResolvedValueOnce({
     status: 'downloaded',
     tag: 'OpossumUI-2026-10-23',
   });
   await submitChange();
-  vi.mocked(window.electronAPI.restartAndUpdate).mockImplementationOnce(
+  vi.mocked(window.electronAPI.restartAndUpdate).mockImplementation(
     preloadAPI.restartAndUpdate,
   );
   const archiveAtRestart = Promise.withResolvers<Buffer>();
@@ -424,9 +463,32 @@ test('persists the submitted change before restarting to install an update', asy
   await userEvent.click(
     await screen.findByRole('button', { name: text.updateApp.restart }),
   );
-  releaseSave();
+  return { archiveAtRestart: archiveAtRestart.promise };
+}
 
-  expect(packageNameInArchive(await archiveAtRestart.promise)).toBe(savedName);
+test.each([false, true])(
+  'persists the submitted change before restarting to install an update (recover: %s)',
+  async (recover) => {
+    const { archiveAtRestart } = await prepareUpdateRestart();
+    if (recover) {
+      await expectBlockedByFailedSave();
+      await clickPopupButton('save recovery dialog', text.saveError.retry);
+    } else {
+      releaseSave();
+    }
+    expect(packageNameInArchive(await archiveAtRestart)).toBe(savedName);
+  },
+);
+
+test('Stay cancels a restart blocked by a failed save', async () => {
+  await prepareUpdateRestart();
+  await expectBlockedByFailedSave();
+
+  await clickPopupButton('save recovery dialog', text.saveError.stay);
+
+  await expectPopupHidden('save recovery dialog');
+  expect(invoke).not.toHaveBeenCalled();
+  await expectFormFieldValues({ name: savedName });
 });
 
 describe.each([
@@ -466,6 +528,148 @@ describe.each([
 
     await expectSavedBeforeOpening(opened);
   });
+});
+
+const selectOpen = (menu: MenuItemConstructorOptions) =>
+  submenuOf(menu).find(({ id }) => id === menuItemIds.openFile)!;
+
+async function failOpenSave() {
+  await act(async () => {
+    await saveStarted;
+    failSave(new Error('Disk full'));
+  });
+  const dialog = await screen.findByRole('dialog', {
+    name: text.saveError.heading,
+  });
+  expect(within(dialog).getByText('Disk full')).toBeVisible();
+  expect(screen.getAllByText(text.saveError.heading)).toHaveLength(1);
+  expect(window.electronAPI.openFile).not.toHaveBeenCalled();
+  expect(dialogs.openOpossumFileDialog).not.toHaveBeenCalled();
+}
+
+test('a failed flush blocks Open and Retry saves before resuming it', async () => {
+  const { openProject, opened } = await prepareProjectOpening(selectOpen);
+  openProject();
+  await failOpenSave();
+  expect(
+    within(
+      screen.getByRole('dialog', { name: text.saveError.heading }),
+    ).getByRole('button', { name: text.saveError.retry }),
+  ).toBeInTheDocument();
+
+  await clickPopupButton('save recovery dialog', text.saveError.retry);
+  await act(async () => {
+    const { archive, loaded } = await opened;
+    expect(loaded).toBe(true);
+    expect(packageNameInArchive(archive)).toBe(savedName);
+  });
+  expect(saveFileModule.saveFile).toHaveBeenCalledTimes(2);
+});
+
+test('a failed flush while quitting opens the recovery dialog', async () => {
+  const { requestQuit } = await prepareQuit();
+  requestQuit();
+  await act(async () => {
+    await saveStarted;
+    failSave(new Error('Disk full'));
+  });
+
+  const dialog = await screen.findByRole('dialog', {
+    name: text.saveError.heading,
+  });
+  expect(within(dialog).getByText('Disk full')).toBeVisible();
+  expect(screen.getAllByText(text.saveError.heading)).toHaveLength(1);
+  expect(
+    within(
+      screen.getByRole('dialog', { name: text.saveError.heading }),
+    ).getByRole('button', { name: text.saveError.retry }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: text.saveError.quitWithoutSaving }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: text.saveError.stay }),
+  ).toBeInTheDocument();
+  await clickPopupButton('save recovery dialog', text.saveError.stay);
+  expect(quit).not.toHaveBeenCalled();
+});
+
+test('one click on Quit without saving is enough after another save failure', async () => {
+  const { requestQuit, exited } = await prepareQuit();
+  requestQuit();
+  await act(async () => {
+    await saveStarted;
+    failSave(new Error('Disk full'));
+  });
+  await screen.findByRole('dialog', { name: text.saveError.heading });
+
+  vi.mocked(saveFileModule.saveFile).mockRejectedValueOnce(
+    new Error('Permission denied'),
+  );
+  await window.electronAPI.saveFile();
+  await clickPopupButton(
+    'save recovery dialog',
+    text.saveError.quitWithoutSaving,
+  );
+
+  expect(quit).toHaveBeenCalledOnce();
+  expect(packageNameInArchive(await exited)).toBe(packageInfo.packageName);
+});
+
+test('one click on Open without saving is enough after another save failure', async () => {
+  const { openProject, opened } = await prepareProjectOpening(selectOpen);
+  openProject();
+  await failOpenSave();
+
+  vi.mocked(saveFileModule.saveFile).mockRejectedValueOnce(
+    new Error('New failure'),
+  );
+  await window.electronAPI.saveFile();
+  await clickPopupButton(
+    'save recovery dialog',
+    text.saveError.openWithoutSaving,
+  );
+  expect(dialogs.openOpossumFileDialog).toHaveBeenCalledOnce();
+  await act(async () => {
+    const { archive, loaded } = await opened;
+    expect(loaded).toBe(true);
+    expect(packageNameInArchive(archive)).toBe(packageInfo.packageName);
+  });
+  await expectPopupHidden('save recovery dialog');
+  expect(saveFileModule.saveFile).toHaveBeenCalledTimes(2);
+});
+
+test('Stay keeps the edited project open after a failed flush', async () => {
+  const { openProject } = await prepareProjectOpening(selectOpen);
+  openProject();
+  await failOpenSave();
+
+  await clickPopupButton('save recovery dialog', text.saveError.stay);
+  expect(
+    screen.queryByRole('dialog', { name: text.saveError.heading }),
+  ).not.toBeInTheDocument();
+  expect(window.electronAPI.openFile).not.toHaveBeenCalled();
+  await expectFormFieldValues({ name: savedName });
+  await expect(client.flushSaves()).resolves.toMatchObject({
+    message: 'Disk full',
+  });
+});
+
+test('cancelling the picker does not clear the save failure', async () => {
+  const { openProject } = await prepareProjectOpening(selectOpen);
+  vi.mocked(dialogs.openOpossumFileDialog).mockReturnValue(undefined);
+  openProject();
+  await failOpenSave();
+
+  await clickPopupButton(
+    'save recovery dialog',
+    text.saveError.openWithoutSaving,
+  );
+  expect(dialogs.openOpossumFileDialog).toHaveBeenCalledOnce();
+  openProject();
+  await screen.findByText('Disk full');
+  expect(window.electronAPI.openFile).toHaveBeenCalledOnce();
+  await clickPopupButton('save recovery dialog', text.saveError.stay);
 });
 
 async function prepareMenuSave(path = firstPath, id = projectId) {

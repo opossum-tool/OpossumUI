@@ -13,6 +13,7 @@ import {
   MergeOpossumFilesErrorType,
   type MergeOpossumFilesResult,
   type ProgressCallback,
+  type SaveFailure,
 } from '../../shared/shared-types';
 import {
   type CommandName,
@@ -32,7 +33,7 @@ import {
 import { saveFile } from '../api/saveFile';
 import { splitOpossumFile } from '../api/splitOpossumFile';
 import { loadFile, type LoadFileIpcResult } from '../input/loadFile';
-import { type SaveResult, SaveWorker } from './save-worker';
+import { SaveWorker } from './save-worker';
 
 interface LoadFileMessage {
   type: 'loadFile';
@@ -103,7 +104,7 @@ type SuccessPayload =
   | Awaited<CommandReturn<CommandName>>
   | MergeOpossumFilesResult
   | boolean
-  | SaveResult
+  | SaveFailure
   | undefined;
 
 interface SuccessResponse {
@@ -133,6 +134,11 @@ type ResponsePort = {
   postMessage(message: DbProcessResponse): void;
 };
 
+export interface SaveFailureNotification {
+  type: 'saveFailureChanged';
+  failure: SaveFailure | undefined;
+}
+
 let storedOpossumZip: AdmZip | undefined;
 let saveTarget: { projectId: string; opossumFilePath: string } | undefined;
 
@@ -147,7 +153,17 @@ async function writeCurrentProject(): Promise<void> {
 }
 
 function createSaveWorker(): SaveWorker {
-  return new SaveWorker({ writeCurrentProject });
+  return new SaveWorker({
+    writeCurrentProject,
+    getFileName: () => saveTarget?.opossumFilePath.split(/[\\/]/).pop() ?? '',
+    onFailureChanged: (failure) => {
+      const notification: SaveFailureNotification = {
+        type: 'saveFailureChanged',
+        failure,
+      };
+      process.parentPort?.postMessage(notification);
+    },
+  });
 }
 
 let saveWorker = createSaveWorker();
@@ -169,6 +185,7 @@ async function executeDbProcessMessage(
         await saveWorker.flush();
         storedOpossumZip = undefined;
         saveTarget = undefined;
+        saveWorker.resetSaveFailure();
         saveWorker = createSaveWorker();
         const loadResult = await loadFile(msg.filePath, onProgress);
         if (loadResult.ok) {
@@ -190,8 +207,7 @@ async function executeDbProcessMessage(
       if (!storedOpossumZip) {
         throw new Error('Cannot save: no input file loaded');
       }
-      await saveWorker.save();
-      return undefined;
+      return saveWorker.save();
     }
     case 'forceUnlock': {
       if (!storedOpossumZip) {
@@ -200,6 +216,7 @@ async function executeDbProcessMessage(
       const opossumZip = storedOpossumZip;
       const { id: _, type: __, ...params } = msg;
       await saveWorker.run(() => forceUnlockOpossumFile(params, opossumZip));
+      saveWorker.resetSaveFailure();
       return undefined;
     }
     case 'splitOpossumFile': {
@@ -225,6 +242,7 @@ async function executeDbProcessMessage(
           opossumZip,
         ),
       );
+      saveWorker.resetSaveFailure();
       return undefined;
     }
     case 'mergeOpossumFiles': {
@@ -254,6 +272,11 @@ async function executeDbProcessMessage(
           };
         }
         storedOpossumZip = loadResult.opossumZip;
+        saveTarget = {
+          projectId: loadResult.projectId,
+          opossumFilePath: params.saveFileParams.opossumFilePath,
+        };
+        saveWorker.resetSaveFailure();
         return result;
       });
     }
