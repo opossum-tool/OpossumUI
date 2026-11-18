@@ -1202,7 +1202,6 @@ describe('quitAppOrOpenUnsavedPopup', () => {
     await vi.waitFor(() =>
       expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
     );
-    expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1);
     expect(getOpenPopup(testStore.getState())).toBeNull();
     expect(getQuitAppRequested(testStore.getState())).toBe(false);
     expect(getIsSavingBeforeQuit(testStore.getState())).toBe(true);
