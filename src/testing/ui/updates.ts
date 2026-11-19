@@ -107,6 +107,15 @@ export async function expectUpdateDownloadLinkVisible(
   );
 }
 
+export async function expectUpdateLinksVisible(
+  visible: boolean,
+): Promise<void> {
+  await expectQueryInBanner(
+    (banner) => within(banner).queryByRole('link'),
+    visible,
+  );
+}
+
 export async function expectUpdateProgressbarVisible(
   visible: boolean,
 ): Promise<void> {

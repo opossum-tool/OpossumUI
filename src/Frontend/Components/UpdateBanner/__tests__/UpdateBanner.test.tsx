@@ -15,6 +15,7 @@ import {
   expectUpdateActionButtonVisible,
   expectUpdateAlertVisible,
   expectUpdateDownloadLinkVisible,
+  expectUpdateLinksVisible,
   expectUpdateMessage,
   expectUpdateProgressbarShowsPercent,
   expectUpdateProgressbarVisible,
@@ -82,7 +83,7 @@ describe('UpdateBanner', () => {
     );
     await renderComponent(<UpdateBanner />);
     expect(window.electronAPI.downloadUpdate).not.toHaveBeenCalled();
-    await expectUpdateDownloadLinkVisible(false);
+    await expectUpdateLinksVisible(false);
     await clickUpdateActionButton(text.updateApp.downloadUpdate);
     expect(window.electronAPI.downloadUpdate).toHaveBeenCalledExactlyOnceWith(
       tag,
@@ -249,7 +250,7 @@ describe('UpdateBanner', () => {
       await firstCheck.promise;
     });
     await expectUpdateMessage(text.updateApp.noUpdateAvailable, true);
-    await expectUpdateDownloadLinkVisible(false);
+    await expectUpdateLinksVisible(false);
   });
 
   it('preserves completed manual feedback when a stale startup snapshot arrives', async () => {
@@ -274,7 +275,7 @@ describe('UpdateBanner', () => {
       await snapshot.promise;
     });
     await expectUpdateMessage(text.updateApp.noUpdateAvailable, true);
-    await expectUpdateDownloadLinkVisible(false);
+    await expectUpdateLinksVisible(false);
   });
 
   it('clears release dismissal on a manual check so subsequent events appear', async () => {
@@ -447,7 +448,7 @@ describe('UpdateBanner', () => {
 
     await expectUpdateMessage(text.updateApp.unsupportedInstallation, true);
     await expectUpdateMessage(text.updateApp.fetchFailed, false);
-    await expectUpdateDownloadLinkVisible(false);
+    await expectUpdateLinksVisible(false);
   });
 
   it('explains an unknown version and links to the releases page', async () => {
@@ -486,7 +487,7 @@ describe('UpdateBanner', () => {
       await renderComponent(<UpdateBanner />);
       emit(AllowedFrontendChannels.CheckForUpdatesRequested);
       await expectUpdateProgressbarVisible(true);
-      await expectUpdateDownloadLinkVisible(false);
+      await expectUpdateLinksVisible(false);
       await dismissUpdateAlert();
       await expectUpdateAlertVisible(false);
       await act(async () => {
