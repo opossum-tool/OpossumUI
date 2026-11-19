@@ -13,7 +13,7 @@ import { faker } from '../../../../testing/Faker';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
 import {
   expectButtonDisabled,
-  expectButtonVisibility,
+  expectButtonInTheDocument,
 } from '../../../../testing/ui';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { createTestStore, renderComponent } from '../../../test-helpers/render';
@@ -92,7 +92,7 @@ describe('ConfirmAttributionActionPopup', () => {
       />,
     );
 
-    await expectButtonVisibility('Save locally', true);
+    await expectButtonInTheDocument('Save locally', true);
     expect(screen.getByRole('progressbar')).toBeVisible();
   });
 

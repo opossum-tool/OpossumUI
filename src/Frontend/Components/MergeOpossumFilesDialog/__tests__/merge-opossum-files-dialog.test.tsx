@@ -16,7 +16,7 @@ import {
   expectAlert,
   expectButtonDisabled,
   expectButtonEnabled,
-  expectButtonVisibility,
+  expectButtonInTheDocument,
   expectTextVisible,
   getButton,
   MERGE_DIALOG_LABEL,
@@ -310,7 +310,7 @@ describe('MergeOpossumFilesDialog', () => {
       'warning',
       screen.getByLabelText(MERGE_DIALOG_LABEL),
     );
-    await expectButtonVisibility(
+    await expectButtonInTheDocument(
       text.mergeOpossumFilesDialog.mergeIgnoringReadonlyResourceOutputConflicts,
       true,
     );
@@ -323,7 +323,7 @@ describe('MergeOpossumFilesDialog', () => {
       'warning',
       screen.getByLabelText(MERGE_DIALOG_LABEL),
     );
-    await expectButtonVisibility(
+    await expectButtonInTheDocument(
       text.mergeOpossumFilesDialog.mergeIgnoringReadonlyResourceOutputConflicts,
       false,
     );

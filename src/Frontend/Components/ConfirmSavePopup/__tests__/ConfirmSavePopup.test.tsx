@@ -13,7 +13,7 @@ import { pathsToResources } from '../../../../testing/global-test-helpers';
 import {
   clickPopupButton,
   CONFIRM_SAVE_POPUP_LABEL,
-  expectButtonVisibility,
+  expectButtonInTheDocument,
   expectEventuallyButtonDisabled,
   expectTextVisible,
 } from '../../../../testing/ui';
@@ -245,8 +245,14 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
     );
 
-    await expectButtonVisibility(text.saveAttributionsPopup.saveGlobally, true);
-    await expectButtonVisibility(text.saveAttributionsPopup.saveLocally, false);
+    await expectButtonInTheDocument(
+      text.saveAttributionsPopup.saveGlobally,
+      true,
+    );
+    await expectButtonInTheDocument(
+      text.saveAttributionsPopup.saveLocally,
+      false,
+    );
   });
 
   it('confirms a query-wide selection without loading its IDs in the renderer', async () => {

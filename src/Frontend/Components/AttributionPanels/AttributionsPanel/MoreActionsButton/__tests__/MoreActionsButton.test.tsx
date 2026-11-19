@@ -11,7 +11,7 @@ import { text } from '../../../../../../shared/text';
 import { faker } from '../../../../../../testing/Faker';
 import {
   expectButtonDisabled,
-  expectButtonVisibility,
+  expectButtonInTheDocument,
   expectEventuallyButtonEnabled,
   expectTextVisible,
   getButton,
@@ -69,7 +69,7 @@ describe('MoreActionsButton', () => {
   it('renders the more actions button', async () => {
     await renderComponent(<MoreActionsButton {...defaultProps} />);
 
-    await expectButtonVisibility(text.packageLists.moreActions, true);
+    await expectButtonInTheDocument(text.packageLists.moreActions, true);
   });
 
   it('is disabled when no attributions are selected', async () => {

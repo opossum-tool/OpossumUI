@@ -10,7 +10,7 @@ import { VirtuosoMockContext } from 'react-virtuoso';
 import {
   clickLicenseEditorTab,
   expectButtonDisabled,
-  expectButtonVisibility,
+  expectButtonInTheDocument,
   expectLicenseEditorTabVisible,
   expectLicenseFilterOption,
   expectLicenseFilterOptionSelected,
@@ -159,7 +159,7 @@ test('applies selections immediately, preserves search, and separates clearing a
   await userEvent.click(getButton('Clear licenses'));
   await expectTextVisible('No licenses selected.', true);
   expectButtonDisabled('Clear licenses');
-  await expectButtonVisibility('Done', false);
+  await expectButtonInTheDocument('Done', false);
   expect(screen.getByRole('menu')).toBeVisible();
 });
 
@@ -233,7 +233,7 @@ test('replaces Selected checkmarks with removal buttons and a short tooltip', as
       'CheckIcon',
     ),
   ).toBeVisible();
-  await expectButtonVisibility('Remove MIT', false);
+  await expectButtonInTheDocument('Remove MIT', false);
   await clickLicenseEditorTab('Selected (2)');
   const list = screen.getByRole('listbox');
   expect(within(list).queryByTestId('CheckIcon')).not.toBeInTheDocument();

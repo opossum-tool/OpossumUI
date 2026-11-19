@@ -9,7 +9,7 @@ import {
   UPDATE_ASSET_NAMES,
 } from '../../../../shared/release-assets';
 import {
-  expectButtonVisibility,
+  expectButtonInTheDocument,
   expectTextVisible,
 } from '../../../../testing/ui';
 import { renderComponent } from '../../../test-helpers/render';
@@ -32,7 +32,7 @@ describe('MacArchitectureWarning', () => {
       getLatestReleaseAssetDownloadUrl(UPDATE_ASSET_NAMES.macArm64),
     );
 
-    await expectButtonVisibility('Close warning', false);
+    await expectButtonInTheDocument('Close warning', false);
     rerender(<MacArchitectureWarning />);
     await expectTextVisible(/You’re running the Intel version/, true);
   });

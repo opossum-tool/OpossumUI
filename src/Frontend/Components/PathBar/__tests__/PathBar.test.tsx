@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { compact } from 'lodash-es';
 
 import {
-  expectButtonVisibility,
+  expectButtonInTheDocument,
   expectPathBarCrumbs,
   getButton,
 } from '../../../../testing/ui';
@@ -59,7 +59,7 @@ describe('The PathBar', () => {
         },
       }),
     });
-    await expectButtonVisibility('Open resource in browser', true);
+    await expectButtonInTheDocument('Open resource in browser', true);
     await userEvent.click(getButton('Open resource in browser'));
     expect(window.electronAPI.openLink).toHaveBeenCalledTimes(1);
   });

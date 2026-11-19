@@ -43,17 +43,15 @@ export async function expectEventuallyButtonEnabled(
   await waitFor(() => expect(getButton(name)).toBeEnabled(), SETTLED_TIMEOUT);
 }
 
-export async function expectButtonVisibility(
+export async function expectButtonInTheDocument(
   name: string,
-  visible: boolean,
+  present: boolean,
 ): Promise<void> {
   await waitFor(() => {
-    const button = screen.queryByRole('button', { name });
-    if (visible) {
-      expect(button).not.toBeNull();
-      expect(button).toBeVisible();
+    if (present) {
+      expect(screen.getByRole('button', { name })).toBeInTheDocument();
     } else {
-      expect(button).toBeNull();
+      expect(screen.queryByRole('button', { name })).not.toBeInTheDocument();
     }
   }, SETTLED_TIMEOUT);
 }
