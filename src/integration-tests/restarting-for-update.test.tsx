@@ -16,6 +16,7 @@ import {
   clickTopBarViewButton,
   clickUpdateActionButton,
   expectFormFieldValues,
+  expectTextVisible,
   expectUnsavedChangesPopupVisibility,
   expectUpdateActionButtonVisible,
   expectUpdateMessage,
@@ -127,7 +128,7 @@ test('reports installation request errors and allows another attempt', async () 
   );
   await renderApp({ data });
   await clickRestart();
-  await expectUpdateMessage('Could not start installer', true);
+  await expectTextVisible('Could not start installer', true);
   await clickRestart();
   await waitFor(() =>
     expect(window.electronAPI.restartAndUpdate).toHaveBeenCalledTimes(2),

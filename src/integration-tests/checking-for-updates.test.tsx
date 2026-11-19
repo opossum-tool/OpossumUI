@@ -12,6 +12,7 @@ import {
   clickTopBarViewButton,
   clickUpdateActionButton,
   dismissUpdateAlert,
+  expectTextVisible,
   expectUpdateActionButtonVisible,
   expectUpdateAlertVisible,
   expectUpdateDownloadLinkVisible,
@@ -185,9 +186,9 @@ describe('checking for updates in the app', () => {
     vi.mocked(window.electronAPI.getUpdateState).mockResolvedValue(available);
     await renderApp();
     await expectUpdateMessage(text.updateApp.available(releaseTag), true);
-    await expectUpdateMessage(text.macArchitectureMismatch.warning, true);
+    await expectTextVisible(text.macArchitectureMismatch.warning, true);
     await dismissUpdateAlert();
     await expectUpdateMessage(text.updateApp.available(releaseTag), false);
-    await expectUpdateMessage(text.macArchitectureMismatch.warning, true);
+    await expectTextVisible(text.macArchitectureMismatch.warning, true);
   });
 });

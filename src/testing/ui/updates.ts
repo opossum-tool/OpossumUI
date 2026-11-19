@@ -11,11 +11,41 @@ import { SETTLED_TIMEOUT } from './common';
 
 const UPDATE_BANNER_TEST_ID = 'update-banner';
 
+// All helpers here assert on elements inside the update banner, so other
+// banners (e.g. the mac-architecture warning) or unrelated progress
+// indicators cannot interfere.
+function getBanner(): HTMLElement {
+  return screen.getByTestId(UPDATE_BANNER_TEST_ID);
+}
+
+function queryInBanner(
+  query: (banner: HTMLElement) => HTMLElement | null,
+): HTMLElement | null {
+  const banner = screen.queryByTestId(UPDATE_BANNER_TEST_ID);
+  if (!banner) {
+    return null;
+  }
+  return query(banner);
+}
+
+async function expectQueryInBanner(
+  query: (banner: HTMLElement) => HTMLElement | null,
+  visible: boolean,
+): Promise<void> {
+  await waitFor(() => {
+    const element = queryInBanner(query);
+    if (visible) {
+      expect(element).not.toBeNull();
+      expect(element).toBeVisible();
+    } else {
+      expect(element).toBeNull();
+    }
+  }, SETTLED_TIMEOUT);
+}
+
 export async function expectUpdateAlertVisible(
   visible: boolean,
 ): Promise<void> {
-  // Assert on the update banner itself (not just any role="alert") so other
-  // notification banners, e.g. the mac-architecture warning, do not interfere.
   await waitFor(() => {
     const alert = screen.queryByTestId(UPDATE_BANNER_TEST_ID);
     if (visible) {
@@ -31,23 +61,17 @@ export async function expectUpdateMessage(
   message: string,
   visible: boolean,
 ): Promise<void> {
-  await waitFor(() => {
-    if (visible) {
-      expect(screen.getByText(message)).toBeVisible();
-    } else {
-      expect(screen.queryByText(message)).toBeNull();
-    }
-  }, SETTLED_TIMEOUT);
+  await expectQueryInBanner(
+    (banner) => within(banner).queryByText(message),
+    visible,
+  );
 }
 
 export async function dismissUpdateAlert(): Promise<void> {
-  // Click the dismiss button inside the update banner, not the first dismiss
-  // button on the page: other banners (e.g. the mac-architecture warning)
-  // render their own dismiss buttons.
   await userEvent.click(
     await waitFor(
       () =>
-        within(screen.getByTestId(UPDATE_BANNER_TEST_ID)).getByRole('button', {
+        within(getBanner()).getByRole('button', {
           name: text.updateApp.dismissed,
         }),
       SETTLED_TIMEOUT,
@@ -56,56 +80,40 @@ export async function dismissUpdateAlert(): Promise<void> {
 }
 
 export async function clickUpdateActionButton(name: string): Promise<void> {
-  await userEvent.click(
-    await screen.findByRole(
-      'button',
-      { name },
-      { timeout: SETTLED_TIMEOUT.timeout },
-    ),
+  const button = await waitFor(
+    () => within(getBanner()).getByRole('button', { name }),
+    SETTLED_TIMEOUT,
   );
+  await userEvent.click(button);
 }
 
 export async function expectUpdateActionButtonVisible(
   name: string,
   visible: boolean,
 ): Promise<void> {
-  await waitFor(() => {
-    const button = screen.queryByRole('button', { name });
-    if (visible) {
-      expect(button).not.toBeNull();
-      expect(button).toBeVisible();
-    } else {
-      expect(button).toBeNull();
-    }
-  }, SETTLED_TIMEOUT);
+  await expectQueryInBanner(
+    (banner) => within(banner).queryByRole('button', { name }),
+    visible,
+  );
 }
 
 export async function expectUpdateDownloadLinkVisible(
   visible: boolean,
 ): Promise<void> {
-  await waitFor(() => {
-    const link = screen.queryByRole('link', { name: text.updateApp.download });
-    if (visible) {
-      expect(link).not.toBeNull();
-      expect(link).toBeVisible();
-    } else {
-      expect(link).toBeNull();
-    }
-  }, SETTLED_TIMEOUT);
+  await expectQueryInBanner(
+    (banner) =>
+      within(banner).queryByRole('link', { name: text.updateApp.download }),
+    visible,
+  );
 }
 
 export async function expectUpdateProgressbarVisible(
   visible: boolean,
 ): Promise<void> {
-  await waitFor(() => {
-    const progressbar = screen.queryByRole('progressbar');
-    if (visible) {
-      expect(progressbar).not.toBeNull();
-      expect(progressbar).toBeVisible();
-    } else {
-      expect(progressbar).toBeNull();
-    }
-  }, SETTLED_TIMEOUT);
+  await expectQueryInBanner(
+    (banner) => within(banner).queryByRole('progressbar'),
+    visible,
+  );
 }
 
 export async function expectUpdateProgressbarShowsPercent(
@@ -113,7 +121,7 @@ export async function expectUpdateProgressbarShowsPercent(
 ): Promise<void> {
   await waitFor(() => {
     expect(
-      screen.getByRole('progressbar', {
+      within(getBanner()).getByRole('progressbar', {
         name: text.updateApp.downloading(percent),
       }),
     ).toHaveAttribute('aria-valuenow', String(percent));
