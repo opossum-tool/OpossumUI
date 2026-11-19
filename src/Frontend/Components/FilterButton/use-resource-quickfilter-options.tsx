@@ -56,19 +56,33 @@ export function useResourceQuickfilterOption({
       quickfilter: SavedResourceQuickfilter,
     ): void => {
       if (activeIds.includes(quickfilter.id)) {
-        setFilters((prev) =>
-          combineResourceQuickfilters({
-            ids: (prev.activeQuickfilterIds ?? []).filter(
-              (id) => id !== quickfilter.id,
-            ),
-            quickfilters: visibleQuickfilters,
-          }),
-        );
+        removeResourceQuickfilter(quickfilter.id);
         return;
       }
       setFilters((prev) =>
         mergeResourceQuickfilterIntoFilters(prev, quickfilter),
       );
+    };
+
+    const removeResourceQuickfilter = (id: string): void => {
+      setFilters((prev) =>
+        combineResourceQuickfilters({
+          ids: (prev.activeQuickfilterIds ?? []).filter(
+            (activeId) => activeId !== id,
+          ),
+          quickfilters: visibleQuickfilters,
+        }),
+      );
+    };
+
+    // Deleting a selected quickfilter also deselects it: the filters are
+    // rebuilt from the remaining quickfilters exactly like when unchecking,
+    // so the menu label no longer counts the deleted quickfilter.
+    const deleteSelectedResourceQuickfilter = (id: string): void => {
+      if (activeIds.includes(id)) {
+        removeResourceQuickfilter(id);
+      }
+      deleteQuickfilter(id);
     };
 
     // Same rebuild semantics as removing a single quickfilter.
@@ -123,7 +137,7 @@ export function useResourceQuickfilterOption({
             hasActiveFilters={hasActiveFilters}
             quickfilters={visibleQuickfilters}
             onApply={applyResourceQuickfilter}
-            onDelete={deleteQuickfilter}
+            onDelete={deleteSelectedResourceQuickfilter}
             onRename={renameQuickfilter}
             onReorder={reorderQuickfilter}
             onSave={(name) => {

@@ -444,6 +444,44 @@ describe('quickfilters in the filter menu', () => {
     });
   });
 
+  it('deselects a quickfilter when it is deleted while selected', async () => {
+    const quickfilter = makeQuickfilter({ name: 'My quickfilter' });
+    const other = makeQuickfilter({ name: 'Other' });
+    const { store } = await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [quickfilter, other] }),
+    ]);
+
+    const panel = await openQuickfiltersPanel();
+    await userEvent.click(row(panel, 'My quickfilter'));
+    expect(row(panel, 'My quickfilter')).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+
+    await userEvent.click(
+      within(panel).getByRole('button', { name: text.quickfilters.edit }),
+    );
+    await userEvent.click(
+      within(panel).getByRole('button', {
+        name: text.quickfilters.delete('My quickfilter'),
+      }),
+    );
+
+    // The deleted quickfilter no longer counts as selected: the filters are
+    // rebuilt from the remaining quickfilters and the menu label resets.
+    expect(
+      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toEqual({
+      filters: [],
+      search: '',
+      valueFilters: {},
+      sorting: 'alphabetically',
+    });
+    expect(
+      screen.getByRole('menuitem', { name: text.quickfilters.title }),
+    ).toHaveTextContent(text.quickfilters.title);
+  });
+
   it('selects only the quickfilter that was applied when duplicates exist', async () => {
     const first = makeQuickfilter({ name: 'First' });
     const second = makeQuickfilter({ name: 'Second' });

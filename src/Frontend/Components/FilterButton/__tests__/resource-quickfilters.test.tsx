@@ -243,6 +243,39 @@ describe('quickfilters in the resource tree filter menu', () => {
     ).toBeUndefined();
   });
 
+  it('deselects a quickfilter when it is deleted while selected', async () => {
+    const quickfilter = makeQuickfilter({ name: 'Unreviewed only' });
+    const { store } = await renderResourceFilterButton([
+      setUserSetting({ savedQuickfilters: [quickfilter] }),
+    ]);
+
+    const panel = await openQuickfiltersPanel();
+    await userEvent.click(row(panel, 'Unreviewed only'));
+    expect(resourceFilters(store).activeQuickfilterIds).toEqual([
+      quickfilter.id,
+    ]);
+
+    await userEvent.click(
+      within(panel).getByRole('button', { name: text.quickfilters.edit }),
+    );
+    await userEvent.click(
+      within(panel).getByRole('button', {
+        name: text.quickfilters.delete('Unreviewed only'),
+      }),
+    );
+
+    // The deleted quickfilter no longer counts as selected: the filters are
+    // rebuilt from the remaining quickfilters and the menu label resets.
+    expect(resourceFilters(store)).toEqual({
+      onlyUnreviewedFiles: false,
+      onlyWithAiDeferredAttributions: false,
+      selectedLicenses: [],
+    });
+    expect(
+      screen.getByRole('menuitem', { name: text.quickfilters.title }),
+    ).toHaveTextContent(text.quickfilters.title);
+  });
+
   it('hides attribution quickfilters the resource tree cannot express', async () => {
     const searchQuickfilter: SavedAttributionQuickfilter = {
       id: 'search-only',

@@ -84,7 +84,7 @@ export function useQuickfilterOptions({
       quickfilter: SavedAttributionQuickfilter,
     ): void => {
       if (activeIds.includes(quickfilter.id)) {
-        removeQuickfilter(quickfilter);
+        removeQuickfilter(quickfilter.id);
         return;
       }
       // Conflicting quickfilters apply as well: the clashing scalar filters
@@ -102,17 +102,25 @@ export function useQuickfilterOptions({
       );
     };
 
-    const removeQuickfilter = (
-      quickfilter: SavedAttributionQuickfilter,
-    ): void => {
+    const removeQuickfilter = (id: string): void => {
       // The sorting is intentionally kept from the current filters.
       setFilters(
         combineQuickfilters({
-          ids: activeIds.filter((id) => id !== quickfilter.id),
+          ids: activeIds.filter((activeId) => activeId !== id),
           quickfilters: visibleQuickfilters,
           sorting: filters.sorting,
         }),
       );
+    };
+
+    // Deleting a selected quickfilter also deselects it: the filters are
+    // rebuilt from the remaining quickfilters exactly like when unchecking,
+    // so the menu label no longer counts the deleted quickfilter.
+    const deleteSelectedQuickfilter = (id: string): void => {
+      if (activeIds.includes(id)) {
+        removeQuickfilter(id);
+      }
+      deleteQuickfilter(id);
     };
 
     // Same rebuild semantics as removing a single quickfilter: everything
@@ -178,7 +186,7 @@ export function useQuickfilterOptions({
               )
               .map(({ id }) => id)}
             onApply={applyQuickfilter}
-            onDelete={deleteQuickfilter}
+            onDelete={deleteSelectedQuickfilter}
             onRename={renameQuickfilter}
             onReorder={reorderQuickfilter}
             onSave={(name) => {

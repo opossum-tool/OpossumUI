@@ -98,7 +98,7 @@ export function toAttributionQuickfilterModel(
  * by license (resource tree, attributions, signals, report view) and
  * therefore offered there.
  */
-export function isLicenseOnlyAttributionQuickfilter(
+function isLicenseOnlyAttributionQuickfilter(
   quickfilter: SavedAttributionQuickfilter,
 ): boolean {
   return toResourceQuickfilterModel(quickfilter) !== null;
@@ -108,7 +108,7 @@ export function isLicenseOnlyAttributionQuickfilter(
  * Whether the resource quickfilter is also usable on the given
  * attribution-flavored panel.
  */
-export function isShareableWithAttributionPanel(
+function isShareableWithAttributionPanel(
   quickfilter: SavedResourceQuickfilter,
   scope: AttributionQuickfilterScope,
 ): boolean {
