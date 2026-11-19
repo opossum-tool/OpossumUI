@@ -25,7 +25,7 @@ interface Props {
   allowLocalSave?: boolean;
   action?: 'save' | 'confirm';
   onAcceptDrafts?: () => void;
-  onSaveComplete?: (result: SaveMutationResult) => void;
+  onSaveComplete?: (result: SaveMutationResult) => void | Promise<void>;
 }
 
 export type SaveMutationResult = MutationResult<
@@ -110,7 +110,7 @@ export const ConfirmSavePopup: React.FC<Props> = ({
           })
         : await updateOrMatch.mutateAsync(params);
       onClose();
-      onSaveComplete?.(result);
+      await onSaveComplete?.(result);
     } catch (error) {
       toast.error(
         error instanceof Error

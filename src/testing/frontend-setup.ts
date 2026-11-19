@@ -64,7 +64,7 @@ global.window.electronAPI = {
   splitFile: vi.fn(),
   mergeOpossumFiles: vi.fn(),
   mergeOpossumFilesFromPaths: vi.fn(),
-  saveFile: vi.fn(),
+  saveFile: vi.fn().mockResolvedValue(undefined),
   forceUnlock: vi.fn(),
   exportFile: vi.fn(),
   stopLoading: vi.fn(),

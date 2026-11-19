@@ -2,7 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import AdmZip from 'adm-zip';
 import type {
   BrowserWindow,
@@ -22,7 +23,10 @@ import {
 import * as dbProcessClientModule from '../ElectronBackend/dbProcess/dbProcessClient';
 import * as dialogs from '../ElectronBackend/main/dialogs';
 import { setGlobalBackendState } from '../ElectronBackend/main/globalBackendState';
-import { openFileListener } from '../ElectronBackend/main/listeners';
+import {
+  openFileListener,
+  saveFileListener,
+} from '../ElectronBackend/main/listeners';
 import { getFileMenu } from '../ElectronBackend/main/menu/fileMenu';
 import { menuItemIds } from '../ElectronBackend/main/menu/menuItemIds';
 import {
@@ -43,6 +47,7 @@ import {
   expectFormFieldValues,
   fillFormField,
   gotoResource,
+  resourceTreeItem,
   saveChangesInAttributionColumn,
 } from '../testing/ui';
 
@@ -65,6 +70,7 @@ const [attributionId, packageInfo] = faker.opossum.rawAttribution({
   packageName: 'original package',
 });
 const savedName = 'submitted change';
+const [otherAttributionId, otherPackageInfo] = faker.opossum.rawAttribution();
 const draftName = 'unsubmitted draft';
 
 // Keep the real request/response client and DB-process handler, replacing only
@@ -88,6 +94,7 @@ function createClient() {
 
 let client: dbProcessClientModule.DbProcessClient;
 let firstPath: string;
+let projectId: string;
 let secondPath: string;
 let releaseSave: () => void;
 let saveStarted: Promise<void>;
@@ -114,14 +121,20 @@ beforeEach(async () => {
       path,
       input: faker.opossum.inputData({
         metadata,
-        resources: { file: 1 },
+        resources: { file: 1, other: 1 },
         externalAttributions: {},
         resourcesToAttributions: {},
       }),
       output: faker.opossum.outputData({
         metadata,
-        manualAttributions: { [attributionId]: packageInfo },
-        resourcesToAttributions: { '/file': [attributionId] },
+        manualAttributions: {
+          [attributionId]: packageInfo,
+          [otherAttributionId]: otherPackageInfo,
+        },
+        resourcesToAttributions:
+          path === firstPath
+            ? { '/file': [attributionId], '/other': [otherAttributionId] }
+            : { '/file': [attributionId], '/other': [attributionId] },
       }),
     });
   }
@@ -129,6 +142,7 @@ beforeEach(async () => {
   if (!result.ok) {
     throw new Error(result.error.message);
   }
+  projectId = result.projectId;
   setDatabaseInitialized(true);
 
   const started = Promise.withResolvers<void>();
@@ -155,6 +169,9 @@ afterEach(async () => {
   vi.mocked(dbProcessClientModule.getMainDbClient).mockRestore();
   vi.mocked(dialogs.openOpossumFileDialog).mockRestore();
   vi.mocked(window.electronAPI.openFile).mockReset();
+  vi.mocked(window.electronAPI.saveFile)
+    .mockReset()
+    .mockResolvedValue(undefined);
   vi.mocked(window.electronAPI.confirmQuit).mockReset();
   vi.mocked(window.electronAPI.whenBackendIdle).mockReset();
   quit.mockReset();
@@ -308,6 +325,122 @@ describe.each([
 
     await expectSavedBeforeOpening(opened);
   });
+});
+
+async function prepareMenuSave(path = firstPath, id = projectId) {
+  const { sendToChannel } = await renderApp();
+  const mainWindow = {
+    webContents: { send: sendToChannel },
+  } as unknown as BrowserWindow;
+  setGlobalBackendState({ projectId: id, opossumFilePath: path });
+  const fileMenu = await getFileMenu(mainWindow, vi.fn(), false);
+  const saveItem = submenuOf(fileMenu).find(
+    ({ id }) => id === menuItemIds.saveFile,
+  )!;
+  const saved = Promise.withResolvers<void>();
+  vi.mocked(window.electronAPI.saveFile).mockImplementationOnce(async () => {
+    await saveFileListener(mainWindow)(undefined);
+    saved.resolve();
+  });
+  return {
+    clickSave: () =>
+      act(() =>
+        saveItem.click!({ id: saveItem.id } as MenuItem, mainWindow, {}),
+      ),
+    saved: saved.promise,
+  };
+}
+
+test('File → Save writes the current draft before the autosave tick', async () => {
+  const { clickSave, saved } = await prepareMenuSave();
+
+  await gotoResource('file');
+  await expectFormFieldValues({ name: packageInfo.packageName });
+  fillFormField('name', savedName);
+  clickSave();
+
+  await act(async () => {
+    await saveStarted;
+    releaseSave();
+    await saved;
+  });
+  expect(packageNameInArchive(readFileSync(firstPath))).toBe(savedName);
+});
+
+test('File → Save writes an already submitted edit without a draft', async () => {
+  const { clickSave, saved } = await prepareMenuSave();
+  await gotoResource('file');
+  await expectFormFieldValues({ name: packageInfo.packageName });
+  fillFormField('name', savedName);
+  await saveChangesInAttributionColumn();
+  await expectFormFieldValues({ name: savedName });
+  expect(saveFileModule.saveFile).not.toHaveBeenCalled();
+
+  clickSave();
+  releaseSave();
+  await act(() => saved);
+  expect(packageNameInArchive(readFileSync(firstPath))).toBe(savedName);
+});
+
+test('File → Save writes a submitted edit while another resource’s details load', async () => {
+  const { clickSave, saved } = await prepareMenuSave();
+  await gotoResource('file');
+  await expectFormFieldValues({ name: packageInfo.packageName });
+  fillFormField('name', savedName);
+  await saveChangesInAttributionColumn();
+
+  const detailsQuery = Promise.withResolvers<void>();
+  vi.mocked(window.electronAPI.api).mockImplementation(
+    async (command, params) => {
+      if (
+        command === 'getAttributionLinkStatus' &&
+        (params as { resourcePath: string }).resourcePath === '/other'
+      ) {
+        await detailsQuery.promise;
+      }
+      return client.api(command, params);
+    },
+  );
+
+  try {
+    await userEvent.click(resourceTreeItem('other'));
+    await screen.findByTestId('attribution-details-loading');
+    expect(saveFileModule.saveFile).not.toHaveBeenCalled();
+
+    clickSave();
+    releaseSave();
+    await act(() => saved);
+
+    expect(packageNameInArchive(readFileSync(firstPath))).toBe(savedName);
+    expect(screen.getByTestId('attribution-details-loading')).toBeVisible();
+  } finally {
+    await act(async () => {
+      detailsQuery.resolve();
+      await detailsQuery.promise;
+    });
+  }
+});
+
+test('cancelling the File → Save confirmation skips the archive write', async () => {
+  const result = await client.loadFile(secondPath);
+  if (!result.ok) {
+    throw new Error(result.error.message);
+  }
+  const { clickSave } = await prepareMenuSave(secondPath, result.projectId);
+  await gotoResource('file');
+  await expectFormFieldValues({ name: packageInfo.packageName });
+  fillFormField('name', savedName);
+
+  clickSave();
+  await clickPopupButton(
+    text.saveAttributionsPopup.ariaLabel,
+    text.buttons.cancel,
+  );
+
+  expect(saveFileModule.saveFile).not.toHaveBeenCalled();
+  expect(packageNameInArchive(readFileSync(secondPath))).toBe(
+    packageInfo.packageName,
+  );
 });
 
 test('persists the submitted change before quitting', async () => {
