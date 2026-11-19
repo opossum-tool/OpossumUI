@@ -77,10 +77,14 @@ export class ProjectStatisticsPopup {
         text.projectStatisticsPopup.charts.count,
       );
     },
-    overviewChartsAreVisible: async (): Promise<void> => {
+    overviewChartsAreVisible: async ({
+      aiAttributionStates = true,
+    }: { aiAttributionStates?: boolean } = {}): Promise<void> => {
       await Promise.all([
         expect(this.attributionsOverviewChart).toBeVisible(),
-        expect(this.aiAttributionStatesChart).toBeVisible(),
+        aiAttributionStates
+          ? expect(this.aiAttributionStatesChart).toBeVisible()
+          : expect(this.aiAttributionStatesChart).toBeHidden(),
         expect(this.mostFrequentLicensesChart).toBeVisible(),
         expect(this.signalsByCriticalityChart).toBeVisible(),
         expect(this.signalsByClassificationChart).toBeVisible(),
