@@ -10,7 +10,8 @@ import type {
   MenuItem,
   MenuItemConstructorOptions,
 } from 'electron';
-import { readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
+import { dirname } from 'node:path';
 
 import * as saveFileModule from '../ElectronBackend/api/saveFile';
 import {
@@ -98,12 +99,13 @@ beforeEach(async () => {
   vi.spyOn(dbProcessClientModule, 'getMainDbClient').mockReturnValue(client);
   vi.mocked(window.electronAPI.api).mockImplementation(client.api.bind(client));
   vi.mocked(window.electronAPI.whenBackendIdle).mockImplementation(async () => {
-    await client.waitForPendingSaves();
+    await client.flushSaves();
   });
   vi.mocked(window.electronAPI.confirmQuit).mockImplementation(confirmQuit);
 
   firstPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
   secondPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
+  mkdirSync(dirname(firstPath), { recursive: true });
   vi.spyOn(dialogs, 'openOpossumFileDialog').mockReturnValue([secondPath]);
   for (const path of [firstPath, secondPath]) {
     const metadata = faker.opossum.metadata();
@@ -145,8 +147,9 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  releaseSave();
-  await client.waitForPendingSaves();
+  releaseSave?.();
+  await client.flushSaves();
+  resetDbProcessStateForTesting();
   vi.mocked(saveFileModule.saveFile).mockRestore();
   vi.mocked(dbProcessClientModule.getMainDbClient).mockRestore();
   vi.mocked(dialogs.openOpossumFileDialog).mockRestore();
@@ -162,7 +165,7 @@ async function submitChange() {
   await expectFormFieldValues({ name: packageInfo.packageName });
   fillFormField('name', savedName);
   await saveChangesInAttributionColumn();
-  await saveStarted;
+  expect(saveFileModule.saveFile).not.toHaveBeenCalled();
   return view;
 }
 
@@ -229,6 +232,7 @@ async function expectSavedBeforeOpening(
     packageInfo.packageName,
   );
   await act(async () => {
+    await saveStarted;
     releaseSave();
     const { archive, loaded } = await opened;
     expect(loaded).toBe(true);
@@ -259,6 +263,7 @@ async function expectSavedBeforeQuitting(exited: Promise<Buffer>) {
     packageInfo.packageName,
   );
   await act(async () => {
+    await saveStarted;
     releaseSave();
     expect(packageNameInArchive(await exited)).toBe(savedName);
   });
@@ -333,6 +338,7 @@ test('persists the submitted change when the main process quits without renderer
   // The unresponsive-renderer fallback calls confirmQuit directly. Its save
   // barrier must work independently of the renderer's approval flow.
   const quitting = confirmQuit();
+  await saveStarted;
   releaseSave();
   await quitting;
 

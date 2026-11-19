@@ -45,6 +45,15 @@ vi.mock('../../api/commands', () => ({
 const MUTATION_COMMAND = 'updateOrMatchAttributions';
 const QUERY_COMMAND = 'getResourceTree';
 
+afterEach(() => {
+  resetDbProcessStateForTesting();
+  vi.useRealTimers();
+});
+
+async function tick(): Promise<void> {
+  await vi.advanceTimersByTimeAsync(60_000);
+}
+
 type FakePort = {
   responses: Array<DbProcessResponse>;
   postMessage: (message: DbProcessResponse) => void;
@@ -94,10 +103,8 @@ async function runCommand(
   } as unknown as DbProcessRequest);
 }
 
-async function waitForPendingSaves(
-  id: number,
-): Promise<DbProcessResponse | undefined> {
-  return handle({ id, type: 'waitForPendingSaves' });
+async function flushSaves(id: number): Promise<DbProcessResponse | undefined> {
+  return handle({ id, type: 'flushSaves' });
 }
 
 function saveMessage(id: number): DbProcessRequest {
@@ -129,10 +136,14 @@ describe('dbProcess save tracking', () => {
   });
 
   it('writes the project file when saving manually', async () => {
+    vi.useFakeTimers();
     await loadProject();
-    const response = await save(1);
+    await runCommand(1, MUTATION_COMMAND, true);
+    const response = await save(2);
 
     expect(response?.type).toBe('success');
+    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
+    await tick();
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
   });
 
@@ -201,11 +212,31 @@ describe('dbProcess save tracking', () => {
     expect(splitOpossumFileMock).toHaveBeenCalledTimes(1);
   });
 
-  it('saves automatically after a successful mutation', async () => {
+  it('coalesces edits and refetches at the first tick without restarting the clock', async () => {
+    vi.useFakeTimers();
     await loadProject();
+    const edits: Array<number> = [];
+    const snapshots: Array<Array<number>> = [];
+    saveFileApiMock.mockImplementation(() => {
+      snapshots.push([...edits]);
+      return Promise.resolve();
+    });
+    executeCommandMock.mockImplementation((command) => {
+      if (command === MUTATION_COMMAND) {
+        edits.push(edits.length + 1);
+      }
+      return Promise.resolve();
+    });
     await runCommand(1, MUTATION_COMMAND, true);
-    await waitForPendingSaves(2);
+    await runCommand(2, QUERY_COMMAND, false);
+    await vi.advanceTimersByTimeAsync(59_999);
+    await runCommand(3, MUTATION_COMMAND, true);
+    await runCommand(4, QUERY_COMMAND, false);
+    expect(saveFileApiMock).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    await tick();
 
+    expect(snapshots).toEqual([[1, 2]]);
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
     expect(saveFileApiMock.mock.calls[0]?.[0]).toEqual({
       projectId: 'uuid_1',
@@ -214,9 +245,10 @@ describe('dbProcess save tracking', () => {
   });
 
   it('does not save automatically for queries', async () => {
+    vi.useFakeTimers();
     await loadProject();
     await runCommand(1, QUERY_COMMAND, false);
-    await waitForPendingSaves(2);
+    await tick();
 
     expect(saveFileApiMock).not.toHaveBeenCalled();
 
@@ -225,17 +257,37 @@ describe('dbProcess save tracking', () => {
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
   });
 
-  it('saves to the newly loaded project', async () => {
+  it('flushes A before loading B and restarts the timer with B clean', async () => {
+    vi.useFakeTimers();
     await loadProject();
+    await vi.advanceTimersByTimeAsync(30_000);
+    await runCommand(1, MUTATION_COMMAND, true);
     const secondArchive = {} as AdmZip;
-    loadFileMock.mockResolvedValueOnce({
-      ok: true,
-      projectId: 'uuid_2',
-      opossumZip: secondArchive,
+    loadFileMock.mockImplementationOnce(() => {
+      expect(saveFileApiMock).toHaveBeenCalledExactlyOnceWith(
+        { projectId: 'uuid_1', opossumFilePath: '/x' },
+        expect.anything(),
+      );
+      return Promise.resolve({
+        ok: true,
+        projectId: 'uuid_2',
+        opossumZip: secondArchive,
+      });
     });
 
-    await handle({ id: 1, type: 'loadFile', filePath: '/next' });
-    await save(2);
+    const response = await handle({
+      id: 2,
+      type: 'loadFile',
+      filePath: '/next',
+    });
+    expect(response?.type).toBe('success');
+    expect(vi.getTimerCount()).toBe(1);
+    await tick();
+    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
+    await runCommand(3, MUTATION_COMMAND, true);
+    await vi.advanceTimersByTimeAsync(59_999);
+    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(1);
 
     expect(saveFileApiMock).toHaveBeenLastCalledWith(
       { projectId: 'uuid_2', opossumFilePath: '/next' },
@@ -243,14 +295,28 @@ describe('dbProcess save tracking', () => {
     );
   });
 
+  it('returns a failed flush without retrying in a loop', async () => {
+    await loadProject();
+    await runCommand(1, MUTATION_COMMAND, true);
+    saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
+
+    await expect(handle({ id: 2, type: 'flushSaves' })).resolves.toEqual({
+      id: 2,
+      type: 'success',
+      result: 'failed',
+    });
+    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
+  });
+
   it('skips the automatic save when no project is loaded', async () => {
     await runCommand(1, MUTATION_COMMAND, true);
-    await waitForPendingSaves(2);
+    await flushSaves(2);
 
     expect(saveFileApiMock).not.toHaveBeenCalled();
   });
 
   it('does not schedule a save for a failed mutation', async () => {
+    vi.useFakeTimers();
     await loadProject();
     executeCommandMock.mockRejectedValueOnce(new Error('mutation failed'));
 
@@ -263,51 +329,54 @@ describe('dbProcess save tracking', () => {
 
     expect(response?.type).toBe('error');
 
-    await waitForPendingSaves(2);
+    await tick();
     expect(saveFileApiMock).not.toHaveBeenCalled();
   });
 
-  it('serializes background writes so every successful mutation writes once', async () => {
-    await loadProject();
-
-    let resolveFirstSave!: () => void;
-    saveFileApiMock.mockImplementationOnce(
-      () =>
-        new Promise<void>((resolve) => {
-          resolveFirstSave = resolve;
-        }),
-    );
-
-    await runCommand(1, MUTATION_COMMAND, true);
-    await runCommand(2, MUTATION_COMMAND, true);
-    await runCommand(3, MUTATION_COMMAND, true);
-    resolveFirstSave();
-    await waitForPendingSaves(4);
-
-    expect(saveFileApiMock).toHaveBeenCalledTimes(3);
-  });
-
-  it('does not block waitForPendingSaves when an automatic save fails', async () => {
-    await loadProject();
-    saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
-
-    await runCommand(1, MUTATION_COMMAND, true);
-    await waitForPendingSaves(2);
-
-    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
-  });
-
-  it('resolves waitForPendingSaves only after the scheduled write finished', async () => {
+  it('keeps an edit during a slow save dirty without queuing another periodic write', async () => {
+    vi.useFakeTimers();
     await loadProject();
     const write = Promise.withResolvers<void>();
     saveFileApiMock.mockReturnValueOnce(write.promise);
 
     await runCommand(1, MUTATION_COMMAND, true);
+    await tick();
+    await runCommand(2, MUTATION_COMMAND, true);
+    await tick();
+    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
+    write.resolve();
+    await setImmediate();
+    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
+    await tick();
+    expect(saveFileApiMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('retries a failed autosave on the next tick', async () => {
+    vi.useFakeTimers();
+    await loadProject();
+    saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
+
+    await runCommand(1, MUTATION_COMMAND, true);
+    await tick();
+
+    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
+    await tick();
+    expect(saveFileApiMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('flushes only after the scheduled write finishes', async () => {
+    vi.useFakeTimers();
+    await loadProject();
+    const write = Promise.withResolvers<void>();
+    saveFileApiMock.mockReturnValueOnce(write.promise);
+
+    await runCommand(1, MUTATION_COMMAND, true);
+    await tick();
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
     const port = createFakePort();
     const idleRequest = handleDbProcessMessage(port, {
       id: 2,
-      type: 'waitForPendingSaves',
+      type: 'flushSaves',
     });
 
     // Give an incorrectly immediate response a chance to arrive before checking.
@@ -316,35 +385,41 @@ describe('dbProcess save tracking', () => {
 
     write.resolve();
     await idleRequest;
+    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
     expect(port.responses).toEqual([
       { id: 2, type: 'success', result: 'success' },
     ]);
   });
 
-  it('resolves waitForPendingSaves after all writes of a mutation burst', async () => {
+  it('flushes a submitted mutation and an edit arriving during the flush write', async () => {
     await loadProject();
+    const mutation = Promise.withResolvers<void>();
+    executeCommandMock.mockReturnValueOnce(mutation.promise);
     const firstWrite = Promise.withResolvers<void>();
     const lastWrite = Promise.withResolvers<void>();
     saveFileApiMock
       .mockReturnValueOnce(firstWrite.promise)
-      .mockResolvedValueOnce(undefined)
       .mockReturnValueOnce(lastWrite.promise);
 
-    await runCommand(1, MUTATION_COMMAND, true);
-    await runCommand(2, MUTATION_COMMAND, true);
-    await runCommand(3, MUTATION_COMMAND, true);
+    const submitted = runCommand(1, MUTATION_COMMAND, true);
     const port = createFakePort();
     const idleRequest = handleDbProcessMessage(port, {
       id: 4,
-      type: 'waitForPendingSaves',
+      type: 'flushSaves',
     });
 
     await setImmediate();
     expect(port.responses).toEqual([]);
+    expect(saveFileApiMock).not.toHaveBeenCalled();
 
+    mutation.resolve();
+    await submitted;
+    await setImmediate();
+    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
+    await runCommand(2, MUTATION_COMMAND, true);
     firstWrite.resolve();
     await setImmediate();
-    expect(saveFileApiMock).toHaveBeenCalledTimes(3);
+    expect(saveFileApiMock).toHaveBeenCalledTimes(2);
     expect(port.responses).toEqual([]);
 
     lastWrite.resolve();
@@ -355,6 +430,7 @@ describe('dbProcess save tracking', () => {
   });
 
   it('serializes a manual save behind a running automatic save', async () => {
+    vi.useFakeTimers();
     await loadProject();
 
     let resolveAutomaticSave!: () => void;
@@ -366,13 +442,14 @@ describe('dbProcess save tracking', () => {
     );
 
     await runCommand(1, MUTATION_COMMAND, true);
+    await tick();
     const manualSavePromise = handle(saveMessage(2));
     resolveAutomaticSave();
     expect((await manualSavePromise)?.type).toBe('success');
     expect(saveFileApiMock).toHaveBeenCalledTimes(2);
   });
 
-  it('resolves waitForPendingSaves only after a manual save concluded', async () => {
+  it('waits for a manual save when flushing', async () => {
     await loadProject();
 
     let resolveSave!: () => void;
@@ -384,7 +461,7 @@ describe('dbProcess save tracking', () => {
     );
 
     const savePromise = handle(saveMessage(1));
-    const idlePromise = waitForPendingSaves(2);
+    const idlePromise = flushSaves(2);
     // Let the queued save start writing before resolving it.
     await Promise.resolve();
     resolveSave();
@@ -392,7 +469,7 @@ describe('dbProcess save tracking', () => {
     expect((await savePromise)?.type).toBe('success');
   });
 
-  it('resolves waitForPendingSaves only after a force unlock concluded', async () => {
+  it('waits for a force unlock when flushing', async () => {
     await loadProject();
 
     let resolveUnlock!: () => void;
@@ -409,13 +486,13 @@ describe('dbProcess save tracking', () => {
       projectId: 'uuid_1',
       opossumFilePath: '/some/path.opossum',
     });
-    const idlePromise = waitForPendingSaves(2);
+    const idlePromise = flushSaves(2);
     resolveUnlock();
     expect((await idlePromise)?.type).toBe('success');
     expect((await unlockPromise)?.type).toBe('success');
   });
 
-  it('resolves waitForPendingSaves only after an export concluded', async () => {
+  it('waits for an export when flushing', async () => {
     let resolveExport!: () => void;
     exportFileMock.mockImplementationOnce(
       () =>
@@ -430,13 +507,13 @@ describe('dbProcess save tracking', () => {
       exportType: ExportType.FollowUp,
       filePath: '/some/export.json',
     });
-    const idlePromise = waitForPendingSaves(2);
+    const idlePromise = flushSaves(2);
     resolveExport();
     expect((await idlePromise)?.type).toBe('success');
     expect((await exportPromise)?.type).toBe('success');
   });
 
-  it('resolves waitForPendingSaves only after a standalone merge concluded', async () => {
+  it('waits for a standalone merge when flushing', async () => {
     let resolveMerge!: () => void;
     mergeOpossumFilesFromPathsMock.mockImplementationOnce(
       () =>
@@ -455,7 +532,7 @@ describe('dbProcess save tracking', () => {
         outputPath: '/some/output.opossum',
       },
     });
-    const idlePromise = waitForPendingSaves(2);
+    const idlePromise = flushSaves(2);
     resolveMerge();
     expect((await idlePromise)?.type).toBe('success');
     expect((await mergePromise)?.type).toBe('success');
@@ -478,7 +555,7 @@ describe('dbProcess save outcome tracking', () => {
   });
 
   async function getSaveOutcome(id: number): Promise<SaveResult | undefined> {
-    const response = await handle({ id, type: 'waitForPendingSaves' });
+    const response = await flushSaves(id);
     if (response?.type !== 'success') {
       throw new Error(`Unexpected response: ${JSON.stringify(response)}`);
     }
@@ -502,12 +579,13 @@ describe('dbProcess save outcome tracking', () => {
     await expect(getSaveOutcome(2)).resolves.toBe('success');
   });
 
-  it('reports a failed manual save', async () => {
+  it('retries a failed manual save on flush', async () => {
     await loadProject();
     saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
-    await save(1);
+    expect((await save(1))?.type).toBe('error');
 
-    await expect(getSaveOutcome(2)).resolves.toBe('failed');
+    await expect(getSaveOutcome(2)).resolves.toBe('success');
+    expect(saveFileApiMock).toHaveBeenCalledTimes(2);
   });
 
   it('reports success again after a failed save was followed by a successful one', async () => {
@@ -519,20 +597,23 @@ describe('dbProcess save outcome tracking', () => {
     await expect(getSaveOutcome(3)).resolves.toBe('success');
   });
 
-  it('reports a failed automatic save after a mutation', async () => {
+  it('retries a failed automatic save on flush', async () => {
+    vi.useFakeTimers();
     await loadProject();
     saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
     await runCommand(1, MUTATION_COMMAND, true);
-    await waitForPendingSaves(2);
+    await tick();
 
-    await expect(getSaveOutcome(3)).resolves.toBe('failed');
+    await expect(getSaveOutcome(3)).resolves.toBe('success');
+    expect(saveFileApiMock).toHaveBeenCalledTimes(2);
   });
 
   it('replaces a failed automatic save outcome with a successful manual save', async () => {
+    vi.useFakeTimers();
     await loadProject();
     saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
     await runCommand(1, MUTATION_COMMAND, true);
-    await waitForPendingSaves(2);
+    await tick();
     await save(3);
 
     await expect(getSaveOutcome(4)).resolves.toBe('success');
@@ -540,7 +621,7 @@ describe('dbProcess save outcome tracking', () => {
 
   it('does not let an export overwrite the save outcome', async () => {
     await loadProject();
-    saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
+    exportFileMock.mockRejectedValueOnce(new Error('export failed'));
     await save(1);
     await handle({
       id: 2,
@@ -549,7 +630,8 @@ describe('dbProcess save outcome tracking', () => {
       filePath: '/some/export.json',
     });
 
-    await expect(getSaveOutcome(3)).resolves.toBe('failed');
+    await expect(getSaveOutcome(3)).resolves.toBe('success');
+    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
   });
 
   it('does not record a failed force unlock as a save outcome', async () => {

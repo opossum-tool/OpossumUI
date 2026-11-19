@@ -12,7 +12,7 @@ import {
   resetQuitStateForTesting,
 } from '../quit-handling';
 
-const waitForPendingSavesMock = vi.hoisted(() => vi.fn());
+const flushSavesMock = vi.hoisted(() => vi.fn());
 const isDeadMock = vi.hoisted(() => vi.fn());
 const quitMock = vi.hoisted(() => vi.fn());
 
@@ -22,7 +22,7 @@ vi.mock('electron', () => ({
 
 vi.mock('../../dbProcess/dbProcessClient', () => ({
   getMainDbClient: () => ({
-    waitForPendingSaves: waitForPendingSavesMock,
+    flushSaves: flushSavesMock,
     isDead: isDeadMock,
   }),
 }));
@@ -72,7 +72,7 @@ describe('handleWindowClose', () => {
   beforeEach(() => {
     resetQuitStateForTesting();
     currentTimestamp = 0;
-    waitForPendingSavesMock.mockReset().mockResolvedValue(undefined);
+    flushSavesMock.mockReset().mockResolvedValue(undefined);
     isDeadMock.mockReset().mockReturnValue(false);
     quitMock.mockReset();
   });
@@ -135,14 +135,14 @@ describe('handleWindowClose', () => {
 describe('confirmQuit', () => {
   beforeEach(() => {
     resetQuitStateForTesting();
-    waitForPendingSavesMock.mockReset().mockResolvedValue(undefined);
+    flushSavesMock.mockReset().mockResolvedValue(undefined);
     isDeadMock.mockReset().mockReturnValue(false);
     quitMock.mockReset();
   });
 
   it('waits for the DB process operations to settle, then quits', async () => {
     let resolveWhenPendingSaves!: () => void;
-    waitForPendingSavesMock.mockReturnValue(
+    flushSavesMock.mockReturnValue(
       new Promise<void>((resolve) => {
         resolveWhenPendingSaves = resolve;
       }),
@@ -154,7 +154,7 @@ describe('confirmQuit', () => {
     resolveWhenPendingSaves();
     await quitPromise;
 
-    expect(waitForPendingSavesMock).toHaveBeenCalledTimes(1);
+    expect(flushSavesMock).toHaveBeenCalledTimes(1);
     expect(quitMock).toHaveBeenCalledTimes(1);
   });
 
@@ -163,13 +163,13 @@ describe('confirmQuit', () => {
 
     await confirmQuit();
 
-    expect(waitForPendingSavesMock).not.toHaveBeenCalled();
+    expect(flushSavesMock).not.toHaveBeenCalled();
     expect(quitMock).toHaveBeenCalledTimes(1);
   });
 
   it('ignores close attempts while the quit is in progress', async () => {
     let resolveWhenPendingSaves!: () => void;
-    waitForPendingSavesMock.mockReturnValue(
+    flushSavesMock.mockReturnValue(
       new Promise<void>((resolve) => {
         resolveWhenPendingSaves = resolve;
       }),

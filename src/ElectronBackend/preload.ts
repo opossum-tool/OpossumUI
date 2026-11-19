@@ -41,7 +41,7 @@ const electronAPI: ElectronAPI = {
   quitRequestHandled: () => ipcRenderer.invoke(IpcChannel.QuitRequestHandled),
   whenBackendIdle: async (): Promise<void> => {
     await clientReady;
-    await client!.waitForPendingSaves();
+    await client!.flushSaves();
   },
   relaunch: () => ipcRenderer.invoke(IpcChannel.Relaunch),
   openLink: (link) => ipcRenderer.invoke(IpcChannel.OpenLink, { link }),

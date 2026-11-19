@@ -77,18 +77,14 @@ export function acknowledgeQuitRequest(): void {
 }
 
 /**
- * Called by the renderer once it is safe to quit. Resolves after every
- * tracked file-writing operation (mutations with their automatic saves,
- * manual saves, forceUnlock, split, merge, export) has been executed and
- * its write has concluded. Acting on a failed write is error handling and
- * deliberately part of future work, so tracking and recovery land
- * independently (see `waitForPendingSaves`).
+ * Called once it is safe to quit. Waits for tracked operations and flushes
+ * submitted edits before exiting.
  */
 export async function confirmQuit(): Promise<void> {
   quitApproved = true;
   const client = getMainDbClient();
   if (!client.isDead()) {
-    await client.waitForPendingSaves();
+    await client.flushSaves();
   }
 
   quitFinalized = true;

@@ -14,10 +14,8 @@ export type SaveResult = 'success' | 'failed';
 /**
  * Owns the lifecycle of tracked operations and project-file saves: what
  * work is pending, in which order saves are written, and what the outcome
- * of the latest ordinary save was. `waitForPendingSaves` resolves only when
- * nothing is pending anymore, so waiters (e.g. the quit path) can rely on
- * every tracked operation having been executed and every requested save
- * having been written or failed.
+ * of the latest ordinary save was. Successful edits are tracked separately
+ * from pending work until a save writes them.
  */
 export class SaveWorker {
   private readonly writeCurrentProject: () => Promise<void>;
@@ -33,6 +31,7 @@ export class SaveWorker {
    */
   private lastSaveResult: SaveResult | undefined;
   private saveTail: Promise<void> = Promise.resolve();
+  private dirty = false;
 
   constructor(options: { writeCurrentProject: () => Promise<void> }) {
     this.writeCurrentProject = options.writeCurrentProject;
@@ -40,22 +39,16 @@ export class SaveWorker {
 
   /**
    * Runs the operation and returns its result as soon as it is available.
-   * With `saveInBackground`, a successful operation additionally schedules
-   * a save. A failed operation rejects to its caller and does not schedule
-   * a save.
+   * Mutations mark the project dirty before releasing their pending slot.
    */
   run<T>(
     operation: () => Promise<T>,
-    options?: { saveInBackground?: boolean },
+    options?: { markDirty?: boolean },
   ): Promise<T> {
-    // The automatic save is scheduled inside the tracked region, so it is
-    // registered before the operation's registration is released.
     return this.track(async () => {
       const result = await operation();
-      if (options?.saveInBackground === true) {
-        void this.save().catch((error) => {
-          console.error('Automatic save of the .opossum file failed.', error);
-        });
+      if (options?.markDirty === true) {
+        this.dirty = true;
       }
       return result;
     });
@@ -69,22 +62,31 @@ export class SaveWorker {
     return this.track(() => this.enqueueWrite());
   }
 
-  /**
-   * Resolves once every tracked operation and every scheduled save has
-   * concluded — including work registered while waiting — and returns the
-   * outcome of the latest ordinary save. `undefined` means no ordinary save
-   * happened since the file was loaded.
-   */
-  async waitForPendingSaves(): Promise<SaveResult | undefined> {
-    while (this.pending.size > 0) {
-      await Promise.all([...this.pending]);
+  autosave(): void {
+    if (this.dirty && this.pending.size === 0) {
+      void this.save().catch((error) => {
+        console.error('Automatic save of the .opossum file failed.', error);
+      });
     }
-    return this.lastSaveResult;
   }
 
-  /** Clears the recorded save outcome, e.g. when another file is loaded. */
-  resetSaveOutcome(): void {
-    this.lastSaveResult = undefined;
+  /** Waits for tracked work and persists edits without waiting for a tick. */
+  async flush(): Promise<SaveResult | undefined> {
+    let writeFailed = false;
+    while (true) {
+      if (this.pending.size > 0) {
+        await Promise.all([...this.pending]);
+      } else if (writeFailed || !this.dirty) {
+        return writeFailed ? 'failed' : this.lastSaveResult;
+      } else {
+        try {
+          await this.save();
+        } catch (error) {
+          console.error('Automatic save of the .opossum file failed.', error);
+          writeFailed = true;
+        }
+      }
+    }
   }
 
   /**
@@ -106,15 +108,16 @@ export class SaveWorker {
   /**
    * Appends a write of the current project state to the save tail and
    * records its outcome. The snapshot is read when the write starts, so
-   * the last write reflects every mutation completed before it was
-   * scheduled.
+   * edits completed during a write stay dirty for the next write.
    */
   private enqueueWrite(): Promise<void> {
     const write = this.saveTail.then(async () => {
+      this.dirty = false;
       try {
         await this.writeCurrentProject();
         this.lastSaveResult = 'success';
       } catch (error) {
+        this.dirty = true;
         this.lastSaveResult = 'failed';
         throw error;
       }
