@@ -16,6 +16,7 @@ import { reducer } from './reducer';
 import type { AppThunkAction } from './types';
 import {
   type AttributionFilters,
+  EXTERNAL_ATTRIBUTION_FILTERS,
   MANUAL_ATTRIBUTION_FILTERS_AUDIT,
   MANUAL_ATTRIBUTION_FILTERS_REPORT,
   RESOURCE_TREE_FILTERS,
@@ -25,6 +26,7 @@ import { areQuickfilterConditionsMet } from './variables/use-quickfilters';
 import { areResourceQuickfilterConditionsMet } from './variables/use-resource-quickfilters';
 
 const FILTER_VARIABLES_WITH_QUICKFILTERS = new Set<string>([
+  EXTERNAL_ATTRIBUTION_FILTERS,
   MANUAL_ATTRIBUTION_FILTERS_AUDIT,
   MANUAL_ATTRIBUTION_FILTERS_REPORT,
   RESOURCE_TREE_FILTERS,
