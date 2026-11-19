@@ -59,8 +59,7 @@ export async function clickPopupButton(
   );
 }
 
-const MERGE_DIALOG_LABEL = 'merge split Opossum files dialog';
-export { MERGE_DIALOG_LABEL };
+export const MERGE_DIALOG_LABEL = 'merge split Opossum files dialog';
 
 export async function expectMergeDialogVisibility(
   visible: boolean,
@@ -208,9 +207,7 @@ export const CONFIRM_REPLACE_POPUP_LABEL = 'confirm replace popup';
 
 export const FORCE_UNLOCK_POPUP_LABEL = 'force unlock popup';
 
-export const PROJECT_METADATA_POPUP_LABEL = 'project metadata';
-
-export async function expectPopupVisibility(
+async function expectPopupVisibility(
   popupLabel: string,
   visible: boolean,
 ): Promise<void> {

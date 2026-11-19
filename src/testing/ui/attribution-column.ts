@@ -323,9 +323,7 @@ export async function expectAttributionColumnButtonVisibility(
   }, SETTLED_TIMEOUT);
 }
 
-export async function expectAttributionColumnDirty(
-  dirty: boolean,
-): Promise<void> {
+async function expectAttributionColumnDirty(dirty: boolean): Promise<void> {
   await waitFor(() => {
     expect(getAttributionColumn()).toHaveAttribute(
       'data-dirty',

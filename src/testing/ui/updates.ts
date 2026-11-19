@@ -107,15 +107,6 @@ export async function expectUpdateDownloadLinkVisible(
   );
 }
 
-export async function expectUpdateLinksVisible(
-  visible: boolean,
-): Promise<void> {
-  await expectQueryInBanner(
-    (banner) => within(banner).queryByRole('link'),
-    visible,
-  );
-}
-
 export async function expectUpdateProgressbarVisible(
   visible: boolean,
 ): Promise<void> {
@@ -123,16 +114,4 @@ export async function expectUpdateProgressbarVisible(
     (banner) => within(banner).queryByRole('progressbar'),
     visible,
   );
-}
-
-export async function expectUpdateProgressbarShowsPercent(
-  percent: number,
-): Promise<void> {
-  await waitFor(() => {
-    expect(
-      within(getBanner()).getByRole('progressbar', {
-        name: text.updateApp.downloading(percent),
-      }),
-    ).toHaveAttribute('aria-valuenow', String(percent));
-  }, SETTLED_TIMEOUT);
 }
