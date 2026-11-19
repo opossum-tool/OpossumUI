@@ -163,18 +163,19 @@ describe('project statistics', () => {
       });
     };
 
-    // The accessible status announces the first chart entry.
-    await assertAnnouncedCount(aiStatesText.nonDeferredUnmodified, 1);
+    // The accessible status announces the first chart entry, which is
+    // 'deferredUnmodified' due to the review-attention ordering.
+    await assertAnnouncedCount(aiStatesText.deferredUnmodified, 1);
 
     await closeProjectStatisticsPopup();
 
     await gotoResource(aiResourceName);
-    await clickPackageCard(ATTRIBUTIONS_PANEL, aiOutputPackageInfo);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, deferredPackageInfo);
     fillFormField('comment', 'Human input');
     await saveChangesInAttributionColumn();
 
     await openProjectStatisticsPopup(sendToChannel);
-    await assertAnnouncedCount(aiStatesText.nonDeferredUnmodified, 0);
+    await assertAnnouncedCount(aiStatesText.deferredUnmodified, 0);
     await expectStatisticsChartContainsText(
       chartTestId,
       aiStatesText.deferredModified,
