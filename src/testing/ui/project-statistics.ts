@@ -32,18 +32,45 @@ export type StatisticsChartTestId =
   | 'signalCountByClassificationPieChart'
   | 'incompleteAttributionsPieChart';
 
+// Each chart renders its title inside the container with the chart test id,
+// so asserting the title alongside the container keeps mislabelled or
+// removed titles from passing unnoticed. Chart titles can also appear as
+// legend labels inside their own chart (e.g. 'Incomplete Attributions'), so
+// match all occurrences and require at least the title to be visible.
+const STATISTICS_CHART_TITLES: Record<StatisticsChartTestId, string> = {
+  attributionBarChart:
+    text.projectStatisticsPopup.charts.attributionProperties.title,
+  mostFrequentLicenseCountPieChart:
+    text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
+  criticalSignalsCountPieChart:
+    text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
+  signalCountByClassificationPieChart:
+    text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
+      .title,
+  incompleteAttributionsPieChart:
+    text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
+};
+
 export async function expectStatisticsCharts(
   visible: Array<StatisticsChartTestId>,
   hidden: Array<StatisticsChartTestId> = [],
 ): Promise<void> {
   for (const testId of visible) {
     await waitFor(() => {
-      expect(screen.getByTestId(testId)).toBeVisible();
+      const chart = screen.getByTestId(testId);
+      expect(chart).toBeVisible();
+      const titleMatches = within(chart).getAllByText(
+        STATISTICS_CHART_TITLES[testId],
+      );
+      for (const titleMatch of titleMatches) {
+        expect(titleMatch).toBeVisible();
+      }
     }, SETTLED_TIMEOUT);
   }
   for (const testId of hidden) {
     await waitFor(() => {
       expect(screen.queryByTestId(testId)).toBeNull();
+      expect(screen.queryByText(STATISTICS_CHART_TITLES[testId])).toBeNull();
     }, SETTLED_TIMEOUT);
   }
 }

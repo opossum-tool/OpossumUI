@@ -226,12 +226,17 @@ export async function expectProgressBarTooltipShowsValues(
       );
     });
     expect(tooltip).toBeTruthy();
+    expect(tooltip).toBeVisible();
     // Count lines are the only tooltip lines starting with the ellipsis that
     // prefixes them; the intro line ends with one and does not match.
-    const actualLines = within(tooltip as HTMLElement)
-      .queryAllByText(/^…/)
-      .map((line) => line.textContent ?? '')
-      .sort();
-    expect(actualLines).toEqual(expectedLines);
+    const lineNodes = within(tooltip as HTMLElement).queryAllByText(/^…/);
+    // Role queries match invisible elements too (e.g. opacity: 0 tooltips),
+    // so assert every matched line is actually visible before comparing.
+    for (const lineNode of lineNodes) {
+      expect(lineNode).toBeVisible();
+    }
+    expect(lineNodes.map((line) => line.textContent ?? '').sort()).toEqual(
+      expectedLines,
+    );
   }, SETTLED_TIMEOUT);
 }
