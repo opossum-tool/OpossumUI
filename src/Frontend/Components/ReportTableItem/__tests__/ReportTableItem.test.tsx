@@ -105,95 +105,44 @@ describe('The ReportTableItem', () => {
     expect(screen.getByLabelText('Preferred icon')).toBeInTheDocument();
   });
 
-  it('renders AI status badges for non-deferred unmodified AI attribution', async () => {
+  it('renders AI generated icon for non-deferred unmodified AI attribution', async () => {
     await renderReportTableItemWithAiStatus({
       deferred: false,
     });
 
+    expect(screen.getByLabelText('AI generated icon')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Deferred AI icon')).not.toBeInTheDocument();
     expect(
-      screen.getByText(text.auditingOptions.aiGenerated),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(text.auditingOptions.deferred),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText(text.auditingOptions.humanModified),
+      screen.queryByLabelText('Human-modified AI icon'),
     ).not.toBeInTheDocument();
   });
 
-  it('renders AI status badges for non-deferred human-modified AI attribution', async () => {
+  it('renders AI generated and human-modified icons for non-deferred human-modified AI attribution', async () => {
     await renderReportTableItemWithAiStatus({
       deferred: false,
       humanModified: true,
     });
 
-    expect(
-      screen.getByText(text.auditingOptions.aiGenerated),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(text.auditingOptions.humanModified),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(text.auditingOptions.deferred),
-    ).not.toBeInTheDocument();
+    expect(screen.getByLabelText('AI generated icon')).toBeInTheDocument();
+    expect(screen.getByLabelText('Human-modified AI icon')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Deferred AI icon')).not.toBeInTheDocument();
   });
 
-  it('renders AI status badges for deferred unmodified AI attribution', async () => {
+  it('renders deferred icon for deferred unmodified AI attribution', async () => {
     await renderReportTableItemWithAiStatus({
       deferred: true,
     });
 
-    expect(screen.getByText(text.auditingOptions.deferred)).toBeInTheDocument();
+    expect(screen.getByLabelText('Deferred AI icon')).toBeInTheDocument();
     expect(
-      screen.queryByText(text.auditingOptions.aiGenerated),
+      screen.queryByLabelText('AI generated icon'),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByText(text.auditingOptions.humanModified),
-    ).not.toBeInTheDocument();
-  });
-
-  it('renders AI status badges for deferred human-modified AI attribution', async () => {
-    await renderReportTableItemWithAiStatus({
-      deferred: true,
-      humanModified: true,
-    });
-
-    expect(screen.getByText(text.auditingOptions.deferred)).toBeInTheDocument();
-    expect(
-      screen.getByText(text.auditingOptions.humanModified),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(text.auditingOptions.aiGenerated),
+      screen.queryByLabelText('Human-modified AI icon'),
     ).not.toBeInTheDocument();
   });
 
-  it('renders no AI status badges for attribution without AI metadata', async () => {
-    await renderReportTableItemWithAiStatus(undefined);
-
-    expect(
-      screen.queryByText(text.auditingOptions.aiGenerated),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText(text.auditingOptions.deferred),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText(text.auditingOptions.humanModified),
-    ).not.toBeInTheDocument();
-  });
-
-  it('shows AI status badge tooltip on hover', async () => {
-    await renderReportTableItemWithAiStatus({
-      deferred: true,
-    });
-
-    fireEvent.mouseOver(screen.getByText(text.auditingOptions.deferred));
-
-    expect(
-      await screen.findByText(text.auditingOptions.deferredTooltip),
-    ).toBeInTheDocument();
-  });
-
-  it('renders AI status badge icons', async () => {
+  it('renders deferred and human-modified icons for deferred human-modified AI attribution', async () => {
     await renderReportTableItemWithAiStatus({
       deferred: true,
       humanModified: true,
@@ -201,6 +150,61 @@ describe('The ReportTableItem', () => {
 
     expect(screen.getByLabelText('Deferred AI icon')).toBeInTheDocument();
     expect(screen.getByLabelText('Human-modified AI icon')).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('AI generated icon'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders AI icons after the flag icons', async () => {
+    const testAttribution: PackageInfo = {
+      packageName: 'React',
+      resources: ['/'],
+      criticality: Criticality.None,
+      id: 'uuid1',
+      firstParty: true,
+      aiStatus: { deferred: false },
+    };
+    await renderComponent(
+      <table>
+        <tbody>
+          <tr>
+            <ReportTableItem packageInfo={testAttribution} />
+          </tr>
+        </tbody>
+      </table>,
+    );
+
+    const aiIcon = screen.getByLabelText('AI generated icon');
+    const flagIcon = screen.getByLabelText('First party icon');
+
+    expect(
+      flagIcon.compareDocumentPosition(aiIcon) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it('renders no AI icons for attribution without AI metadata', async () => {
+    await renderReportTableItemWithAiStatus(undefined);
+
+    expect(
+      screen.queryByLabelText('AI generated icon'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Deferred AI icon')).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Human-modified AI icon'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows deferred icon tooltip on hover', async () => {
+    await renderReportTableItemWithAiStatus({
+      deferred: true,
+    });
+
+    fireEvent.mouseOver(screen.getByLabelText('Deferred AI icon'));
+
+    expect(
+      await screen.findByText(text.auditingOptions.deferredTooltip),
+    ).toBeInTheDocument();
   });
 });
 
