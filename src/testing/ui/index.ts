@@ -32,6 +32,7 @@ export {
   pressGoForwardShortcut,
   pressSearchShortcut,
   sendUserSettingsChange,
+  SETTLED_TIMEOUT,
   SIGNALS_PANEL,
   LINKED_RESOURCES_TREE,
   PACKAGES_PANEL,

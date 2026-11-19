@@ -8,7 +8,7 @@ import userEvent from '@testing-library/user-event';
 
 import type { SortOption } from '../../../../shared/attribution-result-set';
 import { text } from '../../../../shared/text';
-import { expectButtonDisabled, getButton } from '../../../../testing/ui';
+import { getButton } from '../../../../testing/ui';
 import {
   type AttributionFilters,
   initialAttributionFilters,
@@ -48,7 +48,7 @@ describe('SortButton', () => {
       <SortButton useFilteredData={useFilteredData} disabled />,
     );
 
-    expectButtonDisabled('sort button');
+    expect(getButton('sort button')).toBeDisabled();
   });
 
   it('calls onSortingChange instead of writing the filters when provided', async () => {

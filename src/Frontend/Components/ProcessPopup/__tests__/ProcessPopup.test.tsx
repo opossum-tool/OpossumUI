@@ -10,7 +10,6 @@ import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import type { ElectronAPI } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
-import { expectTextVisible } from '../../../../testing/ui';
 import { PopupType } from '../../../enums/enums';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import {
@@ -92,8 +91,8 @@ describe('ProcessPopup', () => {
     simulateBackendProcessingStarted();
     simulateMessageFromBackend(message);
 
-    await expectTextVisible(text.processPopup.title, true);
-    await expectTextVisible(message, true);
+    expect(screen.getByText(text.processPopup.title)).toBeInTheDocument();
+    expect(screen.getByText(message)).toBeInTheDocument();
     expect(electronAPI.setFrontendDialogState).not.toHaveBeenLastCalledWith({
       anyDialogOpen: true,
       activityActive: false,

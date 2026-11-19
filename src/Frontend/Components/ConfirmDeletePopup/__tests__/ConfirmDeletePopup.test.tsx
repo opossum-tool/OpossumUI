@@ -12,7 +12,6 @@ import { pathsToResources } from '../../../../testing/global-test-helpers';
 import {
   clickPopupButton,
   CONFIRM_DELETE_POPUP_LABEL,
-  expectTextVisible,
 } from '../../../../testing/ui';
 import { setSelectedAttributionId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { getSelectedAttributionId } from '../../../state/selectors/resource-selectors';
@@ -61,12 +60,13 @@ describe('ConfirmDeletePopup', () => {
       },
     );
 
-    await expectTextVisible(
-      `${text.deleteAttributionsPopup.deleteAttributions({
-        attributions: 'attribution',
-      })} 1 resource:`,
-      true,
-    );
+    expect(
+      await screen.findByText(
+        `${text.deleteAttributionsPopup.deleteAttributions({
+          attributions: 'attribution',
+        })} 1 resource:`,
+      ),
+    ).toBeInTheDocument();
     expect(
       screen.getByLabelText(text.resourceBrowser.directlyLinked),
     ).toBeInTheDocument();
@@ -110,16 +110,19 @@ describe('ConfirmDeletePopup', () => {
       },
     );
 
-    await expectTextVisible(
-      `${text.deleteAttributionsPopup.deleteAttributions({
-        attributions: '2 attributions',
-      })} 2 resources:`,
-      true,
-    );
+    expect(
+      await screen.findByText(
+        `${text.deleteAttributionsPopup.deleteAttributions({
+          attributions: '2 attributions',
+        })} 2 resources:`,
+      ),
+    ).toBeInTheDocument();
     expect(
       screen.getAllByLabelText(text.resourceBrowser.directlyLinked).length,
     ).toBeGreaterThanOrEqual(1);
-    await expectTextVisible(text.deleteAttributionsPopup.title, true);
+    expect(
+      screen.getByText(text.deleteAttributionsPopup.title),
+    ).toBeInTheDocument();
   });
 
   it('deletes attributions', async () => {

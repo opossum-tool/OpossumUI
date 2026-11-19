@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import type { PackageInfo } from '../../../../shared/shared-types';
@@ -11,8 +11,6 @@ import { faker } from '../../../../testing/Faker';
 import {
   clickPopupButton,
   CONFIRMATION_DIALOG_LABEL,
-  expectPopupVisibility,
-  expectTextVisible,
 } from '../../../../testing/ui';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
@@ -49,7 +47,9 @@ describe('useConfirmAttributionEdit', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
     expect(onEdit).toHaveBeenCalledOnce();
-    await expectPopupVisibility(CONFIRMATION_DIALOG_LABEL, false);
+    expect(
+      screen.queryByLabelText('confirmation dialog'),
+    ).not.toBeInTheDocument();
   });
 
   it('waits for confirmation before editing a previously preferred attribution', async () => {
@@ -72,21 +72,31 @@ describe('useConfirmAttributionEdit', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
-    await expectPopupVisibility(CONFIRMATION_DIALOG_LABEL, true);
+    expect(
+      await screen.findByLabelText('confirmation dialog'),
+    ).toBeInTheDocument();
     expect(onEdit).not.toHaveBeenCalled();
-    await expectTextVisible('true', true);
+    expect(screen.getByText('true')).toBeInTheDocument();
 
     await clickPopupButton(CONFIRMATION_DIALOG_LABEL, text.buttons.cancel);
 
     expect(onEdit).not.toHaveBeenCalled();
-    await expectPopupVisibility(CONFIRMATION_DIALOG_LABEL, false);
-    await expectTextVisible('false', true);
+    await waitFor(() =>
+      expect(
+        screen.queryByLabelText('confirmation dialog'),
+      ).not.toBeInTheDocument(),
+    );
+    expect(screen.getByText('false')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
     await clickPopupButton(CONFIRMATION_DIALOG_LABEL, text.buttons.ok);
 
     expect(onEdit).toHaveBeenCalledOnce();
-    await expectPopupVisibility(CONFIRMATION_DIALOG_LABEL, false);
-    await expectTextVisible('false', true);
+    await waitFor(() =>
+      expect(
+        screen.queryByLabelText('confirmation dialog'),
+      ).not.toBeInTheDocument(),
+    );
+    expect(screen.getByText('false')).toBeInTheDocument();
   });
 });

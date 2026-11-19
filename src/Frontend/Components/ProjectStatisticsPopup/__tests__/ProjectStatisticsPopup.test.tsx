@@ -13,7 +13,6 @@ import { text } from '../../../../shared/text';
 import {
   clickProjectStatisticsTab,
   expectStatisticsCharts,
-  expectTextVisible,
 } from '../../../../testing/ui';
 import { PopupType } from '../../../enums/enums';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
@@ -113,10 +112,10 @@ describe('The ProjectStatisticsPopup', () => {
 
     await userEvent.click(await screen.findByText('Licenses'));
 
-    await expectTextVisible('Apache License Version 2.0', true);
-    await expectTextVisible('The MIT License (MIT)', true);
-    await expectTextVisible('Scancode', true);
-    await expectTextVisible('Reuser', true);
+    expect(screen.getByText('Apache License Version 2.0')).toBeVisible();
+    expect(screen.getByText('The MIT License (MIT)')).toBeVisible();
+    expect(screen.getByText('Scancode')).toBeVisible();
+    expect(screen.getByText('Reuser')).toBeVisible();
   });
 
   it('renders expected pie charts when there are signals and attributions', async () => {
@@ -182,9 +181,8 @@ describe('The ProjectStatisticsPopup', () => {
         externalAttributions: testExternalAttributions,
       }),
     });
-    await expectTextVisible(
+    await screen.findByText(
       text.projectStatisticsPopup.charts.attributionProperties.title,
-      true,
     );
     await expectStatisticsCharts(
       [],
@@ -241,17 +239,19 @@ describe('The ProjectStatisticsPopup', () => {
       }),
     });
 
-    await expectTextVisible(
-      text.projectStatisticsPopup.charts.attributionProperties.title,
-      true,
-    );
+    expect(
+      await screen.findByText(
+        text.projectStatisticsPopup.charts.attributionProperties.title,
+      ),
+    ).toBeVisible();
 
     await clickProjectStatisticsTab('details');
 
-    await expectTextVisible(
-      text.attributionCountPerSourcePerLicenseTable.columns.licenseInfo,
-      true,
-    );
+    expect(
+      screen.getByText(
+        text.attributionCountPerSourcePerLicenseTable.columns.licenseInfo,
+      ),
+    ).toBeVisible();
   });
 
   it('supports sorting the signals per sources table', async () => {
@@ -318,9 +318,8 @@ describe('The ProjectStatisticsPopup', () => {
       actions: [setUserSetting({ showClassifications: false })],
     });
 
-    await expectTextVisible(
+    await screen.findByText(
       text.projectStatisticsPopup.charts.attributionProperties.title,
-      true,
     );
     await expectStatisticsCharts([], ['signalCountByClassificationPieChart']);
   });
@@ -331,9 +330,8 @@ describe('The ProjectStatisticsPopup', () => {
       actions: [setUserSetting({ showCriticality: false })],
     });
 
-    await expectTextVisible(
+    await screen.findByText(
       text.projectStatisticsPopup.charts.attributionProperties.title,
-      true,
     );
     await expectStatisticsCharts([], ['criticalSignalsCountPieChart']);
   });

@@ -13,10 +13,6 @@ import { pathsToResources } from '../../../../testing/global-test-helpers';
 import {
   clickPopupButton,
   CONFIRM_REPLACE_POPUP_LABEL,
-  expectButtonDisabled,
-  expectEventuallyButtonDisabled,
-  expectEventuallyButtonEnabled,
-  expectTextVisible,
 } from '../../../../testing/ui';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import { getSelectedAttributionId } from '../../../state/selectors/resource-selectors';
@@ -78,7 +74,10 @@ describe('ConfirmReplacePopup', () => {
         },
       );
       await waitFor(() => expect(treeRequested).toHaveBeenCalled());
-      expectButtonDisabled(text.replaceAttributionsPopup.replace);
+      const replaceButton = screen.getByRole('button', {
+        name: text.replaceAttributionsPopup.replace,
+      });
+      expect(replaceButton).toBeDisabled();
       act(() => {
         if (outcome === 'error') {
           treeResponse.reject(new Error('Resource tree failed'));
@@ -93,16 +92,8 @@ describe('ConfirmReplacePopup', () => {
             .getAll()
             .some((query) => query.state.status === 'error'),
         ).toBe(outcome === 'error');
+        expect(replaceButton).toHaveProperty('disabled', outcome === 'error');
       });
-      if (outcome === 'error') {
-        await expectEventuallyButtonDisabled(
-          text.replaceAttributionsPopup.replace,
-        );
-      } else {
-        await expectEventuallyButtonEnabled(
-          text.replaceAttributionsPopup.replace,
-        );
-      }
     },
   );
 
@@ -171,10 +162,11 @@ describe('ConfirmReplacePopup', () => {
       expect(
         removedAttributions.queryByLabelText('package card replacement'),
       ).not.toBeInTheDocument();
-      await expectTextVisible(
-        text.replaceAttributionsPopup.removeAttributions('attribution'),
-        true,
-      );
+      expect(
+        screen.getByText(
+          text.replaceAttributionsPopup.removeAttributions('attribution'),
+        ),
+      ).toBeVisible();
       expect(within(tree).queryByText('readonly')).not.toBeInTheDocument();
       const sourceCard = await screen.findByLabelText('package card source');
       expect(
@@ -221,10 +213,11 @@ describe('ConfirmReplacePopup', () => {
       },
     );
 
-    await expectTextVisible(
-      text.confirmAttributionActionPopup.mixedWarning(1),
-      true,
-    );
+    expect(
+      await screen.findByText(
+        text.confirmAttributionActionPopup.mixedWarning(1),
+      ),
+    ).toBeVisible();
   });
 
   it('includes a mixed pre-selected replacement in the warning count', async () => {
@@ -268,10 +261,11 @@ describe('ConfirmReplacePopup', () => {
     expect(await within(tree).findByText('editable')).toBeVisible();
     expect(within(tree).queryByText('readonly')).not.toBeInTheDocument();
 
-    await expectTextVisible(
-      text.confirmAttributionActionPopup.mixedWarning(1),
-      true,
-    );
+    expect(
+      await screen.findByText(
+        text.confirmAttributionActionPopup.mixedWarning(1),
+      ),
+    ).toBeVisible();
   });
 
   it('replaces selected attribution with non-pre-selected one', async () => {
@@ -372,10 +366,11 @@ describe('ConfirmReplacePopup', () => {
       },
     );
 
-    await expectTextVisible(
-      text.replaceAttributionsPopup.removeAttributions('2 attributions'),
-      true,
-    );
+    expect(
+      await screen.findByText(
+        text.replaceAttributionsPopup.removeAttributions('2 attributions'),
+      ),
+    ).toBeVisible();
 
     const removedAttributions = within(
       await screen.findByTestId('removed-attributions'),

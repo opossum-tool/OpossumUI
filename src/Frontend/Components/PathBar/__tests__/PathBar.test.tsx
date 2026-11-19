@@ -6,11 +6,6 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { compact } from 'lodash-es';
 
-import {
-  expectButtonInTheDocument,
-  expectPathBarCrumbs,
-  getButton,
-} from '../../../../testing/ui';
 import { setSelectedResourceId } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
@@ -26,7 +21,9 @@ describe('The PathBar', () => {
       store.dispatch(setSelectedResourceId(testPath, 'auto'));
     });
 
-    await expectPathBarCrumbs(pathElements);
+    pathElements.forEach((element) => {
+      expect(screen.getByText(element)).toBeInTheDocument();
+    });
   });
 
   it('copies path to clipboard', async () => {
@@ -59,8 +56,10 @@ describe('The PathBar', () => {
         },
       }),
     });
-    await expectButtonInTheDocument('Open resource in browser', true);
-    await userEvent.click(getButton('Open resource in browser'));
+    const linkButton = await screen.findByRole('button', {
+      name: 'Open resource in browser',
+    });
+    await userEvent.click(linkButton);
     expect(window.electronAPI.openLink).toHaveBeenCalledTimes(1);
   });
 });

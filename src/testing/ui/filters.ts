@@ -7,11 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
 import { text } from '../../shared/text';
-import {
-  getPanel,
-  type PanelTestId,
-  SETTLED_TIMEOUT,
-} from './common';
+import { getPanel, type PanelTestId, SETTLED_TIMEOUT } from './common';
 
 const FILTER_MENU_LABELS = {
   needsFollowUp: text.filters.needsFollowUp,

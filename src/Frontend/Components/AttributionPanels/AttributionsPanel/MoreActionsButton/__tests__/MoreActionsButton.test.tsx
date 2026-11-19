@@ -9,13 +9,7 @@ import type { MutationReturn } from '../../../../../../ElectronBackend/api/mutat
 import { getDb } from '../../../../../../ElectronBackend/db/db';
 import { text } from '../../../../../../shared/text';
 import { faker } from '../../../../../../testing/Faker';
-import {
-  expectButtonDisabled,
-  expectButtonInTheDocument,
-  expectEventuallyButtonEnabled,
-  expectTextVisible,
-  getButton,
-} from '../../../../../../testing/ui';
+import { getButton } from '../../../../../../testing/ui';
 import { setTemporaryDisplayPackageInfo } from '../../../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedAttributionId } from '../../../../../state/actions/resource-actions/audit-view-simple-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../../test-helpers/general-test-helpers';
@@ -69,7 +63,9 @@ describe('MoreActionsButton', () => {
   it('renders the more actions button', async () => {
     await renderComponent(<MoreActionsButton {...defaultProps} />);
 
-    await expectButtonInTheDocument(text.packageLists.moreActions, true);
+    expect(
+      screen.getByRole('button', { name: text.packageLists.moreActions }),
+    ).toBeInTheDocument();
   });
 
   it('is disabled when no attributions are selected', async () => {
@@ -80,7 +76,7 @@ describe('MoreActionsButton', () => {
 
     await renderComponent(<MoreActionsButton {...props} />);
 
-    expectButtonDisabled(text.packageLists.moreActions);
+    expect(getButton(text.packageLists.moreActions)).toBeDisabled();
   });
 
   it('opens menu when clicked', async () => {
@@ -88,9 +84,11 @@ describe('MoreActionsButton', () => {
 
     await userEvent.click(getButton(text.packageLists.moreActions));
 
-    await expectTextVisible('Mark as Needs Review by QA', true);
-    await expectTextVisible('Mark as Needs Follow-Up', true);
-    await expectTextVisible('Mark as Excluded from Notice', true);
+    expect(screen.getByText('Mark as Needs Review by QA')).toBeInTheDocument();
+    expect(screen.getByText('Mark as Needs Follow-Up')).toBeInTheDocument();
+    expect(
+      screen.getByText('Mark as Excluded from Notice'),
+    ).toBeInTheDocument();
   });
 
   it('shows correct text when all selected attributions have needsReview', async () => {
@@ -112,7 +110,9 @@ describe('MoreActionsButton', () => {
 
     await userEvent.click(getButton(text.packageLists.moreActions));
 
-    await expectTextVisible('Unmark as Needs Review by QA', true);
+    expect(
+      screen.getByText('Unmark as Needs Review by QA'),
+    ).toBeInTheDocument();
   });
 
   it('updates explicit selections while preserving the focused edit', async () => {
@@ -173,8 +173,10 @@ describe('MoreActionsButton', () => {
     await userEvent.click(getButton(text.packageLists.moreActions));
     await userEvent.click(screen.getByText('Mark as Needs Review by QA'));
 
-    await expectTextVisible('Mark as Needs Review by QA', false);
-    expectButtonDisabled(text.packageLists.moreActions);
+    expect(
+      screen.queryByText('Mark as Needs Review by QA'),
+    ).not.toBeInTheDocument();
+    expect(getButton(text.packageLists.moreActions)).toBeDisabled();
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
 
     expect(api).toHaveBeenCalledOnce();
@@ -234,7 +236,9 @@ describe('MoreActionsButton', () => {
     await userEvent.click(getButton(text.packageLists.moreActions));
     await userEvent.click(screen.getByText('Mark as Needs Review by QA'));
 
-    await expectEventuallyButtonEnabled(text.packageLists.moreActions);
+    await waitFor(() =>
+      expect(getButton(text.packageLists.moreActions)).toBeEnabled(),
+    );
     expect(clearBulkSelection).not.toHaveBeenCalled();
   });
 });

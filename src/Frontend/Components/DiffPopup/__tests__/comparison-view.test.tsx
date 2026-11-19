@@ -9,7 +9,6 @@ import type { ComponentProps } from 'react';
 
 import { text } from '../../../../shared/text';
 import { makeComparisonPackageInfo } from '../../../../testing/comparison-fixtures';
-import { getButton } from '../../../../testing/ui';
 import { theme } from '../../App/App.style';
 import type { AuditingOptions } from '../../AttributionForm/AuditingOptions/AuditingOptions';
 import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
@@ -232,7 +231,11 @@ describe('ComparisonView', () => {
         'auditing-option-follow-up',
       ),
     ).toBeInTheDocument();
-    await user.click(getButton(text.diffPopup.undoAuditingChanges('right')));
+    await user.click(
+      screen.getByRole('button', {
+        name: text.diffPopup.undoAuditingChanges('right'),
+      }),
+    );
 
     expect(
       within(screen.getByTestId('right-auditing-options')).queryByTestId(

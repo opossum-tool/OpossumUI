@@ -13,7 +13,7 @@ import {
   makeComparisonItem,
   makeComparisonPackageInfo,
 } from '../../../../testing/comparison-fixtures';
-import { expectButtonDisabled, getButton } from '../../../../testing/ui';
+import { getButton } from '../../../../testing/ui';
 import { theme } from '../../App/App.style';
 import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { ComparisonFieldEditor } from '../ComparisonFieldEditor';
@@ -153,7 +153,9 @@ describe('ComparisonFieldEditor', () => {
       field: typeField,
       item: item({ isExternal: true }),
     });
-    expectButtonDisabled(text.filters.firstParty);
+    expect(
+      screen.getByRole('button', { name: text.filters.firstParty }),
+    ).toBeDisabled();
 
     rerender(
       <ThemeProvider theme={theme}>
@@ -173,7 +175,9 @@ describe('ComparisonFieldEditor', () => {
         />
       </ThemeProvider>,
     );
-    expectButtonDisabled(text.filters.firstParty);
+    expect(
+      screen.getByRole('button', { name: text.filters.firstParty }),
+    ).toBeDisabled();
   });
 
   it('renders read-only and busy fields without allowing changes', () => {

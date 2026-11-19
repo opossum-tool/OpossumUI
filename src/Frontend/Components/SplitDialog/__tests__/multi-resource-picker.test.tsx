@@ -5,7 +5,6 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 
 import { text } from '../../../../shared/text';
-import { expectTextVisible } from '../../../../testing/ui';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { MultiResourcePicker } from '../MultiResourcePicker';
@@ -28,9 +27,9 @@ describe('MultiResourcePicker', () => {
   it('shows top-level resources before a folder is expanded', async () => {
     await renderPicker();
 
-    await expectTextVisible('docs', true);
-    await expectTextVisible('src', true);
-    await expectTextVisible('single', false);
+    expect(await screen.findByText('docs')).toBeInTheDocument();
+    expect(screen.getByText('src')).toBeInTheDocument();
+    expect(screen.queryByText('single')).not.toBeInTheDocument();
   });
 
   it('uses the shared single-child expansion behavior', async () => {
@@ -42,9 +41,9 @@ describe('MultiResourcePicker', () => {
       }),
     );
 
-    await expectTextVisible('single', true);
-    await expectTextVisible('first.ts', true);
-    await expectTextVisible('second.ts', true);
+    expect(await screen.findByText('single')).toBeInTheDocument();
+    expect(screen.getByText('first.ts')).toBeInTheDocument();
+    expect(screen.getByText('second.ts')).toBeInTheDocument();
   });
 
   it('expands ancestors of initially selected resources', async () => {
@@ -59,9 +58,9 @@ describe('MultiResourcePicker', () => {
       { data },
     );
 
-    await expectTextVisible('single', true);
-    await expectTextVisible('first.ts', true);
-    await expectTextVisible('second.ts', true);
+    expect(await screen.findByText('single')).toBeInTheDocument();
+    expect(screen.getByText('first.ts')).toBeInTheDocument();
+    expect(screen.getByText('second.ts')).toBeInTheDocument();
     await waitFor(() =>
       expect(scrollIntoView).toHaveBeenCalledWith({
         block: 'center',
@@ -115,7 +114,7 @@ describe('MultiResourcePicker', () => {
       { data: readonlyData },
     );
 
-    await expectTextVisible('docs', true);
+    await screen.findByText('docs');
     expect(screen.getByTestId('readonly-indicator')).toBeInTheDocument();
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
 
@@ -124,7 +123,7 @@ describe('MultiResourcePicker', () => {
         name: text.splitDialog.resourcePicker.expand('/docs'),
       }),
     );
-    await expectTextVisible('README.md', true);
+    expect(await screen.findByText('README.md')).toBeInTheDocument();
   });
 });
 

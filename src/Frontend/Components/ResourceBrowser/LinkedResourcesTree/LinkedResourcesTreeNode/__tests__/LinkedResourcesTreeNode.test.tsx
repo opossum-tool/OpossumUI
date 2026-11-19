@@ -6,7 +6,6 @@ import { screen } from '@testing-library/react';
 
 import type { LinkedResourceTreeNodeData } from '../../../../../../ElectronBackend/api/resourceTree';
 import { makeResourceTreeNode } from '../../../../../../testing/global-test-helpers';
-import { expectTextVisible } from '../../../../../../testing/ui';
 import { OpossumColors } from '../../../../../shared-styles';
 import { renderComponent } from '../../../../../test-helpers/render';
 import { LinkedResourcesTreeNode } from '../LinkedResourcesTreeNode';
@@ -34,7 +33,7 @@ describe('LinkedResourcesTreeNode', () => {
       />,
     );
 
-    await expectTextVisible('Test label', true);
+    expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(screen.getByLabelText('Directly linked')).toBeInTheDocument();
     expect(screen.queryByLabelText('Attribution icon')).not.toBeInTheDocument();
     expect(
@@ -54,7 +53,7 @@ describe('LinkedResourcesTreeNode', () => {
       />,
     );
 
-    await expectTextVisible('Test label', true);
+    expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(
       screen.getByLabelText('Directory icon without information'),
     ).toBeInTheDocument();
@@ -75,7 +74,7 @@ describe('LinkedResourcesTreeNode', () => {
       />,
     );
 
-    await expectTextVisible('Test label', true);
+    expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(screen.getByLabelText('Breakpoint icon')).toBeInTheDocument();
     expect(screen.getByLabelText('Directly linked')).toBeInTheDocument();
     expect(screen.getByLabelText('readonly resource')).toBeInTheDocument();
@@ -92,7 +91,7 @@ describe('LinkedResourcesTreeNode', () => {
       />,
     );
 
-    await expectTextVisible('Test label', true);
+    expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(screen.getByTestId('linked-resources-tree-node-/test')).toHaveStyle({
       backgroundColor: OpossumColors.lightBlue,
     });
@@ -109,7 +108,7 @@ describe('LinkedResourcesTreeNode', () => {
       />,
     );
 
-    await expectTextVisible('Test label', true);
+    expect(screen.getByText('Test label')).toBeInTheDocument();
     expect(
       screen.getByTestId('linked-resources-tree-node-/test'),
     ).not.toHaveStyle({ backgroundColor: OpossumColors.lightBlue });

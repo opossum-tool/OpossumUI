@@ -5,10 +5,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { fireEvent, screen } from '@testing-library/react';
 
-import {
-  clickTopBarOpenFileButton,
-  expectTextVisible,
-} from '../../../../testing/ui';
+import { clickTopBarOpenFileButton } from '../../../../testing/ui';
 import { View } from '../../../enums/enums';
 import { initialResourceState } from '../../../state/reducers/resource-reducer';
 import {
@@ -26,7 +23,7 @@ describe('TopBar', () => {
 
     await renderComponent(<TopBar />);
 
-    await expectTextVisible('OpossumUI-2026-10-20.2', true);
+    expect(await screen.findByText('OpossumUI-2026-10-20.2')).toBeVisible();
   });
 
   it('renders an open file icon', async () => {

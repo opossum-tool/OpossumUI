@@ -13,9 +13,6 @@ import { pathsToResources } from '../../../../testing/global-test-helpers';
 import {
   clickPopupButton,
   CONFIRM_SAVE_POPUP_LABEL,
-  expectButtonInTheDocument,
-  expectEventuallyButtonDisabled,
-  expectTextVisible,
 } from '../../../../testing/ui';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import {
@@ -161,7 +158,11 @@ describe('AttributionFormConfirmSavePopup', () => {
       CONFIRM_SAVE_POPUP_LABEL,
       text.saveAttributionsPopup.save,
     );
-    await expectEventuallyButtonDisabled(text.saveAttributionsPopup.save);
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: text.saveAttributionsPopup.save }),
+      ).toBeDisabled(),
+    );
     within(screen.getByRole('dialog'))
       .getAllByRole('button', { name: text.buttons.cancel })
       .forEach((button) => expect(button).toBeDisabled());
@@ -245,14 +246,16 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
     );
 
-    await expectButtonInTheDocument(
-      text.saveAttributionsPopup.saveGlobally,
-      true,
-    );
-    await expectButtonInTheDocument(
-      text.saveAttributionsPopup.saveLocally,
-      false,
-    );
+    expect(
+      await screen.findByRole('button', {
+        name: text.saveAttributionsPopup.saveGlobally,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', {
+        name: text.saveAttributionsPopup.saveLocally,
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it('confirms a query-wide selection without loading its IDs in the renderer', async () => {
@@ -309,12 +312,13 @@ describe('AttributionFormConfirmSavePopup', () => {
       },
     );
 
-    await expectTextVisible(
-      `${text.saveAttributionsPopup.confirmAttributions({
-        attributions: '2 attributions',
-      })} 1 resource:`,
-      true,
-    );
+    expect(
+      await screen.findByText(
+        `${text.saveAttributionsPopup.confirmAttributions({
+          attributions: '2 attributions',
+        })} 1 resource:`,
+      ),
+    ).toBeInTheDocument();
     expect(
       screen.getByLabelText(text.resourceBrowser.directlyLinked),
     ).toBeInTheDocument();

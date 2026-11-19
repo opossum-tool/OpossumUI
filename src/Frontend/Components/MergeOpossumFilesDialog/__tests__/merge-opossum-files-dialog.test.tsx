@@ -14,10 +14,6 @@ import { text } from '../../../../shared/text';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
 import {
   expectAlert,
-  expectButtonDisabled,
-  expectButtonEnabled,
-  expectButtonInTheDocument,
-  expectTextVisible,
   getButton,
   MERGE_DIALOG_LABEL,
 } from '../../../../testing/ui';
@@ -49,7 +45,9 @@ describe('MergeOpossumFilesDialog', () => {
       screen.getByLabelText(MERGE_DIALOG_LABEL),
     );
     expect(getMergeIntoCurrentProjectSwitch()).toBeEnabled();
-    expectButtonDisabled(text.buttons.merge);
+    expect(
+      screen.getByRole('button', { name: text.buttons.merge }),
+    ).toBeDisabled();
 
     await userEvent.click(
       screen.getByTestId('merge-opossum-files-input-paths-input'),
@@ -82,7 +80,7 @@ describe('MergeOpossumFilesDialog', () => {
     expect(
       screen.queryByTestId('merge-opossum-files-output-path-input'),
     ).not.toBeInTheDocument();
-    await expectTextVisible('/current/project.opossum', true);
+    expect(screen.getByText('/current/project.opossum')).toBeInTheDocument();
 
     fireEvent.click(
       screen.getByTestId('merge-opossum-files-input-paths-input'),
@@ -93,8 +91,8 @@ describe('MergeOpossumFilesDialog', () => {
         OPOSSUM_FILE_FORMAT,
       ),
     );
-    await expectTextVisible(inputFilePaths[0], true);
-    await expectTextVisible(inputFilePaths[1], true);
+    expect(screen.getByText(inputFilePaths[0])).toBeInTheDocument();
+    expect(screen.getByText(inputFilePaths[1])).toBeInTheDocument();
 
     await userEvent.click(
       screen.getByRole('button', {
@@ -102,10 +100,12 @@ describe('MergeOpossumFilesDialog', () => {
       }),
     );
 
-    await expectTextVisible(inputFilePaths[0], false);
-    await expectTextVisible(inputFilePaths[1], true);
+    expect(screen.queryByText(inputFilePaths[0])).not.toBeInTheDocument();
+    expect(screen.getByText(inputFilePaths[1])).toBeInTheDocument();
 
-    expectButtonEnabled(text.buttons.merge);
+    expect(
+      screen.getByRole('button', { name: text.buttons.merge }),
+    ).toBeEnabled();
     vi.mocked(window.electronAPI.mergeOpossumFiles).mockResolvedValue({
       status: 'success',
     });
@@ -149,7 +149,7 @@ describe('MergeOpossumFilesDialog', () => {
         filter: OPOSSUM_FILE_FORMAT,
       }),
     );
-    await expectTextVisible(outputFilePath, true);
+    expect(screen.getByText(outputFilePath)).toBeInTheDocument();
     vi.mocked(window.electronAPI.mergeOpossumFilesFromPaths).mockResolvedValue({
       status: 'success',
     });
@@ -192,7 +192,7 @@ describe('MergeOpossumFilesDialog', () => {
     fireEvent.click(
       screen.getByTestId('merge-opossum-files-output-path-input'),
     );
-    await expectTextVisible(outputFilePath, true);
+    expect(await screen.findByText(outputFilePath)).toBeInTheDocument();
 
     expect(getDeleteSplitFilesSwitch(2)).toBeChecked();
     await userEvent.click(getDeleteSplitFilesSwitch(2));
@@ -236,11 +236,12 @@ describe('MergeOpossumFilesDialog', () => {
     fireEvent.click(
       screen.getByTestId('merge-opossum-files-input-paths-input'),
     );
-    await expectTextVisible(inputFilePaths[0], true);
+    expect(await screen.findByText(inputFilePaths[0])).toBeInTheDocument();
     fireEvent.click(
       screen.getByTestId('merge-opossum-files-output-path-input'),
     );
-    await expectTextVisible(outputFilePath, true);
+
+    expect(await screen.findByText(outputFilePath)).toBeInTheDocument();
     await userEvent.click(getButton(text.buttons.merge));
 
     await expectAlert(
@@ -301,7 +302,7 @@ describe('MergeOpossumFilesDialog', () => {
     fireEvent.click(
       screen.getByTestId('merge-opossum-files-output-path-input'),
     );
-    await expectTextVisible(outputFilePath, true);
+    expect(await screen.findByText(outputFilePath)).toBeInTheDocument();
     await userEvent.click(getButton(text.buttons.merge));
 
     await expectAlert(
@@ -310,10 +311,12 @@ describe('MergeOpossumFilesDialog', () => {
       'warning',
       screen.getByLabelText(MERGE_DIALOG_LABEL),
     );
-    await expectButtonInTheDocument(
-      text.mergeOpossumFilesDialog.mergeIgnoringReadonlyResourceOutputConflicts,
-      true,
-    );
+    expect(
+      screen.getByRole('button', {
+        name: text.mergeOpossumFilesDialog
+          .mergeIgnoringReadonlyResourceOutputConflicts,
+      }),
+    ).toBeInTheDocument();
 
     await userEvent.click(getMergeIntoCurrentProjectSwitch());
 
@@ -323,10 +326,12 @@ describe('MergeOpossumFilesDialog', () => {
       'warning',
       screen.getByLabelText(MERGE_DIALOG_LABEL),
     );
-    await expectButtonInTheDocument(
-      text.mergeOpossumFilesDialog.mergeIgnoringReadonlyResourceOutputConflicts,
-      false,
-    );
+    expect(
+      screen.queryByRole('button', {
+        name: text.mergeOpossumFilesDialog
+          .mergeIgnoringReadonlyResourceOutputConflicts,
+      }),
+    ).not.toBeInTheDocument();
 
     await userEvent.click(getButton(text.buttons.merge));
 
@@ -368,7 +373,7 @@ describe('MergeOpossumFilesDialog', () => {
       screen.getByTestId('merge-opossum-files-output-path-input'),
     );
 
-    await expectTextVisible(outputFilePath, true);
+    expect(await screen.findByText(outputFilePath)).toBeInTheDocument();
     await userEvent.click(getButton(text.buttons.merge));
 
     await expectAlert(
@@ -377,7 +382,9 @@ describe('MergeOpossumFilesDialog', () => {
       'error',
       screen.getByLabelText(MERGE_DIALOG_LABEL),
     );
-    expectButtonEnabled(text.buttons.merge);
+    expect(
+      screen.getByRole('button', { name: text.buttons.merge }),
+    ).toBeEnabled();
   });
 });
 

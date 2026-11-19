@@ -8,8 +8,8 @@ import userEvent from '@testing-library/user-event';
 import { text } from '../../../../shared/text';
 import {
   clickPopupButton,
-  expectButtonDisabled,
   FORCE_UNLOCK_POPUP_LABEL,
+  getButton,
 } from '../../../../testing/ui';
 import { PopupType } from '../../../enums/enums';
 import {
@@ -39,8 +39,8 @@ describe('ForceUnlockPopup', () => {
 
     await clickPopupButton(FORCE_UNLOCK_POPUP_LABEL, text.forceUnlock.confirm);
 
-    expectButtonDisabled(text.forceUnlock.confirm);
-    expectButtonDisabled(text.buttons.cancel);
+    expect(getButton(text.forceUnlock.confirm)).toBeDisabled();
+    expect(getButton(text.buttons.cancel)).toBeDisabled();
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
 
     resolveForceUnlock();

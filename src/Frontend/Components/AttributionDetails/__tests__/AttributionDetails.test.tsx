@@ -23,11 +23,6 @@ import {
   clickDiffPopupButton,
   clickPopupButton,
   CONFIRM_SAVE_POPUP_LABEL,
-  expectAttributionColumnButtonEnabled,
-  expectAttributionColumnButtonVisibility,
-  expectAttributionColumnDirty,
-  expectAttributionSaveButtonIsEnabled,
-  expectDiffPopupVisibility,
 } from '../../../../testing/ui';
 import { PopupType } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
@@ -141,8 +136,12 @@ describe('AttributionDetails', () => {
     expect(
       getTemporaryDisplayPackageInfo(store.getState()).resourceAccess,
     ).toBe('readonly');
-    await expectAttributionColumnButtonVisibility('save', false);
-    await expectAttributionColumnButtonVisibility('delete', false);
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.save }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.delete }),
+    ).not.toBeInTheDocument();
   });
 
   it('keeps an editable attribution editable inside a readonly resource', async () => {
@@ -170,7 +169,9 @@ describe('AttributionDetails', () => {
         screen.getByLabelText(text.attributionColumn.packageName),
       ).not.toHaveAttribute('readonly'),
     );
-    await expectAttributionColumnButtonVisibility('link', false);
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.link }),
+    ).not.toBeInTheDocument();
   });
 
   it('keeps the previous fields and footer until the new linkage query settles', async () => {
@@ -218,7 +219,9 @@ describe('AttributionDetails', () => {
     expect(screen.getByTestId('attribution-form-wrapper')).toBe(form);
     expect(form.scrollTop).toBe(123);
     expect(screen.getByText(text.auditingOptions.add)).toBeInTheDocument();
-    await expectAttributionColumnButtonVisibility('save', true);
+    expect(
+      screen.getByRole('button', { name: text.attributionColumn.save }),
+    ).toBeVisible();
     expect(form).toHaveAttribute('inert');
     expect(screen.getByTestId('attribution-details-footer')).toHaveAttribute(
       'inert',
@@ -230,7 +233,9 @@ describe('AttributionDetails', () => {
 
     act(() => releaseLinkageQuery());
     await screen.findByDisplayValue('second');
-    await expectAttributionColumnButtonVisibility('link', true);
+    expect(
+      await screen.findByRole('button', { name: text.attributionColumn.link }),
+    ).toBeInTheDocument();
   });
 
   it('renders nothing when the selected attribution ID is not visible', async () => {
@@ -479,16 +484,40 @@ describe('AttributionDetails', () => {
     await waitForAttributionDetailsReady();
     await waitFor(() => expect(container).not.toBeEmptyDOMElement());
 
-    await expectAttributionColumnButtonVisibility('cancel', true);
-    await expectAttributionColumnButtonVisibility('replace', false);
-    await expectAttributionColumnButtonVisibility('confirm', false);
-    await expectAttributionColumnButtonVisibility('save', false);
-    await expectAttributionColumnButtonVisibility('link', false);
-    await expectAttributionColumnButtonVisibility('delete', false);
-    await expectAttributionColumnButtonVisibility('revert', false);
-    await expectAttributionColumnButtonVisibility('restore', false);
-    await expectAttributionColumnButtonVisibility('compare', false);
-    await expectAttributionColumnButtonVisibility('compare-with', false);
+    expect(
+      await screen.findByRole('button', { name: text.buttons.cancel }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.replace }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.confirm }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.save }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.link }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.delete }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.revert }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.restore }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', {
+        name: text.attributionColumn.compareToOriginal,
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', {
+        name: text.attributionColumn.compareWith,
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it('hides use as replacement when the selected attribution is external', async () => {
@@ -514,8 +543,12 @@ describe('AttributionDetails', () => {
     });
 
     await waitForAttributionDetailsReady();
-    await expectAttributionColumnButtonVisibility('cancel', true);
-    await expectAttributionColumnButtonVisibility('replace', false);
+    expect(
+      await screen.findByRole('button', { name: text.buttons.cancel }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.replace }),
+    ).not.toBeInTheDocument();
   });
 
   it('shows only picker mode actions when multiple attributions are marked for replacement', async () => {
@@ -535,7 +568,9 @@ describe('AttributionDetails', () => {
       ],
     });
 
-    await expectAttributionColumnButtonVisibility('cancel', true);
+    expect(
+      await screen.findByRole('button', { name: text.buttons.cancel }),
+    ).toBeInTheDocument();
   });
 
   it('reduces the opacity of the attribution form while picker mode is active', async () => {
@@ -653,12 +688,20 @@ describe('AttributionDetails', () => {
       ],
     });
 
-    await expectAttributionColumnButtonVisibility('replace', true);
+    expect(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.replace,
+      }),
+    ).toBeInTheDocument();
 
     await clickAttributionColumnButton('cancel');
 
-    await expectAttributionColumnButtonVisibility('save', true);
-    await expectAttributionColumnButtonVisibility('replace', false);
+    expect(
+      await screen.findByRole('button', { name: text.attributionColumn.save }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.replace }),
+    ).not.toBeInTheDocument();
     expect(
       store.getState().variablesState[ATTRIBUTION_SELECTION_FOR_REPLACEMENT],
     ).toBeNull();
@@ -733,7 +776,11 @@ describe('AttributionDetails', () => {
             }),
           ),
         );
-        await expectAttributionSaveButtonIsEnabled(true);
+        await waitFor(() =>
+          expect(
+            screen.getByRole('button', { name: text.attributionColumn.save }),
+          ).toBeEnabled(),
+        );
         await clickAttributionColumnButton('save');
         // A local save unlinks this resource; subsequent saves are direct.
         if (mode !== 'direct' && !(mode === 'local' && revision === 2)) {
@@ -864,6 +911,7 @@ describe('AttributionDetails', () => {
     });
 
     await clickAttributionColumnButton('save');
+
     await expectManualAttributions({
       [packageInfo1.id]: {
         ...packageInfo1,
@@ -950,8 +998,11 @@ describe('AttributionDetails', () => {
       ],
     });
 
-    await waitForAttributionDetailsReady();
-    await expectAttributionSaveButtonIsEnabled(false);
+    expect(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.save,
+      }),
+    ).toBeDisabled();
   });
 
   it('links attribution', async () => {
@@ -1030,7 +1081,11 @@ describe('AttributionDetails', () => {
       );
     });
 
-    await expectAttributionColumnButtonEnabled('link', false);
+    expect(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.link,
+      }),
+    ).toBeDisabled();
   });
 
   it('hides link button when package is already linked', async () => {
@@ -1056,9 +1111,11 @@ describe('AttributionDetails', () => {
     });
 
     await waitForAttributionDetailsReady();
-    await expectAttributionColumnButtonVisibility('save', true);
+    await screen.findByRole('button', { name: text.attributionColumn.save });
 
-    await expectAttributionColumnButtonVisibility('link', false);
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.link }),
+    ).not.toBeInTheDocument();
   });
 
   it('deletes attribution', async () => {
@@ -1250,7 +1307,6 @@ describe('AttributionDetails', () => {
     await waitForAttributionDetailsReady();
     await clickAttributionColumnButton('compare');
 
-    await expectDiffPopupVisibility(true);
     const diffPopup = within(screen.getByLabelText(text.diffPopup.ariaLabel));
     expect(diffPopup.getByText(text.diffPopup.title)).toBeInTheDocument();
     expect(
@@ -1324,12 +1380,22 @@ describe('AttributionDetails', () => {
     await waitForAttributionDetailsReady();
     await clickAttributionColumnButton('compare-with');
 
-    await expectAttributionColumnButtonVisibility('compare-confirm', false);
-    await expectAttributionColumnButtonVisibility('save', false);
+    expect(
+      screen.queryByRole('button', {
+        name: text.attributionColumn.compareConfirm,
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.save }),
+    ).not.toBeInTheDocument();
 
     await clickAttributionColumnButton('cancel');
 
-    await expectAttributionColumnButtonVisibility('compare-with', true);
+    expect(
+      await screen.findByRole('button', {
+        name: text.attributionColumn.compareWith,
+      }),
+    ).toBeInTheDocument();
   });
 
   it('disables compare-selection mode while the attribution has unsaved changes', async () => {
@@ -1357,7 +1423,11 @@ describe('AttributionDetails', () => {
     );
 
     expect(getIsPackageInfoDirty(store.getState())).toBe(true);
-    await expectAttributionColumnButtonEnabled('compare-with', false);
+    expect(
+      screen.getByRole('button', {
+        name: text.attributionColumn.compareWith,
+      }),
+    ).toBeDisabled();
   });
 
   it('lets the user preview another item and opens a read-only comparison against the pinned source', async () => {
@@ -1397,7 +1467,6 @@ describe('AttributionDetails', () => {
 
     await clickAttributionColumnButton('compare-confirm');
 
-    await expectDiffPopupVisibility(true);
     const diffPopup = within(screen.getByLabelText(text.diffPopup.ariaLabel));
     expect(diffPopup.getByText(text.diffPopup.title)).toBeInTheDocument();
     expect(
@@ -1557,7 +1626,10 @@ describe('AttributionDetails', () => {
     await waitFor(() =>
       expect(getIsPackageInfoDirty(store.getState())).toBe(true),
     );
-    await expectAttributionColumnDirty(true);
+    expect(screen.getByLabelText('attribution column')).toHaveAttribute(
+      'data-dirty',
+      'true',
+    );
   });
 
   it('sets isPackageInfoDirty to false when temp matches stored', async () => {
@@ -1582,7 +1654,10 @@ describe('AttributionDetails', () => {
     await waitFor(() =>
       expect(getIsPackageInfoDirty(store.getState())).toBe(false),
     );
-    await expectAttributionColumnDirty(false);
+    expect(screen.getByLabelText('attribution column')).toHaveAttribute(
+      'data-dirty',
+      'false',
+    );
   });
 
   it('does not show Link for an unrelated signal after relationship data settles', async () => {
@@ -1604,7 +1679,9 @@ describe('AttributionDetails', () => {
     });
 
     await waitForAttributionDetailsReady();
-    await expectAttributionColumnButtonVisibility('link', false);
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.link }),
+    ).not.toBeInTheDocument();
   });
 
   it('does not show Link for a signal on the selected resource that already has a matching manual attribution', async () => {
@@ -1636,7 +1713,11 @@ describe('AttributionDetails', () => {
 
     await waitForAttributionDetailsReady();
     await screen.findByDisplayValue(signal.packageName ?? '');
-    await expectAttributionColumnButtonVisibility('link', false);
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: text.attributionColumn.link }),
+      ).not.toBeInTheDocument(),
+    );
   });
 
   it('does not show Link for a signal on a descendant when the selected resource already has a matching manual attribution', async () => {
@@ -1668,7 +1749,11 @@ describe('AttributionDetails', () => {
 
     await waitForAttributionDetailsReady();
     await screen.findByDisplayValue(signal.packageName ?? '');
-    await expectAttributionColumnButtonVisibility('link', false);
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: text.attributionColumn.link }),
+      ).not.toBeInTheDocument(),
+    );
   });
 
   it('shows Link for a signal with a matching manual attribution only on an unrelated resource', async () => {
@@ -1699,7 +1784,9 @@ describe('AttributionDetails', () => {
     });
 
     await waitForAttributionDetailsReady();
-    await expectAttributionColumnButtonEnabled('link', true);
+    expect(
+      await screen.findByRole('button', { name: text.attributionColumn.link }),
+    ).toBeEnabled();
   });
 
   it('does not show Link for a signal whose matching manual attribution would only be inherited redundantly', async () => {
@@ -1731,7 +1818,11 @@ describe('AttributionDetails', () => {
 
     await waitForAttributionDetailsReady();
     await screen.findByDisplayValue(signal.packageName ?? '');
-    await expectAttributionColumnButtonVisibility('link', false);
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: text.attributionColumn.link }),
+      ).not.toBeInTheDocument(),
+    );
   });
 
   it('shows Link for a signal when the matching ancestor has additional manual attributions', async () => {
@@ -1766,7 +1857,9 @@ describe('AttributionDetails', () => {
     });
 
     await waitForAttributionDetailsReady();
-    await expectAttributionColumnButtonEnabled('link', true);
+    expect(
+      await screen.findByRole('button', { name: text.attributionColumn.link }),
+    ).toBeEnabled();
   });
 
   it('waits for a current relationship result before showing signal Link', async () => {
@@ -1806,7 +1899,9 @@ describe('AttributionDetails', () => {
     });
 
     await waitFor(() => expect(resolveStatus).toBeDefined());
-    await expectAttributionColumnButtonVisibility('link', false);
+    expect(
+      screen.queryByRole('button', { name: text.attributionColumn.link }),
+    ).not.toBeInTheDocument();
 
     await act(async () => {
       resolveStatus?.();
@@ -1815,7 +1910,9 @@ describe('AttributionDetails', () => {
     await waitForAttributionDetailsReady();
     await screen.findByDisplayValue(signal.packageName ?? '');
 
-    await expectAttributionColumnButtonEnabled('link', true);
+    expect(
+      await screen.findByRole('button', { name: text.attributionColumn.link }),
+    ).toBeEnabled();
   });
 
   it('hides signal Link when the relationship query fails', async () => {
@@ -1861,7 +1958,11 @@ describe('AttributionDetails', () => {
     });
     await waitForAttributionDetailsReady();
     await screen.findByDisplayValue(signal.packageName ?? '');
-    await expectAttributionColumnButtonVisibility('link', false);
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: text.attributionColumn.link }),
+      ).not.toBeInTheDocument(),
+    );
   });
 
   it('ignores a delayed eligible result after navigating to an unrelated resource', async () => {
@@ -1917,14 +2018,22 @@ describe('AttributionDetails', () => {
     );
     await waitFor(() => expect(currentStatusSettled).toBe(true));
     await waitForAttributionDetailsReady();
-    await expectAttributionColumnButtonVisibility('link', false);
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: text.attributionColumn.link }),
+      ).not.toBeInTheDocument(),
+    );
 
     await act(async () => {
       resolveOldStatus?.();
       await oldStatusSettled;
     });
     await waitForAttributionDetailsReady();
-    await expectAttributionColumnButtonVisibility('link', false);
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: text.attributionColumn.link }),
+      ).not.toBeInTheDocument(),
+    );
   });
 
   it('keeps eligible Link visible but disabled for edits and shows its spinner while linking', async () => {
@@ -2151,7 +2260,10 @@ describe('AttributionDetails', () => {
     act(() => saveResponse.resolve());
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     await waitForAttributionDetailsReady();
-    await expectAttributionColumnDirty(false);
+    expect(screen.getByLabelText('attribution column')).toHaveAttribute(
+      'data-dirty',
+      'false',
+    );
     expect(getTemporaryDisplayPackageInfo(store.getState()).comment).toBe(
       submittedPackageInfo.comment,
     );
@@ -2262,6 +2374,9 @@ describe('AttributionDetails', () => {
           ([command]) => command === 'updateOrMatchAttributions',
         ),
     ).toBe(true);
-    await expectAttributionColumnDirty(false);
+    expect(screen.getByLabelText('attribution column')).toHaveAttribute(
+      'data-dirty',
+      'false',
+    );
   });
 });

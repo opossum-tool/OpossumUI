@@ -16,7 +16,6 @@ import { faker } from '../../../../testing/Faker';
 import {
   expectAiStatusBadges,
   expectAiStatusIcons,
-  expectTextVisible,
 } from '../../../../testing/ui';
 import { OpossumColors } from '../../../shared-styles';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
@@ -176,7 +175,9 @@ describe('AttributionForm', () => {
         data: getParsedInputFileEnrichedWithTestData({}),
       });
 
-      await expectTextVisible(packageInfo.source!.name, true);
+      expect(
+        await screen.findByText(packageInfo.source!.name),
+      ).toBeInTheDocument();
     });
 
     it('renders the name of the original source for external attributions', async () => {
@@ -191,7 +192,9 @@ describe('AttributionForm', () => {
         data: getParsedInputFileEnrichedWithTestData({}),
       });
 
-      await expectTextVisible(source.additionalName!, true);
+      expect(
+        await screen.findByText(source.additionalName!),
+      ).toBeInTheDocument();
     });
 
     it('renders from the DB if external attribution source is defined there', async () => {
@@ -210,7 +213,7 @@ describe('AttributionForm', () => {
         }),
       });
 
-      await expectTextVisible('pretty name', true);
+      expect(await screen.findByText('pretty name')).toBeInTheDocument();
     });
 
     it('renders original signal source for manual attributions', async () => {
@@ -223,10 +226,11 @@ describe('AttributionForm', () => {
         data: getParsedInputFileEnrichedWithTestData({}),
       });
 
-      await expectTextVisible(
-        text.attributionColumn.originallyFrom + source.name,
-        true,
-      );
+      expect(
+        await screen.findByText(
+          text.attributionColumn.originallyFrom + source.name,
+        ),
+      ).toBeInTheDocument();
     });
 
     it('renders a chip for follow-up', async () => {
@@ -298,7 +302,9 @@ describe('AttributionForm', () => {
         <AttributionForm packageInfo={packageInfo} onEdit={vi.fn()} />,
       );
 
-      await expectTextVisible(text.auditingOptions.add, false);
+      expect(
+        screen.queryByText(text.auditingOptions.add),
+      ).not.toBeInTheDocument();
     });
 
     it('renders a chip for preferred', async () => {
@@ -360,7 +366,9 @@ describe('AttributionForm', () => {
         }),
       });
 
-      await expectTextVisible(text.auditingOptions.modifiedPreferred, true);
+      expect(
+        await screen.findByText(text.auditingOptions.modifiedPreferred),
+      ).toBeInTheDocument();
     });
 
     describe('criticality chip', () => {

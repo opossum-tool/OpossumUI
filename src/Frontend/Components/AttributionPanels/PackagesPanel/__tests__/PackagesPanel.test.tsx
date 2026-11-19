@@ -18,9 +18,6 @@ import { faker } from '../../../../../testing/Faker';
 import { pathsToResources } from '../../../../../testing/global-test-helpers';
 import {
   clickSelectAllCheckbox,
-  expectSelectAllCheckboxChecked,
-  expectSelectAllCheckboxEnabled,
-  expectSelectAllCheckboxIndeterminate,
   expectSelectedTabIs,
   expectTabVisibility,
   PACKAGES_PANEL,
@@ -493,7 +490,7 @@ describe('PackagesPanel', () => {
     });
 
     await clickSelectAllCheckbox(PACKAGES_PANEL);
-    await expectSelectAllCheckboxChecked(PACKAGES_PANEL, true);
+    expect(screen.getByRole('checkbox', { name: 'select all' })).toBeChecked();
 
     await act(() =>
       store.dispatch(
@@ -504,7 +501,9 @@ describe('PackagesPanel', () => {
       ),
     );
 
-    await expectSelectAllCheckboxChecked(PACKAGES_PANEL, false);
+    expect(
+      screen.getByRole('checkbox', { name: 'select all' }),
+    ).not.toBeChecked();
   });
 
   it('defers sorting behind the unsaved-changes prompt', async () => {
@@ -722,7 +721,7 @@ describe('PackagesPanel', () => {
     });
 
     await clickSelectAllCheckbox(PACKAGES_PANEL);
-    await expectSelectAllCheckboxChecked(PACKAGES_PANEL, true);
+    expect(screen.getByRole('checkbox', { name: 'select all' })).toBeChecked();
 
     await act(() =>
       store.dispatch(
@@ -733,7 +732,9 @@ describe('PackagesPanel', () => {
       ),
     );
 
-    await expectSelectAllCheckboxChecked(PACKAGES_PANEL, false);
+    expect(
+      screen.getByRole('checkbox', { name: 'select all' }),
+    ).not.toBeChecked();
     expect(store.getState().resourceState.selectedAttributionId).toBe(
       selectedSignal.id,
     );
@@ -1195,7 +1196,9 @@ describe('PackagesPanel', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'click me' }));
 
-    await expectSelectAllCheckboxIndeterminate(PACKAGES_PANEL, true);
+    expect(
+      screen.getByRole('checkbox', { name: 'select all' }),
+    ).toHaveAttribute('data-indeterminate', 'true');
   });
 
   it('checkbox is not indeterminate when no attributions are selected', async () => {
@@ -1208,7 +1211,9 @@ describe('PackagesPanel', () => {
       }),
     });
 
-    await expectSelectAllCheckboxIndeterminate(PACKAGES_PANEL, false);
+    expect(
+      screen.getByRole('checkbox', { name: 'select all' }),
+    ).toHaveAttribute('data-indeterminate', 'false');
   });
 
   it('checkbox is not indeterminate when all attributions of active relation are selected', async () => {
@@ -1235,7 +1240,9 @@ describe('PackagesPanel', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'click me' }));
 
-    await expectSelectAllCheckboxIndeterminate(PACKAGES_PANEL, false);
+    expect(
+      screen.getByRole('checkbox', { name: 'select all' }),
+    ).toHaveAttribute('data-indeterminate', 'false');
   });
 
   it('selects all attributions', async () => {
@@ -1252,7 +1259,7 @@ describe('PackagesPanel', () => {
 
     await clickSelectAllCheckbox(PACKAGES_PANEL);
 
-    await expectSelectAllCheckboxChecked(PACKAGES_PANEL, true);
+    expect(screen.getByRole('checkbox', { name: 'select all' })).toBeChecked();
   });
 
   it('keeps select all symbolic across unloaded rows and tracks exclusions', async () => {
@@ -1299,7 +1306,9 @@ describe('PackagesPanel', () => {
       mode: 'allMatching',
       excludedAttributionUuids: [visibleAttribution.id],
     });
-    await expectSelectAllCheckboxIndeterminate(PACKAGES_PANEL, true);
+    expect(
+      screen.getByRole('checkbox', { name: 'select all' }),
+    ).toHaveAttribute('data-indeterminate', 'true');
 
     await clickSelectAllCheckbox(PACKAGES_PANEL);
     expect(latestProps?.selection).toMatchObject({
@@ -1350,7 +1359,7 @@ describe('PackagesPanel', () => {
       }),
     });
 
-    await expectSelectAllCheckboxEnabled(PACKAGES_PANEL, false);
+    expect(screen.getByRole('checkbox', { name: 'select all' })).toBeDisabled();
   });
 
   it('resets multi-selected IDs when active relation changes', async () => {
@@ -1368,7 +1377,9 @@ describe('PackagesPanel', () => {
     await clickSelectAllCheckbox(PACKAGES_PANEL);
     await selectTab(PACKAGES_PANEL, 'unrelated');
 
-    await expectSelectAllCheckboxChecked(PACKAGES_PANEL, false);
+    expect(
+      screen.getByRole('checkbox', { name: 'select all' }),
+    ).not.toBeChecked();
   });
 
   it('does not reset multi-selected IDs when active relation changes and in replacement mode', async () => {
@@ -1401,7 +1412,9 @@ describe('PackagesPanel', () => {
     await userEvent.click(screen.getByRole('button', { name: 'click me' }));
     await selectTab(PACKAGES_PANEL, 'unrelated');
 
-    await expectSelectAllCheckboxIndeterminate(PACKAGES_PANEL, true);
+    expect(
+      screen.getByRole('checkbox', { name: 'select all' }),
+    ).toHaveAttribute('data-indeterminate', 'true');
   });
 
   it('adjusts multi-selected IDs when previously visible attributions become invisible', async () => {
@@ -1433,7 +1446,9 @@ describe('PackagesPanel', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'click me' }));
 
-    await expectSelectAllCheckboxIndeterminate(PACKAGES_PANEL, true);
+    expect(
+      screen.getByRole('checkbox', { name: 'select all' }),
+    ).toHaveAttribute('data-indeterminate', 'true');
 
     rerenderPackagesPanel(
       rerender,
@@ -1443,8 +1458,12 @@ describe('PackagesPanel', () => {
       }),
     );
 
-    await expectSelectAllCheckboxChecked(PACKAGES_PANEL, false);
-    await expectSelectAllCheckboxIndeterminate(PACKAGES_PANEL, false);
+    expect(
+      screen.getByRole('checkbox', { name: 'select all' }),
+    ).not.toBeChecked();
+    expect(
+      screen.getByRole('checkbox', { name: 'select all' }),
+    ).toHaveAttribute('data-indeterminate', 'false');
   });
 
   it('shows tabs corresponding to available attributions', async () => {
