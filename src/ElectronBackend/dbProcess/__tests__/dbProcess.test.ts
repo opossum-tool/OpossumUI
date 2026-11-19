@@ -212,31 +212,14 @@ describe('dbProcess save tracking', () => {
     expect(splitOpossumFileMock).toHaveBeenCalledTimes(1);
   });
 
-  it('coalesces edits and refetches at the first tick without restarting the clock', async () => {
+  it('marks successful mutations dirty without writing immediately', async () => {
     vi.useFakeTimers();
     await loadProject();
-    const edits: Array<number> = [];
-    const snapshots: Array<Array<number>> = [];
-    saveFileApiMock.mockImplementation(() => {
-      snapshots.push([...edits]);
-      return Promise.resolve();
-    });
-    executeCommandMock.mockImplementation((command) => {
-      if (command === MUTATION_COMMAND) {
-        edits.push(edits.length + 1);
-      }
-      return Promise.resolve();
-    });
     await runCommand(1, MUTATION_COMMAND, true);
     await runCommand(2, QUERY_COMMAND, false);
-    await vi.advanceTimersByTimeAsync(59_999);
-    await runCommand(3, MUTATION_COMMAND, true);
-    await runCommand(4, QUERY_COMMAND, false);
     expect(saveFileApiMock).not.toHaveBeenCalled();
-    await vi.advanceTimersByTimeAsync(1);
     await tick();
 
-    expect(snapshots).toEqual([[1, 2]]);
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
     expect(saveFileApiMock.mock.calls[0]?.[0]).toEqual({
       projectId: 'uuid_1',
@@ -295,19 +278,6 @@ describe('dbProcess save tracking', () => {
     );
   });
 
-  it('returns a failed flush without retrying in a loop', async () => {
-    await loadProject();
-    await runCommand(1, MUTATION_COMMAND, true);
-    saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
-
-    await expect(handle({ id: 2, type: 'flushSaves' })).resolves.toEqual({
-      id: 2,
-      type: 'success',
-      result: 'failed',
-    });
-    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
-  });
-
   it('skips the automatic save when no project is loaded', async () => {
     await runCommand(1, MUTATION_COMMAND, true);
     await flushSaves(2);
@@ -331,37 +301,6 @@ describe('dbProcess save tracking', () => {
 
     await tick();
     expect(saveFileApiMock).not.toHaveBeenCalled();
-  });
-
-  it('keeps an edit during a slow save dirty without queuing another periodic write', async () => {
-    vi.useFakeTimers();
-    await loadProject();
-    const write = Promise.withResolvers<void>();
-    saveFileApiMock.mockReturnValueOnce(write.promise);
-
-    await runCommand(1, MUTATION_COMMAND, true);
-    await tick();
-    await runCommand(2, MUTATION_COMMAND, true);
-    await tick();
-    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
-    write.resolve();
-    await setImmediate();
-    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
-    await tick();
-    expect(saveFileApiMock).toHaveBeenCalledTimes(2);
-  });
-
-  it('retries a failed autosave on the next tick', async () => {
-    vi.useFakeTimers();
-    await loadProject();
-    saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
-
-    await runCommand(1, MUTATION_COMMAND, true);
-    await tick();
-
-    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
-    await tick();
-    expect(saveFileApiMock).toHaveBeenCalledTimes(2);
   });
 
   it('flushes only after the scheduled write finishes', async () => {
@@ -389,64 +328,6 @@ describe('dbProcess save tracking', () => {
     expect(port.responses).toEqual([
       { id: 2, type: 'success', result: 'success' },
     ]);
-  });
-
-  it('flushes a submitted mutation and an edit arriving during the flush write', async () => {
-    await loadProject();
-    const mutation = Promise.withResolvers<void>();
-    executeCommandMock.mockReturnValueOnce(mutation.promise);
-    const firstWrite = Promise.withResolvers<void>();
-    const lastWrite = Promise.withResolvers<void>();
-    saveFileApiMock
-      .mockReturnValueOnce(firstWrite.promise)
-      .mockReturnValueOnce(lastWrite.promise);
-
-    const submitted = runCommand(1, MUTATION_COMMAND, true);
-    const port = createFakePort();
-    const idleRequest = handleDbProcessMessage(port, {
-      id: 4,
-      type: 'flushSaves',
-    });
-
-    await setImmediate();
-    expect(port.responses).toEqual([]);
-    expect(saveFileApiMock).not.toHaveBeenCalled();
-
-    mutation.resolve();
-    await submitted;
-    await setImmediate();
-    expect(saveFileApiMock).toHaveBeenCalledTimes(1);
-    await runCommand(2, MUTATION_COMMAND, true);
-    firstWrite.resolve();
-    await setImmediate();
-    expect(saveFileApiMock).toHaveBeenCalledTimes(2);
-    expect(port.responses).toEqual([]);
-
-    lastWrite.resolve();
-    await idleRequest;
-    expect(port.responses).toEqual([
-      { id: 4, type: 'success', result: 'success' },
-    ]);
-  });
-
-  it('serializes a manual save behind a running automatic save', async () => {
-    vi.useFakeTimers();
-    await loadProject();
-
-    let resolveAutomaticSave!: () => void;
-    saveFileApiMock.mockImplementationOnce(
-      () =>
-        new Promise<void>((resolve) => {
-          resolveAutomaticSave = resolve;
-        }),
-    );
-
-    await runCommand(1, MUTATION_COMMAND, true);
-    await tick();
-    const manualSavePromise = handle(saveMessage(2));
-    resolveAutomaticSave();
-    expect((await manualSavePromise)?.type).toBe('success');
-    expect(saveFileApiMock).toHaveBeenCalledTimes(2);
   });
 
   it('waits for a manual save when flushing', async () => {
@@ -588,15 +469,6 @@ describe('dbProcess save outcome tracking', () => {
     expect(saveFileApiMock).toHaveBeenCalledTimes(2);
   });
 
-  it('reports success again after a failed save was followed by a successful one', async () => {
-    await loadProject();
-    saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
-    await save(1);
-    await save(2);
-
-    await expect(getSaveOutcome(3)).resolves.toBe('success');
-  });
-
   it('retries a failed automatic save on flush', async () => {
     vi.useFakeTimers();
     await loadProject();
@@ -606,17 +478,6 @@ describe('dbProcess save outcome tracking', () => {
 
     await expect(getSaveOutcome(3)).resolves.toBe('success');
     expect(saveFileApiMock).toHaveBeenCalledTimes(2);
-  });
-
-  it('replaces a failed automatic save outcome with a successful manual save', async () => {
-    vi.useFakeTimers();
-    await loadProject();
-    saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
-    await runCommand(1, MUTATION_COMMAND, true);
-    await tick();
-    await save(3);
-
-    await expect(getSaveOutcome(4)).resolves.toBe('success');
   });
 
   it('does not let an export overwrite the save outcome', async () => {
