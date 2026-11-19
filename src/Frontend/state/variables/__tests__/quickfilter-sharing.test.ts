@@ -160,7 +160,7 @@ describe('toAttributionQuickfilterModel', () => {
 });
 
 describe('useVisibleQuickfilters', () => {
-  it('lists own-scope quickfilters plus shareable resource quickfilters in persistence order', async () => {
+  it('lists own-scope quickfilters plus shareable quickfilters in persistence order', async () => {
     const own = makeAttributionQuickfilter();
     const unshareableResource = makeResourceQuickfilter({
       overrides: { onlyUnreviewedFiles: true },
@@ -188,7 +188,23 @@ describe('useVisibleQuickfilters', () => {
     expect(result.current.map(({ id }) => id)).toEqual([
       own.id,
       shareableResource.id,
+      otherScope.id,
     ]);
+  });
+
+  it('hides other-scope quickfilters with non-license conditions', async () => {
+    const otherScope = makeAttributionQuickfilter({
+      scope: 'signal',
+      overrides: { search: 'react' },
+    });
+    const { result } = await renderHook(
+      () => useVisibleQuickfilters('attribution'),
+      {
+        actions: [setUserSetting({ savedQuickfilters: [otherScope] })],
+      },
+    );
+
+    expect(result.current).toEqual([]);
   });
 });
 

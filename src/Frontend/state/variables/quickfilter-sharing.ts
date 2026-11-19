@@ -93,6 +93,18 @@ export function toAttributionQuickfilterModel(
 }
 
 /**
+ * Whether the attribution/signal quickfilter relies only on the license
+ * dimensions, i.e. it is fully expressible on every panel that can filter
+ * by license (resource tree, attributions, signals, report view) and
+ * therefore offered there.
+ */
+export function isLicenseOnlyAttributionQuickfilter(
+  quickfilter: SavedAttributionQuickfilter,
+): boolean {
+  return toResourceQuickfilterModel(quickfilter) !== null;
+}
+
+/**
  * Whether the resource quickfilter is also usable on the given
  * attribution-flavored panel.
  */
@@ -108,7 +120,8 @@ export function isVisibleForAttributionPanel(
 ): (quickfilter: SavedQuickfilter) => boolean {
   return (quickfilter) =>
     isAttributionQuickfilter(quickfilter)
-      ? quickfilter.scope === scope
+      ? quickfilter.scope === scope ||
+        isLicenseOnlyAttributionQuickfilter(quickfilter)
       : isShareableWithAttributionPanel(quickfilter, scope);
 }
 
@@ -124,8 +137,9 @@ export function isVisibleForResourcePanel(
 
 /**
  * Quickfilters visibly offered on the given attribution-flavored panel:
- * its own-scope quickfilters plus license-only resource quickfilters
- * converted to models, in creation (global persistence) order.
+ * its own-scope quickfilters plus license-only quickfilters from the other
+ * attribution scope (signals/attributions) and license-only resource
+ * quickfilters converted to models, in creation (global persistence) order.
  */
 export function useVisibleQuickfilters(
   scope: AttributionQuickfilterScope,
@@ -135,7 +149,10 @@ export function useVisibleQuickfilters(
     () =>
       userSettings.savedQuickfilters.flatMap((quickfilter) => {
         if (isAttributionQuickfilter(quickfilter)) {
-          return quickfilter.scope === scope ? [quickfilter] : [];
+          return quickfilter.scope === scope ||
+            isLicenseOnlyAttributionQuickfilter(quickfilter)
+            ? [quickfilter]
+            : [];
         }
         const model = toAttributionQuickfilterModel(quickfilter, scope);
         return model ? [model] : [];

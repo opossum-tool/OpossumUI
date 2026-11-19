@@ -305,12 +305,14 @@ export function useQuickfilters(scope: Exclude<QuickfilterScope, 'resource'>): {
 } {
   const [userSettings, updateUserSettings] = useUserSettings();
 
-  // In creation order: savedQuickfilters are appended on save.
+  // In creation order: savedQuickfilters are appended on save. The list
+  // matches what the panel displays: own-scope quickfilters plus
+  // license-only quickfilters shared with the other panels.
   const quickfilters = useMemo(
     () =>
       userSettings.savedQuickfilters.filter(
         (quickfilter): quickfilter is SavedAttributionQuickfilter =>
-          quickfilter.scope === scope,
+          isVisibleForAttributionPanel(scope)(quickfilter),
       ),
     [userSettings.savedQuickfilters, scope],
   );
@@ -364,10 +366,10 @@ export function useQuickfilters(scope: Exclude<QuickfilterScope, 'resource'>): {
   };
 
   // Reorders within the panel's visible subset (own-scope quickfilters plus
-  // shared license-only resource quickfilters) while keeping the array
-  // positions of everything else untouched: savedQuickfilters is the display
-  // order. Optimistic so the reordered list renders immediately (the drop
-  // freeze clears as soon as it has rendered).
+  // license-only quickfilters shared with the other panels) while keeping
+  // the array positions of everything else untouched: savedQuickfilters is
+  // the display order. Optimistic so the reordered list renders immediately
+  // (the drop freeze clears as soon as it has rendered).
   const reorderQuickfilter = (id: string, targetIndex: number): void => {
     const isVisible = isVisibleForAttributionPanel(scope);
     updateUserSettings(

@@ -258,7 +258,7 @@ describe('quickfilters in the filter menu', () => {
     ).toBe(menuRow);
   });
 
-  it('lists and applies a shared license-only resource quickfilter on both panels', async () => {
+  it('applies a shared license-only resource quickfilter without touching the resource tree', async () => {
     const resourceQuickfilter: SavedResourceQuickfilter = {
       id: 'shared-license',
       name: 'MIT license',
@@ -286,7 +286,9 @@ describe('quickfilters in the filter menu', () => {
       sorting: 'alphabetically',
       activeQuickfilterIds: ['shared-license'],
     });
-    expect(readResourceFilters(store)).toEqual(['shared-license']);
+    // Quickfilters apply only on the panel they are toggled on; the paired
+    // resources panel keeps its own membership.
+    expect(readResourceFilters(store)).toBeUndefined();
     expect(row(panel, 'MIT license')).toHaveAttribute('aria-pressed', 'true');
 
     await userEvent.click(row(panel, 'MIT license'));
@@ -1219,7 +1221,6 @@ function TestFilterButton({
     filters,
     setFilters,
     quickfilterScope: scope,
-    crossActivateResource: true,
   });
   return (
     <FilterButton
