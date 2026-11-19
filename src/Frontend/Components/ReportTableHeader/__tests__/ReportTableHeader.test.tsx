@@ -19,7 +19,6 @@ describe('The report view table header', () => {
 
     expect(screen.getByText('License')).toBeInTheDocument();
     expect(screen.getByText('Version')).toBeInTheDocument();
-    expect(screen.getByText('AI Status')).toBeInTheDocument();
     expect(screen.getAllByText('Name')).toHaveLength(1);
     expect(screen.getByText('Copyright')).toBeInTheDocument();
     expect(screen.getByText('License Text')).toBeInTheDocument();

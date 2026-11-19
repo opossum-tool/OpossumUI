@@ -5,13 +5,11 @@
 import EditorIcon from '@mui/icons-material/Edit';
 import { type SxProps, TableCell } from '@mui/material';
 import MuiBox from '@mui/material/Box';
-import MuiChip from '@mui/material/Chip';
 import MuiLink from '@mui/material/Link';
 import type { Theme } from '@mui/material/styles';
-import MuiTooltip from '@mui/material/Tooltip';
 import MuiTypography from '@mui/material/Typography';
 import { skipToken } from '@tanstack/react-query';
-import { Fragment, type ReactElement } from 'react';
+import { Fragment } from 'react';
 
 import type { PackageInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
@@ -72,6 +70,7 @@ const classes = {
     height: REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX,
     display: 'flex',
     flexDirection: 'column',
+    flexWrap: 'wrap',
     gap: 1,
     alignItems: 'center',
   },
@@ -80,23 +79,6 @@ const classes = {
     position: 'sticky',
     left: 0,
     background: '#e3e3e3',
-  },
-  aiStatusCell: {
-    height: REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: 0.5,
-    py: PADDING,
-    px: 0.5,
-  },
-  aiStatusChip: {
-    maxWidth: '100%',
-    '& .MuiChip-label': {
-      whiteSpace: 'normal',
-      overflow: 'visible',
-      textOverflow: 'unset',
-    },
   },
   borders: {
     borderRight: `${borderThin} solid ${OpossumColors.mediumGrey}`,
@@ -206,8 +188,6 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
       >
         {config.attributionProperty === 'id' ? (
           getIcons(packageInfo)
-        ) : config.attributionProperty === 'aiStatus' ? (
-          getAiStatusCell(packageInfo)
         ) : (
           <MuiTypography
             sx={{
@@ -231,59 +211,8 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
     );
   }
 
-  function getAiStatusCell(packageInfo: PackageInfo) {
-    const aiStatus = packageInfo.aiStatus;
-    if (!aiStatus) {
-      return null;
-    }
-    return (
-      <MuiBox sx={classes.aiStatusCell}>
-        {aiStatus.deferred
-          ? renderAiStatusChip(
-              text.auditingOptions.deferred,
-              text.auditingOptions.deferredTooltip,
-              <DeferredIcon
-                noTooltip
-                sx={{ color: `${OpossumColors.black} !important` }}
-              />,
-              OpossumColors.mediumOrange,
-            )
-          : renderAiStatusChip(
-              text.auditingOptions.aiGenerated,
-              text.auditingOptions.aiGeneratedTooltip,
-              <AiGeneratedIcon noTooltip />,
-              OpossumColors.lightBlue,
-            )}
-        {aiStatus.humanModified &&
-          renderAiStatusChip(
-            text.auditingOptions.humanModified,
-            text.auditingOptions.humanModifiedTooltip,
-            <HumanModifiedIcon noTooltip />,
-            OpossumColors.lightBlue,
-          )}
-      </MuiBox>
-    );
-  }
-
-  function renderAiStatusChip(
-    label: string,
-    tooltip: string,
-    icon: ReactElement,
-    backgroundColor: string,
-  ) {
-    return (
-      <MuiTooltip title={tooltip} disableInteractive placement={'right'}>
-        <MuiChip
-          label={label}
-          size={'small'}
-          icon={icon}
-          sx={{ ...classes.aiStatusChip, backgroundColor }}
-        />
-      </MuiTooltip>
-    );
-  }
-
   function getIcons(packageInfo: PackageInfo) {
+    const aiStatus = packageInfo.aiStatus;
     return (
       <MuiBox sx={classes.iconTableData}>
         <IconButton
@@ -363,6 +292,15 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
               ...classes.preferredIcon,
             }}
           />
+        )}
+        {aiStatus?.deferred && (
+          <DeferredIcon tooltipPlacement={'right'} sx={classes.icon} />
+        )}
+        {!aiStatus?.deferred && aiStatus && (
+          <AiGeneratedIcon tooltipPlacement={'right'} sx={classes.icon} />
+        )}
+        {aiStatus?.humanModified && (
+          <HumanModifiedIcon tooltipPlacement={'right'} sx={classes.icon} />
         )}
       </MuiBox>
     );
