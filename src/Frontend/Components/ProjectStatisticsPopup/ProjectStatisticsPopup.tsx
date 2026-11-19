@@ -223,7 +223,8 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 shouldRender={statistics.mostFrequentLicenses.some(
                   (l) => l.count > 0,
                 )}
-                testId={'mostFrequentLicenseCountPieChart'}              >
+                testId={'mostFrequentLicenseCountPieChart'}
+              >
                 <MuiTypography variant="subtitle1">
                   {
                     text.projectStatisticsPopup.charts
