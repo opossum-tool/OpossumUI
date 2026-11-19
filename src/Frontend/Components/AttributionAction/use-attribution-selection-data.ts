@@ -12,8 +12,8 @@ import { backend } from '../../util/backendClient';
 
 /**
  * Largest query-wide selection for which the attribution UUIDs are
- * materialized so the linked resources tree can be rendered in confirmation
- * popups. Larger (symbolic) select-all selections keep hiding the tree.
+ * materialized so the linked resources tree can be rendered. Larger
+ * selections keep the tree hidden.
  */
 const QUERY_WIDE_TREE_LIMIT = 100;
 
@@ -50,9 +50,6 @@ export function useAttributionSelectionData({
     { enabled: open && !isMutationPending && isQueryWideSelection },
   );
   const summary = selectionSummaryQuery.data;
-  // The backend is the single size guard: it resolves the UUIDs only while
-  // the selection fits the limit and reports limitExceeded otherwise. Both
-  // queries run in parallel; the summary only feeds the counts metadata.
   const attributionUuidsQuery = backend.getAttributionSelectionUuids.useQuery(
     open && !isMutationPending && queryWideSelection
       ? { selection: queryWideSelection, limit: QUERY_WIDE_TREE_LIMIT }
@@ -67,19 +64,15 @@ export function useAttributionSelectionData({
       ? []
       : (attributionUuidsQuery.data?.attributionUuids ?? [])
     : explicitAttributionUuids;
-  // The linked resources tree needs the resolved UUIDs: it can only be shown
-  // once they are actually available. While they are being resolved, the
-  // tree is still awaited; a selection that turns out to be empty (or too
-  // large, or failed to resolve) cannot show a tree at all.
   const areAttributionUuidsPending =
     isQueryWideSelection && !areAttributionUuidsResolved;
   const canShowLinkedResourcesTree = isQueryWideSelection
     ? areAttributionUuidsPending || attributionIds.length > 0
     : !isEmptySelection;
 
-  // The two queries resolve the same result set at different times. Only
-  // once both have settled can they genuinely disagree; without the UUIDs
-  // the tree would silently disappear, so surface the inconsistency.
+  // The two queries resolve the same result set; only once both have settled
+  // can they disagree, and without the UUIDs the tree would silently
+  // disappear, so surface the inconsistency.
   const hasSelectionSizeDrift =
     limitExceeded &&
     !selectionSummaryQuery.isFetching &&

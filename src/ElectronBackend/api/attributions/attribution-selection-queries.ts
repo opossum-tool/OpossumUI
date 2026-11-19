@@ -71,12 +71,6 @@ function getExplicitSelectionMembershipQuery(
     ) as AttributionMembershipQuery;
 }
 
-/**
- * The membership query for a query-wide selection: writable attributions
- * matching the query, without the explicitly excluded ones. This is the
- * single construction site so result-set semantics cannot drift between the
- * selection resolver and the UUID materialization below.
- */
 async function getQueryWideSelectionMembershipQuery(
   trx: Kysely<DB>,
   selection: AllMatchingAttributionSelection,
@@ -111,12 +105,6 @@ export type GetAttributionSelectionUuidsProps = {
   limit: number;
 };
 
-/**
- * Resolve the full set of attribution UUIDs for a query-wide selection, but
- * only while it does not exceed the given limit. Renderer-side clients use
- * this to show interactive details (e.g. the linked resources tree) also for
- * query-wide selections that are small enough to be materialized.
- */
 export async function getAttributionSelectionUuids(
   props: GetAttributionSelectionUuidsProps,
 ): Promise<{
@@ -129,8 +117,6 @@ export async function getAttributionSelectionUuids(
         trx,
         props.selection,
       );
-      // One extra row beyond the limit decides whether the selection is
-      // complete, without materializing an arbitrary number of UUIDs.
       const rows = await membership.limit(props.limit + 1).execute();
 
       if (rows.length > props.limit) {
