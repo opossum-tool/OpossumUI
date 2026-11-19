@@ -13,15 +13,10 @@ import type {
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon } from '../../shared-styles';
-import {
-  toResourceQuickfilterModel,
-  useVisibleQuickfilters,
-  useVisibleQuickfiltersForResources,
-} from '../../state/variables/quickfilter-sharing';
+import { useVisibleQuickfilters } from '../../state/variables/quickfilter-sharing';
 import {
   type AttributionFilters,
   hasActiveAttributionFilters,
-  useResourceTreeFilters,
 } from '../../state/variables/use-filters';
 import {
   combineQuickfilters,
@@ -30,10 +25,6 @@ import {
   mergeQuickfilterIntoFilters,
   useQuickfilters,
 } from '../../state/variables/use-quickfilters';
-import {
-  combineResourceQuickfilters,
-  mergeResourceQuickfilterIntoFilters,
-} from '../../state/variables/use-resource-quickfilters';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { useClassifications } from '../../util/use-classifications';
 import type { FilterOption } from './FilterButton';
@@ -45,18 +36,10 @@ export function useQuickfilterOptions({
   filters,
   setFilters,
   scope,
-  crossActivateResource = false,
 }: {
   filters: AttributionFilters;
   setFilters: SetFilters;
   scope: Exclude<QuickfilterScope, 'resource'>;
-  /**
-   * Whether applying quickfilters should press license-only quickfilters on
-   * the paired resources panel as well. Only the audit attributions panel
-   * opts in; the report view and the signals panel keep their membership
-   * local.
-   */
-  crossActivateResource?: boolean;
 }): Array<FilterOption> {
   const {
     saveQuickfilter,
@@ -65,10 +48,6 @@ export function useQuickfilterOptions({
     reorderQuickfilter,
   } = useQuickfilters(scope);
   const visibleQuickfilters = useVisibleQuickfilters(scope);
-  const visibleResourceQuickfilters = useVisibleQuickfiltersForResources();
-  // Cross-panel membership: shared license-only quickfilters show as pressed
-  // on the paired panels too, and their ids live in both filter variables.
-  const [, setResourceTreeFilters] = useResourceTreeFilters();
   const classifications = useClassifications();
   const [userSettings] = useUserSettings();
   const hasActiveFilters = hasActiveAttributionFilters(filters);
@@ -101,9 +80,6 @@ export function useQuickfilterOptions({
   return useMemo(() => {
     const activeIds = filters.activeQuickfilterIds ?? [];
 
-    const sharedResourceModel = (quickfilter: SavedAttributionQuickfilter) =>
-      crossActivateResource ? toResourceQuickfilterModel(quickfilter) : null;
-
     const applyQuickfilter = (
       quickfilter: SavedAttributionQuickfilter,
     ): void => {
@@ -124,15 +100,6 @@ export function useQuickfilterOptions({
           ),
         }),
       );
-      const sharedResource = sharedResourceModel(quickfilter);
-      if (sharedResource) {
-        // License-only quickfilters are shared with the resource tree;
-        // apply the converted model there as well so its row is pressed on
-        // both panels.
-        setResourceTreeFilters((prev) =>
-          mergeResourceQuickfilterIntoFilters(prev, sharedResource),
-        );
-      }
     };
 
     const removeQuickfilter = (
@@ -146,22 +113,11 @@ export function useQuickfilterOptions({
           sorting: filters.sorting,
         }),
       );
-      if (sharedResourceModel(quickfilter)) {
-        setResourceTreeFilters((prev) =>
-          combineResourceQuickfilters({
-            ids: (prev.activeQuickfilterIds ?? []).filter(
-              (id) => id !== quickfilter.id,
-            ),
-            quickfilters: visibleResourceQuickfilters,
-          }),
-        );
-      }
     };
 
     // Same rebuild semantics as removing a single quickfilter: everything
     // the quickfilters contributed is dropped, manual filters on top go with
-    // it, and the sorting is kept. Shared quickfilters are also removed from
-    // the paired resources panel.
+    // it, and the sorting is kept.
     const clearAllQuickfilters = (): void => {
       setFilters(
         combineQuickfilters({
@@ -170,27 +126,6 @@ export function useQuickfilterOptions({
           sorting: filters.sorting,
         }),
       );
-      const sharedIds = new Set(
-        activeIds
-          .map((id) =>
-            visibleQuickfilters.find((quickfilter) => quickfilter.id === id),
-          )
-          .filter(
-            (quickfilter): quickfilter is SavedAttributionQuickfilter =>
-              quickfilter !== undefined && !!sharedResourceModel(quickfilter),
-          )
-          .map(({ id }) => id),
-      );
-      if (sharedIds.size) {
-        setResourceTreeFilters((prev) =>
-          combineResourceQuickfilters({
-            ids: (prev.activeQuickfilterIds ?? []).filter(
-              (id) => !sharedIds.has(id),
-            ),
-            quickfilters: visibleResourceQuickfilters,
-          }),
-        );
-      }
     };
 
     const activateSavedQuickfilter = (id: string): void => {
@@ -259,12 +194,9 @@ export function useQuickfilterOptions({
     ];
   }, [
     visibleQuickfilters,
-    visibleResourceQuickfilters,
     incompatibleProjectIds,
     filters,
     setFilters,
-    setResourceTreeFilters,
-    crossActivateResource,
     hasActiveFilters,
     saveQuickfilter,
     deleteQuickfilter,

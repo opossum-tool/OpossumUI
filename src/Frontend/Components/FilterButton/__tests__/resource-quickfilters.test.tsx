@@ -198,7 +198,7 @@ describe('quickfilters in the resource tree filter menu', () => {
     expect(row(panel, 'MIT license')).toHaveAttribute('aria-pressed', 'false');
   });
 
-  it('lists and applies a shared license-only attribution quickfilter on both panels', async () => {
+  it('applies a shared license-only attribution quickfilter without touching the attributions panel', async () => {
     const attributionQuickfilter: SavedAttributionQuickfilter = {
       id: 'shared-license',
       name: 'MIT license',
@@ -223,9 +223,14 @@ describe('quickfilters in the resource tree filter menu', () => {
       selectedLicenses: [{ id: 'MIT', label: 'MIT' }],
       activeQuickfilterIds: ['shared-license'],
     });
+    // Quickfilters apply only on the panel they are toggled on; the paired
+    // attributions panel keeps its own membership.
     expect(
-      store.getState().variablesState['manual-attribution-filters-audit'],
-    ).toMatchObject({ activeQuickfilterIds: ['shared-license'] });
+      (
+        store.getState().variablesState['manual-attribution-filters-audit'] as
+          { activeQuickfilterIds?: Array<string> } | undefined
+      )?.activeQuickfilterIds,
+    ).toBeUndefined();
     expect(row(panel, 'MIT license')).toHaveAttribute('aria-pressed', 'true');
 
     await userEvent.click(row(panel, 'MIT license'));

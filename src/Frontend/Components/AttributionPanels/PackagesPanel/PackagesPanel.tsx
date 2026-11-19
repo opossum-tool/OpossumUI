@@ -353,7 +353,6 @@ export const PackagesPanel = ({
     filters,
     setFilters: setFiltersWithUnsavedCheck,
     quickfilterScope: external ? 'signal' : 'attribution',
-    crossActivateResource: !external,
   });
   const setSortingWithUnsavedCheck = useCallback(
     (sorting: SortOption) => {

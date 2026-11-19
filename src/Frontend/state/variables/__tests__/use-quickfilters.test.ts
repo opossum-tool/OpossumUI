@@ -533,7 +533,7 @@ describe('useQuickfilters', () => {
     });
   });
 
-  it('hides quickfilters saved under another scope', async () => {
+  it('hides quickfilters with non-license conditions saved under another scope', async () => {
     const { result: attributionResult } = await renderHook(() =>
       useQuickfilters('attribution'),
     );
@@ -542,15 +542,52 @@ describe('useQuickfilters', () => {
     );
 
     await act(async () => {
-      signalResult.current.saveQuickfilter(
-        faker.string.sample(),
-        initialAttributionFilters,
-      );
+      signalResult.current.saveQuickfilter(faker.string.sample(), {
+        ...initialAttributionFilters,
+        filters: ['firstParty'],
+      });
       await Promise.resolve();
     });
 
     expect(signalResult.current.quickfilters).toHaveLength(1);
     expect(attributionResult.current.quickfilters).toEqual([]);
+  });
+
+  it('lists license-only quickfilters saved under the other attribution scope', async () => {
+    const licenseQuickfilter = makeQuickfilter({
+      name: 'GPL quickfilter',
+      scope: 'signal',
+      filters: {
+        filters: [],
+        search: '',
+        valueFilters: {
+          license: [{ id: 'GPL-3.0-only', label: 'GPL-3.0-only' }],
+        },
+      },
+    });
+    const { result: attributionResult } = await renderHook(
+      () => useQuickfilters('attribution'),
+      {
+        actions: [setUserSetting({ savedQuickfilters: [licenseQuickfilter] })],
+      },
+    );
+    const { result: signalResult } = await renderHook(
+      () => useQuickfilters('signal'),
+      {
+        actions: [setUserSetting({ savedQuickfilters: [licenseQuickfilter] })],
+      },
+    );
+
+    expect(signalResult.current.quickfilters).toHaveLength(1);
+    expect(attributionResult.current.quickfilters).toHaveLength(1);
+    expect(attributionResult.current.quickfilters[0]).toMatchObject({
+      scope: 'signal',
+      filters: {
+        valueFilters: {
+          license: [{ id: 'GPL-3.0-only', label: 'GPL-3.0-only' }],
+        },
+      },
+    });
   });
 
   it('stores a deep copy so later filter changes do not affect the saved quickfilter', async () => {
@@ -667,7 +704,11 @@ describe('useQuickfilters', () => {
 
   it('reorders within the scope and keeps other scopes in place', async () => {
     const first = makeQuickfilter({ name: 'A', scope: 'attribution' });
-    const signalQuickfilter = makeQuickfilter({ name: 'S', scope: 'signal' });
+    const signalQuickfilter = makeQuickfilter({
+      name: 'S',
+      scope: 'signal',
+      filters: { filters: ['firstParty'], search: '', valueFilters: {} },
+    });
     const second = makeQuickfilter({ name: 'B', scope: 'attribution' });
     const third = makeQuickfilter({ name: 'C', scope: 'attribution' });
     const { result, store } = await renderHook(

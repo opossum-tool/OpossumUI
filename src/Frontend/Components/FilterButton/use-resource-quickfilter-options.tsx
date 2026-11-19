@@ -10,21 +10,11 @@ import { useMemo } from 'react';
 import type { SavedResourceQuickfilter } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { baseIcon } from '../../shared-styles';
-import {
-  isShareableWithAttributionPanel,
-  toAttributionQuickfilterModel,
-  useVisibleQuickfilters,
-  useVisibleQuickfiltersForResources,
-} from '../../state/variables/quickfilter-sharing';
+import { useVisibleQuickfiltersForResources } from '../../state/variables/quickfilter-sharing';
 import {
   hasActiveResourceTreeFilters,
   type ResourceTreeFilters,
-  useManualAttributionFilters,
 } from '../../state/variables/use-filters';
-import {
-  combineQuickfilters,
-  mergeQuickfilterIntoFilters,
-} from '../../state/variables/use-quickfilters';
 import {
   combineResourceQuickfilters,
   mergeResourceQuickfilterIntoFilters,
@@ -57,19 +47,10 @@ export function useResourceQuickfilterOption({
     reorderQuickfilter,
   } = useResourceQuickfilters();
   const visibleQuickfilters = useVisibleQuickfiltersForResources();
-  const visibleAttributionQuickfilters = useVisibleQuickfilters('attribution');
-  // Cross-panel membership: shared license-only quickfilters show as pressed
-  // on the attributions panel too, applying the converted model there.
-  const [, setManualAttributionFilters] = useManualAttributionFilters();
   const hasActiveFilters = hasActiveResourceTreeFilters(filters);
 
   return useMemo(() => {
     const activeIds = filters.activeQuickfilterIds ?? [];
-
-    const sharedAttributionModel = (quickfilter: SavedResourceQuickfilter) =>
-      isShareableWithAttributionPanel(quickfilter, 'attribution')
-        ? toAttributionQuickfilterModel(quickfilter, 'attribution')
-        : null;
 
     const applyResourceQuickfilter = (
       quickfilter: SavedResourceQuickfilter,
@@ -83,33 +64,14 @@ export function useResourceQuickfilterOption({
             quickfilters: visibleQuickfilters,
           }),
         );
-        const model = sharedAttributionModel(quickfilter);
-        if (model) {
-          setManualAttributionFilters((prev) =>
-            combineQuickfilters({
-              ids: (prev.activeQuickfilterIds ?? []).filter(
-                (id) => id !== quickfilter.id,
-              ),
-              quickfilters: visibleAttributionQuickfilters,
-              sorting: prev.sorting,
-            }),
-          );
-        }
         return;
       }
       setFilters((prev) =>
         mergeResourceQuickfilterIntoFilters(prev, quickfilter),
       );
-      const model = sharedAttributionModel(quickfilter);
-      if (model) {
-        setManualAttributionFilters((prev) =>
-          mergeQuickfilterIntoFilters(prev, model),
-        );
-      }
     };
 
-    // Same rebuild semantics as removing a single quickfilter. Shared
-    // quickfilters are also removed from the paired attributions panel.
+    // Same rebuild semantics as removing a single quickfilter.
     const clearAllResourceQuickfilters = (): void => {
       setFilters(
         combineResourceQuickfilters({
@@ -117,29 +79,6 @@ export function useResourceQuickfilterOption({
           quickfilters: visibleQuickfilters,
         }),
       );
-      const sharedIds = new Set(
-        activeIds
-          .map((id) =>
-            visibleQuickfilters.find((quickfilter) => quickfilter.id === id),
-          )
-          .filter(
-            (quickfilter): quickfilter is SavedResourceQuickfilter =>
-              quickfilter !== undefined &&
-              !!sharedAttributionModel(quickfilter),
-          )
-          .map(({ id }) => id),
-      );
-      if (sharedIds.size) {
-        setManualAttributionFilters((prev) =>
-          combineQuickfilters({
-            ids: (prev.activeQuickfilterIds ?? []).filter(
-              (id) => !sharedIds.has(id),
-            ),
-            quickfilters: visibleAttributionQuickfilters,
-            sorting: prev.sorting,
-          }),
-        );
-      }
     };
 
     const activateSavedResourceQuickfilter = (id: string): void => {
@@ -200,10 +139,8 @@ export function useResourceQuickfilterOption({
     ];
   }, [
     visibleQuickfilters,
-    visibleAttributionQuickfilters,
     filters,
     setFilters,
-    setManualAttributionFilters,
     hasActiveFilters,
     saveQuickfilter,
     deleteQuickfilter,
