@@ -8,7 +8,6 @@ import { expect } from 'vitest';
 
 import { text } from '../../shared/text';
 import {
-  escapeRegExp,
   getPanel,
   type PanelTestId,
   SETTLED_TIMEOUT,
@@ -278,20 +277,10 @@ export async function removeLicenseFilterOption(
   );
 }
 
-// The counted menu item is named "{n} license filters" via
-// text.licenseEditor.selectionCount; derive the matcher from the text
-// template (with a 0 sentinel standing in for the count) so wording changes
-// stay in sync.
-const LICENSE_FILTERS_MENU_ITEM_PATTERN = new RegExp(
-  escapeRegExp(text.licenseEditor.selectionCount(0)).replaceAll('0', '\\d+'),
-);
-
 export async function clearAllLicenseFilters(): Promise<void> {
-  // The counted "{n} license filters" menu item opens the license editor on
-  // the selection list, from which all selected licenses can be cleared.
-  await userEvent.click(
-    screen.getByRole('menuitem', { name: LICENSE_FILTERS_MENU_ITEM_PATTERN }),
-  );
+  // The "Clear licenses" button in the editor header clears the whole
+  // selection, independent of how many conditions are selected.
+  await openLicenseEditor();
   await userEvent.click(
     screen.getByRole('button', { name: text.licenseEditor.clearLicenses }),
   );
