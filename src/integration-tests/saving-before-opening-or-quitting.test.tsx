@@ -27,6 +27,7 @@ import { getFileMenu } from '../ElectronBackend/main/menu/fileMenu';
 import { menuItemIds } from '../ElectronBackend/main/menu/menuItemIds';
 import {
   confirmQuit,
+  handleWindowClose,
   resetQuitStateForTesting,
 } from '../ElectronBackend/main/quit-handling';
 import type { OpossumOutputFile } from '../ElectronBackend/types/types';
@@ -330,18 +331,25 @@ test('discards a newer draft and persists the submitted change before quitting',
   await expectSavedBeforeQuitting(exited);
 });
 
-test('persists the submitted change when the main process quits without renderer approval', async () => {
+test('persists the submitted change before closing with a crashed renderer', async () => {
   await submitChange();
   const exited = Promise.withResolvers<Buffer>();
   quit.mockImplementation(() => exited.resolve(readFileSync(firstPath)));
+  const send = vi.fn();
+  const preventDefault = vi.fn();
+  const mainWindow = {
+    webContents: {
+      isDestroyed: () => false,
+      isCrashed: () => true,
+      send,
+    },
+  } as unknown as BrowserWindow;
 
-  // The unresponsive-renderer fallback calls confirmQuit directly. Its save
-  // barrier must work independently of the renderer's approval flow.
-  const quitting = confirmQuit();
+  handleWindowClose(mainWindow, { preventDefault, defaultPrevented: false });
+
+  expect(preventDefault).toHaveBeenCalledOnce();
+  expect(send).not.toHaveBeenCalled();
   await saveStarted;
-  releaseSave();
-  await quitting;
-
-  expect(packageNameInArchive(await exited.promise)).toBe(savedName);
-  expect(quit).toHaveBeenCalledOnce();
+  expect(quit).not.toHaveBeenCalled();
+  await expectSavedBeforeQuitting(exited.promise);
 });

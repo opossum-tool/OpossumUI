@@ -93,15 +93,17 @@ describe('handleWindowClose', () => {
     { description: 'crashed web contents', isCrashed: true },
     { description: 'loading web contents', isLoading: true },
   ])(
-    'lets the window close when the renderer cannot respond ($description)',
-    (webContentsOverrides) => {
+    'flushes before quitting when the renderer cannot respond ($description)',
+    async (webContentsOverrides) => {
       const { window, send, preventDefault } =
         createWindowMock(webContentsOverrides);
 
       closeWindow(window, preventDefault);
 
-      expect(preventDefault).not.toHaveBeenCalled();
+      expect(preventDefault).toHaveBeenCalledOnce();
       expect(send).not.toHaveBeenCalled();
+      expect(flushSavesMock).toHaveBeenCalledOnce();
+      await vi.waitFor(() => expect(quitMock).toHaveBeenCalledOnce());
     },
   );
 

@@ -43,6 +43,8 @@ export function handleWindowClose(window: BrowserWindow, event: Event): void {
     return;
   }
   if (!canRendererHandleQuitRequest(window)) {
+    event.preventDefault();
+    void confirmQuit();
     return;
   }
 
