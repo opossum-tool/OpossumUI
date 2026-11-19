@@ -151,32 +151,7 @@ function createSaveWorker(): SaveWorker {
 }
 
 let saveWorker = createSaveWorker();
-const DEFAULT_AUTOSAVE_INTERVAL_MS = 60_000;
-const AUTOSAVE_INTERVAL_MS = readAutosaveInterval();
-
-function readAutosaveInterval(): number {
-  const value = process.env.OPOSSUM_AUTOSAVE_INTERVAL_MS;
-  if (value === undefined) {
-    return DEFAULT_AUTOSAVE_INTERVAL_MS;
-  }
-
-  const interval = Number(value);
-  if (Number.isInteger(interval) && interval > 0) {
-    return interval;
-  }
-
-  console.error(
-    `Invalid OPOSSUM_AUTOSAVE_INTERVAL_MS: ${JSON.stringify(value)}. Expected a positive integer; using ${DEFAULT_AUTOSAVE_INTERVAL_MS} ms.`,
-  );
-  return DEFAULT_AUTOSAVE_INTERVAL_MS;
-}
-let autosaveInterval: ReturnType<typeof setInterval> | undefined;
 let loadingProject = false;
-
-function stopAutosave(): void {
-  clearInterval(autosaveInterval);
-  autosaveInterval = undefined;
-}
 
 async function executeDbProcessMessage(
   msg: DbProcessRequest,
@@ -188,7 +163,7 @@ async function executeDbProcessMessage(
         throw new Error('Cannot load: another project load is in progress');
       }
       loadingProject = true;
-      stopAutosave();
+      saveWorker.stopAutosave();
       try {
         // Flush while the old database, archive and save target are still current.
         await saveWorker.flush();
@@ -203,11 +178,7 @@ async function executeDbProcessMessage(
             projectId: rest.projectId,
             opossumFilePath: msg.filePath,
           };
-          const projectWorker = saveWorker;
-          autosaveInterval = setInterval(
-            () => projectWorker.autosave(),
-            AUTOSAVE_INTERVAL_MS,
-          );
+          saveWorker.startAutosave();
           return rest;
         }
         return loadResult;
@@ -338,7 +309,7 @@ export async function handleDbProcessMessage(
 }
 
 export function resetDbProcessStateForTesting(): void {
-  stopAutosave();
+  saveWorker.stopAutosave();
   storedOpossumZip = undefined;
   saveTarget = undefined;
   saveWorker = createSaveWorker();

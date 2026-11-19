@@ -2,6 +2,27 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+
+const DEFAULT_AUTOSAVE_INTERVAL_MS = 60_000;
+const AUTOSAVE_INTERVAL_MS = readAutosaveInterval();
+
+function readAutosaveInterval(): number {
+  const value = process.env.OPOSSUM_AUTOSAVE_INTERVAL_MS;
+  if (value === undefined) {
+    return DEFAULT_AUTOSAVE_INTERVAL_MS;
+  }
+
+  const interval = Number(value);
+  if (Number.isInteger(interval) && interval > 0) {
+    return interval;
+  }
+
+  console.error(
+    `Invalid OPOSSUM_AUTOSAVE_INTERVAL_MS: ${JSON.stringify(value)}. Expected a positive integer; using ${DEFAULT_AUTOSAVE_INTERVAL_MS} ms.`,
+  );
+  return DEFAULT_AUTOSAVE_INTERVAL_MS;
+}
+
 /**
  * Outcome of the last ordinary save of the currently loaded project's file.
  * Split, merge, and force unlock deliberately do not record their writes
@@ -32,6 +53,7 @@ export class SaveWorker {
   private lastSaveResult: SaveResult | undefined;
   private saveTail: Promise<void> = Promise.resolve();
   private dirty = false;
+  private autosaveInterval: ReturnType<typeof setInterval> | undefined;
 
   constructor(options: { writeCurrentProject: () => Promise<void> }) {
     this.writeCurrentProject = options.writeCurrentProject;
@@ -62,7 +84,19 @@ export class SaveWorker {
     return this.track(() => this.enqueueWrite());
   }
 
-  autosave(): void {
+  startAutosave(): void {
+    this.autosaveInterval ??= setInterval(
+      () => this.autosave(),
+      AUTOSAVE_INTERVAL_MS,
+    );
+  }
+
+  stopAutosave(): void {
+    clearInterval(this.autosaveInterval);
+    this.autosaveInterval = undefined;
+  }
+
+  private autosave(): void {
     if (this.dirty && this.pending.size === 0) {
       void this.save().catch((error) => {
         console.error('Automatic save of the .opossum file failed.', error);
