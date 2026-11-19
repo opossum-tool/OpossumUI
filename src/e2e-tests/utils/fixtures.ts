@@ -147,6 +147,8 @@ export const test = base.extend<
     existingFilePath: string | null;
     /** Override the release application path used by release E2E runs. */
     releasePathOverride: string | null;
+    /** Override the DB process autosave interval for this test. */
+    autosaveIntervalMs: number | null;
     /** Enable the Playwright trace collected by regular E2E tests. */
     playwrightTracing: boolean;
     /** Timeout for loading an existing file into the application. */
@@ -174,6 +176,7 @@ export const test = base.extend<
   data: undefined,
   existingFilePath: [null, { option: true }],
   releasePathOverride: [null, { option: true }],
+  autosaveIntervalMs: [null, { option: true }],
   playwrightTracing: [true, { option: true }],
   appLoadTimeout: [LOAD_TIMEOUT, { option: true }],
   measureStartup: [false, { option: true }],
@@ -195,6 +198,7 @@ export const test = base.extend<
   window: async (
     {
       appLoadTimeout,
+      autosaveIntervalMs,
       data,
       openFromCLI,
       existingFilePath,
@@ -236,6 +240,7 @@ export const test = base.extend<
     const startupStartedAt = performance.now();
     let currentSession = await startAppSession({
       appLoadTimeout,
+      autosaveIntervalMs,
       args: [`--user-data-dir=${userDataPath}`].concat(
         opossumFilePath && openFromCLI ? [opossumFilePath] : [],
       ),
@@ -328,6 +333,7 @@ export const test = base.extend<
             args: [`--user-data-dir=${userDataPath}`],
             playwrightTracing,
             releasePathOverride,
+            autosaveIntervalMs,
           });
           return Object.assign(currentSession.window, {
             app: currentSession.app,
@@ -395,10 +401,12 @@ function getPlatformArgs(): Array<string> {
 
 async function launchOpossumApp({
   appLoadTimeout,
+  autosaveIntervalMs,
   args,
   releasePathOverride,
 }: {
   appLoadTimeout: number;
+  autosaveIntervalMs: number | null;
   args: Array<string>;
   releasePathOverride: string | null;
 }): Promise<{
@@ -414,6 +422,9 @@ async function launchOpossumApp({
       ...process.env,
       RESET: '',
       OPOSSUM_DISABLE_AUTOMATIC_UPDATE_CHECKS: '1',
+      ...(autosaveIntervalMs === null
+        ? {}
+        : { OPOSSUM_AUTOSAVE_INTERVAL_MS: String(autosaveIntervalMs) }),
     },
   });
   await installDefaultSyncDialogStubs(app);
@@ -444,17 +455,20 @@ async function launchOpossumApp({
 
 async function startAppSession({
   appLoadTimeout,
+  autosaveIntervalMs,
   args,
   playwrightTracing,
   releasePathOverride,
 }: {
   appLoadTimeout: number;
+  autosaveIntervalMs: number | null;
   args: Array<string>;
   playwrightTracing: boolean;
   releasePathOverride: string | null;
 }): Promise<AppSession> {
   const { app, window, mainProcessLogs } = await launchOpossumApp({
     appLoadTimeout,
+    autosaveIntervalMs,
     args,
     releasePathOverride,
   });

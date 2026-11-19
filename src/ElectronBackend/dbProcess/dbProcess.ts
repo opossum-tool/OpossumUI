@@ -151,7 +151,25 @@ function createSaveWorker(): SaveWorker {
 }
 
 let saveWorker = createSaveWorker();
-const AUTOSAVE_INTERVAL_MS = 60_000;
+const DEFAULT_AUTOSAVE_INTERVAL_MS = 60_000;
+const AUTOSAVE_INTERVAL_MS = readAutosaveInterval();
+
+function readAutosaveInterval(): number {
+  const value = process.env.OPOSSUM_AUTOSAVE_INTERVAL_MS;
+  if (value === undefined) {
+    return DEFAULT_AUTOSAVE_INTERVAL_MS;
+  }
+
+  const interval = Number(value);
+  if (Number.isInteger(interval) && interval > 0) {
+    return interval;
+  }
+
+  console.error(
+    `Invalid OPOSSUM_AUTOSAVE_INTERVAL_MS: ${JSON.stringify(value)}. Expected a positive integer; using ${DEFAULT_AUTOSAVE_INTERVAL_MS} ms.`,
+  );
+  return DEFAULT_AUTOSAVE_INTERVAL_MS;
+}
 let autosaveInterval: ReturnType<typeof setInterval> | undefined;
 let loadingProject = false;
 
