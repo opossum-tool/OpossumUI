@@ -36,6 +36,7 @@ import { Spinner } from '../Spinner/Spinner';
 import { ChartCard } from './ProjectStatisticsPopup.style';
 import {
   CRITICALITY_LABEL,
+  orderAiAttributionStates,
   transformName,
 } from './ProjectStatisticsPopup.util';
 
@@ -386,7 +387,9 @@ export const ProjectStatisticsPopup: React.FC = () => {
                   axisLabel={
                     text.projectStatisticsPopup.charts.aiAttributionStates.count
                   }
-                  data={statistics.aiAttributionStates.map((item) => ({
+                  data={orderAiAttributionStates(
+                    statistics.aiAttributionStates,
+                  ).map((item) => ({
                     id: item.name,
                     name: text.projectStatisticsPopup.charts
                       .aiAttributionStates[item.name],
