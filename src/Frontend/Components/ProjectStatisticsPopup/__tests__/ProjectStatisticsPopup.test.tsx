@@ -370,7 +370,7 @@ describe('The ProjectStatisticsPopup', () => {
       },
     };
 
-    await renderComponent(<ProjectStatisticsPopup />, {
+    await renderStatisticsPopup({
       data: getParsedInputFileEnrichedWithTestData({
         config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
         manualAttributions: testManualAttributions,
@@ -384,7 +384,7 @@ describe('The ProjectStatisticsPopup', () => {
   });
 
   it('does not render the AI attribution states chart without AI attributions', async () => {
-    await renderComponent(<ProjectStatisticsPopup />, {
+    await renderStatisticsPopup({
       data: getParsedInputFileEnrichedWithTestData(fileSetup),
     });
 
