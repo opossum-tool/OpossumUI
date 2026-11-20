@@ -30,6 +30,7 @@ import {
   EDITABLE_ATTRIBUTION_RESOURCE_ACCESS,
 } from '../types/types';
 import {
+  aiAttributionStatistics,
   getAiProgressBarData,
   getNextAttributionToReviewForAi,
   hasAiAttributions,
@@ -258,6 +259,7 @@ export const queries = {
   getResourceTreeAiDeferredCount,
   manualAttributionStatistics,
   externalAttributionStatistics,
+  aiAttributionStatistics,
   licenseTable,
 
   async getAttributionData(props: { attributionUuid: string }) {

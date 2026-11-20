@@ -164,6 +164,7 @@ const ATTRIBUTION_AGGREGATE_INVALIDATIONS: Array<MutationInvalidation> = [
 const MANUAL_ATTRIBUTION_STATISTICS_INVALIDATIONS: Array<MutationInvalidation> =
   [
     { queryName: 'manualAttributionStatistics' },
+    { queryName: 'aiAttributionStatistics' },
     { queryName: 'resourceHasIncompleteManualAttributions' },
   ];
 

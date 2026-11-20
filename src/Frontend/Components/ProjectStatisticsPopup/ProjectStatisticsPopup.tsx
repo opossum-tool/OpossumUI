@@ -36,6 +36,7 @@ import { Spinner } from '../Spinner/Spinner';
 import { ChartCard } from './ProjectStatisticsPopup.style';
 import {
   CRITICALITY_LABEL,
+  orderAiAttributionStates,
   transformName,
 } from './ProjectStatisticsPopup.util';
 
@@ -57,12 +58,16 @@ export const ProjectStatisticsPopup: React.FC = () => {
     backend.manualAttributionStatistics.useQuery();
   const externalAttributionStatistics =
     backend.externalAttributionStatistics.useQuery();
+  const aiAttributionStatistics = backend.aiAttributionStatistics.useQuery();
 
   const statistics =
-    manualAttributionStatistics.data && externalAttributionStatistics.data
+    manualAttributionStatistics.data &&
+    externalAttributionStatistics.data &&
+    aiAttributionStatistics.data
       ? {
           ...manualAttributionStatistics.data,
           ...externalAttributionStatistics.data,
+          aiAttributionStates: aiAttributionStatistics.data,
         }
       : undefined;
 
@@ -368,6 +373,29 @@ export const ProjectStatisticsPopup: React.FC = () => {
                             .incompleteAttributionsPieChart
                             .completeAttributions,
                   )}
+                />
+              </ChartGridItem>
+              <ChartGridItem
+                shouldRender={statistics.aiAttributionStates
+                  .filter((item) => item.name !== 'nonAi')
+                  .some((item) => item.count > 0)}
+                testId={'aiAttributionStatesBarChart'}
+              >
+                <MuiTypography variant="subtitle1">
+                  {text.projectStatisticsPopup.charts.aiAttributionStates.title}
+                </MuiTypography>
+                <BarChart
+                  axisLabel={
+                    text.projectStatisticsPopup.charts.aiAttributionStates.count
+                  }
+                  data={orderAiAttributionStates(
+                    statistics.aiAttributionStates,
+                  ).map((item) => ({
+                    id: item.name,
+                    name: text.projectStatisticsPopup.charts
+                      .aiAttributionStates[item.name],
+                    count: item.count,
+                  }))}
                 />
               </ChartGridItem>
             </ChartGrid>
