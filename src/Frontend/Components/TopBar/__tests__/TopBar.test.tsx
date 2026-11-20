@@ -50,4 +50,16 @@ describe('TopBar', () => {
     expect(isAuditViewSelected(store.getState())).toBe(false);
     expect(isReportViewSelected(store.getState())).toBe(true);
   });
+
+  it('shows the AI Review tab only in development builds', async () => {
+    vi.stubEnv('PROD', false);
+    const { unmount } = await renderComponent(<TopBar />);
+    expect(screen.getByText('AI Review')).toBeVisible();
+    unmount();
+
+    vi.stubEnv('PROD', true);
+    await renderComponent(<TopBar />);
+    expect(screen.queryByText('AI Review')).not.toBeInTheDocument();
+    vi.unstubAllEnvs();
+  });
 });

@@ -10,10 +10,12 @@ import { useAppSelector } from '../../state/hooks';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import { useInitUserSettings } from '../../state/variables/use-user-setting';
 import { useDatabaseInitialized } from '../../util/backendClient';
+import { isAiReviewEnabled } from '../../util/environment';
 import {
   ProjectSaveContext,
   useProjectSave,
 } from '../../util/use-project-save';
+import { AiReviewView } from '../AiReviewView/AiReviewView';
 import { AuditView } from '../AuditView/AuditView';
 import { ErrorFallback } from '../ErrorFallback/ErrorFallback';
 import { GlobalPopup } from '../GlobalPopup/GlobalPopup';
@@ -73,7 +75,13 @@ function AppView(): React.ReactNode {
 
   return (
     <ProjectSaveContext value={saveDraft}>
-      {selectedView === View.Audit ? <AuditView /> : <ReportView />}
+      {selectedView === View.Audit ? (
+        <AuditView />
+      ) : selectedView === View.AiReview && isAiReviewEnabled() ? (
+        <AiReviewView />
+      ) : (
+        <ReportView />
+      )}
     </ProjectSaveContext>
   );
 }

@@ -613,6 +613,7 @@ export const text = {
     },
     audit: 'Audit',
     report: 'Report',
+    aiReview: 'AI Review',
     switchableProgressBar: {
       selectAriaLabel: 'ProgressBar Switcher',
       aiBar: {
