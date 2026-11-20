@@ -318,7 +318,7 @@ export interface ElectronAPI {
   confirmQuit: (options?: QuitOptions) => Promise<LeaveResult>;
   quitRequestHandled: () => void;
   /** Resolves once pending renderer-submitted mutations and saves have settled. */
-  whenBackendIdle: () => Promise<SaveFailure | undefined>;
+  flushPendingSaves: () => Promise<SaveFailure | undefined>;
   relaunch: () => void;
   openLink: (link: string) => Promise<unknown>;
   openFile: (filePath?: string) => Promise<unknown>;

@@ -1172,7 +1172,7 @@ describe('statistics navigation', () => {
 
 describe('failed-save transition decisions', () => {
   it('asks for recovery before handing the original destination to main', async () => {
-    vi.mocked(window.electronAPI.whenBackendIdle).mockResolvedValueOnce({
+    vi.mocked(window.electronAPI.flushPendingSaves).mockResolvedValueOnce({
       message: 'Disk full',
       id: 'failed-save',
       fileName: 'project.opossum',
@@ -1184,14 +1184,14 @@ describe('failed-save transition decisions', () => {
       expect(window.electronAPI.openFile).not.toHaveBeenCalled();
       expect(getIsSavingBeforeQuit(store.getState())).toBe(false);
       const { failure } = getSaveRecovery()!;
-      vi.mocked(window.electronAPI.whenBackendIdle).mockResolvedValueOnce(
+      vi.mocked(window.electronAPI.flushPendingSaves).mockResolvedValueOnce(
         failure,
       );
       await resumeSaveRecovery(getSaveRecovery()!, failure.id);
       expect(window.electronAPI.openFile).toHaveBeenCalledExactlyOnceWith(
         '/requested.opossum',
       );
-      expect(window.electronAPI.whenBackendIdle).toHaveBeenCalledTimes(2);
+      expect(window.electronAPI.flushPendingSaves).toHaveBeenCalledTimes(2);
     } finally {
       closeSaveRecovery();
     }
@@ -1199,7 +1199,7 @@ describe('failed-save transition decisions', () => {
 
   it('restores usable editing state when native quit recovery stays in the project', async () => {
     const nativeDecision = Promise.withResolvers<void>();
-    vi.mocked(window.electronAPI.whenBackendIdle).mockResolvedValueOnce({
+    vi.mocked(window.electronAPI.flushPendingSaves).mockResolvedValueOnce({
       message: 'Disk full',
       id: 'failed-save',
       fileName: 'project.opossum',
@@ -1331,10 +1331,10 @@ describe('quitAppOrOpenUnsavedPopup', () => {
       }),
     );
     testStore.dispatch(quitAppOrOpenUnsavedPopup());
-    let resolveWhenBackendIdle!: () => void;
-    vi.mocked(window.electronAPI.whenBackendIdle).mockReturnValueOnce(
+    let resolveSaveFlush!: () => void;
+    vi.mocked(window.electronAPI.flushPendingSaves).mockReturnValueOnce(
       new Promise<undefined>((resolve) => {
-        resolveWhenBackendIdle = () => resolve(undefined);
+        resolveSaveFlush = () => resolve(undefined);
       }),
     );
 
@@ -1346,7 +1346,7 @@ describe('quitAppOrOpenUnsavedPopup', () => {
       PopupType.NotSavedPopup,
     );
     expect(window.electronAPI.confirmQuit).not.toHaveBeenCalled();
-    resolveWhenBackendIdle();
+    resolveSaveFlush();
     await vi.waitFor(() =>
       expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
     );
