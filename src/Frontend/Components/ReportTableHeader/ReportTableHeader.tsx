@@ -42,7 +42,10 @@ export function ReportTableHeader({ empty = false }: { empty?: boolean }) {
           scope={'col'}
           sx={{
             minWidth: ({ spacing }) => spacing(config.width),
-            maxWidth: ({ spacing }) => spacing(config.width),
+            // the icons column grows with its content, so no maxWidth here
+            ...(config.attributionProperty !== 'id' && {
+              maxWidth: ({ spacing }) => spacing(config.width),
+            }),
             ...(config.attributionProperty === 'id' && classes.iconsCell),
             ...classes.headerCell,
           }}
