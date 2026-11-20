@@ -118,7 +118,7 @@ describe('synthetic performance file generator', () => {
       profile.externalLinkCount,
     );
     expect(Object.keys(output.manualAttributions)).toHaveLength(
-      profile.manualAttributionCount,
+      profile.manualAttributionCount + 1,
     );
     const externalOriginIds = new Set(
       Object.values(input.externalAttributions).flatMap(
@@ -136,8 +136,12 @@ describe('synthetic performance file generator', () => {
         originIds?.every((originId) => externalOriginIds.has(originId)),
       ),
     ).toBe(true);
+    const replacementSourceLinkCount = countAttributionLinks(
+      output.resourcesToAttributions,
+      model.scenarios.replace.source.id,
+    );
     expect(countLinks(output.resourcesToAttributions)).toBe(
-      profile.manualLinkCount,
+      profile.manualLinkCount + replacementSourceLinkCount,
     );
   });
 
@@ -311,9 +315,13 @@ describe('synthetic performance file generator', () => {
   it('generates dense and high-fanout performance anchors', () => {
     const dense = model.scenarios.denseSignals;
     const highFanout = model.scenarios.highFanout;
+    const replace = model.scenarios.replace;
     expect(
       input.resourcesToAttributions[dense.resource.resourcePath],
     ).toHaveLength(profile.denseSignalCount);
+    expect(
+      output.resourcesToAttributions[dense.resource.resourcePath],
+    ).toHaveLength(1);
     expect(
       dense.bulkSignals.every(({ id }) =>
         input.resourcesToAttributions[dense.resource.resourcePath].includes(id),
@@ -345,6 +353,15 @@ describe('synthetic performance file generator', () => {
         highFanout.manual.id,
       ),
     ).toBeGreaterThan(profile.highFanoutLinkCount - FANOUT_TOLERANCE);
+    expect(output.manualAttributions[replace.source.id]).toEqual(
+      replace.source.packageInfo,
+    );
+    expect(
+      countAttributionLinks(output.resourcesToAttributions, replace.source.id),
+    ).toBeGreaterThan(profile.highFanoutLinkCount - FANOUT_TOLERANCE);
+    expect(
+      output.resourcesToAttributions[replace.resource.resourcePath],
+    ).toContain(replace.source.id);
     expect(
       input.resourcesToAttributions[highFanout.readonlyResource.resourcePath],
     ).toContain(highFanout.external.id);
