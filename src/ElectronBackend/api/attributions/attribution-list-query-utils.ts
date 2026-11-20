@@ -34,6 +34,16 @@ import {
 
 export type AttributionQuery = SelectQueryBuilder<DB, 'attribution', unknown>;
 
+/**
+ * A membership query of an attribution selection: writable attributions with
+ * their UUID and their relationship to the queried resource.
+ */
+export type AttributionSelectionMembershipQuery = SelectQueryBuilder<
+  DB,
+  'attribution',
+  { uuid: string; relationship: ResourceRelationship }
+>;
+
 export type AttributionListQueryProps = AttributionResultSetFilterProps & {
   relation?: Relation;
 };
@@ -255,13 +265,41 @@ export function getFilteredQuery(
       ),
     );
 
-  return applyFilters(query, props, resource, ancestorId) as typeof query;
+  return applyFilters(query, props, resource, ancestorId);
 }
 
-export function applyExcludedAttributionUuids(
-  query: AttributionQuery,
+/**
+ * The membership query of an attribution selection: writable attributions
+ * matching the given criteria, selected by UUID, together with their
+ * relationship to the queried resource. Unlike {@link getFilteredQuery}, the
+ * selection is built without runtime-conditional selections so the result
+ * rows are fully typed.
+ */
+export function getAttributionSelectionMembershipQuery(
+  trx: Kysely<DB>,
+  props: AttributionListQueryProps,
+  resource: { id: number; max_descendant_id: number } | undefined,
+  ancestorId: number | undefined,
+): AttributionSelectionMembershipQuery {
+  return applyFilters(
+    trx
+      .selectFrom('attribution')
+      .select('uuid')
+      .select(
+        getAttributionListRelationshipExpression(resource, ancestorId).as(
+          'relationship',
+        ),
+      ),
+    props,
+    resource,
+    ancestorId,
+  );
+}
+
+export function applyExcludedAttributionUuids<O>(
+  query: SelectQueryBuilder<DB, 'attribution', O>,
   excludedAttributionUuids: Array<string> | undefined,
-): AttributionQuery {
+): SelectQueryBuilder<DB, 'attribution', O> {
   return excludedAttributionUuids && excludedAttributionUuids.length > 0
     ? query.where(
         'attribution.uuid',
@@ -271,12 +309,12 @@ export function applyExcludedAttributionUuids(
     : query;
 }
 
-function applyFilters(
-  query: AttributionQuery,
+function applyFilters<O>(
+  query: SelectQueryBuilder<DB, 'attribution', O>,
   props: AttributionListQueryProps,
   resource: { id: number; max_descendant_id: number } | undefined,
   ancestorId: number | undefined,
-): AttributionQuery {
+): SelectQueryBuilder<DB, 'attribution', O> {
   for (const expression of getAttributionWhereExpressions(
     props,
     resource,

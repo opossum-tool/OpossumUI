@@ -150,24 +150,24 @@ export function ConfirmAttributionActionPopup({
         </>
       )}
       {children}
-      {selection.mode === 'explicit' && (
-        <MuiTypography variant={'subtitle2'} sx={popupFixedSectionSx}>
-          {text.confirmAttributionActionPopup.affectedResources}
-        </MuiTypography>
-      )}
-      {selection.mode === 'explicit' && linkedResourcesTreeState && (
-        <LinkedResourcesTree
-          readOnly
-          fitContent
-          disableHighlightSelected={!isLocalActionAvailable}
-          state={linkedResourcesTreeState}
-          sx={{
-            ...popupScrollableSectionSx,
-            ...(linkedResourcesTreeState.treeNodes.length > 0 && {
-              minHeight: 0,
-            }),
-          }}
-        />
+      {linkedResourcesTreeState && (
+        <>
+          <MuiTypography variant={'subtitle2'} sx={popupFixedSectionSx}>
+            {text.confirmAttributionActionPopup.affectedResources}
+          </MuiTypography>
+          <LinkedResourcesTree
+            readOnly
+            fitContent
+            disableHighlightSelected={!isLocalActionAvailable}
+            state={linkedResourcesTreeState}
+            sx={{
+              ...popupScrollableSectionSx,
+              ...(linkedResourcesTreeState.treeNodes.length > 0 && {
+                minHeight: 0,
+              }),
+            }}
+          />
+        </>
       )}
     </NotificationPopup>
   );

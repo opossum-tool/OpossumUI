@@ -8,6 +8,7 @@ import {
   pathsToResources,
 } from '../../../../testing/global-test-helpers';
 import { getDb } from '../../../db/db';
+import { resolveOnAttribution } from '../../resource-tree-on-attributions';
 import {
   getAttributionSelectionSummary,
   resolveAttributionSelection,
@@ -50,6 +51,28 @@ describe('attribution result-set consistency', () => {
       writableLinkedResourceCount: 2,
       allLinkedToSelectedResource: true,
     });
+  });
+
+  it('resolves a query-wide selection into its membership UUIDs', async () => {
+    const onAttribution = await resolveOnAttribution({
+      mode: 'allMatching',
+      query: {
+        external: false,
+        filters: [],
+        search: '',
+        valueFilters: {},
+        resourcePathForRelationships: '/parent/resource',
+        showResolved: false,
+        excludeUnrelated: false,
+        relation: 'resource',
+      },
+      excludedAttributionUuids: ['resourceOne'],
+    });
+
+    if (onAttribution?.kind !== 'explicit') {
+      throw new Error('expected an explicit resolution');
+    }
+    expect(onAttribution.attributionUuids).toEqual(['resourceTwo']);
   });
 
   it('keeps page, counts, resolution, preview, and navigation on one result set', async () => {

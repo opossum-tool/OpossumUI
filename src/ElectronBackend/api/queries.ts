@@ -59,12 +59,19 @@ import {
   getNextFileToReviewForCriticality,
 } from './progressBarQueries';
 import {
+  type OnAttributionInput,
+  resolveOnAttribution,
+} from './resource-tree-on-attributions';
+import {
   getLinkedResourceTree,
   getResourceTree,
   getResourceTreeAiDeferredCount,
   getResourceTreeUnreviewedCount,
 } from './resourceTree';
-import { getNodePathsToExpand } from './resourceTreeExpansion';
+import {
+  getNodePathsToExpand,
+  resourcesToExpand,
+} from './resourceTreeExpansion';
 import {
   externalAttributionStatistics,
   licenseTable,
@@ -78,7 +85,6 @@ import {
   removeParentFromPath,
   removeTrailingSlash,
   type ResourceRelationship,
-  resourcesToExpand,
   toSnakeCase,
 } from './utils';
 
@@ -416,14 +422,28 @@ export const queries = {
    * except if its level is deeper than `limit`.
    */
   async getResourcePathsAndParentsForAttributions({
-    attributionUuids,
+    onAttribution,
+    additionalAttributionUuids,
+    attributionLimit,
     limit,
     prioritizedResourcePath,
   }: {
-    attributionUuids: Array<string>;
+    onAttribution: OnAttributionInput;
+    additionalAttributionUuids?: Array<string>;
+    attributionLimit?: number;
     limit?: number;
     prioritizedResourcePath?: string;
-  }) {
+  }): Promise<{
+    result: { resourcePaths: Array<string>; limitExceeded: boolean };
+  }> {
+    const resolvedOnAttribution = await resolveOnAttribution(
+      onAttribution,
+      additionalAttributionUuids,
+      attributionLimit,
+    );
+    if (resolvedOnAttribution?.kind === 'limitExceeded') {
+      return { result: { resourcePaths: [], limitExceeded: true } };
+    }
     const results: Array<string> = [];
 
     if (prioritizedResourcePath) {
@@ -434,7 +454,7 @@ export const queries = {
 
       results.push(
         ...(await resourcesToExpand(getDb(), {
-          aboveAttributionUuids: attributionUuids,
+          aboveOnAttribution: resolvedOnAttribution,
           aboveResourceId: prioritizedResource.id,
           limit,
         })),
@@ -443,7 +463,7 @@ export const queries = {
 
     results.push(
       ...(await resourcesToExpand(getDb(), {
-        aboveAttributionUuids: attributionUuids,
+        aboveOnAttribution: resolvedOnAttribution,
         limit,
       })),
     );
@@ -457,7 +477,12 @@ export const queries = {
       }
     }
 
-    return { result: Array.from(deduplicatedLimitedResults) };
+    return {
+      result: {
+        resourcePaths: Array.from(deduplicatedLimitedResults),
+        limitExceeded: false,
+      },
+    };
   },
 
   async getFrequentLicenseNames() {
