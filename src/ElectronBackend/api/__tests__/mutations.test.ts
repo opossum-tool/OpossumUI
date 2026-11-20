@@ -1080,7 +1080,7 @@ describe('filtered-resource cache invalidation', () => {
     const queryLinkedResources = () =>
       queries.getLinkedResourceTree({
         expandedNodes: 'expandAll',
-        onAttributionUuids: ['shared'],
+        onAttribution: ['shared'],
       });
 
     expect(

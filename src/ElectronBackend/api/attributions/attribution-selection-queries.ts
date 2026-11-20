@@ -99,38 +99,6 @@ async function getQueryWideSelectionMembershipQuery(
   return { membership, resource, closestAncestor };
 }
 
-export type GetAttributionSelectionUuidsProps = {
-  selection: AllMatchingAttributionSelection;
-  limit: number;
-};
-
-export async function getAttributionSelectionUuids(
-  props: GetAttributionSelectionUuidsProps,
-): Promise<{
-  result: { attributionUuids: Array<string>; limitExceeded: boolean };
-}> {
-  const result = await getDb()
-    .transaction()
-    .execute(async (trx) => {
-      const { membership } = await getQueryWideSelectionMembershipQuery(
-        trx,
-        props.selection,
-      );
-      const rows = await membership.limit(props.limit + 1).execute();
-
-      if (rows.length > props.limit) {
-        return { attributionUuids: [], limitExceeded: true };
-      }
-
-      return {
-        attributionUuids: rows.map((row) => row.uuid),
-        limitExceeded: false,
-      };
-    });
-
-  return { result };
-}
-
 export async function getAttributionSelectionSummary(
   props: GetAttributionSelectionSummaryProps,
 ): Promise<{ result: AttributionSelectionSummary }> {

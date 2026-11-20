@@ -9,7 +9,7 @@ import type {
   ResourceTreeNodeBase,
   ResourceTreeNodeData,
 } from '../../../ElectronBackend/api/resourceTree';
-import type { ResourceTreeFilters } from '../../../ElectronBackend/api/resourceTreeFilters';
+import type { ResourceTreeFiltersInput } from '../../../ElectronBackend/api/resourceTreeFilters';
 import { List } from '../List/List';
 import { SearchList } from '../SearchList/SearchList';
 import {
@@ -24,7 +24,7 @@ interface VirtualizedTreeProps<T extends ResourceTreeNodeBase> {
   onContextMenu?: (event: MouseEvent<HTMLElement>, resource: T) => void;
   onToggle: (nodeIdsToExpand: Array<string>) => void;
   contextMenuNodeId?: string;
-  expansionFilters?: ResourceTreeFilters;
+  expansionFilters?: ResourceTreeFiltersInput;
   readOnly?: boolean;
   selectedNodeId?: string;
   sx?: SxProps;

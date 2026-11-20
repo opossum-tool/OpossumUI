@@ -6,6 +6,7 @@ import type { Kysely, Transaction } from 'kysely';
 
 import { getDb } from '../db/db';
 import type { DB } from '../db/generated/databaseTypes';
+import { getOnAttributionCacheValue } from './resource-tree-on-attributions';
 import {
   type FilteredTable,
   getFilteredResourcesQuery,
@@ -30,7 +31,9 @@ function getFilterKey(filters: ResourceTreeFilters) {
     filters.licenseFilter,
     filters.onlyUnreviewedFiles,
     filters.onlyWithAiDeferredAttributions,
-    filters.onAttributionUuids,
+    filters.onAttribution === undefined
+      ? undefined
+      : getOnAttributionCacheValue(filters.onAttribution),
     filters.onlyWritable,
   ]);
 }

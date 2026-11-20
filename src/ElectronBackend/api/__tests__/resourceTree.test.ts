@@ -103,10 +103,10 @@ describe('attribution filtering', () => {
     ['expandAll', []],
   ])(
     'matches the full tree common fields with expansion %j and UUID selection %j',
-    async (expandedNodes, onAttributionUuids) => {
+    async (expandedNodes, onAttribution) => {
       const request = {
         expandedNodes,
-        onAttributionUuids,
+        onAttribution,
         search: 'external',
         selectedResourcePath: '/src',
       };
@@ -152,19 +152,19 @@ describe('attribution filtering', () => {
   it('filters one or several UUIDs and keeps shared resources once', async () => {
     const externalOnly = await getResourceTree({
       expandedNodes: 'expandAll',
-      onAttributionUuids: [FILTER_EXTERNAL_UUID],
+      onAttribution: [FILTER_EXTERNAL_UUID],
     });
     expect(externalOnly.result.count).toBe(4);
 
     const manualOnly = await getResourceTree({
       expandedNodes: 'expandAll',
-      onAttributionUuids: [FILTER_MANUAL_UUID],
+      onAttribution: [FILTER_MANUAL_UUID],
     });
     expect(manualOnly.result.count).toBe(2);
 
     const sharedSelection = await getResourceTree({
       expandedNodes: 'expandAll',
-      onAttributionUuids: [FILTER_EXTERNAL_UUID, FILTER_MANUAL_UUID],
+      onAttribution: [FILTER_EXTERNAL_UUID, FILTER_MANUAL_UUID],
     });
     expect(sharedSelection.result.count).toBe(5);
     expect(
@@ -177,7 +177,7 @@ describe('attribution filtering', () => {
   it('marks only resources directly linked to any requested UUID', async () => {
     const linkedTree = await getLinkedResourceTree({
       expandedNodes: 'expandAll',
-      onAttributionUuids: [FILTER_EXTERNAL_UUID, FILTER_SECOND_EXTERNAL_UUID],
+      onAttribution: [FILTER_EXTERNAL_UUID, FILTER_SECOND_EXTERNAL_UUID],
     });
     const directIds = linkedTree.result.treeNodes
       .filter((node) => node.isDirectlyLinked)
@@ -196,7 +196,7 @@ describe('attribution filtering', () => {
     ).toBe(false);
     const searchedTree = await getLinkedResourceTree({
       expandedNodes: 'expandAll',
-      onAttributionUuids: [FILTER_EXTERNAL_UUID],
+      onAttribution: [FILTER_EXTERNAL_UUID],
       search: 'external',
     });
     expect(
@@ -231,7 +231,7 @@ describe('attribution filtering', () => {
 
     const linkedTree = await getLinkedResourceTree({
       expandedNodes: 'expandAll',
-      onAttributionUuids: [FILTER_EXTERNAL_UUID],
+      onAttribution: [FILTER_EXTERNAL_UUID],
     });
 
     expect(linkedTree.result.treeNodes[0]).toMatchObject({
@@ -244,12 +244,12 @@ describe('attribution filtering', () => {
     const unrestricted = await getResourceTree({ expandedNodes: 'expandAll' });
     expect(unrestricted.result.count).toBe(9);
 
-    for (const onAttributionUuids of [['missing-uuid'], []] satisfies Array<
+    for (const onAttribution of [['missing-uuid'], []] satisfies Array<
       Array<string>
     >) {
       const filtered = await getResourceTree({
         expandedNodes: 'expandAll',
-        onAttributionUuids,
+        onAttribution,
       });
       expect(filtered.result.count).toBe(0);
       expect(filtered.result.treeNodes).toEqual([]);
@@ -259,7 +259,7 @@ describe('attribution filtering', () => {
   it('conjoins attribution membership with search and license filters', async () => {
     const searched = await getResourceTree({
       expandedNodes: 'expandAll',
-      onAttributionUuids: [FILTER_EXTERNAL_UUID, FILTER_MANUAL_UUID],
+      onAttribution: [FILTER_EXTERNAL_UUID, FILTER_MANUAL_UUID],
       search: 'overlap.ts',
     });
     expect(searched.result.count).toBe(1);
@@ -269,7 +269,7 @@ describe('attribution filtering', () => {
 
     const licensed = await getResourceTree({
       expandedNodes: 'expandAll',
-      onAttributionUuids: [FILTER_EXTERNAL_UUID, FILTER_SECOND_EXTERNAL_UUID],
+      onAttribution: [FILTER_EXTERNAL_UUID, FILTER_SECOND_EXTERNAL_UUID],
       licenseFilter: { licenseIds: ['mit'], external: true },
     });
     expect(licensed.result.count).toBe(4);
@@ -281,7 +281,7 @@ describe('attribution filtering', () => {
   it('conjoins attribution membership with writable and unreviewed filters', async () => {
     const writable = await getResourceTree({
       expandedNodes: 'expandAll',
-      onAttributionUuids: [FILTER_EXTERNAL_UUID, FILTER_MANUAL_UUID],
+      onAttribution: [FILTER_EXTERNAL_UUID, FILTER_MANUAL_UUID],
       onlyWritable: true,
     });
     expect(writable.result.count).toBe(4);
@@ -291,7 +291,7 @@ describe('attribution filtering', () => {
 
     const unreviewed = await getResourceTree({
       expandedNodes: 'expandAll',
-      onAttributionUuids: [FILTER_EXTERNAL_UUID],
+      onAttribution: [FILTER_EXTERNAL_UUID],
       onlyUnreviewedFiles: true,
     });
     expect(unreviewed.result.count).toBe(2);
@@ -545,7 +545,7 @@ describe('getResourceTree', () => {
 
     const filteredResult = await getResourceTree({
       expandedNodes: 'expandAll',
-      onAttributionUuids: largeSelection,
+      onAttribution: largeSelection,
     });
     expect(filteredResult.result.treeNodes).toEqual([]);
   });
@@ -656,7 +656,7 @@ describe('getResourceTree', () => {
     });
 
     const { result } = await getResourceTree({
-      onAttributionUuids: [attributionUuid],
+      onAttribution: [attributionUuid],
       onlyWritable: true,
       expandedNodes: 'expandAll',
     });
@@ -704,7 +704,7 @@ describe('getResourceTree', () => {
 
     const { result } = await getNodePathsToExpand({
       fromNodePath: '/linked/',
-      onAttributionUuids: [attributionUuid],
+      onAttribution: [attributionUuid],
       onlyWritable: true,
     });
 
@@ -733,7 +733,7 @@ describe('getResourceTree', () => {
     const { result } = await getResourceTree({
       expandedNodes: 'expandAll',
       onlyWritable: true,
-      onAttributionUuids: [attributionUuid],
+      onAttribution: [attributionUuid],
     });
 
     const writableNode = result.treeNodes.find((node) => node.id === '/src/');
@@ -855,7 +855,7 @@ describe('getResourceTree', () => {
     it('filters the tree to matching linked resources and highlights them', async () => {
       const { result } = await getResourceTree({
         expandedNodes: 'expandAll',
-        onAttributionUuids: [uuid],
+        onAttribution: [uuid],
         search: 'match',
       });
 
@@ -872,7 +872,7 @@ describe('getResourceTree', () => {
     it('treats the search case-insensitively within the linked resources', async () => {
       const { result } = await getResourceTree({
         expandedNodes: 'expandAll',
-        onAttributionUuids: [uuid],
+        onAttribution: [uuid],
         search: 'MATCH',
       });
 
@@ -899,7 +899,7 @@ describe('getResourceTree', () => {
 
       const { result } = await getResourceTree({
         expandedNodes: 'expandAll',
-        onAttributionUuids: [uuid],
+        onAttribution: [uuid],
         search: 'libs',
       });
 
@@ -914,7 +914,7 @@ describe('getResourceTree', () => {
     it('does not highlight linked resources when no search is given', async () => {
       const { result } = await getResourceTree({
         expandedNodes: 'expandAll',
-        onAttributionUuids: [uuid],
+        onAttribution: [uuid],
       });
 
       expect(result.treeNodes.filter((n) => n.matchesFilters)).toEqual([]);
