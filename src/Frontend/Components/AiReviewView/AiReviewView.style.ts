@@ -12,6 +12,11 @@ export const ColumnsContainer = styled(MuiBox)({
   display: 'flex',
   overflow: 'hidden',
   '& > *': { minWidth: 0, minHeight: 0, overflow: 'auto' },
-  '& > :nth-of-type(1)': { flex: '0 0 30%' },
-  '& > :nth-of-type(2)': { flex: '1 1 40%' },
+});
+
+export const DetailsColumn = styled(MuiBox)({
+  flex: '1 1 0',
+  minWidth: '20%',
+  minHeight: 0,
+  overflow: 'auto',
 });
