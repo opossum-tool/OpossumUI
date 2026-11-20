@@ -3,7 +3,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { skipToken } from '@tanstack/react-query';
-import { useEffect } from 'react';
 
 import type { AttributionSelection } from '../../../shared/attribution-selection';
 import { useAppSelector } from '../../state/hooks';
@@ -69,35 +68,6 @@ export function useAttributionSelectionData({
   const canShowLinkedResourcesTree = isQueryWideSelection
     ? areAttributionUuidsPending || attributionIds.length > 0
     : !isEmptySelection;
-
-  // The two queries resolve the same result set; only once both have settled
-  // can they disagree, and without the UUIDs the tree would silently
-  // disappear, so surface the inconsistency.
-  const hasSelectionSizeDrift =
-    limitExceeded &&
-    !selectionSummaryQuery.isFetching &&
-    !attributionUuidsQuery.isFetching &&
-    summary !== undefined &&
-    summary.selectedCount <= QUERY_WIDE_TREE_LIMIT;
-  useEffect(() => {
-    if (hasSelectionSizeDrift) {
-      console.error(
-        'The summary count and the UUID resolution of a query-wide selection disagree on its size; hiding the linked resources tree.',
-        {
-          summarySelectedCount: summary?.selectedCount,
-          uuidResolutionLimitExceeded: limitExceeded,
-        },
-      );
-    }
-  }, [hasSelectionSizeDrift, summary, limitExceeded]);
-  useEffect(() => {
-    if (attributionUuidsQuery.isError) {
-      console.error(
-        'Failed to resolve the UUIDs of the query-wide selection; hiding the linked resources tree.',
-        attributionUuidsQuery.error,
-      );
-    }
-  }, [attributionUuidsQuery.isError, attributionUuidsQuery.error]);
 
   const attributions: typeof fetchedAttributions = isEmptySelection
     ? {}
