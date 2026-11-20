@@ -15,10 +15,12 @@ import {
   AttributionResourceAccess,
   EDITABLE_ATTRIBUTION_RESOURCE_ACCESS,
 } from '../../types/types';
+import type { ResourceRelationship } from '../utils';
 import {
   applyExcludedAttributionUuids,
+  type AttributionSelectionMembershipQuery as AttributionMembershipQuery,
   getAttributionResultSetContext,
-  getFilteredQuery,
+  getAttributionSelectionMembershipQuery,
 } from './attribution-list-query-utils';
 
 export type AttributionSelectionSummary = {
@@ -50,12 +52,13 @@ export async function resolveAttributionSelection(
     return selection.attributionUuids;
   }
 
-  const membership = await getQueryWideSelectionMembershipQuery(trx, selection);
-  const rows = await membership.membership.execute();
-  return rows.map((row) => (row as { uuid: string }).uuid);
+  const { membership } = await getQueryWideSelectionMembershipQuery(
+    trx,
+    selection,
+  );
+  const rows = await membership.execute();
+  return rows.map((row) => row.uuid);
 }
-
-type AttributionMembershipQuery = ReturnType<typeof getFilteredQuery>;
 
 function getExplicitSelectionMembershipQuery(
   trx: Kysely<DB>,
@@ -66,9 +69,7 @@ function getExplicitSelectionMembershipQuery(
     .select('uuid')
     .where('resource_access', 'in', EDITABLE_ATTRIBUTION_RESOURCE_ACCESS)
     .where('uuid', 'in', jsonArraySelection(attributionUuids))
-    .select((eb) =>
-      eb.val('same').as('relationship'),
-    ) as AttributionMembershipQuery;
+    .select((eb) => eb.val<ResourceRelationship>('same').as('relationship'));
 }
 
 async function getQueryWideSelectionMembershipQuery(
@@ -84,7 +85,7 @@ async function getQueryWideSelectionMembershipQuery(
     selection.query,
   );
   const membership = applyExcludedAttributionUuids(
-    getFilteredQuery(
+    getAttributionSelectionMembershipQuery(
       trx,
       {
         ...selection.query,
@@ -92,11 +93,9 @@ async function getQueryWideSelectionMembershipQuery(
       },
       resource,
       closestAncestor,
-      true,
-      false,
     ),
     selection.excludedAttributionUuids,
-  ) as AttributionMembershipQuery;
+  );
   return { membership, resource, closestAncestor };
 }
 
@@ -124,7 +123,7 @@ export async function getAttributionSelectionUuids(
       }
 
       return {
-        attributionUuids: rows.map((row) => (row as { uuid: string }).uuid),
+        attributionUuids: rows.map((row) => row.uuid),
         limitExceeded: false,
       };
     });
