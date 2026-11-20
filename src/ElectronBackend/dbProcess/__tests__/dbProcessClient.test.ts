@@ -17,15 +17,15 @@ function respond(port: FakeWebPort, response: object): void {
   port.onmessage?.({ data: response } as unknown as MessageEvent);
 }
 
-describe('DbProcessClient.waitForPendingSaves', () => {
-  it('awaits the DB process answering the waitForPendingSaves request', async () => {
+describe('DbProcessClient.flushSaves', () => {
+  it('awaits the DB process answering the flushSaves request', async () => {
     const port = createFakePort();
     const client = new DbProcessClient(port);
 
-    const idlePromise = client.waitForPendingSaves();
+    const idlePromise = client.flushSaves();
     expect(port.postMessage).toHaveBeenCalledWith({
       id: 0,
-      type: 'waitForPendingSaves',
+      type: 'flushSaves',
     });
     respond(port, { id: 0, type: 'success', result: 'failed' });
 
@@ -36,7 +36,7 @@ describe('DbProcessClient.waitForPendingSaves', () => {
     const port = createFakePort();
     const client = new DbProcessClient(port);
 
-    const idlePromise = client.waitForPendingSaves();
+    const idlePromise = client.flushSaves();
     respond(port, { id: 0, type: 'success', result: undefined });
 
     await expect(idlePromise).resolves.toBeUndefined();
@@ -48,7 +48,7 @@ describe('DbProcessClient.waitForPendingSaves', () => {
 
     client.failPendingRequests(new Error('The DB process exited.'));
 
-    await expect(client.waitForPendingSaves()).rejects.toThrow(
+    await expect(client.flushSaves()).rejects.toThrow(
       'The DB process has exited; no further requests are sent.',
     );
     expect(port.postMessage).not.toHaveBeenCalled();

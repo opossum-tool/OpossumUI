@@ -10,6 +10,10 @@ import { useAppSelector } from '../../state/hooks';
 import { getSelectedView } from '../../state/selectors/view-selector';
 import { useInitUserSettings } from '../../state/variables/use-user-setting';
 import { useDatabaseInitialized } from '../../util/backendClient';
+import {
+  ProjectSaveContext,
+  useProjectSave,
+} from '../../util/use-project-save';
 import { AuditView } from '../AuditView/AuditView';
 import { ErrorFallback } from '../ErrorFallback/ErrorFallback';
 import { GlobalPopup } from '../GlobalPopup/GlobalPopup';
@@ -53,6 +57,7 @@ export function App() {
 function AppView(): React.ReactNode {
   const selectedView = useAppSelector(getSelectedView);
   const databaseInitialized = useDatabaseInitialized();
+  const saveDraft = useProjectSave(databaseInitialized);
 
   if (!databaseInitialized) {
     return (
@@ -62,9 +67,9 @@ function AppView(): React.ReactNode {
     );
   }
 
-  if (selectedView === View.Audit) {
-    return <AuditView />;
-  }
-
-  return <ReportView />;
+  return (
+    <ProjectSaveContext value={saveDraft}>
+      {selectedView === View.Audit ? <AuditView /> : <ReportView />}
+    </ProjectSaveContext>
+  );
 }

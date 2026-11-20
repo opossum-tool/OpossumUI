@@ -81,8 +81,8 @@ interface ExecuteCommandMessage {
   params: CommandParams<CommandName>;
 }
 
-interface WaitForPendingSavesMessage {
-  type: 'waitForPendingSaves';
+interface FlushSavesMessage {
+  type: 'flushSaves';
 }
 
 export type DbProcessPayload =
@@ -94,7 +94,7 @@ export type DbProcessPayload =
   | MergeOpossumFilesFromPathsMessage
   | ExportFileMessage
   | ExecuteCommandMessage
-  | WaitForPendingSavesMessage;
+  | FlushSavesMessage;
 
 export type DbProcessRequest = DbProcessPayload & { id: number };
 
@@ -151,6 +151,7 @@ function createSaveWorker(): SaveWorker {
 }
 
 let saveWorker = createSaveWorker();
+let loadingProject = false;
 
 async function executeDbProcessMessage(
   msg: DbProcessRequest,
@@ -158,19 +159,32 @@ async function executeDbProcessMessage(
 ): Promise<SuccessPayload> {
   switch (msg.type) {
     case 'loadFile': {
-      storedOpossumZip = undefined;
-      saveWorker.resetSaveOutcome();
-      const loadResult = await loadFile(msg.filePath, onProgress);
-      if (loadResult.ok) {
-        const { opossumZip, ...rest } = loadResult;
-        storedOpossumZip = opossumZip;
-        saveTarget = {
-          projectId: rest.projectId,
-          opossumFilePath: msg.filePath,
-        };
-        return rest;
+      if (loadingProject) {
+        throw new Error('Cannot load: another project load is in progress');
       }
-      return loadResult;
+      loadingProject = true;
+      saveWorker.stopAutosave();
+      try {
+        // Flush while the old database, archive and save target are still current.
+        await saveWorker.flush();
+        storedOpossumZip = undefined;
+        saveTarget = undefined;
+        saveWorker = createSaveWorker();
+        const loadResult = await loadFile(msg.filePath, onProgress);
+        if (loadResult.ok) {
+          const { opossumZip, ...rest } = loadResult;
+          storedOpossumZip = opossumZip;
+          saveTarget = {
+            projectId: rest.projectId,
+            opossumFilePath: msg.filePath,
+          };
+          saveWorker.startAutosave();
+          return rest;
+        }
+        return loadResult;
+      } finally {
+        loadingProject = false;
+      }
     }
     case 'saveFile': {
       if (!storedOpossumZip) {
@@ -258,13 +272,13 @@ async function executeDbProcessMessage(
         return saveWorker.run(
           (): Promise<SuccessPayload> =>
             executeCommand(msg.command, msg.params),
-          { saveInBackground: true },
+          { markDirty: storedOpossumZip !== undefined },
         );
       }
       return executeCommand(msg.command, msg.params);
     }
-    case 'waitForPendingSaves': {
-      return saveWorker.waitForPendingSaves();
+    case 'flushSaves': {
+      return saveWorker.flush();
     }
   }
 }
@@ -295,6 +309,7 @@ export async function handleDbProcessMessage(
 }
 
 export function resetDbProcessStateForTesting(): void {
+  saveWorker.stopAutosave();
   storedOpossumZip = undefined;
   saveTarget = undefined;
   saveWorker = createSaveWorker();

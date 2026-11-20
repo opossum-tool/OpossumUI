@@ -17,7 +17,10 @@ import {
   getTemporaryDisplayPackageInfo,
 } from '../../state/selectors/resource-selectors';
 import { usePickerMode } from '../../state/variables/use-picker-mode';
+import { backend } from '../../util/backendClient';
 import { useAttributionSaveReveal } from '../../util/use-attribution-save-reveal';
+import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../util/use-focused-attribution-outcome';
+import { useProjectSaveDraft } from '../../util/use-project-save';
 import { AttributionForm } from '../AttributionForm/AttributionForm';
 import { AttributionFormConfirmSavePopup } from '../ConfirmSavePopup/AttributionFormConfirmSavePopup';
 import { ButtonRow } from './ButtonRow/ButtonRow';
@@ -56,10 +59,61 @@ export function AttributionDetails() {
   const [showProgress, setShowProgress] = useState(false);
   const [isConfirmSavePopupOpen, setIsConfirmSavePopupOpen] = useState(false);
   const [saveContext, setSaveContext] = useState<{
+    onSubmitted?: () => Promise<void>;
     attributionId: string;
     resourceId: string;
     packageInfo: typeof temporaryDisplayPackageInfo;
   }>();
+  const onBeforeInvalidation = useFocusedAttributionOutcomeBeforeInvalidation();
+  const updateOrMatch = backend.updateOrMatchAttributions.useMutation({
+    onBeforeInvalidation,
+  });
+  const createOrMatch = backend.createOrMatchAttributions.useMutation({
+    onBeforeInvalidation,
+  });
+
+  const submitDraft = async (onSubmitted?: () => Promise<void>) => {
+    const packageInfo = temporaryDisplayPackageInfo;
+    if (!packageInfo.preSelected && !isPackageInfoDirty) {
+      await onSubmitted?.();
+      return;
+    }
+    if (isLoading || isConfirmSavePopupOpen) {
+      return;
+    }
+    if (!presentation.hasResourceInfo) {
+      return;
+    }
+    if (presentation.hasMultipleResources) {
+      if (packageInfo.id) {
+        setSaveContext({
+          onSubmitted,
+          attributionId: packageInfo.id,
+          resourceId: presentation.resourceId,
+          packageInfo,
+        });
+        setIsConfirmSavePopupOpen(true);
+      }
+      return;
+    }
+    const params = {
+      attributions: { [packageInfo.id]: packageInfo },
+      focusedAttributionUuid: packageInfo.id,
+    };
+    const result = packageInfo.id
+      ? await updateOrMatch.mutateAsync(params)
+      : await createOrMatch.mutateAsync({
+          ...params,
+          resourcePath: presentation.resourceId,
+        });
+    publishSaveCompletion(
+      result.focusedAttributionOutcome,
+      packageInfo.id,
+      presentation.resourceId,
+    );
+    await onSubmitted?.();
+  };
+  useProjectSaveDraft(submitDraft);
 
   useLayoutEffect(() => {
     let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -122,16 +176,8 @@ export function AttributionDetails() {
         presentation={presentation}
         draft={temporaryDisplayPackageInfo}
         isLoading={isLoading}
-        onOpenSave={() => {
-          if (temporaryDisplayPackageInfo.id) {
-            setSaveContext({
-              attributionId: temporaryDisplayPackageInfo.id,
-              resourceId: presentation.resourceId,
-              packageInfo: temporaryDisplayPackageInfo,
-            });
-            setIsConfirmSavePopupOpen(true);
-          }
-        }}
+        onSave={() => submitDraft()}
+        isSaving={updateOrMatch.isPending || createOrMatch.isPending}
       />
       {saveContext && (
         <AttributionFormConfirmSavePopup
@@ -141,13 +187,14 @@ export function AttributionDetails() {
           }}
           open={isConfirmSavePopupOpen}
           onClose={() => setIsConfirmSavePopupOpen(false)}
-          onSaveComplete={(result) =>
+          onSaveComplete={async (result) => {
             publishSaveCompletion(
               result.focusedAttributionOutcome,
               saveContext.attributionId,
               saveContext.resourceId,
-            )
-          }
+            );
+            await saveContext.onSubmitted?.();
+          }}
           onAcceptDrafts={() => {
             dispatch(
               acceptSavedPackageInfoEditing({

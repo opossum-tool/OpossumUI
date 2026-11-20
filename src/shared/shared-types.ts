@@ -337,7 +337,7 @@ export interface ElectronAPI {
     ignoreReadonlyResourceOutputConflicts: boolean;
     deleteSplitFilesAfterMerge: boolean;
   }) => Promise<MergeOpossumFilesResult>;
-  saveFile: () => void;
+  saveFile: () => Promise<void>;
   forceUnlock: () => Promise<void>;
   exportFile: (exportType: ExportType) => Promise<void>;
   /**

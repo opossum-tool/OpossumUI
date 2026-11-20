@@ -61,6 +61,32 @@ test.describe('saving an archive opened from the CLI', () => {
     await attributionsPanel.packageCard.click(preselectedPackageInfo);
     await attributionDetails.attributionForm.assert.commentIs(comment);
   });
+
+  test.describe('attribution form save with autosave', () => {
+    test.use({ autosaveIntervalMs: 1_000 });
+
+    test('persists a modification to the archive', async ({
+      attributionDetails,
+      attributionsPanel,
+      filePaths,
+      resourcesTree,
+    }) => {
+      const comment = `Autosaved comment ${faker.string.uuid()}`;
+
+      await resourcesTree.goto(cliResourceName);
+      await attributionsPanel.packageCard.click(preselectedPackageInfo);
+      await attributionDetails.attributionForm.comment.fill(comment);
+      await attributionDetails.saveButton.click();
+      await expect(attributionDetails.saveButton).toBeDisabled();
+
+      await expect
+        .poll(
+          () => archiveContainsSavedAttribution(filePaths!.opossum, comment),
+          { message: 'Expected autosave to persist the submitted comment' },
+        )
+        .toBe(true);
+    });
+  });
 });
 
 const [

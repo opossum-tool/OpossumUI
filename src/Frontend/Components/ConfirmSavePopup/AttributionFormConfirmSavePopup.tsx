@@ -17,7 +17,7 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onAcceptDrafts?: () => void;
-  onSaveComplete?: (result: SaveMutationResult) => void;
+  onSaveComplete?: (result: SaveMutationResult) => void | Promise<void>;
 }
 
 export function AttributionFormConfirmSavePopup({
