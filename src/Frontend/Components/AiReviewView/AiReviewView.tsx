@@ -2,18 +2,22 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import type { AttributionResultSetCriteria } from '../../../shared/attribution-result-set';
+import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
+import { text } from '../../../shared/text';
 import { ROOT_PATH } from '../../shared-constants';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getSelectedAttributionId } from '../../state/selectors/resource-selectors';
 import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { useAttributionPages } from '../../util/use-attribution-pages';
+import { useDebouncedInput } from '../../util/use-debounced-input';
 import { AttributionDetails } from '../AttributionDetails/AttributionDetails';
 import { AttributionsList } from '../AttributionPanels/AttributionsPanel/AttributionsList/AttributionsList';
 import { ResizableBox } from '../ResizableBox/ResizableBox';
+import { SearchablePanel } from '../ResizePanels/searchable-panel';
 import { LinkedResourcesTree } from '../ResourceBrowser/LinkedResourcesTree/LinkedResourcesTree';
 import { useLinkedResourcesPanelState } from '../ResourceBrowser/use-linked-resources-panel-state';
 import { ColumnsContainer, DetailsColumn } from './AiReviewView.style';
@@ -22,17 +26,19 @@ export const AiReviewView: React.FC = () => {
   const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const { panelSizes, setPanelSizes } = usePanelSizes();
+  const [search, setSearch] = useState('');
+  const debouncedSearch = useDebouncedInput(search);
   const criteria = useMemo<AttributionResultSetCriteria>(
     () => ({
       external: false,
       filters: [],
-      search: '',
+      search: debouncedSearch,
       valueFilters: {},
       resourcePathForRelationships: ROOT_PATH,
       showResolved: false,
       excludeUnrelated: false,
     }),
-    [],
+    [debouncedSearch],
   );
   const attributionPages = useAttributionPages({
     criteria,
@@ -59,22 +65,44 @@ export const AiReviewView: React.FC = () => {
       >
         <div
           data-testid={'attributions-panel'}
-          style={{ height: '100%', width: '100%', overflow: 'hidden' }}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            minHeight: 0,
+            overflow: 'hidden',
+            width: '100%',
+          }}
         >
-          <AttributionsList
-            activeAttributionIds={attributionIds}
-            attributions={attributionPages.attributions}
-            contentHeight={'100%'}
-            loading={attributionPages.loading}
-            loadingMore={attributionPages.isFetchingNextPage}
-            loadMoreError={attributionPages.nextPageError}
-            fetchNextPage={attributionPages.fetchNextPage}
-            selectedAttributionId={selectedAttributionId}
-            resultSetKey={attributionPages.resultSetKey}
-            onSelect={(attribution) =>
-              dispatch(changeSelectedAttributionOrOpenUnsavedPopup(attribution))
-            }
-          />
+          <SearchablePanel
+            title={text.packageLists.attributionsPanelTitle}
+            headerTestId={'ai-review-attributions-header'}
+            search={{
+              value: search,
+              setValue: setSearch,
+              channel: AllowedFrontendChannels.SearchAttributions,
+              inputLabel: text.menu.editSubmenu.searchAttributions,
+            }}
+          >
+            <div style={{ flex: 1, minHeight: 0, width: '100%' }}>
+              <AttributionsList
+                activeAttributionIds={attributionIds}
+                attributions={attributionPages.attributions}
+                contentHeight={'100%'}
+                loading={attributionPages.loading}
+                loadingMore={attributionPages.isFetchingNextPage}
+                loadMoreError={attributionPages.nextPageError}
+                fetchNextPage={attributionPages.fetchNextPage}
+                selectedAttributionId={selectedAttributionId}
+                resultSetKey={attributionPages.resultSetKey}
+                onSelect={(attribution) =>
+                  dispatch(
+                    changeSelectedAttributionOrOpenUnsavedPopup(attribution),
+                  )
+                }
+              />
+            </div>
+          </SearchablePanel>
         </div>
       </ResizableBox>
       <DetailsColumn>
