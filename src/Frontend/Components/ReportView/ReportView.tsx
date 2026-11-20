@@ -37,6 +37,7 @@ export const ReportView: React.FC = () => {
     resultSetKey,
     targetIndex,
     totalCount,
+    maxSignalIcons,
   } = useReportAttributionsList();
 
   const packageInfos = attributions && Object.values(attributions);
@@ -166,7 +167,10 @@ export const ReportView: React.FC = () => {
       }
       itemContent={(_index, packageInfo) =>
         packageInfo ? (
-          <ReportTableItem packageInfo={packageInfo} />
+          <ReportTableItem
+            packageInfo={packageInfo}
+            maxSignalIcons={maxSignalIcons}
+          />
         ) : (
           tableConfigs.map((config) => (
             <TableCell

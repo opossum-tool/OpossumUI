@@ -35,9 +35,12 @@ import {
 import { openUrl } from '../../util/open-url';
 import { IconButton } from '../IconButton/IconButton';
 import {
+  AiGeneratedIcon,
+  DeferredIcon,
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
   FollowUpIcon,
+  HumanModifiedIcon,
   NeedsReviewIcon,
   PreferredIcon,
   PreSelectedIcon,
@@ -50,6 +53,50 @@ const PADDING = 2.5;
 // 4px theme spacing lattice base × PADDING units
 // eslint-disable-next-line @typescript-eslint/no-magic-numbers
 const PADDING_PX = 4 * PADDING;
+
+// 1 MUI theme spacing unit = 4px (createTheme({ spacing: 4 }) in App.style.ts)
+const THEME_SPACING_UNIT_PX = 4;
+const ICON_SIZE_PX = Number.parseInt(baseIconSize, 10);
+// gap between stacked icons (iconTableData uses `gap: 1` theme spacing unit)
+const ICON_GAP_PX = THEME_SPACING_UNIT_PX;
+// the icon svgs carry `mx: 0.5` margins, widening each icon's outer width
+const ICON_OUTER_WIDTH_PX = ICON_SIZE_PX + THEME_SPACING_UNIT_PX;
+// px: 1.75 theme spacing units on each side of the icon box
+const ICON_BOX_SIDE_PADDING_PX = 7;
+const ICON_BOX_HEIGHT_PX = REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX;
+// icons stack vertically in the fixed height row before wrapping to a new column
+const ICONS_PER_COLUMN = Math.floor(
+  (ICON_BOX_HEIGHT_PX + ICON_GAP_PX) / (ICON_SIZE_PX + ICON_GAP_PX),
+);
+
+// Fallback for when the global statistic is not loaded yet: derive the box
+// width from the current row's own icons.
+function countIcons(packageInfo: PackageInfo): number {
+  return (
+    1 + // edit button
+    (packageInfo.aiStatus ? 1 : 0) + // deferred or AI-generated icon
+    [
+      packageInfo.needsReview,
+      packageInfo.followUp,
+      packageInfo.firstParty,
+      packageInfo.excludeFromNotice,
+      packageInfo.preSelected,
+      packageInfo.preferred,
+      packageInfo.aiStatus?.humanModified,
+    ].filter(Boolean).length
+  );
+}
+
+// Every row renders its icons box with the same width, derived from the
+// number of icons of the widest row in the whole result set. That keeps the
+// first table column width stable across virtualization and gives
+// icon-light rows left-aligned trailing space.
+function getIconsBoxWidthPx(maxSignalIcons: number): string {
+  const columnCount = Math.ceil(Math.max(1, maxSignalIcons) / ICONS_PER_COLUMN);
+  const iconsWidthPx =
+    columnCount * ICON_OUTER_WIDTH_PX + (columnCount - 1) * ICON_GAP_PX;
+  return `${iconsWidthPx + 2 * ICON_BOX_SIDE_PADDING_PX}px`;
+}
 
 const classes = {
   tableData: {
@@ -67,6 +114,8 @@ const classes = {
     height: REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX,
     display: 'flex',
     flexDirection: 'column',
+    flexWrap: 'wrap',
+    alignContent: 'flex-start',
     gap: 1,
     alignItems: 'center',
   },
@@ -119,9 +168,19 @@ const classes = {
 
 interface ReportTableItemProps {
   packageInfo: PackageInfo;
+  /**
+   * The most icons any row in the report shows. All rows use it to size
+   * their icons box identically, keeping the first column width stable.
+   * Until the global statistic loads, the row's own icon count is the
+   * fallback.
+   */
+  maxSignalIcons?: number;
 }
 
-export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
+export function ReportTableItem({
+  packageInfo,
+  maxSignalIcons = countIcons(packageInfo),
+}: ReportTableItemProps) {
   const dispatch = useAppDispatch();
   const frequentLicenseTextResult = backend.getFrequentLicenseText.useQuery(
     packageInfo.licenseName
@@ -164,16 +223,18 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
         }
         sx={{
           minWidth: ({ spacing }) => spacing(config.width),
-          maxWidth: ({ spacing }) => spacing(config.width),
           ...classes.borders,
           ...classes.tableCell,
           ...(config.attributionProperty === 'id'
             ? {
+                // the icons column grows with its content so wrapped
+                // icon columns fit instead of overflowing
                 ...classes.iconsCell,
                 ...(isPackageIncomplete(packageInfo) &&
                   classes.markedTableCell),
               }
             : {
+                maxWidth: ({ spacing }) => spacing(config.width),
                 ...(isPackageAttributeIncomplete(
                   config.attributionProperty,
                   packageInfo,
@@ -208,8 +269,14 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
   }
 
   function getIcons(packageInfo: PackageInfo) {
+    const aiStatus = packageInfo.aiStatus;
     return (
-      <MuiBox sx={classes.iconTableData}>
+      <MuiBox
+        sx={{
+          ...classes.iconTableData,
+          width: getIconsBoxWidthPx(maxSignalIcons),
+        }}
+      >
         <IconButton
           tooltipTitle={text.reportView.openInAuditView}
           tooltipPlacement={'right'}
@@ -287,6 +354,15 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
               ...classes.preferredIcon,
             }}
           />
+        )}
+        {aiStatus?.deferred && (
+          <DeferredIcon tooltipPlacement={'right'} sx={classes.icon} />
+        )}
+        {!aiStatus?.deferred && aiStatus && (
+          <AiGeneratedIcon tooltipPlacement={'right'} sx={classes.icon} />
+        )}
+        {aiStatus?.humanModified && (
+          <HumanModifiedIcon tooltipPlacement={'right'} sx={classes.icon} />
         )}
       </MuiBox>
     );

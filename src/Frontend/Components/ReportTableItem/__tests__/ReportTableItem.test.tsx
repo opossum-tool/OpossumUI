@@ -2,13 +2,15 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 
 import {
   type Attributions,
   Criticality,
   DiscreteConfidence,
+  type PackageInfo,
 } from '../../../../shared/shared-types';
+import { text } from '../../../../shared/text';
 import { renderComponent } from '../../../test-helpers/render';
 import { ReportTableItem } from '../ReportTableItem';
 
@@ -102,4 +104,127 @@ describe('The ReportTableItem', () => {
     expect(screen.getByLabelText('Needs-review icon')).toBeInTheDocument();
     expect(screen.getByLabelText('Preferred icon')).toBeInTheDocument();
   });
+
+  it('renders AI generated icon for non-deferred unmodified AI attribution', async () => {
+    await renderReportTableItemWithAiStatus({
+      deferred: false,
+    });
+
+    expect(screen.getByLabelText('AI generated icon')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Deferred AI icon')).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Human-modified AI icon'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders AI generated and human-modified icons for non-deferred human-modified AI attribution', async () => {
+    await renderReportTableItemWithAiStatus({
+      deferred: false,
+      humanModified: true,
+    });
+
+    expect(screen.getByLabelText('AI generated icon')).toBeInTheDocument();
+    expect(screen.getByLabelText('Human-modified AI icon')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Deferred AI icon')).not.toBeInTheDocument();
+  });
+
+  it('renders deferred icon for deferred unmodified AI attribution', async () => {
+    await renderReportTableItemWithAiStatus({
+      deferred: true,
+    });
+
+    expect(screen.getByLabelText('Deferred AI icon')).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('AI generated icon'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Human-modified AI icon'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders deferred and human-modified icons for deferred human-modified AI attribution', async () => {
+    await renderReportTableItemWithAiStatus({
+      deferred: true,
+      humanModified: true,
+    });
+
+    expect(screen.getByLabelText('Deferred AI icon')).toBeInTheDocument();
+    expect(screen.getByLabelText('Human-modified AI icon')).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('AI generated icon'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders AI icons after the flag icons', async () => {
+    const testAttribution: PackageInfo = {
+      packageName: 'React',
+      resources: ['/'],
+      criticality: Criticality.None,
+      id: 'uuid1',
+      firstParty: true,
+      aiStatus: { deferred: false },
+    };
+    await renderComponent(
+      <table>
+        <tbody>
+          <tr>
+            <ReportTableItem packageInfo={testAttribution} />
+          </tr>
+        </tbody>
+      </table>,
+    );
+
+    const aiIcon = screen.getByLabelText('AI generated icon');
+    const flagIcon = screen.getByLabelText('First party icon');
+
+    expect(
+      flagIcon.compareDocumentPosition(aiIcon) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it('renders no AI icons for attribution without AI metadata', async () => {
+    await renderReportTableItemWithAiStatus(undefined);
+
+    expect(
+      screen.queryByLabelText('AI generated icon'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Deferred AI icon')).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Human-modified AI icon'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows deferred icon tooltip on hover', async () => {
+    await renderReportTableItemWithAiStatus({
+      deferred: true,
+    });
+
+    fireEvent.mouseOver(screen.getByLabelText('Deferred AI icon'));
+
+    expect(
+      await screen.findByText(text.auditingOptions.deferredTooltip),
+    ).toBeInTheDocument();
+  });
 });
+
+async function renderReportTableItemWithAiStatus(
+  aiStatus: PackageInfo['aiStatus'],
+) {
+  const testAttribution: PackageInfo = {
+    packageName: 'React',
+    resources: ['/'],
+    criticality: Criticality.None,
+    id: 'uuid1',
+    aiStatus,
+  };
+  await renderComponent(
+    <table>
+      <tbody>
+        <tr>
+          <ReportTableItem packageInfo={testAttribution} />
+        </tr>
+      </tbody>
+    </table>,
+  );
+}
