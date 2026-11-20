@@ -92,6 +92,7 @@ export function useAttributionPages({
       initialized &&
       (!targetAttributionUuid ||
         targetAlreadyLoaded ||
+        targetQuery.isError ||
         (targetQuery.isSuccess && navigationMatchesScope)),
     totalCount,
     fetchPage: (pageParam) =>
@@ -150,6 +151,8 @@ export function useAttributionPages({
 
   return {
     attributions: query.attributions,
+    isError: query.isError,
+    isSuccess: query.isSuccess,
     loading: query.isLoading || targetQuery.isLoading,
     hasNextPage: query.hasNextPage ?? false,
     isFetching: query.isFetching,
@@ -159,6 +162,9 @@ export function useAttributionPages({
     resultSetKey: query.resultSetKey,
     targetIndex,
     navigationLoading: targetQuery.isLoading,
+    navigationFetching: targetQuery.isFetching,
+    navigationIsError: targetQuery.isError,
+    navigationIsSuccess: targetQuery.isSuccess,
     navigationResult: targetQuery.data,
     navigationAttributions:
       targetQuery.data?.found === true

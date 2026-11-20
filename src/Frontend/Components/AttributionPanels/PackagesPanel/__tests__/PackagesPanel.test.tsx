@@ -107,6 +107,8 @@ function mockAttributions(
       : visibleAttributions,
     loading,
     relationCounts,
+    isError: false,
+    isSuccess: true,
     hasNextPage: false,
     isFetching: loading,
     isFetchingNextPage: false,
@@ -115,6 +117,9 @@ function mockAttributions(
     resultSetKey: 'result-set',
     targetIndex: undefined,
     navigationLoading: false,
+    navigationFetching: false,
+    navigationIsError: false,
+    navigationIsSuccess: visibleAttributions !== attributions,
     navigationResult:
       visibleAttributions !== attributions
         ? {
@@ -922,6 +927,8 @@ describe('PackagesPanel', () => {
           relationCounts: isUnavailable
             ? { resource: relationCounts.resource }
             : relationCounts,
+          isError: false,
+          isSuccess: true,
           hasNextPage: false,
           isFetching: false,
           isFetchingNextPage: false,
@@ -930,6 +937,9 @@ describe('PackagesPanel', () => {
           resultSetKey: `${criteria.resourcePathForRelationships}:${relation}`,
           targetIndex: undefined,
           navigationLoading: false,
+          navigationFetching: false,
+          navigationIsError: false,
+          navigationIsSuccess: true,
           navigationResult: hasSelectedSignal
             ? {
                 found: true,
@@ -1087,6 +1097,8 @@ describe('PackagesPanel', () => {
         relationCounts: isRoot
           ? { children: { visibleCount: 1, editableCount: 1 } }
           : {},
+        isError: false,
+        isSuccess: true,
         hasNextPage: false,
         isFetching: false,
         isFetchingNextPage: false,
@@ -1095,6 +1107,9 @@ describe('PackagesPanel', () => {
         resultSetKey: isRoot ? 'root' : 'resource',
         targetIndex: undefined,
         navigationLoading: false,
+        navigationFetching: false,
+        navigationIsError: false,
+        navigationIsSuccess: !isRoot,
         navigationResult: isRoot
           ? undefined
           : {

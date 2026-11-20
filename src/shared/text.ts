@@ -195,6 +195,10 @@ export const text = {
     signalsPanelTitle: 'Signals',
     moreActions: 'More actions',
   },
+  aiReviewView: {
+    noMatchingAttributions: 'No matching attributions',
+    noAttributionsToReview: 'No attributions to review',
+  },
   buttons: {
     cancel: 'Cancel',
     close: 'Close',

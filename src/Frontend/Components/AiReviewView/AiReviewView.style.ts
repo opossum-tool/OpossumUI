@@ -20,3 +20,11 @@ export const DetailsColumn = styled(MuiBox)({
   minHeight: 0,
   overflow: 'auto',
 });
+
+export const EmptyState = styled(MuiBox)({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: '100%',
+  textAlign: 'center',
+});

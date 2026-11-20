@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import type { AttributionResultSetCriteria } from '../../../shared/attribution-result-set';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
@@ -10,7 +10,10 @@ import { text } from '../../../shared/text';
 import { ROOT_PATH } from '../../shared-constants';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import { getSelectedAttributionId } from '../../state/selectors/resource-selectors';
+import {
+  getIsPackageInfoDirty,
+  getSelectedAttributionId,
+} from '../../state/selectors/resource-selectors';
 import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { useAttributionPages } from '../../util/use-attribution-pages';
 import { useDebouncedInput } from '../../util/use-debounced-input';
@@ -20,11 +23,16 @@ import { ResizableBox } from '../ResizableBox/ResizableBox';
 import { SearchablePanel } from '../ResizePanels/searchable-panel';
 import { LinkedResourcesTree } from '../ResourceBrowser/LinkedResourcesTree/LinkedResourcesTree';
 import { useLinkedResourcesPanelState } from '../ResourceBrowser/use-linked-resources-panel-state';
-import { ColumnsContainer, DetailsColumn } from './AiReviewView.style';
+import {
+  ColumnsContainer,
+  DetailsColumn,
+  EmptyState,
+} from './AiReviewView.style';
 
 export const AiReviewView: React.FC = () => {
   const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
+  const isPackageInfoDirty = useAppSelector(getIsPackageInfoDirty);
   const { panelSizes, setPanelSizes } = usePanelSizes();
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedInput(search);
@@ -45,10 +53,80 @@ export const AiReviewView: React.FC = () => {
     scope: { mode: 'all' },
     sort: 'alphabetically',
     includeReadonly: true,
+    targetAttributionUuid: selectedAttributionId || undefined,
   });
   const attributionIds = attributionPages.attributions
     ? Object.keys(attributionPages.attributions)
     : null;
+  const selectedAttributionIsLoaded =
+    selectedAttributionId !== '' &&
+    Object.hasOwn(attributionPages.attributions ?? {}, selectedAttributionId);
+  const selectedAttributionMatchesSearch =
+    selectedAttributionIsLoaded ||
+    (attributionPages.navigationIsSuccess &&
+      !attributionPages.navigationFetching &&
+      !attributionPages.navigationIsError &&
+      attributionPages.navigationResult?.found === true);
+
+  useEffect(() => {
+    if (
+      !attributionPages.isSuccess ||
+      attributionPages.isError ||
+      attributionPages.isFetching ||
+      isPackageInfoDirty
+    ) {
+      return;
+    }
+
+    if (selectedAttributionId) {
+      if (selectedAttributionMatchesSearch) {
+        return;
+      }
+      if (
+        attributionPages.navigationFetching ||
+        attributionPages.navigationIsError ||
+        !attributionPages.navigationIsSuccess ||
+        !attributionPages.navigationResult
+      ) {
+        return;
+      }
+    }
+
+    const firstAttributionId = attributionIds?.[0];
+    const firstAttribution = firstAttributionId
+      ? attributionPages.attributions?.[firstAttributionId]
+      : null;
+    if (!firstAttribution && !selectedAttributionId) {
+      return;
+    }
+    dispatch(
+      changeSelectedAttributionOrOpenUnsavedPopup(firstAttribution ?? null),
+    );
+  }, [
+    attributionIds,
+    attributionPages.attributions,
+    attributionPages.isError,
+    attributionPages.isFetching,
+    attributionPages.isSuccess,
+    attributionPages.navigationFetching,
+    attributionPages.navigationIsError,
+    attributionPages.navigationIsSuccess,
+    attributionPages.navigationResult,
+    dispatch,
+    isPackageInfoDirty,
+    selectedAttributionId,
+    selectedAttributionMatchesSearch,
+  ]);
+
+  const resultsAreSettled =
+    attributionPages.isSuccess &&
+    !attributionPages.isError &&
+    !attributionPages.isFetching;
+  const showEmptyState =
+    !selectedAttributionId &&
+    !isPackageInfoDirty &&
+    resultsAreSettled &&
+    attributionIds?.length === 0;
   const linkedResourcesPanelState = useLinkedResourcesPanelState();
 
   return (
@@ -105,30 +183,44 @@ export const AiReviewView: React.FC = () => {
           </SearchablePanel>
         </div>
       </ResizableBox>
-      <DetailsColumn>
-        <AttributionDetails />
-      </DetailsColumn>
-      <ResizableBox
-        enable={{ left: true }}
-        size={{ height: '100%', width: panelSizes.resourceBrowserWidth }}
-        minWidth={120}
-        maxWidth="40%"
-        onResizeStop={(_event, _direction, ref) =>
-          setPanelSizes({ resourceBrowserWidth: ref.offsetWidth })
-        }
-        sx={{ flexShrink: 0, overflow: 'visible' }}
-      >
-        <div
-          aria-label={'linked resources column'}
-          aria-busy={linkedResourcesPanelState.isLoading}
-          data-testid={'ai-review-linked-resources-column'}
-          style={{ height: '100%', width: '100%', overflow: 'auto' }}
-        >
-          {linkedResourcesPanelState.treeState && (
-            <LinkedResourcesTree state={linkedResourcesPanelState.treeState} />
-          )}
-        </div>
-      </ResizableBox>
+      {showEmptyState ? (
+        <DetailsColumn>
+          <EmptyState>
+            {debouncedSearch
+              ? text.aiReviewView.noMatchingAttributions
+              : text.aiReviewView.noAttributionsToReview}
+          </EmptyState>
+        </DetailsColumn>
+      ) : (
+        <>
+          <DetailsColumn>
+            {selectedAttributionId && <AttributionDetails />}
+          </DetailsColumn>
+          <ResizableBox
+            enable={{ left: true }}
+            size={{ height: '100%', width: panelSizes.resourceBrowserWidth }}
+            minWidth={120}
+            maxWidth="40%"
+            onResizeStop={(_event, _direction, ref) =>
+              setPanelSizes({ resourceBrowserWidth: ref.offsetWidth })
+            }
+            sx={{ flexShrink: 0, overflow: 'visible' }}
+          >
+            <div
+              aria-label={'linked resources column'}
+              aria-busy={linkedResourcesPanelState.isLoading}
+              data-testid={'ai-review-linked-resources-column'}
+              style={{ height: '100%', width: '100%', overflow: 'auto' }}
+            >
+              {linkedResourcesPanelState.treeState && (
+                <LinkedResourcesTree
+                  state={linkedResourcesPanelState.treeState}
+                />
+              )}
+            </div>
+          </ResizableBox>
+        </>
+      )}
     </ColumnsContainer>
   );
 };
