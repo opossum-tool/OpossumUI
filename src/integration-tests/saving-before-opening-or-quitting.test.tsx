@@ -11,7 +11,7 @@ import type {
   MenuItem,
   MenuItemConstructorOptions,
 } from 'electron';
-import { mkdirSync, readFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 
 import * as saveFileModule from '../ElectronBackend/api/saveFile';
@@ -24,19 +24,27 @@ import * as dbProcessClientModule from '../ElectronBackend/dbProcess/dbProcessCl
 import * as dialogs from '../ElectronBackend/main/dialogs';
 import { setGlobalBackendState } from '../ElectronBackend/main/globalBackendState';
 import {
+  importFileConvertAndLoadListener,
+  mergeFileAndLoadListener,
   openFileListener,
   saveFileListener,
 } from '../ElectronBackend/main/listeners';
-import { getFileMenu } from '../ElectronBackend/main/menu/fileMenu';
+import {
+  getFileMenu,
+  importFileFormats,
+} from '../ElectronBackend/main/menu/fileMenu';
 import { menuItemIds } from '../ElectronBackend/main/menu/menuItemIds';
 import {
   confirmQuit,
   handleWindowClose,
   resetQuitStateForTesting,
 } from '../ElectronBackend/main/quit-handling';
+import * as converters from '../ElectronBackend/opossum-file/opossum-file';
+import '../ElectronBackend/preload';
 import type { OpossumOutputFile } from '../ElectronBackend/types/types';
 import { setDatabaseInitialized } from '../Frontend/util/backendClient';
-import { AllowedFrontendChannels } from '../shared/ipc-channels';
+import { AllowedFrontendChannels, IpcChannel } from '../shared/ipc-channels';
+import type { ElectronAPI } from '../shared/shared-types';
 import { text } from '../shared/text';
 import { writeOpossumFile } from '../shared/write-file';
 import { OUTPUT_FILE_NAME } from '../shared/write-file-utils';
@@ -45,17 +53,38 @@ import { renderApp } from '../testing/render-app';
 import {
   clickPopupButton,
   expectFormFieldValues,
+  expectPopupHidden,
   fillFormField,
   gotoResource,
+  IMPORT_DIALOG_LABEL,
+  openImportDialogFromMenu,
   resourceTreeItem,
   saveChangesInAttributionColumn,
+  selectImportInputFile,
+  selectImportOutputFile,
 } from '../testing/ui';
 
-const { quit, getUserSetting } = vi.hoisted(() => ({
-  quit: vi.fn(),
-  getUserSetting: vi.fn(),
+const { quit, getUserSetting, exposeInMainWorld, invoke, on } = vi.hoisted(
+  () => ({
+    quit: vi.fn(),
+    getUserSetting: vi.fn(),
+    exposeInMainWorld: vi.fn<(name: string, api: ElectronAPI) => void>(),
+    invoke: vi.fn(),
+    on: vi.fn<
+      (
+        channel: string,
+        listener: (event: {
+          ports: Array<ReturnType<typeof createPort>>;
+        }) => void,
+      ) => void
+    >(),
+  }),
+);
+vi.mock('electron', () => ({
+  app: { quit },
+  contextBridge: { exposeInMainWorld },
+  ipcRenderer: { invoke, on },
 }));
-vi.mock('electron', () => ({ app: { quit } }));
 vi.mock('../ElectronBackend/main/iconHelpers', () => ({
   getIconBasedOnTheme: vi.fn(),
 }));
@@ -75,7 +104,7 @@ const draftName = 'unsubmitted draft';
 
 // Keep the real request/response client and DB-process handler, replacing only
 // the Electron MessagePort transport with an in-process connection.
-function createClient() {
+function createPort() {
   const port = {
     onmessage: null as ((event: MessageEvent) => void) | null,
     postMessage(request: DbProcessRequest) {
@@ -89,8 +118,13 @@ function createClient() {
       );
     },
   };
-  return new dbProcessClientModule.DbProcessClient(port);
+  return port;
 }
+
+const [, preloadAPI] = exposeInMainWorld.mock.calls[0];
+const [, connectPreload] = on.mock.calls.find(
+  ([channel]) => channel === dbProcessClientModule.FRONTEND_TO_DB_PROCESS_PORT,
+)!;
 
 let client: dbProcessClientModule.DbProcessClient;
 let firstPath: string;
@@ -103,12 +137,13 @@ beforeEach(async () => {
   resetDbProcessStateForTesting();
   resetQuitStateForTesting();
   setGlobalBackendState({});
-  client = createClient();
+  client = new dbProcessClientModule.DbProcessClient(createPort());
+  connectPreload({ ports: [createPort()] });
   vi.spyOn(dbProcessClientModule, 'getMainDbClient').mockReturnValue(client);
-  vi.mocked(window.electronAPI.api).mockImplementation(client.api.bind(client));
-  vi.mocked(window.electronAPI.whenBackendIdle).mockImplementation(async () => {
-    await client.flushSaves();
-  });
+  vi.mocked(window.electronAPI.api).mockImplementation(preloadAPI.api);
+  vi.mocked(window.electronAPI.whenBackendIdle).mockImplementation(
+    preloadAPI.whenBackendIdle,
+  );
   vi.mocked(window.electronAPI.confirmQuit).mockImplementation(confirmQuit);
 
   firstPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
@@ -174,6 +209,7 @@ afterEach(async () => {
     .mockResolvedValue(undefined);
   vi.mocked(window.electronAPI.confirmQuit).mockReset();
   vi.mocked(window.electronAPI.whenBackendIdle).mockReset();
+  invoke.mockReset();
   quit.mockReset();
 });
 
@@ -287,6 +323,111 @@ async function expectSavedBeforeQuitting(exited: Promise<Buffer>) {
   });
   expect(quit).toHaveBeenCalledOnce();
 }
+
+async function prepareImport(intoCurrent: boolean) {
+  const { sendToChannel } = await submitChange();
+  setGlobalBackendState({ projectId, opossumFilePath: firstPath });
+  vi.mocked(window.electronAPI.selectFile).mockResolvedValueOnce(secondPath);
+  act(() =>
+    openImportDialogFromMenu(sendToChannel, importFileFormats[0], intoCurrent),
+  );
+  await selectImportInputFile();
+  return {
+    webContents: { send: sendToChannel },
+    setTitle: vi.fn(),
+  } as unknown as BrowserWindow;
+}
+
+async function confirmImport() {
+  expect(packageNameInArchive(readFileSync(firstPath))).toBe(
+    packageInfo.packageName,
+  );
+  await clickPopupButton(IMPORT_DIALOG_LABEL, text.buttons.import);
+  releaseSave();
+  await expectPopupHidden(IMPORT_DIALOG_LABEL);
+}
+
+test('saves the current project before converting an import as a new project', async () => {
+  const mainWindow = await prepareImport(false);
+  const importFile = importFileConvertAndLoadListener(mainWindow, vi.fn());
+  const destination = faker.outputPath(`${faker.string.uuid()}.opossum`);
+  vi.mocked(window.electronAPI.selectSaveFile).mockResolvedValueOnce(
+    destination,
+  );
+  await selectImportOutputFile();
+
+  const archiveAtConversion = Promise.withResolvers<Buffer>();
+  // Stand in for conversion with an archive the real load path can open.
+  using convert = vi
+    .spyOn(converters, 'convertToOpossum')
+    .mockImplementation((source, target) => {
+      archiveAtConversion.resolve(readFileSync(firstPath));
+      copyFileSync(source, target);
+      return Promise.resolve();
+    });
+  vi.mocked(window.electronAPI.importFileConvertAndLoad).mockImplementationOnce(
+    preloadAPI.importFileConvertAndLoad,
+  );
+  invoke.mockImplementationOnce((_, source, fileType, target) =>
+    importFile({} as IpcMainInvokeEvent, source, fileType, target),
+  );
+
+  await confirmImport();
+
+  expect(convert).toHaveBeenCalledOnce();
+  expect(packageNameInArchive(await archiveAtConversion.promise)).toBe(
+    savedName,
+  );
+});
+
+test('includes the submitted edit in the backup when importing into the current project', async () => {
+  const mainWindow = await prepareImport(true);
+  const importFile = mergeFileAndLoadListener(mainWindow, vi.fn());
+  // The listener still creates the real backup before calling the converter.
+  using merge = vi
+    .spyOn(converters, 'mergeFileIntoOpossum')
+    .mockResolvedValue(undefined);
+  vi.mocked(window.electronAPI.mergeFileAndLoad).mockImplementationOnce(
+    preloadAPI.mergeFileAndLoad,
+  );
+  invoke.mockImplementationOnce((_, source, fileType) =>
+    importFile({} as IpcMainInvokeEvent, source, fileType),
+  );
+
+  await confirmImport();
+
+  expect(merge).toHaveBeenCalledOnce();
+  expect(packageNameInArchive(readFileSync(`${firstPath}.backup`))).toBe(
+    savedName,
+  );
+});
+
+test('persists the submitted change before restarting to install an update', async () => {
+  vi.mocked(window.electronAPI.getUpdateState).mockResolvedValueOnce({
+    status: 'downloaded',
+    tag: 'OpossumUI-2026-10-23',
+  });
+  await submitChange();
+  vi.mocked(window.electronAPI.restartAndUpdate).mockImplementationOnce(
+    preloadAPI.restartAndUpdate,
+  );
+  const archiveAtRestart = Promise.withResolvers<Buffer>();
+  invoke.mockImplementationOnce((channel) => {
+    expect(channel).toBe(IpcChannel.RestartAndUpdate);
+    archiveAtRestart.resolve(readFileSync(firstPath));
+    return Promise.resolve();
+  });
+  expect(packageNameInArchive(readFileSync(firstPath))).toBe(
+    packageInfo.packageName,
+  );
+
+  await userEvent.click(
+    await screen.findByRole('button', { name: text.updateApp.restart }),
+  );
+  releaseSave();
+
+  expect(packageNameInArchive(await archiveAtRestart.promise)).toBe(savedName);
+});
 
 describe.each([
   {

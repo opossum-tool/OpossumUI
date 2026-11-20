@@ -29,6 +29,17 @@ ipcRenderer.on(FRONTEND_TO_DB_PROCESS_PORT, (event) => {
   resolveClientReady();
 });
 
+async function whenBackendIdle(): Promise<void> {
+  await clientReady;
+  await client!.flushSaves();
+}
+
+async function afterPendingSaves<T>(invoke: () => Promise<T>): Promise<T> {
+  // Flush on the same port used to submit edits before invoking main-process IPC.
+  await whenBackendIdle();
+  return invoke();
+}
+
 const electronAPI: ElectronAPI = {
   api: async <C extends CommandName>(
     command: C,
@@ -39,10 +50,7 @@ const electronAPI: ElectronAPI = {
   },
   confirmQuit: () => ipcRenderer.invoke(IpcChannel.ConfirmQuit),
   quitRequestHandled: () => ipcRenderer.invoke(IpcChannel.QuitRequestHandled),
-  whenBackendIdle: async (): Promise<void> => {
-    await clientReady;
-    await client!.flushSaves();
-  },
+  whenBackendIdle,
   relaunch: () => ipcRenderer.invoke(IpcChannel.Relaunch),
   openLink: (link) => ipcRenderer.invoke(IpcChannel.OpenLink, { link }),
   openFile: (filePath) => ipcRenderer.invoke(IpcChannel.OpenFile, filePath),
@@ -51,14 +59,18 @@ const electronAPI: ElectronAPI = {
   selectSaveFile: (options) =>
     ipcRenderer.invoke(IpcChannel.SelectSaveFile, options),
   importFileConvertAndLoad: (inputFilePath, fileType, opossumFilePath) =>
-    ipcRenderer.invoke(
-      IpcChannel.ImportFileConvertAndLoad,
-      inputFilePath,
-      fileType,
-      opossumFilePath,
+    afterPendingSaves(() =>
+      ipcRenderer.invoke(
+        IpcChannel.ImportFileConvertAndLoad,
+        inputFilePath,
+        fileType,
+        opossumFilePath,
+      ),
     ),
   mergeFileAndLoad: (inputFilePath, fileType) =>
-    ipcRenderer.invoke(IpcChannel.MergeFileAndLoad, inputFilePath, fileType),
+    afterPendingSaves(() =>
+      ipcRenderer.invoke(IpcChannel.MergeFileAndLoad, inputFilePath, fileType),
+    ),
   selectSplitDestination: (splitPath) =>
     ipcRenderer.invoke(IpcChannel.SelectSplitDestination, splitPath),
   splitFile: (splitPaths, splitOpossumFilePath) =>
@@ -94,7 +106,8 @@ const electronAPI: ElectronAPI = {
   checkForUpdates: () => ipcRenderer.invoke(IpcChannel.CheckForUpdates),
   downloadUpdate: (tag: string) =>
     ipcRenderer.invoke(IpcChannel.DownloadUpdate, tag),
-  restartAndUpdate: () => ipcRenderer.invoke(IpcChannel.RestartAndUpdate),
+  restartAndUpdate: () =>
+    afterPendingSaves(() => ipcRenderer.invoke(IpcChannel.RestartAndUpdate)),
 };
 
 // This exposes an API to communicate from the window in the frontend with the backend
