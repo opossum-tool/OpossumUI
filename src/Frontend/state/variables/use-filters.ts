@@ -25,6 +25,13 @@ export interface AttributionFilters {
     license?: Array<LicenseOption>;
   };
   sorting: SortOption;
+  /**
+   * Ids of the quickfilters currently combined into these filters. Selection
+   * is membership-based: entries stay checked while they are part of the
+   * active combination, and unchecking recomputes the filters from the
+   * remaining ids.
+   */
+  activeQuickfilterIds?: Array<string>;
 }
 
 export interface ResourceTreeFilters {
@@ -32,6 +39,11 @@ export interface ResourceTreeFilters {
   onlyWithAiDeferredAttributions: boolean;
   selectedLicenses: Array<LicenseOption>;
   licenseSearches?: Array<string>;
+  /**
+   * Ids of the resource quickfilters currently combined into these filters.
+   * Selection is membership-based, mirroring {@link AttributionFilters}.
+   */
+  activeQuickfilterIds?: Array<string>;
 }
 
 export const initialAttributionFilters: AttributionFilters = {
@@ -91,12 +103,31 @@ export function toAttributionValueFilters(
 
 export function hasActiveAttributionFilters({
   filters,
+  search,
   valueFilters,
 }: AttributionFilters): boolean {
+  // The search box of the packages/signal panels filters the list just like
+  // the menu filters, so it counts as an active filter (e.g. when deciding
+  // whether a quickfilter can be saved).
   return (
     !!filters.length ||
+    !!search ||
     Object.values(valueFilters).some((value) =>
       Array.isArray(value) ? value.length > 0 : value !== undefined,
     )
+  );
+}
+
+export function hasActiveResourceTreeFilters({
+  onlyUnreviewedFiles,
+  onlyWithAiDeferredAttributions,
+  selectedLicenses,
+  licenseSearches = [],
+}: ResourceTreeFilters): boolean {
+  return (
+    onlyUnreviewedFiles ||
+    onlyWithAiDeferredAttributions ||
+    !!selectedLicenses.length ||
+    !!licenseSearches.length
   );
 }

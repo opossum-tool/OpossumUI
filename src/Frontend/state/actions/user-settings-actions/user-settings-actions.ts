@@ -32,3 +32,28 @@ export function updateUserSettings(
     dispatch(setUserSetting(settings));
   };
 }
+
+/**
+ * Applies the settings change locally right away and persists it in the
+ * background. Use this for changes the user interacts with immediately after
+ * (e.g. the quickfilter lists): with the pessimistic
+ * {@link updateUserSettings} the UI would keep showing the old value until
+ * the IPC round-trip has completed, which is observable on slow machines.
+ * If persisting fails, the optimistic value is rolled back to the persisted
+ * truth and the error is rethrown.
+ */
+export function updateUserSettingsOptimistically(
+  settings: Partial<UserSettings>,
+): AppThunkAction<Promise<void>> {
+  return async (dispatch) => {
+    dispatch(setUserSetting(settings));
+    try {
+      await window.electronAPI.updateUserSettings(settings);
+    } catch (error) {
+      // Do not leave the optimistic value in shared state when it could not
+      // be persisted; re-read the persisted settings as the source of truth.
+      await dispatch(fetchUserSettings()).catch(() => undefined);
+      throw error;
+    }
+  };
+}

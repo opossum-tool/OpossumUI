@@ -352,6 +352,7 @@ export const PackagesPanel = ({
     licenseOptionsLoading,
     filters,
     setFilters: setFiltersWithUnsavedCheck,
+    quickfilterScope: external ? 'signal' : 'attribution',
   });
   const setSortingWithUnsavedCheck = useCallback(
     (sorting: SortOption) => {
@@ -868,7 +869,9 @@ export const PackagesPanel = ({
                 setFiltersWithUnsavedCheck({
                   ...filters,
                   filters: [],
+                  search: '',
                   valueFilters: {},
+                  activeQuickfilterIds: undefined,
                 })
               }
               anchorPosition={'right'}

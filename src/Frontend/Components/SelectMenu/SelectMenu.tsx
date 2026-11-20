@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import MuiListItemIcon from '@mui/material/ListItemIcon';
 import MuiListItemText from '@mui/material/ListItemText';
+import MuiTooltip from '@mui/material/Tooltip';
 
 import { auditingOptionIconSize } from '../../shared-styles';
 import { MenuContainer } from './menu-container';
@@ -32,6 +33,8 @@ interface MenuOptionBase {
   id: string;
   label: React.ReactNode;
   selected: boolean;
+  tinted?: boolean;
+  tooltip?: string;
 }
 
 export interface ToggleMenuOption extends MenuOptionBase {
@@ -99,7 +102,8 @@ export function renderSelectMenuItems({
 
   function renderVisibleOptions() {
     return visibleOptions.map((option, index) => {
-      const { faded, label, icon, endIcon, id, selected, kind } = option;
+      const { faded, label, icon, endIcon, id, selected, kind, tinted } =
+        option;
       const embedded = kind === 'embedded';
       const submenu = kind === 'panel' ? option.submenu : undefined;
       let onClick: React.MouseEventHandler<HTMLLIElement> | undefined;
@@ -144,10 +148,15 @@ export function renderSelectMenuItems({
         }
       }
 
-      return (
+      const menuItem = (
         <StyledMenuItem
           key={id}
-          title={typeof label === 'string' ? label : undefined}
+          title={
+            option.tooltip === undefined && typeof label === 'string'
+              ? label
+              : undefined
+          }
+          data-option-id={id}
           selected={selected}
           aria-label={option.ariaLabel}
           aria-selected={selected}
@@ -159,6 +168,7 @@ export function renderSelectMenuItems({
           divider={index + 1 !== visibleOptions.length}
           disableRipple
           faded={faded}
+          tinted={tinted}
           onKeyDown={onKeyDown}
         >
           {!embedded ? (
@@ -191,6 +201,20 @@ export function renderSelectMenuItems({
             label
           )}
         </StyledMenuItem>
+      );
+
+      // Always wrap in a Tooltip so the underlying DOM node survives a
+      // tooltip appearing or disappearing (e.g. the quickfilters save hint);
+      // otherwise the row remounts and anchors pointing at it are detached.
+      return (
+        <MuiTooltip
+          key={id}
+          title={option.tooltip ?? ''}
+          disableInteractive
+          placement={'bottom'}
+        >
+          {menuItem}
+        </MuiTooltip>
       );
     });
   }
