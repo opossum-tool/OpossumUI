@@ -9,7 +9,6 @@ import { text } from '../../../../shared/text';
 import {
   clickPopupButton,
   FORCE_UNLOCK_POPUP_LABEL,
-  getButton,
 } from '../../../../testing/ui';
 import { PopupType } from '../../../enums/enums';
 import {
@@ -39,8 +38,12 @@ describe('ForceUnlockPopup', () => {
 
     await clickPopupButton(FORCE_UNLOCK_POPUP_LABEL, text.forceUnlock.confirm);
 
-    expect(getButton(text.forceUnlock.confirm)).toBeDisabled();
-    expect(getButton(text.buttons.cancel)).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: text.forceUnlock.confirm }),
+    ).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: text.buttons.cancel }),
+    ).toBeDisabled();
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
 
     resolveForceUnlock();

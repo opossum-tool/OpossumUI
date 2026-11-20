@@ -9,7 +9,6 @@ import { VirtuosoMockContext } from 'react-virtuoso';
 
 import {
   clickLicenseEditorTab,
-  getButton,
   removeLicenseFilterOption,
 } from '../../../../testing/ui';
 import { renderComponent } from '../../../test-helpers/render';
@@ -65,7 +64,7 @@ function Fixture({
 async function renderLicenseEditor(initialSelection?: LicenseSelection) {
   const user = userEvent.setup();
   await renderComponent(<Fixture initialSelection={initialSelection} />);
-  await user.click(getButton('filter button'));
+  await user.click(screen.getByRole('button', { name: 'filter button' }));
   await user.click(screen.getByRole('menuitem', { expanded: false }));
   return {
     user,
@@ -97,7 +96,7 @@ test('keeps non-ASCII case variants distinct and searchable in Selected', async 
 test('opens beside the menu and uses two-stage Escape without closing during navigation', async () => {
   const onOpenChange = vi.fn();
   await renderComponent(<Fixture onOpenChange={onOpenChange} />);
-  const trigger = getButton('filter button');
+  const trigger = screen.getByRole('button', { name: 'filter button' });
   await userEvent.click(trigger);
   const row = screen.getByRole('menuitem', { name: 'Zlib' });
   row.focus();
@@ -123,7 +122,7 @@ test('opens beside the menu and uses two-stage Escape without closing during nav
 test('keeps the editor open while Tab and Shift+Tab move between controls', async () => {
   const onOpenChange = vi.fn();
   await renderComponent(<Fixture onOpenChange={onOpenChange} />);
-  await userEvent.click(getButton('filter button'));
+  await userEvent.click(screen.getByRole('button', { name: 'filter button' }));
   await userEvent.click(screen.getByRole('menuitem', { name: 'Zlib' }));
 
   await userEvent.tab();
@@ -133,7 +132,7 @@ test('keeps the editor open while Tab and Shift+Tab move between controls', asyn
     screen.getByRole('textbox', { name: 'Search licenses' }),
   ).toHaveFocus();
   await userEvent.tab({ shift: true });
-  expect(getButton('Clear licenses')).toHaveFocus();
+  expect(screen.getByRole('button', { name: 'Clear licenses' })).toHaveFocus();
   expect(screen.getByRole('dialog', { name: 'Licenses' })).toBeVisible();
   expect(screen.getByRole('menu')).toBeVisible();
   expect(onOpenChange).toHaveBeenCalledOnce();
@@ -141,7 +140,7 @@ test('keeps the editor open while Tab and Shift+Tab move between controls', asyn
 
 test('applies selections immediately, preserves search, and separates clearing actions', async () => {
   await renderComponent(<Fixture />);
-  await userEvent.click(getButton('filter button'));
+  await userEvent.click(screen.getByRole('button', { name: 'filter button' }));
   await userEvent.click(screen.getByRole('menuitem', { name: 'Zlib' }));
   expect(screen.getByRole('option', { name: 'Zlib' })).toHaveAttribute(
     'aria-selected',
@@ -153,15 +152,15 @@ test('applies selections immediately, preserves search, and separates clearing a
   expect(search).toHaveValue('mit');
   expect(search).toHaveFocus();
   expect(screen.getByRole('tab', { name: 'Selected (2)' })).toBeVisible();
-  await userEvent.click(getButton('Clear search'));
+  await userEvent.click(screen.getByRole('button', { name: 'Clear search' }));
   expect(search).toHaveValue('');
   await clickLicenseEditorTab('Selected (2)');
   expect(
     screen.queryByRole('option', { name: 'Apache-2.0' }),
   ).not.toBeInTheDocument();
-  await userEvent.click(getButton('Clear licenses'));
+  await userEvent.click(screen.getByRole('button', { name: 'Clear licenses' }));
   expect(screen.getByText('No licenses selected.')).toBeVisible();
-  expect(getButton('Clear licenses')).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Clear licenses' })).toBeDisabled();
   expect(
     screen.queryByRole('button', { name: 'Done' }),
   ).not.toBeInTheDocument();
@@ -170,7 +169,7 @@ test('applies selections immediately, preserves search, and separates clearing a
 
 test('toggles results from the keyboard and retains selections on Escape', async () => {
   await renderComponent(<Fixture />);
-  await userEvent.click(getButton('filter button'));
+  await userEvent.click(screen.getByRole('button', { name: 'filter button' }));
   await userEvent.click(screen.getByRole('menuitem', { name: 'Zlib' }));
   await userEvent.keyboard('{ArrowDown}{End}{Home}{Enter}');
   expect(screen.getByRole('option', { name: 'Apache-2.0' })).toHaveAttribute(
@@ -179,7 +178,7 @@ test('toggles results from the keyboard and retains selections on Escape', async
   );
   expect(screen.getByRole('listbox')).toHaveFocus();
   await userEvent.keyboard('{Escape}{Escape}');
-  await userEvent.click(getButton('filter button'));
+  await userEvent.click(screen.getByRole('button', { name: 'filter button' }));
   expect(
     screen.getByRole('menuitem', { name: '2 license filters' }),
   ).toBeVisible();
@@ -187,7 +186,7 @@ test('toggles results from the keyboard and retains selections on Escape', async
 
 test('outlines the active row only while the list has focus', async () => {
   await renderComponent(<Fixture />);
-  await userEvent.click(getButton('filter button'));
+  await userEvent.click(screen.getByRole('button', { name: 'filter button' }));
   await userEvent.click(screen.getByRole('menuitem', { name: 'Zlib' }));
   const search = screen.getByRole('textbox', { name: 'Search licenses' });
   const first = screen.getByRole('option', { name: 'Apache-2.0' });
@@ -254,7 +253,9 @@ test('replaces Selected checkmarks with removal buttons and a short tooltip', as
   await clickLicenseEditorTab('Selected (2)');
   const list = screen.getByRole('listbox');
   expect(within(list).queryByTestId('CheckIcon')).not.toBeInTheDocument();
-  const remove = getButton('Remove Name contains “MIT”');
+  const remove = screen.getByRole('button', {
+    name: 'Remove Name contains “MIT”',
+  });
   await user.hover(remove);
   expect(
     await screen.findByRole('tooltip', { name: 'Remove' }),
@@ -273,7 +274,7 @@ test('replaces Selected checkmarks with removal buttons and a short tooltip', as
     'aria-activedescendant',
     screen.getByRole('option', { name: 'MIT' }).id,
   );
-  getButton('Remove MIT').focus();
+  screen.getByRole('button', { name: 'Remove MIT' }).focus();
   await user.keyboard(' ');
   expect(screen.getByText('No licenses selected.')).toBeVisible();
   expect(list).toHaveFocus();
@@ -281,7 +282,7 @@ test('replaces Selected checkmarks with removal buttons and a short tooltip', as
 
 test('shares search between tabs and clears search in Selected', async () => {
   await renderComponent(<Fixture />);
-  await userEvent.click(getButton('filter button'));
+  await userEvent.click(screen.getByRole('button', { name: 'filter button' }));
   await userEvent.click(screen.getByRole('menuitem', { name: 'Zlib' }));
   const search = screen.getByRole('textbox', { name: 'Search licenses' });
   await userEvent.type(search, 'no matching name');
@@ -295,7 +296,7 @@ test('shares search between tabs and clears search in Selected', async () => {
   expect(search).toHaveValue('no matching name');
   expect(screen.getByRole('tab', { name: 'Selected (1)' })).toHaveFocus();
   expect(screen.getByText('No licenses match your search.')).toBeVisible();
-  await userEvent.click(getButton('Clear search'));
+  await userEvent.click(screen.getByRole('button', { name: 'Clear search' }));
   expect(search).toHaveValue('');
   expect(screen.getByRole('option', { name: 'Zlib' })).toBeVisible();
   await userEvent.type(search, 'ZLIB');
@@ -307,7 +308,7 @@ test('shares search between tabs and clears search in Selected', async () => {
 
 test('removes a filtered selected license from the keyboard', async () => {
   await renderComponent(<Fixture />);
-  await userEvent.click(getButton('filter button'));
+  await userEvent.click(screen.getByRole('button', { name: 'filter button' }));
   await userEvent.click(screen.getByRole('menuitem', { name: 'Zlib' }));
   await userEvent.click(screen.getByRole('option', { name: 'MIT' }));
   await clickLicenseEditorTab('Selected (2)');
@@ -318,7 +319,7 @@ test('removes a filtered selected license from the keyboard', async () => {
   expect(screen.getByRole('listbox')).toHaveFocus();
   expect(screen.getByRole('tab', { name: 'Selected (1)' })).toBeVisible();
   expect(screen.getByText('No licenses match your search.')).toBeVisible();
-  await userEvent.click(getButton('Clear search'));
+  await userEvent.click(screen.getByRole('button', { name: 'Clear search' }));
   expect(screen.getByRole('option', { name: 'Zlib' })).toBeVisible();
 });
 
@@ -335,7 +336,7 @@ test('clears licenses beside the tabs while keeping the current search and tab',
   ).toBeVisible();
   await user.type(search, 'zlib');
   await clickLicenseEditorTab('Selected (3)');
-  await userEvent.click(getButton('Clear licenses'));
+  await userEvent.click(screen.getByRole('button', { name: 'Clear licenses' }));
   expect(search).toBeVisible();
   expect(search).toHaveValue('zlib');
   expect(screen.getByRole('tab', { name: 'Selected (0)' })).toHaveAttribute(
@@ -343,7 +344,7 @@ test('clears licenses beside the tabs while keeping the current search and tab',
     'true',
   );
   expect(screen.getByRole('dialog', { name: 'Licenses' })).toBeVisible();
-  expect(getButton('Clear licenses')).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Clear licenses' })).toBeDisabled();
   expect(screen.getByText('No licenses selected.')).toBeVisible();
   await clickLicenseEditorTab('All');
   expect(screen.getByRole('textbox', { name: 'Search licenses' })).toHaveValue(
@@ -372,7 +373,7 @@ test('returns with Left Arrow, toggles the license row, and keeps other filters 
   await renderComponent(
     <Fixture onOtherFilter={onOtherFilter} onOpenChange={onOpenChange} />,
   );
-  await userEvent.click(getButton('filter button'));
+  await userEvent.click(screen.getByRole('button', { name: 'filter button' }));
   const row = screen.getByRole('menuitem', { name: 'Zlib' });
   await userEvent.click(row);
   await userEvent.keyboard('{ArrowDown}{ArrowLeft}');
@@ -415,7 +416,7 @@ test('uses the current label in the caption and both tabs, and toggles by ID', a
     );
   }
   await renderComponent(<EditorFixture />);
-  await userEvent.click(getButton('filter button'));
+  await userEvent.click(screen.getByRole('button', { name: 'filter button' }));
   await userEvent.click(screen.getByRole('menuitem', { name: 'M I T' }));
   expect(screen.getAllByRole('option')).toHaveLength(1);
   const search = screen.getByRole('textbox', { name: 'Search licenses' });
@@ -468,12 +469,12 @@ test('supports a generic panel with live content and focus re-entry', async () =
   }
   const user = userEvent.setup();
   await renderComponent(<GenericFixture />);
-  await user.click(getButton('filter button'));
+  await user.click(screen.getByRole('button', { name: 'filter button' }));
   const trigger = screen.getByRole('menuitem', { name: 'Custom panel' });
   await user.click(trigger);
   expect(screen.getByLabelText('Custom input')).toHaveFocus();
-  await user.click(getButton('0'));
-  expect(getButton('1')).toHaveFocus();
+  await user.click(screen.getByRole('button', { name: '0' }));
+  expect(screen.getByRole('button', { name: '1' })).toHaveFocus();
   trigger.focus();
   await user.keyboard('{ArrowRight}');
   expect(screen.getByLabelText('Custom input')).toHaveFocus();

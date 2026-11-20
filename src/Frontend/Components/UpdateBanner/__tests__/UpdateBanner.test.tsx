@@ -12,7 +12,6 @@ import { text } from '../../../../shared/text';
 import {
   clickUpdateActionButton,
   dismissUpdateAlert,
-  getButton,
 } from '../../../../testing/ui';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { renderComponent, renderHook } from '../../../test-helpers/render';
@@ -75,6 +74,7 @@ describe('UpdateBanner', () => {
     );
     await renderComponent(<UpdateBanner />);
     expect(window.electronAPI.downloadUpdate).not.toHaveBeenCalled();
+    await screen.findByRole('button', { name: text.updateApp.downloadUpdate });
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
     await clickUpdateActionButton(text.updateApp.downloadUpdate);
     expect(window.electronAPI.downloadUpdate).toHaveBeenCalledExactlyOnceWith(
@@ -125,7 +125,9 @@ describe('UpdateBanner', () => {
     expect(
       await screen.findByText(text.updateApp.downloadFailed),
     ).toBeInTheDocument();
-    await userEvent.click(getButton(text.updateApp.retry));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.updateApp.retry }),
+    );
     expect(await screen.findByText(text.updateApp.ready)).toBeInTheDocument();
     expect(vi.mocked(window.electronAPI.downloadUpdate).mock.calls).toEqual([
       [tag],
@@ -663,7 +665,9 @@ describe('UpdateBanner', () => {
       await renderComponent(<UpdateBanner />);
       await screen.findByRole('button', { name: text.updateApp.retry });
       if (trigger === 'Retry') {
-        await userEvent.click(getButton(text.updateApp.retry));
+        await userEvent.click(
+          screen.getByRole('button', { name: text.updateApp.retry }),
+        );
       } else {
         emit(AllowedFrontendChannels.CheckForUpdatesRequested);
       }
@@ -700,7 +704,9 @@ describe('UpdateBanner', () => {
     vi.mocked(window.electronAPI.downloadUpdate).mockReturnValue(
       pending.promise,
     );
-    await userEvent.click(getButton(text.updateApp.retry));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.updateApp.retry }),
+    );
     expect(screen.getByText(text.updateApp.downloading(0))).toBeInTheDocument();
     emit(AllowedFrontendChannels.UpdateStateChanged, {
       status: 'downloading',

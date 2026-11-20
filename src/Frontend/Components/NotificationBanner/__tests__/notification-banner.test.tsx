@@ -5,7 +5,6 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { getButton } from '../../../../testing/ui';
 import { renderComponent } from '../../../test-helpers/render';
 import { NotificationBanner } from '../NotificationBanner';
 
@@ -22,7 +21,9 @@ describe('NotificationBanner', () => {
       </NotificationBanner>,
     );
 
-    await userEvent.click(getButton('Dismiss update'));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Dismiss update' }),
+    );
     expect(onDismiss).toHaveBeenCalledOnce();
   });
 

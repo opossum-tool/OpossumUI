@@ -113,6 +113,7 @@ describe('checking for updates in the app', () => {
     });
     sendToChannel(AllowedFrontendChannels.CheckForUpdatesRequested);
     expect(window.electronAPI.downloadUpdate).not.toHaveBeenCalled();
+    await expectUpdateActionButtonVisible(text.updateApp.downloadUpdate, true);
     await expectUpdateDownloadLinkVisible(false);
     await clickUpdateActionButton(text.updateApp.downloadUpdate);
     expect(window.electronAPI.downloadUpdate).toHaveBeenCalledExactlyOnceWith(

@@ -50,6 +50,7 @@ export async function expectUpdateAlertVisible(
     const alert = screen.queryByTestId(UPDATE_BANNER_TEST_ID);
     if (visible) {
       expect(alert).not.toBeNull();
+      expect(alert).toHaveAttribute('role', 'alert');
       expect(alert).toBeVisible();
     } else {
       expect(alert).toBeNull();

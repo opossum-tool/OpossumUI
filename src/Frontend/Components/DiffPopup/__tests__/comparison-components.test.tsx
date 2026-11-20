@@ -13,7 +13,6 @@ import {
   makeComparisonItem,
   makeComparisonPackageInfo,
 } from '../../../../testing/comparison-fixtures';
-import { getButton } from '../../../../testing/ui';
 import { theme } from '../../App/App.style';
 import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
 import { ComparisonFieldEditor } from '../ComparisonFieldEditor';
@@ -104,10 +103,9 @@ describe('ComparisonFieldEditor', () => {
   it('normalizes an undefined attribution type to third party', () => {
     renderEditor({ field: typeField });
 
-    expect(getButton(text.filters.thirdParty)).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    expect(
+      screen.getByRole('button', { name: text.filters.thirdParty }),
+    ).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('changes attribution type after confirmation and ignores the selected type', async () => {
@@ -122,8 +120,12 @@ describe('ComparisonFieldEditor', () => {
       onEdit,
     });
 
-    await user.click(getButton(text.filters.thirdParty));
-    await user.click(getButton(text.filters.firstParty));
+    await user.click(
+      screen.getByRole('button', { name: text.filters.thirdParty }),
+    );
+    await user.click(
+      screen.getByRole('button', { name: text.filters.firstParty }),
+    );
 
     expect(onEdit).toHaveBeenCalledOnce();
     expect(onChange).toHaveBeenCalledExactlyOnceWith('right', {
@@ -142,7 +144,9 @@ describe('ComparisonFieldEditor', () => {
       onEdit,
     });
 
-    await user.click(getButton(text.filters.firstParty));
+    await user.click(
+      screen.getByRole('button', { name: text.filters.firstParty }),
+    );
 
     expect(onEdit).toHaveBeenCalledOnce();
     expect(onChange).not.toHaveBeenCalled();
@@ -252,9 +256,9 @@ describe('ComparisonFieldEditor', () => {
     const { onUndo, rerender } = renderEditor({
       draft: packageInfo({ comment: 'changed' }),
     });
-    const undo = getButton(
-      text.diffPopup.undoField(text.diffPopup.comment, 'item'),
-    );
+    const undo = screen.getByRole('button', {
+      name: text.diffPopup.undoField(text.diffPopup.comment, 'item'),
+    });
     await user.click(undo);
     expect(onUndo).toHaveBeenCalledWith('right', 'comment');
     rerender(
@@ -276,7 +280,9 @@ describe('ComparisonFieldEditor', () => {
       </ThemeProvider>,
     );
     expect(
-      getButton(text.diffPopup.restoreField(text.filters.thirdParty, 'item')),
+      screen.getByRole('button', {
+        name: text.diffPopup.restoreField(text.filters.thirdParty, 'item'),
+      }),
     ).toBeInTheDocument();
   });
 });
@@ -317,10 +323,14 @@ describe('ComparisonRows', () => {
       onCopy,
     );
     await user.click(
-      getButton(`${text.diffPopup.copyLeftToRight}: ${text.diffPopup.comment}`),
+      screen.getByRole('button', {
+        name: `${text.diffPopup.copyLeftToRight}: ${text.diffPopup.comment}`,
+      }),
     );
     await user.click(
-      getButton(`${text.diffPopup.copyRightToLeft}: ${text.diffPopup.comment}`),
+      screen.getByRole('button', {
+        name: `${text.diffPopup.copyRightToLeft}: ${text.diffPopup.comment}`,
+      }),
     );
     expect(onCopy).toHaveBeenNthCalledWith(1, 'left', 'right', 'comment');
     expect(onCopy).toHaveBeenNthCalledWith(2, 'right', 'left', 'comment');

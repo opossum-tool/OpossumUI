@@ -9,7 +9,6 @@ import { text } from '../../../../shared/text';
 import {
   clickClearFiltersMenuItem,
   clickFilterMenuItem,
-  getButton,
 } from '../../../../testing/ui';
 import { renderComponent } from '../../../test-helpers/render';
 import { FilterButton } from '../FilterButton';
@@ -20,7 +19,7 @@ describe('FilterButton', () => {
     async (shift) => {
       const onOpenChange = vi.fn();
       await renderFilterButton({ onOpenChange });
-      const trigger = getButton('filter button');
+      const trigger = screen.getByRole('button', { name: 'filter button' });
       await userEvent.click(trigger);
 
       await userEvent.tab({ shift });
@@ -38,7 +37,9 @@ describe('FilterButton', () => {
     const onAdd = vi.fn();
     await renderFilterButton({ onAdd });
 
-    await userEvent.click(getButton('filter button'));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'filter button' }),
+    );
     await clickFilterMenuItem('test filter');
 
     expect(onAdd).toHaveBeenCalledOnce();
@@ -51,7 +52,9 @@ describe('FilterButton', () => {
       onDelete,
     });
 
-    await userEvent.click(getButton('filter button'));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'filter button' }),
+    );
     await clickFilterMenuItem('test filter');
 
     expect(onDelete).toHaveBeenCalledOnce();
@@ -61,7 +64,9 @@ describe('FilterButton', () => {
     const onClear = vi.fn();
     await renderFilterButton({ isActive: true, onClear });
 
-    await userEvent.click(getButton('filter button'));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'filter button' }),
+    );
     await clickClearFiltersMenuItem();
 
     expect(onClear).toHaveBeenCalledOnce();
@@ -70,7 +75,9 @@ describe('FilterButton', () => {
   it('does not show a clear action without a callback', async () => {
     await renderFilterButton({ isActive: true });
 
-    await userEvent.click(getButton('filter button'));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'filter button' }),
+    );
 
     expect(
       screen.queryByRole('menuitem', { name: text.packageLists.clearFilters }),
@@ -81,7 +88,9 @@ describe('FilterButton', () => {
     const onOpenChange = vi.fn();
     await renderFilterButton({ onOpenChange });
 
-    await userEvent.click(getButton('filter button'));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'filter button' }),
+    );
     expect(onOpenChange).toHaveBeenLastCalledWith(true);
 
     await userEvent.keyboard('{Escape}');

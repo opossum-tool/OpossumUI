@@ -9,7 +9,6 @@ import type { MutationReturn } from '../../../../../../ElectronBackend/api/mutat
 import { getDb } from '../../../../../../ElectronBackend/db/db';
 import { text } from '../../../../../../shared/text';
 import { faker } from '../../../../../../testing/Faker';
-import { getButton } from '../../../../../../testing/ui';
 import { setTemporaryDisplayPackageInfo } from '../../../../../state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedAttributionId } from '../../../../../state/actions/resource-actions/audit-view-simple-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../../test-helpers/general-test-helpers';
@@ -76,13 +75,17 @@ describe('MoreActionsButton', () => {
 
     await renderComponent(<MoreActionsButton {...props} />);
 
-    expect(getButton(text.packageLists.moreActions)).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: text.packageLists.moreActions }),
+    ).toBeDisabled();
   });
 
   it('opens menu when clicked', async () => {
     await renderComponent(<MoreActionsButton {...defaultProps} />);
 
-    await userEvent.click(getButton(text.packageLists.moreActions));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.moreActions }),
+    );
 
     expect(screen.getByText('Mark as Needs Review by QA')).toBeInTheDocument();
     expect(screen.getByText('Mark as Needs Follow-Up')).toBeInTheDocument();
@@ -108,7 +111,9 @@ describe('MoreActionsButton', () => {
 
     await renderComponent(<MoreActionsButton {...props} />);
 
-    await userEvent.click(getButton(text.packageLists.moreActions));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.moreActions }),
+    );
 
     expect(
       screen.getByText('Unmark as Needs Review by QA'),
@@ -130,7 +135,9 @@ describe('MoreActionsButton', () => {
       ],
     });
 
-    await userEvent.click(getButton(text.packageLists.moreActions));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.moreActions }),
+    );
     await userEvent.click(screen.getByText('Mark as Needs Review by QA'));
 
     await waitFor(async () => {
@@ -170,13 +177,17 @@ describe('MoreActionsButton', () => {
 
     await renderComponent(<MoreActionsButton {...defaultProps} />);
 
-    await userEvent.click(getButton(text.packageLists.moreActions));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.moreActions }),
+    );
     await userEvent.click(screen.getByText('Mark as Needs Review by QA'));
 
     expect(
       screen.queryByText('Mark as Needs Review by QA'),
     ).not.toBeInTheDocument();
-    expect(getButton(text.packageLists.moreActions)).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: text.packageLists.moreActions }),
+    ).toBeDisabled();
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
 
     expect(api).toHaveBeenCalledOnce();
@@ -211,7 +222,9 @@ describe('MoreActionsButton', () => {
       { actions: [setSelectedAttributionId('attr1')] },
     );
 
-    await userEvent.click(getButton(text.packageLists.moreActions));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.moreActions }),
+    );
     await userEvent.click(screen.getByText('Mark as Needs Review by QA'));
 
     await waitFor(() => expect(clearBulkSelection).toHaveBeenCalledOnce());
@@ -233,11 +246,15 @@ describe('MoreActionsButton', () => {
       />,
     );
 
-    await userEvent.click(getButton(text.packageLists.moreActions));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.moreActions }),
+    );
     await userEvent.click(screen.getByText('Mark as Needs Review by QA'));
 
     await waitFor(() =>
-      expect(getButton(text.packageLists.moreActions)).toBeEnabled(),
+      expect(
+        screen.getByRole('button', { name: text.packageLists.moreActions }),
+      ).toBeEnabled(),
     );
     expect(clearBulkSelection).not.toHaveBeenCalled();
   });
