@@ -893,7 +893,7 @@ describe('getNodePathsToExpand', () => {
 
       const { result } = await queries.getNodePathsToExpand({
         fromNodePath,
-        onAttributionUuids: ['uuid1'],
+        onAttribution: ['uuid1'],
       });
 
       expect(result).toEqual(expected);
@@ -912,7 +912,7 @@ describe('getNodePathsToExpand', () => {
 
     const { result } = await queries.getNodePathsToExpand({
       fromNodePath: '/',
-      onAttributionUuids: ['uuid1'],
+      onAttribution: ['uuid1'],
     });
 
     expect(result).toEqual(['/']);
@@ -985,22 +985,22 @@ describe('getResourcePathsAndParentsForAttributions', () => {
 
   it('returns ancestor paths of linked resources', async () => {
     const { result } = await queries.getResourcePathsAndParentsForAttributions({
-      attributionUuids: ['uuid1'],
+      onAttribution: ['uuid1'],
     });
 
-    expect(result).toContain('/');
-    expect(result).toContain('/src/');
-    expect(result).toContain('/src/linked/');
+    expect(result.resourcePaths).toContain('/');
+    expect(result.resourcePaths).toContain('/src/');
+    expect(result.resourcePaths).toContain('/src/linked/');
     expect(result).not.toContain('/src/unlinked/');
   });
 
   it('respects limit', async () => {
     const { result } = await queries.getResourcePathsAndParentsForAttributions({
-      attributionUuids: ['uuid1'],
+      onAttribution: ['uuid1'],
       limit: 2,
     });
 
-    expect(result).toHaveLength(2);
+    expect(result.resourcePaths).toHaveLength(2);
   });
 
   it('prioritizes the given resource and its parents', async () => {
@@ -1019,12 +1019,12 @@ describe('getResourcePathsAndParentsForAttributions', () => {
     });
 
     const { result } = await queries.getResourcePathsAndParentsForAttributions({
-      attributionUuids: ['uuid1'],
+      onAttribution: ['uuid1'],
       limit: 3,
       prioritizedResourcePath: '/beta/file.ts',
     });
 
-    expect(result).toContain('/beta/');
+    expect(result.resourcePaths).toContain('/beta/');
   });
 
   it('accepts a large attribution selection', async () => {
@@ -1034,10 +1034,10 @@ describe('getResourcePathsAndParentsForAttributions', () => {
     ];
 
     const { result } = await queries.getResourcePathsAndParentsForAttributions({
-      attributionUuids,
+      onAttribution: attributionUuids,
     });
 
-    expect(result).toContain('/src/linked/');
+    expect(result.resourcePaths).toContain('/src/linked/');
   });
 });
 

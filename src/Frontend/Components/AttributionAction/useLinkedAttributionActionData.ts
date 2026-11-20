@@ -20,7 +20,8 @@ export function useLinkedAttributionActionData({
   const {
     selectedResourceId,
     attributions,
-    attributionIds,
+    treeSelection,
+    treeAttributionLimit,
     canShowLinkedResourcesTree,
     isSelectionDataReady,
     selectionMetadata,
@@ -29,8 +30,10 @@ export function useLinkedAttributionActionData({
     data: linkedResourcesTreeState,
     isError: hasLinkedResourcesTreeError,
     isLoading: isLinkedResourcesTreeLoading,
+    limitExceeded: hasTreeLimitExceeded,
   } = useLinkedResourcesTree({
-    onAttributionUuids: attributionIds,
+    onAttribution: treeSelection,
+    attributionLimit: treeAttributionLimit,
     enabled:
       open &&
       !isMutationPending &&
@@ -38,9 +41,11 @@ export function useLinkedAttributionActionData({
       canShowLinkedResourcesTree,
     onlyWritable: true,
   });
+  const showLinkedResourcesTree =
+    canShowLinkedResourcesTree && !hasTreeLimitExceeded;
   // The tree count is authoritative once shown; the summary count only
   // serves as a fallback while the tree is hidden or failed to load.
-  const linkedResourceCount = canShowLinkedResourcesTree
+  const linkedResourceCount = showLinkedResourcesTree
     ? linkedResourcesTreeState?.count
     : selectionMetadata.writableLinkedResourceCount;
   const actionSummary = {
@@ -51,7 +56,7 @@ export function useLinkedAttributionActionData({
     linkedResourceCount,
     isResourceInfoReady:
       isSelectionDataReady &&
-      (!canShowLinkedResourcesTree ||
+      (!showLinkedResourcesTree ||
         (!isLinkedResourcesTreeLoading && !hasLinkedResourcesTreeError)),
     isLocalActionAvailable: Boolean(
       linkedResourceCount &&

@@ -12,7 +12,7 @@ import type {
   ResourceTreeNodeBase,
   ResourceTreeNodeData,
 } from '../../../../ElectronBackend/api/resourceTree';
-import type { ResourceTreeFilters } from '../../../../ElectronBackend/api/resourceTreeFilters';
+import type { ResourceTreeFiltersInput } from '../../../../ElectronBackend/api/resourceTreeFilters';
 import { OpossumColors, Sizing } from '../../../shared-styles';
 import { getNodeIdsToExpand } from './VirtualizedTreeNode.util';
 
@@ -90,7 +90,7 @@ interface VirtualizedTreeNodeProps<
   selected: boolean;
   highlighted: boolean;
   focused: boolean;
-  expansionFilters?: ResourceTreeFilters;
+  expansionFilters?: ResourceTreeFiltersInput;
 }
 
 export function VirtualizedTreeNode<

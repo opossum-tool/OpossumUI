@@ -5,8 +5,9 @@
 import { keepPreviousData, skipToken } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import type { OnAttributionInput } from '../../../../ElectronBackend/api/resource-tree-on-attributions';
 import type { LinkedResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
-import type { ResourceTreeFilters } from '../../../../ElectronBackend/api/resourceTreeFilters';
+import type { ResourceTreeFiltersInput } from '../../../../ElectronBackend/api/resourceTreeFilters';
 import { useAppSelector } from '../../../state/hooks';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
 import { backend } from '../../../util/backendClient';
@@ -17,12 +18,14 @@ export type LinkedResourcesTreeState = {
   expandedIds: Array<string>;
   setExpandedIds: (values: Array<string>) => void;
   treeNodes: Array<LinkedResourceTreeNodeData>;
-  expansionFilters?: ResourceTreeFilters;
+  expansionFilters?: ResourceTreeFiltersInput;
 };
 
 export type LinkedResourcesTreeQueryProps = {
+  onAttribution: OnAttributionInput;
+  additionalAttributionUuids?: Array<string>;
+  attributionLimit?: number;
   enabled?: boolean;
-  onAttributionUuids: Array<string>;
   onlyWritable?: boolean;
   search?: string;
 };
@@ -31,13 +34,16 @@ export type LinkedResourcesTreeQueryResult = {
   data: LinkedResourcesTreeState | undefined;
   isError: boolean;
   isLoading: boolean;
+  limitExceeded?: boolean;
 };
 
 /**
  * Reusable hook to encapsulate the linked resource tree expanded id logic
  */
 export function useLinkedResourcesTree({
-  onAttributionUuids,
+  onAttribution,
+  additionalAttributionUuids,
+  attributionLimit,
   search,
   onlyWritable = false,
   enabled: enabledProp = true,
@@ -50,48 +56,82 @@ export function useLinkedResourcesTree({
     values: Array<string>;
   }>({ ownerKey: '', source: undefined, values: [] });
 
-  const hasAttributionUuids =
-    onAttributionUuids.length > 0 && !!onAttributionUuids[0];
-  const enabled = enabledProp && hasAttributionUuids;
+  const hasAttributions = Array.isArray(onAttribution)
+    ? onAttribution.length > 0 || (additionalAttributionUuids?.length ?? 0) > 0
+    : true;
+  const enabled = enabledProp && hasAttributions;
   const ownerKey = useMemo(
-    () => JSON.stringify([onAttributionUuids, selectedResourcePath]),
-    [onAttributionUuids, selectedResourcePath],
+    () =>
+      JSON.stringify([
+        onAttribution,
+        additionalAttributionUuids,
+        selectedResourcePath,
+      ]),
+    [onAttribution, additionalAttributionUuids, selectedResourcePath],
   );
   const expansionFilters = useMemo(
-    () => ({ onAttributionUuids, onlyWritable, search }),
-    [onAttributionUuids, onlyWritable, search],
+    () => ({
+      onAttribution,
+      additionalAttributionUuids,
+      attributionLimit,
+      onlyWritable,
+      search,
+    }),
+    [
+      onAttribution,
+      additionalAttributionUuids,
+      attributionLimit,
+      onlyWritable,
+      search,
+    ],
   );
 
   const expansionPaths =
     backend.getResourcePathsAndParentsForAttributions.useQuery(
       enabled
         ? {
-            attributionUuids: onAttributionUuids,
+            onAttribution,
+            additionalAttributionUuids,
+            attributionLimit,
             limit: 1000,
             prioritizedResourcePath: selectedResourcePath,
           }
         : skipToken,
     );
+  const limitExceeded = expansionPaths.data?.limitExceeded;
+  const expansionNodePaths = expansionPaths.data?.resourcePaths;
 
   useEffect(() => {
-    if (!enabled || expansionPaths.data === undefined) {
+    if (
+      !enabled ||
+      limitExceeded ||
+      expansionPaths.isError ||
+      expansionNodePaths === undefined
+    ) {
       return;
     }
 
     setExpandedIds({
       ownerKey,
-      source: expansionPaths.data,
-      values: expansionPaths.data,
+      source: expansionNodePaths,
+      values: expansionNodePaths,
     });
-  }, [enabled, expansionPaths.data, ownerKey]);
+  }, [
+    enabled,
+    limitExceeded,
+    expansionPaths.isError,
+    expansionNodePaths,
+    ownerKey,
+  ]);
 
   const treeReady =
     enabled &&
+    !limitExceeded &&
     !expansionPaths.isFetching &&
     !expansionPaths.isError &&
-    expansionPaths.data !== undefined &&
+    expansionNodePaths !== undefined &&
     expandedIds.ownerKey === ownerKey &&
-    expandedIds.source === expansionPaths.data;
+    expandedIds.source === expansionNodePaths;
 
   const resources = backend.getLinkedResourceTree.useQuery(
     treeReady
@@ -140,5 +180,6 @@ export function useLinkedResourcesTree({
       !resources.isError &&
       (!treeReady || resources.isFetching),
     data: state,
+    limitExceeded,
   };
 }

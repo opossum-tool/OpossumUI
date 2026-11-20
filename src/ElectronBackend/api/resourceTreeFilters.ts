@@ -15,12 +15,16 @@ import {
   type LicenseConditions,
 } from '../../shared/attribution-filters';
 import type { DB } from '../db/generated/databaseTypes';
-import { jsonArraySelection } from '../db/json-array-selection';
 import { getLicenseFilterExpression } from './filters';
 import {
   getOnlyExternalFilesQuery,
   getOnlyPreSelectedManualFilesQuery,
 } from './progressBarUtils';
+import {
+  getOnAttributionUuidSetExpression,
+  type OnAttribution,
+  type OnAttributionInput,
+} from './resource-tree-on-attributions';
 import { removeTrailingSlash } from './utils';
 
 export type FilteredTable = {
@@ -30,19 +34,34 @@ export type LicenseFilter = LicenseConditions &
   Required<Pick<LicenseConditions, 'licenseIds'>> & {
     external: boolean;
   };
+
 export type ResourceTreeFilters = {
   search?: string;
   onlyUnreviewedFiles?: boolean;
   onlyWithAiDeferredAttributions?: boolean;
   licenseFilter?: LicenseFilter;
-  onAttributionUuids?: Array<string>;
+  onAttribution?: OnAttribution;
   onlyWritable?: boolean;
+};
+
+/**
+ * Like {@link ResourceTreeFilters}, but with the attribution set still in its
+ * serializable input form; the backend resolves it before building SQL.
+ */
+export type ResourceTreeFiltersInput = Omit<
+  ResourceTreeFilters,
+  'onAttribution'
+> & {
+  onAttribution?: OnAttributionInput;
+  additionalAttributionUuids?: Array<string>;
+  /** Maximum number of materialized members for query-wide selections. */
+  attributionLimit?: number;
 };
 
 function hasActiveNonSearchFilters(filters: ResourceTreeFilters) {
   return Boolean(
     hasLicenseConditions(filters.licenseFilter) ||
-    filters.onAttributionUuids ||
+    filters.onAttribution ||
     filters.onlyUnreviewedFiles ||
     filters.onlyWithAiDeferredAttributions ||
     filters.onlyWritable,
@@ -133,7 +152,7 @@ export function getFilteredResourcesQuery(
     licenseFilter,
     onlyUnreviewedFiles,
     onlyWithAiDeferredAttributions,
-    onAttributionUuids,
+    onAttribution,
     search,
     onlyWritable,
   }: ResourceTreeFilters,
@@ -166,7 +185,7 @@ export function getFilteredResourcesQuery(
       );
     }
   }
-  if (onAttributionUuids) {
+  if (onAttribution) {
     query = query.where('r.id', 'in', (eb) =>
       eb
         .selectFrom('resource_to_attribution as rta')
@@ -174,7 +193,7 @@ export function getFilteredResourcesQuery(
         .where(
           'rta.attribution_uuid',
           'in',
-          jsonArraySelection(onAttributionUuids),
+          getOnAttributionUuidSetExpression(onAttribution),
         ),
     );
   }
