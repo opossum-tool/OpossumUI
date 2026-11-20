@@ -5,7 +5,10 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 
 import { Criticality } from '../../../../../shared/shared-types';
-import { OpossumColors } from '../../../../shared-styles';
+import {
+  expectResourceVisibility,
+  expectTreeItemHighlight,
+} from '../../../../../testing/ui';
 import { getSelectedResourceId } from '../../../../state/selectors/resource-selectors';
 import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../../test-helpers/render';
@@ -124,23 +127,15 @@ describe('LinkedResourcesTree', () => {
       { data: testData },
     );
 
-    await waitFor(() => {
-      expect(screen.getByText('resource_1')).toBeInTheDocument();
-    });
+    await expectResourceVisibility(['resource_1'], [], 'linked-resources-tree');
 
-    const collapseIcon = screen.getByLabelText('collapse /folder1/');
-    fireEvent.click(collapseIcon);
+    fireEvent.click(screen.getByLabelText('collapse /folder1/'));
 
-    await waitFor(() => {
-      expect(screen.queryByText('resource_1')).not.toBeInTheDocument();
-    });
+    await expectResourceVisibility([], ['resource_1'], 'linked-resources-tree');
 
-    const expandIcon = screen.getByLabelText('expand /folder1/');
-    fireEvent.click(expandIcon);
+    fireEvent.click(screen.getByLabelText('expand /folder1/'));
 
-    await waitFor(() => {
-      expect(screen.getByText('resource_1')).toBeInTheDocument();
-    });
+    await expectResourceVisibility(['resource_1'], [], 'linked-resources-tree');
   });
 
   it('does not highlight linked resources when no search is active', async () => {
@@ -149,19 +144,8 @@ describe('LinkedResourcesTree', () => {
       { data: testData },
     );
 
-    await waitFor(() => {
-      expect(screen.getByText('resource_1')).toBeInTheDocument();
-    });
-
-    expect(screen.getByText('resource_2')).toBeInTheDocument();
-    expect(
-      screen.getByTestId(
-        'linked-resources-tree-node-/folder1/folder2/resource_1',
-      ),
-    ).not.toHaveStyle({ backgroundColor: OpossumColors.lightBlue });
-    expect(
-      screen.getByTestId('linked-resources-tree-node-/resource_2'),
-    ).not.toHaveStyle({ backgroundColor: OpossumColors.lightBlue });
+    await expectTreeItemHighlight('linked-resources-tree', 'resource_2', false);
+    await expectTreeItemHighlight('linked-resources-tree', 'resource_1', false);
   });
 
   it('filters the tree to matching linked resources and highlights them during search', async () => {
@@ -173,16 +157,8 @@ describe('LinkedResourcesTree', () => {
       { data: testData },
     );
 
-    await waitFor(() => {
-      expect(screen.getByText('resource_1')).toBeInTheDocument();
-    });
-
-    expect(
-      screen.getByTestId(
-        'linked-resources-tree-node-/folder1/folder2/resource_1',
-      ),
-    ).toHaveStyle({ backgroundColor: OpossumColors.lightBlue });
-    expect(screen.queryByText('resource_2')).not.toBeInTheDocument();
+    await expectTreeItemHighlight('linked-resources-tree', 'resource_1', true);
+    await expectResourceVisibility([], ['resource_2'], 'linked-resources-tree');
   });
 
   it('highlights folders whose own name matches the search', async () => {
@@ -194,21 +170,9 @@ describe('LinkedResourcesTree', () => {
       { data: testData },
     );
 
-    await waitFor(() => {
-      expect(screen.getByText('resource_1')).toBeInTheDocument();
-    });
-
-    expect(
-      screen.getByTestId('linked-resources-tree-node-/folder1/'),
-    ).toHaveStyle({ backgroundColor: OpossumColors.lightBlue });
-    expect(
-      screen.getByTestId('linked-resources-tree-node-/folder1/folder2/'),
-    ).toHaveStyle({ backgroundColor: OpossumColors.lightBlue });
-    expect(
-      screen.getByTestId(
-        'linked-resources-tree-node-/folder1/folder2/resource_1',
-      ),
-    ).not.toHaveStyle({ backgroundColor: OpossumColors.lightBlue });
-    expect(screen.queryByText('resource_2')).not.toBeInTheDocument();
+    await expectTreeItemHighlight('linked-resources-tree', 'folder1', true);
+    await expectTreeItemHighlight('linked-resources-tree', 'folder2', true);
+    await expectTreeItemHighlight('linked-resources-tree', 'resource_1', false);
+    await expectResourceVisibility([], ['resource_2'], 'linked-resources-tree');
   });
 });

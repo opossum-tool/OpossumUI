@@ -6,6 +6,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect } from 'vitest';
 
+import { classificationStepDescription } from '../../Frontend/Components/ProgressBar/ProgressBar.util';
 import { text } from '../../shared/text';
 import { escapeRegExp, SETTLED_TIMEOUT } from './common';
 
@@ -88,6 +89,10 @@ export async function clickProgressBar(): Promise<void> {
 type ProgressBarMode =
   'Attributions' | 'Criticalities' | 'Classifications' | 'AI';
 
+// The AI tooltip renders its counts in a table instead of "…label: count"
+// lines, so expectProgressBarTooltipShowsValues does not support it yet.
+type ProgressBarTooltipMode = Exclude<ProgressBarMode, 'AI'>;
+
 const PROGRESS_BAR_MODE_TEXT: Record<
   ProgressBarMode,
   { selectLabel: string; ariaLabel: string }
@@ -96,6 +101,12 @@ const PROGRESS_BAR_MODE_TEXT: Record<
   Attributions: text.topBar.switchableProgressBar.attributionBar,
   Criticalities: text.topBar.switchableProgressBar.criticalityBar,
   Classifications: text.topBar.switchableProgressBar.classificationBar,
+};
+
+const PROGRESS_BAR_MODE_INTROS: Record<ProgressBarTooltipMode, string> = {
+  Attributions: text.topBar.switchableProgressBar.attributionBar.intro,
+  Criticalities: text.topBar.switchableProgressBar.criticalityBar.intro,
+  Classifications: text.topBar.switchableProgressBar.classificationBar.intro,
 };
 
 async function expectProgressBarModeIs(mode: ProgressBarMode): Promise<void> {
@@ -123,55 +134,112 @@ export interface ProgressBarTooltipValues {
   filesWithAttributions?: number;
   filesWithOnlyPreSelectedAttributions?: number;
   filesWithOnlySignals?: number;
+  filesWithNeitherAttributionsOrSignals?: number;
+  filesWithHighlyCriticalSignals?: number;
+  filesWithMediumCriticalSignals?: number;
+  filesWithOnlyNonCriticalSignals?: number;
+  classifications?: Array<{ classification: string; count: number }>;
 }
 
-export async function expectProgressBarTooltipShowsValues(
-  values: ProgressBarTooltipValues,
-): Promise<void> {
-  const expectedValues = [
-    [
-      values.filesWithAttributions,
-      text.topBar.switchableProgressBar.attributionBar
-        .filesWithManualAttribution,
-    ],
-    [
-      values.filesWithOnlyPreSelectedAttributions,
-      text.topBar.switchableProgressBar.attributionBar
-        .filesWithOnlyPreSelectedAttribution,
-    ],
-    [
-      values.filesWithOnlySignals,
-      text.topBar.switchableProgressBar.attributionBar
-        .filesWithOnlyExternalAttribution,
-    ],
-  ] as Array<[number | undefined, string]>;
+export async function hoverProgressBar(): Promise<void> {
   const progressBar = await waitFor(
     () => screen.getByTestId('progress-bar'),
     SETTLED_TIMEOUT,
   );
   fireEvent.mouseOver(progressBar, { clientX: 10, clientY: 10 });
+}
+
+export async function expectProgressBarTooltipShowsValues(
+  values: ProgressBarTooltipValues,
+  mode: ProgressBarTooltipMode = 'Attributions',
+): Promise<void> {
+  // Pure assertion: hover the progress bar first via hoverProgressBar(). The
+  // component renders one "…label: count" line per nonzero segment and omits
+  // zero segments entirely, so zero or unprovided segments must render no
+  // line. The full set of lines has to match the provided values: both a
+  // wrongly counted and an unexpected extra line fail the assertion.
+  const expectedValues: Array<[number, string]> = [];
+  if (values.filesWithAttributions) {
+    expectedValues.push([
+      values.filesWithAttributions,
+      text.topBar.switchableProgressBar.attributionBar
+        .filesWithManualAttribution,
+    ]);
+  }
+  if (values.filesWithOnlyPreSelectedAttributions) {
+    expectedValues.push([
+      values.filesWithOnlyPreSelectedAttributions,
+      text.topBar.switchableProgressBar.attributionBar
+        .filesWithOnlyPreSelectedAttribution,
+    ]);
+  }
+  if (values.filesWithOnlySignals) {
+    expectedValues.push([
+      values.filesWithOnlySignals,
+      text.topBar.switchableProgressBar.attributionBar
+        .filesWithOnlyExternalAttribution,
+    ]);
+  }
+  if (values.filesWithNeitherAttributionsOrSignals) {
+    expectedValues.push([
+      values.filesWithNeitherAttributionsOrSignals,
+      text.topBar.switchableProgressBar.attributionBar
+        .filesWithNeitherAttributionsOrSignals,
+    ]);
+  }
+  if (values.filesWithHighlyCriticalSignals) {
+    expectedValues.push([
+      values.filesWithHighlyCriticalSignals,
+      text.topBar.switchableProgressBar.criticalityBar
+        .filesWithHighlyCriticalSignals,
+    ]);
+  }
+  if (values.filesWithMediumCriticalSignals) {
+    expectedValues.push([
+      values.filesWithMediumCriticalSignals,
+      text.topBar.switchableProgressBar.criticalityBar
+        .filesWithMediumCriticalSignals,
+    ]);
+  }
+  if (values.filesWithOnlyNonCriticalSignals) {
+    expectedValues.push([
+      values.filesWithOnlyNonCriticalSignals,
+      text.topBar.switchableProgressBar.criticalityBar
+        .filesWithOnlyNonCriticalSignals,
+    ]);
+  }
+  for (const { classification, count } of values.classifications ?? []) {
+    if (count) {
+      expectedValues.push([
+        count,
+        classificationStepDescription(classification),
+      ]);
+    }
+  }
+  const expectedLines = expectedValues
+    .map(([count, label]) => `…${label}: ${count}`)
+    .sort();
   await waitFor(() => {
     const tooltips = screen.getAllByRole('tooltip');
     const tooltip = tooltips.find((candidate) => {
       return (
         within(candidate).queryByText(
-          new RegExp(
-            escapeRegExp(
-              text.topBar.switchableProgressBar.attributionBar.intro,
-            ),
-          ),
+          new RegExp(escapeRegExp(PROGRESS_BAR_MODE_INTROS[mode])),
         ) !== null
       );
     });
     expect(tooltip).toBeTruthy();
-    for (const [count, label] of expectedValues) {
-      if (count) {
-        expect(
-          within(tooltip as HTMLElement).getByText(
-            new RegExp(`${escapeRegExp(label)}: ${count}`),
-          ),
-        ).toBeVisible();
-      }
+    expect(tooltip).toBeVisible();
+    // Count lines are the only tooltip lines starting with the ellipsis that
+    // prefixes them; the intro line ends with one and does not match.
+    const lineNodes = within(tooltip as HTMLElement).queryAllByText(/^…/);
+    // Role queries match invisible elements too (e.g. opacity: 0 tooltips),
+    // so assert every matched line is actually visible before comparing.
+    for (const lineNode of lineNodes) {
+      expect(lineNode).toBeVisible();
     }
+    expect(lineNodes.map((line) => line.textContent ?? '').sort()).toEqual(
+      expectedLines,
+    );
   }, SETTLED_TIMEOUT);
 }

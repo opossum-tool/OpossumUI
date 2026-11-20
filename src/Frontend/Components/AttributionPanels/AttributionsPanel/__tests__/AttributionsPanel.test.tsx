@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, screen } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../../shared/text';
@@ -12,13 +12,9 @@ import {
   ATTRIBUTIONS_PANEL,
   clickPackageCard,
   clickPackageCardCheckbox,
-  expectButtonDisabled,
-  expectButtonEnabled,
-  expectButtonsDisabled,
-  expectButtonsEnabled,
-  expectEventuallyButtonEnabled,
   getButton,
   getPackageCardCheckbox,
+  SETTLED_TIMEOUT,
 } from '../../../../../testing/ui';
 import { ROOT_PATH } from '../../../../shared-constants';
 import { setTemporaryDisplayPackageInfo } from '../../../../state/actions/resource-actions/all-views-simple-actions';
@@ -50,7 +46,7 @@ describe('AttributionsPanel', () => {
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
 
     expect(getSelectedAttributionId(store.getState())).toBe(packageInfo.id);
-    expectButtonsEnabled(text.packageLists.create);
+    expect(getButton(text.packageLists.create)).toBeEnabled();
   });
 
   it('selects attribution on checkbox click', async () => {
@@ -95,7 +91,7 @@ describe('AttributionsPanel', () => {
     expect(checkbox).toBeEnabled();
     await userEvent.click(checkbox);
 
-    expectButtonEnabled(text.packageLists.delete);
+    expect(getButton(text.packageLists.delete)).toBeEnabled();
   });
 
   it('disables create and link buttons on a readonly structural ancestor', async () => {
@@ -115,11 +111,9 @@ describe('AttributionsPanel', () => {
 
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
 
-    expectButtonsDisabled(
-      text.packageLists.create,
-      text.packageLists.linkAsAttribution,
-    );
-    expectButtonEnabled(text.packageLists.delete);
+    expect(getButton(text.packageLists.create)).toBeDisabled();
+    expect(getButton(text.packageLists.linkAsAttribution)).toBeDisabled();
+    expect(getButton(text.packageLists.delete)).toBeEnabled();
   });
 
   it('shows alert when some attribution on current resource is incomplete', async () => {
@@ -162,7 +156,7 @@ describe('AttributionsPanel', () => {
     await userEvent.click(getButton(text.packageLists.create));
 
     expect(getSelectedAttributionId(store.getState())).toBe('');
-    expectButtonDisabled(text.packageLists.create);
+    expect(getButton(text.packageLists.create)).toBeDisabled();
   });
 
   it('deletes selected attribution', async () => {
@@ -179,7 +173,11 @@ describe('AttributionsPanel', () => {
 
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
     await userEvent.click(getButton(text.packageLists.delete));
-    await expectEventuallyButtonEnabled(text.deleteAttributionsPopup.delete);
+    await waitFor(
+      () =>
+        expect(getButton(text.deleteAttributionsPopup.delete)).toBeEnabled(),
+      SETTLED_TIMEOUT,
+    );
     await userEvent.click(getButton(text.deleteAttributionsPopup.delete));
 
     await expectManualAttributions({});
@@ -234,7 +232,7 @@ describe('AttributionsPanel', () => {
       );
     });
 
-    expectButtonDisabled(text.packageLists.linkAsAttribution);
+    expect(getButton(text.packageLists.linkAsAttribution)).toBeDisabled();
   });
 
   it('disables link button when only resource related attributions available', async () => {
@@ -257,7 +255,7 @@ describe('AttributionsPanel', () => {
 
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
 
-    expectButtonDisabled(text.packageLists.linkAsAttribution);
+    expect(getButton(text.packageLists.linkAsAttribution)).toBeDisabled();
   });
 
   it('disables link button when selected resource is a breakpoint', async () => {
@@ -281,7 +279,7 @@ describe('AttributionsPanel', () => {
 
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
 
-    expectButtonDisabled(text.packageLists.linkAsAttribution);
+    expect(getButton(text.packageLists.linkAsAttribution)).toBeDisabled();
   });
 
   it('confirms selected attribution', async () => {
@@ -308,7 +306,10 @@ describe('AttributionsPanel', () => {
       store.dispatch(setTemporaryDisplayPackageInfo(packageInfo));
     });
     await userEvent.click(getButton(text.packageLists.confirm));
-    await expectEventuallyButtonEnabled(text.saveAttributionsPopup.confirm);
+    await waitFor(
+      () => expect(getButton(text.saveAttributionsPopup.confirm)).toBeEnabled(),
+      SETTLED_TIMEOUT,
+    );
     await userEvent.click(getButton(text.saveAttributionsPopup.confirm));
 
     await expectManualAttributions({
@@ -334,7 +335,7 @@ describe('AttributionsPanel', () => {
 
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
 
-    expectButtonDisabled(text.packageLists.confirm);
+    expect(getButton(text.packageLists.confirm)).toBeDisabled();
   });
 
   it('replaces selected attribution', async () => {
@@ -373,7 +374,7 @@ describe('AttributionsPanel', () => {
 
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo);
 
-    expectButtonDisabled(text.packageLists.replace);
+    expect(getButton(text.packageLists.replace)).toBeDisabled();
   });
 
   it('disables replace button while compare-selection mode is active', async () => {
@@ -393,7 +394,7 @@ describe('AttributionsPanel', () => {
 
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
 
-    expectButtonDisabled(text.packageLists.replace);
+    expect(getButton(text.packageLists.replace)).toBeDisabled();
   });
 
   it('disables various buttons in replacement mode', async () => {
@@ -413,11 +414,9 @@ describe('AttributionsPanel', () => {
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
     await userEvent.click(getButton(text.packageLists.replace));
 
-    expectButtonsDisabled(
-      text.packageLists.create,
-      text.packageLists.linkAsAttribution,
-      text.packageLists.confirm,
-      text.packageLists.delete,
-    );
+    expect(getButton(text.packageLists.create)).toBeDisabled();
+    expect(getButton(text.packageLists.linkAsAttribution)).toBeDisabled();
+    expect(getButton(text.packageLists.confirm)).toBeDisabled();
+    expect(getButton(text.packageLists.delete)).toBeDisabled();
   });
 });

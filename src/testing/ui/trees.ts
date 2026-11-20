@@ -147,16 +147,6 @@ export async function clearTreeSearch(headerTestId: string): Promise<void> {
   }, SETTLED_TIMEOUT);
 }
 
-export async function expectTreeSearchFocused(
-  headerTestId: string,
-): Promise<void> {
-  await waitFor(() => {
-    expect(
-      within(getTreeHeader(headerTestId)).getByRole('searchbox'),
-    ).toHaveFocus();
-  }, SETTLED_TIMEOUT);
-}
-
 export async function expectTreeResourceCountIs(
   count: number,
   headerTestId: string = 'resources-tree-header',

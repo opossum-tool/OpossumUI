@@ -4,13 +4,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { act, screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { noop } from 'lodash-es';
 
 import { executeCommand } from '../../../../ElectronBackend/api/commands';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
+import {
+  clickPopupButton,
+  CONFIRM_REPLACE_POPUP_LABEL,
+} from '../../../../testing/ui';
 import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import { getSelectedAttributionId } from '../../../state/selectors/resource-selectors';
 import { ATTRIBUTION_SELECTION_FOR_REPLACEMENT } from '../../../state/variables/use-attribution-selection-for-replacement';
@@ -296,17 +299,9 @@ describe('ConfirmReplacePopup', () => {
     );
 
     await screen.findByTestId('removed-attributions');
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', {
-          name: text.replaceAttributionsPopup.replace,
-        }),
-      ).toBeEnabled(),
-    );
-    await userEvent.click(
-      screen.getByRole('button', {
-        name: text.replaceAttributionsPopup.replace,
-      }),
+    await clickPopupButton(
+      CONFIRM_REPLACE_POPUP_LABEL,
+      text.replaceAttributionsPopup.replace,
     );
 
     await expectManualAttributions({
@@ -396,10 +391,9 @@ describe('ConfirmReplacePopup', () => {
       ),
     ).not.toBeInTheDocument();
 
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.replaceAttributionsPopup.replace,
-      }),
+    await clickPopupButton(
+      CONFIRM_REPLACE_POPUP_LABEL,
+      text.replaceAttributionsPopup.replace,
     );
 
     await expectManualAttributions({ [replacement.id]: replacement });
@@ -444,17 +438,9 @@ describe('ConfirmReplacePopup', () => {
     );
 
     await screen.findByTestId('removed-attributions');
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', {
-          name: text.replaceAttributionsPopup.replace,
-        }),
-      ).toBeEnabled(),
-    );
-    await userEvent.click(
-      screen.getByRole('button', {
-        name: text.replaceAttributionsPopup.replace,
-      }),
+    await clickPopupButton(
+      CONFIRM_REPLACE_POPUP_LABEL,
+      text.replaceAttributionsPopup.replace,
     );
 
     await expectManualAttributions({

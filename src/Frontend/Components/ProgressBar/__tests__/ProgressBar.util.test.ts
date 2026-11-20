@@ -18,6 +18,7 @@ import {
   calculateAttributionBarSteps,
   calculateClassificationBarSteps,
   calculateCriticalityBarSteps,
+  classificationStepDescription,
   createBackgroundFromProgressBarSteps,
   getNormalizedPercentages,
 } from '../ProgressBar.util';
@@ -66,6 +67,24 @@ describe('ProgressBar helpers', () => {
           },
         ],
       ]);
+    });
+
+    describe('classificationStepDescription', () => {
+      // The expected strings are hardcoded on purpose: the tooltip helper in
+      // src/testing/ui/top-bar.ts formats its expectations with this function,
+      // so a defect in it (dropping the name or the lowercasing) would
+      // otherwise change both sides of that comparison and go unnoticed.
+      it('lowercases the classification name and wraps it in quotation marks', () => {
+        expect(classificationStepDescription('HIGH')).toBe(
+          'containing classification "high"',
+        );
+      });
+
+      it('keeps an already lowercase classification name unchanged', () => {
+        expect(classificationStepDescription('good')).toBe(
+          'containing classification "good"',
+        );
+      });
     });
 
     it.each([
