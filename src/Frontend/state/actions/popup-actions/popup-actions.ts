@@ -83,8 +83,8 @@ import {
   setTargetView,
 } from '../view-actions/view-actions';
 
-function confirmQuitWhenBackendIdle(
-  onIdle?: () => void,
+function confirmQuitAfterFlushingSaves(
+  afterFlush?: () => void,
 ): AppThunkAction<Promise<void>> {
   return async (dispatch) => {
     let actionStarted = false;
@@ -93,8 +93,8 @@ function confirmQuitWhenBackendIdle(
         actionStarted = true;
         dispatch(setIsSavingBeforeQuit(true));
         try {
-          await window.electronAPI.whenBackendIdle();
-          onIdle?.();
+          await window.electronAPI.flushPendingSaves();
+          afterFlush?.();
           return failureId === undefined
             ? window.electronAPI.confirmQuit()
             : window.electronAPI.confirmQuit({ discardUnsavedChanges: true });
@@ -112,7 +112,7 @@ function confirmQuitWhenBackendIdle(
   };
 }
 
-function openFileWhenBackendIdle(
+function openFileAfterFlushingSaves(
   filePath?: string,
 ): AppThunkAction<Promise<void>> {
   return async (dispatch) => {
@@ -123,7 +123,7 @@ function openFileWhenBackendIdle(
         dispatch(setIsSavingBeforeQuit(true));
         let failure: SaveFailure | undefined;
         try {
-          failure = await window.electronAPI.whenBackendIdle();
+          failure = await window.electronAPI.flushPendingSaves();
         } finally {
           dispatch(setIsSavingBeforeQuit(false));
         }
@@ -371,7 +371,7 @@ export function showMergeOpossumFilesDialogOrOpenUnsavedPopup(
 export function openFileOrOpenUnsavedPopup(filePath?: string): AppThunkAction {
   return withUnsavedCheck({
     executeImmediately: (dispatch) =>
-      void dispatch(openFileWhenBackendIdle(filePath)),
+      void dispatch(openFileAfterFlushingSaves(filePath)),
     requestContinuation: (dispatch) => {
       dispatch(setTargetView(null));
       dispatch(setTargetSelectedResourceId(null));
@@ -412,7 +412,7 @@ export function showSplitDialogOrOpenUnsavedPopup(
 export function quitAppOrOpenUnsavedPopup(): AppThunkAction {
   return withUnsavedCheck({
     executeImmediately: (dispatch) =>
-      void dispatch(confirmQuitWhenBackendIdle()),
+      void dispatch(confirmQuitAfterFlushingSaves()),
     requestContinuation: (dispatch) => dispatch(setQuitAppRequest(true)),
   });
 }
@@ -477,7 +477,7 @@ export function proceedFromUnsavedPopup(
 
     if (quitAppRequested) {
       await dispatch(
-        confirmQuitWhenBackendIdle(() => {
+        confirmQuitAfterFlushingSaves(() => {
           dispatch(closePopup(entry.id));
           dispatch(setTargetView(null));
           dispatch(setTargetSelectedResourceId(null));
@@ -520,7 +520,7 @@ export function proceedFromUnsavedPopup(
 
     if (openFileRequest) {
       void dispatch(
-        openFileWhenBackendIdle(
+        openFileAfterFlushingSaves(
           openFileRequest.kind === 'path'
             ? openFileRequest.filePath
             : undefined,

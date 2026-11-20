@@ -143,8 +143,8 @@ beforeEach(async () => {
   connectPreload({ ports: [createPort()] });
   vi.spyOn(dbProcessClientModule, 'getMainDbClient').mockReturnValue(client);
   vi.mocked(window.electronAPI.api).mockImplementation(preloadAPI.api);
-  vi.mocked(window.electronAPI.whenBackendIdle).mockImplementation(
-    preloadAPI.whenBackendIdle,
+  vi.mocked(window.electronAPI.flushPendingSaves).mockImplementation(
+    preloadAPI.flushPendingSaves,
   );
   vi.mocked(window.electronAPI.confirmQuit).mockImplementation(confirmQuit);
 
@@ -216,7 +216,7 @@ afterEach(async () => {
     .mockReset()
     .mockResolvedValue(undefined);
   vi.mocked(window.electronAPI.confirmQuit).mockReset();
-  vi.mocked(window.electronAPI.whenBackendIdle).mockReset();
+  vi.mocked(window.electronAPI.flushPendingSaves).mockReset();
   vi.mocked(window.electronAPI.importFileConvertAndLoad).mockReset();
   vi.mocked(window.electronAPI.mergeFileAndLoad).mockReset();
   vi.mocked(window.electronAPI.restartAndUpdate).mockReset();

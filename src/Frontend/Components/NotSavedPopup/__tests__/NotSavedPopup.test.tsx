@@ -153,10 +153,10 @@ describe('NotSavedPopup', () => {
       ],
     });
 
-    let resolveWhenBackendIdle!: () => void;
-    vi.mocked(global.window.electronAPI.whenBackendIdle).mockReturnValueOnce(
+    let resolveSaveFlush!: () => void;
+    vi.mocked(global.window.electronAPI.flushPendingSaves).mockReturnValueOnce(
       new Promise<undefined>((resolve) => {
-        resolveWhenBackendIdle = () => resolve(undefined);
+        resolveSaveFlush = () => resolve(undefined);
       }),
     );
 
@@ -174,7 +174,7 @@ describe('NotSavedPopup', () => {
       screen.getByRole('button', { name: text.buttons.cancel }),
     ).toBeDisabled();
 
-    resolveWhenBackendIdle();
+    resolveSaveFlush();
     await vi.waitFor(() =>
       expect(global.window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
     );

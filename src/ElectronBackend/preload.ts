@@ -34,7 +34,7 @@ ipcRenderer.on(FRONTEND_TO_DB_PROCESS_PORT, (event) => {
   resolveClientReady();
 });
 
-async function whenBackendIdle(): Promise<SaveFailure | undefined> {
+async function flushPendingSaves(): Promise<SaveFailure | undefined> {
   await clientReady;
   return client!.flushSaves();
 }
@@ -43,7 +43,7 @@ async function afterPendingSaves<T>(
   invoke: () => Promise<T>,
 ): Promise<LeaveResult<T>> {
   // Flush on the same port used to submit edits before invoking main-process IPC.
-  const failure = await whenBackendIdle();
+  const failure = await flushPendingSaves();
   if (failure) {
     return { status: 'blocked', failure };
   }
@@ -60,7 +60,7 @@ const electronAPI: ElectronAPI = {
   },
   confirmQuit: (options) => ipcRenderer.invoke(IpcChannel.ConfirmQuit, options),
   quitRequestHandled: () => ipcRenderer.invoke(IpcChannel.QuitRequestHandled),
-  whenBackendIdle,
+  flushPendingSaves,
   relaunch: () => ipcRenderer.invoke(IpcChannel.Relaunch),
   openLink: (link) => ipcRenderer.invoke(IpcChannel.OpenLink, { link }),
   openFile: (filePath) => ipcRenderer.invoke(IpcChannel.OpenFile, filePath),
