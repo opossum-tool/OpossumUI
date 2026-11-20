@@ -6,7 +6,8 @@ import { useMemo } from 'react';
 
 import { text } from '../../../../shared/text';
 import { OpossumColors } from '../../../shared-styles';
-import { useAppSelector } from '../../../state/hooks';
+import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../state/actions/popup-actions/popup-actions';
+import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
 import { useManualAttributionFilters } from '../../../state/variables/use-filters';
 import { usePickerMode } from '../../../state/variables/use-picker-mode';
@@ -22,6 +23,7 @@ import { MoreActionsButton } from './MoreActionsButton/MoreActionsButton';
 import { ReplaceButton } from './ReplaceButton/ReplaceButton';
 
 export function AttributionsPanel() {
+  const dispatch = useAppDispatch();
   const selectedResourceId = useAppSelector(getSelectedResourceId);
   const hasIncompleteAttributions =
     backend.resourceHasIncompleteManualAttributions.useQuery({
@@ -74,7 +76,39 @@ export function AttributionsPanel() {
       useAttributionFilters={useManualAttributionFilters}
       testId={'attributions-panel'}
     >
-      {(props) => <AttributionsList {...props} />}
+      {(props) => (
+        <AttributionsList
+          key={props.activeRelation}
+          activeAttributionIds={props.activeAttributionIds}
+          attributions={props.attributions}
+          contentHeight={props.contentHeight}
+          loading={props.loading}
+          loadingMore={props.loadingMore}
+          loadMoreError={props.loadMoreError}
+          fetchNextPage={props.fetchNextPage}
+          selectedAttributionId={props.selectedAttributionId}
+          selectionRevealKey={props.selectionRevealKey}
+          totalAttributionCount={props.totalAttributionCount}
+          resultSetKey={props.resultSetKey}
+          onSelect={(attribution) =>
+            dispatch(changeSelectedAttributionOrOpenUnsavedPopup(attribution))
+          }
+          isPickerSource={(attributionId) =>
+            (props.pickerMode.mode === 'replace' &&
+              props.pickerMode.selectionForReplacement.mode === 'explicit' &&
+              props.pickerMode.selectionForReplacement.attributionUuids.includes(
+                attributionId,
+              )) ||
+            (props.pickerMode.mode === 'compare' &&
+              props.pickerMode.compareSelectionSource.id === attributionId)
+          }
+          checkbox={{
+            isChecked: props.isAttributionSelected,
+            onToggle: props.toggleAttributionSelection,
+            disabled: props.pickerMode.isActive,
+          }}
+        />
+      )}
     </PackagesPanel>
   );
 }

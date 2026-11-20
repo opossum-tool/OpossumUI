@@ -5,9 +5,11 @@
 import MuiDivider from '@mui/material/Divider';
 import { useMemo } from 'react';
 
+import type {
+  Attributions,
+  PackageInfo,
+} from '../../../../../shared/shared-types';
 import { TRANSITION } from '../../../../shared-styles';
-import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../../../state/actions/popup-actions/popup-actions';
-import { useAppDispatch } from '../../../../state/hooks';
 import { isPackageIncomplete } from '../../../../util/input-validation';
 import {
   INFINITE_LIST_BOTTOM_OVERSCAN,
@@ -19,26 +21,44 @@ import {
   PackageCard,
 } from '../../../PackageCard/PackageCard';
 import { SearchList } from '../../../SearchList/SearchList';
-import type { PackagesPanelChildrenProps } from '../../PackagesPanel/PackagesPanel';
 
-export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
+interface Props {
+  activeAttributionIds: Array<string> | null;
+  attributions: Attributions | null;
+  contentHeight: string;
+  loading: boolean;
+  loadingMore: boolean;
+  loadMoreError: unknown;
+  fetchNextPage: (requiredEndIndex?: number) => Promise<void>;
+  selectedAttributionId: string;
+  selectionRevealKey?: string;
+  totalAttributionCount?: number;
+  resultSetKey: string;
+  onSelect: (attribution: PackageInfo) => void;
+  isPickerSource?: (attributionId: string) => boolean;
+  checkbox?: {
+    isChecked: (attributionId: string) => boolean;
+    onToggle: (attributionId: string, checked: boolean) => void;
+    disabled: boolean;
+  };
+}
+
+export const AttributionsList: React.FC<Props> = ({
   attributions,
   activeAttributionIds,
-  activeRelation,
   selectedAttributionId,
   contentHeight,
   loading,
   loadingMore,
   loadMoreError,
   fetchNextPage,
-  pickerMode,
-  isAttributionSelected,
-  toggleAttributionSelection,
   totalAttributionCount,
   resultSetKey,
   selectionRevealKey,
+  onSelect,
+  isPickerSource,
+  checkbox,
 }) => {
-  const dispatch = useAppDispatch();
   const initialSelectedAttributionIndex = useMemo(
     () => activeAttributionIds?.findIndex((id) => id === selectedAttributionId),
     [activeAttributionIds, selectedAttributionId],
@@ -47,7 +67,6 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
   return (
     <List
       renderItemContent={renderAttributionCard}
-      key={activeRelation}
       data={activeAttributionIds?.map((id) => ({ id })) ?? null}
       totalCount={totalAttributionCount}
       unloadedItemHeight={PACKAGE_CARD_LIST_ITEM_HEIGHT}
@@ -85,43 +104,33 @@ export const AttributionsList: React.FC<PackagesPanelChildrenProps> = ({
       return null;
     }
 
-    const isPickerSource =
-      (pickerMode.mode === 'replace' &&
-        pickerMode.selectionForReplacement.mode === 'explicit' &&
-        pickerMode.selectionForReplacement.attributionUuids.includes(
-          attributionId,
-        )) ||
-      (pickerMode.mode === 'compare' &&
-        pickerMode.compareSelectionSource.id === attributionId);
-
     return (
       <>
         <PackageCard
           onClick={() => {
-            selectedAttributionId !== attributionId &&
-              dispatch(
-                changeSelectedAttributionOrOpenUnsavedPopup(attribution),
-              );
+            selectedAttributionId !== attributionId && onSelect(attribution);
           }}
           cardConfig={{
             selected,
             focused,
-            pickerSource: isPickerSource,
+            pickerSource: isPickerSource?.(attributionId) ?? false,
             incomplete: isPackageIncomplete(attribution),
           }}
           packageInfo={attribution}
-          checkbox={{
-            checked: isAttributionSelected(attributionId),
-            disabled:
-              pickerMode.isActive || attribution.resourceAccess === 'readonly',
-            onChange: (event) => {
-              toggleAttributionSelection(attributionId, event.target.checked);
-              !selectedAttributionId &&
-                dispatch(
-                  changeSelectedAttributionOrOpenUnsavedPopup(attribution),
-                );
-            },
-          }}
+          checkbox={
+            checkbox
+              ? {
+                  checked: checkbox.isChecked(attributionId),
+                  disabled:
+                    checkbox.disabled ||
+                    attribution.resourceAccess === 'readonly',
+                  onChange: (event) => {
+                    checkbox.onToggle(attributionId, event.target.checked);
+                    !selectedAttributionId && onSelect(attribution);
+                  },
+                }
+              : undefined
+          }
         />
         <MuiDivider />
       </>
