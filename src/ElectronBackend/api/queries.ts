@@ -242,6 +242,38 @@ function normalizeLicenseOptions(
     .toSorted((a, b) => a.label.localeCompare(b.label));
 }
 
+const ICON_COUNT_EXPRESSION = sql`
+  1
+  + attribution.needs_review
+  + attribution.follow_up
+  + attribution.first_party
+  + attribution.exclude_from_notice
+  + attribution.pre_selected
+  + attribution.preferred
+  + case when ai.attribution_uuid is null then 0 else 1 end
+  + coalesce(ai.human_modified, 0)
+`;
+
+/**
+ * The largest number of icons any attribution in the filtered result set
+ * shows in the signal column of a table row (edit button, signal flags, AI
+ * status). The report view uses this to size its first column globally so
+ * virtualized rows never change its width.
+ */
+async function getMaxSignalIconCount(
+  props: FilterContext,
+): Promise<{ result: number }> {
+  const row = await (
+    await filteredAttributions(props)
+  )
+    .leftJoin('attribution_ai as ai', 'ai.attribution_uuid', 'attribution.uuid')
+    .clearSelect()
+    .select((eb) => eb.fn.max<number>(ICON_COUNT_EXPRESSION).as('maxIcons'))
+    .executeTakeFirst();
+
+  return { result: row?.maxIcons ?? 0 };
+}
+
 export const queries = {
   async isProjectSplit() {
     return { result: await isProjectSplit() };
@@ -250,6 +282,7 @@ export const queries = {
   listAttributionRelationCounts,
   listAttributionsPage,
   listAttributionPreview,
+  getMaxSignalIconCount,
   locateAttribution,
   getAttributionSelectionSummary,
   getResourceTree,
