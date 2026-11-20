@@ -20,6 +20,11 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../../test-helpers
 import { createTestStore } from '../../../../test-helpers/render';
 import type { State } from '../../../../types/types';
 import { backend } from '../../../../util/backendClient';
+import {
+  closeSaveRecovery,
+  getSaveRecovery,
+  resumeSaveRecovery,
+} from '../../../../util/save-recovery';
 import { createAppStore } from '../../../configure-store';
 import {
   getAttributionSelectionPendingResourceId,
@@ -745,7 +750,7 @@ describe('The actions checking for unsaved changes', () => {
 describe('proceedFromUnsavedPopup', () => {
   it('ignores a stale popup ID without executing pending requests', () => {
     const store = createAppStore();
-    vi.spyOn(window.electronAPI, 'openFile').mockResolvedValue({});
+    vi.spyOn(window.electronAPI, 'openFile').mockResolvedValue(undefined);
     store.dispatch(setOpenFileRequest({ kind: 'dialog' }));
     store.dispatch(openPopup(PopupType.NotSavedPopup));
     const originalEntries = getOpenPopups(store.getState());
@@ -798,13 +803,13 @@ describe('proceedFromUnsavedPopup', () => {
   });
 
   it('does not save temporaryDisplayPackageInfo', () => {
-    vi.spyOn(window.electronAPI, 'saveFile').mockResolvedValue();
+    vi.spyOn(window.electronAPI, 'saveFile').mockResolvedValue(undefined);
     prepareTestState();
     expect(window.electronAPI.saveFile).not.toHaveBeenCalled();
   });
 
   it('proceeds with a file picker request', async () => {
-    vi.spyOn(window.electronAPI, 'openFile').mockResolvedValue({});
+    vi.spyOn(window.electronAPI, 'openFile').mockResolvedValue(undefined);
 
     const testStore = createAppStore();
     testStore.dispatch(setOpenFileRequest({ kind: 'dialog' }));
@@ -1165,6 +1170,56 @@ describe('statistics navigation', () => {
   );
 });
 
+describe('failed-save transition decisions', () => {
+  it('asks for recovery before handing the original destination to main', async () => {
+    vi.mocked(window.electronAPI.flushPendingSaves).mockResolvedValueOnce({
+      message: 'Disk full',
+      id: 'failed-save',
+      fileName: 'project.opossum',
+    });
+    const store = createAppStore();
+    store.dispatch(openFileOrOpenUnsavedPopup('/requested.opossum'));
+    try {
+      await vi.waitFor(() => expect(getSaveRecovery()).toBeDefined());
+      expect(window.electronAPI.openFile).not.toHaveBeenCalled();
+      expect(getIsSavingBeforeQuit(store.getState())).toBe(false);
+      const { failure } = getSaveRecovery()!;
+      vi.mocked(window.electronAPI.flushPendingSaves).mockResolvedValueOnce(
+        failure,
+      );
+      await resumeSaveRecovery(getSaveRecovery()!, failure.id);
+      expect(window.electronAPI.openFile).toHaveBeenCalledExactlyOnceWith(
+        '/requested.opossum',
+      );
+      expect(window.electronAPI.flushPendingSaves).toHaveBeenCalledTimes(2);
+    } finally {
+      closeSaveRecovery();
+    }
+  });
+
+  it('restores usable editing state when native quit recovery stays in the project', async () => {
+    const nativeDecision = Promise.withResolvers<void>();
+    vi.mocked(window.electronAPI.flushPendingSaves).mockResolvedValueOnce({
+      message: 'Disk full',
+      id: 'failed-save',
+      fileName: 'project.opossum',
+    });
+    vi.mocked(window.electronAPI.confirmQuit).mockReturnValueOnce(
+      nativeDecision.promise,
+    );
+    const store = createAppStore();
+    store.dispatch(quitAppOrOpenUnsavedPopup());
+    await vi.waitFor(() =>
+      expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
+    );
+    expect(getIsSavingBeforeQuit(store.getState())).toBe(false);
+    nativeDecision.resolve();
+    await nativeDecision.promise;
+    expect(getQuitAppRequested(store.getState())).toBe(false);
+    expect(getOpenPopup(store.getState())).toBeNull();
+  });
+});
+
 describe('quitAppOrOpenUnsavedPopup', () => {
   it('confirms the quit when there are no unsaved changes', async () => {
     const testStore = createAppStore();
@@ -1176,7 +1231,7 @@ describe('quitAppOrOpenUnsavedPopup', () => {
 
     expect(getOpenPopup(testStore.getState())).toBeNull();
     expect(getQuitAppRequested(testStore.getState())).toBe(false);
-    expect(getIsSavingBeforeQuit(testStore.getState())).toBe(true);
+    expect(getIsSavingBeforeQuit(testStore.getState())).toBe(false);
   });
 
   it('opens the unsaved-changes popup when there are unsaved changes', () => {
@@ -1216,7 +1271,7 @@ describe('quitAppOrOpenUnsavedPopup', () => {
       expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
     );
     expect(getQuitAppRequested(testStore.getState())).toBe(false);
-    expect(getIsSavingBeforeQuit(testStore.getState())).toBe(true);
+    expect(getIsSavingBeforeQuit(testStore.getState())).toBe(false);
     expect(getOpenPopup(testStore.getState())).toBeNull();
     expect(getIsPackageInfoDirty(testStore.getState())).toBe(false);
   });
@@ -1276,10 +1331,10 @@ describe('quitAppOrOpenUnsavedPopup', () => {
       }),
     );
     testStore.dispatch(quitAppOrOpenUnsavedPopup());
-    let resolveWhenBackendIdle!: () => void;
-    vi.mocked(window.electronAPI.whenBackendIdle).mockReturnValueOnce(
-      new Promise<void>((resolve) => {
-        resolveWhenBackendIdle = resolve;
+    let resolveSaveFlush!: () => void;
+    vi.mocked(window.electronAPI.flushPendingSaves).mockReturnValueOnce(
+      new Promise<undefined>((resolve) => {
+        resolveSaveFlush = () => resolve(undefined);
       }),
     );
 
@@ -1291,12 +1346,12 @@ describe('quitAppOrOpenUnsavedPopup', () => {
       PopupType.NotSavedPopup,
     );
     expect(window.electronAPI.confirmQuit).not.toHaveBeenCalled();
-    resolveWhenBackendIdle();
+    resolveSaveFlush();
     await vi.waitFor(() =>
       expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
     );
     expect(getOpenPopup(testStore.getState())).toBeNull();
     expect(getQuitAppRequested(testStore.getState())).toBe(false);
-    expect(getIsSavingBeforeQuit(testStore.getState())).toBe(true);
+    expect(getIsSavingBeforeQuit(testStore.getState())).toBe(false);
   });
 });

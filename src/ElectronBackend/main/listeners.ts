@@ -6,6 +6,7 @@
 import { type BrowserWindow, shell } from 'electron';
 import fs from 'fs';
 import { uniq } from 'lodash-es';
+import { randomUUID } from 'node:crypto';
 import path from 'path';
 import upath from 'upath';
 
@@ -19,6 +20,7 @@ import {
   type MergeOpossumFilesResult,
   type OpenLinkArgs,
   OPOSSUM_FILE_FORMAT,
+  type SaveFailure,
   type SelectSaveFileOptions,
   type SplitFileResult,
 } from '../../shared/shared-types';
@@ -59,9 +61,13 @@ const MAX_NUMBER_OF_RECENTLY_OPENED_PATHS = 10;
 
 export const saveFileListener =
   (mainWindow: BrowserWindow) =>
-  async (_: unknown): Promise<void> => {
+  async (_: unknown): Promise<SaveFailure | undefined> => {
+    let fileName = '';
     try {
       const globalBackendState = getGlobalBackendState();
+      fileName = globalBackendState.opossumFilePath
+        ? path.basename(globalBackendState.opossumFilePath)
+        : '';
       if (!globalBackendState.projectId) {
         throw new Error('Project ID not found');
       }
@@ -69,12 +75,17 @@ export const saveFileListener =
         throw new Error('No .opossum project is currently open.');
       }
 
-      await getMainDbClient().saveFile({
+      return await getMainDbClient().saveFile({
         projectId: globalBackendState.projectId,
         opossumFilePath: globalBackendState.opossumFilePath,
       });
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
+      return {
+        id: randomUUID(),
+        fileName,
+        message: error instanceof Error ? error.message : String(error),
+      };
     }
   };
 

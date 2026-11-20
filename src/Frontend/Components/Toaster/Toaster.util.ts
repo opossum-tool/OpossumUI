@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 /* eslint-disable no-restricted-imports */
+import type { ReactElement } from 'react';
 import toaster, { type ToastOptions } from 'react-hot-toast';
 
 class Toast {
@@ -10,8 +11,19 @@ class Toast {
     toaster.success(message, { id: message, ...options });
   }
 
-  public error(message: string, options?: ToastOptions) {
-    toaster.error(message, { id: message, ...options });
+  public error(message: string | (() => ReactElement), options?: ToastOptions) {
+    toaster.error(message, {
+      id: typeof message === 'string' ? message : undefined,
+      ...options,
+    });
+  }
+
+  public dismiss(id: string) {
+    toaster.dismiss(id);
+  }
+
+  public remove(id: string) {
+    toaster.remove(id);
   }
 
   public info(message: string, options?: ToastOptions) {

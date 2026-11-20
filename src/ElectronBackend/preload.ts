@@ -6,7 +6,12 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 import { IpcChannel } from '../shared/ipc-channels';
-import type { ElectronAPI, UserSettings } from '../shared/shared-types';
+import type {
+  ElectronAPI,
+  LeaveResult,
+  SaveFailure,
+  UserSettings,
+} from '../shared/shared-types';
 import type { CommandName, CommandParams, CommandReturn } from './api/commands';
 import {
   DbProcessClient,
@@ -29,14 +34,19 @@ ipcRenderer.on(FRONTEND_TO_DB_PROCESS_PORT, (event) => {
   resolveClientReady();
 });
 
-async function whenBackendIdle(): Promise<void> {
+async function flushPendingSaves(): Promise<SaveFailure | undefined> {
   await clientReady;
-  await client!.flushSaves();
+  return client!.flushSaves();
 }
 
-async function afterPendingSaves<T>(invoke: () => Promise<T>): Promise<T> {
+async function afterPendingSaves<T>(
+  invoke: () => Promise<T>,
+): Promise<LeaveResult<T>> {
   // Flush on the same port used to submit edits before invoking main-process IPC.
-  await whenBackendIdle();
+  const failure = await flushPendingSaves();
+  if (failure) {
+    return { status: 'blocked', failure };
+  }
   return invoke();
 }
 
@@ -48,9 +58,9 @@ const electronAPI: ElectronAPI = {
     await clientReady;
     return traceBackendCommand(command, () => client!.api(command, params));
   },
-  confirmQuit: () => ipcRenderer.invoke(IpcChannel.ConfirmQuit),
+  confirmQuit: (options) => ipcRenderer.invoke(IpcChannel.ConfirmQuit, options),
   quitRequestHandled: () => ipcRenderer.invoke(IpcChannel.QuitRequestHandled),
-  whenBackendIdle,
+  flushPendingSaves,
   relaunch: () => ipcRenderer.invoke(IpcChannel.Relaunch),
   openLink: (link) => ipcRenderer.invoke(IpcChannel.OpenLink, { link }),
   openFile: (filePath) => ipcRenderer.invoke(IpcChannel.OpenFile, filePath),
@@ -59,7 +69,7 @@ const electronAPI: ElectronAPI = {
   selectSaveFile: (options) =>
     ipcRenderer.invoke(IpcChannel.SelectSaveFile, options),
   importFileConvertAndLoad: (inputFilePath, fileType, opossumFilePath) =>
-    afterPendingSaves(() =>
+    afterPendingSaves<boolean>(() =>
       ipcRenderer.invoke(
         IpcChannel.ImportFileConvertAndLoad,
         inputFilePath,
@@ -68,7 +78,7 @@ const electronAPI: ElectronAPI = {
       ),
     ),
   mergeFileAndLoad: (inputFilePath, fileType) =>
-    afterPendingSaves(() =>
+    afterPendingSaves<boolean>(() =>
       ipcRenderer.invoke(IpcChannel.MergeFileAndLoad, inputFilePath, fileType),
     ),
   selectSplitDestination: (splitPath) =>
@@ -107,7 +117,9 @@ const electronAPI: ElectronAPI = {
   downloadUpdate: (tag: string) =>
     ipcRenderer.invoke(IpcChannel.DownloadUpdate, tag),
   restartAndUpdate: () =>
-    afterPendingSaves(() => ipcRenderer.invoke(IpcChannel.RestartAndUpdate)),
+    afterPendingSaves<void>(() =>
+      ipcRenderer.invoke(IpcChannel.RestartAndUpdate),
+    ),
 };
 
 // This exposes an API to communicate from the window in the frontend with the backend

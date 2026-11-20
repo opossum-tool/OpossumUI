@@ -21,10 +21,13 @@ import { menuItemIds } from './menu/menuItemIds';
 import { getViewMenu } from './menu/viewMenu';
 
 export async function createMenu(mainWindow: BrowserWindow): Promise<void> {
-  const webContents = mainWindow.webContents;
   const isProjectSplit = isFileLoaded(getGlobalBackendState())
     ? (await getMainDbClient().api('isProjectSplit', undefined)).result
     : false;
+  if (mainWindow.isDestroyed()) {
+    return;
+  }
+  const webContents = mainWindow.webContents;
 
   const updateMenu = () => createMenu(mainWindow);
   return Menu.setApplicationMenu(

@@ -59,6 +59,7 @@ export enum AllowedFrontendChannels {
   ShowWhatsNew = 'show-whats-new',
   UserSettingsChanged = 'user-settings-changed',
   UpdateStateChanged = 'update-state-changed',
+  SaveFailureChanged = 'save-failure-changed',
   ProcessingStateChanged = 'processing-state-changed',
   SetDatabaseInitialized = 'set-database-initialized',
   RequestQuitApproval = 'request-quit-approval',

@@ -13,6 +13,15 @@ function menuLabelForFileFormat(fileFilter: FileFilter): string {
 }
 
 export const text = {
+  saveError: {
+    heading: 'Couldn’t save changes to the .opossum file',
+    retry: 'Try again',
+    dismiss: 'Dismiss save warning',
+    retryFailed: 'Retry failed',
+    stay: 'Keep project open',
+    quitWithoutSaving: 'Quit without saving',
+    openWithoutSaving: 'Open without saving',
+  },
   whatsNew: {
     title: 'What’s new',
     empty: 'No release highlights are available yet.',

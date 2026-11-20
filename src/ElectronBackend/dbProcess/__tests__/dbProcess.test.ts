@@ -12,7 +12,6 @@ import {
   handleDbProcessMessage,
   resetDbProcessStateForTesting,
 } from '../dbProcess';
-import type { SaveResult } from '../save-worker';
 
 const saveFileApiMock = vi.hoisted(() => vi.fn());
 const forceUnlockMock = vi.hoisted(() => vi.fn());
@@ -159,7 +158,10 @@ describe('dbProcess save tracking', () => {
     saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
 
     const failedResponse = await save(1);
-    expect(failedResponse?.type).toBe('error');
+    expect(failedResponse).toMatchObject({
+      type: 'success',
+      result: { message: 'write failed' },
+    });
 
     const response = await save(2);
     expect(response?.type).toBe('success');
@@ -326,7 +328,7 @@ describe('dbProcess save tracking', () => {
     await idleRequest;
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
     expect(port.responses).toEqual([
-      { id: 2, type: 'success', result: 'success' },
+      { id: 2, type: 'success', result: undefined },
     ]);
   });
 
@@ -435,16 +437,12 @@ describe('dbProcess save outcome tracking', () => {
     loadFileOk();
   });
 
-  async function getSaveOutcome(id: number): Promise<SaveResult | undefined> {
+  async function getSaveOutcome(id: number) {
     const response = await flushSaves(id);
     if (response?.type !== 'success') {
       throw new Error(`Unexpected response: ${JSON.stringify(response)}`);
     }
-    const result = response.result;
-    if (result !== undefined && result !== 'success' && result !== 'failed') {
-      throw new Error(`Unexpected save result: ${JSON.stringify(result)}`);
-    }
-    return result;
+    return response.result;
   }
 
   it('reports no save result before any write happened', async () => {
@@ -457,32 +455,43 @@ describe('dbProcess save outcome tracking', () => {
     await loadProject();
     await save(1);
 
-    await expect(getSaveOutcome(2)).resolves.toBe('success');
+    await expect(getSaveOutcome(2)).resolves.toBeUndefined();
   });
 
-  it('retries a failed manual save on flush', async () => {
+  it('returns the same failure from a manual save and a subsequent flush', async () => {
     await loadProject();
     saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
-    expect((await save(1))?.type).toBe('error');
-
-    await expect(getSaveOutcome(2)).resolves.toBe('success');
-    expect(saveFileApiMock).toHaveBeenCalledTimes(2);
+    const result = await save(1);
+    expect(result).toMatchObject({
+      type: 'success',
+      result: {
+        id: expect.any(String),
+        fileName: 'x',
+        message: 'write failed',
+      },
+    });
+    await expect(getSaveOutcome(2)).resolves.toEqual(
+      result?.type === 'success' ? result.result : undefined,
+    );
+    expect(saveFileApiMock).toHaveBeenCalledOnce();
   });
 
-  it('retries a failed automatic save on flush', async () => {
+  it('reports a failed automatic save on flush', async () => {
     vi.useFakeTimers();
     await loadProject();
     saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
     await runCommand(1, MUTATION_COMMAND, true);
     await tick();
 
-    await expect(getSaveOutcome(3)).resolves.toBe('success');
-    expect(saveFileApiMock).toHaveBeenCalledTimes(2);
+    await expect(getSaveOutcome(3)).resolves.toMatchObject({
+      message: 'write failed',
+    });
+    expect(saveFileApiMock).toHaveBeenCalledOnce();
   });
 
-  it('does not let an export overwrite the save outcome', async () => {
+  it('does not let an export clear the save failure', async () => {
     await loadProject();
-    exportFileMock.mockRejectedValueOnce(new Error('export failed'));
+    saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
     await save(1);
     await handle({
       id: 2,
@@ -491,7 +500,9 @@ describe('dbProcess save outcome tracking', () => {
       filePath: '/some/export.json',
     });
 
-    await expect(getSaveOutcome(3)).resolves.toBe('success');
+    await expect(getSaveOutcome(3)).resolves.toMatchObject({
+      message: 'write failed',
+    });
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
   });
 
@@ -534,6 +545,7 @@ describe('dbProcess save outcome tracking', () => {
 
   it('resets the tracked result when another file is loaded', async () => {
     await loadProject();
+    saveFileApiMock.mockRejectedValueOnce(new Error('write failed'));
     await save(1);
     loadFileMock.mockRejectedValueOnce(new Error('load failed'));
     await handle({ id: 2, type: 'loadFile', filePath: '/does-not-exist' });

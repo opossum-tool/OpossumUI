@@ -15,6 +15,11 @@ import {
 const flushSavesMock = vi.hoisted(() => vi.fn());
 const isDeadMock = vi.hoisted(() => vi.fn());
 const quitMock = vi.hoisted(() => vi.fn());
+const failure = {
+  message: 'Disk full',
+  id: 'first',
+  fileName: 'project.opossum',
+};
 
 vi.mock('electron', () => ({
   app: { quit: quitMock },
@@ -43,7 +48,11 @@ function createWindowMock(
   const send = vi.fn();
   const preventDefault = vi.fn();
   const window = {
+    isDestroyed: vi.fn(() => false),
     webContents: {
+      id: 7,
+      once: vi.fn(),
+      removeListener: vi.fn(),
       send,
       isDestroyed: vi.fn(() => webContentsOverrides.isDestroyed ?? false),
       isCrashed: vi.fn(() => webContentsOverrides.isCrashed ?? false),
@@ -132,6 +141,20 @@ describe('handleWindowClose', () => {
     await Promise.resolve();
     expect(quitMock).not.toHaveBeenCalled();
   });
+
+  it('keeps the window open after a timeout if a save failed', async () => {
+    flushSavesMock.mockResolvedValue(failure);
+    const { window, send, preventDefault } = createWindowMock();
+    closeWindow(window, preventDefault);
+    currentTimestamp += UNRESPONSIVE_TIMEOUT_MS;
+    closeWindow(window, preventDefault);
+    await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(2));
+    expect(quitMock).not.toHaveBeenCalled();
+    await expect(confirmQuit()).resolves.toEqual({
+      status: 'blocked',
+      failure,
+    });
+  });
 });
 
 describe('confirmQuit', () => {
@@ -140,6 +163,22 @@ describe('confirmQuit', () => {
     flushSavesMock.mockReset().mockResolvedValue(undefined);
     isDeadMock.mockReset().mockReturnValue(false);
     quitMock.mockReset();
+  });
+
+  it('waits for a pending save and quits even if it fails again after explicit discard', async () => {
+    flushSavesMock.mockResolvedValue(failure);
+    await expect(confirmQuit()).resolves.toEqual({
+      status: 'blocked',
+      failure,
+    });
+    const pendingSave = Promise.withResolvers<typeof failure>();
+    flushSavesMock.mockReturnValueOnce(pendingSave.promise);
+    const quitPromise = confirmQuit({ discardUnsavedChanges: true });
+    expect(quitMock).not.toHaveBeenCalled();
+
+    pendingSave.resolve({ ...failure, id: 'second' });
+    await expect(quitPromise).resolves.toBeUndefined();
+    expect(quitMock).toHaveBeenCalledTimes(1);
   });
 
   it('waits for the DB process operations to settle, then quits', async () => {

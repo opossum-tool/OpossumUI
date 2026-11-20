@@ -301,11 +301,24 @@ export interface SelectSaveFileOptions {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Listener = (event: IpcRendererEvent, ...args: Array<any>) => void;
 
+export interface SaveFailure {
+  message: string;
+  fileName: string;
+  id: string;
+}
+
+export type LeaveResult<T = void> =
+  { status: 'blocked'; failure: SaveFailure } | T;
+
+export interface QuitOptions {
+  discardUnsavedChanges: boolean;
+}
+
 export interface ElectronAPI {
-  confirmQuit: () => Promise<void>;
+  confirmQuit: (options?: QuitOptions) => Promise<LeaveResult>;
   quitRequestHandled: () => void;
   /** Resolves once pending renderer-submitted mutations and saves have settled. */
-  whenBackendIdle: () => Promise<void>;
+  flushPendingSaves: () => Promise<SaveFailure | undefined>;
   relaunch: () => void;
   openLink: (link: string) => Promise<unknown>;
   openFile: (filePath?: string) => Promise<unknown>;
@@ -316,11 +329,11 @@ export interface ElectronAPI {
     inputFilePath: string,
     fileType: FileType,
     opossumFilePath: string,
-  ) => Promise<boolean>;
+  ) => Promise<LeaveResult<boolean>>;
   mergeFileAndLoad: (
     inputFilePath: string,
     fileType: FileType,
-  ) => Promise<boolean>;
+  ) => Promise<LeaveResult<boolean>>;
   selectSplitDestination: (splitPaths: Array<string>) => Promise<string>;
   splitFile: (
     splitPaths: Array<string>,
@@ -337,7 +350,7 @@ export interface ElectronAPI {
     ignoreReadonlyResourceOutputConflicts: boolean;
     deleteSplitFilesAfterMerge: boolean;
   }) => Promise<MergeOpossumFilesResult>;
-  saveFile: () => Promise<void>;
+  saveFile: () => Promise<SaveFailure | undefined>;
   forceUnlock: () => Promise<void>;
   exportFile: (exportType: ExportType) => Promise<void>;
   /**
@@ -353,7 +366,7 @@ export interface ElectronAPI {
   getUpdateState: () => Promise<UpdateState>;
   checkForUpdates: () => Promise<UpdateState>;
   downloadUpdate: (tag: string) => Promise<UpdateState>;
-  restartAndUpdate: () => Promise<void>;
+  restartAndUpdate: () => Promise<LeaveResult>;
   api: <C extends CommandName>(
     command: C,
     params: CommandParams<C>,
