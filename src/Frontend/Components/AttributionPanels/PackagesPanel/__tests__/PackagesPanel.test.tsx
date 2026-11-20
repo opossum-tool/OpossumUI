@@ -598,7 +598,9 @@ describe('PackagesPanel', () => {
       );
     });
 
-    await selectTab(PACKAGES_PANEL, 'parents');
+    await userEvent.click(
+      screen.getByRole('tab', { name: `${text.relations.parents} (1)` }),
+    );
 
     await userEvent.click(screen.getByRole('button', { name: 'sort button' }));
     await userEvent.click(

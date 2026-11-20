@@ -169,6 +169,7 @@ describe('filtering signals', () => {
     );
     await clickPanelFilterMenuButton(SIGNALS_PANEL);
     await clearAllLicenseFilters();
+    await expectLicenseEditorTabVisible('Selected (0)', true);
     await closeFilterMenu();
     await expectPackageCards(
       SIGNALS_PANEL,

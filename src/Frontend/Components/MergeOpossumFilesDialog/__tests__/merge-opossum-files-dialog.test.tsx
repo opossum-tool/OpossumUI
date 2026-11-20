@@ -58,6 +58,9 @@ describe('MergeOpossumFilesDialog', () => {
       screen.getByLabelText(MERGE_DIALOG_LABEL),
     );
     expect(
+      screen.queryByText(text.mergeOpossumFilesDialog.noReadonlyPathsWarning),
+    ).not.toBeInTheDocument();
+    expect(
       screen.getByTestId('merge-opossum-files-output-path-input'),
     ).toBeInTheDocument();
   });

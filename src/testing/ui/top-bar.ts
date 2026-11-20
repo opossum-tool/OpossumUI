@@ -89,6 +89,10 @@ export async function clickProgressBar(): Promise<void> {
 type ProgressBarMode =
   'Attributions' | 'Criticalities' | 'Classifications' | 'AI';
 
+// The AI tooltip renders its counts in a table instead of "…label: count"
+// lines, so expectProgressBarTooltipShowsValues does not support it yet.
+type ProgressBarTooltipMode = Exclude<ProgressBarMode, 'AI'>;
+
 const PROGRESS_BAR_MODE_TEXT: Record<
   ProgressBarMode,
   { selectLabel: string; ariaLabel: string }
@@ -99,8 +103,7 @@ const PROGRESS_BAR_MODE_TEXT: Record<
   Classifications: text.topBar.switchableProgressBar.classificationBar,
 };
 
-const PROGRESS_BAR_MODE_INTROS: Record<ProgressBarMode, string> = {
-  AI: text.topBar.switchableProgressBar.aiBar.intro,
+const PROGRESS_BAR_MODE_INTROS: Record<ProgressBarTooltipMode, string> = {
   Attributions: text.topBar.switchableProgressBar.attributionBar.intro,
   Criticalities: text.topBar.switchableProgressBar.criticalityBar.intro,
   Classifications: text.topBar.switchableProgressBar.classificationBar.intro,
@@ -148,7 +151,7 @@ export async function hoverProgressBar(): Promise<void> {
 
 export async function expectProgressBarTooltipShowsValues(
   values: ProgressBarTooltipValues,
-  mode: ProgressBarMode = 'Attributions',
+  mode: ProgressBarTooltipMode = 'Attributions',
 ): Promise<void> {
   // Pure assertion: hover the progress bar first via hoverProgressBar(). The
   // component renders one "…label: count" line per nonzero segment and omits
