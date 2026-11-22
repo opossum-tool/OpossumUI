@@ -233,7 +233,7 @@
   },
   "packageManager": "yarn@4.18.1",
   "resolutions": {
-    "@electron/rebuild/node-abi": "4.40.0"
+    "@electron/rebuild/node-abi": "4.43.0"
   },
   "dependenciesMeta": {
     "esbuild": {
