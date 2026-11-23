@@ -110,13 +110,11 @@ export class DbProcessClient {
   }
 
   /**
-   * Resolves once every tracked operation and every scheduled save in the
-   * DB process — from any port — has concluded, and returns the outcome of
-   * the latest save. `undefined` means no write happened since the file
-   * was loaded.
+   * Waits for tracked work and writes any remaining dirty edits. Returns the
+   * save outcome, or `undefined` if no ordinary save has run for this project.
    */
-  waitForPendingSaves(): Promise<SaveResult | undefined> {
-    return this.request({ type: 'waitForPendingSaves' }) as Promise<
+  flushSaves(): Promise<SaveResult | undefined> {
+    return this.request({ type: 'flushSaves' }) as Promise<
       SaveResult | undefined
     >;
   }

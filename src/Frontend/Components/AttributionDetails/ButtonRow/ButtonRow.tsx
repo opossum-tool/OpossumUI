@@ -16,7 +16,6 @@ import MuiTooltip from '@mui/material/Tooltip';
 import { useIsMutating } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 
-import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
 import type {
   Attributions,
   PackageInfo,
@@ -34,9 +33,7 @@ import { usePickerMode } from '../../../state/variables/use-picker-mode';
 import { backend } from '../../../util/backendClient';
 import { getCardLabels } from '../../../util/get-card-labels';
 import { isPackageInvalid } from '../../../util/input-validation';
-import { useAttributionSaveReveal } from '../../../util/use-attribution-save-reveal';
 import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../../util/use-focused-attribution-outcome';
-import { useIpcRenderer } from '../../../util/use-ipc-renderer';
 import { ConfirmDeletePopup } from '../../ConfirmDeletePopup/ConfirmDeletePopup';
 import { ConfirmReplacePopup } from '../../ConfirmReplacePopup/ConfirmReplacePopup';
 import { DiffPopup } from '../../DiffPopup/DiffPopup';
@@ -47,11 +44,11 @@ interface Props {
   presentation: AttributionDetailsPresentation;
   draft: PackageInfo;
   isLoading: boolean;
-  onOpenSave: () => void;
+  onSave: () => Promise<void>;
+  isSaving: boolean;
 }
 
 export function ButtonRow(props: Props) {
-  const { onOpenSave } = props;
   const dispatch = useAppDispatch();
   const isPackageInfoDirty = useAppSelector(getIsPackageInfoDirty);
 
@@ -59,14 +56,7 @@ export function ButtonRow(props: Props) {
   const unresolveAttributions = backend.unresolveAttributions.useMutation();
   const handleFocusedAttributionOutcome =
     useFocusedAttributionOutcomeBeforeInvalidation();
-  const { publishSaveCompletion } = useAttributionSaveReveal();
   const linkAttribution = backend.createOrMatchAttributions.useMutation({
-    onBeforeInvalidation: handleFocusedAttributionOutcome,
-  });
-  const updateOrMatch = backend.updateOrMatchAttributions.useMutation({
-    onBeforeInvalidation: handleFocusedAttributionOutcome,
-  });
-  const createOrMatch = backend.createOrMatchAttributions.useMutation({
     onBeforeInvalidation: handleFocusedAttributionOutcome,
   });
   const mutationPending = useIsMutating() > 0;
@@ -85,7 +75,6 @@ export function ButtonRow(props: Props) {
     hasResourceInfo,
     hasResolvedAttributions,
     hasOriginalAttribution,
-    hasMultipleResources,
   } = props.presentation;
   const pickerMode = usePickerMode();
   const packageInfo = props.draft;
@@ -132,53 +121,6 @@ export function ButtonRow(props: Props) {
   const selectedSignalIsResolved = resolvedExternalAttributions?.has(
     packageInfo.id,
   );
-
-  const handleSave = useCallback(async () => {
-    if (interactionBlocked) {
-      return;
-    }
-    if (packageInfo.preSelected || isDirty) {
-      if (!hasResourceInfo) {
-        return;
-      }
-      if (hasMultipleResources) {
-        onOpenSave();
-      } else {
-        const params = {
-          attributions: {
-            [packageInfo.id]: packageInfo,
-          },
-          focusedAttributionUuid: packageInfo.id,
-        };
-        const result = packageInfo.id
-          ? await updateOrMatch.mutateAsync(params)
-          : await createOrMatch.mutateAsync({
-              ...params,
-              resourcePath: selectedResourceId,
-            });
-        publishSaveCompletion(
-          result.focusedAttributionOutcome,
-          packageInfo.id,
-          selectedResourceId,
-        );
-      }
-    }
-  }, [
-    interactionBlocked,
-    packageInfo,
-    isDirty,
-    hasResourceInfo,
-    hasMultipleResources,
-    onOpenSave,
-    updateOrMatch,
-    createOrMatch,
-    publishSaveCompletion,
-    selectedResourceId,
-  ]);
-
-  useIpcRenderer(AllowedFrontendChannels.SaveFileRequest, () => handleSave(), [
-    handleSave,
-  ]);
 
   return (
     <Container
@@ -260,7 +202,7 @@ export function ButtonRow(props: Props) {
               aria-label={label}
               size={'small'}
               color={'secondary'}
-              onClick={handleSave}
+              onClick={props.onSave}
               disabled={
                 isInvalid ||
                 !hasResourceInfo ||
@@ -268,7 +210,7 @@ export function ButtonRow(props: Props) {
                 mutationPending
               }
             >
-              {updateOrMatch.isPending || createOrMatch.isPending ? (
+              {props.isSaving ? (
                 <MuiCircularProgress
                   size={buttonSpinnerSize}
                   color={'inherit'}

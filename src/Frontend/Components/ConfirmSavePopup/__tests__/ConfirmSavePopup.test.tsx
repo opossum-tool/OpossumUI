@@ -92,7 +92,9 @@ describe('AttributionFormConfirmSavePopup', () => {
         open
         onClose={() => events.push('close')}
         onAcceptDrafts={() => events.push('accept')}
-        onSaveComplete={() => events.push('complete')}
+        onSaveComplete={() => {
+          events.push('complete');
+        }}
         selection={{ mode: 'explicit', attributionUuids: [attribution.id] }}
         attributions={{ [attribution.id]: updatedAttribution }}
       />,
@@ -271,7 +273,9 @@ describe('AttributionFormConfirmSavePopup', () => {
       <AttributionFormConfirmSavePopup
         open
         onClose={() => events.push('close')}
-        onSaveComplete={() => events.push('complete')}
+        onSaveComplete={() => {
+          events.push('complete');
+        }}
         selection={{
           mode: 'allMatching',
           query: {

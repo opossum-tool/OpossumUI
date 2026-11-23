@@ -2,7 +2,8 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act } from '@testing-library/react';
+import { act, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import AdmZip from 'adm-zip';
 import type {
   BrowserWindow,
@@ -10,7 +11,8 @@ import type {
   MenuItem,
   MenuItemConstructorOptions,
 } from 'electron';
-import { readFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync } from 'node:fs';
+import { dirname } from 'node:path';
 
 import * as saveFileModule from '../ElectronBackend/api/saveFile';
 import {
@@ -21,16 +23,28 @@ import {
 import * as dbProcessClientModule from '../ElectronBackend/dbProcess/dbProcessClient';
 import * as dialogs from '../ElectronBackend/main/dialogs';
 import { setGlobalBackendState } from '../ElectronBackend/main/globalBackendState';
-import { openFileListener } from '../ElectronBackend/main/listeners';
-import { getFileMenu } from '../ElectronBackend/main/menu/fileMenu';
+import {
+  importFileConvertAndLoadListener,
+  mergeFileAndLoadListener,
+  openFileListener,
+  saveFileListener,
+} from '../ElectronBackend/main/listeners';
+import {
+  getFileMenu,
+  importFileFormats,
+} from '../ElectronBackend/main/menu/fileMenu';
 import { menuItemIds } from '../ElectronBackend/main/menu/menuItemIds';
 import {
   confirmQuit,
+  handleWindowClose,
   resetQuitStateForTesting,
 } from '../ElectronBackend/main/quit-handling';
+import * as converters from '../ElectronBackend/opossum-file/opossum-file';
+import '../ElectronBackend/preload';
 import type { OpossumOutputFile } from '../ElectronBackend/types/types';
 import { setDatabaseInitialized } from '../Frontend/util/backendClient';
-import { AllowedFrontendChannels } from '../shared/ipc-channels';
+import { AllowedFrontendChannels, IpcChannel } from '../shared/ipc-channels';
+import type { ElectronAPI } from '../shared/shared-types';
 import { text } from '../shared/text';
 import { writeOpossumFile } from '../shared/write-file';
 import { OUTPUT_FILE_NAME } from '../shared/write-file-utils';
@@ -39,16 +53,38 @@ import { renderApp } from '../testing/render-app';
 import {
   clickPopupButton,
   expectFormFieldValues,
+  expectPopupHidden,
   fillFormField,
   gotoResource,
+  IMPORT_DIALOG_LABEL,
+  openImportDialogFromMenu,
+  resourceTreeItem,
   saveChangesInAttributionColumn,
+  selectImportInputFile,
+  selectImportOutputFile,
 } from '../testing/ui';
 
-const { quit, getUserSetting } = vi.hoisted(() => ({
-  quit: vi.fn(),
-  getUserSetting: vi.fn(),
+const { quit, getUserSetting, exposeInMainWorld, invoke, on } = vi.hoisted(
+  () => ({
+    quit: vi.fn(),
+    getUserSetting: vi.fn(),
+    exposeInMainWorld: vi.fn<(name: string, api: ElectronAPI) => void>(),
+    invoke: vi.fn(),
+    on: vi.fn<
+      (
+        channel: string,
+        listener: (event: {
+          ports: Array<ReturnType<typeof createPort>>;
+        }) => void,
+      ) => void
+    >(),
+  }),
+);
+vi.mock('electron', () => ({
+  app: { quit },
+  contextBridge: { exposeInMainWorld },
+  ipcRenderer: { invoke, on },
 }));
-vi.mock('electron', () => ({ app: { quit } }));
 vi.mock('../ElectronBackend/main/iconHelpers', () => ({
   getIconBasedOnTheme: vi.fn(),
 }));
@@ -63,11 +99,12 @@ const [attributionId, packageInfo] = faker.opossum.rawAttribution({
   packageName: 'original package',
 });
 const savedName = 'submitted change';
+const [otherAttributionId, otherPackageInfo] = faker.opossum.rawAttribution();
 const draftName = 'unsubmitted draft';
 
 // Keep the real request/response client and DB-process handler, replacing only
 // the Electron MessagePort transport with an in-process connection.
-function createClient() {
+function createPort() {
   const port = {
     onmessage: null as ((event: MessageEvent) => void) | null,
     postMessage(request: DbProcessRequest) {
@@ -81,11 +118,17 @@ function createClient() {
       );
     },
   };
-  return new dbProcessClientModule.DbProcessClient(port);
+  return port;
 }
+
+const [, preloadAPI] = exposeInMainWorld.mock.calls[0];
+const [, connectPreload] = on.mock.calls.find(
+  ([channel]) => channel === dbProcessClientModule.FRONTEND_TO_DB_PROCESS_PORT,
+)!;
 
 let client: dbProcessClientModule.DbProcessClient;
 let firstPath: string;
+let projectId: string;
 let secondPath: string;
 let releaseSave: () => void;
 let saveStarted: Promise<void>;
@@ -94,16 +137,18 @@ beforeEach(async () => {
   resetDbProcessStateForTesting();
   resetQuitStateForTesting();
   setGlobalBackendState({});
-  client = createClient();
+  client = new dbProcessClientModule.DbProcessClient(createPort());
+  connectPreload({ ports: [createPort()] });
   vi.spyOn(dbProcessClientModule, 'getMainDbClient').mockReturnValue(client);
-  vi.mocked(window.electronAPI.api).mockImplementation(client.api.bind(client));
-  vi.mocked(window.electronAPI.whenBackendIdle).mockImplementation(async () => {
-    await client.waitForPendingSaves();
-  });
+  vi.mocked(window.electronAPI.api).mockImplementation(preloadAPI.api);
+  vi.mocked(window.electronAPI.whenBackendIdle).mockImplementation(
+    preloadAPI.whenBackendIdle,
+  );
   vi.mocked(window.electronAPI.confirmQuit).mockImplementation(confirmQuit);
 
   firstPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
   secondPath = faker.outputPath(`${faker.string.uuid()}.opossum`);
+  mkdirSync(dirname(firstPath), { recursive: true });
   vi.spyOn(dialogs, 'openOpossumFileDialog').mockReturnValue([secondPath]);
   for (const path of [firstPath, secondPath]) {
     const metadata = faker.opossum.metadata();
@@ -111,14 +156,20 @@ beforeEach(async () => {
       path,
       input: faker.opossum.inputData({
         metadata,
-        resources: { file: 1 },
+        resources: { file: 1, other: 1 },
         externalAttributions: {},
         resourcesToAttributions: {},
       }),
       output: faker.opossum.outputData({
         metadata,
-        manualAttributions: { [attributionId]: packageInfo },
-        resourcesToAttributions: { '/file': [attributionId] },
+        manualAttributions: {
+          [attributionId]: packageInfo,
+          [otherAttributionId]: otherPackageInfo,
+        },
+        resourcesToAttributions:
+          path === firstPath
+            ? { '/file': [attributionId], '/other': [otherAttributionId] }
+            : { '/file': [attributionId], '/other': [attributionId] },
       }),
     });
   }
@@ -126,6 +177,7 @@ beforeEach(async () => {
   if (!result.ok) {
     throw new Error(result.error.message);
   }
+  projectId = result.projectId;
   setDatabaseInitialized(true);
 
   const started = Promise.withResolvers<void>();
@@ -145,14 +197,19 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  releaseSave();
-  await client.waitForPendingSaves();
+  releaseSave?.();
+  await client.flushSaves();
+  resetDbProcessStateForTesting();
   vi.mocked(saveFileModule.saveFile).mockRestore();
   vi.mocked(dbProcessClientModule.getMainDbClient).mockRestore();
   vi.mocked(dialogs.openOpossumFileDialog).mockRestore();
   vi.mocked(window.electronAPI.openFile).mockReset();
+  vi.mocked(window.electronAPI.saveFile)
+    .mockReset()
+    .mockResolvedValue(undefined);
   vi.mocked(window.electronAPI.confirmQuit).mockReset();
   vi.mocked(window.electronAPI.whenBackendIdle).mockReset();
+  invoke.mockReset();
   quit.mockReset();
 });
 
@@ -162,7 +219,7 @@ async function submitChange() {
   await expectFormFieldValues({ name: packageInfo.packageName });
   fillFormField('name', savedName);
   await saveChangesInAttributionColumn();
-  await saveStarted;
+  expect(saveFileModule.saveFile).not.toHaveBeenCalled();
   return view;
 }
 
@@ -229,6 +286,7 @@ async function expectSavedBeforeOpening(
     packageInfo.packageName,
   );
   await act(async () => {
+    await saveStarted;
     releaseSave();
     const { archive, loaded } = await opened;
     expect(loaded).toBe(true);
@@ -259,11 +317,117 @@ async function expectSavedBeforeQuitting(exited: Promise<Buffer>) {
     packageInfo.packageName,
   );
   await act(async () => {
+    await saveStarted;
     releaseSave();
     expect(packageNameInArchive(await exited)).toBe(savedName);
   });
   expect(quit).toHaveBeenCalledOnce();
 }
+
+async function prepareImport(intoCurrent: boolean) {
+  const { sendToChannel } = await submitChange();
+  setGlobalBackendState({ projectId, opossumFilePath: firstPath });
+  vi.mocked(window.electronAPI.selectFile).mockResolvedValueOnce(secondPath);
+  act(() =>
+    openImportDialogFromMenu(sendToChannel, importFileFormats[0], intoCurrent),
+  );
+  await selectImportInputFile();
+  return {
+    webContents: { send: sendToChannel },
+    setTitle: vi.fn(),
+  } as unknown as BrowserWindow;
+}
+
+async function confirmImport() {
+  expect(packageNameInArchive(readFileSync(firstPath))).toBe(
+    packageInfo.packageName,
+  );
+  await clickPopupButton(IMPORT_DIALOG_LABEL, text.buttons.import);
+  releaseSave();
+  await expectPopupHidden(IMPORT_DIALOG_LABEL);
+}
+
+test('saves the current project before converting an import as a new project', async () => {
+  const mainWindow = await prepareImport(false);
+  const importFile = importFileConvertAndLoadListener(mainWindow, vi.fn());
+  const destination = faker.outputPath(`${faker.string.uuid()}.opossum`);
+  vi.mocked(window.electronAPI.selectSaveFile).mockResolvedValueOnce(
+    destination,
+  );
+  await selectImportOutputFile();
+
+  const archiveAtConversion = Promise.withResolvers<Buffer>();
+  // Stand in for conversion with an archive the real load path can open.
+  using convert = vi
+    .spyOn(converters, 'convertToOpossum')
+    .mockImplementation((source, target) => {
+      archiveAtConversion.resolve(readFileSync(firstPath));
+      copyFileSync(source, target);
+      return Promise.resolve();
+    });
+  vi.mocked(window.electronAPI.importFileConvertAndLoad).mockImplementationOnce(
+    preloadAPI.importFileConvertAndLoad,
+  );
+  invoke.mockImplementationOnce((_, source, fileType, target) =>
+    importFile({} as IpcMainInvokeEvent, source, fileType, target),
+  );
+
+  await confirmImport();
+
+  expect(convert).toHaveBeenCalledOnce();
+  expect(packageNameInArchive(await archiveAtConversion.promise)).toBe(
+    savedName,
+  );
+});
+
+test('includes the submitted edit in the backup when importing into the current project', async () => {
+  const mainWindow = await prepareImport(true);
+  const importFile = mergeFileAndLoadListener(mainWindow, vi.fn());
+  // The listener still creates the real backup before calling the converter.
+  using merge = vi
+    .spyOn(converters, 'mergeFileIntoOpossum')
+    .mockResolvedValue(undefined);
+  vi.mocked(window.electronAPI.mergeFileAndLoad).mockImplementationOnce(
+    preloadAPI.mergeFileAndLoad,
+  );
+  invoke.mockImplementationOnce((_, source, fileType) =>
+    importFile({} as IpcMainInvokeEvent, source, fileType),
+  );
+
+  await confirmImport();
+
+  expect(merge).toHaveBeenCalledOnce();
+  expect(packageNameInArchive(readFileSync(`${firstPath}.backup`))).toBe(
+    savedName,
+  );
+});
+
+test('persists the submitted change before restarting to install an update', async () => {
+  vi.mocked(window.electronAPI.getUpdateState).mockResolvedValueOnce({
+    status: 'downloaded',
+    tag: 'OpossumUI-2026-10-23',
+  });
+  await submitChange();
+  vi.mocked(window.electronAPI.restartAndUpdate).mockImplementationOnce(
+    preloadAPI.restartAndUpdate,
+  );
+  const archiveAtRestart = Promise.withResolvers<Buffer>();
+  invoke.mockImplementationOnce((channel) => {
+    expect(channel).toBe(IpcChannel.RestartAndUpdate);
+    archiveAtRestart.resolve(readFileSync(firstPath));
+    return Promise.resolve();
+  });
+  expect(packageNameInArchive(readFileSync(firstPath))).toBe(
+    packageInfo.packageName,
+  );
+
+  await userEvent.click(
+    await screen.findByRole('button', { name: text.updateApp.restart }),
+  );
+  releaseSave();
+
+  expect(packageNameInArchive(await archiveAtRestart.promise)).toBe(savedName);
+});
 
 describe.each([
   {
@@ -304,6 +468,122 @@ describe.each([
   });
 });
 
+async function prepareMenuSave(path = firstPath, id = projectId) {
+  const { sendToChannel } = await renderApp();
+  const mainWindow = {
+    webContents: { send: sendToChannel },
+  } as unknown as BrowserWindow;
+  setGlobalBackendState({ projectId: id, opossumFilePath: path });
+  const fileMenu = await getFileMenu(mainWindow, vi.fn(), false);
+  const saveItem = submenuOf(fileMenu).find(
+    ({ id }) => id === menuItemIds.saveFile,
+  )!;
+  const saved = Promise.withResolvers<void>();
+  vi.mocked(window.electronAPI.saveFile).mockImplementationOnce(async () => {
+    await saveFileListener(mainWindow)(undefined);
+    saved.resolve();
+  });
+  return {
+    clickSave: () =>
+      act(() =>
+        saveItem.click!({ id: saveItem.id } as MenuItem, mainWindow, {}),
+      ),
+    saved: saved.promise,
+  };
+}
+
+test('File → Save writes the current draft before the autosave tick', async () => {
+  const { clickSave, saved } = await prepareMenuSave();
+
+  await gotoResource('file');
+  await expectFormFieldValues({ name: packageInfo.packageName });
+  fillFormField('name', savedName);
+  clickSave();
+
+  await act(async () => {
+    await saveStarted;
+    releaseSave();
+    await saved;
+  });
+  expect(packageNameInArchive(readFileSync(firstPath))).toBe(savedName);
+});
+
+test('File → Save writes an already submitted edit without a draft', async () => {
+  const { clickSave, saved } = await prepareMenuSave();
+  await gotoResource('file');
+  await expectFormFieldValues({ name: packageInfo.packageName });
+  fillFormField('name', savedName);
+  await saveChangesInAttributionColumn();
+  await expectFormFieldValues({ name: savedName });
+  expect(saveFileModule.saveFile).not.toHaveBeenCalled();
+
+  clickSave();
+  releaseSave();
+  await act(() => saved);
+  expect(packageNameInArchive(readFileSync(firstPath))).toBe(savedName);
+});
+
+test('File → Save writes a submitted edit while another resource’s details load', async () => {
+  const { clickSave, saved } = await prepareMenuSave();
+  await gotoResource('file');
+  await expectFormFieldValues({ name: packageInfo.packageName });
+  fillFormField('name', savedName);
+  await saveChangesInAttributionColumn();
+
+  const detailsQuery = Promise.withResolvers<void>();
+  vi.mocked(window.electronAPI.api).mockImplementation(
+    async (command, params) => {
+      if (
+        command === 'getAttributionLinkStatus' &&
+        (params as { resourcePath: string }).resourcePath === '/other'
+      ) {
+        await detailsQuery.promise;
+      }
+      return client.api(command, params);
+    },
+  );
+
+  try {
+    await userEvent.click(resourceTreeItem('other'));
+    await screen.findByTestId('attribution-details-loading');
+    expect(saveFileModule.saveFile).not.toHaveBeenCalled();
+
+    clickSave();
+    releaseSave();
+    await act(() => saved);
+
+    expect(packageNameInArchive(readFileSync(firstPath))).toBe(savedName);
+    expect(screen.getByTestId('attribution-details-loading')).toBeVisible();
+  } finally {
+    await act(async () => {
+      detailsQuery.resolve();
+      await detailsQuery.promise;
+    });
+  }
+});
+
+test('cancelling the File → Save confirmation skips the archive write', async () => {
+  const result = await client.loadFile(secondPath);
+  if (!result.ok) {
+    throw new Error(result.error.message);
+  }
+  const { clickSave } = await prepareMenuSave(secondPath, result.projectId);
+  await gotoResource('file');
+  await expectFormFieldValues({ name: packageInfo.packageName });
+  fillFormField('name', savedName);
+
+  clickSave();
+  await clickPopupButton(
+    text.saveAttributionsPopup.ariaLabel,
+    text.buttons.cancel,
+  );
+
+  expect(saveFileModule.saveFile).not.toHaveBeenCalled();
+  expect(packageNameInArchive(readFileSync(secondPath))).toBe(
+    packageInfo.packageName,
+  );
+});
+
 test('persists the submitted change before quitting', async () => {
   const { requestQuit, exited } = await prepareQuit();
 
@@ -325,17 +605,25 @@ test('discards a newer draft and persists the submitted change before quitting',
   await expectSavedBeforeQuitting(exited);
 });
 
-test('persists the submitted change when the main process quits without renderer approval', async () => {
+test('persists the submitted change before closing with a crashed renderer', async () => {
   await submitChange();
   const exited = Promise.withResolvers<Buffer>();
   quit.mockImplementation(() => exited.resolve(readFileSync(firstPath)));
+  const send = vi.fn();
+  const preventDefault = vi.fn();
+  const mainWindow = {
+    webContents: {
+      isDestroyed: () => false,
+      isCrashed: () => true,
+      send,
+    },
+  } as unknown as BrowserWindow;
 
-  // The unresponsive-renderer fallback calls confirmQuit directly. Its save
-  // barrier must work independently of the renderer's approval flow.
-  const quitting = confirmQuit();
-  releaseSave();
-  await quitting;
+  handleWindowClose(mainWindow, { preventDefault, defaultPrevented: false });
 
-  expect(packageNameInArchive(await exited.promise)).toBe(savedName);
-  expect(quit).toHaveBeenCalledOnce();
+  expect(preventDefault).toHaveBeenCalledOnce();
+  expect(send).not.toHaveBeenCalled();
+  await saveStarted;
+  expect(quit).not.toHaveBeenCalled();
+  await expectSavedBeforeQuitting(exited.promise);
 });
