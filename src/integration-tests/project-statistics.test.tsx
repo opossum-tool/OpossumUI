@@ -2,7 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, screen, waitFor, within } from '@testing-library/react';
+/* eslint-disable testing-library/no-node-access -- recharts renders bars and
+   tooltips with classes that are only reachable via DOM queries */
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import type { ComponentProps } from 'react';
 import type * as Recharts from 'recharts';
 import { describe, expect, it, vi } from 'vitest';
@@ -153,19 +155,54 @@ describe('project statistics', () => {
       await expectStatisticsChartContainsText(chartTestId, label);
     }
 
-    const assertAnnouncedCount = async (label: string, count: number) => {
-      const chart = within(screen.getByTestId(chartTestId));
-      act(() => chart.getByRole('application').focus());
-      await waitFor(() => {
-        expect(chart.getByRole('status')).toHaveTextContent(
-          `${label}: ${count}`,
-        );
-      });
+    // Hovering a bar row opens the tooltip, which is how users read the
+    // exact per-state counts. Collect the tooltip text of every row; the
+    // expected set is independent of the chart's display order.
+    const readAllTooltipTexts = async (): Promise<Array<string>> => {
+      const chart = screen.getByTestId(chartTestId);
+      const chartSurface = within(chart).getByRole('application');
+      const barRows = Array.from(
+        chart.querySelectorAll('.recharts-bar-background-rectangle'),
+      );
+      const tooltipTexts: Array<string> = [];
+      for (const barRow of barRows) {
+        const clientX =
+          Number(barRow.getAttribute('x')) +
+          Number(barRow.getAttribute('width')) / 2;
+        const clientY =
+          Number(barRow.getAttribute('y')) +
+          Number(barRow.getAttribute('height')) / 2;
+        fireEvent.mouseMove(chartSurface, { clientX, clientY });
+        const tooltip = await waitFor(() => {
+          const tooltip = chart.querySelector('.recharts-tooltip-wrapper');
+          expect(tooltip).not.toBeNull();
+          expect(tooltip).toBeVisible();
+          return tooltip!;
+        });
+        tooltipTexts.push(tooltip.textContent ?? '');
+      }
+      return tooltipTexts;
     };
 
-    // The accessible status announces the first chart entry, which is
-    // 'deferredUnmodified' due to the review-attention ordering.
-    await assertAnnouncedCount(aiStatesText.deferredUnmodified, 1);
+    const expectedTooltips = (
+      stateCounts: Partial<Record<keyof typeof aiStatesText, number>>,
+    ): Array<string> =>
+      Object.entries(stateCounts)
+        .map(
+          ([state, count]) =>
+            `${aiStatesText[state as keyof typeof aiStatesText]}: ${count}`,
+        )
+        .sort();
+
+    expect((await readAllTooltipTexts()).sort()).toEqual(
+      expectedTooltips({
+        nonAi: 1,
+        deferredModified: 1,
+        deferredUnmodified: 1,
+        nonDeferredModified: 1,
+        nonDeferredUnmodified: 1,
+      }),
+    );
 
     await closeProjectStatisticsPopup();
 
@@ -175,7 +212,11 @@ describe('project statistics', () => {
     await saveChangesInAttributionColumn();
 
     await openProjectStatisticsPopup(sendToChannel);
-    await assertAnnouncedCount(aiStatesText.deferredUnmodified, 0);
+    const tooltipsAfterEdit = await readAllTooltipTexts();
+    expect(tooltipsAfterEdit).toContain(
+      `${aiStatesText.deferredUnmodified}: 0`,
+    );
+    expect(tooltipsAfterEdit).toContain(`${aiStatesText.deferredModified}: 2`);
     await expectStatisticsChartContainsText(
       chartTestId,
       aiStatesText.deferredModified,

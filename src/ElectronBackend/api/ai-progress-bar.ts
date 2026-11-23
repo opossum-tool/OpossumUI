@@ -63,16 +63,10 @@ export async function hasAiAttributions() {
 }
 
 async function getAiAttributionCounts() {
-  // Count attribution rows, not links. The correlated EXISTS probes the
+  // Counts attribution rows, not links: the correlated EXISTS probes the
   // attribution_uuid/resource_id index and stops at the first writable link.
-  // In particular, do not reuse the navigation query: finding the first
-  // resource for every attribution unnecessarily expands all resource links.
-  //
-  // The progress bar and the AI statistics share this query: the LEFT JOIN
-  // lets a single scan classify AI attributions (guarded by the presence of
-  // the joined row) and count non-AI attributions at the same time, instead
-  // of a second query repeating the eligible-attribution scan and the
-  // writable-link EXISTS filter.
+  // Shared by progress bar and statistics: one scan classifies AI states and
+  // counts non-AI attributions together.
   const result = await getDb()
     .selectFrom('attribution')
     .leftJoin(

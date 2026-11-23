@@ -5,7 +5,7 @@
 import { orderAiAttributionStates } from '../ProjectStatisticsPopup.util';
 
 describe('orderAiAttributionStates', () => {
-  it('puts review states first and bulk non-review states last', () => {
+  it('puts unexpected non-AI and review states first and bulk states last', () => {
     expect(
       orderAiAttributionStates([
         { name: 'nonAi', count: 9000 },
@@ -15,23 +15,23 @@ describe('orderAiAttributionStates', () => {
         { name: 'deferredModified', count: 120 },
       ]),
     ).toEqual([
-      { name: 'deferredUnmodified', count: 5 },
-      { name: 'deferredModified', count: 120 },
-      { name: 'nonDeferredUnmodified', count: 99000 },
-      { name: 'nonDeferredModified', count: 200 },
       { name: 'nonAi', count: 9000 },
+      { name: 'deferredModified', count: 120 },
+      { name: 'deferredUnmodified', count: 5 },
+      { name: 'nonDeferredModified', count: 200 },
+      { name: 'nonDeferredUnmodified', count: 99000 },
     ]);
   });
 
   it('keeps an already ordered input unchanged', () => {
     expect(
       orderAiAttributionStates([
-        { name: 'deferredModified', count: 1 },
         { name: 'nonAi', count: 2 },
+        { name: 'nonDeferredUnmodified', count: 1 },
       ]),
     ).toEqual([
-      { name: 'deferredModified', count: 1 },
       { name: 'nonAi', count: 2 },
+      { name: 'nonDeferredUnmodified', count: 1 },
     ]);
   });
 

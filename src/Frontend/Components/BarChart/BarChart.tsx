@@ -34,6 +34,40 @@ const MARGIN_RIGHT = 10;
 const MARGIN_BOTTOM = 4;
 const X_AXIS_LABEL_OFFSET = 3;
 
+// Splits a label into at most two lines, breaking only at whitespaces so that
+// long hyphenated words stay intact. The split is balanced by character count
+// so both lines have roughly equal width; the reserved tick width then only
+// needs to fit the widest line instead of the whole label.
+function wrapChartTickLabel(label: string): Array<string> {
+  const words = label.trim().split(/\s+/);
+  if (words.length < 2) {
+    return [label];
+  }
+  let bestSplitIndex = 1;
+  let bestCost = Number.POSITIVE_INFINITY;
+  for (let splitIndex = 1; splitIndex < words.length; splitIndex++) {
+    const firstLine = words.slice(0, splitIndex).join(' ');
+    const secondLine = words.slice(splitIndex).join(' ');
+    const cost = Math.max(firstLine.length, secondLine.length);
+    if (cost < bestCost) {
+      bestCost = cost;
+      bestSplitIndex = splitIndex;
+    }
+  }
+  return [
+    words.slice(0, bestSplitIndex).join(' '),
+    words.slice(bestSplitIndex).join(' '),
+  ];
+}
+
+function ChartTickLabelLines({ label }: { label: string }) {
+  return (
+    <div style={{ whiteSpace: 'pre-line' }}>
+      {wrapChartTickLabel(label).join('\n')}
+    </div>
+  );
+}
+
 function BarChartLabel({
   tick,
   item,
@@ -80,6 +114,9 @@ function BarChartLabel({
                 variant={'caption'}
                 underline={'hover'}
                 onClick={item.onActivate}
+                // The visual label may be wrapped onto multiple rows; keep the
+                // accessible name as the single-line label.
+                aria-label={item.name}
                 style={{
                   ...style,
                   lineHeight: 'inherit',
@@ -87,11 +124,11 @@ function BarChartLabel({
                   maxWidth: '100%',
                 }}
               >
-                {item.name}
+                <ChartTickLabelLines label={item.name} />
               </MuiLink>
             </ChartActionTooltip>
           ) : (
-            <span>{item?.name}</span>
+            <ChartTickLabelLines label={item?.name ?? ''} />
           )}
         </div>
       </div>

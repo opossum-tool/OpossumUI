@@ -34,7 +34,7 @@ const data: Array<ChartDataItem> = [
   },
 ];
 
-test('renders every bar label in full on a single line', () => {
+test('wraps labels along whitespaces into at most two rows', () => {
   renderWithTheme(<BarChart data={data} />);
   const tickLabels = Array.from(
     document.querySelectorAll<HTMLElement>(
@@ -43,13 +43,17 @@ test('renders every bar label in full on a single line', () => {
   );
 
   expect(tickLabels.map((label) => label.textContent)).toEqual(
-    data.map((item) => item.name),
+    data.map((item) => item.name?.replace(' ', '\n')),
   );
   for (const label of tickLabels) {
     expect(label).toBeVisible();
-    // Labels must not shrink to their widest word (min-content): the tick
-    // foreignObject has a single-row height, so wrapped text would be clipped.
+    // max-content keeps each forced line intact: the axis is only as wide as
+    // the widest of the at most two rows, balancing long labels like
+    // 'Non-deferred, human-modified'.
     expect(label.style.width).toBe('max-content');
+    expect(label.firstElementChild?.getAttribute('style')).toContain(
+      'white-space: pre-line',
+    );
   }
 });
 
