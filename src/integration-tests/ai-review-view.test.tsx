@@ -20,11 +20,15 @@ import { renderApp } from '../testing/render-app';
 import {
   ATTRIBUTIONS_PANEL,
   clearPanelSearch,
+  clearTreeSearch,
   clickPackageCard,
   expectAttributionFormMatchesPackageInfo,
   expectPackageCards,
+  expectResourceVisibility,
   fillFormField,
   fillPanelSearch,
+  LINKED_RESOURCES_TREE,
+  searchTree,
 } from '../testing/ui';
 
 const resourceName = faker.opossum.resourceName();
@@ -42,6 +46,22 @@ const data = getParsedInputFileEnrichedWithTestData({
   }),
   resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
     [faker.opossum.filePath(resourceName)]: [aiId, manualId],
+  }),
+});
+const [linkedResourceName1, linkedResourceName2] = faker.opossum.resourceNames({
+  count: 2,
+});
+const linkedResourcesData = getParsedInputFileEnrichedWithTestData({
+  resources: {
+    [linkedResourceName1]: 1,
+    [linkedResourceName2]: 1,
+  },
+  manualAttributions: deserializeAttributions({
+    [aiId]: { ...aiPackage, aiAttributions: {} },
+  }),
+  resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+    [faker.opossum.filePath(linkedResourceName1)]: [aiId],
+    [faker.opossum.filePath(linkedResourceName2)]: [aiId],
   }),
 });
 
@@ -115,6 +135,34 @@ describe('AI Review view', () => {
     expect(
       screen.queryByLabelText('attribution column'),
     ).not.toBeInTheDocument();
+  });
+
+  it('searches linked resources and restores them after clearing', async () => {
+    await renderApp({
+      data: linkedResourcesData,
+      actions: [setSelectedAttributionId(aiId), navigateToView(View.AiReview)],
+    });
+
+    await expectAttributionFormMatchesPackageInfo(aiPackage);
+    await expectResourceVisibility(
+      [linkedResourceName1, linkedResourceName2],
+      [],
+      LINKED_RESOURCES_TREE,
+    );
+
+    await searchTree(linkedResourceName1, 'linked-resources-tree-header');
+    await expectResourceVisibility(
+      [linkedResourceName1],
+      [linkedResourceName2],
+      LINKED_RESOURCES_TREE,
+    );
+
+    await clearTreeSearch('linked-resources-tree-header');
+    await expectResourceVisibility(
+      [linkedResourceName1, linkedResourceName2],
+      [],
+      LINKED_RESOURCES_TREE,
+    );
   });
 
   it('shows the project empty state without mounting the details form', async () => {

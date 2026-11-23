@@ -26,12 +26,10 @@ import { FilterButton } from '../FilterButton/FilterButton';
 import { createLicenseFilterOption } from '../FilterButton/license-editor';
 import { useResourceQuickfilterOption } from '../FilterButton/use-resource-quickfilter-options';
 import { DeferredIcon, UnreviewedIcon } from '../Icons/Icons';
-import { LoadingIndicator } from '../LoadingIndicator/loading-indicator';
 import { ResizePanels } from '../ResizePanels/ResizePanels';
-import { LinkedResourcesTree } from './LinkedResourcesTree/LinkedResourcesTree';
 import { resourceBrowserFilterButtonStyle } from './ResourceBrowser.style';
 import { ResourcesTree } from './ResourcesTree/ResourcesTree';
-import { useLinkedResourcesPanelState } from './use-linked-resources-panel-state';
+import { useLinkedResourcesPanel } from './use-linked-resources-panel';
 
 const LINKED_RESOURCES_SEARCH = 'linked-resources-search';
 const IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS = true;
@@ -141,10 +139,10 @@ export function ResourceBrowser() {
     LINKED_RESOURCES_SEARCH,
     '',
   );
-  const debouncedSearchLinked = useDebouncedInput(searchLinked);
-  const linkedResourcesPanelState = useLinkedResourcesPanelState({
-    search: debouncedSearchLinked,
-  });
+  const linkedResourcesPanel = useLinkedResourcesPanel(
+    searchLinked,
+    setSearchLinked,
+  );
 
   return (
     <>
@@ -255,54 +253,7 @@ export function ResourceBrowser() {
           },
           headerTestId: 'resources-tree-header',
         }}
-        lowerPanel={{
-          title: linkedResourcesPanelState.treeState
-            ? text.resourceBrowser.linkedResources(
-                linkedResourcesPanelState.treeState.belowSelectedResource ?? 0,
-                linkedResourcesPanelState.treeState.count,
-              )
-            : text.resourceBrowser.linkedResourcesTitle,
-          search: {
-            value: searchLinked,
-            setValue: setSearchLinked,
-            channel: AllowedFrontendChannels.SearchLinkedResources,
-          },
-          hidden: linkedResourcesPanelState.isHidden,
-          component: (
-            <div
-              aria-busy={linkedResourcesPanelState.isLoading}
-              data-testid={'linked-resources-panel-content'}
-              style={{
-                position: 'relative',
-                flex: 1,
-                minHeight: 0,
-                overflow: 'hidden',
-              }}
-            >
-              {linkedResourcesPanelState.isIndicatorVisible && (
-                <LoadingIndicator data-testid={'linked-resources-loading'} />
-              )}
-              <div
-                inert={linkedResourcesPanelState.isLoading}
-                style={{ height: '100%' }}
-              >
-                {linkedResourcesPanelState.treeState && (
-                  <LinkedResourcesTree
-                    state={linkedResourcesPanelState.treeState}
-                  />
-                )}
-              </div>
-            </div>
-          ),
-          headerDataAttributes: {
-            'data-applied-search':
-              searchLinked === debouncedSearchLinked &&
-              linkedResourcesPanelState.isSearchApplied
-                ? debouncedSearchLinked
-                : undefined,
-          },
-          headerTestId: 'linked-resources-tree-header',
-        }}
+        lowerPanel={linkedResourcesPanel}
       />
     </>
   );

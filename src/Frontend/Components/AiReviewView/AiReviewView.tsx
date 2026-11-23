@@ -21,8 +21,7 @@ import { AttributionDetails } from '../AttributionDetails/AttributionDetails';
 import { AttributionsList } from '../AttributionPanels/AttributionsPanel/AttributionsList/AttributionsList';
 import { ResizableBox } from '../ResizableBox/ResizableBox';
 import { SearchablePanel } from '../ResizePanels/searchable-panel';
-import { LinkedResourcesTree } from '../ResourceBrowser/LinkedResourcesTree/LinkedResourcesTree';
-import { useLinkedResourcesPanelState } from '../ResourceBrowser/use-linked-resources-panel-state';
+import { useLinkedResourcesPanel } from '../ResourceBrowser/use-linked-resources-panel';
 import {
   ColumnsContainer,
   DetailsColumn,
@@ -35,6 +34,12 @@ export const AiReviewView: React.FC = () => {
   const isPackageInfoDirty = useAppSelector(getIsPackageInfoDirty);
   const { panelSizes, setPanelSizes } = usePanelSizes();
   const [search, setSearch] = useState('');
+  const [linkedResourcesSearchValue, setLinkedResourcesSearchValue] =
+    useState('');
+  const linkedResourcesPanel = useLinkedResourcesPanel(
+    linkedResourcesSearchValue,
+    setLinkedResourcesSearchValue,
+  );
   const debouncedSearch = useDebouncedInput(search);
   const criteria = useMemo<AttributionResultSetCriteria>(
     () => ({
@@ -127,8 +132,6 @@ export const AiReviewView: React.FC = () => {
     !isPackageInfoDirty &&
     resultsAreSettled &&
     attributionIds?.length === 0;
-  const linkedResourcesPanelState = useLinkedResourcesPanelState();
-
   return (
     <ColumnsContainer>
       <ResizableBox
@@ -204,20 +207,22 @@ export const AiReviewView: React.FC = () => {
             onResizeStop={(_event, _direction, ref) =>
               setPanelSizes({ resourceBrowserWidth: ref.offsetWidth })
             }
-            sx={{ flexShrink: 0, overflow: 'visible' }}
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              flexShrink: 0,
+              minHeight: 0,
+              overflow: 'visible',
+            }}
           >
-            <div
-              aria-label={'linked resources column'}
-              aria-busy={linkedResourcesPanelState.isLoading}
-              data-testid={'ai-review-linked-resources-column'}
-              style={{ height: '100%', width: '100%', overflow: 'auto' }}
+            <SearchablePanel
+              title={linkedResourcesPanel.title}
+              headerTestId={linkedResourcesPanel.headerTestId}
+              headerDataAttributes={linkedResourcesPanel.headerDataAttributes}
+              search={linkedResourcesPanel.search}
             >
-              {linkedResourcesPanelState.treeState && (
-                <LinkedResourcesTree
-                  state={linkedResourcesPanelState.treeState}
-                />
-              )}
-            </div>
+              {linkedResourcesPanel.component}
+            </SearchablePanel>
           </ResizableBox>
         </>
       )}
