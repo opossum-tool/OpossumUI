@@ -4859,9 +4859,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jest-dom@npm:5.10.2":
-  version: 5.10.2
-  resolution: "eslint-plugin-jest-dom@npm:5.10.2"
+"eslint-plugin-jest-dom@npm:5.11.0":
+  version: 5.11.0
+  resolution: "eslint-plugin-jest-dom@npm:5.11.0"
   dependencies:
     requireindex: "npm:^1.2.0"
   peerDependencies:
@@ -4870,7 +4870,7 @@ __metadata:
   peerDependenciesMeta:
     "@testing-library/dom":
       optional: true
-  checksum: 10/2d14f789b06371f7486c4b95c14405fad366b06a788b4c2c3f9ba21bf2969c31d44c27f7a2afff00ffe9ef71ef41c8ba0f2183212909381394e45de75c332122
+  checksum: 10/f1c3f123da2d71e408a1a741be25dbcd0fca525998c2bb57cdaf1061529972a318db4f66da660e42321a60230f83b8c65f2155bd4b41d9313e1b93819c06c319
   languageName: node
   linkType: hard
 
@@ -6955,7 +6955,7 @@ __metadata:
     electron-updater: "npm:6.8.11"
     eslint: "npm:10.15.0"
     eslint-plugin-check-file: "npm:3.3.2"
-    eslint-plugin-jest-dom: "npm:5.10.2"
+    eslint-plugin-jest-dom: "npm:5.11.0"
     eslint-plugin-playwright: "npm:2.12.2"
     eslint-plugin-testing-library: "npm:7.16.2"
     fast-csv: "npm:5.0.8"
