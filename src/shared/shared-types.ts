@@ -424,14 +424,18 @@ export type TableOrdering = {
 
 export type QuickfilterScope = 'attribution' | 'signal' | 'resource';
 
-interface SavedQuickfilterBase {
+// Persisted quickfilters are stored via electron-settings in the user
+// settings; its typings only accept object type aliases (interfaces lack the
+// implicit index signature needed to satisfy their SettingsValue type), so
+// these are aliases rather than interfaces.
+type SavedQuickfilterBase = {
   id: string;
   name: string;
   lastUsedAt: number;
   scope: QuickfilterScope;
-}
+};
 
-export interface SavedAttributionQuickfilter extends SavedQuickfilterBase {
+export type SavedAttributionQuickfilter = SavedQuickfilterBase & {
   scope: 'attribution' | 'signal';
   filters: {
     filters: Array<AttributionFilterKey>;
@@ -447,9 +451,9 @@ export interface SavedAttributionQuickfilter extends SavedQuickfilterBase {
       classificationLabel?: string;
     };
   };
-}
+};
 
-export interface SavedResourceQuickfilter extends SavedQuickfilterBase {
+export type SavedResourceQuickfilter = SavedQuickfilterBase & {
   scope: 'resource';
   filters: {
     onlyUnreviewedFiles: boolean;
@@ -457,7 +461,7 @@ export interface SavedResourceQuickfilter extends SavedQuickfilterBase {
     selectedLicenses: Array<LicenseOption>;
     licenseSearches?: Array<string>;
   };
-}
+};
 
 export type SavedQuickfilter =
   SavedAttributionQuickfilter | SavedResourceQuickfilter;
@@ -474,7 +478,7 @@ export function isResourceQuickfilter(
   return quickfilter.scope === 'resource';
 }
 
-export interface UserSettings {
+export type UserSettings = {
   qaMode: boolean;
   showProjectStatistics: boolean;
   areHiddenSignalsVisible: boolean;
@@ -491,7 +495,7 @@ export interface UserSettings {
   savedQuickfilters: Array<SavedQuickfilter>;
   automaticallyCheckForUpdates: boolean;
   lastSeenWhatsNewRevision: number;
-}
+};
 
 export type PanelSizes = UserSettings['panelSizes'];
 
