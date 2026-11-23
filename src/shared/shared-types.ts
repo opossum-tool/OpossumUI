@@ -431,7 +431,6 @@ export type QuickfilterScope = 'attribution' | 'signal' | 'resource';
 type SavedQuickfilterBase = {
   id: string;
   name: string;
-  lastUsedAt: number;
   scope: QuickfilterScope;
 };
 

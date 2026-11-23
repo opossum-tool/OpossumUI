@@ -156,8 +156,8 @@ describe('quickfilters in the filter menu', () => {
 
   it('lays out the quickfilter rows contiguously like the filter menu', async () => {
     const quickfilters = [
-      makeQuickfilter({ name: 'First', lastUsedAt: 1 }),
-      makeQuickfilter({ name: 'Second', lastUsedAt: 2 }),
+      makeQuickfilter({ name: 'First' }),
+      makeQuickfilter({ name: 'Second' }),
     ];
     await renderQuickfilterButton([
       setUserSetting({ savedQuickfilters: quickfilters }),
@@ -205,7 +205,6 @@ describe('quickfilters in the filter menu', () => {
     expect(savedQuickfilter).toEqual({
       id: expect.any(String),
       name,
-      lastUsedAt: expect.any(Number),
       scope: 'attribution',
       filters: {
         filters: ['firstParty'],
@@ -262,7 +261,6 @@ describe('quickfilters in the filter menu', () => {
     const resourceQuickfilter: SavedResourceQuickfilter = {
       id: 'shared-license',
       name: 'MIT license',
-      lastUsedAt: 1,
       scope: 'resource',
       filters: {
         onlyUnreviewedFiles: false,
@@ -306,7 +304,6 @@ describe('quickfilters in the filter menu', () => {
     const unreviewedQuickfilter: SavedResourceQuickfilter = {
       id: 'unreviewed-only',
       name: 'Unreviewed only',
-      lastUsedAt: 1,
       scope: 'resource',
       filters: {
         onlyUnreviewedFiles: true,
@@ -1029,7 +1026,7 @@ describe('quickfilters in the filter menu', () => {
   });
 
   it('explains the edit button with a tooltip and marks the editing state with a crossed-out pencil', async () => {
-    const quickfilters = [makeQuickfilter({ name: 'Only', lastUsedAt: 1 })];
+    const quickfilters = [makeQuickfilter({ name: 'Only' })];
     await renderQuickfilterButton([
       setUserSetting({ savedQuickfilters: quickfilters }),
     ]);
@@ -1122,13 +1119,13 @@ describe('quickfilters in the filter menu', () => {
     );
   });
 
-  it('lists quickfilters in creation order and allows deleting them in the edit view', async () => {
+  it('lists quickfilters in display order and allows deleting them in the edit view', async () => {
     const quickfilters = [
-      makeQuickfilter({ name: 'oldest', lastUsedAt: 1 }),
-      makeQuickfilter({ name: 'intermediate', lastUsedAt: 2 }),
-      makeQuickfilter({ name: 'recent', lastUsedAt: 3 }),
-      makeQuickfilter({ name: 'newer', lastUsedAt: 4 }),
-      makeQuickfilter({ name: 'newest', lastUsedAt: 5 }),
+      makeQuickfilter({ name: 'oldest' }),
+      makeQuickfilter({ name: 'intermediate' }),
+      makeQuickfilter({ name: 'recent' }),
+      makeQuickfilter({ name: 'newer' }),
+      makeQuickfilter({ name: 'newest' }),
     ];
     const { store } = await renderQuickfilterButton([
       setUserSetting({ savedQuickfilters: quickfilters }),
@@ -1181,7 +1178,7 @@ describe('quickfilters in the filter menu', () => {
   });
 
   it('keeps the row contents the same size when switching to the edit view', async () => {
-    const quickfilters = [makeQuickfilter({ name: 'Only', lastUsedAt: 1 })];
+    const quickfilters = [makeQuickfilter({ name: 'Only' })];
     await renderQuickfilterButton([
       setUserSetting({ savedQuickfilters: quickfilters }),
     ]);
@@ -1212,9 +1209,9 @@ describe('quickfilters in the filter menu', () => {
 
   it('reorders quickfilters via the drag handles in the edit view and persists the order', async () => {
     const quickfilters = [
-      makeQuickfilter({ name: 'First', lastUsedAt: 1 }),
-      makeQuickfilter({ name: 'Second', lastUsedAt: 2 }),
-      makeQuickfilter({ name: 'Third', lastUsedAt: 3 }),
+      makeQuickfilter({ name: 'First' }),
+      makeQuickfilter({ name: 'Second' }),
+      makeQuickfilter({ name: 'Third' }),
     ];
     const { store } = await renderQuickfilterButton([
       setUserSetting({ savedQuickfilters: quickfilters }),
@@ -1295,19 +1292,16 @@ function readResourceFilters(store: {
 
 function makeQuickfilter({
   name = faker.string.sample(),
-  lastUsedAt = faker.number.int(),
   scope = 'attribution',
   filters = { filters: ['firstParty'], search: '', valueFilters: {} },
 }: {
   name?: string;
-  lastUsedAt?: number;
   scope?: Exclude<QuickfilterScope, 'resource'>;
   filters?: SavedAttributionQuickfilter['filters'];
 } = {}): SavedAttributionQuickfilter {
   return {
     id: faker.string.uuid(),
     name,
-    lastUsedAt,
     scope,
     filters,
   };

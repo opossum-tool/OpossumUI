@@ -26,7 +26,6 @@ function makeAttributionQuickfilter({
   return {
     id: faker.string.uuid(),
     name: faker.string.sample(),
-    lastUsedAt: faker.number.int(),
     scope,
     filters: {
       filters: [],
@@ -45,7 +44,6 @@ function makeResourceQuickfilter({
   return {
     id: faker.string.uuid(),
     name: faker.string.sample(),
-    lastUsedAt: faker.number.int(),
     scope: 'resource',
     filters: {
       onlyUnreviewedFiles: false,
@@ -70,7 +68,6 @@ describe('toResourceQuickfilterModel', () => {
     expect(toResourceQuickfilterModel(quickfilter)).toEqual({
       id: quickfilter.id,
       name: quickfilter.name,
-      lastUsedAt: quickfilter.lastUsedAt,
       scope: 'resource',
       filters: {
         onlyUnreviewedFiles: false,
@@ -130,7 +127,6 @@ describe('toAttributionQuickfilterModel', () => {
     expect(toAttributionQuickfilterModel(quickfilter, 'signal')).toEqual({
       id: quickfilter.id,
       name: quickfilter.name,
-      lastUsedAt: quickfilter.lastUsedAt,
       scope: 'signal',
       filters: {
         filters: [],
@@ -160,7 +156,7 @@ describe('toAttributionQuickfilterModel', () => {
 });
 
 describe('useVisibleQuickfilters', () => {
-  it('lists own-scope quickfilters plus shareable quickfilters in persistence order', async () => {
+  it('lists own-scope quickfilters plus shareable quickfilters in display order', async () => {
     const own = makeAttributionQuickfilter();
     const unshareableResource = makeResourceQuickfilter({
       overrides: { onlyUnreviewedFiles: true },
@@ -209,7 +205,7 @@ describe('useVisibleQuickfilters', () => {
 });
 
 describe('useVisibleQuickfiltersForResources', () => {
-  it('lists resource quickfilters plus shareable attribution quickfilters in persistence order', async () => {
+  it('lists resource quickfilters plus shareable attribution quickfilters in display order', async () => {
     const resource = makeResourceQuickfilter();
     const shareableAttribution = makeAttributionQuickfilter({
       overrides: {

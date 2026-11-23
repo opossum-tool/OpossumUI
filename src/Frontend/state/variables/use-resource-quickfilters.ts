@@ -167,7 +167,8 @@ export function useResourceQuickfilters(): {
 } {
   const [userSettings, updateUserSettings] = useUserSettings();
 
-  // In creation order: savedQuickfilters are appended on save.
+  // savedQuickfilters is the display order, which the user can change by
+  // reordering.
   const quickfilters = useMemo(
     () => userSettings.savedQuickfilters.filter(isResourceQuickfilter),
     [userSettings.savedQuickfilters],
@@ -188,7 +189,6 @@ export function useResourceQuickfilters(): {
           {
             id,
             name,
-            lastUsedAt: Date.now(),
             scope: 'resource',
             filters: {
               onlyUnreviewedFiles: filters.onlyUnreviewedFiles,

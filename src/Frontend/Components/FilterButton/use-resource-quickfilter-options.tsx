@@ -86,9 +86,8 @@ export function useResourceQuickfilterOption({
       });
     };
 
-    // Deleting a selected quickfilter also deselects it: the filters are
-    // rebuilt from the remaining quickfilters exactly like when unchecking,
-    // so the menu label no longer counts the deleted quickfilter.
+    // Deleting a selected quickfilter also deselects it, so the menu label
+    // no longer counts the deleted quickfilter.
     const deleteSelectedResourceQuickfilter = (id: string): void => {
       if (activeIds.includes(id)) {
         removeResourceQuickfilter(id);
@@ -96,7 +95,8 @@ export function useResourceQuickfilterOption({
       deleteQuickfilter(id);
     };
 
-    // Same rebuild semantics as removing a single quickfilter.
+    // Drops everything the quickfilters contributed along with the manual
+    // filters on top.
     const clearAllResourceQuickfilters = (): void => {
       setFilters(
         combineResourceQuickfilters({
@@ -116,12 +116,10 @@ export function useResourceQuickfilterOption({
     // Unlike the attribution menus, the entry is always offered: with active
     // filters it nudges towards saving them, otherwise it lists the saved
     // quickfilters (possibly empty).
-    // Nudge users to persist manual filter selections. A selection produced
-    // by an applied quickfilter is already saved, so no hint is needed.
     const showSaveHint = hasActiveFilters && !activeIds.length;
 
     // A single menu entry keeps the filter menu clean; everything happens
-    // inside the side panel (recently used list, save, manage).
+    // inside the side panel (save, apply, manage).
     return [
       {
         kind: 'panel' as const,

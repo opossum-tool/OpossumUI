@@ -74,7 +74,6 @@ describe('quickfilters in the resource tree filter menu', () => {
     expect(savedQuickfilter).toEqual({
       id: expect.any(String),
       name: 'Unreviewed files',
-      lastUsedAt: expect.any(Number),
       scope: 'resource',
       filters: {
         onlyUnreviewedFiles: true,
@@ -234,7 +233,6 @@ describe('quickfilters in the resource tree filter menu', () => {
     const attributionQuickfilter: SavedAttributionQuickfilter = {
       id: 'shared-license',
       name: 'MIT license',
-      lastUsedAt: 1,
       scope: 'attribution',
       filters: {
         filters: [],
@@ -312,7 +310,6 @@ describe('quickfilters in the resource tree filter menu', () => {
     const searchQuickfilter: SavedAttributionQuickfilter = {
       id: 'search-only',
       name: 'React search',
-      lastUsedAt: 1,
       scope: 'attribution',
       filters: { filters: [], search: 'react', valueFilters: {} },
     };
@@ -336,7 +333,6 @@ describe('quickfilters in the resource tree filter menu', () => {
     const sharedQuickfilter: SavedAttributionQuickfilter = {
       id: 'shared-license',
       name: 'Shared',
-      lastUsedAt: 2,
       scope: 'attribution',
       filters: {
         filters: [],
@@ -375,7 +371,6 @@ function row(panel: HTMLElement, name: string): HTMLElement {
 
 function makeQuickfilter({
   name = faker.string.sample(),
-  lastUsedAt = faker.number.int(),
   filters = {
     onlyUnreviewedFiles: true,
     onlyWithAiDeferredAttributions: false,
@@ -383,13 +378,11 @@ function makeQuickfilter({
   },
 }: {
   name?: string;
-  lastUsedAt?: number;
   filters?: SavedResourceQuickfilter['filters'];
 } = {}): SavedResourceQuickfilter {
   return {
     id: faker.string.uuid(),
     name,
-    lastUsedAt,
     scope: 'resource',
     filters,
   };

@@ -638,7 +638,6 @@ function makeQuickfilter({
   return {
     id,
     name,
-    lastUsedAt: faker.number.int(),
     scope,
     filters,
   };
@@ -937,7 +936,7 @@ describe('useQuickfilters', () => {
     });
   });
 
-  it('lists quickfilters in creation order regardless of use', async () => {
+  it('lists quickfilters in display order regardless of use', async () => {
     const { result } = await renderHook(() => useQuickfilters('attribution'));
     const first = faker.string.sample();
     const second = faker.string.sample();

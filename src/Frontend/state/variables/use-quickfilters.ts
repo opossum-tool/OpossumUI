@@ -517,8 +517,8 @@ export function useQuickfilters(scope: Exclude<QuickfilterScope, 'resource'>): {
   const [userSettings, updateUserSettings] = useUserSettings();
   const classifications = useClassifications();
 
-  // In creation order: savedQuickfilters are appended on save. The list
-  // matches what the panel displays: own-scope quickfilters plus
+  // savedQuickfilters is the display order, which the user can change by
+  // reordering: the list shows the panel's own-scope quickfilters plus the
   // license-only quickfilters shared with the other panels.
   const quickfilters = useMemo(
     () =>
@@ -544,7 +544,6 @@ export function useQuickfilters(scope: Exclude<QuickfilterScope, 'resource'>): {
           {
             id,
             name,
-            lastUsedAt: Date.now(),
             scope,
             filters: toQuickfilterFilters(filters, classifications),
           },

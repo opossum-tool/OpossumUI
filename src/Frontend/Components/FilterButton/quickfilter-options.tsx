@@ -123,9 +123,7 @@ export function useQuickfilterOptions({
     };
 
     const removeQuickfilter = (id: string): void => {
-      // The sorting is intentionally kept from the current filters. Only the
-      // unchecked quickfilter's contribution is removed; filters set
-      // separately and the remaining quickfilters' conditions are kept.
+      // The sorting is intentionally kept from the current filters.
       const removed = resolvedQuickfilters.find(({ id: qfId }) => qfId === id);
       const remaining = resolvedQuickfilters.filter(
         (quickfilter) =>
@@ -142,9 +140,8 @@ export function useQuickfilterOptions({
       );
     };
 
-    // Deleting a selected quickfilter also deselects it: the filters are
-    // rebuilt from the remaining quickfilters exactly like when unchecking,
-    // so the menu label no longer counts the deleted quickfilter.
+    // Deleting a selected quickfilter also deselects it, so the menu label
+    // no longer counts the deleted quickfilter.
     const deleteSelectedQuickfilter = (id: string): void => {
       if (activeIds.includes(id)) {
         removeQuickfilter(id);
@@ -152,9 +149,8 @@ export function useQuickfilterOptions({
       deleteQuickfilter(id);
     };
 
-    // Same rebuild semantics as removing a single quickfilter: everything
-    // the quickfilters contributed is dropped, manual filters on top go with
-    // it, and the sorting is kept.
+    // Drops everything the quickfilters contributed along with the manual
+    // filters on top; the sorting is kept.
     const clearAllQuickfilters = (): void => {
       setFilters(
         combineQuickfilters({
@@ -182,7 +178,7 @@ export function useQuickfilterOptions({
       hasActiveFilters && !(filters.activeQuickfilterIds ?? []).length;
 
     // A single menu entry keeps the filter menu clean; everything happens
-    // inside the side panel (recently used list, save, manage).
+    // inside the side panel (save, apply, manage).
     return [
       {
         kind: 'panel' as const,

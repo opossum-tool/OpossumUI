@@ -41,7 +41,6 @@ export function toResourceQuickfilterModel(
   return {
     id: quickfilter.id,
     name: quickfilter.name,
-    lastUsedAt: quickfilter.lastUsedAt,
     scope: 'resource',
     filters: {
       onlyUnreviewedFiles: false,
@@ -77,7 +76,6 @@ export function toAttributionQuickfilterModel(
   return {
     id: quickfilter.id,
     name: quickfilter.name,
-    lastUsedAt: quickfilter.lastUsedAt,
     scope,
     filters: {
       filters: [],
@@ -139,7 +137,7 @@ export function isVisibleForResourcePanel(
  * Quickfilters visibly offered on the given attribution-flavored panel:
  * its own-scope quickfilters plus license-only quickfilters from the other
  * attribution scope (signals/attributions) and license-only resource
- * quickfilters converted to models, in creation (global persistence) order.
+ * quickfilters converted to models, in the order the user arranged.
  */
 export function useVisibleQuickfilters(
   scope: AttributionQuickfilterScope,
@@ -164,7 +162,7 @@ export function useVisibleQuickfilters(
 /**
  * Quickfilters visibly offered on the resources panel: resource
  * quickfilters plus license-only attribution/signal quickfilters converted
- * to models, in creation (global persistence) order.
+ * to models, in the order the user arranged.
  */
 export function useVisibleQuickfiltersForResources(): Array<SavedResourceQuickfilter> {
   const [userSettings] = useUserSettings();

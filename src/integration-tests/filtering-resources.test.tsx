@@ -142,7 +142,6 @@ describe('filtering resources', () => {
           {
             id: 'resource-quickfilter',
             name: 'Ai deferred only',
-            lastUsedAt: 1,
             scope: 'resource',
             filters: {
               onlyUnreviewedFiles: false,
@@ -185,7 +184,6 @@ describe('filtering resources', () => {
           {
             id: 'license-quickfilter',
             name: 'MIT license',
-            lastUsedAt: 1,
             scope: 'attribution',
             filters: {
               filters: [],

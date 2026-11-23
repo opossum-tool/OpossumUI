@@ -20,7 +20,6 @@ import {
 const QUICKFILTER: SavedAttributionQuickfilter = {
   id: 'signal-quickfilter',
   name: 'First party',
-  lastUsedAt: 1,
   scope: 'signal',
   filters: { filters: ['firstParty'], search: '', valueFilters: {} },
 };
@@ -32,7 +31,6 @@ const LICENSE_OPTION = { id: 'MIT', label: 'MIT' };
 const SIGNAL_LICENSE_QUICKFILTER: SavedAttributionQuickfilter = {
   id: 'signal-license-quickfilter',
   name: 'MIT licenses',
-  lastUsedAt: 1,
   scope: 'signal',
   filters: {
     filters: [],
@@ -46,7 +44,6 @@ const SIGNAL_LICENSE_QUICKFILTER: SavedAttributionQuickfilter = {
 const RESOURCE_LICENSE_QUICKFILTER: SavedResourceQuickfilter = {
   id: 'resource-license-quickfilter',
   name: 'MIT licenses',
-  lastUsedAt: 1,
   scope: 'resource',
   filters: {
     onlyUnreviewedFiles: false,
