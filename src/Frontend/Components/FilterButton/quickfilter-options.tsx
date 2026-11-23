@@ -23,6 +23,7 @@ import {
   isQuickfilterCompatible,
   isQuickfilterUsableInProject,
   mergeQuickfilterIntoFilters,
+  removeQuickfilterConditions,
   resolveQuickfilterClassification,
   useQuickfilters,
 } from '../../state/variables/use-quickfilters';
@@ -122,13 +123,22 @@ export function useQuickfilterOptions({
     };
 
     const removeQuickfilter = (id: string): void => {
-      // The sorting is intentionally kept from the current filters.
+      // The sorting is intentionally kept from the current filters. Only the
+      // unchecked quickfilter's contribution is removed; filters set
+      // separately and the remaining quickfilters' conditions are kept.
+      const removed = resolvedQuickfilters.find(({ id: qfId }) => qfId === id);
+      const remaining = resolvedQuickfilters.filter(
+        (quickfilter) =>
+          quickfilter.id !== id && activeIds.includes(quickfilter.id),
+      );
       setFilters(
-        combineQuickfilters({
-          ids: activeIds.filter((activeId) => activeId !== id),
-          quickfilters: resolvedQuickfilters,
-          sorting: filters.sorting,
-        }),
+        removed
+          ? removeQuickfilterConditions(filters, removed, remaining)
+          : combineQuickfilters({
+              ids: activeIds.filter((activeId) => activeId !== id),
+              quickfilters: resolvedQuickfilters,
+              sorting: filters.sorting,
+            }),
       );
     };
 

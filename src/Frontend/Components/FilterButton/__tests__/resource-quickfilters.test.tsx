@@ -12,9 +12,11 @@ import type {
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
+import { setVariable } from '../../../state/actions/variables-actions/variables-actions';
 import type { Action } from '../../../state/configure-store';
 import {
   hasActiveResourceTreeFilters,
+  RESOURCE_TREE_FILTERS,
   type ResourceTreeFilters,
   useResourceTreeFilters,
 } from '../../../state/variables/use-filters';
@@ -160,6 +162,36 @@ describe('quickfilters in the resource tree filter menu', () => {
       'aria-pressed',
       'false',
     );
+  });
+
+  it('keeps filters added on top when a quickfilter is unchecked', async () => {
+    const unreviewed = makeQuickfilter({ name: 'Unreviewed only' });
+    const { store } = await renderResourceFilterButton([
+      setUserSetting({ savedQuickfilters: [unreviewed] }),
+    ]);
+
+    const panel = await openQuickfiltersPanel();
+    await userEvent.click(row(panel, 'Unreviewed only'));
+
+    // Add an unrelated filter on top of the quickfilter's conditions.
+    store.dispatch(
+      setVariable(RESOURCE_TREE_FILTERS, {
+        ...resourceFilters(store),
+        onlyWithAiDeferredAttributions: true,
+      }),
+    );
+    expect(resourceFilters(store)).toMatchObject({
+      onlyWithAiDeferredAttributions: true,
+    });
+
+    // Unchecking the quickfilter removes only its own condition.
+    await userEvent.click(row(panel, 'Unreviewed only'));
+
+    expect(resourceFilters(store)).toEqual({
+      onlyUnreviewedFiles: false,
+      onlyWithAiDeferredAttributions: true,
+      selectedLicenses: [],
+    });
   });
 
   it('clears all applied quickfilters and keeps the other rows unselected', async () => {

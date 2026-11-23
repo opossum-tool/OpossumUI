@@ -18,6 +18,7 @@ import {
 import {
   combineResourceQuickfilters,
   mergeResourceQuickfilterIntoFilters,
+  removeResourceQuickfilterConditions,
   useResourceQuickfilters,
 } from '../../state/variables/use-resource-quickfilters';
 import type { FilterOption } from './FilterButton';
@@ -65,14 +66,24 @@ export function useResourceQuickfilterOption({
     };
 
     const removeResourceQuickfilter = (id: string): void => {
-      setFilters((prev) =>
-        combineResourceQuickfilters({
-          ids: (prev.activeQuickfilterIds ?? []).filter(
-            (activeId) => activeId !== id,
-          ),
-          quickfilters: visibleQuickfilters,
-        }),
-      );
+      // Only the unchecked quickfilter's contribution is removed; filters
+      // set separately and the remaining quickfilters' conditions are kept.
+      setFilters((prev) => {
+        const activeIds = prev.activeQuickfilterIds ?? [];
+        const removed = visibleQuickfilters.find(
+          ({ id: quickfilterId }) => quickfilterId === id,
+        );
+        const remaining = visibleQuickfilters.filter(
+          (quickfilter) =>
+            quickfilter.id !== id && activeIds.includes(quickfilter.id),
+        );
+        return removed
+          ? removeResourceQuickfilterConditions(prev, removed, remaining)
+          : combineResourceQuickfilters({
+              ids: activeIds.filter((activeId) => activeId !== id),
+              quickfilters: visibleQuickfilters,
+            });
+      });
     };
 
     // Deleting a selected quickfilter also deselects it: the filters are

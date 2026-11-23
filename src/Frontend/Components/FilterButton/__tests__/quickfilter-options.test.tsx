@@ -444,6 +444,37 @@ describe('quickfilters in the filter menu', () => {
     });
   });
 
+  it('keeps filters added on top when a quickfilter is unchecked', async () => {
+    const quickfilter = makeQuickfilter({ name: 'My quickfilter' });
+    const { store } = await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [quickfilter] }),
+    ]);
+
+    const panel = await openQuickfiltersPanel();
+    await userEvent.click(row(panel, quickfilter.name));
+
+    // Add an unrelated filter on top of the quickfilter's conditions.
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: text.filters.thirdParty }),
+    );
+    expect(
+      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toMatchObject({ filters: ['firstParty', 'thirdParty'] });
+
+    // Unchecking the quickfilter removes only its own condition.
+    const reopenedPanel = await openQuickfiltersPanelFromMenu();
+    await userEvent.click(row(reopenedPanel, quickfilter.name));
+
+    expect(
+      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toEqual({
+      filters: ['thirdParty'],
+      search: '',
+      valueFilters: {},
+      sorting: 'alphabetically',
+    });
+  });
+
   it('deselects a quickfilter when it is deleted while selected', async () => {
     const quickfilter = makeQuickfilter({ name: 'My quickfilter' });
     const other = makeQuickfilter({ name: 'Other' });

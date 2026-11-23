@@ -110,6 +110,54 @@ export function combineResourceQuickfilters({
     });
 }
 
+/**
+ * Removes a quickfilter's contribution from the given resource filters while
+ * keeping everything else: filters set separately and the conditions the
+ * remaining quickfilters contribute (they are merged back in case they share
+ * a condition with the removed quickfilter). Conditions the quickfilter
+ * shares with a manually set filter cannot be distinguished and are removed
+ * with it.
+ */
+export function removeResourceQuickfilterConditions(
+  current: ResourceTreeFilters,
+  removed: SavedResourceQuickfilter,
+  remaining: Array<SavedResourceQuickfilter>,
+): ResourceTreeFilters {
+  const removedFilters = removed.filters;
+  const keptLicenses = current.selectedLicenses.filter(
+    (option) =>
+      !removedFilters.selectedLicenses.some(
+        (removedOption) => removedOption.id === option.id,
+      ),
+  );
+  const keptLicenseSearches = (current.licenseSearches ?? []).filter(
+    (search) => !removedFilters.licenseSearches?.includes(search),
+  );
+  const keptQuickfilterIds = (current.activeQuickfilterIds ?? []).filter(
+    (activeId) => activeId !== removed.id,
+  );
+  const stripped: ResourceTreeFilters = {
+    ...current,
+    onlyUnreviewedFiles:
+      current.onlyUnreviewedFiles && removedFilters.onlyUnreviewedFiles
+        ? false
+        : current.onlyUnreviewedFiles,
+    onlyWithAiDeferredAttributions:
+      current.onlyWithAiDeferredAttributions &&
+      removedFilters.onlyWithAiDeferredAttributions
+        ? false
+        : current.onlyWithAiDeferredAttributions,
+    selectedLicenses: keptLicenses,
+    licenseSearches: keptLicenseSearches.length
+      ? keptLicenseSearches
+      : undefined,
+    activeQuickfilterIds: keptQuickfilterIds.length
+      ? keptQuickfilterIds
+      : undefined,
+  };
+  return remaining.reduce(mergeResourceQuickfilterIntoFilters, stripped);
+}
+
 export function useResourceQuickfilters(): {
   quickfilters: Array<SavedResourceQuickfilter>;
   saveQuickfilter: (name: string, filters: ResourceTreeFilters) => string;

@@ -22,6 +22,7 @@ import {
   isQuickfilterUsableInProject,
   mergeQuickfilterIntoFilters,
   quickfiltersConflict,
+  removeQuickfilterConditions,
   resolveQuickfilterClassification,
   useQuickfilters,
 } from '../use-quickfilters';
@@ -642,6 +643,89 @@ function makeQuickfilter({
     filters,
   };
 }
+
+describe('removeQuickfilterConditions', () => {
+  it('removes only the quickfilter contribution and keeps filters set on top', () => {
+    const quickfilter = makeQuickfilter({
+      filters: {
+        filters: ['firstParty'],
+        search: 'react',
+        valueFilters: { license: [{ id: 'MIT', label: 'MIT' }] },
+      },
+    });
+    const current: AttributionFilters = {
+      ...initialAttributionFilters,
+      filters: ['firstParty', 'thirdParty'],
+      search: 'react',
+      valueFilters: {
+        license: [
+          { id: 'MIT', label: 'MIT' },
+          { id: 'Apache-2.0', label: 'Apache-2.0' },
+        ],
+        criticality: 2,
+      },
+      activeQuickfilterIds: [quickfilter.id],
+    };
+
+    expect(removeQuickfilterConditions(current, quickfilter, [])).toEqual({
+      ...current,
+      filters: ['thirdParty'],
+      search: '',
+      valueFilters: {
+        criticality: 2,
+        license: [{ id: 'Apache-2.0', label: 'Apache-2.0' }],
+      },
+      activeQuickfilterIds: undefined,
+    });
+  });
+
+  it('keeps a condition that a remaining quickfilter also contributes', () => {
+    const first = makeQuickfilter({
+      id: 'first',
+      filters: {
+        filters: ['firstParty'],
+        search: '',
+        valueFilters: { license: [{ id: 'MIT', label: 'MIT' }] },
+      },
+    });
+    const second = makeQuickfilter({
+      id: 'second',
+      filters: {
+        filters: [],
+        search: '',
+        valueFilters: { license: [{ id: 'MIT', label: 'MIT' }] },
+      },
+    });
+    const current: AttributionFilters = {
+      ...initialAttributionFilters,
+      filters: ['firstParty'],
+      valueFilters: { license: [{ id: 'MIT', label: 'MIT' }] },
+      activeQuickfilterIds: ['first', 'second'],
+    };
+
+    expect(removeQuickfilterConditions(current, first, [second])).toEqual({
+      ...current,
+      filters: [],
+      activeQuickfilterIds: ['second'],
+    });
+  });
+
+  it('keeps a scalar value that differs from the quickfilter condition', () => {
+    const quickfilter = makeQuickfilter({
+      filters: { filters: [], search: '', valueFilters: { classification: 1 } },
+    });
+    const current: AttributionFilters = {
+      ...initialAttributionFilters,
+      valueFilters: { classification: 2 },
+      activeQuickfilterIds: [quickfilter.id],
+    };
+
+    expect(removeQuickfilterConditions(current, quickfilter, [])).toEqual({
+      ...current,
+      activeQuickfilterIds: undefined,
+    });
+  });
+});
 
 describe('useQuickfilters', () => {
   it('returns an empty list by default', async () => {

@@ -428,6 +428,85 @@ export function combineQuickfilters({
     );
 }
 
+/**
+ * Removes a quickfilter's contribution from the given filters while keeping
+ * everything else: filters added on top of the combination and the
+ * conditions the remaining quickfilters contribute (they are merged back in
+ * case they share a condition with the removed quickfilter). Conditions the
+ * quickfilter shares with a manually set filter cannot be distinguished and
+ * are removed with it.
+ */
+export function removeQuickfilterConditions(
+  current: AttributionFilters,
+  removed: SavedAttributionQuickfilter,
+  remaining: Array<SavedAttributionQuickfilter>,
+): AttributionFilters {
+  const removedValues = removed.filters.valueFilters;
+  const currentValues = current.valueFilters;
+  const classificationContributed =
+    currentValues.classification !== undefined &&
+    removedValues.classification !== undefined &&
+    classificationScalarsEqual(currentValues, removedValues);
+  const keptLicenses = currentValues.license?.filter(
+    (option) =>
+      !removedValues.license?.some(
+        (removedOption) => removedOption.id === option.id,
+      ),
+  );
+  const keptLicenseSearches = currentValues.licenseSearches?.filter(
+    (search) => !removedValues.licenseSearches?.includes(search),
+  );
+  const keptQuickfilterIds = (current.activeQuickfilterIds ?? []).filter(
+    (activeId) => activeId !== removed.id,
+  );
+  const stripped: AttributionFilters = {
+    ...current,
+    filters: current.filters.filter(
+      (filterKey) => !removed.filters.filters.includes(filterKey),
+    ),
+    search:
+      removed.filters.search && current.search === removed.filters.search
+        ? ''
+        : current.search,
+    valueFilters: {
+      classification: classificationContributed
+        ? undefined
+        : currentValues.classification,
+      classificationLabel: classificationContributed
+        ? undefined
+        : currentValues.classificationLabel,
+      criticality:
+        removedValues.criticality !== undefined &&
+        currentValues.criticality === removedValues.criticality
+          ? undefined
+          : currentValues.criticality,
+      incompleteCoordinates:
+        removedValues.incompleteCoordinates !== undefined &&
+        currentValues.incompleteCoordinates ===
+          removedValues.incompleteCoordinates
+          ? undefined
+          : currentValues.incompleteCoordinates,
+      incompleteLegal:
+        removedValues.incompleteLegal !== undefined &&
+        currentValues.incompleteLegal === removedValues.incompleteLegal
+          ? undefined
+          : currentValues.incompleteLegal,
+      license: keptLicenses?.length ? keptLicenses : undefined,
+      licenseSearches: keptLicenseSearches?.length
+        ? keptLicenseSearches
+        : undefined,
+    },
+    activeQuickfilterIds: keptQuickfilterIds.length
+      ? keptQuickfilterIds
+      : undefined,
+  };
+  return remaining.reduce(
+    (combined, quickfilter) =>
+      mergeQuickfilterIntoFilters(combined, quickfilter),
+    stripped,
+  );
+}
+
 export function useQuickfilters(scope: Exclude<QuickfilterScope, 'resource'>): {
   quickfilters: Array<SavedAttributionQuickfilter>;
   saveQuickfilter: (name: string, filters: AttributionFilters) => string;
