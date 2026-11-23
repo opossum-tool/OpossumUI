@@ -59,13 +59,12 @@ function getUserSettingsToSet(
   return userSettings;
 }
 
-export function useUserSettings(): [
-  UserSettings,
-  (
-    userSettings: UpdateUserSettingsArguments,
-    options?: UpdateUserSettingsOptions,
-  ) => void,
-] {
+export type UpdateUserSettings = (
+  userSettings: UpdateUserSettingsArguments,
+  options?: UpdateUserSettingsOptions,
+) => void;
+
+export function useUserSettings(): [UserSettings, UpdateUserSettings] {
   const userSettings = useAppSelector(getUserSettings);
   const dispatch = useAppDispatch();
 

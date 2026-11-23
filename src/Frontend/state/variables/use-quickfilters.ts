@@ -16,6 +16,11 @@ import type {
 import { useClassifications } from '../../util/use-classifications';
 import { isVisibleForAttributionPanel } from './quickfilter-sharing';
 import {
+  deleteSavedQuickfilter,
+  renameSavedQuickfilter,
+  reorderSavedQuickfilter,
+} from './saved-quickfilter-operations';
+import {
   type AttributionFilters,
   initialAttributionFilters,
 } from './use-filters';
@@ -554,60 +559,21 @@ export function useQuickfilters(scope: Exclude<QuickfilterScope, 'resource'>): {
     return id;
   };
 
-  const deleteQuickfilter = (id: string): void => {
-    updateUserSettings(
-      (settings) => ({
-        savedQuickfilters: settings.savedQuickfilters.filter(
-          (quickfilter) => quickfilter.id !== id,
-        ),
-      }),
-      { optimistic: true },
-    );
-  };
+  const deleteQuickfilter = (id: string): void =>
+    deleteSavedQuickfilter(updateUserSettings, id);
 
-  const renameQuickfilter = (id: string, name: string): void => {
-    updateUserSettings(
-      (settings) => ({
-        savedQuickfilters: settings.savedQuickfilters.map((quickfilter) =>
-          quickfilter.id === id ? { ...quickfilter, name } : quickfilter,
-        ),
-      }),
-      { optimistic: true },
-    );
-  };
+  const renameQuickfilter = (id: string, name: string): void =>
+    renameSavedQuickfilter(updateUserSettings, id, name);
 
   // Reorders within the panel's visible subset (own-scope quickfilters plus
-  // license-only quickfilters shared with the other panels) while keeping
-  // the array positions of everything else untouched: savedQuickfilters is
-  // the display order. Optimistic so the reordered list renders immediately
-  // (the drop freeze clears as soon as it has rendered).
-  const reorderQuickfilter = (id: string, targetIndex: number): void => {
-    const isVisible = isVisibleForAttributionPanel(scope);
-    updateUserSettings(
-      (settings) => {
-        const visible = settings.savedQuickfilters.filter(isVisible);
-        const index = visible.findIndex((quickfilter) => quickfilter.id === id);
-        if (
-          index === -1 ||
-          targetIndex < 0 ||
-          targetIndex >= visible.length ||
-          targetIndex === index
-        ) {
-          return {};
-        }
-        const reordered = [...visible];
-        const [moved] = reordered.splice(index, 1);
-        reordered.splice(targetIndex, 0, moved);
-        let cursor = 0;
-        return {
-          savedQuickfilters: settings.savedQuickfilters.map((quickfilter) =>
-            isVisible(quickfilter) ? reordered[cursor++] : quickfilter,
-          ),
-        };
-      },
-      { optimistic: true },
+  // license-only quickfilters shared with the other panels).
+  const reorderQuickfilter = (id: string, targetIndex: number): void =>
+    reorderSavedQuickfilter(
+      updateUserSettings,
+      id,
+      targetIndex,
+      isVisibleForAttributionPanel(scope),
     );
-  };
 
   return {
     quickfilters,

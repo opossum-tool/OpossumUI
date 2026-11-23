@@ -10,6 +10,11 @@ import {
   type SavedResourceQuickfilter,
 } from '../../../shared/shared-types';
 import { isVisibleForResourcePanel } from './quickfilter-sharing';
+import {
+  deleteSavedQuickfilter,
+  renameSavedQuickfilter,
+  reorderSavedQuickfilter,
+} from './saved-quickfilter-operations';
 import type { ResourceTreeFilters } from './use-filters';
 import { useUserSettings } from './use-user-setting';
 
@@ -207,62 +212,21 @@ export function useResourceQuickfilters(): {
     return id;
   };
 
-  const deleteQuickfilter = (id: string): void => {
-    updateUserSettings(
-      (settings) => ({
-        savedQuickfilters: settings.savedQuickfilters.filter(
-          (quickfilter) => quickfilter.id !== id,
-        ),
-      }),
-      { optimistic: true },
-    );
-  };
+  const deleteQuickfilter = (id: string): void =>
+    deleteSavedQuickfilter(updateUserSettings, id);
 
-  const renameQuickfilter = (id: string, name: string): void => {
-    updateUserSettings(
-      (settings) => ({
-        savedQuickfilters: settings.savedQuickfilters.map((quickfilter) =>
-          quickfilter.id === id ? { ...quickfilter, name } : quickfilter,
-        ),
-      }),
-      { optimistic: true },
-    );
-  };
+  const renameQuickfilter = (id: string, name: string): void =>
+    renameSavedQuickfilter(updateUserSettings, id, name);
 
   // Reorders within the panel's visible subset (resource quickfilters plus
-  // shared license-only attribution/signal quickfilters) while keeping the
-  // array positions of everything else untouched: savedQuickfilters is the
-  // display order. Optimistic so the reordered list renders immediately.
-  const reorderQuickfilter = (id: string, targetIndex: number): void => {
-    updateUserSettings(
-      (settings) => {
-        const visible = settings.savedQuickfilters.filter(
-          isVisibleForResourcePanel,
-        );
-        const index = visible.findIndex((quickfilter) => quickfilter.id === id);
-        if (
-          index === -1 ||
-          targetIndex < 0 ||
-          targetIndex >= visible.length ||
-          targetIndex === index
-        ) {
-          return {};
-        }
-        const reordered = [...visible];
-        const [moved] = reordered.splice(index, 1);
-        reordered.splice(targetIndex, 0, moved);
-        let cursor = 0;
-        return {
-          savedQuickfilters: settings.savedQuickfilters.map((quickfilter) =>
-            isVisibleForResourcePanel(quickfilter)
-              ? reordered[cursor++]
-              : quickfilter,
-          ),
-        };
-      },
-      { optimistic: true },
+  // shared license-only attribution/signal quickfilters).
+  const reorderQuickfilter = (id: string, targetIndex: number): void =>
+    reorderSavedQuickfilter(
+      updateUserSettings,
+      id,
+      targetIndex,
+      isVisibleForResourcePanel,
     );
-  };
 
   return {
     quickfilters,
