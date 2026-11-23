@@ -109,6 +109,7 @@ function BarChartLabel({
               onOpenChange={onTooltipOpenChange}
             >
               <MuiLink
+                aria-label={item.name}
                 component={'button'}
                 type={'button'}
                 variant={'caption'}
