@@ -15,10 +15,14 @@ import { useLinkedResourcesPanelState } from './use-linked-resources-panel-state
 export function useLinkedResourcesPanel(
   value: string,
   setValue: (value: string) => void,
+  context?: { resourcePath?: string; attributionSelectionPending?: boolean },
 ) {
   const isAiReviewView = useAppSelector(getSelectedView) === View.AiReview;
   const debouncedSearch = useDebouncedInput(value);
-  const panelState = useLinkedResourcesPanelState({ search: debouncedSearch });
+  const panelState = useLinkedResourcesPanelState({
+    search: debouncedSearch,
+    ...context,
+  });
   const search = {
     value,
     setValue,
@@ -28,10 +32,12 @@ export function useLinkedResourcesPanel(
 
   return {
     title: panelState.treeState
-      ? text.resourceBrowser.linkedResources(
-          panelState.treeState.belowSelectedResource ?? 0,
-          panelState.treeState.count,
-        )
+      ? context?.resourcePath === undefined
+        ? text.resourceBrowser.linkedResourcesTotal(panelState.treeState.count)
+        : text.resourceBrowser.linkedResources(
+            panelState.treeState.belowSelectedResource ?? 0,
+            panelState.treeState.count,
+          )
       : text.resourceBrowser.linkedResourcesTitle,
     search,
     hidden: panelState.isHidden,

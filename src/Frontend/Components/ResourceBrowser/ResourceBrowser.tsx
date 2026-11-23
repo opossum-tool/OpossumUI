@@ -9,6 +9,7 @@ import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
 import { useAppSelector } from '../../state/hooks';
 import {
+  getAttributionSelectionPendingResourceId,
   getExpandedIds,
   getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
@@ -52,6 +53,9 @@ export function ResourceBrowser() {
   );
 
   const selectedResourceId = useAppSelector(getSelectedResourceId);
+  const pendingResourceId = useAppSelector(
+    getAttributionSelectionPendingResourceId,
+  );
   // All resources
   const [resourceTreeFilters, setResourceTreeFilters] =
     useResourceTreeFilters();
@@ -142,6 +146,10 @@ export function ResourceBrowser() {
   const linkedResourcesPanel = useLinkedResourcesPanel(
     searchLinked,
     setSearchLinked,
+    {
+      resourcePath: selectedResourceId,
+      attributionSelectionPending: pendingResourceId === selectedResourceId,
+    },
   );
 
   return (

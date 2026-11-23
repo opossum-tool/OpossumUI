@@ -7,8 +7,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type { LinkedResourceTreeNodeData } from '../../../../ElectronBackend/api/resourceTree';
 import type { ResourceTreeFilters } from '../../../../ElectronBackend/api/resourceTreeFilters';
-import { useAppSelector } from '../../../state/hooks';
-import { getSelectedResourceId } from '../../../state/selectors/resource-selectors';
 import { backend } from '../../../util/backendClient';
 
 export type LinkedResourcesTreeState = {
@@ -23,6 +21,7 @@ export type LinkedResourcesTreeState = {
 export type LinkedResourcesTreeQueryProps = {
   enabled?: boolean;
   onAttributionUuids: Array<string>;
+  selectedResourcePath?: string;
   onlyWritable?: boolean;
   search?: string;
 };
@@ -38,12 +37,11 @@ export type LinkedResourcesTreeQueryResult = {
  */
 export function useLinkedResourcesTree({
   onAttributionUuids,
+  selectedResourcePath,
   search,
   onlyWritable = false,
   enabled: enabledProp = true,
 }: LinkedResourcesTreeQueryProps): LinkedResourcesTreeQueryResult {
-  const selectedResourcePath = useAppSelector(getSelectedResourceId);
-
   const [expandedIds, setExpandedIds] = useState<{
     ownerKey: string;
     source: Array<string> | undefined;
@@ -68,7 +66,9 @@ export function useLinkedResourcesTree({
         ? {
             attributionUuids: onAttributionUuids,
             limit: 1000,
-            prioritizedResourcePath: selectedResourcePath,
+            ...(selectedResourcePath === undefined
+              ? {}
+              : { prioritizedResourcePath: selectedResourcePath }),
           }
         : skipToken,
     );
@@ -98,7 +98,9 @@ export function useLinkedResourcesTree({
       ? {
           ...expansionFilters,
           expandedNodes: expandedIds.values,
-          selectedResourcePath,
+          ...(selectedResourcePath === undefined
+            ? {}
+            : { selectedResourcePath }),
         }
       : skipToken,
     { placeholderData: treeReady ? keepPreviousData : undefined },
