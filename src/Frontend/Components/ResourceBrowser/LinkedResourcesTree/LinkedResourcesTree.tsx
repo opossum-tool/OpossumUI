@@ -17,6 +17,7 @@ import type { LinkedResourcesTreeState } from './useLinkedResourcesTreeState';
 interface Props {
   fitContent?: boolean;
   disableHighlightSelected?: boolean;
+  disableNavigation?: boolean;
   readOnly?: boolean;
   state: LinkedResourcesTreeState;
   sx?: SxProps;
@@ -26,6 +27,7 @@ export function LinkedResourcesTree({
   readOnly,
   fitContent = false,
   disableHighlightSelected,
+  disableNavigation = false,
   state,
   sx,
 }: Props) {
@@ -53,9 +55,12 @@ export function LinkedResourcesTree({
   );
 
   const handleSelect = useCallback(
-    (nodeId: string) =>
-      dispatch(navigateToSelectedPathOrOpenUnsavedPopup(nodeId, 'preserve')),
-    [dispatch],
+    (nodeId: string) => {
+      if (!disableNavigation) {
+        dispatch(navigateToSelectedPathOrOpenUnsavedPopup(nodeId, 'preserve'));
+      }
+    },
+    [disableNavigation, dispatch],
   );
 
   if (!state) {

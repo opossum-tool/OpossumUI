@@ -21,12 +21,14 @@ import type {
   PackageInfo,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
+import { View } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import { buttonSpinnerSize } from '../../../shared-styles';
 import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setTargetAttributionRelation } from '../../../state/actions/resource-actions/audit-view-simple-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
 import { getIsPackageInfoDirty } from '../../../state/selectors/resource-selectors';
+import { getSelectedView } from '../../../state/selectors/view-selector';
 import { useAttributionSelectionForReplacement } from '../../../state/variables/use-attribution-selection-for-replacement';
 import { useCompareSelectionSource } from '../../../state/variables/use-compare-selection';
 import { usePickerMode } from '../../../state/variables/use-picker-mode';
@@ -51,6 +53,7 @@ interface Props {
 export function ButtonRow(props: Props) {
   const dispatch = useAppDispatch();
   const isPackageInfoDirty = useAppSelector(getIsPackageInfoDirty);
+  const selectedView = useAppSelector(getSelectedView);
 
   const resolveAttributions = backend.resolveAttributions.useMutation();
   const unresolveAttributions = backend.unresolveAttributions.useMutation();
@@ -134,7 +137,7 @@ export function ButtonRow(props: Props) {
       ) : (
         <>
           {!isReadonly && renderSaveButton()}
-          {!isReadonly && renderLinkButton()}
+          {!isReadonly && selectedView !== View.AiReview && renderLinkButton()}
           {renderCompareButton()}
           {renderCompareWithButton()}
           {!isReadonly && renderDeleteAttributionButton()}

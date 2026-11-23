@@ -4,6 +4,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
+import { View } from '../../enums/enums';
+import { useAppSelector } from '../../state/hooks';
+import { getSelectedView } from '../../state/selectors/view-selector';
 import { useDebouncedInput } from '../../util/use-debounced-input';
 import { LoadingIndicator } from '../LoadingIndicator/loading-indicator';
 import { LinkedResourcesTree } from './LinkedResourcesTree/LinkedResourcesTree';
@@ -13,6 +16,7 @@ export function useLinkedResourcesPanel(
   value: string,
   setValue: (value: string) => void,
 ) {
+  const isAiReviewView = useAppSelector(getSelectedView) === View.AiReview;
   const debouncedSearch = useDebouncedInput(value);
   const panelState = useLinkedResourcesPanelState({ search: debouncedSearch });
   const search = {
@@ -47,7 +51,11 @@ export function useLinkedResourcesPanel(
         )}
         <div inert={panelState.isLoading} style={{ height: '100%' }}>
           {panelState.treeState && (
-            <LinkedResourcesTree state={panelState.treeState} />
+            <LinkedResourcesTree
+              state={panelState.treeState}
+              disableHighlightSelected={isAiReviewView}
+              disableNavigation={isAiReviewView}
+            />
           )}
         </div>
       </div>

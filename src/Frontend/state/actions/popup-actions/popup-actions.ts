@@ -28,6 +28,7 @@ import {
   getMergeOpossumFilesRequest,
   getOpenFileRequest,
   getQuitAppRequested,
+  getSelectedView,
   getSplitFileRequest,
   getTargetView,
 } from '../../selectors/view-selector';
@@ -316,7 +317,12 @@ export function setViewOrOpenUnsavedPopup(selectedView: View): AppThunkAction {
     executeImmediately: (dispatch) => dispatch(navigateToView(selectedView)),
     requestContinuation: (dispatch, getState) => {
       dispatch(setTargetView(selectedView));
-      dispatch(setTargetSelectedResourceId(getSelectedResourceId(getState())));
+      const currentView = getSelectedView(getState());
+      if (currentView !== View.AiReview && selectedView !== View.AiReview) {
+        dispatch(
+          setTargetSelectedResourceId(getSelectedResourceId(getState())),
+        );
+      }
     },
   });
 }
