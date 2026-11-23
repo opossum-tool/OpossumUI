@@ -103,7 +103,6 @@ describe('ReportView', () => {
       resultSetKey: 'result-set',
       targetIndex: undefined,
       totalCount: 2,
-      maxSignalIcons: undefined,
     });
 
     await renderComponent(<ReportView />);

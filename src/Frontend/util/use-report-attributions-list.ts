@@ -35,12 +35,6 @@ export function useReportAttributionsList() {
       )
     : undefined;
 
-  // Statistics over the whole result set, independent of pagination.
-  const maxSignalIconsQuery = backend.getMaxSignalIconCount.useQuery({
-    ...criteria,
-    includeReadonly: false,
-  });
-
   const pages = useAttributionPages({
     criteria,
     scope: { mode: 'all' },
@@ -51,5 +45,5 @@ export function useReportAttributionsList() {
     totalCount,
   });
 
-  return { ...pages, totalCount, maxSignalIcons: maxSignalIconsQuery.data };
+  return { ...pages, totalCount };
 }

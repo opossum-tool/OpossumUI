@@ -68,35 +68,17 @@ const ICON_BOX_HEIGHT_PX = REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX;
 const ICONS_PER_COLUMN = Math.floor(
   (ICON_BOX_HEIGHT_PX + ICON_GAP_PX) / (ICON_SIZE_PX + ICON_GAP_PX),
 );
-
-// Fallback for when the global statistic is not loaded yet: derive the box
-// width from the current row's own icons.
-function countIcons(packageInfo: PackageInfo): number {
-  return (
-    1 + // edit button
-    (packageInfo.aiStatus ? 1 : 0) + // deferred or AI-generated icon
-    [
-      packageInfo.needsReview,
-      packageInfo.followUp,
-      packageInfo.firstParty,
-      packageInfo.excludeFromNotice,
-      packageInfo.preSelected,
-      packageInfo.preferred,
-      packageInfo.aiStatus?.humanModified,
-    ].filter(Boolean).length
-  );
-}
-
-// Every row renders its icons box with the same width, derived from the
-// number of icons of the widest row in the whole result set. That keeps the
-// first table column width stable across virtualization and gives
-// icon-light rows left-aligned trailing space.
-function getIconsBoxWidthPx(maxSignalIcons: number): string {
-  const columnCount = Math.ceil(Math.max(1, maxSignalIcons) / ICONS_PER_COLUMN);
-  const iconsWidthPx =
-    columnCount * ICON_OUTER_WIDTH_PX + (columnCount - 1) * ICON_GAP_PX;
-  return `${iconsWidthPx + 2 * ICON_BOX_SIDE_PADDING_PX}px`;
-}
+// the most icons any row can show: edit button, seven signal flags, and one
+// AI status icon. The icons box always reserves width for this worst case so
+// the first table column is static across virtualization and rows that show
+// fewer icons just leave left-aligned trailing space.
+const MAX_SIGNAL_ICONS = 9;
+const WORST_CASE_COLUMN_COUNT = Math.ceil(MAX_SIGNAL_ICONS / ICONS_PER_COLUMN);
+const ICONS_BOX_WIDTH_PX = `${
+  WORST_CASE_COLUMN_COUNT * ICON_OUTER_WIDTH_PX +
+  (WORST_CASE_COLUMN_COUNT - 1) * ICON_GAP_PX +
+  2 * ICON_BOX_SIDE_PADDING_PX
+}px`;
 
 const classes = {
   tableData: {
@@ -168,19 +150,9 @@ const classes = {
 
 interface ReportTableItemProps {
   packageInfo: PackageInfo;
-  /**
-   * The most icons any row in the report shows. All rows use it to size
-   * their icons box identically, keeping the first column width stable.
-   * Until the global statistic loads, the row's own icon count is the
-   * fallback.
-   */
-  maxSignalIcons?: number;
 }
 
-export function ReportTableItem({
-  packageInfo,
-  maxSignalIcons = countIcons(packageInfo),
-}: ReportTableItemProps) {
+export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
   const dispatch = useAppDispatch();
   const frequentLicenseTextResult = backend.getFrequentLicenseText.useQuery(
     packageInfo.licenseName
@@ -274,7 +246,7 @@ export function ReportTableItem({
       <MuiBox
         sx={{
           ...classes.iconTableData,
-          width: getIconsBoxWidthPx(maxSignalIcons),
+          width: ICONS_BOX_WIDTH_PX,
         }}
       >
         <IconButton

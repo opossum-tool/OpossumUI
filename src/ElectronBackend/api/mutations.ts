@@ -159,7 +159,6 @@ const ATTRIBUTION_AGGREGATE_INVALIDATIONS: Array<MutationInvalidation> = [
   { queryName: 'listAttributionPreview' },
   { queryName: 'getAttributionSelectionSummary' },
   { queryName: 'locateAttribution' },
-  { queryName: 'getMaxSignalIconCount' },
 ];
 
 const MANUAL_ATTRIBUTION_STATISTICS_INVALIDATIONS: Array<MutationInvalidation> =
