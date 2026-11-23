@@ -144,7 +144,7 @@ export function ConfirmAttributionActionPopup({
             />
           ) : (
             <MuiTypography sx={popupFixedSectionSx}>
-              {text.updateApp.loading}
+              {text.confirmAttributionActionPopup.loadingAttributions}
             </MuiTypography>
           )}
         </>
@@ -197,7 +197,7 @@ function AttributionPreview({
   if (!preview.attributions) {
     return (
       <MuiTypography sx={popupFixedSectionSx}>
-        {text.updateApp.loading}
+        {text.confirmAttributionActionPopup.loadingAttributions}
       </MuiTypography>
     );
   }

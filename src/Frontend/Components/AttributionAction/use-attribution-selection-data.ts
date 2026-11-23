@@ -13,8 +13,29 @@ import { backend } from '../../util/backendClient';
  * Largest query-wide selection for which the backend materializes the
  * attribution UUIDs needed to render the linked resources tree. Larger
  * selections keep the tree hidden and fall back to the summary counts.
+ *
+ * The cost of the tree pipeline is dominated by the number of writable
+ * linked resources, not by the attribution count (a single attribution can
+ * carry hundreds of thousands of links), so this is only a cheap secondary
+ * heuristic that primarily bounds the materialized UUID set. The primary
+ * gate is {@link QUERY_WIDE_TREE_LINK_LIMIT}.
  */
 const QUERY_WIDE_TREE_LIMIT = 100;
+
+/**
+ * Largest number of writable linked resources for which the confirmation
+ * popup renders the linked resources tree. The work behind the tree scales
+ * with linked resources (materializing their paths and expanding their
+ * ancestor chains), not with the number of selected attributions: on the
+ * large performance profile, a selection of well under 100 attributions
+ * covering ~1M links took 5-10s (~5-10µs per linked resource), while
+ * selections of up to 100 attributions on typical files resolve in ~50ms.
+ * 10,000 resources therefore keeps even adversarial link distributions
+ * within the ~50-100ms responsiveness envelope, and selections beyond it
+ * fall back to the summary's writableLinkedResourceCount, which the same
+ * fast aggregate that feeds this gate computes anyway.
+ */
+const QUERY_WIDE_TREE_LINK_LIMIT = 10_000;
 
 export function useAttributionSelectionData({
   open,
@@ -51,7 +72,10 @@ export function useAttributionSelectionData({
   const areCountsPending = isQueryWideSelection && selectionCount === undefined;
   const canShowLinkedResourcesTree = isQueryWideSelection
     ? areCountsPending ||
-      (!!selectionCount && selectionCount <= QUERY_WIDE_TREE_LIMIT)
+      (!!selectionCount &&
+        selectionCount <= QUERY_WIDE_TREE_LIMIT &&
+        (summary?.writableLinkedResourceCount ?? 0) <=
+          QUERY_WIDE_TREE_LINK_LIMIT)
     : !isEmptySelection;
 
   const attributions: typeof fetchedAttributions = isEmptySelection

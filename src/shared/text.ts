@@ -371,6 +371,7 @@ export const text = {
   confirmAttributionActionPopup: {
     editableLinkedResource: 'editable linked resource',
     affectedResources: 'Affected resources',
+    loadingAttributions: 'Loading attributions…',
     mixedWarning: (count: number) =>
       count === 1
         ? '1 attribution is linked to both editable and read-only resources. It will be cloned and changes will affect only the new attribution.'
