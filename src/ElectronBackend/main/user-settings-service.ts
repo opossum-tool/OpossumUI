@@ -37,6 +37,11 @@ export class UserSettingsService {
         await settings.set({
           ...DEFAULT_USER_SETTINGS,
           ...currentSettings,
+          panelSizes: Object.assign(
+            {},
+            DEFAULT_USER_SETTINGS.panelSizes,
+            currentSettings.panelSizes,
+          ),
         });
       }
     });

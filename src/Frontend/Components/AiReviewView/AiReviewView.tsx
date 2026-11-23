@@ -136,11 +136,11 @@ export const AiReviewView: React.FC = () => {
     <ColumnsContainer>
       <ResizableBox
         enable={{ right: true }}
-        size={{ height: '100%', width: panelSizes.packageListsWidth }}
+        size={{ height: '100%', width: panelSizes.aiReviewPackageListsWidth }}
         minWidth={120}
         maxWidth="40%"
         onResizeStop={(_event, _direction, ref) =>
-          setPanelSizes({ packageListsWidth: ref.offsetWidth })
+          setPanelSizes({ aiReviewPackageListsWidth: ref.offsetWidth })
         }
         sx={{ flexShrink: 0, overflow: 'visible', zIndex: 1 }}
       >
@@ -201,11 +201,16 @@ export const AiReviewView: React.FC = () => {
           </DetailsColumn>
           <ResizableBox
             enable={{ left: true }}
-            size={{ height: '100%', width: panelSizes.resourceBrowserWidth }}
+            size={{
+              height: '100%',
+              width: panelSizes.aiReviewResourceBrowserWidth,
+            }}
             minWidth={120}
             maxWidth="40%"
             onResizeStop={(_event, _direction, ref) =>
-              setPanelSizes({ resourceBrowserWidth: ref.offsetWidth })
+              setPanelSizes({
+                aiReviewResourceBrowserWidth: ref.offsetWidth,
+              })
             }
             sx={{
               display: 'flex',

@@ -6,6 +6,7 @@ import electron, {
   BrowserWindow,
   type MenuItemConstructorOptions,
 } from 'electron';
+import settings from 'electron-settings';
 import type { Mock } from 'vitest';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
@@ -60,6 +61,10 @@ const getUsedIcons = (
 };
 
 describe('create menu', () => {
+  beforeEach(() => {
+    vi.mocked(settings.get).mockResolvedValue({});
+  });
+
   afterEach(() => {
     setGlobalBackendState({});
   });

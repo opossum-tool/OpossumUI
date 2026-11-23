@@ -10,6 +10,8 @@ export const OPOSSUM_UI_GITHUB_URL =
 export const DEFAULT_PANEL_SIZES: NonNullable<UserSettings['panelSizes']> = {
   resourceBrowserWidth: 340,
   packageListsWidth: 360,
+  aiReviewResourceBrowserWidth: 340,
+  aiReviewPackageListsWidth: 360,
   linkedResourcesPanelHeight: null,
   signalsPanelHeight: null,
 };
