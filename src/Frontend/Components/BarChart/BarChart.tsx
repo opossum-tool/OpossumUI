@@ -114,9 +114,6 @@ function BarChartLabel({
                 variant={'caption'}
                 underline={'hover'}
                 onClick={item.onActivate}
-                // The visual label may be wrapped onto multiple rows; keep the
-                // accessible name as the single-line label.
-                aria-label={item.name}
                 style={{
                   ...style,
                   lineHeight: 'inherit',
