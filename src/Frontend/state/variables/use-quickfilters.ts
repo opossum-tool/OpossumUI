@@ -94,6 +94,42 @@ function classificationScalarsCompatible(
   );
 }
 
+const SCALAR_VALUE_FILTER_KEYS = [
+  'criticality',
+  'incompleteCoordinates',
+  'incompleteLegal',
+] as const;
+
+type ScalarFilterSources = Pick<AttributionFilters, 'search' | 'valueFilters'>;
+
+/**
+ * Whether the two filter sets specify different values for the same
+ * single-valued field (search text, classification, criticality, incomplete
+ * coordinates/legal); an empty search counts as unset. Single source of
+ * truth for {@link isQuickfilterCompatible} and {@link quickfiltersConflict}:
+ * filter keys and license conditions always combine by union and never
+ * conflict here.
+ */
+function scalarQuickfilterValuesConflict(
+  first: ScalarFilterSources,
+  second: ScalarFilterSources,
+): boolean {
+  return (
+    !scalarValuesCompatible(
+      first.search || undefined,
+      second.search || undefined,
+    ) ||
+    !classificationScalarsCompatible(first.valueFilters, second.valueFilters) ||
+    SCALAR_VALUE_FILTER_KEYS.some(
+      (key) =>
+        !scalarValuesCompatible(
+          first.valueFilters[key],
+          second.valueFilters[key],
+        ),
+    )
+  );
+}
+
 /**
  * Whether a quickfilter can be merged into the given filters. Scalar fields
  * (search text, classification, criticality, incomplete coordinates/legal)
@@ -104,35 +140,8 @@ export function isQuickfilterCompatible(
   current: AttributionFilters,
   quickfilter: SavedAttributionQuickfilter,
 ): boolean {
-  const currentValues = current.valueFilters;
-  const incomingValues = quickfilter.filters.valueFilters;
-
-  return (
-    scalarValuesCompatible(
-      current.search || undefined,
-      quickfilter.filters.search || undefined,
-    ) &&
-    classificationScalarsCompatible(currentValues, incomingValues) &&
-    scalarValuesCompatible(
-      currentValues.criticality,
-      incomingValues.criticality,
-    ) &&
-    scalarValuesCompatible(
-      currentValues.incompleteCoordinates,
-      incomingValues.incompleteCoordinates,
-    ) &&
-    scalarValuesCompatible(
-      currentValues.incompleteLegal,
-      incomingValues.incompleteLegal,
-    )
-  );
+  return !scalarQuickfilterValuesConflict(current, quickfilter.filters);
 }
-
-const SCALAR_VALUE_FILTER_KEYS = [
-  'criticality',
-  'incompleteCoordinates',
-  'incompleteLegal',
-] as const;
 
 /**
  * Whether every condition the quickfilter contributes is still present in the
@@ -206,32 +215,7 @@ export function quickfiltersConflict(
   if (first.scope === 'resource' || second.scope === 'resource') {
     return false;
   }
-  if (
-    first.filters.search &&
-    second.filters.search &&
-    first.filters.search !== second.filters.search
-  ) {
-    return true;
-  }
-  if (
-    first.filters.valueFilters.classification !== undefined &&
-    second.filters.valueFilters.classification !== undefined &&
-    !classificationScalarsEqual(
-      first.filters.valueFilters,
-      second.filters.valueFilters,
-    )
-  ) {
-    return true;
-  }
-  return SCALAR_VALUE_FILTER_KEYS.some((key) => {
-    const firstScalar = first.filters.valueFilters[key];
-    const secondScalar = second.filters.valueFilters[key];
-    return (
-      firstScalar !== undefined &&
-      secondScalar !== undefined &&
-      firstScalar !== secondScalar
-    );
-  });
+  return scalarQuickfilterValuesConflict(first.filters, second.filters);
 }
 
 /**

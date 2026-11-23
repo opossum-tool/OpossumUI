@@ -13,23 +13,14 @@ import EditOffIcon from '@mui/icons-material/EditOff';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { Box, Button, IconButton, Typography } from '@mui/material';
 import MuiTooltip from '@mui/material/Tooltip';
-import {
-  type KeyboardEvent,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { type KeyboardEvent, useCallback, useRef, useState } from 'react';
 
 import type { SavedQuickfilter } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { quickfiltersConflict } from '../../state/variables/use-quickfilters';
 import { Input } from '../Autocomplete/Autocomplete.style';
 import { styles } from './quickfilter-panels.style';
-
-// Safety net for the frozen drop state in case the settings round-trip
-// (which carries the reordered list) never completes.
-const DRAG_COMMIT_TIMEOUT_MS = 1000;
+import { useQuickfilterReorder } from './use-quickfilter-reorder';
 
 function handleActivationKeyDown(
   event: KeyboardEvent,
@@ -142,35 +133,20 @@ export function QuickfiltersPanel<T extends SavedQuickfilter>({
 }) {
   const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const rowElementsRef = useRef(new Map<string, HTMLDivElement>());
   // Mirrors the renaming state in a ref so blur/Escape handlers can never
   // commit a rename that was just cancelled.
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renamingName, setRenamingName] = useState('');
   const renamingIdRef = useRef<string | null>(null);
-  // During a drag the row order stays untouched; the dragged row follows the
-  // pointer visually and the reorder is committed on drop. After the drop,
-  // the transforms stay in their final configuration until the reordered
-  // list has actually rendered (the optimistic settings update supplies the
-  // new order), so the rows never flash back to their old positions.
-  const [drag, setDrag] = useState<{
-    id: string;
-    pointerDeltaY: number;
-    fromIndex: number;
-    targetIndex: number;
-    rowHeight: number;
-    rowPitch: number;
-    dropped: boolean;
-  } | null>(null);
-  const activeDragRef = useRef<{
-    id: string;
-    pointerId: number;
-    startPointerY: number;
-    fromIndex: number;
-    targetIndex: number;
-    rowHeight: number;
-    rowPitch: number;
-  } | null>(null);
+  const {
+    rowElementsRef,
+    effectiveDrag,
+    getRowShiftY,
+    startDrag,
+    handleDragPointerMove,
+    endDrag,
+    handleReorderKeyDown,
+  } = useQuickfilterReorder({ quickfilters, onReorder });
   const showSaveRow = hasActiveFilters && !activeQuickfilterIds.length;
   // Snapshot at panel open: focus the save row only when the panel was opened
   // with manual filters; later appearing rows must not steal focus mid-flow.
@@ -181,44 +157,6 @@ export function QuickfiltersPanel<T extends SavedQuickfilter>({
     },
     [initialFocusRef],
   );
-
-  // After a drop the transforms stay frozen until the reordered list renders.
-  const effectiveDrag = (() => {
-    if (!drag) {
-      return null;
-    }
-    if (drag.dropped) {
-      const index = quickfilters.findIndex(({ id }) => id === drag.id);
-      if (index === -1 || index === drag.targetIndex) {
-        return null;
-      }
-    }
-    return drag;
-  })();
-
-  // Clears the frozen drop state as soon as the reordered list has rendered.
-  useEffect(() => {
-    if (!drag?.dropped) {
-      return;
-    }
-    const index = quickfilters.findIndex(({ id }) => id === drag.id);
-    if (index === -1 || index === drag.targetIndex) {
-      setDrag(null);
-    }
-  }, [drag, quickfilters]);
-
-  // Safety net: never stay frozen if the reorder does not arrive.
-  useEffect(() => {
-    if (!drag?.dropped) {
-      return;
-    }
-    const timeout = window.setTimeout(() => {
-      setDrag((current) => (current?.dropped ? null : current));
-    }, DRAG_COMMIT_TIMEOUT_MS);
-    return () => {
-      window.clearTimeout(timeout);
-    };
-  }, [drag]);
 
   if (isSaving) {
     return (
@@ -237,104 +175,6 @@ export function QuickfiltersPanel<T extends SavedQuickfilter>({
     );
   }
 
-  const startDrag = (
-    event: React.PointerEvent,
-    quickfilter: SavedQuickfilter,
-  ): void => {
-    const fromIndex = quickfilters.findIndex(({ id }) => id === quickfilter.id);
-    const rect = rowElementsRef.current
-      .get(quickfilter.id)
-      ?.getBoundingClientRect();
-    if (fromIndex === -1 || !rect) {
-      return;
-    }
-    // Distance between neighbouring row tops, measured before any transforms
-    // exist.
-    const [firstRow, secondRow] = quickfilters;
-    const firstRect = firstRow
-      ? rowElementsRef.current.get(firstRow.id)?.getBoundingClientRect()
-      : undefined;
-    const secondRect = secondRow
-      ? rowElementsRef.current.get(secondRow.id)?.getBoundingClientRect()
-      : undefined;
-    const rowPitch =
-      firstRect && secondRect ? secondRect.top - firstRect.top : rect.height;
-    event.currentTarget.setPointerCapture(event.pointerId);
-    activeDragRef.current = {
-      id: quickfilter.id,
-      pointerId: event.pointerId,
-      startPointerY: event.clientY,
-      fromIndex,
-      targetIndex: fromIndex,
-      rowHeight: rect.height,
-      rowPitch,
-    };
-    setDrag({
-      id: quickfilter.id,
-      pointerDeltaY: 0,
-      fromIndex,
-      targetIndex: fromIndex,
-      rowHeight: rect.height,
-      rowPitch,
-      dropped: false,
-    });
-  };
-
-  const handleDragPointerMove = (event: React.PointerEvent): void => {
-    const activeDrag = activeDragRef.current;
-    if (activeDrag?.pointerId !== event.pointerId) {
-      return;
-    }
-    // The target slot is the number of neighbouring row midpoints the
-    // pointer has passed.
-    let targetIndex = 0;
-    quickfilters.forEach((quickfilter) => {
-      if (quickfilter.id === activeDrag.id) {
-        return;
-      }
-      const rect = rowElementsRef.current
-        .get(quickfilter.id)
-        ?.getBoundingClientRect();
-      if (rect && event.clientY > rect.top + rect.height / 2) {
-        targetIndex += 1;
-      }
-    });
-    activeDragRef.current = { ...activeDrag, targetIndex };
-    setDrag({
-      id: activeDrag.id,
-      pointerDeltaY: event.clientY - activeDrag.startPointerY,
-      fromIndex: activeDrag.fromIndex,
-      targetIndex,
-      rowHeight: activeDrag.rowHeight,
-      rowPitch: activeDrag.rowPitch,
-      dropped: false,
-    });
-  };
-
-  const endDrag = (event: React.PointerEvent): void => {
-    const activeDrag = activeDragRef.current;
-    if (activeDrag?.pointerId !== event.pointerId) {
-      return;
-    }
-    activeDragRef.current = null;
-    // Freeze every row at the exact position it will occupy after the
-    // reorder: the dragged row jumps to its target slot and the others to
-    // theirs.
-    const dropDelta =
-      (activeDrag.targetIndex - activeDrag.fromIndex) * activeDrag.rowPitch;
-    setDrag({
-      id: activeDrag.id,
-      pointerDeltaY: dropDelta,
-      fromIndex: activeDrag.fromIndex,
-      targetIndex: activeDrag.targetIndex,
-      rowHeight: activeDrag.rowHeight,
-      rowPitch: activeDrag.rowPitch,
-      dropped: true,
-    });
-    if (activeDrag.targetIndex !== activeDrag.fromIndex) {
-      onReorder(activeDrag.id, activeDrag.targetIndex);
-    }
-  };
   const startRename = (quickfilter: SavedQuickfilter): void => {
     renamingIdRef.current = quickfilter.id;
     setRenamingId(quickfilter.id);
@@ -446,26 +286,7 @@ export function QuickfiltersPanel<T extends SavedQuickfilter>({
         {isEditing
           ? quickfilters.map((quickfilter, index) => {
               const isDragged = effectiveDrag?.id === quickfilter.id;
-              // Rows between the dragged row and its target slot glide aside
-              // to make room for it, by exactly one slot pitch so that they
-              // already rest on the positions they will occupy after the drop.
-              let shiftY = 0;
-              if (effectiveDrag && !isDragged) {
-                const { fromIndex, targetIndex, rowPitch } = effectiveDrag;
-                if (
-                  fromIndex < targetIndex &&
-                  index > fromIndex &&
-                  index <= targetIndex
-                ) {
-                  shiftY = -rowPitch;
-                } else if (
-                  fromIndex > targetIndex &&
-                  index >= targetIndex &&
-                  index < fromIndex
-                ) {
-                  shiftY = rowPitch;
-                }
-              }
+              const shiftY = getRowShiftY(index);
               return (
                 <Box
                   key={quickfilter.id}
@@ -536,21 +357,9 @@ export function QuickfiltersPanel<T extends SavedQuickfilter>({
                         onPointerMove={handleDragPointerMove}
                         onPointerUp={endDrag}
                         onPointerCancel={endDrag}
-                        onKeyDown={(event) => {
-                          const index = quickfilters.findIndex(
-                            ({ id }) => id === quickfilter.id,
-                          );
-                          if (event.key === 'ArrowUp' && index > 0) {
-                            event.preventDefault();
-                            onReorder(quickfilter.id, index - 1);
-                          } else if (
-                            event.key === 'ArrowDown' &&
-                            index < quickfilters.length - 1
-                          ) {
-                            event.preventDefault();
-                            onReorder(quickfilter.id, index + 1);
-                          }
-                        }}
+                        onKeyDown={(event) =>
+                          handleReorderKeyDown(event, quickfilter)
+                        }
                       >
                         <DragIndicatorIcon
                           fontSize={'small'}
