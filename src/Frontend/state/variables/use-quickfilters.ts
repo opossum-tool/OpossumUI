@@ -6,11 +6,14 @@ import { useMemo } from 'react';
 import { v4 as uuid4 } from 'uuid';
 
 import type {
+  ClassificationsConfig,
   LicenseOption,
   QuickfilterScope,
+  RawClassificationsConfig,
   SavedAttributionQuickfilter,
   SavedQuickfilter,
 } from '../../../shared/shared-types';
+import { useClassifications } from '../../util/use-classifications';
 import { isVisibleForAttributionPanel } from './quickfilter-sharing';
 import {
   type AttributionFilters,
@@ -18,15 +21,27 @@ import {
 } from './use-filters';
 import { useUserSettings } from './use-user-setting';
 
-function toQuickfilterFilters({
-  filters,
-  search,
-  valueFilters,
-}: AttributionFilters): SavedAttributionQuickfilter['filters'] {
+function toQuickfilterFilters(
+  { filters, search, valueFilters }: AttributionFilters,
+  classifications: ClassificationsConfig | RawClassificationsConfig,
+): SavedAttributionQuickfilter['filters'] {
+  const valueFiltersCopy = structuredClone(valueFilters);
+  // The classification's description is the stable identity across projects;
+  // fill it in when the filters only carry the project-local id.
+  if (
+    valueFiltersCopy.classification !== undefined &&
+    valueFiltersCopy.classificationLabel === undefined
+  ) {
+    const entry = Object.entries(classifications).find(
+      ([id]) => Number(id) === valueFiltersCopy.classification,
+    )?.[1];
+    valueFiltersCopy.classificationLabel =
+      typeof entry === 'string' ? entry : entry?.description;
+  }
   return {
     filters: [...filters],
     search,
-    valueFilters: structuredClone(valueFilters),
+    valueFilters: valueFiltersCopy,
   };
 }
 
@@ -36,6 +51,41 @@ function scalarValuesCompatible(
 ): boolean {
   return (
     current === undefined || incoming === undefined || current === incoming
+  );
+}
+
+type ClassificationScalars = {
+  classification?: number;
+  classificationLabel?: string;
+};
+
+/**
+ * Whether two classification filters mean the same thing. Classification ids
+ * are project-local, so when both sides carry the classification's
+ * description (the stable identity), the ids are compared via it; ids may
+ * differ across projects for the same classification.
+ */
+function classificationScalarsEqual(
+  first: ClassificationScalars,
+  second: ClassificationScalars,
+): boolean {
+  if (
+    first.classificationLabel !== undefined &&
+    second.classificationLabel !== undefined
+  ) {
+    return first.classificationLabel === second.classificationLabel;
+  }
+  return first.classification === second.classification;
+}
+
+function classificationScalarsCompatible(
+  first: ClassificationScalars,
+  second: ClassificationScalars,
+): boolean {
+  return (
+    first.classification === undefined ||
+    second.classification === undefined ||
+    classificationScalarsEqual(first, second)
   );
 }
 
@@ -57,10 +107,7 @@ export function isQuickfilterCompatible(
       current.search || undefined,
       quickfilter.filters.search || undefined,
     ) &&
-    scalarValuesCompatible(
-      currentValues.classification,
-      incomingValues.classification,
-    ) &&
+    classificationScalarsCompatible(currentValues, incomingValues) &&
     scalarValuesCompatible(
       currentValues.criticality,
       incomingValues.criticality,
@@ -77,7 +124,6 @@ export function isQuickfilterCompatible(
 }
 
 const SCALAR_VALUE_FILTER_KEYS = [
-  'classification',
   'criticality',
   'incompleteCoordinates',
   'incompleteLegal',
@@ -103,6 +149,12 @@ export function areQuickfilterConditionsMet(
     return false;
   }
   if (incoming.search && current.search !== incoming.search) {
+    return false;
+  }
+  if (
+    incomingValues.classification !== undefined &&
+    !classificationScalarsEqual(currentValues, incomingValues)
+  ) {
     return false;
   }
   for (const key of SCALAR_VALUE_FILTER_KEYS) {
@@ -156,6 +208,16 @@ export function quickfiltersConflict(
   ) {
     return true;
   }
+  if (
+    first.filters.valueFilters.classification !== undefined &&
+    second.filters.valueFilters.classification !== undefined &&
+    !classificationScalarsEqual(
+      first.filters.valueFilters,
+      second.filters.valueFilters,
+    )
+  ) {
+    return true;
+  }
   return SCALAR_VALUE_FILTER_KEYS.some((key) => {
     const firstScalar = first.filters.valueFilters[key];
     const secondScalar = second.filters.valueFilters[key];
@@ -168,20 +230,68 @@ export function quickfiltersConflict(
 }
 
 /**
+ * Re-resolves a quickfilter's classification for the current project.
+ * Classification ids are project-local: the quickfilter stores the
+ * classification's description as its stable identity, so in another project
+ * the id is rewritten to whichever classification carries the same
+ * description. Returns `null` when the classification cannot be expressed in
+ * the current project (no classification with the stored description, or --
+ * for quickfilters saved without a description -- an id the project does not
+ * define); such quickfilters must neither be applied nor offered as usable.
+ */
+export function resolveQuickfilterClassification(
+  quickfilter: SavedAttributionQuickfilter,
+  classifications: ClassificationsConfig | RawClassificationsConfig,
+): SavedAttributionQuickfilter | null {
+  const { classification, classificationLabel } =
+    quickfilter.filters.valueFilters;
+  if (classification === undefined) {
+    return quickfilter;
+  }
+  if (classificationLabel !== undefined) {
+    const resolvedId = Object.entries(classifications).find(
+      ([, entry]) =>
+        (typeof entry === 'string' ? entry : entry.description) ===
+        classificationLabel,
+    )?.[0];
+    if (resolvedId === undefined) {
+      return null;
+    }
+    return {
+      ...quickfilter,
+      filters: {
+        ...quickfilter.filters,
+        valueFilters: {
+          ...quickfilter.filters.valueFilters,
+          classification: Number(resolvedId),
+        },
+      },
+    };
+  }
+  // Quickfilters saved without a description can only be resolved by their
+  // (project-local) id.
+  return Object.keys(classifications).some(
+    (id) => Number(id) === classification,
+  )
+    ? quickfilter
+    : null;
+}
+
+/**
  * Whether a quickfilter fits the current project and settings. Classification
  * ids are project-local, so a saved classification that the current project
  * does not define cannot be expressed here; classification and criticality
  * filters additionally depend on their visibility settings. Such quickfilters
- * are hidden from the menus.
+ * are disabled in the menus.
  */
 export function isQuickfilterUsableInProject(
   quickfilter: SavedAttributionQuickfilter,
   {
-    classificationIds,
+    classifications,
     showClassifications,
     showCriticality,
   }: {
-    classificationIds: ReadonlySet<number>;
+    classifications: ClassificationsConfig | RawClassificationsConfig;
     showClassifications: boolean;
     showCriticality: boolean;
   },
@@ -190,7 +300,8 @@ export function isQuickfilterUsableInProject(
 
   if (
     classification !== undefined &&
-    (!showClassifications || !classificationIds.has(classification))
+    (!showClassifications ||
+      resolveQuickfilterClassification(quickfilter, classifications) === null)
   ) {
     return false;
   }
@@ -237,11 +348,32 @@ export function mergeQuickfilterIntoFilters(
     replaceConflictingScalars
       ? (incomingScalar ?? currentScalar)
       : (currentScalar ?? incomingScalar);
+  // Classification id and its stable description are picked as a pair so the
+  // runtime filters never mix an id from one side with the label of the other.
+  const incomingClassification = {
+    classification: incoming.classification,
+    classificationLabel: incoming.classificationLabel,
+  };
+  const currentClassification = {
+    classification: currentValues.classification,
+    classificationLabel: currentValues.classificationLabel,
+  };
+  const incomingHasClassification =
+    incomingClassification.classification !== undefined ||
+    incomingClassification.classificationLabel !== undefined;
+  const currentHasClassification =
+    currentClassification.classification !== undefined ||
+    currentClassification.classificationLabel !== undefined;
+  const classificationSource = replaceConflictingScalars
+    ? incomingHasClassification
+      ? incomingClassification
+      : currentClassification
+    : currentHasClassification
+      ? currentClassification
+      : incomingClassification;
   const mergedValueFilters: AttributionFilters['valueFilters'] = {
-    classification: pickScalar(
-      incoming.classification,
-      currentValues.classification,
-    ),
+    classification: classificationSource.classification,
+    classificationLabel: classificationSource.classificationLabel,
     criticality: pickScalar(incoming.criticality, currentValues.criticality),
     incompleteCoordinates: pickScalar(
       incoming.incompleteCoordinates,
@@ -304,6 +436,7 @@ export function useQuickfilters(scope: Exclude<QuickfilterScope, 'resource'>): {
   reorderQuickfilter: (id: string, targetIndex: number) => void;
 } {
   const [userSettings, updateUserSettings] = useUserSettings();
+  const classifications = useClassifications();
 
   // In creation order: savedQuickfilters are appended on save. The list
   // matches what the panel displays: own-scope quickfilters plus
@@ -334,7 +467,7 @@ export function useQuickfilters(scope: Exclude<QuickfilterScope, 'resource'>): {
             name,
             lastUsedAt: Date.now(),
             scope,
-            filters: toQuickfilterFilters(filters),
+            filters: toQuickfilterFilters(filters, classifications),
           },
         ],
       }),

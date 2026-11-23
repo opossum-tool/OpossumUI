@@ -835,6 +835,42 @@ describe('quickfilters in the filter menu', () => {
     expect(panel).toBeInTheDocument();
   });
 
+  it('re-resolves the classification of a quickfilter saved under another project’s id', async () => {
+    await initializeDbWithTestData({
+      config: { classifications: { 1: 'Low' } },
+    });
+    setDatabaseInitialized(true);
+    // Saved in a project that defined 'Low' under id 7; this project
+    // defines it under id 1.
+    const crossProject = makeQuickfilter({
+      name: 'Low from other project',
+      filters: {
+        filters: [],
+        search: '',
+        valueFilters: { classification: 7, classificationLabel: 'Low' },
+      },
+    });
+    const { store } = await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [crossProject] }),
+    ]);
+
+    const panel = await openQuickfiltersPanel();
+    const quickfilterRow = row(panel, crossProject.name);
+    expect(quickfilterRow).not.toHaveAttribute('aria-disabled', 'true');
+
+    await userEvent.click(quickfilterRow);
+
+    expect(
+      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toEqual({
+      filters: [],
+      search: '',
+      valueFilters: { classification: 1, classificationLabel: 'Low' },
+      sorting: 'alphabetically',
+      activeQuickfilterIds: [crossProject.id],
+    });
+  });
+
   it('disables quickfilters whose classification or criticality filter is hidden by settings', async () => {
     const withClassification = makeQuickfilter({
       name: 'Classification quickfilter',

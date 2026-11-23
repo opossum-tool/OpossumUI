@@ -396,6 +396,15 @@ function getValueFilterOption({
             valueFilters: {
               ...filters.valueFilters,
               [field]: value === null ? undefined : Number(value),
+              // The description is the classification's stable identity
+              // (ids are project-local); stored for quickfilters.
+              ...(field === 'classification' && {
+                classificationLabel:
+                  value === null
+                    ? undefined
+                    : options.find((option) => option.value === Number(value))
+                        ?.label,
+              }),
             },
           })
         }

@@ -15,6 +15,10 @@ import { setVariable } from './actions/variables-actions/variables-actions';
 import { reducer } from './reducer';
 import type { AppThunkAction } from './types';
 import {
+  toAttributionQuickfilterModel,
+  toResourceQuickfilterModel,
+} from './variables/quickfilter-sharing';
+import {
   type AttributionFilters,
   EXTERNAL_ATTRIBUTION_FILTERS,
   MANUAL_ATTRIBUTION_FILTERS_AUDIT,
@@ -64,19 +68,32 @@ const pruneDeselectedQuickfilters: Middleware<unknown, State> =
             return true;
           }
           // Attribution and resource quickfilters live in different filter
-          // variables; a quickfilter can only be deselected by changes to
-          // the variable kind it belongs to.
-          if (isResourceQuickfilter(quickfilter)) {
-            return variableAction.name === RESOURCE_TREE_FILTERS
-              ? areResourceQuickfilterConditionsMet(filters, quickfilter)
+          // variables. A quickfilter applied on another panel was converted
+          // to that panel's filter shape, so the deselection check has to
+          // apply the same conversion before comparing conditions.
+          if (variableAction.name === RESOURCE_TREE_FILTERS) {
+            const resourceModel = isResourceQuickfilter(quickfilter)
+              ? quickfilter
+              : isAttributionQuickfilter(quickfilter)
+                ? toResourceQuickfilterModel(quickfilter)
+                : null;
+            return resourceModel
+              ? areResourceQuickfilterConditionsMet(filters, resourceModel)
               : true;
           }
-          if (isAttributionQuickfilter(quickfilter)) {
-            return variableAction.name === RESOURCE_TREE_FILTERS
-              ? true
-              : areQuickfilterConditionsMet(filters, quickfilter);
-          }
-          return true;
+          const attributionModel = isAttributionQuickfilter(quickfilter)
+            ? quickfilter
+            : isResourceQuickfilter(quickfilter)
+              ? toAttributionQuickfilterModel(
+                  quickfilter,
+                  variableAction.name === EXTERNAL_ATTRIBUTION_FILTERS
+                    ? 'signal'
+                    : 'attribution',
+                )
+              : null;
+          return attributionModel
+            ? areQuickfilterConditionsMet(filters, attributionModel)
+            : true;
         });
         if (keptIds.length !== activeIds.length) {
           return next(

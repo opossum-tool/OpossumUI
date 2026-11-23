@@ -2,14 +2,19 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { SavedAttributionQuickfilter } from '../../../shared/shared-types';
+import type {
+  SavedAttributionQuickfilter,
+  SavedResourceQuickfilter,
+} from '../../../shared/shared-types';
 import { setUserSetting } from '../actions/user-settings-actions/user-settings-actions';
 import { setVariable } from '../actions/variables-actions/variables-actions';
 import { createAppStore } from '../configure-store';
 import {
   EXTERNAL_ATTRIBUTION_FILTERS,
   initialAttributionFilters,
+  initialResourceTreeFilters,
   MANUAL_ATTRIBUTION_FILTERS_AUDIT,
+  RESOURCE_TREE_FILTERS,
 } from '../variables/use-filters';
 
 const QUICKFILTER: SavedAttributionQuickfilter = {
@@ -18,6 +23,36 @@ const QUICKFILTER: SavedAttributionQuickfilter = {
   lastUsedAt: 1,
   scope: 'signal',
   filters: { filters: ['firstParty'], search: '', valueFilters: {} },
+};
+
+const LICENSE_OPTION = { id: 'MIT', label: 'MIT' };
+
+// License-only quickfilter saved on the signals panel; it is offered on the
+// resource tree as a converted resource quickfilter.
+const SIGNAL_LICENSE_QUICKFILTER: SavedAttributionQuickfilter = {
+  id: 'signal-license-quickfilter',
+  name: 'MIT licenses',
+  lastUsedAt: 1,
+  scope: 'signal',
+  filters: {
+    filters: [],
+    search: '',
+    valueFilters: { license: [LICENSE_OPTION] },
+  },
+};
+
+// License-only quickfilter saved on the resource panel; it is offered on the
+// attribution panels as a converted attribution quickfilter.
+const RESOURCE_LICENSE_QUICKFILTER: SavedResourceQuickfilter = {
+  id: 'resource-license-quickfilter',
+  name: 'MIT licenses',
+  lastUsedAt: 1,
+  scope: 'resource',
+  filters: {
+    onlyUnreviewedFiles: false,
+    onlyWithAiDeferredAttributions: false,
+    selectedLicenses: [LICENSE_OPTION],
+  },
 };
 
 function readActiveIds(
@@ -102,5 +137,57 @@ describe('pruning of deselected quickfilters', () => {
     expect(readActiveIds(store, EXTERNAL_ATTRIBUTION_FILTERS)).toEqual([
       QUICKFILTER.id,
     ]);
+  });
+
+  it('deselects a license-only signal quickfilter applied on the resources panel when its license is removed', () => {
+    const store = createAppStore();
+    store.dispatch(
+      setUserSetting({ savedQuickfilters: [SIGNAL_LICENSE_QUICKFILTER] }),
+    );
+    store.dispatch(
+      setVariable(RESOURCE_TREE_FILTERS, {
+        ...initialResourceTreeFilters,
+        selectedLicenses: [LICENSE_OPTION],
+        activeQuickfilterIds: [SIGNAL_LICENSE_QUICKFILTER.id],
+      }),
+    );
+    expect(readActiveIds(store, RESOURCE_TREE_FILTERS)).toEqual([
+      SIGNAL_LICENSE_QUICKFILTER.id,
+    ]);
+
+    store.dispatch(
+      setVariable(RESOURCE_TREE_FILTERS, {
+        ...initialResourceTreeFilters,
+        activeQuickfilterIds: [SIGNAL_LICENSE_QUICKFILTER.id],
+      }),
+    );
+
+    expect(readActiveIds(store, RESOURCE_TREE_FILTERS)).toBeUndefined();
+  });
+
+  it('deselects a license-only resource quickfilter applied on the signals panel when its license is removed', () => {
+    const store = createAppStore();
+    store.dispatch(
+      setUserSetting({ savedQuickfilters: [RESOURCE_LICENSE_QUICKFILTER] }),
+    );
+    store.dispatch(
+      setVariable(EXTERNAL_ATTRIBUTION_FILTERS, {
+        ...initialAttributionFilters,
+        valueFilters: { license: [LICENSE_OPTION] },
+        activeQuickfilterIds: [RESOURCE_LICENSE_QUICKFILTER.id],
+      }),
+    );
+    expect(readActiveIds(store, EXTERNAL_ATTRIBUTION_FILTERS)).toEqual([
+      RESOURCE_LICENSE_QUICKFILTER.id,
+    ]);
+
+    store.dispatch(
+      setVariable(EXTERNAL_ATTRIBUTION_FILTERS, {
+        ...initialAttributionFilters,
+        activeQuickfilterIds: [RESOURCE_LICENSE_QUICKFILTER.id],
+      }),
+    );
+
+    expect(readActiveIds(store, EXTERNAL_ATTRIBUTION_FILTERS)).toBeUndefined();
   });
 });

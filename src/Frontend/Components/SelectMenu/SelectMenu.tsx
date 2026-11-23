@@ -151,11 +151,6 @@ export function renderSelectMenuItems({
       const menuItem = (
         <StyledMenuItem
           key={id}
-          title={
-            option.tooltip === undefined && typeof label === 'string'
-              ? label
-              : undefined
-          }
           data-option-id={id}
           selected={selected}
           aria-label={option.ariaLabel}
@@ -209,7 +204,7 @@ export function renderSelectMenuItems({
       return (
         <MuiTooltip
           key={id}
-          title={option.tooltip ?? ''}
+          title={option.tooltip ?? (typeof label === 'string' ? label : '')}
           disableInteractive
           placement={'bottom'}
         >

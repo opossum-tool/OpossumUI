@@ -23,6 +23,7 @@ import {
   isQuickfilterCompatible,
   isQuickfilterUsableInProject,
   mergeQuickfilterIntoFilters,
+  resolveQuickfilterClassification,
   useQuickfilters,
 } from '../../state/variables/use-quickfilters';
 import { useUserSettings } from '../../state/variables/use-user-setting';
@@ -54,9 +55,7 @@ export function useQuickfilterOptions({
 
   const usabilityContext = useMemo(
     () => ({
-      classificationIds: new Set(
-        Object.keys(classifications).map((id) => Number(id)),
-      ),
+      classifications,
       showClassifications: userSettings.showClassifications,
       showCriticality: userSettings.showCriticality,
     }),
@@ -76,6 +75,20 @@ export function useQuickfilterOptions({
         .map(({ id }) => id),
     [visibleQuickfilters, usabilityContext],
   );
+  // Classification ids are project-local: quickfilters applied here are
+  // re-resolved so the classification id matches the classification the
+  // current project assigns to the stored description.
+  const resolvedQuickfilters = useMemo(
+    () =>
+      visibleQuickfilters.flatMap((quickfilter) => {
+        const resolved = resolveQuickfilterClassification(
+          quickfilter,
+          classifications,
+        );
+        return resolved ? [resolved] : [];
+      }),
+    [visibleQuickfilters, classifications],
+  );
 
   return useMemo(() => {
     const activeIds = filters.activeQuickfilterIds ?? [];
@@ -87,16 +100,22 @@ export function useQuickfilterOptions({
         removeQuickfilter(quickfilter.id);
         return;
       }
+      const resolved = resolvedQuickfilters.find(
+        ({ id }) => id === quickfilter.id,
+      );
+      if (!resolved) {
+        return;
+      }
       // Conflicting quickfilters apply as well: the clashing scalar filters
       // (search text, classification, …) are overwritten with the
       // quickfilter's values and everything else is kept. Quickfilters whose
       // conditions are no longer met are deselected automatically (see the
       // pruning of active quickfilter ids when filters change).
       setFilters(
-        mergeQuickfilterIntoFilters(filters, quickfilter, {
+        mergeQuickfilterIntoFilters(filters, resolved, {
           replaceConflictingScalars: !isQuickfilterCompatible(
             filters,
-            quickfilter,
+            resolved,
           ),
         }),
       );
@@ -107,7 +126,7 @@ export function useQuickfilterOptions({
       setFilters(
         combineQuickfilters({
           ids: activeIds.filter((activeId) => activeId !== id),
-          quickfilters: visibleQuickfilters,
+          quickfilters: resolvedQuickfilters,
           sorting: filters.sorting,
         }),
       );
@@ -180,7 +199,7 @@ export function useQuickfilterOptions({
             hasActiveFilters={hasActiveFilters}
             quickfilters={visibleQuickfilters}
             incompatibleProjectIds={incompatibleProjectIds}
-            conflictingIds={visibleQuickfilters
+            conflictingIds={resolvedQuickfilters
               .filter(
                 (quickfilter) => !isQuickfilterCompatible(filters, quickfilter),
               )
@@ -202,6 +221,7 @@ export function useQuickfilterOptions({
     ];
   }, [
     visibleQuickfilters,
+    resolvedQuickfilters,
     incompatibleProjectIds,
     filters,
     setFilters,
