@@ -5,6 +5,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import type { SaveResult } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { PopupType, View } from '../../../enums/enums';
@@ -155,8 +156,8 @@ describe('NotSavedPopup', () => {
 
     let resolveSaveFlush!: () => void;
     vi.mocked(global.window.electronAPI.flushPendingSaves).mockReturnValueOnce(
-      new Promise<undefined>((resolve) => {
-        resolveSaveFlush = () => resolve(undefined);
+      new Promise<SaveResult>((resolve) => {
+        resolveSaveFlush = () => resolve({ status: 'saved' });
       }),
     );
 

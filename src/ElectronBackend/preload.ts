@@ -9,7 +9,7 @@ import { IpcChannel } from '../shared/ipc-channels';
 import type {
   ElectronAPI,
   LeaveResult,
-  SaveFailure,
+  SaveResult,
   UserSettings,
 } from '../shared/shared-types';
 import type { CommandName, CommandParams, CommandReturn } from './api/commands';
@@ -34,7 +34,7 @@ ipcRenderer.on(FRONTEND_TO_DB_PROCESS_PORT, (event) => {
   resolveClientReady();
 });
 
-async function flushPendingSaves(): Promise<SaveFailure | undefined> {
+async function flushPendingSaves(): Promise<SaveResult> {
   await clientReady;
   return client!.flushSaves();
 }
@@ -43,9 +43,9 @@ async function afterPendingSaves<T>(
   invoke: () => Promise<T>,
 ): Promise<LeaveResult<T>> {
   // Flush on the same port used to submit edits before invoking main-process IPC.
-  const failure = await flushPendingSaves();
-  if (failure) {
-    return { status: 'blocked', failure };
+  const result = await flushPendingSaves();
+  if (result.status === 'failed') {
+    return { status: 'blocked', failure: result.failure };
   }
   return invoke();
 }

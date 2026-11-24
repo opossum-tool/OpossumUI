@@ -14,6 +14,7 @@ import {
   type MergeOpossumFilesResult,
   type ProgressCallback,
   type SaveFailure,
+  type SaveResult,
 } from '../../shared/shared-types';
 import {
   type CommandName,
@@ -104,7 +105,7 @@ type SuccessPayload =
   | Awaited<CommandReturn<CommandName>>
   | MergeOpossumFilesResult
   | boolean
-  | SaveFailure
+  | SaveResult
   | undefined;
 
 interface SuccessResponse {

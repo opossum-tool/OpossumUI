@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { randomUUID } from 'node:crypto';
 
-import type { SaveFailure } from '../../shared/shared-types';
+import type { SaveFailure, SaveResult } from '../../shared/shared-types';
 
 const DEFAULT_AUTOSAVE_INTERVAL_MS = 60_000;
 const AUTOSAVE_INTERVAL_MS = readAutosaveInterval();
@@ -80,11 +80,7 @@ export class SaveWorker {
     });
   }
 
-  /**
-   * Schedules a save of the current project state and resolves when the
-   * write has concluded, rejecting with the write's error.
-   */
-  save(): Promise<SaveFailure | undefined> {
+  save(): Promise<SaveResult> {
     return this.track(() => this.enqueueWrite());
   }
 
@@ -103,19 +99,21 @@ export class SaveWorker {
   private autosave(): void {
     if (this.dirty && this.pending.size === 0) {
       void this.save().catch((error) => {
-        console.error('Automatic save of the .opossum file failed.', error);
+        console.error('Unexpected error during automatic save.', error);
       });
     }
   }
 
-  /** Waits for tracked work, then writes dirty edits or returns the outstanding failure. */
-  async flush(): Promise<SaveFailure | undefined> {
+  /** Waits for tracked work, then writes dirty edits unless a save failure is outstanding. */
+  async flush(): Promise<SaveResult> {
     while (true) {
       if (this.pending.size > 0) {
         await Promise.all([...this.pending]);
-      } else if (this.currentFailure || !this.dirty) {
+      } else if (this.currentFailure) {
         // Leave the failure available for recovery instead of retrying here.
-        return this.currentFailure;
+        return { status: 'failed', failure: this.currentFailure };
+      } else if (!this.dirty) {
+        return { status: 'saved' };
       } else {
         await this.save();
       }
@@ -154,8 +152,8 @@ export class SaveWorker {
    * records its outcome. The snapshot is read when the write starts, so
    * edits completed during a write stay dirty for the next write.
    */
-  private enqueueWrite(): Promise<SaveFailure | undefined> {
-    const write = this.saveTail.then(async () => {
+  private enqueueWrite(): Promise<SaveResult> {
+    const write = this.saveTail.then(async (): Promise<SaveResult> => {
       this.dirty = false;
       const fileName = this.getFileName();
       let failure: SaveFailure | undefined;
@@ -170,7 +168,7 @@ export class SaveWorker {
         };
       }
       this.setFailure(failure);
-      return failure;
+      return failure ? { status: 'failed', failure } : { status: 'saved' };
     });
     // A failed save must not prevent later saves from starting.
     this.saveTail = write.then(

@@ -140,7 +140,10 @@ describe('dbProcess save tracking', () => {
     await runCommand(1, MUTATION_COMMAND, true);
     const response = await save(2);
 
-    expect(response?.type).toBe('success');
+    expect(response).toMatchObject({
+      type: 'success',
+      result: { status: 'saved' },
+    });
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
     await tick();
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
@@ -160,7 +163,7 @@ describe('dbProcess save tracking', () => {
     const failedResponse = await save(1);
     expect(failedResponse).toMatchObject({
       type: 'success',
-      result: { message: 'write failed' },
+      result: { status: 'failed', failure: { message: 'write failed' } },
     });
 
     const response = await save(2);
@@ -328,7 +331,7 @@ describe('dbProcess save tracking', () => {
     await idleRequest;
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
     expect(port.responses).toEqual([
-      { id: 2, type: 'success', result: undefined },
+      { id: 2, type: 'success', result: { status: 'saved' } },
     ]);
   });
 
@@ -445,17 +448,17 @@ describe('dbProcess save outcome tracking', () => {
     return response.result;
   }
 
-  it('reports no save result before any write happened', async () => {
+  it('reports saved when no edits need saving', async () => {
     await loadProject();
 
-    await expect(getSaveOutcome(1)).resolves.toBeUndefined();
+    await expect(getSaveOutcome(1)).resolves.toEqual({ status: 'saved' });
   });
 
   it('reports a successful manual save', async () => {
     await loadProject();
     await save(1);
 
-    await expect(getSaveOutcome(2)).resolves.toBeUndefined();
+    await expect(getSaveOutcome(2)).resolves.toEqual({ status: 'saved' });
   });
 
   it('returns the same failure from a manual save and a subsequent flush', async () => {
@@ -465,14 +468,16 @@ describe('dbProcess save outcome tracking', () => {
     expect(result).toMatchObject({
       type: 'success',
       result: {
-        id: expect.any(String),
-        fileName: 'x',
-        message: 'write failed',
+        status: 'failed',
+        failure: {
+          id: expect.any(String),
+          fileName: 'x',
+          message: 'write failed',
+        },
       },
     });
-    await expect(getSaveOutcome(2)).resolves.toEqual(
-      result?.type === 'success' ? result.result : undefined,
-    );
+    const flushResult = await getSaveOutcome(2);
+    expect(result).toMatchObject({ result: flushResult });
     expect(saveFileApiMock).toHaveBeenCalledOnce();
   });
 
@@ -484,7 +489,8 @@ describe('dbProcess save outcome tracking', () => {
     await tick();
 
     await expect(getSaveOutcome(3)).resolves.toMatchObject({
-      message: 'write failed',
+      status: 'failed',
+      failure: { message: 'write failed' },
     });
     expect(saveFileApiMock).toHaveBeenCalledOnce();
   });
@@ -501,7 +507,8 @@ describe('dbProcess save outcome tracking', () => {
     });
 
     await expect(getSaveOutcome(3)).resolves.toMatchObject({
-      message: 'write failed',
+      status: 'failed',
+      failure: { message: 'write failed' },
     });
     expect(saveFileApiMock).toHaveBeenCalledTimes(1);
   });
@@ -516,7 +523,7 @@ describe('dbProcess save outcome tracking', () => {
       opossumFilePath: '/some/path.opossum',
     });
 
-    await expect(getSaveOutcome(2)).resolves.toBeUndefined();
+    await expect(getSaveOutcome(2)).resolves.toEqual({ status: 'saved' });
   });
 
   it('does not record a failed merge as a save outcome', async () => {
@@ -540,7 +547,7 @@ describe('dbProcess save outcome tracking', () => {
       },
     });
 
-    await expect(getSaveOutcome(2)).resolves.toBeUndefined();
+    await expect(getSaveOutcome(2)).resolves.toEqual({ status: 'saved' });
   });
 
   it('resets the tracked result when another file is loaded', async () => {
@@ -550,9 +557,9 @@ describe('dbProcess save outcome tracking', () => {
     loadFileMock.mockRejectedValueOnce(new Error('load failed'));
     await handle({ id: 2, type: 'loadFile', filePath: '/does-not-exist' });
 
-    await expect(getSaveOutcome(3)).resolves.toBeUndefined();
+    await expect(getSaveOutcome(3)).resolves.toEqual({ status: 'saved' });
 
     await loadProject();
-    await expect(getSaveOutcome(4)).resolves.toBeUndefined();
+    await expect(getSaveOutcome(4)).resolves.toEqual({ status: 'saved' });
   });
 });

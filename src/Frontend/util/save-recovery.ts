@@ -86,7 +86,7 @@ export async function attemptToLeave(
 export async function resumeSaveRecovery(
   expected: Recovery,
   failureId?: string,
-): Promise<SaveFailure | undefined> {
+): Promise<LeaveResult> {
   if (leavePhase !== 'awaiting-decision' || recovery !== expected) {
     return undefined;
   }
@@ -97,7 +97,7 @@ export async function resumeSaveRecovery(
     if (result?.status === 'blocked') {
       recovery = { ...expected, failure: result.failure };
       leavePhase = 'awaiting-decision';
-      return result.failure;
+      return result;
     }
     recovery = undefined;
     leavePhase = 'idle';

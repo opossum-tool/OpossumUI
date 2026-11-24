@@ -8,7 +8,7 @@ import type {
   FileFormatInfo,
   MergeOpossumFilesResult,
   PackageInfo,
-  SaveFailure,
+  SaveResult,
   SplitFileResult,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
@@ -121,14 +121,14 @@ function openFileAfterFlushingSaves(
       await attemptToLeave('open', async (failureId) => {
         actionStarted = true;
         dispatch(setIsSavingBeforeQuit(true));
-        let failure: SaveFailure | undefined;
+        let result: SaveResult;
         try {
-          failure = await window.electronAPI.flushPendingSaves();
+          result = await window.electronAPI.flushPendingSaves();
         } finally {
           dispatch(setIsSavingBeforeQuit(false));
         }
-        if (failure && failureId === undefined) {
-          return { status: 'blocked', failure };
+        if (result.status === 'failed' && failureId === undefined) {
+          return { status: 'blocked', failure: result.failure };
         }
         if (filePath === undefined) {
           await window.electronAPI.openFile();

@@ -7,7 +7,7 @@ import MuiTypography from '@mui/material/Typography';
 import { visuallyHidden } from '@mui/utils';
 import { useRef, useState, useSyncExternalStore } from 'react';
 
-import type { SaveFailure } from '../../../shared/shared-types';
+import type { SaveResult } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { buttonSpinnerSize } from '../../shared-styles';
 import {
@@ -43,30 +43,35 @@ export function SaveRecoveryDialog(): React.ReactNode {
     try {
       if (decision === 'retry') {
         setAnnouncedFailureId(undefined);
-        let failure: SaveFailure | undefined;
+        let result: SaveResult;
         try {
-          failure = await window.electronAPI.saveFile();
+          result = await window.electronAPI.saveFile();
         } catch (error) {
-          failure = {
-            id: crypto.randomUUID(),
-            fileName: current.failure.fileName,
-            message: error instanceof Error ? error.message : String(error),
+          result = {
+            status: 'failed',
+            failure: {
+              id: crypto.randomUUID(),
+              fileName: current.failure.fileName,
+              message: error instanceof Error ? error.message : String(error),
+            },
           };
         }
-        if (failure) {
-          updateSaveRecoveryFailure(current, failure);
-          setAnnouncedFailureId(failure.id);
+        if (result.status === 'failed') {
+          updateSaveRecoveryFailure(current, result.failure);
+          setAnnouncedFailureId(result.failure.id);
           return;
         }
       }
       if (getSaveRecovery() !== current) {
         return;
       }
-      const nextFailure = await resumeSaveRecovery(
+      const result = await resumeSaveRecovery(
         current,
         decision === 'leave' ? current.failure.id : undefined,
       );
-      setAnnouncedFailureId(nextFailure?.id);
+      if (result?.status === 'blocked') {
+        setAnnouncedFailureId(result.failure.id);
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));
     } finally {

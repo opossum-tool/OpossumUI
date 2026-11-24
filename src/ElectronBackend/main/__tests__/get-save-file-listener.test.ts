@@ -89,7 +89,7 @@ describe('saveFileListener', () => {
   });
 
   it('forwards global state to getMainDbClient().saveFile()', async () => {
-    mockSaveFile.mockResolvedValue(undefined);
+    mockSaveFile.mockResolvedValue({ status: 'saved' });
 
     const mockCallback = vi.fn();
     const mainWindow = {
@@ -101,7 +101,9 @@ describe('saveFileListener', () => {
       projectId: 'uuid_1',
     });
 
-    await saveFileListener(mainWindow)(AllowedFrontendChannels.SaveFileRequest);
+    await expect(
+      saveFileListener(mainWindow)(AllowedFrontendChannels.SaveFileRequest),
+    ).resolves.toEqual({ status: 'saved' });
 
     expect(mockSaveFile).toHaveBeenCalledWith({
       projectId: 'uuid_1',

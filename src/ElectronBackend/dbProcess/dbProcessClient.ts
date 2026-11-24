@@ -10,7 +10,7 @@ import type {
   ExportType,
   MergeOpossumFilesResult,
   ProgressCallback,
-  SaveFailure,
+  SaveResult,
 } from '../../shared/shared-types';
 import type {
   CommandName,
@@ -114,12 +114,10 @@ export class DbProcessClient {
 
   /**
    * Waits for tracked work and writes any remaining dirty edits unless a
-   * save failure is outstanding. Returns the current failure, if any.
+   * save failure is outstanding. Returns the save outcome.
    */
-  flushSaves(): Promise<SaveFailure | undefined> {
-    return this.request({ type: 'flushSaves' }) as Promise<
-      SaveFailure | undefined
-    >;
+  flushSaves(): Promise<SaveResult> {
+    return this.request({ type: 'flushSaves' }) as Promise<SaveResult>;
   }
 
   /**
@@ -165,10 +163,8 @@ export class DbProcessClient {
     ) as Promise<LoadFileIpcResult>;
   }
 
-  saveFile(params: SaveFileParams): Promise<SaveFailure | undefined> {
-    return this.request({ type: 'saveFile', ...params }) as Promise<
-      SaveFailure | undefined
-    >;
+  saveFile(params: SaveFileParams): Promise<SaveResult> {
+    return this.request({ type: 'saveFile', ...params }) as Promise<SaveResult>;
   }
 
   forceUnlock(params: SaveFileParams): Promise<void> {

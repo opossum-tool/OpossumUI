@@ -214,7 +214,7 @@ afterEach(async () => {
   vi.mocked(window.electronAPI.openFile).mockReset();
   vi.mocked(window.electronAPI.saveFile)
     .mockReset()
-    .mockResolvedValue(undefined);
+    .mockResolvedValue({ status: 'saved' });
   vi.mocked(window.electronAPI.confirmQuit).mockReset();
   vi.mocked(window.electronAPI.flushPendingSaves).mockReset();
   vi.mocked(window.electronAPI.importFileConvertAndLoad).mockReset();
@@ -651,7 +651,8 @@ test('Stay keeps the edited project open after a failed flush', async () => {
   expect(window.electronAPI.openFile).not.toHaveBeenCalled();
   await expectFormFieldValues({ name: savedName });
   await expect(client.flushSaves()).resolves.toMatchObject({
-    message: 'Disk full',
+    status: 'failed',
+    failure: { message: 'Disk full' },
   });
 });
 
@@ -684,8 +685,9 @@ async function prepareMenuSave(path = firstPath, id = projectId) {
   )!;
   const saved = Promise.withResolvers<void>();
   vi.mocked(window.electronAPI.saveFile).mockImplementationOnce(async () => {
-    await saveFileListener(mainWindow)(undefined);
+    const result = await saveFileListener(mainWindow)(undefined);
     saved.resolve();
+    return result;
   });
   return {
     clickSave: () =>

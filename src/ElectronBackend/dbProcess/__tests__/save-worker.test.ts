@@ -75,7 +75,7 @@ describe('SaveWorker', () => {
     firstWrite.resolve();
     await vi.advanceTimersByTimeAsync(0);
     expect(snapshots).toEqual([1]);
-    await expect(worker.flush()).resolves.toBeUndefined();
+    await expect(worker.flush()).resolves.toEqual({ status: 'saved' });
     expect(snapshots).toEqual([1, 2]);
   });
 
@@ -108,7 +108,7 @@ describe('SaveWorker', () => {
 
     laterWrite.resolve();
     await flush;
-    expect(completed).toHaveBeenCalledExactlyOnceWith(undefined);
+    expect(completed).toHaveBeenCalledExactlyOnceWith({ status: 'saved' });
   });
 
   it('reports repeated autosave failures and recovers without a manual retry', async () => {
@@ -125,20 +125,34 @@ describe('SaveWorker', () => {
       .mockRejectedValueOnce(new Error('write failed'));
     await edit(1);
 
-    const failure = await worker.flush();
-    expect(failure).toMatchObject({ message: 'write failed' });
-    await expect(worker.flush()).resolves.toBe(failure);
+    const result = await worker.flush();
+    expect(result).toMatchObject({
+      status: 'failed',
+      failure: { message: 'write failed' },
+    });
+    await expect(worker.flush()).resolves.toEqual(result);
     expect(writeCurrentProject).toHaveBeenCalledOnce();
     await vi.advanceTimersByTimeAsync(INTERVAL_MS);
     expect(writeCurrentProject).toHaveBeenCalledTimes(2);
-    const repeatedFailure = await worker.flush();
-    expect(repeatedFailure).toMatchObject({ message: 'write failed' });
-    expect(repeatedFailure?.id).not.toBe(failure?.id);
-    expect(onFailureChanged.mock.calls).toEqual([[failure], [repeatedFailure]]);
+    const repeatedResult = await worker.flush();
+    expect(repeatedResult).toMatchObject({
+      status: 'failed',
+      failure: { message: 'write failed' },
+    });
+    expect(repeatedResult).not.toEqual(result);
+    expect(onFailureChanged).toHaveBeenCalledTimes(2);
+    expect(result).toEqual({
+      status: 'failed',
+      failure: onFailureChanged.mock.calls[0][0],
+    });
+    expect(repeatedResult).toEqual({
+      status: 'failed',
+      failure: onFailureChanged.mock.calls[1][0],
+    });
 
     await vi.advanceTimersByTimeAsync(INTERVAL_MS);
     expect(writeCurrentProject).toHaveBeenCalledTimes(3);
-    await expect(worker.flush()).resolves.toBeUndefined();
+    await expect(worker.flush()).resolves.toEqual({ status: 'saved' });
     expect(onFailureChanged).toHaveBeenLastCalledWith(undefined);
   });
 
@@ -152,10 +166,13 @@ describe('SaveWorker', () => {
     await vi.advanceTimersByTimeAsync(0);
     expect(writeCurrentProject).toHaveBeenCalledOnce();
     firstWrite.reject(error);
-    await expect(failed).resolves.toMatchObject({ message: error.message });
-    await queued;
+    await expect(failed).resolves.toMatchObject({
+      status: 'failed',
+      failure: { message: error.message },
+    });
+    await expect(queued).resolves.toEqual({ status: 'saved' });
     expect(writeCurrentProject).toHaveBeenCalledTimes(2);
-    await expect(worker.flush()).resolves.toBeUndefined();
+    await expect(worker.flush()).resolves.toEqual({ status: 'saved' });
     expect(writeCurrentProject).toHaveBeenCalledTimes(2);
   });
 });
@@ -169,15 +186,18 @@ test('publishes a failure and a clear when an explicit retry succeeds', async ()
     onFailureChanged,
   });
   writeCurrentProject.mockRejectedValueOnce(new Error('Disk full'));
-  const failure = await worker.save();
-  expect(failure).toEqual({
+  const failure = {
     id: expect.any(String),
     fileName: 'project.opossum',
     message: 'Disk full',
+  };
+  await expect(worker.save()).resolves.toEqual({
+    status: 'failed',
+    failure,
   });
   expect(onFailureChanged).toHaveBeenCalledExactlyOnceWith(failure);
 
-  await expect(worker.save()).resolves.toBeUndefined();
-  await expect(worker.flush()).resolves.toBeUndefined();
+  await expect(worker.save()).resolves.toEqual({ status: 'saved' });
+  await expect(worker.flush()).resolves.toEqual({ status: 'saved' });
   expect(onFailureChanged.mock.calls).toEqual([[failure], [undefined]]);
 });

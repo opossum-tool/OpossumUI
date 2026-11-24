@@ -6,7 +6,7 @@ import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import type { IpcRendererEvent } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../../shared/ipc-channels';
-import type { SaveFailure } from '../../../../shared/shared-types';
+import type { SaveFailure, SaveResult } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { renderComponent } from '../../../test-helpers/render';
 import { attemptToLeave, closeSaveRecovery } from '../../../util/save-recovery';
@@ -78,19 +78,28 @@ test('three immediate retries with identical errors each update and announce the
   const repeatedError = `Permission denied: ${'read-only-project-file-'.repeat(8)}`;
   vi.mocked(window.electronAPI.saveFile)
     .mockResolvedValueOnce({
-      ...failed,
-      id: 'retry-failure-1',
-      message: repeatedError,
+      status: 'failed',
+      failure: {
+        ...failed,
+        id: 'retry-failure-1',
+        message: repeatedError,
+      },
     })
     .mockResolvedValueOnce({
-      ...failed,
-      id: 'retry-failure-2',
-      message: repeatedError,
+      status: 'failed',
+      failure: {
+        ...failed,
+        id: 'retry-failure-2',
+        message: repeatedError,
+      },
     })
     .mockResolvedValueOnce({
-      ...failed,
-      id: 'retry-failure-3',
-      message: repeatedError,
+      status: 'failed',
+      failure: {
+        ...failed,
+        id: 'retry-failure-3',
+        message: repeatedError,
+      },
     });
   await renderNotification();
   emit({ ...failed, message: repeatedError });
@@ -137,7 +146,7 @@ test('three immediate retries with identical errors each update and announce the
 });
 
 test('keeps the backend reason when a retry reply is older than the latest failure', async () => {
-  const delayedRetry = Promise.withResolvers<SaveFailure | undefined>();
+  const delayedRetry = Promise.withResolvers<SaveResult>();
   vi.mocked(window.electronAPI.saveFile).mockReturnValueOnce(
     delayedRetry.promise,
   );
@@ -149,9 +158,12 @@ test('keeps the backend reason when a retry reply is older than the latest failu
   emit({ ...failed, id: 'newer', message: 'Disk full' });
   await act(async () => {
     delayedRetry.resolve({
-      ...failed,
-      id: 'older-retry',
-      message: 'Permission denied',
+      status: 'failed',
+      failure: {
+        ...failed,
+        id: 'older-retry',
+        message: 'Permission denied',
+      },
     });
     await delayedRetry.promise;
   });
@@ -162,9 +174,12 @@ test('keeps the backend reason when a retry reply is older than the latest failu
 
 test('announces a retry failure when its matching backend event arrives later', async () => {
   vi.mocked(window.electronAPI.saveFile).mockResolvedValueOnce({
-    ...failed,
-    id: 'retry-failure',
-    message: 'Disk full',
+    status: 'failed',
+    failure: {
+      ...failed,
+      id: 'retry-failure',
+      message: 'Disk full',
+    },
   });
   await renderNotification();
   emit(failed);
@@ -183,7 +198,7 @@ test('announces a retry failure when its matching backend event arrives later', 
 });
 
 test('shows the retry spinner while saveFile is pending', async () => {
-  const pending = Promise.withResolvers<SaveFailure | undefined>();
+  const pending = Promise.withResolvers<SaveResult>();
   vi.mocked(window.electronAPI.saveFile).mockReturnValueOnce(pending.promise);
   await renderNotification();
   emit(failed);
@@ -197,14 +212,16 @@ test('shows the retry spinner while saveFile is pending', async () => {
   expect(retry).toHaveClass('MuiButton-loading');
   expect(await screen.findByRole('progressbar')).toBeInTheDocument();
   await act(async () => {
-    pending.resolve(undefined);
+    pending.resolve({ status: 'saved' });
     await pending.promise;
   });
   expect(retry).toBeEnabled();
 });
 
 test('successful retry clears the persistent warning', async () => {
-  vi.mocked(window.electronAPI.saveFile).mockResolvedValueOnce(undefined);
+  vi.mocked(window.electronAPI.saveFile).mockResolvedValueOnce({
+    status: 'saved',
+  });
   await renderNotification();
   emit(failed);
   fireEvent.click(

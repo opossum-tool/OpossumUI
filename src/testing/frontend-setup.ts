@@ -51,7 +51,7 @@ class ResizeObserver {
 global.window.electronAPI = {
   confirmQuit: vi.fn().mockReturnValue(Promise.resolve()),
   quitRequestHandled: vi.fn(),
-  flushPendingSaves: vi.fn().mockResolvedValue(undefined),
+  flushPendingSaves: vi.fn().mockResolvedValue({ status: 'saved' }),
   relaunch: vi.fn(),
   openLink: vi.fn().mockReturnValue(Promise.resolve()),
   openFile: vi.fn(),
@@ -64,7 +64,7 @@ global.window.electronAPI = {
   splitFile: vi.fn(),
   mergeOpossumFiles: vi.fn(),
   mergeOpossumFilesFromPaths: vi.fn(),
-  saveFile: vi.fn().mockResolvedValue(undefined),
+  saveFile: vi.fn().mockResolvedValue({ status: 'saved' }),
   forceUnlock: vi.fn(),
   exportFile: vi.fn(),
   stopLoading: vi.fn(),

@@ -10,6 +10,7 @@ import {
   within,
 } from '@testing-library/react';
 
+import type { SaveResult } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { renderComponent } from '../../../test-helpers/render';
 import { attemptToLeave, closeSaveRecovery } from '../../../util/save-recovery';
@@ -66,7 +67,7 @@ test('quit recovery labels its retry action and preserves the quit-without-savin
 
 test('recovery accepts only one submission while Retry is pending', async () => {
   const { attempt, dialog } = await showRecovery();
-  const pending = Promise.withResolvers<undefined>();
+  const pending = Promise.withResolvers<SaveResult>();
   vi.mocked(window.electronAPI.saveFile).mockReturnValueOnce(pending.promise);
   const retry = within(dialog).getByRole('button', {
     name: text.saveError.retry,
@@ -83,7 +84,7 @@ test('recovery accepts only one submission while Retry is pending', async () => 
   expect(await within(dialog).findByRole('progressbar')).toBeInTheDocument();
 
   await act(() => {
-    pending.resolve(undefined);
+    pending.resolve({ status: 'saved' });
     return pending.promise;
   });
   expect(attempt).toHaveBeenCalledOnce();
@@ -94,19 +95,28 @@ test('three immediate retries update the reason and acknowledge the newest failu
   const { attempt, dialog } = await showRecovery(repeatedError);
   vi.mocked(window.electronAPI.saveFile)
     .mockResolvedValueOnce({
-      id: 'retry-failure-1',
-      fileName: 'project.opossum',
-      message: repeatedError,
+      status: 'failed',
+      failure: {
+        id: 'retry-failure-1',
+        fileName: 'project.opossum',
+        message: repeatedError,
+      },
     })
     .mockResolvedValueOnce({
-      id: 'retry-failure-2',
-      fileName: 'project.opossum',
-      message: repeatedError,
+      status: 'failed',
+      failure: {
+        id: 'retry-failure-2',
+        fileName: 'project.opossum',
+        message: repeatedError,
+      },
     })
     .mockResolvedValueOnce({
-      id: 'retry-failure-3',
-      fileName: 'project.opossum',
-      message: repeatedError,
+      status: 'failed',
+      failure: {
+        id: 'retry-failure-3',
+        fileName: 'project.opossum',
+        message: repeatedError,
+      },
     });
   const retry = within(dialog).getByRole('button', {
     name: text.saveError.retry,

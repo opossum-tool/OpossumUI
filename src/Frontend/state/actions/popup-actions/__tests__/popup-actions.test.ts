@@ -12,6 +12,7 @@ import {
   type PackageInfo,
   type Resources,
   type ResourcesToAttributions,
+  type SaveResult,
 } from '../../../../../shared/shared-types';
 import { faker } from '../../../../../testing/Faker';
 import { queryClient } from '../../../../Components/AppContainer/queryClient';
@@ -803,7 +804,9 @@ describe('proceedFromUnsavedPopup', () => {
   });
 
   it('does not save temporaryDisplayPackageInfo', () => {
-    vi.spyOn(window.electronAPI, 'saveFile').mockResolvedValue(undefined);
+    vi.spyOn(window.electronAPI, 'saveFile').mockResolvedValue({
+      status: 'saved',
+    });
     prepareTestState();
     expect(window.electronAPI.saveFile).not.toHaveBeenCalled();
   });
@@ -1173,9 +1176,12 @@ describe('statistics navigation', () => {
 describe('failed-save transition decisions', () => {
   it('asks for recovery before handing the original destination to main', async () => {
     vi.mocked(window.electronAPI.flushPendingSaves).mockResolvedValueOnce({
-      message: 'Disk full',
-      id: 'failed-save',
-      fileName: 'project.opossum',
+      status: 'failed',
+      failure: {
+        message: 'Disk full',
+        id: 'failed-save',
+        fileName: 'project.opossum',
+      },
     });
     const store = createAppStore();
     store.dispatch(openFileOrOpenUnsavedPopup('/requested.opossum'));
@@ -1184,9 +1190,10 @@ describe('failed-save transition decisions', () => {
       expect(window.electronAPI.openFile).not.toHaveBeenCalled();
       expect(getIsSavingBeforeQuit(store.getState())).toBe(false);
       const { failure } = getSaveRecovery()!;
-      vi.mocked(window.electronAPI.flushPendingSaves).mockResolvedValueOnce(
+      vi.mocked(window.electronAPI.flushPendingSaves).mockResolvedValueOnce({
+        status: 'failed',
         failure,
-      );
+      });
       await resumeSaveRecovery(getSaveRecovery()!, failure.id);
       expect(window.electronAPI.openFile).toHaveBeenCalledExactlyOnceWith(
         '/requested.opossum',
@@ -1200,9 +1207,12 @@ describe('failed-save transition decisions', () => {
   it('restores usable editing state when native quit recovery stays in the project', async () => {
     const nativeDecision = Promise.withResolvers<void>();
     vi.mocked(window.electronAPI.flushPendingSaves).mockResolvedValueOnce({
-      message: 'Disk full',
-      id: 'failed-save',
-      fileName: 'project.opossum',
+      status: 'failed',
+      failure: {
+        message: 'Disk full',
+        id: 'failed-save',
+        fileName: 'project.opossum',
+      },
     });
     vi.mocked(window.electronAPI.confirmQuit).mockReturnValueOnce(
       nativeDecision.promise,
@@ -1333,8 +1343,8 @@ describe('quitAppOrOpenUnsavedPopup', () => {
     testStore.dispatch(quitAppOrOpenUnsavedPopup());
     let resolveSaveFlush!: () => void;
     vi.mocked(window.electronAPI.flushPendingSaves).mockReturnValueOnce(
-      new Promise<undefined>((resolve) => {
-        resolveSaveFlush = () => resolve(undefined);
+      new Promise<SaveResult>((resolve) => {
+        resolveSaveFlush = () => resolve({ status: 'saved' });
       }),
     );
 

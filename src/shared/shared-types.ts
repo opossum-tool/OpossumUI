@@ -307,6 +307,9 @@ export interface SaveFailure {
   id: string;
 }
 
+export type SaveResult =
+  { status: 'saved' } | { status: 'failed'; failure: SaveFailure };
+
 export type LeaveResult<T = void> =
   { status: 'blocked'; failure: SaveFailure } | T;
 
@@ -318,7 +321,7 @@ export interface ElectronAPI {
   confirmQuit: (options?: QuitOptions) => Promise<LeaveResult>;
   quitRequestHandled: () => void;
   /** Resolves once pending renderer-submitted mutations and saves have settled. */
-  flushPendingSaves: () => Promise<SaveFailure | undefined>;
+  flushPendingSaves: () => Promise<SaveResult>;
   relaunch: () => void;
   openLink: (link: string) => Promise<unknown>;
   openFile: (filePath?: string) => Promise<unknown>;
@@ -350,7 +353,7 @@ export interface ElectronAPI {
     ignoreReadonlyResourceOutputConflicts: boolean;
     deleteSplitFilesAfterMerge: boolean;
   }) => Promise<MergeOpossumFilesResult>;
-  saveFile: () => Promise<SaveFailure | undefined>;
+  saveFile: () => Promise<SaveResult>;
   forceUnlock: () => Promise<void>;
   exportFile: (exportType: ExportType) => Promise<void>;
   /**

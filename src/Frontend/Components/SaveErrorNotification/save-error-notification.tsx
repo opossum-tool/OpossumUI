@@ -104,7 +104,9 @@ function SaveErrorToastContent({ failure }: { failure: SaveFailure }) {
     setRequestError(undefined);
     try {
       const retryResult = await window.electronAPI.saveFile();
-      setRetryFailure(retryResult);
+      if (retryResult.status === 'failed') {
+        setRetryFailure(retryResult.failure);
+      }
     } catch (error) {
       setRequestError(error instanceof Error ? error.message : String(error));
     } finally {

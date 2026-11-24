@@ -100,10 +100,15 @@ export async function confirmQuit(options?: QuitOptions): Promise<LeaveResult> {
   quitApproved = true;
   try {
     const client = getMainDbClient();
-    const failure = client.isDead() ? undefined : await client.flushSaves();
-    if (failure && options?.discardUnsavedChanges !== true) {
-      resetQuitState();
-      return { status: 'blocked', failure };
+    if (!client.isDead()) {
+      const result = await client.flushSaves();
+      if (
+        result.status === 'failed' &&
+        options?.discardUnsavedChanges !== true
+      ) {
+        resetQuitState();
+        return { status: 'blocked', failure: result.failure };
+      }
     }
     quitFinalized = true;
     app.quit();

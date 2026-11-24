@@ -20,7 +20,7 @@ import {
   type MergeOpossumFilesResult,
   type OpenLinkArgs,
   OPOSSUM_FILE_FORMAT,
-  type SaveFailure,
+  type SaveResult,
   type SelectSaveFileOptions,
   type SplitFileResult,
 } from '../../shared/shared-types';
@@ -61,7 +61,7 @@ const MAX_NUMBER_OF_RECENTLY_OPENED_PATHS = 10;
 
 export const saveFileListener =
   (mainWindow: BrowserWindow) =>
-  async (_: unknown): Promise<SaveFailure | undefined> => {
+  async (_: unknown): Promise<SaveResult> => {
     let fileName = '';
     try {
       const globalBackendState = getGlobalBackendState();
@@ -82,9 +82,12 @@ export const saveFileListener =
     } catch (error) {
       await showListenerErrorInMessageBox(mainWindow, error);
       return {
-        id: randomUUID(),
-        fileName,
-        message: error instanceof Error ? error.message : String(error),
+        status: 'failed',
+        failure: {
+          id: randomUUID(),
+          fileName,
+          message: error instanceof Error ? error.message : String(error),
+        },
       };
     }
   };
