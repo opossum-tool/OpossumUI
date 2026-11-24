@@ -16,10 +16,14 @@ SPDX-License-Identifier: CC0-1.0
   - [Opossum file format](#opossum-file-format)
   - [Opening a file](#opening-a-file)
   - [Importing a File](#importing-a-file)
+  - [Importing Additional Information](#importing-additional-information)
+  - [Splitting and Merging Projects](#splitting-and-merging-projects)
+  - [Classifying Signals](#classifying-signals)
   - [Project Metadata](#project-metadata)
   - [Project Statistics](#project-statistics)
   - [Exporting Formats](#exporting-formats)
   - [Attributions](#attributions)
+  - [Searching and Filtering](#searching-and-filtering)
   - [Top Bar](#top-bar)
   - [Audit View](#audit-view)
   - [Report View](#report-view)
@@ -35,7 +39,7 @@ To check if your installation is up-to-date, open the `Help` menu and select `Ch
 
 Windows installations and Linux AppImages offer **Download update** when a newer release is found. Downloading starts only when you click this button. The banner shows download progress, then offers **Restart and update**. Installation requires this explicit action; ordinary quitting and dismissing the banner do not install the download. If a download fails, use **Retry**.
 
-Restarting uses the usual unsaved-changes prompt. Choose **Discard** to continue or **Cancel** to keep editing. To save your changes, cancel, save in the editor, then choose **Restart and update** again. The installer handles installation and application exit.
+If there are unsaved edits in the attribution details, restarting shows the unsaved-changes prompt. Choose **Discard and Proceed** to continue or **Cancel** to keep editing. To save your changes, cancel, save in the editor, then choose **Restart and update** again. The installer handles installation and application exit.
 
 The automatic-check preference controls checks at startup and hourly in the background. Turning it off still allows a manual check and downloading an update by clicking **Download update**. macOS and Snap installations continue to offer a download link.
 
@@ -47,7 +51,7 @@ Run the executable _OpossumUI-for-linux.AppImage_
 
 #### MacOS
 
-Run _OpossumUI_ in _OpossumUI-for-mac.zip_.
+Run _OpossumUI_ in _OpossumUI-for-mac-intel.zip_ (Intel Macs) or _OpossumUI-for-mac-arm64.zip_ (Apple Silicon Macs).
 
 #### Windows
 
@@ -57,39 +61,50 @@ Run _OpossumUI-for-win.exe_ to install the OpossumUI. Then open _OpossumUI_ from
 
 ### Opossum file format
 
-Files with a `.opossum` extension are zip-archives which contain two JSON files:
+Files with a `.opossum` extension are zip-archives which contain:
 
-- an input file
-- (optionally) an output file, which is created by the app when saving for the first time if not already present.
+- an input file (`input.json`)
+- (optionally) an output file (`output.json`), which is created by the app when saving for the first time if not already present.
 
-The output file must be in the same folder as the input file and called `[NAME_OF_THE_FIRST_FILE]_attributions.json`
-to be recognized by the app.
+Both files are stored inside the `.opossum` archive.
 
 ### Opening a File
 
-To open a `.opossum` file in the app, simply click the _Open File_ button on the left of the top bar (or on the entry in
-the _File_ menu with the same name).
+To open a `.opossum` file in the app, simply click the _Open File_ button on the left of the top bar (or select _Open..._ from
+the _File_ menu).
 
 To quickly access recently opened files, select the relevant file from the `Open Recent` submenu.
 
 ### Importing a File
 
-To import a legacy opossum file (`.json`/`.json.gz`) or a file produced by a scanner (e.g. a ScanCode Json file), click
+To import a legacy opossum file (`.json`/`.json.gz`) or a file produced by a scanner (e.g. a ScanCode JSON file), click
 the _Import_ item in the _File_ menu and select the desired file format from the submenu. You will be presented
-with a dialog window where you can select the file that you wish to import. Because OpossumUI converts this file into a
-new `.opossum` file as part of the import process, you will also be prompted to select where this new `.opossum` file
-should be saved. Clicking the _Import_ button converts the file into a new `.opossum` file and opens it in OpossumUI.
+with a dialog window where you can select the file that you wish to import. To create a new project, turn off
+_Import into current project_ if a project is already open, and select where the new `.opossum` file should be saved.
+Clicking the _Import_ button converts the file into a new `.opossum` file and opens it in OpossumUI.
 Please note that edits made through OpossumUI are **ONLY** saved in this new `.opossum` file, **NOT** in the file you
 selected for import.
 
-### Merging additional Information
+### Importing Additional Information
 
-To enrich your currently open file with additional information from a different scanner, open the _Merge_ item in the _File_ menu and select the desired file format.
+To enrich your currently open file with additional information from a different scanner, open the _Import_ item in the _File_ menu and select the desired file format. Leave _Import into current project_ enabled, select the file to import, and click _Import_. OpossumUI backs up the current project before importing. The _Merge_ item is used to merge split Opossum files instead.
 
 Note:
 
-- Merging a file will modify your currently open `.opossum` file and cannot be undone
-- Ensure that the paths in the merged file and the currently open file agree. Currently, there is no functionality to compensate differences.
+- Importing into the current project modifies your currently open `.opossum` file and cannot be undone in the app.
+- Ensure that the paths in the imported file and the currently open file agree. Currently, there is no functionality to compensate differences.
+
+### Splitting and Merging Projects
+
+To divide a review between several people, choose `Split…` in the `File` menu, select the resources to hand off, and choose a location for the new `.opossum` file. These resources become read-only in the original file and editable in the new file; the rest of the project is read-only in the new file.
+
+After reviewing, use `Merge...` in the `File` menu to combine the split files, either into the currently open project or into a new `.opossum` file.
+
+#### Read-Only Resources and Attributions
+
+Read-only resources and attributions are marked with a padlock. You can inspect them, but cannot edit them. If an attribution is shared between editable and read-only resources, changes apply only to its editable links.
+
+If the other split files have been lost, `File` → `Force Unlock…` makes the read-only parts editable again. After force-unlocking, the file can no longer be merged with the other split files.
 
 ### Classifying Signals
 
@@ -99,7 +114,7 @@ To classify the severity of the various signals, OpossumUI supports two mechanis
   - Non-critical/unknown
   - Medium critical
   - Highly critical
-- **Classification**: The classification allows the creator of the `.opossum` file to predefine a severity schema of the form: `severityLevel --> description`. `severityLevel` needs to be a positive integer. By convention, 0 implies that the signal can be used without issues and the severity rises with higher numbers.
+- **Classification**: The classification allows the creator of the `.opossum` file to predefine a severity schema of the form: `severityLevel --> description`. `severityLevel` needs to be a non-negative integer. By convention, 0 implies that the signal can be used without issues and the severity rises with higher numbers.
 
 The relevant information needs to be already present in the `.opossum` files.
 
@@ -113,6 +128,8 @@ To view project metadata, open the `File` menu and select `Project Metadata`.
 
 To view project statistics, open the `File` menu and select `Project Statistics`. This opens a popup that shows various
 charts summarizing the state of the project. Additionally, a table with detailed license statistics is provided.
+
+Click a chart category to open a filtered view of the corresponding attributions, signals or resources in the `Audit View`. For example, `Needs Review` shows attributions awaiting review. License names in the `Licenses` tab also link to the matching resources and signals.
 
 ### Exporting Formats
 
@@ -134,11 +151,17 @@ can in principle be any file which has a copyright or is distributed under a lic
 link resources to the corresponding attributions, with an emphasis on correct licensing and copyright information.**
 In the OpossumUI, a distinction between **signals** and **attributions** is made:
 
-- **attributions** are attribution information that are created in the current run of the OpossumUI. They are stored in
+- **attributions** are attribution information selected or created during the audit. They are stored in
   the output file, together with the resources they have been linked to,
-- **signals** are attribution information that have been linked to a resource before the current OpossumUI run. They can
-  come from automatic tools or previous run of the OpossumUI. They have a **source** and can be used as starting point for
+- **signals** are attribution information provided in the input file. They can
+  come from automatic tools or earlier audits. They have a **source** and can be used as starting point for
   assigning attributions.
+
+### Searching and Filtering
+
+Use the search fields in the resource browser and attribution/signal panels to find entries. The funnel buttons let you filter the resources, attributions and signals, as well as the table in the `Report View`.
+
+In the `Licenses` filter, you can select several licenses or add a `Name contains` filter to match part of a license name, such as `BSD`. Attribution and signal filters also let you focus on properties such as incomplete information, criticality or classification. The available filters depend on the panel and the settings in the `View` menu.
 
 ### Top Bar
 
@@ -153,7 +176,7 @@ The `Top Bar` contains the following elements:
 - the app version,
 - the path bar.
 
-The `Progress Bar` exists in various versions which can be selected via the `Progress Bar Dropdown`. Note that the possibilities offered depend on the settings chosen in the _View_ menu. Currently, the following progress bars are offered:
+The `Progress Bar` exists in various versions which can be selected via the `Progress Bar Dropdown`. Note that the possibilities offered depend on the settings chosen in the _View_ menu. The following progress bars help track the audit:
 
 - The `Attributions` progress bar indicates how many resources have an attribution (dark green), how many have a **pre-selected** attribution (lighter green with gradient), and how many resources have a signal, but have not yet received an attribution (orange), with respect to the total number of files. Hovering on the bar shows a tooltip containing all numbers. Clicking on the bar navigates to a resource that has a signal, but no attribution.
 - The `Criticalities` progress bar indicates how many files without an attribution have a highly critical signal (red), a critical signal (orange) or no critical signal (light blue) with respect to the total number of files not having an attribution. Hovering on the bar shows a tooltip containing the exact number of files. Clicking on the bar navigates to a resource that has a critical signal, but no attribution.
@@ -161,7 +184,7 @@ The `Progress Bar` exists in various versions which can be selected via the `Pro
 
 The `View Switch` allows to change between the `Audit View` and the `Report View`.
 
-The `path bar` shows the path of the currently selected resource. It also provides opens to navigate back and forth in the selection history, to copy the path to the clipboard, and, if possible, to open the resource's source repository in a browser.
+The `path bar` shows the path of the currently selected resource. It also provides options to navigate back and forth in the selection history, to copy the path to the clipboard, and, if possible, to open the resource's source repository in a browser.
 
 ### Audit View
 
@@ -198,7 +221,7 @@ The coloring scheme reads as follows:
 
 Please note that in case a resource has an attribution, this attribution also applies to all of its children that do not have attributions of their own. Therefore, adding an attribution to a folder affects its children if these are not attributed themselves. The inference stops once a folder or a file is hit that has a differing attribution.
 
-At the bottom of the resource browser you will find a panel listing resources linked to the selected attribution or signal.
+At the bottom of the resource browser you will find a panel listing resources linked to the selected attribution or signal. A **chain link icon** ![integration](./docs/user_guide_screenshots/directly_linked_icon.png) marks a directly linked resource, rather than one covered through inheritance.
 
 #### Attributions Panel
 
@@ -221,10 +244,10 @@ Similar to the resource browser, icons on the attributions are used to highlight
 
 #### Signals Panel
 
-The signals panel lists signals as they relate to the selected resource. The possible relationships, by which attributions are grouped into tabs, are:
+The signals panel lists signals as they relate to the selected resource. The possible relationships, by which signals are grouped into tabs, are:
 
-- **on the selected resource:** attributions directly assigned to the selected resource
-- **on children of the selected resource:** attributions assigned to resources contained in the selected resource
+- **on the selected resource:** signals directly assigned to the selected resource
+- **on children of the selected resource:** signals assigned to resources contained in the selected resource
 
 Besides searching, sorting, and filtering signals according to your needs, you can also perform any of the following actions:
 
@@ -233,14 +256,17 @@ Besides searching, sorting, and filtering signals according to your needs, you c
 - **restore:** restores the selected soft-deleted signals (only available when you include the deleted signals via the show/hide button)
 - **show/hide deleted signals:** shows/hides the soft-deleted signals
 
-Similar to the resource browser, icons on the signals are used to highlight relevant properties of the signal:
+Similar to the resource browser, icons on attributions and signals are used to highlight relevant properties:
 
 - a **flame icon** ![integration](./docs/user_guide_screenshots/criticality_icon.png) indicates that the signal is marked as critical. The color scale indicates the criticality.
 - a **C-Icon** ![integration](./docs/user_guide_screenshots/classification_icon.png) indicates that the signal features a non-zero classification. The color scale indicates the number of the classification.
-- a **P-Icon** ![integration](./docs/user_guide_screenshots/preferred_icon.png) marks the signal as preferred.
+- a **P-Icon** ![integration](./docs/user_guide_screenshots/preselected_icon.png) marks the signal as pre-selected.
+- an **orange star icon** ![integration](./docs/user_guide_screenshots/currently_preferred_icon.png) marks an attribution as currently preferred.
 - a **star icon** ![integration](./docs/user_guide_screenshots/previously_preferred_icon.png) shows that the signal has been preferred in the past.
+- a **grey half-star icon** ![integration](./docs/user_guide_screenshots/modified_preferred_icon.png) indicates that an attribution derived from a previously preferred signal has been modified.
 - an **icon with a one** ![integration](./docs/user_guide_screenshots/first_party_icon.png) marks the signal as being first party.
 - a **replay icon** ![integration](./docs/user_guide_screenshots/needs_follow_up_icon.png) marks the signal as requiring follow up.
+- an **orange question mark** ![integration](./docs/user_guide_screenshots/needs_review_icon.png) marks an attribution as needing review by QA.
 - a **text with an x icon** ![integration](./docs/user_guide_screenshots/exclude_from_notice_icon.png) indicates that the signal is excluded from notice.
 - a **checklist with a missing item** ![integration](./docs/user_guide_screenshots/incomplete_information_icon.png) indicates that the signal information is incomplete.
 
@@ -251,7 +277,7 @@ The attribution details show the attributes of the selected attribution or signa
 The attributes are divided into three categories:
 
 - **auditing options:** certain annotations and tags that facilitate the auditing process
-- **package coordinates:** attributes used to uniquely identify the package
+- **component coordinates:** attributes used to uniquely identify the package
 - **legal information:** attributes used to describe the OSS licensing aspects of the package
 
 ##### Auditing Options
@@ -264,9 +290,9 @@ The attributes are divided into three categories:
 - _Needs Follow-Up_: This flag can be used to indicate that the attribution requires follow-up, usually with the development team, as it would be part of a blacklist.
 - _Confidence_: This field is used to indicate the confidence in the correctness of the attribution. It is an emoticon on a scale of 1 to 5. You can also filter for attributions with low confidence in the attributions panel.
 
-##### Package Coordinates
+##### Component Coordinates
 
-These coordinates serve to uniquely identify the package. In particular, package name and package type are required information from which a PURL ("Package URL") is automatically generated. Some package types also require the presence of a namespace. For example, GitHub and Maven packages require a namespace, while NPM packages do not.
+These coordinates serve to uniquely identify the package. In particular, component name and component type are required information from which a PURL ("Package URL") is automatically generated. Some component types also require the presence of a namespace. For example, GitHub and Maven packages require a namespace, while NPM packages do not.
 
 Also try to fill the upstream address of the attribution as it often helps to automatically compute the correct license information from it.
 
@@ -276,11 +302,22 @@ Be aware that different package versions may result in different license informa
 
 Copyright and license name are the most important part of an attribution when it comes to OSS compliance. However, if you are dealing with first-party code, then please select this option in this section. You then no longer will be asked to supply copyright and license name.
 
-##### Comparing an Attribution to its Original Signal
+##### Editing Shared Attributions
 
-If an attribution originates from a signal, a `Compare to Original Signal` icon button will be displayed in the row of buttons at the bottom of the attribution details. Clicking this button opens a popup where the package coordinates and legal information of both the current attribution and its original signal are displayed side-by-side. Attributes that have changed are highlighted by colored outlines.
+When you save changes to an attribution linked to several resources, a popup shows the affected resources and lets you choose the scope:
 
-You can revert individual attributes to their original state by pressing the arrow button inside the field. The action can be undone using the same button, which will point in the opposite direction after a revert. Additionally, all changes can be reverted at once by pressing the `Revert All` button of the popup. Changes are applied to the attribution once the `Apply Changes` button is pressed, which also closes the popup.
+- `Save only on Selected` applies the edited information to the selected resource without changing the attribution at its other links.
+- `Save on All` applies the edit to all editable links of the attribution.
+
+The same choice is available when confirming pre-selected attributions, using `Confirm only on Selected` or `Confirm on All`.
+
+##### Comparing Attributions and Signals
+
+If an attribution originates from a signal, a `Compare with original` icon button will be displayed in the row of buttons at the bottom of the attribution details. Clicking this button opens a popup where the component coordinates and legal information of both the current attribution and its original signal are displayed side-by-side. Differences are highlighted.
+
+You can copy individual values from the original signal using the arrow buttons between the fields, or edit the attribution directly in the popup. Individual edits can be undone using the undo buttons. Press `Save changes` to apply your edits, or `Cancel` to close the popup without applying them. Signals remain read-only.
+
+To compare with another attribution or signal, select an entry, click `Compare with…` at the bottom of its details, select the second entry, and click `Compare`. The same comparison popup opens, where editable attributions can be changed and values copied between the two sides.
 
 ### Report View
 
@@ -292,11 +329,11 @@ Clicking on the _edit_ buttons in the _name_ columns, navigates to the respectiv
 
 ### Preferred Attributions
 
-In the `Audit View`, an attribution can be marked as preferred to indicate that it is preferred over the displayed signals. This feature does not have any immediate effect on the signals displayed in OpossumUI. Instead, it is intended to give additional information to tools that consume `.opossum` files. A preferred attribution will store origin IDs of signals visible to the user when it was marked as preferred.
+In the `Audit View`, an attribution can be marked as preferred over signals on the resources it covers. This does not hide or modify the signals in OpossumUI. Instead, it is intended to give additional information to tools that consume `.opossum` files.
 
-Only signals with a source marked as `isRelevantForPreference` can be preferred over. If no signal source has this flag set, the feature is disabled.
+Only signals with a source marked as `isRelevantForPreferred` can be preferred over. If no signal source has this flag set, the feature is disabled.
 
-To mark an attribution as preferred, choose an attribution in the `Audit View`, and open the auditing options menu. You will see an option to mark the attribution as preferred. When an attribution is marked as preferred, `preferred = true` is written to the `.opossum` file, and the origin IDs of all visible signals relevant for preference are written in the field `preferredOverOriginIds`. Preferred attributions are displayed with a star icon.
+To mark an attribution as preferred, choose an attribution in the `Audit View`, and open the auditing options menu. You will see an option to mark the attribution as preferred. When the project is saved, `preferred = true` is written to the `.opossum` file, and the origin IDs of relevant signals on resources covered by the attribution are written in the field `preferredOverOriginIds`, regardless of whether those signals are visible. Preferred attributions are displayed with a star icon.
 
 Note that you are only able to mark an attribution as preferred (or unmark it if it was preferred beforehand) if you are in "QA Mode". To enable this mode click the item "QA Mode" in the `View` submenu.
 
