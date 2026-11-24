@@ -32,11 +32,11 @@ export type StatisticsChartTestId =
   | 'signalCountByClassificationPieChart'
   | 'incompleteAttributionsPieChart';
 
-// Each chart renders its title inside the container with the chart test id,
-// so asserting the title alongside the container keeps mislabelled or
-// removed titles from passing unnoticed. Chart titles can also appear as
-// legend labels inside their own chart (e.g. 'Incomplete Attributions'), so
-// match all occurrences and require at least the title to be visible.
+// Each chart renders its title as a heading inside the container with the
+// chart test id. Querying the heading by role and name asserts the title
+// element itself, so a chart whose title was removed, mislabelled, or is
+// visually indistinguishable from a legend label (e.g. 'Incomplete
+// Attributions') can no longer pass.
 const STATISTICS_CHART_TITLES: Record<StatisticsChartTestId, string> = {
   attributionBarChart:
     text.projectStatisticsPopup.charts.attributionProperties.title,
@@ -59,18 +59,21 @@ export async function expectStatisticsCharts(
     await waitFor(() => {
       const chart = screen.getByTestId(testId);
       expect(chart).toBeVisible();
-      const titleMatches = within(chart).getAllByText(
-        STATISTICS_CHART_TITLES[testId],
-      );
-      for (const titleMatch of titleMatches) {
-        expect(titleMatch).toBeVisible();
-      }
+      expect(
+        within(chart).getByRole('heading', {
+          name: STATISTICS_CHART_TITLES[testId],
+        }),
+      ).toBeVisible();
     }, SETTLED_TIMEOUT);
   }
   for (const testId of hidden) {
     await waitFor(() => {
-      expect(screen.queryByTestId(testId)).toBeNull();
-      expect(screen.queryByText(STATISTICS_CHART_TITLES[testId])).toBeNull();
+      expect(screen.queryByTestId(testId)).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('heading', {
+          name: STATISTICS_CHART_TITLES[testId],
+        }),
+      ).not.toBeInTheDocument();
     }, SETTLED_TIMEOUT);
   }
 }
