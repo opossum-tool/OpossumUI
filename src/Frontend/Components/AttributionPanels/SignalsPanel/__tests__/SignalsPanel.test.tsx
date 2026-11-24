@@ -11,7 +11,6 @@ import { pathsToResources } from '../../../../../testing/global-test-helpers';
 import {
   clickPackageCard,
   clickPackageCardCheckbox,
-  getButton,
   SETTLED_TIMEOUT,
   SIGNALS_PANEL,
 } from '../../../../../testing/ui';
@@ -126,7 +125,9 @@ describe('SignalsPanel', () => {
     });
 
     await clickPackageCard(SIGNALS_PANEL, packageInfo);
-    await userEvent.click(getButton(text.packageLists.delete));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.delete }),
+    );
 
     await expectResolvedExternalAttributions(new Set([packageInfo.id]));
   });
@@ -149,7 +150,9 @@ describe('SignalsPanel', () => {
     );
     await clickPackageCard(SIGNALS_PANEL, packageInfo);
 
-    expect(getButton(text.packageLists.delete)).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: text.packageLists.delete }),
+    ).toBeDisabled();
   });
 
   it('restores selected signal', async () => {
@@ -169,7 +172,9 @@ describe('SignalsPanel', () => {
       screen.getByRole('button', { name: text.packageLists.showDeleted }),
     );
     await clickPackageCard(SIGNALS_PANEL, packageInfo);
-    await userEvent.click(getButton(text.packageLists.restore));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.restore }),
+    );
 
     await expectResolvedExternalAttributions(new Set());
   });
@@ -191,7 +196,9 @@ describe('SignalsPanel', () => {
     );
     await clickPackageCard(SIGNALS_PANEL, packageInfo);
 
-    expect(getButton(text.packageLists.restore)).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: text.packageLists.restore }),
+    ).toBeDisabled();
   });
 
   it('links selected attribution', async () => {
@@ -214,7 +221,9 @@ describe('SignalsPanel', () => {
     await expectResourcesToManualAttributions({});
 
     await clickPackageCard(SIGNALS_PANEL, packageInfo);
-    await userEvent.click(getButton(text.packageLists.linkAsAttribution));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
+    );
 
     await expectResourcesToManualAttributions({
       [ROOT_PATH]: [expect.any(String)],
@@ -243,10 +252,16 @@ describe('SignalsPanel', () => {
     await userEvent.click(selectAll);
     await waitFor(
       () =>
-        expect(getButton(text.packageLists.linkAsAttribution)).toBeEnabled(),
+        expect(
+          screen.getByRole('button', {
+            name: text.packageLists.linkAsAttribution,
+          }),
+        ).toBeEnabled(),
       SETTLED_TIMEOUT,
     );
-    await userEvent.click(getButton(text.packageLists.linkAsAttribution));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
+    );
 
     await waitFor(() =>
       expect(getSelectedAttributionId(store.getState())).not.toBe(
@@ -276,7 +291,9 @@ describe('SignalsPanel', () => {
 
     await clickPackageCard(SIGNALS_PANEL, packageInfo);
 
-    expect(getButton(text.packageLists.linkAsAttribution)).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
+    ).toBeDisabled();
   });
 
   it('disables link button on a readonly structural ancestor', async () => {
@@ -296,7 +313,9 @@ describe('SignalsPanel', () => {
 
     await clickPackageCard(SIGNALS_PANEL, packageInfo);
 
-    expect(getButton(text.packageLists.linkAsAttribution)).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
+    ).toBeDisabled();
   });
 
   it('disables link button when the single selected signal already has a matching manual attribution', async () => {
@@ -322,7 +341,11 @@ describe('SignalsPanel', () => {
 
     await waitFor(
       () =>
-        expect(getButton(text.packageLists.linkAsAttribution)).toBeDisabled(),
+        expect(
+          screen.getByRole('button', {
+            name: text.packageLists.linkAsAttribution,
+          }),
+        ).toBeDisabled(),
       SETTLED_TIMEOUT,
     );
   });
@@ -354,7 +377,11 @@ describe('SignalsPanel', () => {
 
     await waitFor(
       () =>
-        expect(getButton(text.packageLists.linkAsAttribution)).toBeDisabled(),
+        expect(
+          screen.getByRole('button', {
+            name: text.packageLists.linkAsAttribution,
+          }),
+        ).toBeDisabled(),
       SETTLED_TIMEOUT,
     );
   });
@@ -390,7 +417,11 @@ describe('SignalsPanel', () => {
 
     await waitFor(
       () =>
-        expect(getButton(text.packageLists.linkAsAttribution)).toBeEnabled(),
+        expect(
+          screen.getByRole('button', {
+            name: text.packageLists.linkAsAttribution,
+          }),
+        ).toBeEnabled(),
       SETTLED_TIMEOUT,
     );
   });
@@ -425,7 +456,11 @@ describe('SignalsPanel', () => {
 
     await waitFor(
       () =>
-        expect(getButton(text.packageLists.linkAsAttribution)).toBeEnabled(),
+        expect(
+          screen.getByRole('button', {
+            name: text.packageLists.linkAsAttribution,
+          }),
+        ).toBeEnabled(),
       SETTLED_TIMEOUT,
     );
   });
@@ -461,7 +496,11 @@ describe('SignalsPanel', () => {
 
     await waitFor(
       () =>
-        expect(getButton(text.packageLists.linkAsAttribution)).toBeDisabled(),
+        expect(
+          screen.getByRole('button', {
+            name: text.packageLists.linkAsAttribution,
+          }),
+        ).toBeDisabled(),
       SETTLED_TIMEOUT,
     );
   });
@@ -497,7 +536,11 @@ describe('SignalsPanel', () => {
 
     await waitFor(
       () =>
-        expect(getButton(text.packageLists.linkAsAttribution)).toBeDisabled(),
+        expect(
+          screen.getByRole('button', {
+            name: text.packageLists.linkAsAttribution,
+          }),
+        ).toBeDisabled(),
       SETTLED_TIMEOUT,
     );
   });

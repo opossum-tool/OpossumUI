@@ -14,7 +14,6 @@ export * from './diff-popup';
 export * from './filters';
 export * from './project-statistics';
 export * from './report-view';
-export * from './buttons';
 export * from './updates';
 export {
   ATTRIBUTIONS_PANEL,
