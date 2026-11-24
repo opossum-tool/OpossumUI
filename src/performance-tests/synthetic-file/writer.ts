@@ -183,12 +183,16 @@ function createOutput(
     }
   }
 
+  const manualAttributions = createAttributions(profile, 'manual');
+  manualAttributions[model.scenarios.replace.source.id] =
+    model.scenarios.replace.source.packageInfo;
+
   return {
     metadata: {
       projectId: PROJECT_ID,
       fileCreationDate: FILE_CREATION_DATE,
     },
-    manualAttributions: createAttributions(profile, 'manual'),
+    manualAttributions,
     resourcesToAttributions: createResourceLinks(profile, model, 'manual'),
     resolvedExternalAttributions,
   };
