@@ -22,7 +22,7 @@ import {
   expectPackageCards,
   expectPopupHidden,
   expectSelectedTabIs,
-  expectTabVisibility,
+  expectTabsShown,
   fillFormField,
   fillPanelSearch,
   saveChangesInAttributionColumn,
@@ -204,7 +204,7 @@ test('reselecting the current pending AI attribution reveals it after switching 
   const selectedAttributionId = getSelectedAttributionId(store.getState());
 
   await expectSelectedTabIs(ATTRIBUTIONS_PANEL, 'resource');
-  await expectTabVisibility(ATTRIBUTIONS_PANEL, ['resource', 'unrelated']);
+  await expectTabsShown(ATTRIBUTIONS_PANEL, ['resource', 'unrelated']);
   await selectTab(ATTRIBUTIONS_PANEL, 'unrelated');
   await expectSelectedTabIs(ATTRIBUTIONS_PANEL, 'unrelated');
   await expectPackageCards(ATTRIBUTIONS_PANEL, [

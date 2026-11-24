@@ -16,9 +16,11 @@ import {
   clickTreeFilterMenuButton,
   closeFilterMenu,
   expandTreeResourceAtPath,
-  expectLicenseFilterOption,
-  expectResourceAtPathVisibility,
-  expectResourceVisibility,
+  expectLicenseFilterOptionNotShown,
+  expectLicenseFilterOptionShown,
+  expectResourceItemsNotShown,
+  expectResourceItemsShown,
+  expectResourcePathsShown,
   expectTreeResourceCountIs,
   fillLicenseFilter,
   searchTree,
@@ -124,10 +126,14 @@ describe('filtering resources', () => {
     await clickTreeFilterMenuButton();
     await clickFilterMenuItem('Unreviewed');
     await closeFilterMenu();
-    await expectResourceVisibility(
-      [externalResourceName, preselectedResourceName],
-      [reviewedMitResourceName, reviewedApacheResourceName],
-    );
+    await expectResourceItemsShown([
+      externalResourceName,
+      preselectedResourceName,
+    ]);
+    await expectResourceItemsNotShown([
+      reviewedMitResourceName,
+      reviewedApacheResourceName,
+    ]);
   });
 
   it('combines unreviewed and external attribution license filters in the resource tree', async () => {
@@ -138,14 +144,12 @@ describe('filtering resources', () => {
     await clickTreeFilterMenuButton();
     await selectFilterLicenseName(externalPackageInfo.licenseName ?? '');
     await closeFilterMenu();
-    await expectResourceVisibility(
-      [externalResourceName],
-      [
-        preselectedResourceName,
-        reviewedMitResourceName,
-        reviewedApacheResourceName,
-      ],
-    );
+    await expectResourceItemsShown([externalResourceName]);
+    await expectResourceItemsNotShown([
+      preselectedResourceName,
+      reviewedMitResourceName,
+      reviewedApacheResourceName,
+    ]);
   });
 
   it('filters the resource tree to resources with AI-deferred attributions', async () => {
@@ -153,18 +157,20 @@ describe('filtering resources', () => {
     await clickTreeFilterMenuButton();
     await clickFilterMenuItem(text.filters.hasAiDeferredAttribution);
     await closeFilterMenu();
-    await expectResourceVisibility(
-      [deferredResourceName],
-      [aiNotDeferredResourceName, plainResourceName],
-    );
+    await expectResourceItemsShown([deferredResourceName]);
+    await expectResourceItemsNotShown([
+      aiNotDeferredResourceName,
+      plainResourceName,
+    ]);
 
     await clickTreeFilterMenuButton();
     await clickFilterMenuItem(text.filters.hasAiDeferredAttribution);
     await closeFilterMenu();
-    await expectResourceVisibility(
-      [deferredResourceName, aiNotDeferredResourceName, plainResourceName],
-      [],
-    );
+    await expectResourceItemsShown([
+      deferredResourceName,
+      aiNotDeferredResourceName,
+      plainResourceName,
+    ]);
   });
 
   it('applies text-only resource filters, preserves options, and broadens with exact selections', async () => {
@@ -172,26 +178,29 @@ describe('filtering resources', () => {
     await clickTreeFilterMenuButton();
     await addLicenseSearchFilter('mIt');
     await closeFilterMenu();
-    await expectResourceVisibility(
-      [externalResourceName],
-      [reviewedApacheResourceName, reviewedMitResourceName],
-    );
+    await expectResourceItemsShown([externalResourceName]);
+    await expectResourceItemsNotShown([
+      reviewedApacheResourceName,
+      reviewedMitResourceName,
+    ]);
     await clickTreeFilterMenuButton();
     await fillLicenseFilter('Apache-2.0');
-    await expectLicenseFilterOption('Apache-2.0', true);
+    await expectLicenseFilterOptionShown('Apache-2.0');
     await selectFilterLicenseName('Apache-2.0');
     await closeFilterMenu();
-    await expectResourceVisibility(
-      [externalResourceName, reviewedApacheResourceName],
-      [reviewedMitResourceName],
-    );
+    await expectResourceItemsShown([
+      externalResourceName,
+      reviewedApacheResourceName,
+    ]);
+    await expectResourceItemsNotShown([reviewedMitResourceName]);
     await clickTreeFilterMenuButton();
     await clickFilterMenuItem('Unreviewed');
     await closeFilterMenu();
-    await expectResourceVisibility(
-      [externalResourceName],
-      [reviewedApacheResourceName, reviewedMitResourceName],
-    );
+    await expectResourceItemsShown([externalResourceName]);
+    await expectResourceItemsNotShown([
+      reviewedApacheResourceName,
+      reviewedMitResourceName,
+    ]);
   });
 
   it('combines multiple licenses in the resource tree while retaining unreviewed filtering', async () => {
@@ -200,21 +209,23 @@ describe('filtering resources', () => {
     await selectFilterLicenseName('MIT');
     await selectFilterLicenseName('Apache-2.0');
     await closeFilterMenu();
-    await expectResourceVisibility(
-      [externalResourceName, reviewedApacheResourceName],
-      [preselectedResourceName, reviewedMitResourceName],
-    );
+    await expectResourceItemsShown([
+      externalResourceName,
+      reviewedApacheResourceName,
+    ]);
+    await expectResourceItemsNotShown([
+      preselectedResourceName,
+      reviewedMitResourceName,
+    ]);
     await clickTreeFilterMenuButton();
     await clickFilterMenuItem('Unreviewed');
     await closeFilterMenu();
-    await expectResourceVisibility(
-      [externalResourceName],
-      [
-        preselectedResourceName,
-        reviewedMitResourceName,
-        reviewedApacheResourceName,
-      ],
-    );
+    await expectResourceItemsShown([externalResourceName]);
+    await expectResourceItemsNotShown([
+      preselectedResourceName,
+      reviewedMitResourceName,
+      reviewedApacheResourceName,
+    ]);
   });
 
   it.each(['search', 'Unreviewed'])(
@@ -228,14 +239,12 @@ describe('filtering resources', () => {
         await clickFilterMenuItem('Unreviewed');
         await closeFilterMenu();
       }
-      await expectResourceVisibility(
-        [externalResourceName],
-        [reviewedApacheResourceName],
-      );
+      await expectResourceItemsShown([externalResourceName]);
+      await expectResourceItemsNotShown([reviewedApacheResourceName]);
 
       await clickTreeFilterMenuButton();
       await fillLicenseFilter('Apache-2.0');
-      await expectLicenseFilterOption('Apache-2.0', true);
+      await expectLicenseFilterOptionShown('Apache-2.0');
       expect(
         screen.getByRole('option', { name: 'Apache-2.0' }),
       ).toHaveAttribute('aria-selected', 'false');
@@ -247,9 +256,9 @@ describe('filtering resources', () => {
     await renderApp({ data: multiLicenseData });
     await clickTreeFilterMenuButton();
     await fillLicenseFilter('MIT');
-    await expectLicenseFilterOption('MIT', true);
+    await expectLicenseFilterOptionShown('MIT');
     await fillLicenseFilter('Zlib');
-    await expectLicenseFilterOption('Zlib', false);
+    await expectLicenseFilterOptionNotShown('Zlib');
     await closeFilterMenu();
   });
 
@@ -260,7 +269,7 @@ describe('filtering resources', () => {
 
     await expandTreeResourceAtPath(`/${autoExpansionRootName}/`);
 
-    await expectResourceAtPathVisibility([
+    await expectResourcePathsShown([
       `/${autoExpansionRootName}/${matchingDirectoryName}/`,
       `/${autoExpansionRootName}/${matchingDirectoryName}/${matchingLeafName}`,
     ]);

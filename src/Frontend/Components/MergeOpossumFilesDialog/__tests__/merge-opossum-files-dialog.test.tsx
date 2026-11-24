@@ -12,7 +12,11 @@ import {
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
-import { expectAlert, MERGE_DIALOG_LABEL } from '../../../../testing/ui';
+import {
+  expectAlert,
+  expectNoAlert,
+  MERGE_DIALOG_LABEL,
+} from '../../../../testing/ui';
 import { openMergeOpossumFilesDialog } from '../../../state/actions/view-actions/view-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
@@ -36,7 +40,6 @@ describe('MergeOpossumFilesDialog', () => {
 
     await expectAlert(
       text.mergeOpossumFilesDialog.noReadonlyPathsWarning,
-      true,
       'warning',
       screen.getByLabelText(MERGE_DIALOG_LABEL),
     );
@@ -51,12 +54,7 @@ describe('MergeOpossumFilesDialog', () => {
     expect(window.electronAPI.selectFiles).not.toHaveBeenCalled();
 
     await userEvent.click(getMergeIntoCurrentProjectSwitch());
-    await expectAlert(
-      text.mergeOpossumFilesDialog.noReadonlyPathsWarning,
-      false,
-      'warning',
-      screen.getByLabelText(MERGE_DIALOG_LABEL),
-    );
+    await expectNoAlert(screen.getByLabelText(MERGE_DIALOG_LABEL));
     expect(
       screen.queryByText(text.mergeOpossumFilesDialog.noReadonlyPathsWarning),
     ).not.toBeInTheDocument();
@@ -253,7 +251,6 @@ describe('MergeOpossumFilesDialog', () => {
 
     await expectAlert(
       text.mergeOpossumFilesDialog.readonlyResourceOutputConflictWarning,
-      true,
       'warning',
       screen.getByLabelText(MERGE_DIALOG_LABEL),
     );
@@ -316,7 +313,6 @@ describe('MergeOpossumFilesDialog', () => {
 
     await expectAlert(
       text.mergeOpossumFilesDialog.readonlyResourceOutputConflictWarning,
-      true,
       'warning',
       screen.getByLabelText(MERGE_DIALOG_LABEL),
     );
@@ -329,12 +325,7 @@ describe('MergeOpossumFilesDialog', () => {
 
     await userEvent.click(getMergeIntoCurrentProjectSwitch());
 
-    await expectAlert(
-      text.mergeOpossumFilesDialog.readonlyResourceOutputConflictWarning,
-      false,
-      'warning',
-      screen.getByLabelText(MERGE_DIALOG_LABEL),
-    );
+    await expectNoAlert(screen.getByLabelText(MERGE_DIALOG_LABEL));
     expect(
       screen.queryByRole('button', {
         name: text.mergeOpossumFilesDialog
@@ -391,7 +382,6 @@ describe('MergeOpossumFilesDialog', () => {
 
     await expectAlert(
       errorMessage,
-      true,
       'error',
       screen.getByLabelText(MERGE_DIALOG_LABEL),
     );

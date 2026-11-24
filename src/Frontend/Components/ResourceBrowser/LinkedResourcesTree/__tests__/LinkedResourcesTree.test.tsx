@@ -6,7 +6,8 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 
 import { Criticality } from '../../../../../shared/shared-types';
 import {
-  expectResourceVisibility,
+  expectResourceItemsNotShown,
+  expectResourceItemsShown,
   expectTreeItemHighlight,
 } from '../../../../../testing/ui';
 import { getSelectedResourceId } from '../../../../state/selectors/resource-selectors';
@@ -127,15 +128,15 @@ describe('LinkedResourcesTree', () => {
       { data: testData },
     );
 
-    await expectResourceVisibility(['resource_1'], [], 'linked-resources-tree');
+    await expectResourceItemsShown(['resource_1'], 'linked-resources-tree');
 
     fireEvent.click(screen.getByLabelText('collapse /folder1/'));
 
-    await expectResourceVisibility([], ['resource_1'], 'linked-resources-tree');
+    await expectResourceItemsNotShown(['resource_1'], 'linked-resources-tree');
 
     fireEvent.click(screen.getByLabelText('expand /folder1/'));
 
-    await expectResourceVisibility(['resource_1'], [], 'linked-resources-tree');
+    await expectResourceItemsShown(['resource_1'], 'linked-resources-tree');
   });
 
   it('does not highlight linked resources when no search is active', async () => {
@@ -158,7 +159,7 @@ describe('LinkedResourcesTree', () => {
     );
 
     await expectTreeItemHighlight('linked-resources-tree', 'resource_1', true);
-    await expectResourceVisibility([], ['resource_2'], 'linked-resources-tree');
+    await expectResourceItemsNotShown(['resource_2'], 'linked-resources-tree');
   });
 
   it('highlights folders whose own name matches the search', async () => {
@@ -173,6 +174,6 @@ describe('LinkedResourcesTree', () => {
     await expectTreeItemHighlight('linked-resources-tree', 'folder1', true);
     await expectTreeItemHighlight('linked-resources-tree', 'folder2', true);
     await expectTreeItemHighlight('linked-resources-tree', 'resource_1', false);
-    await expectResourceVisibility([], ['resource_2'], 'linked-resources-tree');
+    await expectResourceItemsNotShown(['resource_2'], 'linked-resources-tree');
   });
 });

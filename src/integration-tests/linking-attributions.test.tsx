@@ -13,12 +13,14 @@ import {
   clickAttributionColumnButton,
   clickPackageCard,
   clickPanelButton,
-  expectAttributionColumnButtonVisibility,
+  expectAttributionColumnButtonNotShown,
+  expectAttributionColumnButtonShown,
   expectAttributionFormMatchesPackageInfo,
   expectPackageCards,
   expectPanelButtonEnabled,
   expectSelectedTabIs,
-  expectTabVisibility,
+  expectTabsNotShown,
+  expectTabsShown,
   gotoResource,
   gotoResourceTreeRoot,
   selectTab,
@@ -87,7 +89,7 @@ describe('linking attributions', () => {
 
     await selectTab(ATTRIBUTIONS_PANEL, 'unrelated');
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo2);
-    await expectAttributionColumnButtonVisibility('link', true);
+    await expectAttributionColumnButtonShown('link');
     await clickAttributionColumnButton('link');
     await expectSelectedTabIs(ATTRIBUTIONS_PANEL, 'resource');
     await expectPackageCards(ATTRIBUTIONS_PANEL, [packageInfo2], []);
@@ -104,10 +106,10 @@ describe('linking attributions', () => {
   it('allows user to override parent attributions', async () => {
     await renderApp({ data });
     await gotoResource(resourceName1);
-    await expectTabVisibility(ATTRIBUTIONS_PANEL, [], ['parents']);
+    await expectTabsNotShown(ATTRIBUTIONS_PANEL, ['parents']);
 
     await gotoResource(resourceName2);
-    await expectTabVisibility(ATTRIBUTIONS_PANEL, ['parents']);
+    await expectTabsShown(ATTRIBUTIONS_PANEL, ['parents']);
     await expectPackageCards(ATTRIBUTIONS_PANEL, [packageInfo1], []);
     await expectAttributionFormMatchesPackageInfo(packageInfo1);
 
@@ -125,7 +127,7 @@ describe('linking attributions', () => {
       ATTRIBUTIONS_PANEL,
       'Link as attribution on selected resource',
     );
-    await expectTabVisibility(ATTRIBUTIONS_PANEL, [], ['parents']);
+    await expectTabsNotShown(ATTRIBUTIONS_PANEL, ['parents']);
     await expectSelectedTabIs(ATTRIBUTIONS_PANEL, 'resource');
     await expectPackageCards(
       ATTRIBUTIONS_PANEL,
@@ -138,7 +140,7 @@ describe('linking attributions', () => {
   it('disables resp. hides options to create or link attributions to breakpoints', async () => {
     await renderApp({ data });
     await gotoResource(resourceName5);
-    await expectTabVisibility(ATTRIBUTIONS_PANEL, ['unrelated']);
+    await expectTabsShown(ATTRIBUTIONS_PANEL, ['unrelated']);
 
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
     await expectAttributionFormMatchesPackageInfo(packageInfo1);
@@ -152,6 +154,6 @@ describe('linking attributions', () => {
       'Link as attribution on selected resource',
       false,
     );
-    await expectAttributionColumnButtonVisibility('link', false);
+    await expectAttributionColumnButtonNotShown('link');
   });
 });

@@ -33,7 +33,8 @@ import {
   expectPackageCards,
   expectPathBarCrumbs,
   expectPopupHidden,
-  expectResourceVisibility,
+  expectResourceItemsNotShown,
+  expectResourceItemsShown,
   expectSearchValue,
   expectStatisticsChartEntryIsPlainText,
   expectViewIsActive,
@@ -308,10 +309,8 @@ describe('statistics navigation', () => {
         [{ packageName: 'mit-signal', licenseName: 'MIT' }],
         [{ packageName: 'apache-signal', licenseName: 'Apache-2.0' }],
       );
-      await expectResourceVisibility(
-        ['mit.ts'],
-        ['apache.ts', 'manual-only.ts'],
-      );
+      await expectResourceItemsShown(['mit.ts']);
+      await expectResourceItemsNotShown(['apache.ts', 'manual-only.ts']);
       expect(store.getState().variablesState[RESOURCE_TREE_FILTERS]).toEqual({
         onlyUnreviewedFiles: false,
         onlyWithAiDeferredAttributions: false,

@@ -10,7 +10,7 @@ import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import type { FileFormatInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
 import {
-  expectReadonlyIndicator,
+  expectReadonlyIndicatorShown,
   getPopup,
   isNodeEnabled,
   type SendToChannel,
@@ -61,10 +61,8 @@ export async function clickPopupButton(
 
 export const MERGE_DIALOG_LABEL = 'merge split Opossum files dialog';
 
-export async function expectMergeDialogVisibility(
-  visible: boolean,
-): Promise<void> {
-  await expectPopupVisibility(MERGE_DIALOG_LABEL, visible);
+export async function expectMergeDialogOpen(): Promise<void> {
+  await expectPopupShown(MERGE_DIALOG_LABEL);
 }
 
 export async function expectMergeDialogMergesIntoCurrentProject(): Promise<void> {
@@ -97,20 +95,20 @@ export function openSplitDialogFromMenu(sendToChannel: SendToChannel): void {
   sendToChannel(AllowedFrontendChannels.ShowSplitDialog);
 }
 
-export async function expectSplitDialogVisibility(
-  visible: boolean,
-): Promise<void> {
-  await expectPopupVisibility(SPLIT_DIALOG_LABEL, visible);
-  if (visible) {
-    const popup = await getPopup(SPLIT_DIALOG_LABEL);
-    await waitFor(() => {
-      expect(
-        within(popup).getByRole('heading', {
-          name: text.splitDialog.title,
-        }),
-      ).toBeVisible();
-    }, SETTLED_TIMEOUT);
-  }
+export async function expectSplitDialogOpen(): Promise<void> {
+  await expectPopupShown(SPLIT_DIALOG_LABEL);
+  const popup = await getPopup(SPLIT_DIALOG_LABEL);
+  await waitFor(() => {
+    expect(
+      within(popup).getByRole('heading', {
+        name: text.splitDialog.title,
+      }),
+    ).toBeVisible();
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectSplitDialogClosed(): Promise<void> {
+  await expectPopupHidden(SPLIT_DIALOG_LABEL);
 }
 
 export async function expectSplitDialogCreateButtonEnabled(
@@ -136,7 +134,7 @@ export async function expectSplitDialogResourceIsReadonly(
   await waitFor(() => {
     const row = within(popup).getByText(name, { exact: true }).parentElement;
     expect(row).not.toBeNull();
-    expectReadonlyIndicator(row as HTMLElement, true);
+    expectReadonlyIndicatorShown(row as HTMLElement);
     expect(within(row as HTMLElement).queryByRole('checkbox')).toBeNull();
   }, SETTLED_TIMEOUT);
 }
@@ -155,7 +153,6 @@ export function openImportDialogFromMenu(
     canImportIntoCurrentProject,
   );
 }
-
 async function getImportInputFilePathInput(): Promise<HTMLElement> {
   const popup = await getPopup(IMPORT_DIALOG_LABEL);
   return within(popup).getByTestId('import-input-file-path-input');
@@ -190,10 +187,12 @@ export async function expectImportOutputFilePath(path: string): Promise<void> {
   }, SETTLED_TIMEOUT);
 }
 
-export async function expectUnsavedChangesPopupVisibility(
-  visible: boolean,
-): Promise<void> {
-  await expectPopupVisibility(UNSAVED_CHANGES_POPUP_LABEL, visible);
+export async function expectUnsavedChangesPopupOpen(): Promise<void> {
+  await expectPopupShown(UNSAVED_CHANGES_POPUP_LABEL);
+}
+
+export async function expectUnsavedChangesPopupClosed(): Promise<void> {
+  await expectPopupHidden(UNSAVED_CHANGES_POPUP_LABEL);
 }
 
 export const CONFIRMATION_DIALOG_LABEL = 'confirmation dialog';
@@ -207,23 +206,17 @@ export const CONFIRM_REPLACE_POPUP_LABEL = 'confirm replace popup';
 
 export const FORCE_UNLOCK_POPUP_LABEL = 'force unlock popup';
 
-async function expectPopupVisibility(
-  popupLabel: string,
-  visible: boolean,
-): Promise<void> {
+async function expectPopupShown(popupLabel: string): Promise<void> {
   await waitFor(() => {
-    const popup = screen.queryByLabelText(popupLabel);
-    if (visible) {
-      expect(popup).not.toBeNull();
-      expect(popup).toBeVisible();
-    } else {
-      expect(popup).toBeNull();
-    }
+    const popup = screen.getByLabelText(popupLabel);
+    expect(popup).toBeVisible();
   }, SETTLED_TIMEOUT);
 }
 
 export async function expectPopupHidden(popupLabel: string): Promise<void> {
-  await expectPopupVisibility(popupLabel, false);
+  await waitFor(() => {
+    expect(screen.queryByLabelText(popupLabel)).not.toBeInTheDocument();
+  }, SETTLED_TIMEOUT);
 }
 
 export async function expectConfirmSavePopupIsVisible(): Promise<void> {
@@ -251,7 +244,6 @@ export type AlertSeverity = 'error' | 'warning' | 'info' | 'success';
 
 export async function expectAlert(
   message: string | RegExp,
-  visible: boolean,
   // No default: a forgotten severity would otherwise silently assert the
   // wrong MUI color class.
   severity: AlertSeverity,
@@ -263,13 +255,20 @@ export async function expectAlert(
     const alerts = container
       ? within(container).queryAllByRole('alert')
       : screen.queryAllByRole('alert');
-    if (visible) {
-      expect(alerts).toHaveLength(1);
-      expect(alerts[0]).toHaveTextContent(message);
-      expect(alerts[0]).toHaveClass(`MuiAlert-color${capitalize(severity)}`);
-    } else {
-      expect(alerts).toEqual([]);
-    }
+    expect(alerts).toHaveLength(1);
+    expect(alerts[0]).toHaveTextContent(message);
+    expect(alerts[0]).toHaveClass(`MuiAlert-color${capitalize(severity)}`);
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectNoAlert(container?: HTMLElement): Promise<void> {
+  await waitFor(() => {
+    // Scoped alerts assert on all alerts within the container so a second
+    // banner elsewhere on the page cannot interfere.
+    const alerts = container
+      ? within(container).queryAllByRole('alert')
+      : screen.queryAllByRole('alert');
+    expect(alerts).toEqual([]);
   }, SETTLED_TIMEOUT);
 }
 

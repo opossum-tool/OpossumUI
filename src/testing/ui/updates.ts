@@ -13,59 +13,38 @@ const UPDATE_BANNER_TEST_ID = 'update-banner';
 
 // All helpers here assert on elements inside the update banner, so other
 // banners (e.g. the mac-architecture warning) or unrelated progress
-// indicators cannot interfere.
+// indicators cannot interfere. getBanner() throws when the banner is not
+// rendered, so ...NotShown helpers cannot pass while the banner itself is
+// gone; use expectUpdateBannerRemoved() to assert on dismissal instead.
 function getBanner(): HTMLElement {
   return screen.getByTestId(UPDATE_BANNER_TEST_ID);
 }
 
-function queryInBanner(
-  query: (banner: HTMLElement) => HTMLElement | null,
-): HTMLElement | null {
-  const banner = screen.queryByTestId(UPDATE_BANNER_TEST_ID);
-  if (!banner) {
-    return null;
-  }
-  return query(banner);
-}
-
-async function expectQueryInBanner(
-  query: (banner: HTMLElement) => HTMLElement | null,
-  visible: boolean,
-): Promise<void> {
+export async function expectUpdateBannerRemoved(): Promise<void> {
   await waitFor(() => {
-    const element = queryInBanner(query);
-    if (visible) {
-      expect(element).not.toBeNull();
-      expect(element).toBeVisible();
-    } else {
-      expect(element).toBeNull();
-    }
+    expect(screen.queryByTestId(UPDATE_BANNER_TEST_ID)).not.toBeInTheDocument();
   }, SETTLED_TIMEOUT);
 }
 
-export async function expectUpdateAlertVisible(
-  visible: boolean,
-): Promise<void> {
+export async function expectUpdateAlertShown(): Promise<void> {
   await waitFor(() => {
-    const alert = screen.queryByTestId(UPDATE_BANNER_TEST_ID);
-    if (visible) {
-      expect(alert).not.toBeNull();
-      expect(alert).toHaveAttribute('role', 'alert');
-      expect(alert).toBeVisible();
-    } else {
-      expect(alert).toBeNull();
-    }
+    expect(getBanner()).toHaveAttribute('role', 'alert');
+    expect(getBanner()).toBeVisible();
   }, SETTLED_TIMEOUT);
 }
 
-export async function expectUpdateMessage(
+export async function expectUpdateMessageShown(message: string): Promise<void> {
+  await waitFor(() => {
+    expect(within(getBanner()).getByText(message)).toBeVisible();
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectUpdateMessageNotShown(
   message: string,
-  visible: boolean,
 ): Promise<void> {
-  await expectQueryInBanner(
-    (banner) => within(banner).queryByText(message),
-    visible,
-  );
+  await waitFor(() => {
+    expect(within(getBanner()).queryByText(message)).not.toBeInTheDocument();
+  }, SETTLED_TIMEOUT);
 }
 
 export async function dismissUpdateAlert(): Promise<void> {
@@ -88,31 +67,34 @@ export async function clickUpdateActionButton(name: string): Promise<void> {
   await userEvent.click(button);
 }
 
-export async function expectUpdateActionButtonVisible(
+export async function expectUpdateActionButtonShown(
   name: string,
-  visible: boolean,
 ): Promise<void> {
-  await expectQueryInBanner(
-    (banner) => within(banner).queryByRole('button', { name }),
-    visible,
-  );
+  await waitFor(() => {
+    expect(within(getBanner()).getByRole('button', { name })).toBeVisible();
+  }, SETTLED_TIMEOUT);
 }
 
-export async function expectUpdateDownloadLinkVisible(
-  visible: boolean,
-): Promise<void> {
-  await expectQueryInBanner(
-    (banner) =>
-      within(banner).queryByRole('link', { name: text.updateApp.download }),
-    visible,
-  );
+export async function expectUpdateDownloadLinkShown(): Promise<void> {
+  await waitFor(() => {
+    expect(
+      within(getBanner()).getByRole('link', { name: text.updateApp.download }),
+    ).toBeVisible();
+  }, SETTLED_TIMEOUT);
 }
 
-export async function expectUpdateProgressbarVisible(
-  visible: boolean,
-): Promise<void> {
-  await expectQueryInBanner(
-    (banner) => within(banner).queryByRole('progressbar'),
-    visible,
-  );
+export async function expectUpdateDownloadLinkNotShown(): Promise<void> {
+  await waitFor(() => {
+    expect(
+      within(getBanner()).queryByRole('link', {
+        name: text.updateApp.download,
+      }),
+    ).not.toBeInTheDocument();
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectUpdateProgressbarShown(): Promise<void> {
+  await waitFor(() => {
+    expect(within(getBanner()).getByRole('progressbar')).toBeVisible();
+  }, SETTLED_TIMEOUT);
 }

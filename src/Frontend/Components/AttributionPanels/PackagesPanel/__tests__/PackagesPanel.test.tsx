@@ -19,7 +19,8 @@ import { pathsToResources } from '../../../../../testing/global-test-helpers';
 import {
   clickSelectAllCheckbox,
   expectSelectedTabIs,
-  expectTabVisibility,
+  expectTabsNotShown,
+  expectTabsShown,
   PACKAGES_PANEL,
   selectTab,
 } from '../../../../../testing/ui';
@@ -1480,11 +1481,8 @@ describe('PackagesPanel', () => {
       }),
     });
 
-    await expectTabVisibility(
-      PACKAGES_PANEL,
-      ['resource', 'unrelated'],
-      ['children'],
-    );
+    await expectTabsShown(PACKAGES_PANEL, ['resource', 'unrelated']);
+    await expectTabsNotShown(PACKAGES_PANEL, ['children']);
     await expectSelectedTabIs(PACKAGES_PANEL, 'resource');
   });
 

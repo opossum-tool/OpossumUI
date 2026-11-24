@@ -14,10 +14,13 @@ import {
   clickFilterMenuButton,
   clickTreeFilterMenuButton,
   closeFilterMenu,
-  expectLicenseFilterOption,
+  expectLicenseFilterOptionNotShown,
+  expectLicenseFilterOptionShown,
   expectPackageCards,
-  expectReportAttributionVisibility,
-  expectResourceVisibility,
+  expectReportAttributionsNotShown,
+  expectReportAttributionsShown,
+  expectResourceItemsNotShown,
+  expectResourceItemsShown,
   fillLicenseFilter,
   getReportView,
   gotoReportView,
@@ -81,13 +84,13 @@ describe.each([
     const visible = entries.filter((_, index) => matching.includes(index));
     const hidden = entries.filter((_, index) => !matching.includes(index));
     if (context === 'resources') {
-      await expectResourceVisibility(
-        visible.map(({ resource }) => resource),
-        hidden.map(({ resource }) => resource),
-      );
+      await expectResourceItemsShown(visible.map(({ resource }) => resource));
+      await expectResourceItemsNotShown(hidden.map(({ resource }) => resource));
     } else if (context === 'report') {
-      await expectReportAttributionVisibility(
+      await expectReportAttributionsShown(
         visible.map(({ manual }) => manual[0]),
+      );
+      await expectReportAttributionsNotShown(
         hidden.map(({ manual }) => manual[0]),
       );
     } else {
@@ -129,10 +132,12 @@ describe.each([
           continue;
         }
         if (entry.licenseName) {
-          await expectLicenseFilterOption(
-            index === 4 ? apacheLabel : entry.licenseName,
-            matching.includes(index),
-          );
+          const name = index === 4 ? apacheLabel : entry.licenseName;
+          if (matching.includes(index)) {
+            await expectLicenseFilterOptionShown(name);
+          } else {
+            await expectLicenseFilterOptionNotShown(name);
+          }
         }
       }
       await addLicenseSearchFilter(query);

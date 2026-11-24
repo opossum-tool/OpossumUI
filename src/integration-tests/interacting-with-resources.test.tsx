@@ -23,7 +23,8 @@ import {
   expectPackageCards,
   expectPathBarCrumbs,
   expectPathBarHistoryButton,
-  expectResourceVisibility,
+  expectResourceItemsNotShown,
+  expectResourceItemsShown,
   expectSearchFocused,
   fillPanelSearch,
   focusResourceTreeItem,
@@ -109,32 +110,28 @@ const data = getParsedInputFileEnrichedWithTestData({
 describe('interacting with resources', () => {
   it('shows expected resources as user browses through resources', async () => {
     await renderApp({ data });
-    await expectResourceVisibility(
-      [
-        resourceWithExternalSelectedLicense,
-        resourceWithExternalDifferentLicense,
-        anotherResourceWithExternalDifferentLicense,
-        resourceWithManualSelectedLicense,
-      ],
-      [
-        nestedResourceWithExternalSelectedLicense,
-        leafResourceWithExternalSelectedLicense,
-        nestedResourceWithExternalDifferentLicense,
-        leafResourceWithExternalDifferentLicense,
-      ],
-    );
+    await expectResourceItemsShown([
+      resourceWithExternalSelectedLicense,
+      resourceWithExternalDifferentLicense,
+      anotherResourceWithExternalDifferentLicense,
+      resourceWithManualSelectedLicense,
+    ]);
+    await expectResourceItemsNotShown([
+      nestedResourceWithExternalSelectedLicense,
+      leafResourceWithExternalSelectedLicense,
+      nestedResourceWithExternalDifferentLicense,
+      leafResourceWithExternalDifferentLicense,
+    ]);
 
     await gotoResource(resourceWithExternalDifferentLicense);
-    await expectResourceVisibility(
-      [
-        nestedResourceWithExternalDifferentLicense,
-        leafResourceWithExternalDifferentLicense,
-      ],
-      [
-        nestedResourceWithExternalSelectedLicense,
-        leafResourceWithExternalSelectedLicense,
-      ],
-    );
+    await expectResourceItemsShown([
+      nestedResourceWithExternalDifferentLicense,
+      leafResourceWithExternalDifferentLicense,
+    ]);
+    await expectResourceItemsNotShown([
+      nestedResourceWithExternalSelectedLicense,
+      leafResourceWithExternalSelectedLicense,
+    ]);
   });
 
   it('cycles through resources as user clicks on progress bar', async () => {
@@ -228,7 +225,7 @@ describe('interacting with resources', () => {
 
   it('shows only resources matching search', async () => {
     await renderApp({ data });
-    await expectResourceVisibility([
+    await expectResourceItemsShown([
       resourceWithExternalSelectedLicense,
       resourceWithExternalDifferentLicense,
     ]);
@@ -237,13 +234,11 @@ describe('interacting with resources', () => {
       resourceWithExternalDifferentLicense,
       'resources-tree-header',
     );
-    await expectResourceVisibility(
-      [resourceWithExternalDifferentLicense],
-      [resourceWithExternalSelectedLicense],
-    );
+    await expectResourceItemsShown([resourceWithExternalDifferentLicense]);
+    await expectResourceItemsNotShown([resourceWithExternalSelectedLicense]);
 
     await clearTreeSearch('resources-tree-header');
-    await expectResourceVisibility([
+    await expectResourceItemsShown([
       resourceWithExternalSelectedLicense,
       resourceWithExternalDifferentLicense,
     ]);
@@ -256,10 +251,8 @@ describe('interacting with resources', () => {
       'resources-tree-header',
       resourceWithExternalDifferentLicense,
     );
-    await expectResourceVisibility(
-      [resourceWithExternalDifferentLicense],
-      [resourceWithExternalSelectedLicense],
-    );
+    await expectResourceItemsShown([resourceWithExternalDifferentLicense]);
+    await expectResourceItemsNotShown([resourceWithExternalSelectedLicense]);
   });
 
   it('shows only resources matching selected external attribution license', async () => {
@@ -269,13 +262,11 @@ describe('interacting with resources', () => {
     await selectFilterLicenseName(SELECTED_LICENSE);
     await closeLicenseEditorDialog();
     await closeFilterMenu();
-    await expectResourceVisibility(
-      [resourceWithExternalSelectedLicense],
-      [
-        resourceWithManualSelectedLicense,
-        resourceWithExternalDifferentLicense,
-        anotherResourceWithExternalDifferentLicense,
-      ],
-    );
+    await expectResourceItemsShown([resourceWithExternalSelectedLicense]);
+    await expectResourceItemsNotShown([
+      resourceWithManualSelectedLicense,
+      resourceWithExternalDifferentLicense,
+      anotherResourceWithExternalDifferentLicense,
+    ]);
   });
 });

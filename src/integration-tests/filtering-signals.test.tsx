@@ -19,8 +19,8 @@ import {
   clickProjectStatisticsTab,
   closeFilterMenu,
   expectLicenseEditorTabVisible,
-  expectLicenseFilterOption,
   expectLicenseFilterOptionSelected,
+  expectLicenseFilterOptionShown,
   expectPackageCards,
   expectSearchFocused,
   fillLicenseFilter,
@@ -93,7 +93,7 @@ describe('filtering signals', () => {
     await clickPanelFilterMenuButton(SIGNALS_PANEL);
     await addLicenseSearchFilter('cLaUsE');
     await fillLicenseFilter('Apache-2.0');
-    await expectLicenseFilterOption('Apache-2.0', true);
+    await expectLicenseFilterOptionShown('Apache-2.0');
     await selectFilterLicenseName('Apache-2.0');
     await closeFilterMenu();
     await expectPackageCards(
@@ -169,7 +169,7 @@ describe('filtering signals', () => {
     );
     await clickPanelFilterMenuButton(SIGNALS_PANEL);
     await clearAllLicenseFilters();
-    await expectLicenseEditorTabVisible('Selected (0)', true);
+    await expectLicenseEditorTabVisible('Selected (0)');
     await closeFilterMenu();
     await expectPackageCards(
       SIGNALS_PANEL,
@@ -194,7 +194,7 @@ describe('filtering signals', () => {
     await clickFilterMenuItem('M-IT');
     await fillLicenseFilter('M-IT');
     await expectLicenseFilterOptionSelected('M-IT', true);
-    await expectLicenseEditorTabVisible('Selected (1)', true);
+    await expectLicenseEditorTabVisible('Selected (1)');
     await closeFilterMenu();
     await openProjectStatisticsPopup(sendToChannel);
     await clickProjectStatisticsTab('details');

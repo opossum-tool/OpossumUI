@@ -17,13 +17,16 @@ import {
   clickPackageCardCheckbox,
   clickPopupButton,
   CONFIRM_SAVE_POPUP_LABEL,
-  expectAttributionColumnButtonVisibility,
+  expectAttributionColumnButtonNotShown,
+  expectAttributionColumnButtonShown,
   expectAttributionFormMatchesPackageInfo,
-  expectAuditingOptionChip,
+  expectAuditingOptionChipNotShown,
+  expectAuditingOptionChipShown,
   expectPopupHasText,
   expectPopupHidden,
   expectProgressBarTooltipShowsValues,
-  expectResourceVisibility,
+  expectResourceItemsNotShown,
+  expectResourceItemsShown,
   gotoResource,
   gotoResourceTreeRoot,
   hoverProgressBar,
@@ -67,13 +70,12 @@ describe('confirming pre-selected attributions', () => {
     await expectProgressBarTooltipShowsValues({
       filesWithOnlyPreSelectedAttributions: 4,
     });
-    await expectAttributionColumnButtonVisibility('confirm', true);
-    await expectAuditingOptionChip('pre-selected', true);
+    await expectAttributionColumnButtonShown('confirm');
+    await expectAuditingOptionChipShown('pre-selected');
 
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
-    await expectResourceVisibility(
+    await expectResourceItemsShown(
       [resourceName1, resourceName2, resourceName3],
-      [],
       LINKED_RESOURCES_TREE,
     );
 
@@ -83,8 +85,8 @@ describe('confirming pre-selected attributions', () => {
       text.saveAttributionsPopup.confirmLocally,
     );
     await expectPopupHidden(CONFIRM_SAVE_POPUP_LABEL);
-    await expectResourceVisibility(
-      [resourceName1],
+    await expectResourceItemsShown([resourceName1], LINKED_RESOURCES_TREE);
+    await expectResourceItemsNotShown(
       [resourceName2, resourceName3],
       LINKED_RESOURCES_TREE,
     );
@@ -93,16 +95,16 @@ describe('confirming pre-selected attributions', () => {
       filesWithAttributions: 1,
       filesWithOnlyPreSelectedAttributions: 3,
     });
-    await expectAttributionColumnButtonVisibility('confirm', false);
-    await expectAuditingOptionChip('pre-selected', false);
+    await expectAttributionColumnButtonNotShown('confirm');
+    await expectAuditingOptionChipNotShown('pre-selected');
 
     await gotoResource(resourceName2);
     await expectAttributionFormMatchesPackageInfo(packageInfo1);
-    await expectResourceVisibility(
+    await expectResourceItemsShown(
       [resourceName2, resourceName3],
-      [resourceName1],
       LINKED_RESOURCES_TREE,
     );
+    await expectResourceItemsNotShown([resourceName1], LINKED_RESOURCES_TREE);
 
     await clickAttributionColumnButton('confirm');
     await clickPopupButton(
@@ -110,9 +112,8 @@ describe('confirming pre-selected attributions', () => {
       text.saveAttributionsPopup.confirmGlobally,
     );
     await expectPopupHidden(CONFIRM_SAVE_POPUP_LABEL);
-    await expectResourceVisibility(
+    await expectResourceItemsShown(
       [resourceName1, resourceName2, resourceName3],
-      [],
       LINKED_RESOURCES_TREE,
     );
     await hoverProgressBar();
@@ -122,16 +123,16 @@ describe('confirming pre-selected attributions', () => {
     });
 
     await gotoResource(resourceName3);
-    await expectAttributionColumnButtonVisibility('confirm', false);
+    await expectAttributionColumnButtonNotShown('confirm');
   });
 
   it('confirms multiple pre-selected attributions', async () => {
     await renderApp({ data });
     await gotoResourceTreeRoot();
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
-    await expectAttributionColumnButtonVisibility('confirm', true);
+    await expectAttributionColumnButtonShown('confirm');
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo2);
-    await expectAttributionColumnButtonVisibility('confirm', true);
+    await expectAttributionColumnButtonShown('confirm');
 
     await clickPackageCardCheckbox(ATTRIBUTIONS_PANEL, packageInfo1);
     await clickPackageCardCheckbox(ATTRIBUTIONS_PANEL, packageInfo2);
@@ -154,9 +155,9 @@ describe('confirming pre-selected attributions', () => {
 
     await gotoResource(resourceName1);
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
-    await expectAttributionColumnButtonVisibility('confirm', false);
+    await expectAttributionColumnButtonNotShown('confirm');
     await gotoResource(resourceName4);
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo2);
-    await expectAttributionColumnButtonVisibility('confirm', false);
+    await expectAttributionColumnButtonNotShown('confirm');
   });
 });

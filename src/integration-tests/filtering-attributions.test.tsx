@@ -29,11 +29,12 @@ import {
   expectFilterMenuIconVisible,
   expectFilterMenuItemCount,
   expectFormFieldValues,
-  expectLicenseFilterOption,
+  expectLicenseFilterOptionShown,
   expectPackageCards,
   expectPopupHasText,
   expectPopupHidden,
-  expectReportAttributionVisibility,
+  expectReportAttributionsNotShown,
+  expectReportAttributionsShown,
   expectSearchFocused,
   expectSearchValue,
   fillFormField,
@@ -116,7 +117,7 @@ describe('filtering attributions', () => {
     await clickPanelFilterMenuButton(ATTRIBUTIONS_PANEL);
 
     await selectFilterMenuDropdown('classification', 'Zero');
-    await expectFilterMenuIconVisible('Classification icon', true);
+    await expectFilterMenuIconVisible('Classification icon');
     expect(
       (
         store.getState() as {
@@ -207,7 +208,7 @@ describe('filtering attributions', () => {
     await clickPanelFilterMenuButton(ATTRIBUTIONS_PANEL);
     await addLicenseSearchFilter('mIt');
     await fillLicenseFilter('Apache-2.0');
-    await expectLicenseFilterOption('Apache-2.0', true);
+    await expectLicenseFilterOptionShown('Apache-2.0');
     await closeFilterMenu();
     await expectPackageCards(
       ATTRIBUTIONS_PANEL,
@@ -218,10 +219,8 @@ describe('filtering attributions', () => {
     await clickFilterMenuButton(getReportView());
     await addLicenseSearchFilter('pAcHe');
     await closeFilterMenu();
-    await expectReportAttributionVisibility(
-      [attributionId2],
-      [attributionId1, attributionId3],
-    );
+    await expectReportAttributionsShown([attributionId2]);
+    await expectReportAttributionsNotShown([attributionId1, attributionId3]);
   });
 
   it('broadens license matches and keeps audit and report selections independent', async () => {
@@ -237,25 +236,25 @@ describe('filtering attributions', () => {
     );
 
     await gotoReportView();
-    await expectReportAttributionVisibility(
-      [attributionId1, attributionId2, attributionId3],
-      [],
-    );
+    await expectReportAttributionsShown([
+      attributionId1,
+      attributionId2,
+      attributionId3,
+    ]);
     await clickFilterMenuButton(getReportView());
     await selectFilterLicenseName('MIT');
     await selectFilterLicenseName('Apache-2.0');
     await closeFilterMenu();
-    await expectReportAttributionVisibility(
-      [attributionId1, attributionId2],
-      [attributionId3],
-    );
+    await expectReportAttributionsShown([attributionId1, attributionId2]);
+    await expectReportAttributionsNotShown([attributionId3]);
     await clickFilterMenuButton(getReportView());
     await clickClearFiltersMenuItem();
     await closeFilterMenu();
-    await expectReportAttributionVisibility(
-      [attributionId1, attributionId2, attributionId3],
-      [],
-    );
+    await expectReportAttributionsShown([
+      attributionId1,
+      attributionId2,
+      attributionId3,
+    ]);
   });
 
   it('combines and clears value filters in audit view', async () => {
@@ -332,60 +331,58 @@ describe('filtering attributions', () => {
     await clickFilterMenuButton(getReportView());
     await selectFilterMenuDropdown('criticality', 'None');
     await clickClearFiltersMenuItem();
-    await expectReportAttributionVisibility(
-      [attributionId1, attributionId2, attributionId3],
-      [],
-    );
+    await expectReportAttributionsShown([
+      attributionId1,
+      attributionId2,
+      attributionId3,
+    ]);
   });
 
   it('filters attributions in report view', async () => {
     await renderApp({ data });
     await gotoReportView();
-    await expectReportAttributionVisibility(
-      [attributionId1, attributionId2, attributionId3],
-      [],
-    );
+    await expectReportAttributionsShown([
+      attributionId1,
+      attributionId2,
+      attributionId3,
+    ]);
 
     await clickFilterMenuButton(getReportView());
     await clickFilterMenuItem(text.filters.needsFollowUp);
     await closeFilterMenu();
-    await expectReportAttributionVisibility(
-      [attributionId1],
-      [attributionId2, attributionId3],
-    );
+    await expectReportAttributionsShown([attributionId1]);
+    await expectReportAttributionsNotShown([attributionId2, attributionId3]);
 
     await clickFilterMenuButton(getReportView());
     await clickFilterMenuItem(text.filters.firstParty);
     await closeFilterMenu();
-    await expectReportAttributionVisibility(
-      [],
-      [attributionId1, attributionId2, attributionId3],
-    );
+    await expectReportAttributionsNotShown([
+      attributionId1,
+      attributionId2,
+      attributionId3,
+    ]);
 
     await clickFilterMenuButton(getReportView());
     await clickFilterMenuItem(text.filters.needsFollowUp);
     await closeFilterMenu();
-    await expectReportAttributionVisibility(
-      [attributionId3],
-      [attributionId1, attributionId2],
-    );
+    await expectReportAttributionsShown([attributionId3]);
+    await expectReportAttributionsNotShown([attributionId1, attributionId2]);
 
     await clickFilterMenuButton(getReportView());
     await clickFilterMenuItem(text.filters.firstParty);
     await closeFilterMenu();
-    await expectReportAttributionVisibility(
-      [attributionId1, attributionId2, attributionId3],
-      [],
-    );
+    await expectReportAttributionsShown([
+      attributionId1,
+      attributionId2,
+      attributionId3,
+    ]);
 
     await clickFilterMenuButton(getReportView());
     await selectFilterLicenseName(packageInfo1.licenseName ?? '');
     await closeLicenseEditorDialog();
     await closeFilterMenu();
-    await expectReportAttributionVisibility(
-      [attributionId1],
-      [attributionId2, attributionId3],
-    );
+    await expectReportAttributionsShown([attributionId1]);
+    await expectReportAttributionsNotShown([attributionId2, attributionId3]);
   });
 
   it('filters AI-deferred attributions in audit view', async () => {

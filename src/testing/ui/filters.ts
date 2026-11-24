@@ -58,16 +58,11 @@ export async function expectFilterMenuDropdownValue(
 
 export async function expectFilterMenuIconVisible(
   iconLabel: string,
-  visible: boolean,
 ): Promise<void> {
   await waitFor(() => {
-    const icon = within(screen.getByRole('menu')).queryByLabelText(iconLabel);
-    if (visible) {
-      expect(icon).not.toBeNull();
-      expect(icon).toBeVisible();
-    } else {
-      expect(icon).toBeNull();
-    }
+    expect(
+      within(screen.getByRole('menu')).queryByLabelText(iconLabel),
+    ).toBeVisible();
   }, SETTLED_TIMEOUT);
 }
 
@@ -172,18 +167,19 @@ export async function fillLicenseFilter(value: string): Promise<void> {
   fireEvent.change(input, { target: { value } });
 }
 
-export async function expectLicenseFilterOption(
+export async function expectLicenseFilterOptionShown(
   name: string,
-  visible: boolean,
 ): Promise<void> {
   await waitFor(() => {
-    const option = screen.queryByRole('option', { name });
-    if (visible) {
-      expect(option).not.toBeNull();
-      expect(option).toBeVisible();
-    } else {
-      expect(option).toBeNull();
-    }
+    expect(screen.getByRole('option', { name })).toBeVisible();
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectLicenseFilterOptionNotShown(
+  name: string,
+): Promise<void> {
+  await waitFor(() => {
+    expect(screen.queryByRole('option', { name })).not.toBeInTheDocument();
   }, SETTLED_TIMEOUT);
 }
 
@@ -250,16 +246,9 @@ export async function clickLicenseEditorTab(
 
 export async function expectLicenseEditorTabVisible(
   name: string,
-  visible: boolean,
 ): Promise<void> {
   await waitFor(() => {
-    const tab = screen.queryByRole('tab', { name });
-    if (visible) {
-      expect(tab).not.toBeNull();
-      expect(tab).toBeVisible();
-    } else {
-      expect(tab).toBeNull();
-    }
+    expect(screen.queryByRole('tab', { name })).toBeVisible();
   }, SETTLED_TIMEOUT);
 }
 

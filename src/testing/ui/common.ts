@@ -144,15 +144,17 @@ export async function expectPanelButtonEnabled(
 
 const READONLY_INDICATOR_TEST_ID = 'readonly-indicator';
 
-export function expectReadonlyIndicator(
-  node: HTMLElement,
-  readonly: boolean,
-): void {
+export function expectReadonlyIndicatorShown(node: HTMLElement): void {
   const indicator = within(node).queryByTestId(READONLY_INDICATOR_TEST_ID);
-  if (readonly) {
-    expect(indicator).not.toBeNull();
-    expect(indicator).toBeVisible();
-  } else if (indicator !== null) {
+  expect(indicator).not.toBeNull();
+  expect(indicator).toBeVisible();
+}
+
+export function expectNoReadonlyIndicator(node: HTMLElement): void {
+  // The MUI Badge wrapper stays mounted with an invisible dot, so the
+  // indicator is asserted hidden rather than absent.
+  const indicator = within(node).queryByTestId(READONLY_INDICATOR_TEST_ID);
+  if (indicator !== null) {
     expect(indicator).not.toBeVisible();
   }
 }
@@ -212,16 +214,9 @@ export async function expectSearchValue(
   }, SETTLED_TIMEOUT);
 }
 
-export async function expectTextVisible(
-  text: string | RegExp,
-  visible: boolean,
-): Promise<void> {
+export async function expectTextVisible(text: string | RegExp): Promise<void> {
   await waitFor(() => {
-    if (visible) {
-      expect(screen.getByText(text)).toBeVisible();
-    } else {
-      expect(screen.queryByText(text)).toBeNull();
-    }
+    expect(screen.getByText(text)).toBeVisible();
   }, SETTLED_TIMEOUT);
 }
 

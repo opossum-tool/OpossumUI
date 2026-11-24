@@ -63,18 +63,13 @@ export async function expectViewIsActive(
   }, SETTLED_TIMEOUT);
 }
 
-export async function expectOpenFileButtonVisibility(
-  visible: boolean,
-): Promise<void> {
+export async function expectOpenFileButtonVisible(): Promise<void> {
   await waitFor(() => {
-    const button = within(getTopBar()).queryByRole('button', {
-      name: 'open file',
-    });
-    if (button === null) {
-      expect(visible).toBe(false);
-    } else {
-      expect(button).toBeVisible();
-    }
+    expect(
+      within(getTopBar()).getByRole('button', {
+        name: 'open file',
+      }),
+    ).toBeVisible();
   }, SETTLED_TIMEOUT);
 }
 

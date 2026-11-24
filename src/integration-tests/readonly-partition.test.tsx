@@ -22,11 +22,13 @@ import {
   clickProjectStatisticsTab,
   closeFilterMenu,
   CONFIRM_SAVE_POPUP_LABEL,
-  expectAttributionColumnButtonVisibility,
+  expectAttributionColumnButtonNotShown,
+  expectAttributionColumnButtonShown,
   expectConfirmSavePopupIsVisible,
   expectConfirmSavePopupSaveOnlyOnSelectedIsHidden,
   expectFormFieldValues,
-  expectLicenseFilterOption,
+  expectLicenseFilterOptionNotShown,
+  expectLicenseFilterOptionShown,
   expectLicenseTableTotalSignalCountIs,
   expectPackageCardPartition,
   expectPackageCards,
@@ -34,15 +36,17 @@ import {
   expectPopupHidden,
   expectProgressBarTooltipShowsValues,
   expectProjectStatisticsLicenseTableIsVisible,
-  expectReportAttributionVisibility,
-  expectResourceVisibility,
+  expectReportAttributionsNotShown,
+  expectReportAttributionsShown,
+  expectResourceItemsShown,
   expectSelectedTabIs,
+  expectSplitDialogOpen,
   expectSplitDialogResourceIsReadonly,
-  expectSplitDialogVisibility,
   expectSplitHereDisabled,
   expectStatisticsChartContainsText,
   expectStatisticsChartNotContainsText,
-  expectTabVisibility,
+  expectTabsNotShown,
+  expectTabsShown,
   expectTreeItemPartition,
   fillFormField,
   fillLicenseFilter,
@@ -137,7 +141,7 @@ describe('readonly partition', () => {
     await expectPackageCardPartition(SIGNALS_PANEL, readonlySignal, true);
 
     await expectTreeItemPartition('readonly-only', true);
-    await expectResourceVisibility(['structural']);
+    await expectResourceItemsShown(['structural']);
     await gotoResource('structural');
     await expectTreeItemPartition('structural-editable', false);
     await gotoResource('structural-editable');
@@ -149,11 +153,11 @@ describe('readonly partition', () => {
     await gotoResource('readonly-only', 'hidden.ts');
 
     await expectSelectedTabIs(ATTRIBUTIONS_PANEL, 'resource');
-    await expectTabVisibility(ATTRIBUTIONS_PANEL, [], ['unrelated']);
+    await expectTabsNotShown(ATTRIBUTIONS_PANEL, ['unrelated']);
     await expectPackageCardPartition(ATTRIBUTIONS_PANEL, readonlyManual, true);
-    await expectAttributionColumnButtonVisibility('save', true);
-    await expectAttributionColumnButtonVisibility('delete', true);
-    await expectAttributionColumnButtonVisibility('link', false);
+    await expectAttributionColumnButtonShown('save');
+    await expectAttributionColumnButtonShown('delete');
+    await expectAttributionColumnButtonNotShown('link');
 
     await expectPackageCardPartition(SIGNALS_PANEL, readonlySignal, true);
   });
@@ -168,7 +172,7 @@ describe('readonly partition', () => {
     await closeFilterMenu();
 
     openSplitDialogFromMenu(sendToChannel);
-    await expectSplitDialogVisibility(true);
+    await expectSplitDialogOpen();
     await expectSplitDialogResourceIsReadonly('readonly-only');
     await cancelSplitDialog();
   });
@@ -205,19 +209,20 @@ describe('readonly partition', () => {
   it('scopes audit filters and report rows to the editable partition', async () => {
     await renderApp({ data });
     await gotoResource('editable');
-    await expectTabVisibility(ATTRIBUTIONS_PANEL, ['unrelated'], []);
+    await expectTabsShown(ATTRIBUTIONS_PANEL, ['unrelated']);
     await clickFilterMenuButton(screen.getByTestId(ATTRIBUTIONS_PANEL));
     await fillLicenseFilter(readonlyManual.licenseName!);
-    await expectLicenseFilterOption(readonlyManual.licenseName!, false);
+    await expectLicenseFilterOptionNotShown(readonlyManual.licenseName!);
     await fillLicenseFilter(editableManual.licenseName!);
-    await expectLicenseFilterOption(editableManual.licenseName!, true);
+    await expectLicenseFilterOptionShown(editableManual.licenseName!);
     await closeFilterMenu();
 
     await gotoReportView();
-    await expectReportAttributionVisibility(
-      [editableManualId, mixedManualId],
-      [readonlyManualId, unlinkedManualId],
-    );
+    await expectReportAttributionsShown([editableManualId, mixedManualId]);
+    await expectReportAttributionsNotShown([
+      readonlyManualId,
+      unlinkedManualId,
+    ]);
   });
 
   it('uses only editable data for statistics and progress navigation', async () => {
@@ -262,6 +267,6 @@ describe('readonly partition', () => {
     await expectSelectedTabIs(ATTRIBUTIONS_PANEL, 'children');
     await expectPackageCardPartition(ATTRIBUTIONS_PANEL, editableManual, false);
     await expectFormFieldValues({ name: editableManual.packageName! });
-    await expectAttributionColumnButtonVisibility('save', true);
+    await expectAttributionColumnButtonShown('save');
   });
 });

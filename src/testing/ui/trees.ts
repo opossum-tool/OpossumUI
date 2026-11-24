@@ -9,8 +9,9 @@ import { expect } from 'vitest';
 import { OpossumColors } from '../../Frontend/shared-styles';
 import { text } from '../../shared/text';
 import {
+  expectNoReadonlyIndicator,
   expectPanelsSettled,
-  expectReadonlyIndicator,
+  expectReadonlyIndicatorShown,
   LINKED_RESOURCES_TREE,
   SETTLED_TIMEOUT,
 } from './common';
@@ -24,9 +25,8 @@ export function resourceTreeItem(name: string): HTMLElement {
   );
 }
 
-export async function expectResourceVisibility(
+export async function expectResourceItemsShown(
   visible: Array<string>,
-  hidden: Array<string> = [],
   treeTestId: string = RESOURCES_TREE_TEST_ID,
 ): Promise<void> {
   for (const name of visible) {
@@ -36,13 +36,19 @@ export async function expectResourceVisibility(
       ).toBeVisible();
     }, SETTLED_TIMEOUT);
   }
+}
+
+export async function expectResourceItemsNotShown(
+  hidden: Array<string>,
+  treeTestId: string = RESOURCES_TREE_TEST_ID,
+): Promise<void> {
   for (const name of hidden) {
     await waitFor(() => {
       expect(
         within(screen.getByTestId(treeTestId)).queryByRole('treeitem', {
           name,
         }),
-      ).toBeNull();
+      ).not.toBeInTheDocument();
     }, SETTLED_TIMEOUT);
   }
 }
@@ -93,19 +99,14 @@ function resourceTreeItemAtPath(path: string): HTMLElement | null {
     .querySelector<HTMLElement>(`[data-resource-path="${path}"]`);
 }
 
-export async function expectResourceAtPathVisibility(
+export async function expectResourcePathsShown(
   visible: Array<string>,
-  hidden: Array<string> = [],
 ): Promise<void> {
   for (const path of visible) {
     await waitFor(() => {
-      expect(resourceTreeItemAtPath(path)).not.toBeNull();
-      expect(resourceTreeItemAtPath(path)).toBeVisible();
-    }, SETTLED_TIMEOUT);
-  }
-  for (const path of hidden) {
-    await waitFor(() => {
-      expect(resourceTreeItemAtPath(path)).toBeNull();
+      const node = resourceTreeItemAtPath(path);
+      expect(node).not.toBeNull();
+      expect(node as HTMLElement).toBeVisible();
     }, SETTLED_TIMEOUT);
   }
 }
@@ -186,15 +187,15 @@ export async function expectTreeItemHighlight(
   }, SETTLED_TIMEOUT);
 }
 
-export async function expectLinkedResourcesTreeVisibility(
-  visible: boolean,
-): Promise<void> {
+export async function expectLinkedResourcesTreeShown(): Promise<void> {
   await waitFor(() => {
-    if (visible) {
-      expect(screen.getByTestId(LINKED_RESOURCES_TREE)).toBeVisible();
-    } else {
-      expect(screen.queryByTestId(LINKED_RESOURCES_TREE)).toBeNull();
-    }
+    expect(screen.getByTestId(LINKED_RESOURCES_TREE)).toBeVisible();
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectLinkedResourcesTreeRemoved(): Promise<void> {
+  await waitFor(() => {
+    expect(screen.queryByTestId(LINKED_RESOURCES_TREE)).not.toBeInTheDocument();
   }, SETTLED_TIMEOUT);
 }
 
@@ -234,7 +235,11 @@ export async function expectTreeItemPartition(
   await waitFor(() => {
     const item = resourceTreeItem(name);
     expect(item).toBeVisible();
-    expectReadonlyIndicator(item, readonly);
+    if (readonly) {
+      expectReadonlyIndicatorShown(item);
+    } else {
+      expectNoReadonlyIndicator(item);
+    }
   }, SETTLED_TIMEOUT);
 }
 

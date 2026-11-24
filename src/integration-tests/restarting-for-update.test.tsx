@@ -17,9 +17,10 @@ import {
   clickUpdateActionButton,
   expectFormFieldValues,
   expectTextVisible,
-  expectUnsavedChangesPopupVisibility,
-  expectUpdateActionButtonVisible,
-  expectUpdateMessage,
+  expectUnsavedChangesPopupClosed,
+  expectUnsavedChangesPopupOpen,
+  expectUpdateActionButtonShown,
+  expectUpdateMessageShown,
   expectViewIsActive,
   fillFormField,
   gotoResource,
@@ -67,12 +68,12 @@ test('shows progress and the restart action with automatic checks disabled', asy
     data,
     userSettings: { automaticallyCheckForUpdates: false },
   });
-  await expectUpdateMessage(text.updateApp.downloading(42), true);
+  await expectUpdateMessageShown(text.updateApp.downloading(42));
   view.sendToChannel(AllowedFrontendChannels.UpdateStateChanged, {
     status: 'downloaded',
     tag,
   });
-  await expectUpdateActionButtonVisible(text.updateApp.restart, true);
+  await expectUpdateActionButtonShown(text.updateApp.restart);
   expect(window.electronAPI.restartAndUpdate).not.toHaveBeenCalled();
 });
 
@@ -80,18 +81,18 @@ test('requests installation directly when there are no unsaved editor changes', 
   await renderApp({ data });
   await clickRestart();
   expect(window.electronAPI.restartAndUpdate).toHaveBeenCalledTimes(1);
-  await expectUnsavedChangesPopupVisibility(false);
+  await expectUnsavedChangesPopupClosed();
 });
 
 test('uses the existing unsaved-changes popup and cancels without losing the draft', async () => {
   await dirtyEditor();
   await clickRestart();
-  await expectUnsavedChangesPopupVisibility(true);
+  await expectUnsavedChangesPopupOpen();
   await clickPopupButton('unsaved changes popup', text.buttons.cancel);
   await expectFormFieldValues({ name: 'edited before update' });
   expect(window.electronAPI.restartAndUpdate).not.toHaveBeenCalled();
   await clickTopBarViewButton('report');
-  await expectUnsavedChangesPopupVisibility(true);
+  await expectUnsavedChangesPopupOpen();
   await clickPopupButton(
     'unsaved changes popup',
     text.unsavedChangesPopup.discard,
@@ -103,7 +104,7 @@ test('uses the existing unsaved-changes popup and cancels without losing the dra
 test('discards through the existing continuation and requests installation', async () => {
   const { store } = await dirtyEditor();
   await clickRestart();
-  await expectUnsavedChangesPopupVisibility(true);
+  await expectUnsavedChangesPopupOpen();
   await clickPopupButton(
     'unsaved changes popup',
     text.unsavedChangesPopup.discard,
@@ -115,7 +116,7 @@ test('discards through the existing continuation and requests installation', asy
 test('uses the normal editor save after cancelling, then requests installation', async () => {
   await dirtyEditor();
   await clickRestart();
-  await expectUnsavedChangesPopupVisibility(true);
+  await expectUnsavedChangesPopupOpen();
   await clickPopupButton('unsaved changes popup', text.buttons.cancel);
   await saveChangesInAttributionColumn();
   await clickRestart();
@@ -128,7 +129,7 @@ test('reports installation request errors and allows another attempt', async () 
   );
   await renderApp({ data });
   await clickRestart();
-  await expectTextVisible('Could not start installer', true);
+  await expectTextVisible('Could not start installer');
   await clickRestart();
   await waitFor(() =>
     expect(window.electronAPI.restartAndUpdate).toHaveBeenCalledTimes(2),
@@ -142,13 +143,13 @@ test('displays asynchronous installer errors and keeps the restart action availa
     status: 'restarting',
     tag,
   });
-  await expectUpdateMessage(text.updateApp.restarting, true);
+  await expectUpdateMessageShown(text.updateApp.restarting);
   sendToChannel(AllowedFrontendChannels.UpdateStateChanged, {
     status: 'downloaded',
     tag,
     error: 'Installer failed',
   });
-  await expectUpdateMessage('Installer failed', true);
+  await expectUpdateMessageShown('Installer failed');
   await clickRestart();
   expect(window.electronAPI.restartAndUpdate).toHaveBeenCalledTimes(2);
 });

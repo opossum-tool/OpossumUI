@@ -12,7 +12,8 @@ import {
 } from '../../Frontend/util/get-card-labels';
 import { AI_STATUS_ICON_LABEL } from './ai-status';
 import {
-  expectReadonlyIndicator,
+  expectNoReadonlyIndicator,
+  expectReadonlyIndicatorShown,
   getPanel,
   type PanelTestId,
   SETTLED_TIMEOUT,
@@ -207,6 +208,10 @@ export async function expectPackageCardPartition(
   await waitFor(() => {
     const card = getPackageCard(panelTestId, packageInfo);
     expect(card).toBeVisible();
-    expectReadonlyIndicator(card, readonly);
+    if (readonly) {
+      expectReadonlyIndicatorShown(card);
+    } else {
+      expectNoReadonlyIndicator(card);
+    }
   }, SETTLED_TIMEOUT);
 }

@@ -21,15 +21,6 @@ function getRelationTab(
   });
 }
 
-function queryRelationTab(
-  panelTestId: PanelTestId,
-  relation: AttributionRelation,
-): HTMLElement | null {
-  return within(getPanel(panelTestId)).queryByRole('tab', {
-    name: new RegExp(`^${text.relations[relation]}`),
-  });
-}
-
 export async function expectSelectedTabIs(
   panelTestId: PanelTestId,
   relation: AttributionRelation,
@@ -58,19 +49,34 @@ export async function selectTab(
   await userEvent.click(getRelationTab(panelTestId, relation));
 }
 
-export async function expectTabVisibility(
+// Relation tabs unmount when the panel has no karton with that relation, so
+// both helpers assert presence in the accessibility tree within the panel.
+export async function expectTabsShown(
   panelTestId: PanelTestId,
-  visible: Array<AttributionRelation>,
-  hidden: Array<AttributionRelation> = [],
+  relations: Array<AttributionRelation>,
 ): Promise<void> {
-  for (const relation of visible) {
+  for (const relation of relations) {
     await waitFor(() => {
-      expect(queryRelationTab(panelTestId, relation)).not.toBeNull();
+      expect(
+        within(getPanel(panelTestId)).getByRole('tab', {
+          name: new RegExp(`^${text.relations[relation]}`),
+        }),
+      ).toBeVisible();
     }, SETTLED_TIMEOUT);
   }
-  for (const relation of hidden) {
+}
+
+export async function expectTabsNotShown(
+  panelTestId: PanelTestId,
+  relations: Array<AttributionRelation>,
+): Promise<void> {
+  for (const relation of relations) {
     await waitFor(() => {
-      expect(queryRelationTab(panelTestId, relation)).toBeNull();
+      expect(
+        within(getPanel(panelTestId)).queryByRole('tab', {
+          name: new RegExp(`^${text.relations[relation]}`),
+        }),
+      ).not.toBeInTheDocument();
     }, SETTLED_TIMEOUT);
   }
 }
