@@ -268,7 +268,7 @@ test('does not repeat the quit failure after staying, but shows a new failure', 
   act(() => {
     leaveAttempt = attemptToLeave('quit', () => pending.promise);
   });
-  const duplicateAttempt = vi.fn().mockResolvedValue(undefined);
+  const duplicateAttempt = vi.fn().mockResolvedValue({ status: 'completed' });
   await act(() => attemptToLeave('open', duplicateAttempt));
   expect(duplicateAttempt).not.toHaveBeenCalled();
   await waitFor(() =>

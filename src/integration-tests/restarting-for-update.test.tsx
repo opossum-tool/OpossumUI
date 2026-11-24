@@ -35,7 +35,9 @@ beforeEach(() => {
     status: 'downloaded',
     tag,
   });
-  vi.mocked(window.electronAPI.restartAndUpdate).mockResolvedValue(undefined);
+  vi.mocked(window.electronAPI.restartAndUpdate).mockResolvedValue({
+    status: 'completed',
+  });
 });
 
 async function clickRestart() {

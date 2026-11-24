@@ -310,8 +310,10 @@ export interface SaveFailure {
 export type SaveResult =
   { status: 'saved' } | { status: 'failed'; failure: SaveFailure };
 
-export type LeaveResult<T = void> =
-  { status: 'blocked'; failure: SaveFailure } | T;
+export type LeaveResult =
+  { status: 'completed' } | { status: 'blocked'; failure: SaveFailure };
+
+export type ImportResult = LeaveResult | { status: 'failed' };
 
 export interface QuitOptions {
   discardUnsavedChanges: boolean;
@@ -332,11 +334,11 @@ export interface ElectronAPI {
     inputFilePath: string,
     fileType: FileType,
     opossumFilePath: string,
-  ) => Promise<LeaveResult<boolean>>;
+  ) => Promise<ImportResult>;
   mergeFileAndLoad: (
     inputFilePath: string,
     fileType: FileType,
-  ) => Promise<LeaveResult<boolean>>;
+  ) => Promise<ImportResult>;
   selectSplitDestination: (splitPaths: Array<string>) => Promise<string>;
   splitFile: (
     splitPaths: Array<string>,

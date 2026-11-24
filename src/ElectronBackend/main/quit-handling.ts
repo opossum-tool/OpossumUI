@@ -62,7 +62,7 @@ export function handleWindowClose(window: BrowserWindow, event: Event): void {
     void confirmQuit()
       .then((result) => {
         if (
-          result?.status === 'blocked' &&
+          result.status === 'blocked' &&
           !window.isDestroyed() &&
           canRendererHandleQuitRequest(window)
         ) {
@@ -95,7 +95,7 @@ export function acknowledgeQuitRequest(): void {
  */
 export async function confirmQuit(options?: QuitOptions): Promise<LeaveResult> {
   if (quitApproved) {
-    return;
+    return { status: 'completed' };
   }
   quitApproved = true;
   try {
@@ -112,6 +112,7 @@ export async function confirmQuit(options?: QuitOptions): Promise<LeaveResult> {
     }
     quitFinalized = true;
     app.quit();
+    return { status: 'completed' };
   } catch (error) {
     resetQuitState();
     throw error;

@@ -69,7 +69,7 @@ export function SaveRecoveryDialog(): React.ReactNode {
         current,
         decision === 'leave' ? current.failure.id : undefined,
       );
-      if (result?.status === 'blocked') {
+      if (result.status === 'blocked') {
         setAnnouncedFailureId(result.failure.id);
       }
     } catch (error) {

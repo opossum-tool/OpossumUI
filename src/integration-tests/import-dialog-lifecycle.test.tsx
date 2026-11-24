@@ -7,6 +7,7 @@ import { act, screen, waitFor } from '@testing-library/react';
 import { importFileFormats } from '../ElectronBackend/main/menu/fileMenu';
 import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers/general-test-helpers';
 import { AllowedFrontendChannels } from '../shared/ipc-channels';
+import type { ImportResult } from '../shared/shared-types';
 import { text } from '../shared/text';
 import { renderApp } from '../testing/render-app';
 import {
@@ -23,7 +24,7 @@ import {
 
 describe('new-project import dialog lifecycle', () => {
   it('waits for the import form to complete before presenting statistics', async () => {
-    const importResponse = Promise.withResolvers<boolean>();
+    const importResponse = Promise.withResolvers<ImportResult>();
     const selectFile = vi
       .spyOn(window.electronAPI, 'selectFile')
       .mockResolvedValue('/input.json');
@@ -56,7 +57,7 @@ describe('new-project import dialog lifecycle', () => {
     await getPopup(IMPORT_DIALOG_LABEL);
 
     await act(async () => {
-      importResponse.resolve(true);
+      importResponse.resolve({ status: 'completed' });
       await importResponse.promise;
     });
     await expectPopupHidden(IMPORT_DIALOG_LABEL);
@@ -80,7 +81,7 @@ describe('new-project import dialog lifecycle', () => {
       .mockResolvedValue('/output.opossum');
     const importFile = vi
       .spyOn(window.electronAPI, 'importFileConvertAndLoad')
-      .mockResolvedValue(false);
+      .mockResolvedValue({ status: 'failed' });
     const { sendToChannel } = await renderApp({
       data: getParsedInputFileEnrichedWithTestData({}),
     });

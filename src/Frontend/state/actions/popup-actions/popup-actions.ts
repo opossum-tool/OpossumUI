@@ -135,7 +135,7 @@ function openFileAfterFlushingSaves(
         } else {
           await window.electronAPI.openFile(filePath);
         }
-        return undefined;
+        return { status: 'completed' };
       });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : String(error));

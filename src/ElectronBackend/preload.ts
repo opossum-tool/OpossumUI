@@ -8,7 +8,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 import { IpcChannel } from '../shared/ipc-channels';
 import type {
   ElectronAPI,
-  LeaveResult,
+  ImportResult,
   SaveResult,
   UserSettings,
 } from '../shared/shared-types';
@@ -39,15 +39,15 @@ async function flushPendingSaves(): Promise<SaveResult> {
   return client!.flushSaves();
 }
 
-async function afterPendingSaves<T>(
-  invoke: () => Promise<T>,
-): Promise<LeaveResult<T>> {
+async function importAfterPendingSaves(
+  invoke: () => Promise<boolean>,
+): Promise<ImportResult> {
   // Flush on the same port used to submit edits before invoking main-process IPC.
   const result = await flushPendingSaves();
   if (result.status === 'failed') {
     return { status: 'blocked', failure: result.failure };
   }
-  return invoke();
+  return (await invoke()) ? { status: 'completed' } : { status: 'failed' };
 }
 
 const electronAPI: ElectronAPI = {
@@ -69,7 +69,7 @@ const electronAPI: ElectronAPI = {
   selectSaveFile: (options) =>
     ipcRenderer.invoke(IpcChannel.SelectSaveFile, options),
   importFileConvertAndLoad: (inputFilePath, fileType, opossumFilePath) =>
-    afterPendingSaves<boolean>(() =>
+    importAfterPendingSaves(() =>
       ipcRenderer.invoke(
         IpcChannel.ImportFileConvertAndLoad,
         inputFilePath,
@@ -78,7 +78,7 @@ const electronAPI: ElectronAPI = {
       ),
     ),
   mergeFileAndLoad: (inputFilePath, fileType) =>
-    afterPendingSaves<boolean>(() =>
+    importAfterPendingSaves(() =>
       ipcRenderer.invoke(IpcChannel.MergeFileAndLoad, inputFilePath, fileType),
     ),
   selectSplitDestination: (splitPath) =>
@@ -116,10 +116,14 @@ const electronAPI: ElectronAPI = {
   checkForUpdates: () => ipcRenderer.invoke(IpcChannel.CheckForUpdates),
   downloadUpdate: (tag: string) =>
     ipcRenderer.invoke(IpcChannel.DownloadUpdate, tag),
-  restartAndUpdate: () =>
-    afterPendingSaves<void>(() =>
-      ipcRenderer.invoke(IpcChannel.RestartAndUpdate),
-    ),
+  restartAndUpdate: async () => {
+    const result = await flushPendingSaves();
+    if (result.status === 'failed') {
+      return { status: 'blocked', failure: result.failure };
+    }
+    await ipcRenderer.invoke(IpcChannel.RestartAndUpdate);
+    return { status: 'completed' };
+  },
 };
 
 // This exposes an API to communicate from the window in the frontend with the backend

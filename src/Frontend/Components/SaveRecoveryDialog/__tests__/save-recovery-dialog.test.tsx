@@ -25,14 +25,17 @@ async function showRecovery(
   action: 'open' | 'quit' = 'open',
 ) {
   await renderComponent(<SaveRecoveryDialog />);
-  const attempt = vi.fn().mockResolvedValueOnce({
-    status: 'blocked',
-    failure: {
-      id: 'failed-write',
-      fileName: 'project.opossum',
-      message: failureMessage,
-    },
-  });
+  const attempt = vi
+    .fn()
+    .mockResolvedValue({ status: 'completed' })
+    .mockResolvedValueOnce({
+      status: 'blocked',
+      failure: {
+        id: 'failed-write',
+        fileName: 'project.opossum',
+        message: failureMessage,
+      },
+    });
   await act(() => attemptToLeave(action, attempt));
   attempt.mockClear();
   const dialog = await screen.findByRole('dialog', { name: dialogName });

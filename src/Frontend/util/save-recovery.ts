@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { LeaveResult, SaveFailure } from '../../shared/shared-types';
+import type { ImportResult, SaveFailure } from '../../shared/shared-types';
 
-type LeaveAttempt = (failureId?: string) => Promise<LeaveResult>;
+type LeaveAttempt = (failureId?: string) => Promise<ImportResult>;
 type Recovery = {
   action: 'open' | 'quit' | 'import' | 'restart-and-update';
   failure: SaveFailure;
@@ -67,7 +67,7 @@ export async function attemptToLeave(
   notifySubscribers();
   try {
     const result = await attempt(failureId);
-    if (result?.status === 'blocked') {
+    if (result.status === 'blocked') {
       recovery = { action, attempt, failure: result.failure };
       leavePhase = 'awaiting-decision';
     } else {
@@ -86,24 +86,29 @@ export async function attemptToLeave(
 export async function resumeSaveRecovery(
   expected: Recovery,
   failureId?: string,
-): Promise<LeaveResult> {
+): Promise<ImportResult | { status: 'stale' }> {
   if (leavePhase !== 'awaiting-decision' || recovery !== expected) {
-    return undefined;
+    return { status: 'stale' };
   }
   leavePhase = 'checking';
   notifySubscribers();
   try {
     const result = await expected.attempt(failureId);
-    if (result?.status === 'blocked') {
+    if (recovery !== expected) {
+      return { status: 'stale' };
+    }
+    if (result.status === 'blocked') {
       recovery = { ...expected, failure: result.failure };
       leavePhase = 'awaiting-decision';
       return result;
     }
     recovery = undefined;
     leavePhase = 'idle';
-    return undefined;
+    return result;
   } catch (error) {
-    leavePhase = 'awaiting-decision';
+    if (recovery === expected) {
+      leavePhase = 'awaiting-decision';
+    }
     throw error;
   } finally {
     notifySubscribers();

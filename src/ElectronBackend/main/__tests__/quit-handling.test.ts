@@ -181,7 +181,7 @@ describe('confirmQuit', () => {
       status: 'failed',
       failure: { ...failure, id: 'second' },
     });
-    await expect(quitPromise).resolves.toBeUndefined();
+    await expect(quitPromise).resolves.toEqual({ status: 'completed' });
     expect(quitMock).toHaveBeenCalledTimes(1);
   });
 

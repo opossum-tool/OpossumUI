@@ -9,6 +9,7 @@ import {
   DiscreteConfidence,
   ExportType,
   FileType,
+  type LeaveResult,
   type PackageInfo,
   type Resources,
   type ResourcesToAttributions,
@@ -1204,8 +1205,8 @@ describe('failed-save transition decisions', () => {
     }
   });
 
-  it('restores usable editing state when native quit recovery stays in the project', async () => {
-    const nativeDecision = Promise.withResolvers<void>();
+  it('restores usable editing state when quitting is blocked by a save failure', async () => {
+    const quitResult = Promise.withResolvers<LeaveResult>();
     vi.mocked(window.electronAPI.flushPendingSaves).mockResolvedValueOnce({
       status: 'failed',
       failure: {
@@ -1215,7 +1216,7 @@ describe('failed-save transition decisions', () => {
       },
     });
     vi.mocked(window.electronAPI.confirmQuit).mockReturnValueOnce(
-      nativeDecision.promise,
+      quitResult.promise,
     );
     const store = createAppStore();
     store.dispatch(quitAppOrOpenUnsavedPopup());
@@ -1223,10 +1224,19 @@ describe('failed-save transition decisions', () => {
       expect(window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
     );
     expect(getIsSavingBeforeQuit(store.getState())).toBe(false);
-    nativeDecision.resolve();
-    await nativeDecision.promise;
+    quitResult.resolve({
+      status: 'blocked',
+      failure: {
+        message: 'Disk full',
+        id: 'failed-save',
+        fileName: 'project.opossum',
+      },
+    });
+    await quitResult.promise;
+    await vi.waitFor(() => expect(getSaveRecovery()).toBeDefined());
     expect(getQuitAppRequested(store.getState())).toBe(false);
     expect(getOpenPopup(store.getState())).toBeNull();
+    closeSaveRecovery();
   });
 });
 

@@ -106,12 +106,10 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
                 fileFormat.fileType,
                 opossumFilePath,
               );
-          if (result === true) {
+          if (result.status === 'completed') {
             closePopup();
-          } else if (result !== false) {
-            return result;
           }
-          return undefined;
+          return result;
         } finally {
           setImportInProgress(false);
         }
