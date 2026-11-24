@@ -2,22 +2,16 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { type Kysely, sql, type SqlBool, type Transaction } from 'kysely';
+import type { SqlBool, Transaction } from 'kysely';
 
 import { getDb } from '../db/db';
 import type { DB } from '../db/generated/databaseTypes';
 import { withFilteredResourcesTable } from './resource-tree-cache';
 import {
-  getOnAttributionUuidSetExpression,
-  type OnAttribution,
-  resolveOnAttribution,
-} from './resource-tree-on-attributions';
-import {
   getMatchesFiltersExpression,
   getVisibleWithFiltersExpression,
   hasActiveFilters,
   type ResourceTreeFilters,
-  type ResourceTreeFiltersInput,
 } from './resourceTreeFilters';
 import { GET_LEGACY_RESOURCE_PATH, removeTrailingSlash } from './utils';
 
@@ -153,29 +147,13 @@ async function getFilteredNodePathsToExpand(
 
 export async function getNodePathsToExpand({
   fromNodePath,
-  onAttribution,
-  additionalAttributionUuids,
-  attributionLimit,
   ...filters
-}: { fromNodePath: string } & ResourceTreeFiltersInput): Promise<{
+}: { fromNodePath: string } & ResourceTreeFilters): Promise<{
   result: Array<string>;
 }> {
-  const resolvedOnAttribution = await resolveOnAttribution(
-    onAttribution,
-    additionalAttributionUuids,
-    attributionLimit,
-  );
-  if (resolvedOnAttribution?.kind === 'limitExceeded') {
-    return { result: [] };
-  }
-  const resolvedFilters: ResourceTreeFilters = {
-    ...filters,
-    onAttribution: resolvedOnAttribution,
-  };
-
-  if (hasActiveFilters(resolvedFilters)) {
-    return withFilteredResourcesTable(resolvedFilters, (trx, cacheId) =>
-      getFilteredNodePathsToExpand(trx, fromNodePath, resolvedFilters, cacheId),
+  if (hasActiveFilters(filters)) {
+    return withFilteredResourcesTable(filters, (trx, cacheId) =>
+      getFilteredNodePathsToExpand(trx, fromNodePath, filters, cacheId),
     );
   }
 
@@ -208,80 +186,4 @@ export async function getNodePathsToExpand({
     .execute();
 
   return { result: nodesToExpand.map((node) => node.path) };
-}
-
-export async function resourcesToExpand(
-  dbOrTrx: Kysely<DB>,
-  props: {
-    aboveOnAttribution?: OnAttribution;
-    aboveResourceId?: number;
-    limit?: number;
-  },
-) {
-  // Recursively descend the resource tree, expanding all nodes that fit the filters
-  const result = await dbOrTrx
-    .withRecursive('expanded_resources', (eb) =>
-      eb
-        // Start at the root node
-        .selectFrom('resource')
-        .select('id')
-        .where('path', '=', '')
-        .unionAll((eb) => {
-          // Expand all children of already expanded resources if they fit the criteria
-          let query = eb
-            .selectFrom('resource as child')
-            .innerJoin(
-              'expanded_resources as parent',
-              'child.parent_id',
-              'parent.id',
-            )
-            .select('child.id')
-            .where('child.can_have_children', '=', 1);
-
-          if (props.aboveResourceId !== undefined) {
-            query = query.where((eb) =>
-              eb.between(
-                eb.val(props.aboveResourceId),
-                eb.ref('child.id'),
-                eb.ref('child.max_descendant_id'),
-              ),
-            );
-          }
-
-          const aboveOnAttribution = props.aboveOnAttribution;
-          if (aboveOnAttribution) {
-            query = query.where((eb) =>
-              eb.exists(
-                eb
-                  .selectFrom('resource_to_attribution as rta')
-                  .selectAll()
-                  .where((eb) =>
-                    eb.between(
-                      'rta.resource_id',
-                      eb.ref('child.id'),
-                      eb.ref('child.max_descendant_id'),
-                    ),
-                  )
-                  .where(
-                    'attribution_uuid',
-                    'in',
-                    getOnAttributionUuidSetExpression(aboveOnAttribution),
-                  ),
-              ),
-            );
-          }
-
-          if (props.limit) {
-            query = query.limit(props.limit);
-          }
-
-          return query;
-        }),
-    )
-    .selectFrom('resource')
-    .select(sql<string>`path || '/'`.as('path'))
-    .where('id', 'in', (eb) => eb.selectFrom('expanded_resources').select('id'))
-    .execute();
-
-  return result.map((r) => r.path);
 }

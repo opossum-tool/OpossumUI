@@ -63,8 +63,7 @@ export const ConfirmReplacePopup = ({
 
   const {
     attributions: attributionsForReplacement,
-    treeSelection,
-    treeAttributionLimit,
+    attributionIds,
     canShowLinkedResourcesTree,
     isSelectionDataReady,
     selectionMetadata,
@@ -80,13 +79,13 @@ export const ConfirmReplacePopup = ({
     data: linkedResourcesTreeState,
     isLoading: isTreeLoading,
     isError: hasTreeError,
-    limitExceeded: hasTreeLimitExceeded,
   } = useLinkedResourcesTree({
-    onAttribution: treeSelection,
-    additionalAttributionUuids: selectedAttribution.preSelected
-      ? [selectedAttribution.id]
-      : [],
-    attributionLimit: treeAttributionLimit,
+    onAttributionUuids: [
+      ...new Set([
+        ...attributionIds,
+        ...(selectedAttribution.preSelected ? [selectedAttribution.id] : []),
+      ]),
+    ],
     enabled:
       open &&
       !isReplacing &&
@@ -94,11 +93,9 @@ export const ConfirmReplacePopup = ({
       canShowLinkedResourcesTree,
     onlyWritable: true,
   });
-  const showLinkedResourcesTree =
-    canShowLinkedResourcesTree && !hasTreeLimitExceeded;
   const isResourceInfoReady =
     isSelectionDataReady &&
-    (!showLinkedResourcesTree || (!isTreeLoading && !hasTreeError));
+    (!canShowLinkedResourcesTree || (!isTreeLoading && !hasTreeError));
   const mixedAttributionCount =
     selectionMetadata.mixedAttributionCount +
     (selectedAttribution.preSelected &&

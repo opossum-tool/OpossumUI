@@ -71,7 +71,7 @@ export function useLinkedResourcesPanelState({
     isPending: isAttributionPending,
     packageInfo: selectedAttribution,
   } = useSelectedAttribution();
-  const onAttribution = useMemo(
+  const onAttributionUuids = useMemo(
     () => [selectedAttributionId],
     [selectedAttributionId],
   );
@@ -83,7 +83,7 @@ export function useLinkedResourcesPanelState({
       selectedAttribution?.id === selectedAttributionId);
   const linkedResourcesTreeQuery = useLinkedResourcesTree({
     enabled: attributionDetailsReady,
-    onAttribution,
+    onAttributionUuids,
     search,
   });
   const [completed, setCompleted] = useState<{

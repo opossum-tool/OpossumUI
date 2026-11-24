@@ -9,12 +9,6 @@ import type { DB, Resource } from '../db/generated/databaseTypes';
 import { jsonArraySelection } from '../db/json-array-selection';
 import { withFilteredResourcesTable } from './resource-tree-cache';
 import {
-  getOnAttributionUuidSetExpression,
-  type OnAttribution,
-  type OnAttributionInput,
-  resolveOnAttribution,
-} from './resource-tree-on-attributions';
-import {
   type FilteredTable,
   getFilteredResourcesQuery,
   getMatchesFiltersExpression,
@@ -23,7 +17,6 @@ import {
   hasActiveFilters,
   type LicenseFilter,
   type ResourceTreeFilters,
-  type ResourceTreeFiltersInput,
 } from './resourceTreeFilters';
 import { getResourceOrThrow, removeTrailingSlash } from './utils';
 
@@ -57,7 +50,6 @@ type ResourceTreeResult<T> = {
     treeNodes: Array<T>;
     count: number;
     belowSelectedResource?: number;
-    limitExceeded?: boolean;
   };
 };
 
@@ -71,25 +63,13 @@ export async function getResourceTree({
   onlyUnreviewedFiles,
   onlyWithAiDeferredAttributions,
   licenseFilter,
-  onAttribution,
-  additionalAttributionUuids,
-  attributionLimit,
+  onAttributionUuids,
   selectedResourcePath,
   onlyWritable,
-}: Omit<ResourceTreeFiltersInput, 'expandedNodes'> & {
+}: ResourceTreeFilters & {
   expandedNodes: Array<string> | 'expandAll';
   selectedResourcePath?: string;
-}): Promise<
-  ResourceTreeResult<ResourceTreeNodeData> & { limitExceeded?: boolean }
-> {
-  const resolvedOnAttribution = await resolveOnAttribution(
-    onAttribution,
-    additionalAttributionUuids,
-    attributionLimit,
-  );
-  if (resolvedOnAttribution?.kind === 'limitExceeded') {
-    return { result: { treeNodes: [], count: 0, limitExceeded: true } };
-  }
+}): Promise<ResourceTreeResult<ResourceTreeNodeData>> {
   const queryResult = await getResourceTreeWithProjection(
     {
       search,
@@ -97,7 +77,7 @@ export async function getResourceTree({
       onlyUnreviewedFiles,
       onlyWithAiDeferredAttributions,
       licenseFilter,
-      onAttribution: resolvedOnAttribution,
+      onAttributionUuids,
       selectedResourcePath,
       onlyWritable,
     },
@@ -111,7 +91,7 @@ export async function getResourceTree({
         (node): ResourceTreeNodeData => ({
           ...mapCommonNode(node, {
             expandedNodeSet: queryResult.expandedNodeSet,
-            onAttribution: resolvedOnAttribution,
+            onAttributionUuids,
             search,
           }),
           hasManualAttribution: Boolean(node.has_manual_attribution),
@@ -141,35 +121,21 @@ export async function getResourceTree({
 export async function getLinkedResourceTree({
   search,
   expandedNodes,
-  onAttribution,
-  additionalAttributionUuids,
-  attributionLimit,
+  onAttributionUuids,
   selectedResourcePath,
   onlyWritable,
 }: {
-  onAttribution?: OnAttributionInput;
-  additionalAttributionUuids?: Array<string>;
-  attributionLimit?: number;
+  onAttributionUuids: Array<string>;
   expandedNodes: Array<string> | 'expandAll';
   search?: string;
   selectedResourcePath?: string;
   onlyWritable?: boolean;
-}): Promise<
-  ResourceTreeResult<LinkedResourceTreeNodeData> & { limitExceeded?: boolean }
-> {
-  const resolvedOnAttribution = await resolveOnAttribution(
-    onAttribution,
-    additionalAttributionUuids,
-    attributionLimit,
-  );
-  if (resolvedOnAttribution?.kind === 'limitExceeded') {
-    return { result: { treeNodes: [], count: 0, limitExceeded: true } };
-  }
+}): Promise<ResourceTreeResult<LinkedResourceTreeNodeData>> {
   const queryResult = await getResourceTreeWithProjection(
     {
       search,
       expandedNodes,
-      onAttribution: resolvedOnAttribution,
+      onAttributionUuids,
       selectedResourcePath,
       onlyWritable,
     },
@@ -182,7 +148,7 @@ export async function getLinkedResourceTree({
       treeNodes: queryResult.result.treeNodes.map((node) => ({
         ...mapCommonNode(node, {
           expandedNodeSet: queryResult.expandedNodeSet,
-          onAttribution: resolvedOnAttribution,
+          onAttributionUuids,
           search,
         }),
         isDirectlyLinked: Boolean(node.is_directly_linked),
@@ -198,7 +164,7 @@ async function getResourceTreeWithProjection(
     onlyUnreviewedFiles,
     onlyWithAiDeferredAttributions,
     licenseFilter,
-    onAttribution,
+    onAttributionUuids,
     selectedResourcePath,
     onlyWritable,
   }: ResourceTreeFilters & {
@@ -216,7 +182,7 @@ async function getResourceTreeWithProjection(
     licenseFilter,
     onlyUnreviewedFiles,
     onlyWithAiDeferredAttributions,
-    onAttribution,
+    onAttributionUuids,
     search,
     onlyWritable,
   };
@@ -292,7 +258,7 @@ async function getResourceTreeWithProjection(
               ? [sb.val(0).as('has_parent_with_manual_attribution')]
               : []),
           ])
-          .select((eb) => getTreeNodeProps(eb, projection, onAttribution))
+          .select((eb) => getTreeNodeProps(eb, projection, onAttributionUuids))
           .select([
             sql`FALSE`.as('matches_filters'),
             sql`FALSE`.as('ancestor_matches_filters'),
@@ -325,7 +291,9 @@ async function getResourceTreeWithProjection(
                     ]
                   : []),
               ])
-              .select((eb) => getTreeNodeProps(eb, projection, onAttribution))
+              .select((eb) =>
+                getTreeNodeProps(eb, projection, onAttributionUuids),
+              )
               .select((eb) => {
                 if (!filtersAreActive) {
                   return sql`FALSE`.as('matches_filters');
@@ -442,9 +410,9 @@ function mapCommonNode(
   node: ResourceTreeQueryRow,
   {
     expandedNodeSet,
-    onAttribution,
+    onAttributionUuids,
     search,
-  }: Pick<ResourceTreeFilters, 'onAttribution' | 'search'> & {
+  }: Pick<ResourceTreeFilters, 'onAttributionUuids' | 'search'> & {
     expandedNodeSet: ExpandedNodeSet;
   },
 ): ResourceTreeNodeBase {
@@ -459,7 +427,7 @@ function mapCommonNode(
     isAttributionBreakpoint: Boolean(node.is_attribution_breakpoint),
     isFile: Boolean(node.is_file),
     isReadonly: Boolean(node.is_readonly),
-    matchesFilters: onAttribution
+    matchesFilters: onAttributionUuids
       ? Boolean(search && node.highlight_matches)
       : Boolean(node.matches_filters),
   };
@@ -468,12 +436,10 @@ function mapCommonNode(
 export async function getResourceTreeUnreviewedCount({
   licenseFilter,
   onlyWithAiDeferredAttributions,
-  onAttribution,
   search,
 }: {
   licenseFilter?: LicenseFilter;
   onlyWithAiDeferredAttributions?: boolean;
-  onAttribution?: OnAttributionInput;
   search?: string;
 }) {
   return getDb()
@@ -485,7 +451,6 @@ export async function getResourceTreeUnreviewedCount({
             licenseFilter,
             onlyUnreviewedFiles: true,
             onlyWithAiDeferredAttributions,
-            onAttribution: await resolveOnAttribution(onAttribution),
             search,
           }).as('filtered_resources'),
         )
@@ -499,12 +464,10 @@ export async function getResourceTreeUnreviewedCount({
 export async function getResourceTreeAiDeferredCount({
   licenseFilter,
   onlyUnreviewedFiles,
-  onAttribution,
   search,
 }: {
   licenseFilter?: LicenseFilter;
   onlyUnreviewedFiles?: boolean;
-  onAttribution?: OnAttributionInput;
   search?: string;
 }) {
   return getDb()
@@ -516,7 +479,6 @@ export async function getResourceTreeAiDeferredCount({
             licenseFilter,
             onlyUnreviewedFiles,
             onlyWithAiDeferredAttributions: true,
-            onAttribution: await resolveOnAttribution(onAttribution),
             search,
           }).as('filtered_resources'),
         )
@@ -534,7 +496,7 @@ type TreeNodeQueryType = DB & {
 function getTreeNodeProps(
   eb: ExpressionBuilder<TreeNodeQueryType, 'r'>,
   projection: 'full' | 'linked',
-  onAttribution?: OnAttribution,
+  onAttributionUuids?: Array<string>,
 ) {
   const commonProps = [
     eb.ref('r.name').as('name'),
@@ -556,9 +518,7 @@ function getTreeNodeProps(
             .where(
               'attribution_uuid',
               'in',
-              getOnAttributionUuidSetExpression(
-                onAttribution ?? { kind: 'explicit', attributionUuids: [] },
-              ),
+              jsonArraySelection(onAttributionUuids ?? []),
             ),
         )
         .as('is_directly_linked'),

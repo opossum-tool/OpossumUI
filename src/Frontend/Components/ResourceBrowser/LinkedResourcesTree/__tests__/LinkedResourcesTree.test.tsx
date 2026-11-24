@@ -42,16 +42,16 @@ const testData = getParsedInputFileEnrichedWithTestData({
 
 function TestLinkedResourcesTree({
   enabled = true,
-  onAttribution,
+  onAttributionUuids,
   search,
 }: {
   enabled?: boolean;
-  onAttribution: Array<string>;
+  onAttributionUuids: Array<string>;
   search?: string;
 }) {
   const { data } = useLinkedResourcesTree({
     enabled,
-    onAttribution,
+    onAttributionUuids,
     search,
   });
   return data ? <LinkedResourcesTree state={data} /> : null;
@@ -60,7 +60,7 @@ function TestLinkedResourcesTree({
 describe('LinkedResourcesTree', () => {
   it('renders linked resources for given attribution', async () => {
     await renderComponent(
-      <TestLinkedResourcesTree onAttribution={[testUuid]} />,
+      <TestLinkedResourcesTree onAttributionUuids={[testUuid]} />,
       { data: testData },
     );
 
@@ -80,7 +80,10 @@ describe('LinkedResourcesTree', () => {
     const api = vi.mocked(window.electronAPI.api);
     api.mockClear();
     const { rerender } = await renderComponent(
-      <TestLinkedResourcesTree enabled={false} onAttribution={[testUuid]} />,
+      <TestLinkedResourcesTree
+        enabled={false}
+        onAttributionUuids={[testUuid]}
+      />,
       { data: testData },
     );
 
@@ -89,19 +92,19 @@ describe('LinkedResourcesTree', () => {
       expect.anything(),
     );
 
-    rerender(<TestLinkedResourcesTree onAttribution={[testUuid]} />);
+    rerender(<TestLinkedResourcesTree onAttributionUuids={[testUuid]} />);
 
     await waitFor(() =>
       expect(api).toHaveBeenCalledWith(
         'getResourcePathsAndParentsForAttributions',
-        expect.objectContaining({ onAttribution: [testUuid] }),
+        expect.objectContaining({ attributionUuids: [testUuid] }),
       ),
     );
   });
 
   it('dispatches selectedResourceId when a resource is clicked', async () => {
     const { store } = await renderComponent(
-      <TestLinkedResourcesTree onAttribution={[testUuid]} />,
+      <TestLinkedResourcesTree onAttributionUuids={[testUuid]} />,
       { data: testData },
     );
 
@@ -121,7 +124,7 @@ describe('LinkedResourcesTree', () => {
 
   it('collapses and expands folders', async () => {
     await renderComponent(
-      <TestLinkedResourcesTree onAttribution={[testUuid]} />,
+      <TestLinkedResourcesTree onAttributionUuids={[testUuid]} />,
       { data: testData },
     );
 
@@ -138,7 +141,7 @@ describe('LinkedResourcesTree', () => {
 
   it('does not highlight linked resources when no search is active', async () => {
     await renderComponent(
-      <TestLinkedResourcesTree onAttribution={[testUuid]} />,
+      <TestLinkedResourcesTree onAttributionUuids={[testUuid]} />,
       { data: testData },
     );
 
@@ -149,7 +152,7 @@ describe('LinkedResourcesTree', () => {
   it('filters the tree to matching linked resources and highlights them during search', async () => {
     await renderComponent(
       <TestLinkedResourcesTree
-        onAttribution={[testUuid]}
+        onAttributionUuids={[testUuid]}
         search={'resource_1'}
       />,
       { data: testData },
@@ -161,7 +164,10 @@ describe('LinkedResourcesTree', () => {
 
   it('highlights folders whose own name matches the search', async () => {
     await renderComponent(
-      <TestLinkedResourcesTree onAttribution={[testUuid]} search={'folder'} />,
+      <TestLinkedResourcesTree
+        onAttributionUuids={[testUuid]}
+        search={'folder'}
+      />,
       { data: testData },
     );
 

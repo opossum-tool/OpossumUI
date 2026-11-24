@@ -8,9 +8,9 @@ import {
   pathsToResources,
 } from '../../../../testing/global-test-helpers';
 import { getDb } from '../../../db/db';
-import { resolveOnAttribution } from '../../resource-tree-on-attributions';
 import {
   getAttributionSelectionSummary,
+  getAttributionSelectionUuids,
   resolveAttributionSelection,
 } from '../attribution-selection-queries';
 import {
@@ -53,26 +53,52 @@ describe('attribution result-set consistency', () => {
     });
   });
 
-  it('resolves a query-wide selection into its membership UUIDs', async () => {
-    const onAttribution = await resolveOnAttribution({
-      mode: 'allMatching',
-      query: {
-        external: false,
-        filters: [],
-        search: '',
-        valueFilters: {},
-        resourcePathForRelationships: '/parent/resource',
-        showResolved: false,
-        excludeUnrelated: false,
-        relation: 'resource',
+  it('resolves a small query-wide selection into its UUIDs', async () => {
+    const result = await getAttributionSelectionUuids({
+      selection: {
+        mode: 'allMatching',
+        query: {
+          external: false,
+          filters: [],
+          search: '',
+          valueFilters: {},
+          resourcePathForRelationships: '/parent/resource',
+          showResolved: false,
+          excludeUnrelated: false,
+          relation: 'resource',
+        },
+        excludedAttributionUuids: ['resourceOne'],
       },
-      excludedAttributionUuids: ['resourceOne'],
+      limit: 100,
     });
 
-    if (onAttribution?.kind !== 'explicit') {
-      throw new Error('expected an explicit resolution');
-    }
-    expect(onAttribution.attributionUuids).toEqual(['resourceTwo']);
+    expect(result.result.limitExceeded).toBe(false);
+    expect(result.result.attributionUuids).toEqual(['resourceTwo']);
+  });
+
+  it('skips UUID resolution for a query-wide selection beyond the limit', async () => {
+    const result = await getAttributionSelectionUuids({
+      selection: {
+        mode: 'allMatching',
+        query: {
+          external: false,
+          filters: [],
+          search: '',
+          valueFilters: {},
+          resourcePathForRelationships: '/parent/resource',
+          showResolved: false,
+          excludeUnrelated: false,
+          relation: 'resource',
+        },
+        excludedAttributionUuids: [],
+      },
+      limit: 1,
+    });
+
+    expect(result.result).toMatchObject({
+      attributionUuids: [],
+      limitExceeded: true,
+    });
   });
 
   it('keeps page, counts, resolution, preview, and navigation on one result set', async () => {
