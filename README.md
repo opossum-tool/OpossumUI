@@ -107,7 +107,7 @@ from the command line
 
 #### MacOS
 
-Run _OpossumUI_ in _OpossumUI-for-mac.zip_.
+Run _OpossumUI_ in _OpossumUI-for-mac-intel.zip_ (Intel Macs) or _OpossumUI-for-mac-arm64.zip_ (Apple Silicon Macs).
 
 Note: As this app is not officially signed, you need to explicitly allow execution of this app via the `System Settings`.
 
@@ -133,9 +133,9 @@ option in the _File_ menu.
 #### Exporting BOM-like CSV files
 
 These can be exported through the _Export_ ⟶ _Compact / Detailed component list_ option in the _File_ menu. Both
-component list files contain a list of all attributions that are present in the project, including package name,
-version, copyright, license name and upstream address. In addition, the detailed component list is more comprehensive and includes
-the PURL and its subcomponents, as well as the license texts.
+component lists exclude attributions marked as follow-up or first party. The compact list also excludes attributions
+marked as "exclude from notice". Both lists include package name, version, copyright, license name and upstream address.
+The detailed list additionally includes the PURL subcomponents, license texts and directly linked resource paths.
 
 #### Exporting follow-up document
 

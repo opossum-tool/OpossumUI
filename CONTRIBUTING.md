@@ -133,7 +133,7 @@ unit and end-to-end tests: slower than unit tests, but without the startup cost 
 yarn test:int
 ```
 
-End-to-end tests launch the packaged Electron app and cover everything a renderer-only test cannot observe, e.g. native menus,
+End-to-end tests launch the Electron app and cover everything a renderer-only test cannot observe, e.g. native menus,
 dialogs, multi-window and file-IO behavior. They are slower and can be run using:
 
 ```bash
@@ -156,7 +156,14 @@ The following software is required for working on the repository:
 
 ### Running the end-to-end tests
 
-As mentioned above, the end-to-end tests can be run using `yarn test:e2e`. This runs the tests against the dev server. To run the tests against a built version of the app, which is also what the CI/CD pipeline does, run `yarn test:e2e:ci`. See below for how to build the app for your OS.
+As mentioned above, the end-to-end tests can be run using `yarn test:e2e`. By default, this starts or reuses the dev server.
+To run the tests against a packaged version of the app, first build it for your OS (see [Building the app](#building-the-app)), then run:
+
+```bash
+yarn cross-env RELEASE=1 yarn test:e2e
+```
+
+The tests select the packaged app when `RELEASE` or `CI` is set.
 
 On Linux, you can run the full suite without Electron windows appearing on or taking focus from your desktop with:
 
