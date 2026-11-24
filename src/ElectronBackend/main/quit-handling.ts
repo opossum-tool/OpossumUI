@@ -11,10 +11,10 @@ import logger from './logger';
 
 const QUIT_REQUEST_UNRESPONSIVE_TIMEOUT_MS = 10000;
 
-let quitApproved = false;
 let quitFinalized = false;
 let quitRequestSentAt: number | null = null;
 let quitRequestHandled = false;
+let pendingQuit: Promise<LeaveResult> | undefined;
 
 function canRendererHandleQuitRequest(window: BrowserWindow): boolean {
   const webContents = window.webContents;
@@ -35,7 +35,7 @@ function canRendererHandleQuitRequest(window: BrowserWindow): boolean {
  * unresponsive and main attempts to quit, unless a save failure blocks it.
  */
 export function handleWindowClose(window: BrowserWindow, event: Event): void {
-  if (quitApproved) {
+  if (pendingQuit || quitFinalized) {
     if (!quitFinalized) {
       event.preventDefault();
       logger.info('Quit is already in progress; ignoring close attempt.');
@@ -93,11 +93,17 @@ export function acknowledgeQuitRequest(): void {
  * Flushes submitted edits before quitting. Only an explicit quit without
  * saving can proceed if the flush reports a save failure.
  */
-export async function confirmQuit(options?: QuitOptions): Promise<LeaveResult> {
-  if (quitApproved) {
+export function confirmQuit(options?: QuitOptions): Promise<LeaveResult> {
+  pendingQuit ??= flushSavesAndQuit(options).finally(() => {
+    pendingQuit = undefined;
+  });
+  return pendingQuit;
+}
+
+async function flushSavesAndQuit(options?: QuitOptions): Promise<LeaveResult> {
+  if (quitFinalized) {
     return { status: 'completed' };
   }
-  quitApproved = true;
   try {
     const client = getMainDbClient();
     if (!client.isDead()) {
@@ -120,7 +126,6 @@ export async function confirmQuit(options?: QuitOptions): Promise<LeaveResult> {
 }
 
 function resetQuitState(): void {
-  quitApproved = false;
   quitFinalized = false;
   quitRequestSentAt = null;
   quitRequestHandled = false;

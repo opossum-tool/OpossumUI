@@ -166,6 +166,49 @@ describe('confirmQuit', () => {
     quitMock.mockReset();
   });
 
+  it('shares a pending blocked result with concurrent callers and allows a later retry', async () => {
+    const pendingSave = Promise.withResolvers<SaveResult>();
+    flushSavesMock.mockReturnValueOnce(pendingSave.promise);
+    const firstQuit = confirmQuit();
+    const secondCompleted = vi.fn();
+    const secondQuit = confirmQuit().then(secondCompleted);
+
+    await Promise.resolve();
+    expect(secondCompleted).not.toHaveBeenCalled();
+    expect(flushSavesMock).toHaveBeenCalledOnce();
+
+    pendingSave.resolve({ status: 'failed', failure });
+    await expect(firstQuit).resolves.toEqual({ status: 'blocked', failure });
+    await secondQuit;
+    expect(secondCompleted).toHaveBeenCalledExactlyOnceWith({
+      status: 'blocked',
+      failure,
+    });
+    expect(quitMock).not.toHaveBeenCalled();
+
+    await expect(confirmQuit()).resolves.toEqual({ status: 'completed' });
+    expect(flushSavesMock).toHaveBeenCalledTimes(2);
+    expect(quitMock).toHaveBeenCalledOnce();
+  });
+
+  it('shares a rejected quit attempt and allows a later retry', async () => {
+    const pendingSave = Promise.withResolvers<SaveResult>();
+    flushSavesMock.mockReturnValueOnce(pendingSave.promise);
+    const firstQuit = confirmQuit();
+    const secondQuit = confirmQuit();
+    pendingSave.reject(new Error('Connection lost'));
+    await Promise.all([
+      expect(firstQuit).rejects.toThrow('Connection lost'),
+      expect(secondQuit).rejects.toThrow('Connection lost'),
+    ]);
+    expect(flushSavesMock).toHaveBeenCalledOnce();
+    expect(quitMock).not.toHaveBeenCalled();
+
+    await expect(confirmQuit()).resolves.toEqual({ status: 'completed' });
+    expect(flushSavesMock).toHaveBeenCalledTimes(2);
+    expect(quitMock).toHaveBeenCalledOnce();
+  });
+
   it('waits for a pending save and quits even if it fails again after explicit discard', async () => {
     flushSavesMock.mockResolvedValue({ status: 'failed', failure });
     await expect(confirmQuit()).resolves.toEqual({
