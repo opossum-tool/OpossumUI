@@ -3,8 +3,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 /* eslint-disable no-restricted-imports */
-import { styled, Typography } from '@mui/material';
-import { Toaster as RHTToaster, ToastBar } from 'react-hot-toast';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
+import InfoIcon from '@mui/icons-material/Info';
+import { styled } from '@mui/material';
+import {
+  resolveValue,
+  Toaster as RHTToaster,
+  ToastBar,
+  type ToastType,
+} from 'react-hot-toast';
+
+const icons: Record<ToastType, React.ReactNode> = {
+  error: <ErrorIcon color={'error'} />,
+  success: <CheckCircleIcon color={'success'} />,
+  loading: null,
+  blank: <InfoIcon color={'info'} />,
+  custom: null,
+};
 
 const ToastContainer = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -15,14 +31,18 @@ const ToastContainer = styled('div')(({ theme }) => ({
 }));
 
 const ToastIconContainer = styled('div')({
+  display: 'flex',
   alignSelf: 'flex-start',
   flex: '0 0 auto',
 });
 
-const ToastMessageContainer = styled('div')({
+const ToastMessageContainer = styled('div')(({ theme }) => ({
+  ...theme.typography.body1,
   flex: '1 1 auto',
   minWidth: 0,
-});
+  whiteSpace: 'pre-line',
+  overflowWrap: 'anywhere',
+}));
 
 export function Toaster() {
   return (
@@ -34,16 +54,14 @@ export function Toaster() {
       }}
     >
       {(toast) => (
-        <ToastBar toast={toast} style={toast.style}>
-          {({ icon, message }) => (
+        <ToastBar toast={toast}>
+          {() => (
             <ToastContainer>
-              {icon && <ToastIconContainer>{icon}</ToastIconContainer>}
-              <ToastMessageContainer>
-                {typeof message === 'string' ? (
-                  <Typography>{message}</Typography>
-                ) : (
-                  message
-                )}
+              {icons[toast.type] && (
+                <ToastIconContainer>{icons[toast.type]}</ToastIconContainer>
+              )}
+              <ToastMessageContainer {...toast.ariaProps}>
+                {resolveValue(toast.message, toast)}
               </ToastMessageContainer>
             </ToastContainer>
           )}
