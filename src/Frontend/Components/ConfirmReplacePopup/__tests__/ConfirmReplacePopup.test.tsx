@@ -405,6 +405,90 @@ describe('ConfirmReplacePopup', () => {
     ).toBeNull();
   });
 
+  async function renderWithReplacementOnlyResources(
+    writableResourceCount: number,
+  ) {
+    const source = faker.opossum.packageInfo({
+      packageName: 'source',
+      packageVersion: undefined,
+    });
+    const replacement = faker.opossum.packageInfo({
+      packageName: 'replacement',
+      preSelected: true,
+    });
+    const sourcePaths = Array.from(
+      { length: writableResourceCount - 1 },
+      (_, index) => `/source/file-${index}`,
+    );
+    const replacementOnlyPath = '/replacement/only';
+    await renderComponent(
+      <ConfirmReplacePopup
+        open
+        onClose={noop}
+        selectedAttribution={replacement}
+      />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          resources: pathsToResources([...sourcePaths, replacementOnlyPath]),
+          manualAttributions: faker.opossum.attributions({
+            [source.id]: source,
+            [replacement.id]: replacement,
+          }),
+          resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+            ...Object.fromEntries(
+              sourcePaths.map((path) => [path, [source.id]]),
+            ),
+            [replacementOnlyPath]: [replacement.id],
+          }),
+        }),
+        actions: [
+          setVariable(ATTRIBUTION_SELECTION_FOR_REPLACEMENT, {
+            mode: 'allMatching',
+            query: {
+              external: false,
+              filters: [],
+              search: '',
+              valueFilters: {},
+              resourcePathForRelationships: sourcePaths[0],
+              showResolved: true,
+              excludeUnrelated: false,
+              relation: 'resource',
+            },
+            excludedAttributionUuids: [],
+          }),
+        ],
+      },
+    );
+  }
+
+  it(
+    'shows the tree when replacement-only resources keep the union within the cutoff',
+    { timeout: 120_000 },
+    async () => {
+      await renderWithReplacementOnlyResources(10_000);
+      expect(
+        await screen.findByTestId('linked-resources-tree', undefined, {
+          timeout: 30_000,
+        }),
+      ).toBeVisible();
+    },
+  );
+
+  it(
+    'hides the tree when replacement-only resources push the union past the cutoff',
+    { timeout: 120_000 },
+    async () => {
+      await renderWithReplacementOnlyResources(10_001);
+      const replaceButton = screen.getByRole('button', {
+        name: text.replaceAttributionsPopup.replace,
+      });
+      await waitFor(() => expect(replaceButton).toBeEnabled());
+      expect(
+        screen.queryByTestId('linked-resources-tree'),
+      ).not.toBeInTheDocument();
+    },
+  );
+
   it('replaces selected attribution with pre-selected one', async () => {
     const packageInfo1 = faker.opossum.packageInfo();
     const packageInfo2 = faker.opossum.packageInfo({

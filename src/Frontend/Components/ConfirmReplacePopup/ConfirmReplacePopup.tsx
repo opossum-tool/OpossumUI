@@ -74,6 +74,9 @@ export const ConfirmReplacePopup = ({
       mode: 'explicit',
       attributionUuids: [],
     },
+    additionalTreeAttributionUuids: selectedAttribution.preSelected
+      ? [selectedAttribution.id]
+      : [],
   });
   const {
     data: linkedResourcesTreeState,
