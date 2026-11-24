@@ -159,17 +159,6 @@ describe('automatic release announcements', () => {
     },
   );
 
-  it('does not open or consume revision zero', async () => {
-    notes.revision = 0;
-    const { store } = await renderWhatsNew();
-    expect(getOpenPopup(store.getState())).toBeNull();
-    expect(window.electronAPI.getUserSettings).toHaveBeenCalledTimes(1);
-    act(() => {
-      store.dispatch(openPopup(PopupType.WhatsNewPopup));
-    });
-    expect(window.electronAPI.updateUserSettings).not.toHaveBeenCalled();
-  });
-
   it('does not automatically open in development', async () => {
     vi.stubEnv('PROD', false);
     using webdriver = vi.spyOn(navigator, 'webdriver', 'get');

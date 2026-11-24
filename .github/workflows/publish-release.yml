@@ -135,10 +135,12 @@ jobs:
       - name: Create SPDX document
         run: yarn spdx
 
-      - name: Upload user guide and SPDX document
+      - uses: ./.github/actions/build-documentation
+
+      - name: Upload user guide, what's new and SPDX document
         run: |
           [[ "$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft)" == true ]]
-          gh release upload "$RELEASE_TAG" USER_GUIDE.md opossum-ui.spdx.json --clobber
+          gh release upload "$RELEASE_TAG" USER_GUIDE.html WHATS_NEW.html opossum-ui.spdx.json --clobber
 
   publish:
     needs: [prepare, publish-release, upload-docs]

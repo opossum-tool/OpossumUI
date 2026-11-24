@@ -1,0 +1,24 @@
+# SPDX-FileCopyrightText: Meta Platforms, Inc. and its affiliates
+# SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Build documentation
+description: Convert the user guide and release highlights to self-contained HTML
+
+runs:
+  using: composite
+  steps:
+    - name: Convert user guide to standalone HTML
+      uses: docker://pandoc/core:3.14@sha256:f6c6e92d8b150cc1e106e0fbdf2697dea179c737c99c8dbf36caa907b7ba7e73
+      with:
+        args: >-
+          USER_GUIDE.md -f gfm -s --embed-resources --fail-if-warnings
+          --metadata pagetitle="OpossumUI User Guide" -o USER_GUIDE.html
+
+    - name: Convert what's new to standalone HTML
+      uses: docker://pandoc/core:3.14@sha256:f6c6e92d8b150cc1e106e0fbdf2697dea179c737c99c8dbf36caa907b7ba7e73
+      with:
+        args: >-
+          WHATS_NEW.md -f gfm -s --embed-resources --fail-if-warnings
+          --metadata pagetitle="OpossumUI What's New" -o WHATS_NEW.html
