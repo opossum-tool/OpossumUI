@@ -20,6 +20,8 @@ export const releaseNotesContentSx: SxProps<Theme> = (theme) => ({
     margin: 0,
   },
   '& h2:not(:first-of-type)': {
+    // The flex gap already contributes MediumPad, so add only the remainder
+    // to reach Section spacing before each subsequent heading.
     marginTop: theme.spacing(Sizing.Section - Sizing.MediumPad),
   },
   '& p': {
