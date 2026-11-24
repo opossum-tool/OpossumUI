@@ -24,7 +24,9 @@ vi.mock('electron', async () => {
     BrowserWindow: class BrowserWindowMock {},
     app: {
       isPackaged: true,
+      getVersion: vi.fn(),
     },
+    shell: { openExternal: vi.fn().mockResolvedValue(undefined) },
     ...(await import('./electron-mocks')).menuMock,
     nativeTheme: {},
   };
@@ -90,6 +92,47 @@ describe('create menu', () => {
       );
     });
   });
+
+  it.each([
+    {
+      packaged: true,
+      version: '2026.1124.0',
+      url: 'https://github.com/opossum-tool/OpossumUI/releases/download/OpossumUI-2026-11-24/USER_GUIDE.html',
+    },
+    {
+      packaged: true,
+      version: '2026.102.1',
+      url: 'https://github.com/opossum-tool/OpossumUI/releases/download/OpossumUI-2026-01-02.1/USER_GUIDE.html',
+    },
+    {
+      packaged: false,
+      version: '2026.1124.0',
+      url: 'https://github.com/opossum-tool/OpossumUI/blob/main/USER_GUIDE.md',
+    },
+    {
+      packaged: true,
+      version: '0.1.0',
+      url: 'https://github.com/opossum-tool/OpossumUI/blob/main/USER_GUIDE.md',
+    },
+  ])(
+    'opens the appropriate user guide for $version (packaged: $packaged)',
+    async ({ packaged, version, url }) => {
+      await UserSettingsService.init();
+      vi.spyOn(electron.app, 'isPackaged', 'get').mockReturnValue(packaged);
+      vi.mocked(electron.app.getVersion).mockReturnValue(version);
+      const helpMenu = await getHelpMenu(
+        { send: vi.fn() } as unknown as Electron.WebContents,
+        vi.fn(),
+      );
+      const guideItem = (
+        helpMenu.submenu as Array<MenuItemConstructorOptions>
+      ).find(({ id }) => id === menuItemIds.helpUserGuide);
+
+      guideItem?.click?.({} as Electron.MenuItem, {} as BrowserWindow, {});
+
+      expect(electron.shell.openExternal).toHaveBeenCalledWith(url);
+    },
+  );
 
   it('lists import formats directly and keeps split-file merging separate', async () => {
     await UserSettingsService.init();

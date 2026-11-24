@@ -6,7 +6,6 @@ import type { UserSettings } from './shared-types';
 
 export const OPOSSUM_UI_GITHUB_URL =
   'https://github.com/opossum-tool/OpossumUI';
-export const OPOSSUM_UI_USER_GUIDE_URL = `${OPOSSUM_UI_GITHUB_URL}/blob/main/USER_GUIDE.md`;
 
 export const DEFAULT_PANEL_SIZES: NonNullable<UserSettings['panelSizes']> = {
   resourceBrowserWidth: 340,
