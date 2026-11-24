@@ -10,17 +10,18 @@ import { getSelectedResourceId } from '../../state/selectors/resource-selectors'
 import { backend } from '../../util/backendClient';
 
 /**
- * Largest query-wide selection for which the backend materializes the
- * attribution UUIDs needed to render the linked resources tree. Larger
- * selections keep the tree hidden and fall back to the summary counts.
- *
- * The cost of the tree pipeline is dominated by the number of writable
- * linked resources, not by the attribution count (a single attribution can
- * carry hundreds of thousands of links), so this is only a cheap secondary
- * heuristic that primarily bounds the materialized UUID set. The primary
- * gate is {@link QUERY_WIDE_TREE_LINK_LIMIT}.
+ * Bound on the number of attributions for which the backend materializes
+ * the UUIDs of a query-wide selection to render the linked resources tree.
+ * The attribution count is not a rendering-cost driver (that is the number
+ * of writable linked resources, see {@link QUERY_WIDE_TREE_LINK_LIMIT}),
+ * but it bounds the materialized UUID set, which the link count alone does
+ * not: a selection can comprise many attributions with few writable links.
+ * The bound is enforced backend-side by `resolveOnAttribution`, which
+ * reports `limitExceeded` for larger selections without materializing an
+ * arbitrary number of UUIDs — the popups then hide the tree and fall back
+ * to the summary counts.
  */
-const QUERY_WIDE_TREE_LIMIT = 100;
+const QUERY_WIDE_TREE_ATTRIBUTION_LIMIT = 100;
 
 /**
  * Largest number of writable linked resources for which the confirmation
@@ -73,7 +74,6 @@ export function useAttributionSelectionData({
   const canShowLinkedResourcesTree = isQueryWideSelection
     ? areCountsPending ||
       (!!selectionCount &&
-        selectionCount <= QUERY_WIDE_TREE_LIMIT &&
         (summary?.writableLinkedResourceCount ?? 0) <=
           QUERY_WIDE_TREE_LINK_LIMIT)
     : !isEmptySelection;
@@ -92,7 +92,7 @@ export function useAttributionSelectionData({
     attributions,
     treeSelection,
     treeAttributionLimit: isQueryWideSelection
-      ? QUERY_WIDE_TREE_LIMIT
+      ? QUERY_WIDE_TREE_ATTRIBUTION_LIMIT
       : undefined,
     isQueryWideSelection,
     canShowLinkedResourcesTree,
