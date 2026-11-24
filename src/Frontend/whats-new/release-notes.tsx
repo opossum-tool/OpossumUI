@@ -12,7 +12,7 @@ import { parseReleaseNotesRevision } from './parse-release-notes';
 export const revision = parseReleaseNotesRevision(releaseNotes);
 
 // Image paths in WHATS_NEW.md are relative to the repository root.
-const screenshots = import.meta.glob<string>(
+export const screenshots = import.meta.glob<string>(
   '../../../docs/whats_new_screenshots/*',
   { eager: true, import: 'default' },
 );
