@@ -57,28 +57,21 @@ const PADDING_PX = 4 * PADDING;
 // 1 MUI theme spacing unit = 4px (createTheme({ spacing: 4 }) in App.style.ts)
 const THEME_SPACING_UNIT_PX = 4;
 const ICON_SIZE_PX = Number.parseInt(baseIconSize, 10);
-// gap between stacked icons (iconTableData uses `gap: 1` theme spacing unit)
-const ICON_GAP_PX = THEME_SPACING_UNIT_PX;
-// the icon svgs carry `mx: 0.5` margins, widening each icon's outer width
-const ICON_OUTER_WIDTH_PX = ICON_SIZE_PX + THEME_SPACING_UNIT_PX;
-// px: 1.75 theme spacing units on each side of the icon box
-const ICON_BOX_SIDE_PADDING_PX = 7;
+// every icon sits in an equally sized square cell: the icon svg plus its
+// `mx: 0.5` margins, so all grid tracks share identical outer dimensions
+const ICON_CELL_SIZE_PX = ICON_SIZE_PX + THEME_SPACING_UNIT_PX;
 const ICON_BOX_HEIGHT_PX = REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX;
 // icons stack vertically in the fixed height row before wrapping to a new column
 const ICONS_PER_COLUMN = Math.floor(
-  (ICON_BOX_HEIGHT_PX + ICON_GAP_PX) / (ICON_SIZE_PX + ICON_GAP_PX),
+  (ICON_BOX_HEIGHT_PX + THEME_SPACING_UNIT_PX) /
+    (ICON_CELL_SIZE_PX + THEME_SPACING_UNIT_PX),
 );
 // the most icons any row can show: edit button, seven signal flags, and one
-// AI status icon. The icons box always reserves width for this worst case so
+// AI status icon. The icons grid always reserves tracks for this worst case so
 // the first table column is static across virtualization and rows that show
 // fewer icons just leave left-aligned trailing space.
 const MAX_SIGNAL_ICONS = 9;
 const WORST_CASE_COLUMN_COUNT = Math.ceil(MAX_SIGNAL_ICONS / ICONS_PER_COLUMN);
-const ICONS_BOX_WIDTH_PX = `${
-  WORST_CASE_COLUMN_COUNT * ICON_OUTER_WIDTH_PX +
-  (WORST_CASE_COLUMN_COUNT - 1) * ICON_GAP_PX +
-  2 * ICON_BOX_SIDE_PADDING_PX
-}px`;
 
 const classes = {
   tableData: {
@@ -94,12 +87,21 @@ const classes = {
     py: PADDING,
     px: 1.75,
     height: REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX,
-    display: 'flex',
-    flexDirection: 'column',
-    flexWrap: 'wrap',
-    alignContent: 'flex-start',
+    display: 'grid',
+    gridAutoFlow: 'column',
+    gridTemplateRows: `repeat(${ICONS_PER_COLUMN}, ${ICON_CELL_SIZE_PX}px)`,
+    gridTemplateColumns: `repeat(${WORST_CASE_COLUMN_COUNT}, ${ICON_CELL_SIZE_PX}px)`,
+    gridAutoColumns: `${ICON_CELL_SIZE_PX}px`,
+    alignContent: 'start',
+    justifyContent: 'start',
     gap: 1,
+  },
+  iconCell: {
+    width: ICON_CELL_SIZE_PX,
+    height: ICON_CELL_SIZE_PX,
+    display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   tableCell: { wordBreak: 'break-all' },
   iconsCell: {
@@ -199,8 +201,6 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
           ...classes.tableCell,
           ...(config.attributionProperty === 'id'
             ? {
-                // the icons column grows with its content so wrapped
-                // icon columns fit instead of overflowing
                 ...classes.iconsCell,
                 ...(isPackageIncomplete(packageInfo) &&
                   classes.markedTableCell),
@@ -243,98 +243,115 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
   function getIcons(packageInfo: PackageInfo) {
     const aiStatus = packageInfo.aiStatus;
     return (
-      <MuiBox
-        sx={{
-          ...classes.iconTableData,
-          width: ICONS_BOX_WIDTH_PX,
-        }}
-      >
-        <IconButton
-          tooltipTitle={text.reportView.openInAuditView}
-          tooltipPlacement={'right'}
-          onClick={() => {
-            dispatch(
-              setPendingAttributionNavigation({
-                attributionUuid: packageInfo.id,
-                fallbackResourcePath: ROOT_PATH,
-              }),
-            );
-            dispatch(resetManualAuditFiltersPreservingSort());
-            dispatch(changeSelectedAttributionOrOpenUnsavedPopup(packageInfo));
-            dispatch(navigateToView(View.Audit));
-          }}
-          icon={
-            <EditorIcon
+      <MuiBox sx={classes.iconTableData}>
+        <MuiBox sx={classes.iconCell}>
+          <IconButton
+            tooltipTitle={text.reportView.openInAuditView}
+            tooltipPlacement={'right'}
+            onClick={() => {
+              dispatch(
+                setPendingAttributionNavigation({
+                  attributionUuid: packageInfo.id,
+                  fallbackResourcePath: ROOT_PATH,
+                }),
+              );
+              dispatch(resetManualAuditFiltersPreservingSort());
+              dispatch(
+                changeSelectedAttributionOrOpenUnsavedPopup(packageInfo),
+              );
+              dispatch(navigateToView(View.Audit));
+            }}
+            icon={
+              <EditorIcon
+                sx={{
+                  ...classes.icon,
+                  ...classes.clickableIcon,
+                  ...classes.editIcon,
+                }}
+              />
+            }
+          />
+        </MuiBox>
+        {packageInfo.needsReview && (
+          <MuiBox sx={classes.iconCell}>
+            <NeedsReviewIcon
+              tooltipPlacement={'right'}
               sx={{
                 ...classes.icon,
-                ...classes.clickableIcon,
-                ...classes.editIcon,
+                ...classes.needsReviewIcon,
               }}
             />
-          }
-        />
-        {packageInfo.needsReview && (
-          <NeedsReviewIcon
-            tooltipPlacement={'right'}
-            sx={{
-              ...classes.icon,
-              ...classes.needsReviewIcon,
-            }}
-          />
+          </MuiBox>
         )}
         {packageInfo.followUp && (
-          <FollowUpIcon
-            tooltipPlacement={'right'}
-            sx={{
-              ...classes.icon,
-              ...classes.followUpIcon,
-            }}
-          />
+          <MuiBox sx={classes.iconCell}>
+            <FollowUpIcon
+              tooltipPlacement={'right'}
+              sx={{
+                ...classes.icon,
+                ...classes.followUpIcon,
+              }}
+            />
+          </MuiBox>
         )}
         {packageInfo.firstParty && (
-          <FirstPartyIcon
-            tooltipPlacement={'right'}
-            sx={{
-              ...classes.icon,
-              ...classes.firstPartyIcon,
-            }}
-          />
+          <MuiBox sx={classes.iconCell}>
+            <FirstPartyIcon
+              tooltipPlacement={'right'}
+              sx={{
+                ...classes.icon,
+                ...classes.firstPartyIcon,
+              }}
+            />
+          </MuiBox>
         )}
         {packageInfo.excludeFromNotice && (
-          <ExcludeFromNoticeIcon
-            tooltipPlacement={'right'}
-            sx={{
-              ...classes.icon,
-              ...classes.excludeFromNoticeIcon,
-            }}
-          />
+          <MuiBox sx={classes.iconCell}>
+            <ExcludeFromNoticeIcon
+              tooltipPlacement={'right'}
+              sx={{
+                ...classes.icon,
+                ...classes.excludeFromNoticeIcon,
+              }}
+            />
+          </MuiBox>
         )}
         {packageInfo.preSelected && (
-          <PreSelectedIcon
-            tooltipPlacement={'right'}
-            sx={{
-              ...classes.icon,
-              ...classes.preSelectedIcon,
-            }}
-          />
+          <MuiBox sx={classes.iconCell}>
+            <PreSelectedIcon
+              tooltipPlacement={'right'}
+              sx={{
+                ...classes.icon,
+                ...classes.preSelectedIcon,
+              }}
+            />
+          </MuiBox>
         )}
         {packageInfo.preferred && (
-          <PreferredIcon
-            tooltipPlacement={'right'}
-            sx={{
-              ...classes.icon,
-              ...classes.preferredIcon,
-            }}
-          />
+          <MuiBox sx={classes.iconCell}>
+            <PreferredIcon
+              tooltipPlacement={'right'}
+              sx={{
+                ...classes.icon,
+                ...classes.preferredIcon,
+              }}
+            />
+          </MuiBox>
         )}
         {aiStatus?.deferred && (
-          <DeferredIcon tooltipPlacement={'right'} sx={classes.icon} />
+          <MuiBox sx={classes.iconCell}>
+            <DeferredIcon tooltipPlacement={'right'} sx={classes.icon} />
+          </MuiBox>
         )}
         {!aiStatus?.deferred && aiStatus && (
-          <AiGeneratedIcon tooltipPlacement={'right'} sx={classes.icon} />
+          <MuiBox sx={classes.iconCell}>
+            <AiGeneratedIcon tooltipPlacement={'right'} sx={classes.icon} />
+          </MuiBox>
         )}
         {aiStatus?.humanModified && (
-          <HumanModifiedIcon tooltipPlacement={'right'} sx={classes.icon} />
+          <MuiBox sx={classes.iconCell}>
+            <HumanModifiedIcon tooltipPlacement={'right'} sx={classes.icon} />
+          </MuiBox>
         )}
       </MuiBox>
     );
