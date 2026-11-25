@@ -6,13 +6,13 @@
 import { app, type MenuItemConstructorOptions, shell } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { OPOSSUM_UI_USER_GUIDE_URL } from '../../../shared/shared-constants';
 import { text } from '../../../shared/text';
 import { getIconBasedOnTheme } from '../iconHelpers';
 import {
   startAutomaticUpdateChecks,
   stopAutomaticUpdateChecks,
 } from '../update-service';
+import { getUserGuideUrl } from '../user-guide';
 import { menuItemIds } from './menuItemIds';
 import { switchableMenuItem } from './switchableMenuItem';
 
@@ -50,7 +50,7 @@ function getUsersGuide(): MenuItemConstructorOptions {
     ),
     label: text.menu.helpSubmenu.userGuide,
     id: menuItemIds.helpUserGuide,
-    click: () => shell.openExternal(OPOSSUM_UI_USER_GUIDE_URL),
+    click: () => shell.openExternal(getUserGuideUrl()),
   };
 }
 
