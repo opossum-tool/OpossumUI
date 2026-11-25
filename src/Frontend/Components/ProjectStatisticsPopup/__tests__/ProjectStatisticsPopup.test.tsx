@@ -10,6 +10,10 @@ import {
   Criticality,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
+import {
+  clickProjectStatisticsTab,
+  expectStatisticsCharts,
+} from '../../../../testing/ui';
 import { PopupType } from '../../../enums/enums';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { openPopup } from '../../../state/actions/view-actions/view-actions';
@@ -119,27 +123,12 @@ describe('The ProjectStatisticsPopup', () => {
       data: getParsedInputFileEnrichedWithTestData(fileSetup),
     });
 
-    expect(
-      await screen.findByText(
-        text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
-      ),
-    ).toBeVisible();
-    expect(
-      screen.getByText(
-        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
-      ),
-    ).toBeVisible();
-    expect(
-      screen.getByText(
-        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
-          .title,
-      ),
-    ).toBeVisible();
-    expect(
-      screen.getAllByText(
-        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
-      )[0],
-    ).toBeVisible();
+    await expectStatisticsCharts([
+      'mostFrequentLicenseCountPieChart',
+      'criticalSignalsCountPieChart',
+      'signalCountByClassificationPieChart',
+      'incompleteAttributionsPieChart',
+    ]);
   });
 
   it('shows a retryable error when a statistics query fails', async () => {
@@ -195,27 +184,15 @@ describe('The ProjectStatisticsPopup', () => {
     await screen.findByText(
       text.projectStatisticsPopup.charts.attributionProperties.title,
     );
-    expect(
-      screen.queryByText(
-        text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
-      ),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText(
-        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
-      ),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText(
-        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
-          .title,
-      ),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText(
-        text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
-      ),
-    ).not.toBeInTheDocument();
+    await expectStatisticsCharts(
+      [],
+      [
+        'mostFrequentLicenseCountPieChart',
+        'criticalSignalsCountPieChart',
+        'signalCountByClassificationPieChart',
+        'incompleteAttributionsPieChart',
+      ],
+    );
   });
 
   it('renders expected pie charts related to signals even if there are no attributions', async () => {
@@ -247,22 +224,11 @@ describe('The ProjectStatisticsPopup', () => {
         externalAttributions: testExternalAttributions,
       }),
     });
-    expect(
-      await screen.findByText(
-        text.projectStatisticsPopup.charts.mostFrequentLicenseCountPieChart,
-      ),
-    ).toBeVisible();
-    expect(
-      screen.getByText(
-        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
-      ),
-    ).toBeVisible();
-    expect(
-      screen.getByText(
-        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
-          .title,
-      ),
-    ).toBeVisible();
+    await expectStatisticsCharts([
+      'mostFrequentLicenseCountPieChart',
+      'criticalSignalsCountPieChart',
+      'signalCountByClassificationPieChart',
+    ]);
   });
 
   it('renders attribution bar chart and signals per sources table even when there are no attributions and no signals', async () => {
@@ -279,9 +245,7 @@ describe('The ProjectStatisticsPopup', () => {
       ),
     ).toBeVisible();
 
-    await userEvent.click(
-      screen.getByText(text.projectStatisticsPopup.tabs.details),
-    );
+    await clickProjectStatisticsTab('details');
 
     expect(
       screen.getByText(
@@ -357,12 +321,7 @@ describe('The ProjectStatisticsPopup', () => {
     await screen.findByText(
       text.projectStatisticsPopup.charts.attributionProperties.title,
     );
-    expect(
-      screen.queryByText(
-        text.projectStatisticsPopup.charts.signalCountByClassificationPieChart
-          .title,
-      ),
-    ).not.toBeInTheDocument();
+    await expectStatisticsCharts([], ['signalCountByClassificationPieChart']);
   });
 
   it('does not show the criticality statistics if it has been disabled', async () => {
@@ -374,11 +333,7 @@ describe('The ProjectStatisticsPopup', () => {
     await screen.findByText(
       text.projectStatisticsPopup.charts.attributionProperties.title,
     );
-    expect(
-      screen.queryByText(
-        text.projectStatisticsPopup.charts.criticalSignalsCountPieChart.title,
-      ),
-    ).not.toBeInTheDocument();
+    await expectStatisticsCharts([], ['criticalSignalsCountPieChart']);
   });
 
   it('allows toggling of show-on-startup checkbox', async () => {

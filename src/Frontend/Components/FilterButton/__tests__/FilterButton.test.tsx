@@ -6,6 +6,10 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
+import {
+  clickClearFiltersMenuItem,
+  clickFilterMenuItem,
+} from '../../../../testing/ui';
 import { renderComponent } from '../../../test-helpers/render';
 import { FilterButton } from '../FilterButton';
 
@@ -36,9 +40,7 @@ describe('FilterButton', () => {
     await userEvent.click(
       screen.getByRole('button', { name: 'filter button' }),
     );
-    await userEvent.click(
-      screen.getByRole('menuitem', { name: 'test filter' }),
-    );
+    await clickFilterMenuItem('test filter');
 
     expect(onAdd).toHaveBeenCalledOnce();
   });
@@ -53,9 +55,7 @@ describe('FilterButton', () => {
     await userEvent.click(
       screen.getByRole('button', { name: 'filter button' }),
     );
-    await userEvent.click(
-      screen.getByRole('menuitem', { name: 'test filter' }),
-    );
+    await clickFilterMenuItem('test filter');
 
     expect(onDelete).toHaveBeenCalledOnce();
   });
@@ -67,9 +67,7 @@ describe('FilterButton', () => {
     await userEvent.click(
       screen.getByRole('button', { name: 'filter button' }),
     );
-    await userEvent.click(
-      screen.getByRole('menuitem', { name: text.packageLists.clearFilters }),
-    );
+    await clickClearFiltersMenuItem();
 
     expect(onClear).toHaveBeenCalledOnce();
   });
@@ -96,6 +94,9 @@ describe('FilterButton', () => {
     expect(onOpenChange).toHaveBeenLastCalledWith(true);
 
     await userEvent.keyboard('{Escape}');
+    await waitFor(() =>
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument(),
+    );
     expect(onOpenChange).toHaveBeenLastCalledWith(false);
   });
 });

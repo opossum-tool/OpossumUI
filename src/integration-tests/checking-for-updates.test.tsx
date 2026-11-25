@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { act, fireEvent, screen } from '@testing-library/react';
+import { act } from '@testing-library/react';
 
 import { AllowedFrontendChannels } from '../shared/ipc-channels';
 import type { UpdateState } from '../shared/shared-types';
@@ -10,6 +10,17 @@ import { text } from '../shared/text';
 import { renderApp } from '../testing/render-app';
 import {
   clickTopBarViewButton,
+  clickUpdateActionButton,
+  dismissUpdateAlert,
+  expectTextVisible,
+  expectUpdateActionButtonShown,
+  expectUpdateAlertShown,
+  expectUpdateBannerRemoved,
+  expectUpdateDownloadLinkNotShown,
+  expectUpdateDownloadLinkShown,
+  expectUpdateMessageNotShown,
+  expectUpdateMessageShown,
+  expectUpdateProgressbarShown,
   expectViewIsActive,
   gotoReportView,
 } from '../testing/ui';
@@ -37,26 +48,24 @@ describe('checking for updates in the app', () => {
   it('shows startup availability, keeps dismissal across views, then announces another release', async () => {
     vi.mocked(window.electronAPI.getUpdateState).mockResolvedValue(available);
     const { sendToChannel } = await renderApp();
-    await screen.findByRole('link', { name: text.updateApp.download });
-    fireEvent.click(
-      screen.getByRole('button', { name: text.updateApp.dismissed }),
-    );
+    await expectUpdateDownloadLinkShown();
+    await dismissUpdateAlert();
     await gotoReportView();
     await expectViewIsActive('report');
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    await expectUpdateBannerRemoved();
     await clickTopBarViewButton('audit');
     await expectViewIsActive('audit');
     act(() => {
       sendToChannel(AllowedFrontendChannels.UpdateStateChanged, available);
     });
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    await expectUpdateBannerRemoved();
     sendToChannel(AllowedFrontendChannels.UpdateStateChanged, {
       ...available,
       tag: 'OpossumUI-2030-02-01',
     });
-    expect(
-      await screen.findByText(text.updateApp.available('OpossumUI-2030-02-01')),
-    ).toBeInTheDocument();
+    await expectUpdateMessageShown(
+      text.updateApp.available('OpossumUI-2030-02-01'),
+    );
   });
 
   it.each<UpdateState>([
@@ -74,7 +83,7 @@ describe('checking for updates in the app', () => {
         check.promise,
       );
       sendToChannel(AllowedFrontendChannels.CheckForUpdatesRequested);
-      expect(await screen.findByRole('progressbar')).toBeInTheDocument();
+      await expectUpdateProgressbarShown();
       await act(async () => {
         check.resolve(result);
         await check.promise;
@@ -87,7 +96,7 @@ describe('checking for updates in the app', () => {
             : result.status === 'error'
               ? text.updateApp.fetchFailed
               : '';
-      expect(await screen.findByText(message)).toBeInTheDocument();
+      await expectUpdateMessageShown(message);
     },
   );
 
@@ -105,28 +114,20 @@ describe('checking for updates in the app', () => {
       userSettings: { automaticallyCheckForUpdates: false },
     });
     sendToChannel(AllowedFrontendChannels.CheckForUpdatesRequested);
-    const download = await screen.findByRole('button', {
-      name: text.updateApp.downloadUpdate,
-    });
     expect(window.electronAPI.downloadUpdate).not.toHaveBeenCalled();
-    expect(
-      screen.queryByRole('link', { name: text.updateApp.download }),
-    ).not.toBeInTheDocument();
-    fireEvent.click(download);
+    await expectUpdateActionButtonShown(text.updateApp.downloadUpdate);
+    await expectUpdateDownloadLinkNotShown();
+    await clickUpdateActionButton(text.updateApp.downloadUpdate);
     expect(window.electronAPI.downloadUpdate).toHaveBeenCalledExactlyOnceWith(
       releaseTag,
     );
-    expect(
-      await screen.findByText(text.updateApp.downloading(0)),
-    ).toBeInTheDocument();
+    await expectUpdateMessageShown(text.updateApp.downloading(0));
     sendToChannel(AllowedFrontendChannels.UpdateStateChanged, {
       status: 'downloaded',
       tag: releaseTag,
     });
-    expect(await screen.findByText(text.updateApp.ready)).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: text.updateApp.restart }),
-    ).toBeInTheDocument();
+    await expectUpdateMessageShown(text.updateApp.ready);
+    await expectUpdateActionButtonShown(text.updateApp.restart);
     expect(window.electronAPI.restartAndUpdate).not.toHaveBeenCalled();
   });
 
@@ -138,12 +139,8 @@ describe('checking for updates in the app', () => {
       ...available,
       tag: 'OpossumUI-2030-02-01',
     });
-    expect(
-      await screen.findByRole('link', { name: text.updateApp.download }),
-    ).toBeInTheDocument();
-    fireEvent.click(
-      screen.getByRole('button', { name: text.updateApp.dismissed }),
-    );
+    await expectUpdateDownloadLinkShown();
+    await dismissUpdateAlert();
     act(() => {
       sendToChannel(AllowedFrontendChannels.UserSettingsChanged, {
         automaticallyCheckForUpdates: false,
@@ -152,16 +149,14 @@ describe('checking for updates in the app', () => {
     act(() => {
       sendToChannel(AllowedFrontendChannels.UpdateStateChanged, available);
     });
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    await expectUpdateBannerRemoved();
     act(() => {
       sendToChannel(AllowedFrontendChannels.UserSettingsChanged, {
         automaticallyCheckForUpdates: true,
       });
     });
     sendToChannel(AllowedFrontendChannels.UpdateStateChanged, available);
-    expect(
-      await screen.findByRole('link', { name: text.updateApp.download }),
-    ).toBeInTheDocument();
+    await expectUpdateDownloadLinkShown();
   });
 
   it.each<UpdateState>([
@@ -174,26 +169,16 @@ describe('checking for updates in the app', () => {
       vi.mocked(window.electronAPI.getUpdateState).mockResolvedValue(available);
       const { sendToChannel } = await renderApp();
 
-      expect(
-        await screen.findByText(text.updateApp.available(releaseTag)),
-      ).toBeInTheDocument();
+      await expectUpdateMessageShown(text.updateApp.available(releaseTag));
       act(() => {
         sendToChannel(AllowedFrontendChannels.UpdateStateChanged, result);
       });
 
-      expect(
-        screen.getByText(text.updateApp.available(releaseTag)),
-      ).toBeInTheDocument();
-      expect(screen.getByRole('alert')).toBeInTheDocument();
-      expect(
-        screen.queryByText(text.updateApp.fetchFailed),
-      ).not.toBeInTheDocument();
-      expect(
-        screen.queryByText(text.updateApp.unsupportedInstallation),
-      ).not.toBeInTheDocument();
-      expect(
-        screen.queryByText(text.updateApp.unknownInstalledVersion),
-      ).not.toBeInTheDocument();
+      await expectUpdateMessageShown(text.updateApp.available(releaseTag));
+      await expectUpdateAlertShown();
+      await expectUpdateMessageNotShown(text.updateApp.fetchFailed);
+      await expectUpdateMessageNotShown(text.updateApp.unsupportedInstallation);
+      await expectUpdateMessageNotShown(text.updateApp.unknownInstalledVersion);
     },
   );
 
@@ -203,21 +188,10 @@ describe('checking for updates in the app', () => {
     );
     vi.mocked(window.electronAPI.getUpdateState).mockResolvedValue(available);
     await renderApp();
-    expect(
-      await screen.findByText(text.updateApp.available(releaseTag)),
-    ).toBeInTheDocument();
-    expect(
-      await screen.findByText(text.macArchitectureMismatch.warning),
-    ).toBeInTheDocument();
-    const dismissButtons = screen.getAllByRole('button', {
-      name: text.updateApp.dismissed,
-    });
-    fireEvent.click(dismissButtons[0]);
-    expect(
-      screen.queryByText(text.updateApp.available(releaseTag)),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByText(text.macArchitectureMismatch.warning),
-    ).toBeInTheDocument();
+    await expectUpdateMessageShown(text.updateApp.available(releaseTag));
+    await expectTextVisible(text.macArchitectureMismatch.warning);
+    await dismissUpdateAlert();
+    await expectUpdateBannerRemoved();
+    await expectTextVisible(text.macArchitectureMismatch.warning);
   });
 });

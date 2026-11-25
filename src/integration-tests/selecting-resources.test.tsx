@@ -11,7 +11,8 @@ import { faker } from '../testing/Faker';
 import { renderApp } from '../testing/render-app';
 import {
   expectAttributionFormMatchesPackageInfo,
-  expectResourceVisibility,
+  expectResourceItemsNotShown,
+  expectResourceItemsShown,
   gotoResource,
 } from '../testing/ui';
 
@@ -68,15 +69,15 @@ describe('selecting resources', () => {
     await gotoResource(resourceName3);
 
     await userEvent.keyboard('{ArrowUp}');
-    await expectResourceVisibility([], [resourceName2]);
+    await expectResourceItemsNotShown([resourceName2]);
 
     await userEvent.keyboard('{ArrowRight}');
-    await expectResourceVisibility([resourceName2]);
+    await expectResourceItemsShown([resourceName2]);
 
     await userEvent.keyboard('{ArrowLeft}');
-    await expectResourceVisibility([], [resourceName2]);
+    await expectResourceItemsNotShown([resourceName2]);
 
     await userEvent.keyboard('{Enter}');
-    await expectResourceVisibility([resourceName2]);
+    await expectResourceItemsShown([resourceName2]);
   });
 });

@@ -18,6 +18,12 @@ import { Criticality, type PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import { pathsToResources } from '../../../../testing/global-test-helpers';
+import {
+  clickAttributionColumnButton,
+  clickDiffPopupButton,
+  clickPopupButton,
+  CONFIRM_SAVE_POPUP_LABEL,
+} from '../../../../testing/ui';
 import { PopupType } from '../../../enums/enums';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../../shared-constants';
 import {
@@ -631,11 +637,7 @@ describe('AttributionDetails', () => {
     });
 
     await waitForAttributionDetailsReady();
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.attributionColumn.replace,
-      }),
-    );
+    await clickAttributionColumnButton('replace');
     const replaceButton = screen.getByRole('button', {
       name: text.replaceAttributionsPopup.replace,
     });
@@ -692,9 +694,7 @@ describe('AttributionDetails', () => {
       }),
     ).toBeInTheDocument();
 
-    await userEvent.click(
-      screen.getByRole('button', { name: text.buttons.cancel }),
-    );
+    await clickAttributionColumnButton('cancel');
 
     expect(
       await screen.findByRole('button', { name: text.attributionColumn.save }),
@@ -729,9 +729,7 @@ describe('AttributionDetails', () => {
         }),
       ),
     );
-    await userEvent.click(
-      screen.getByRole('button', { name: text.attributionColumn.save }),
-    );
+    await clickAttributionColumnButton('save');
     await waitFor(() =>
       expect(getSelectedAttributionId(store.getState())).not.toBe(''),
     );
@@ -783,18 +781,14 @@ describe('AttributionDetails', () => {
             screen.getByRole('button', { name: text.attributionColumn.save }),
           ).toBeEnabled(),
         );
-        await userEvent.click(
-          screen.getByRole('button', { name: text.attributionColumn.save }),
-        );
+        await clickAttributionColumnButton('save');
         // A local save unlinks this resource; subsequent saves are direct.
         if (mode !== 'direct' && !(mode === 'local' && revision === 2)) {
-          await userEvent.click(
-            await screen.findByRole('button', {
-              name:
-                mode === 'local'
-                  ? text.saveAttributionsPopup.saveLocally
-                  : text.saveAttributionsPopup.saveGlobally,
-            }),
+          await clickPopupButton(
+            CONFIRM_SAVE_POPUP_LABEL,
+            mode === 'local'
+              ? text.saveAttributionsPopup.saveLocally
+              : text.saveAttributionsPopup.saveGlobally,
           );
         }
         await waitFor(() =>
@@ -851,9 +845,7 @@ describe('AttributionDetails', () => {
           return executeCommand(command, params as never);
         },
       );
-      await userEvent.click(
-        screen.getByRole('button', { name: text.attributionColumn.save }),
-      );
+      await clickAttributionColumnButton('save');
       await act(() =>
         store.dispatch(
           navigation === 'attribution'
@@ -918,11 +910,7 @@ describe('AttributionDetails', () => {
       );
     });
 
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.attributionColumn.save,
-      }),
-    );
+    await clickAttributionColumnButton('save');
 
     await expectManualAttributions({
       [packageInfo1.id]: {
@@ -945,11 +933,7 @@ describe('AttributionDetails', () => {
         }),
       );
     });
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.attributionColumn.revert,
-      }),
-    );
+    await clickAttributionColumnButton('revert');
     expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject({
       ...packageInfo1,
       packageName: newPackageName,
@@ -977,11 +961,7 @@ describe('AttributionDetails', () => {
       ],
     });
 
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.attributionColumn.confirm,
-      }),
-    );
+    await clickAttributionColumnButton('confirm');
 
     await expectManualAttributions({
       [packageInfo1.id]: { ...packageInfo1, preSelected: undefined },
@@ -1050,11 +1030,7 @@ describe('AttributionDetails', () => {
     });
 
     await waitForAttributionDetailsReady();
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.attributionColumn.link,
-      }),
-    );
+    await clickAttributionColumnButton('link');
 
     await expectManualAttributions({
       [packageInfo1.id]: packageInfo1,
@@ -1165,11 +1141,7 @@ describe('AttributionDetails', () => {
     });
 
     await waitForAttributionDetailsReady();
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.attributionColumn.delete,
-      }),
-    );
+    await clickAttributionColumnButton('delete');
     const deleteButton = screen.getByRole('button', {
       name: text.deleteAttributionsPopup.delete,
     });
@@ -1219,11 +1191,7 @@ describe('AttributionDetails', () => {
       );
     });
 
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.attributionColumn.revert,
-      }),
-    );
+    await clickAttributionColumnButton('revert');
 
     expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject(
       packageInfo1,
@@ -1261,11 +1229,7 @@ describe('AttributionDetails', () => {
       );
     });
 
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.attributionColumn.revert,
-      }),
-    );
+    await clickAttributionColumnButton('revert');
 
     expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject(
       EMPTY_DISPLAY_PACKAGE_INFO,
@@ -1285,11 +1249,7 @@ describe('AttributionDetails', () => {
     });
 
     await waitForAttributionDetailsReady();
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.attributionColumn.delete,
-      }),
-    );
+    await clickAttributionColumnButton('delete');
 
     await expectManualAttributions({});
     await expectResourcesToManualAttributions({});
@@ -1311,11 +1271,7 @@ describe('AttributionDetails', () => {
     });
 
     await waitForAttributionDetailsReady();
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.attributionColumn.restore,
-      }),
-    );
+    await clickAttributionColumnButton('restore');
 
     await expectManualAttributions({});
     await expectResourcesToManualAttributions({});
@@ -1349,11 +1305,7 @@ describe('AttributionDetails', () => {
     });
 
     await waitForAttributionDetailsReady();
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.attributionColumn.compareToOriginal,
-      }),
-    );
+    await clickAttributionColumnButton('compare');
 
     const diffPopup = within(screen.getByLabelText(text.diffPopup.ariaLabel));
     expect(diffPopup.getByText(text.diffPopup.title)).toBeInTheDocument();
@@ -1396,14 +1348,8 @@ describe('AttributionDetails', () => {
 
     const packageName = await screen.findByDisplayValue('A');
     fireEvent.change(packageName, { target: { value: 'B' } });
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.attributionColumn.compareToOriginal,
-      }),
-    );
-    await userEvent.click(
-      screen.getByRole('button', { name: text.buttons.cancel }),
-    );
+    await clickAttributionColumnButton('compare');
+    await clickDiffPopupButton('cancel');
 
     expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject({
       ...attribution,
@@ -1432,11 +1378,7 @@ describe('AttributionDetails', () => {
     });
 
     await waitForAttributionDetailsReady();
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.attributionColumn.compareWith,
-      }),
-    );
+    await clickAttributionColumnButton('compare-with');
 
     expect(
       screen.queryByRole('button', {
@@ -1447,9 +1389,7 @@ describe('AttributionDetails', () => {
       screen.queryByRole('button', { name: text.attributionColumn.save }),
     ).not.toBeInTheDocument();
 
-    await userEvent.click(
-      screen.getByRole('button', { name: text.buttons.cancel }),
-    );
+    await clickAttributionColumnButton('cancel');
 
     expect(
       await screen.findByRole('button', {
@@ -1513,11 +1453,7 @@ describe('AttributionDetails', () => {
     });
 
     await waitForAttributionDetailsReady();
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.attributionColumn.compareWith,
-      }),
-    );
+    await clickAttributionColumnButton('compare-with');
 
     act(() => {
       store.dispatch(setSelectedAttributionId(target.id));
@@ -1529,11 +1465,7 @@ describe('AttributionDetails', () => {
       ),
     );
 
-    await userEvent.click(
-      await screen.findByRole('button', {
-        name: text.attributionColumn.compareConfirm,
-      }),
-    );
+    await clickAttributionColumnButton('compare-confirm');
 
     const diffPopup = within(screen.getByLabelText(text.diffPopup.ariaLabel));
     expect(diffPopup.getByText(text.diffPopup.title)).toBeInTheDocument();
@@ -2161,7 +2093,6 @@ describe('AttributionDetails', () => {
   ])(
     'allows navigation after a local save to a $destination attribution',
     async ({ hasMatchingAttribution }) => {
-      const user = userEvent.setup();
       const attribution = faker.opossum.packageInfo({ packageName: 'before' });
       const matchingAttribution = {
         ...attribution,
@@ -2228,13 +2159,10 @@ describe('AttributionDetails', () => {
         }
         previousSelectedAttributionId = selectedAttributionId;
       });
-      await user.click(
-        screen.getByRole('button', { name: text.attributionColumn.save }),
-      );
-      await user.click(
-        await screen.findByRole('button', {
-          name: text.saveAttributionsPopup.saveLocally,
-        }),
+      await clickAttributionColumnButton('save');
+      await clickPopupButton(
+        CONFIRM_SAVE_POPUP_LABEL,
+        text.saveAttributionsPopup.saveLocally,
       );
       await waitFor(() =>
         expect(getSelectedAttributionId(store.getState())).not.toBe(
@@ -2281,7 +2209,6 @@ describe('AttributionDetails', () => {
   );
 
   it('keeps the confirmation open until a global save mutation completes', async () => {
-    const user = userEvent.setup();
     const attribution = faker.opossum.packageInfo();
     const resource = '/selected/file.ts';
     const linkedResource = '/linked/file.ts';
@@ -2317,13 +2244,10 @@ describe('AttributionDetails', () => {
         return executeCommand(command, params as never);
       },
     );
-    await user.click(
-      screen.getByRole('button', { name: text.attributionColumn.save }),
-    );
-    await user.click(
-      await screen.findByRole('button', {
-        name: text.saveAttributionsPopup.saveGlobally,
-      }),
+    await clickAttributionColumnButton('save');
+    await clickPopupButton(
+      CONFIRM_SAVE_POPUP_LABEL,
+      text.saveAttributionsPopup.saveGlobally,
     );
 
     await screen.findByRole('dialog');
@@ -2346,7 +2270,6 @@ describe('AttributionDetails', () => {
   });
 
   it('keeps a failed local save open after a footer remount and allows retry', async () => {
-    const user = userEvent.setup();
     const attribution = faker.opossum.packageInfo();
     const resource = '/selected/file.ts';
     const linkedResource = '/linked/file.ts';
@@ -2385,13 +2308,10 @@ describe('AttributionDetails', () => {
         return executeCommand(command, params as never);
       },
     );
-    await user.click(
-      screen.getByRole('button', { name: text.attributionColumn.save }),
-    );
-    await user.click(
-      await screen.findByRole('button', {
-        name: text.saveAttributionsPopup.saveLocally,
-      }),
+    await clickAttributionColumnButton('save');
+    await clickPopupButton(
+      CONFIRM_SAVE_POPUP_LABEL,
+      text.saveAttributionsPopup.saveLocally,
     );
     await waitFor(() =>
       expect(
@@ -2434,10 +2354,9 @@ describe('AttributionDetails', () => {
     );
 
     await waitForAttributionDetailsReady();
-    await user.click(
-      within(screen.getByRole('dialog')).getByRole('button', {
-        name: text.saveAttributionsPopup.saveGlobally,
-      }),
+    await clickPopupButton(
+      CONFIRM_SAVE_POPUP_LABEL,
+      text.saveAttributionsPopup.saveGlobally,
     );
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     await waitForAttributionDetailsReady();

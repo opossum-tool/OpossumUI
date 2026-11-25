@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 export * from './panel-tabs';
 export * from './package-cards';
+export * from './ai-status';
 export * from './top-bar';
 export * from './path-bar';
 export * from './trees';
@@ -13,7 +14,7 @@ export * from './diff-popup';
 export * from './filters';
 export * from './project-statistics';
 export * from './report-view';
-export * from './buttons';
+export * from './updates';
 export {
   ATTRIBUTIONS_PANEL,
   clickEnabledPanelButton,
@@ -21,13 +22,17 @@ export {
   clearPanelSearch,
   expectPanelButtonEnabled,
   expectPanelReplacementDimmed,
-  expectPopupHidden,
+  expectSearchFocused,
+  expectSearchValue,
+  expectTextVisible,
   fillPanelSearch,
   getPopup,
   pressGoBackShortcut,
   pressGoForwardShortcut,
   pressSearchShortcut,
   sendUserSettingsChange,
+  SETTLED_TIMEOUT,
   SIGNALS_PANEL,
   LINKED_RESOURCES_TREE,
+  PACKAGES_PANEL,
 } from './common';

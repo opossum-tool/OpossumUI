@@ -81,13 +81,11 @@ describe('MoreActionsButton', () => {
   });
 
   it('opens menu when clicked', async () => {
-    const user = userEvent.setup();
     await renderComponent(<MoreActionsButton {...defaultProps} />);
 
-    const button = screen.getByRole('button', {
-      name: text.packageLists.moreActions,
-    });
-    await user.click(button);
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.moreActions }),
+    );
 
     expect(screen.getByText('Mark as Needs Review by QA')).toBeInTheDocument();
     expect(screen.getByText('Mark as Needs Follow-Up')).toBeInTheDocument();
@@ -97,7 +95,6 @@ describe('MoreActionsButton', () => {
   });
 
   it('shows correct text when all selected attributions have needsReview', async () => {
-    const user = userEvent.setup();
     const props = {
       ...defaultProps,
       attributions: {
@@ -114,10 +111,9 @@ describe('MoreActionsButton', () => {
 
     await renderComponent(<MoreActionsButton {...props} />);
 
-    const button = screen.getByRole('button', {
-      name: text.packageLists.moreActions,
-    });
-    await user.click(button);
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.moreActions }),
+    );
 
     expect(
       screen.getByText('Unmark as Needs Review by QA'),
@@ -128,7 +124,6 @@ describe('MoreActionsButton', () => {
     const attr1 = defaultProps.attributions!.attr1;
     const attr2 = defaultProps.attributions!.attr2;
     const unsavedAttr1 = { ...attr1, packageName: 'unsaved package name' };
-    const user = userEvent.setup();
 
     await renderComponent(<MoreActionsButton {...defaultProps} />, {
       data: getParsedInputFileEnrichedWithTestData({
@@ -140,10 +135,10 @@ describe('MoreActionsButton', () => {
       ],
     });
 
-    await user.click(
+    await userEvent.click(
       screen.getByRole('button', { name: text.packageLists.moreActions }),
     );
-    await user.click(screen.getByText('Mark as Needs Review by QA'));
+    await userEvent.click(screen.getByText('Mark as Needs Review by QA'));
 
     await waitFor(async () => {
       const rows = await getDb()
@@ -179,20 +174,20 @@ describe('MoreActionsButton', () => {
     );
     const api = vi.mocked(window.electronAPI.api);
     api.mockImplementationOnce(() => mutationPromise);
-    const user = userEvent.setup();
 
     await renderComponent(<MoreActionsButton {...defaultProps} />);
-    const moreActionsButton = screen.getByRole('button', {
-      name: text.packageLists.moreActions,
-    });
 
-    await user.click(moreActionsButton);
-    await user.click(screen.getByText('Mark as Needs Review by QA'));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.moreActions }),
+    );
+    await userEvent.click(screen.getByText('Mark as Needs Review by QA'));
 
     expect(
       screen.queryByText('Mark as Needs Review by QA'),
     ).not.toBeInTheDocument();
-    expect(moreActionsButton).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: text.packageLists.moreActions }),
+    ).toBeDisabled();
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
 
     expect(api).toHaveBeenCalledOnce();
@@ -251,13 +246,16 @@ describe('MoreActionsButton', () => {
       />,
     );
 
-    const moreActionsButton = screen.getByRole('button', {
-      name: text.packageLists.moreActions,
-    });
-    await userEvent.click(moreActionsButton);
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.moreActions }),
+    );
     await userEvent.click(screen.getByText('Mark as Needs Review by QA'));
 
-    await waitFor(() => expect(moreActionsButton).toBeEnabled());
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: text.packageLists.moreActions }),
+      ).toBeEnabled(),
+    );
     expect(clearBulkSelection).not.toHaveBeenCalled();
   });
 });

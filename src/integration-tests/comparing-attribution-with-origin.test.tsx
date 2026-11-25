@@ -17,19 +17,20 @@ import {
   clickDiffPopupLicenseTextToggle,
   clickDiffPopupRestoreAttributionType,
   clickPopupButton,
-  expectAttributionColumnButtonVisibility,
+  expectAttributionColumnButtonNotShown,
   expectAttributionFormLicenseText,
-  expectAttributionLicenseTextVisibility,
+  expectAttributionLicenseTextNotShown,
   expectAttributionSaveButtonIsEnabled,
   expectAttributionTypePressed,
   expectDiffPopupAttributionType,
+  expectDiffPopupClosed,
   expectDiffPopupFieldDirty,
   expectDiffPopupLegalField,
   expectDiffPopupLegalFieldsHidden,
+  expectDiffPopupOpen,
   expectDiffPopupPackageName,
   expectDiffPopupSaveButtonEnabled,
   expectDiffPopupTitleIs,
-  expectDiffPopupVisibility,
   expectFormFieldValues,
   expectPopupHidden,
   fillDiffPopupField,
@@ -84,11 +85,11 @@ describe('comparing attribution with origin', () => {
   it('opens the diff popup with the original signal and current draft', async () => {
     await renderApp({ data });
     await gotoResource(resourceName1);
-    await expectAttributionColumnButtonVisibility('compare', false);
+    await expectAttributionColumnButtonNotShown('compare');
 
     await gotoResource(resourceName2);
     await clickAttributionColumnButton('compare');
-    await expectDiffPopupVisibility(true);
+    await expectDiffPopupOpen();
     await expectDiffPopupPackageName(
       'left',
       externalPackageInfo.packageName ?? '',
@@ -122,12 +123,12 @@ describe('comparing attribution with origin', () => {
     await clickDiffPopupButton('save');
     await clickPopupButton('confirm save popup', 'Save');
     await expectPopupHidden('confirm save popup');
-    await expectDiffPopupVisibility(false);
+    await expectDiffPopupClosed();
     await expectFormFieldValues({ name: changedPackageName });
     await expectAttributionTypePressed('Third Party');
     await expectFormFieldValues({ copyright });
     await expectFormFieldValues({ licenseExpression: 'MIT' });
-    await expectAttributionLicenseTextVisibility(false);
+    await expectAttributionLicenseTextNotShown();
     await clickAttributionLicenseTextToggle();
     await expectAttributionFormLicenseText('MIT License');
     await expectAttributionSaveButtonIsEnabled(false);
@@ -140,7 +141,7 @@ describe('comparing attribution with origin', () => {
     fillDiffPopupField('right', 'packageName', 'popup-only-edit');
     await expectDiffPopupFieldDirty('right', 'packageName', true);
     await clickDiffPopupButton('cancel');
-    await expectDiffPopupVisibility(false);
+    await expectDiffPopupClosed();
     await expectFormFieldValues({ name: packageName });
   });
 
@@ -166,7 +167,7 @@ describe('comparing attribution with origin', () => {
     await expectDiffPopupSaveButtonEnabled(true);
     await clickDiffPopupButton('save');
     await expectPopupHidden('confirm save popup');
-    await expectDiffPopupVisibility(false);
+    await expectDiffPopupClosed();
     await expectFormFieldValues({ name: packageName });
     await expectAttributionSaveButtonIsEnabled(false);
 

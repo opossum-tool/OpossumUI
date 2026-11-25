@@ -16,12 +16,15 @@ import {
   clickDiffPopupButton,
   clickPackageCard,
   clickPopupButton,
-  expectAttributionColumnButtonVisibility,
-  expectAuditingOptionChip,
+  CONFIRM_SAVE_POPUP_LABEL,
+  expectAttributionColumnButtonNotShown,
+  expectAttributionColumnButtonShown,
+  expectAuditingOptionChipShown,
   expectComparingWithAlertIsVisible,
   expectDiffPopupAuditingOption,
+  expectDiffPopupClosed,
+  expectDiffPopupOpen,
   expectDiffPopupPackageName,
-  expectDiffPopupVisibility,
   expectFormFieldValues,
   expectPackageCardPickerSource,
   expectPackageCards,
@@ -61,12 +64,12 @@ describe('comparing attribution via selection mode', () => {
 
     await expectComparingWithAlertIsVisible();
     // Can't compare the pinned item with itself.
-    await expectAttributionColumnButtonVisibility('compare-confirm', false);
+    await expectAttributionColumnButtonNotShown('compare-confirm');
 
     await clickAttributionColumnButton('cancel');
 
-    await expectAttributionColumnButtonVisibility('compare-with', true);
-    await expectDiffPopupVisibility(false);
+    await expectAttributionColumnButtonShown('compare-with');
+    await expectDiffPopupClosed();
   });
 
   it('lets the user pick a compare target on another resource via compare-selection mode', async () => {
@@ -92,10 +95,10 @@ describe('comparing attribution via selection mode', () => {
     // Preview the second resource's attribution by clicking its card, like
     // normal browsing.
     await clickPackageCard(ATTRIBUTIONS_PANEL, manualPackageInfo2);
-    await expectAttributionColumnButtonVisibility('compare-confirm', true);
+    await expectAttributionColumnButtonShown('compare-confirm');
 
     await clickAttributionColumnButton('compare-confirm');
-    await expectDiffPopupVisibility(true);
+    await expectDiffPopupOpen();
     await expectDiffPopupPackageName(
       'left',
       manualPackageInfo1.packageName || '',
@@ -106,12 +109,12 @@ describe('comparing attribution via selection mode', () => {
     );
 
     await clickDiffPopupButton('cancel');
-    await expectDiffPopupVisibility(false);
+    await expectDiffPopupClosed();
 
     // Closing the read-only diff popup keeps compare-selection mode active
     // without changing the previewed attribution.
     await expectComparingWithAlertIsVisible();
-    await expectAttributionColumnButtonVisibility('compare-confirm', true);
+    await expectAttributionColumnButtonShown('compare-confirm');
     await expectFormFieldValues({
       name: manualPackageInfo2.packageName || '',
     });
@@ -133,10 +136,10 @@ describe('comparing attribution via selection mode', () => {
       text.buttons.cancel,
     );
     await expectPopupHidden(text.saveAttributionsPopup.ariaLabel);
-    await expectDiffPopupVisibility(true);
+    await expectDiffPopupOpen();
     await expectDiffPopupPackageName('right', draftName);
     await clickDiffPopupButton('cancel');
-    await expectDiffPopupVisibility(false);
+    await expectDiffPopupClosed();
   });
 
   it('saves edits made to both sides of a comparison', async () => {
@@ -152,7 +155,7 @@ describe('comparing attribution via selection mode', () => {
     await gotoResource(resourceName2);
     await clickPackageCard(ATTRIBUTIONS_PANEL, manualPackageInfo2);
     await clickAttributionColumnButton('compare-confirm');
-    await expectDiffPopupVisibility(true);
+    await expectDiffPopupOpen();
     await expectDiffPopupPackageName('left', preexistingLeftPackageName);
 
     await addDiffPopupAuditingOption('left', 'followUp');
@@ -164,14 +167,14 @@ describe('comparing attribution via selection mode', () => {
     fillDiffPopupField('right', 'packageName', editedRightPackageName);
     await clickDiffPopupButton('save');
     await clickPopupButton(
-      text.saveAttributionsPopup.ariaLabel,
+      CONFIRM_SAVE_POPUP_LABEL,
       text.saveAttributionsPopup.saveGlobally,
     );
-    await expectPopupHidden(text.saveAttributionsPopup.ariaLabel);
-    await expectDiffPopupVisibility(false);
+    await expectPopupHidden(CONFIRM_SAVE_POPUP_LABEL);
+    await expectDiffPopupClosed();
 
     await expectFormFieldValues({ name: editedRightPackageName });
-    await expectAuditingOptionChip('needs-review', true);
+    await expectAuditingOptionChipShown('needs-review');
 
     const editedLeftPackageInfo = {
       ...manualPackageInfo1,
@@ -181,6 +184,6 @@ describe('comparing attribution via selection mode', () => {
     await expectPackageCards(ATTRIBUTIONS_PANEL, [editedLeftPackageInfo], []);
     await clickPackageCard(ATTRIBUTIONS_PANEL, editedLeftPackageInfo);
     await expectFormFieldValues({ name: editedLeftPackageName });
-    await expectAuditingOptionChip('follow-up', true);
+    await expectAuditingOptionChipShown('follow-up');
   });
 });

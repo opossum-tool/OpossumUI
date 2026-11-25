@@ -22,6 +22,7 @@ import {
   clickTopBarOpenFileButton,
   clickTopBarViewButton,
   clickValidationSuggestion,
+  CONFIRM_SAVE_POPUP_LABEL,
   expectAttributionColumnButtonEnabled,
   expectAttributionFormIsEmpty,
   expectAttributionFormLicenseText,
@@ -29,11 +30,12 @@ import {
   expectConfirmSavePopupIsVisible,
   expectFormFieldValues,
   expectMergeDialogMergesIntoCurrentProject,
+  expectMergeDialogOpen,
   expectMergeDialogShowsCurrentFile,
-  expectMergeDialogVisibility,
   expectPopupHidden,
-  expectResourceVisibility,
-  expectUnsavedChangesPopupVisibility,
+  expectResourceItemsNotShown,
+  expectResourceItemsShown,
+  expectUnsavedChangesPopupOpen,
   expectValidationDisplayHasNoMessages,
   expectValidationMessage,
   expectViewIsActive,
@@ -124,13 +126,13 @@ describe('updating attributions', () => {
     fillFormField('comment', comment);
 
     await clickTopBarOpenFileButton();
-    await expectUnsavedChangesPopupVisibility(true);
+    await expectUnsavedChangesPopupOpen();
 
     await clickPopupButton('unsaved changes popup', text.buttons.cancel);
     await expectFormFieldValues({ comment });
 
     sendToChannel(AllowedFrontendChannels.OpenFile);
-    await expectUnsavedChangesPopupVisibility(true);
+    await expectUnsavedChangesPopupOpen();
   });
 
   it('warns user of unsaved changes if user attempts to navigate away before saving', async () => {
@@ -139,7 +141,7 @@ describe('updating attributions', () => {
     fillFormField('comment', faker.lorem.sentences());
 
     await clickPanelButton(ATTRIBUTIONS_PANEL, 'Create new attribution');
-    await expectUnsavedChangesPopupVisibility(true);
+    await expectUnsavedChangesPopupOpen();
 
     await clickPopupButton(
       'unsaved changes popup',
@@ -150,7 +152,7 @@ describe('updating attributions', () => {
 
     fillFormField('comment', faker.lorem.sentences());
     await clickTopBarViewButton('report');
-    await expectUnsavedChangesPopupVisibility(true);
+    await expectUnsavedChangesPopupOpen();
 
     await clickPopupButton(
       'unsaved changes popup',
@@ -170,7 +172,7 @@ describe('updating attributions', () => {
       legacyOpossumFileFormat,
       true,
     );
-    await expectUnsavedChangesPopupVisibility(true);
+    await expectUnsavedChangesPopupOpen();
   });
 
   it('warns user of unsaved changes if user attempts to merge file before saving', async () => {
@@ -188,13 +190,13 @@ describe('updating attributions', () => {
       true,
       currentFilePath,
     );
-    await expectUnsavedChangesPopupVisibility(true);
+    await expectUnsavedChangesPopupOpen();
 
     await clickPopupButton(
       'unsaved changes popup',
       text.unsavedChangesPopup.discard,
     );
-    await expectMergeDialogVisibility(true);
+    await expectMergeDialogOpen();
     await expectMergeDialogMergesIntoCurrentProject();
     await expectMergeDialogShowsCurrentFile(currentFilePath);
   });
@@ -209,7 +211,7 @@ describe('updating attributions', () => {
       AllowedFrontendChannels.ExportFileRequest,
       ExportType.FollowUp,
     );
-    await expectUnsavedChangesPopupVisibility(true);
+    await expectUnsavedChangesPopupOpen();
   });
 
   it('allows user to update an attribution on the selected resource only', async () => {
@@ -222,9 +224,8 @@ describe('updating attributions', () => {
     });
 
     await gotoResource(resourceName1);
-    await expectResourceVisibility(
+    await expectResourceItemsShown(
       [resourceName1, resourceName2],
-      [],
       'linked-resources-tree',
     );
     await expectAttributionFormMatchesPackageInfo(packageInfo1);
@@ -256,16 +257,13 @@ describe('updating attributions', () => {
     await expectConfirmSavePopupIsVisible();
 
     await clickPopupButton(
-      text.saveAttributionsPopup.ariaLabel,
+      CONFIRM_SAVE_POPUP_LABEL,
       text.saveAttributionsPopup.saveLocally,
     );
     await expectAttributionColumnButtonEnabled('save', false);
     await expectAttributionColumnButtonEnabled('revert', false);
-    await expectResourceVisibility(
-      [resourceName1],
-      [resourceName2],
-      'linked-resources-tree',
-    );
+    await expectResourceItemsShown([resourceName1], 'linked-resources-tree');
+    await expectResourceItemsNotShown([resourceName2], 'linked-resources-tree');
   });
 
   it('allows user to update an attribution on all linked resources', async () => {
@@ -273,9 +271,8 @@ describe('updating attributions', () => {
     const newPackageName = faker.internet.domainWord();
 
     await gotoResource(resourceName1);
-    await expectResourceVisibility(
+    await expectResourceItemsShown(
       [resourceName1, resourceName2],
-      [],
       'linked-resources-tree',
     );
 
@@ -283,17 +280,16 @@ describe('updating attributions', () => {
     await clickAttributionColumnButton('save');
     await expectConfirmSavePopupIsVisible();
     await clickPopupButton(
-      text.saveAttributionsPopup.ariaLabel,
+      CONFIRM_SAVE_POPUP_LABEL,
       text.saveAttributionsPopup.saveGlobally,
     );
     // need to make sure that the confirmSavePopup is closed before any assertions
     // are run on linkedResourcesTree, because the confirmSavePopup also contains
     // a LinkedResourcesTree which makes locators resolve to 2 elements
-    await expectPopupHidden(text.saveAttributionsPopup.ariaLabel);
+    await expectPopupHidden(CONFIRM_SAVE_POPUP_LABEL);
     await expectFormFieldValues({ name: newPackageName });
-    await expectResourceVisibility(
+    await expectResourceItemsShown(
       [resourceName1, resourceName2],
-      [],
       'linked-resources-tree',
     );
   });

@@ -5,6 +5,7 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 
 import { text } from '../../../../shared/text';
+import { clickPopupButton, SPLIT_DIALOG_LABEL } from '../../../../testing/ui';
 import {
   setExpandedIds,
   setSelectedResourceId,
@@ -64,14 +65,7 @@ describe('SplitDialog', () => {
     );
 
     fireEvent.click(screen.getByTestId('split-destination-path-input'));
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', { name: text.splitDialog.create }),
-      ).toBeEnabled(),
-    );
-    fireEvent.click(
-      screen.getByRole('button', { name: text.splitDialog.create }),
-    );
+    await clickPopupButton(SPLIT_DIALOG_LABEL, text.splitDialog.create);
 
     expect(await screen.findByText(errorMessage)).toBeInTheDocument();
 
@@ -113,14 +107,7 @@ describe('SplitDialog', () => {
     );
 
     fireEvent.click(screen.getByTestId('split-destination-path-input'));
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', { name: text.splitDialog.create }),
-      ).toBeEnabled(),
-    );
-    fireEvent.click(
-      screen.getByRole('button', { name: text.splitDialog.create }),
-    );
+    await clickPopupButton(SPLIT_DIALOG_LABEL, text.splitDialog.create);
 
     expect(window.electronAPI.splitFile).toHaveBeenCalledWith(
       [resourcePath],
@@ -145,7 +132,7 @@ describe('SplitDialog', () => {
     expect(getExpandedIds(store.getState())).toEqual(['/', resourcePath]);
     expect(onClose).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: text.buttons.close }));
+    await clickPopupButton(SPLIT_DIALOG_LABEL, text.buttons.close);
     expect(onClose).toHaveBeenCalledOnce();
   });
 
@@ -166,14 +153,7 @@ describe('SplitDialog', () => {
     );
 
     fireEvent.click(screen.getByTestId('split-destination-path-input'));
-    await waitFor(() =>
-      expect(
-        screen.getByRole('button', { name: text.splitDialog.create }),
-      ).toBeEnabled(),
-    );
-    fireEvent.click(
-      screen.getByRole('button', { name: text.splitDialog.create }),
-    );
+    await clickPopupButton(SPLIT_DIALOG_LABEL, text.splitDialog.create);
 
     expect(await screen.findByText(text.splitDialog.inProgress)).toBeVisible();
     expect(screen.getByRole('progressbar')).toBeVisible();

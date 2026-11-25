@@ -27,6 +27,7 @@ import {
   expectStatisticsCharts,
   gotoResource,
   openProjectStatisticsPopup,
+  PROJECT_STATISTICS_POPUP_LABEL,
   SIGNALS_PANEL,
 } from '../testing/ui';
 
@@ -161,7 +162,7 @@ describe('project statistics', () => {
     const licenseName = packageInfo1.licenseName!;
     await clickLicenseTableCell(licenseName);
 
-    await expectPopupHidden('project statistics');
+    await expectPopupHidden(PROJECT_STATISTICS_POPUP_LABEL);
 
     await expectPackageCards(
       SIGNALS_PANEL,

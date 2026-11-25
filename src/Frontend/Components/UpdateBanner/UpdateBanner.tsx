@@ -33,6 +33,7 @@ export function UpdateBanner(): React.ReactNode {
   return (
     <NotificationBanner
       severity={hasError ? 'error' : 'info'}
+      testId={'update-banner'}
       dismissLabel={text.updateApp.dismissed}
       onDismiss={banner.status === 'restarting' ? undefined : dismiss}
       icon={

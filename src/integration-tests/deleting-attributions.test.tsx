@@ -16,7 +16,8 @@ import {
   clickPackageCardCheckbox,
   clickPanelButton,
   clickPopupButton,
-  expectAttributionColumnButtonVisibility,
+  expectAttributionColumnButtonNotShown,
+  expectAttributionColumnButtonShown,
   expectAttributionFormIsEmpty,
   expectAttributionFormMatchesPackageInfo,
   expectPackageCardCheckbox,
@@ -24,10 +25,13 @@ import {
   expectPopupHasText,
   expectPopupHidden,
   expectProgressBarTooltipShowsValues,
-  expectResourceVisibility,
+  expectResourceItemsNotShown,
+  expectResourceItemsShown,
   expectSelectedTabIs,
-  expectTabVisibility,
+  expectTabsNotShown,
+  expectTabsShown,
   gotoResource,
+  hoverProgressBar,
 } from '../testing/ui';
 
 const [
@@ -84,21 +88,22 @@ describe('deleting attributions', () => {
       await gotoResource(resourceName1);
       await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo3);
       await expectAttributionFormMatchesPackageInfo(packageInfo3);
+      await hoverProgressBar();
       await expectProgressBarTooltipShowsValues({ filesWithAttributions: 5 });
 
       await clickAttributionColumnButton('delete');
       await clickPopupButton('confirm delete popup', 'Delete on All');
       await expectPopupHidden('confirm delete popup');
       await expectAttributionFormIsEmpty();
+      await hoverProgressBar();
       await expectProgressBarTooltipShowsValues({ filesWithAttributions: 5 });
 
       await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
       await expectSelectedTabIs(ATTRIBUTIONS_PANEL, 'resource');
-      await expectTabVisibility(ATTRIBUTIONS_PANEL, ['unrelated']);
+      await expectTabsShown(ATTRIBUTIONS_PANEL, ['unrelated']);
       await expectAttributionFormMatchesPackageInfo(packageInfo1);
-      await expectResourceVisibility(
+      await expectResourceItemsShown(
         [resourceName1, resourceName2, resourceName3],
-        [],
         'linked-resources-tree',
       );
 
@@ -106,15 +111,22 @@ describe('deleting attributions', () => {
       await clickPopupButton('confirm delete popup', 'Delete only on Selected');
       await expectPopupHidden('confirm delete popup');
       await expectSelectedTabIs(ATTRIBUTIONS_PANEL, 'unrelated');
-      await expectTabVisibility(ATTRIBUTIONS_PANEL, [], ['resource']);
+      await expectTabsNotShown(ATTRIBUTIONS_PANEL, ['resource']);
       await expectPackageCards(ATTRIBUTIONS_PANEL, [packageInfo1]);
       await expectAttributionFormIsEmpty();
-      await expectProgressBarTooltipShowsValues({ filesWithAttributions: 4 });
+      await hoverProgressBar();
+      await expectProgressBarTooltipShowsValues({
+        filesWithAttributions: 4,
+        filesWithNeitherAttributionsOrSignals: 1,
+      });
 
       await gotoResource(resourceName2);
       await expectAttributionFormMatchesPackageInfo(packageInfo1);
-      await expectResourceVisibility(
+      await expectResourceItemsShown(
         [resourceName2, resourceName3],
+        'linked-resources-tree',
+      );
+      await expectResourceItemsNotShown(
         [resourceName1],
         'linked-resources-tree',
       );
@@ -123,22 +135,29 @@ describe('deleting attributions', () => {
       await clickPopupButton('confirm delete popup', 'Delete on All');
       await expectPopupHidden('confirm delete popup');
       await expectSelectedTabIs(ATTRIBUTIONS_PANEL, 'unrelated');
-      await expectTabVisibility(ATTRIBUTIONS_PANEL, [], ['resource']);
+      await expectTabsNotShown(ATTRIBUTIONS_PANEL, ['resource']);
       await expectPackageCards(ATTRIBUTIONS_PANEL, [], [packageInfo1]);
-      await expectProgressBarTooltipShowsValues({ filesWithAttributions: 2 });
+      await hoverProgressBar();
+      await expectProgressBarTooltipShowsValues({
+        filesWithAttributions: 2,
+        filesWithNeitherAttributionsOrSignals: 3,
+      });
 
       await gotoResource(resourceName3);
       await expectAttributionFormIsEmpty();
-      await expectAttributionColumnButtonVisibility('delete', false);
+      await expectAttributionColumnButtonNotShown('delete');
 
       await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo2);
       await expectAttributionFormMatchesPackageInfo(packageInfo2);
-      await expectAttributionColumnButtonVisibility('delete', true);
+      await expectAttributionColumnButtonShown('delete');
 
       await clickAttributionColumnButton('delete');
       await clickPopupButton('confirm delete popup', 'Delete on All');
       await expectPopupHidden('confirm delete popup');
-      await expectProgressBarTooltipShowsValues({ filesWithAttributions: 0 });
+      await hoverProgressBar();
+      await expectProgressBarTooltipShowsValues({
+        filesWithNeitherAttributionsOrSignals: 5,
+      });
     } finally {
       consoleErrorSpy.mockRestore();
     }

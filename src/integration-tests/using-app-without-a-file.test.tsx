@@ -7,8 +7,8 @@ import { describe, expect, it } from 'vitest';
 
 import { renderApp } from '../testing/render-app';
 import {
-  expectLinkedResourcesTreeVisibility,
-  expectOpenFileButtonVisibility,
+  expectLinkedResourcesTreeRemoved,
+  expectOpenFileButtonVisible,
   expectViewIsActive,
   gotoReportView,
 } from '../testing/ui';
@@ -19,9 +19,9 @@ describe('using the app without a file', () => {
   // src/e2e-tests/__tests__/using-app-without-a-file.test.ts.
   it('provides expected functionality when no file is open', async () => {
     await renderApp();
-    await expectOpenFileButtonVisibility(true);
+    await expectOpenFileButtonVisible();
     await expectViewIsActive('audit');
-    await expectLinkedResourcesTreeVisibility(false);
+    await expectLinkedResourcesTreeRemoved();
     // Without a file the whole resource browser is not rendered.
     expect(screen.queryByTestId('resources-tree')).toBeNull();
 

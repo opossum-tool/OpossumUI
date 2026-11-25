@@ -178,6 +178,12 @@ export function calculateCriticalityBarSteps(
   ];
 }
 
+export function classificationStepDescription(classification: string): string {
+  return `${
+    text.topBar.switchableProgressBar.classificationBar.containingClassification
+  } "${classification.toLowerCase()}"`;
+}
+
 export function calculateClassificationBarSteps(
   statistics: ClassificationStatistics | undefined,
   classifications: ClassificationsConfig,
@@ -201,10 +207,9 @@ export function calculateClassificationBarSteps(
       return {
         count,
         widthInPercent: classificationPercentages[index],
-        description: `${
-          text.topBar.switchableProgressBar.classificationBar
-            .containingClassification
-        } "${classifications[classification].description.toLowerCase()}"`,
+        description: classificationStepDescription(
+          classifications[classification].description,
+        ),
         color: classifications[classification].color,
       };
     },

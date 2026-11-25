@@ -14,8 +14,10 @@ import {
   closeAuditingOptionsMenu,
   expectAttributionFormMatchesPackageInfo,
   expectAttributionSaveButtonIsEnabled,
-  expectAuditingMenuOption,
-  expectAuditingOptionChip,
+  expectAuditingMenuOptionNotShown,
+  expectAuditingMenuOptionShown,
+  expectAuditingOptionChipNotShown,
+  expectAuditingOptionChipShown,
   gotoResource,
   openAuditingOptionsMenu,
   removeAuditingOption,
@@ -61,35 +63,32 @@ describe('preferring attributions', () => {
     await gotoResource(resourceName1);
     await expectAttributionFormMatchesPackageInfo(manualPackageInfo);
     await expectAttributionSaveButtonIsEnabled(false);
-    await expectAuditingOptionChip('preferred', false);
+    await expectAuditingOptionChipNotShown('preferred');
 
     await openAuditingOptionsMenu();
-    await expectAuditingMenuOption(
+    await expectAuditingMenuOptionNotShown(
       text.auditingOptions.currentlyPreferred,
-      false,
     );
 
     // Simulates the View > QA Mode native menu toggle.
     sendUserSettingsChange(sendToChannel, { qaMode: true });
-    await expectAuditingMenuOption(
+    await expectAuditingMenuOptionShown(
       text.auditingOptions.currentlyPreferred,
-      true,
     );
 
     await clickAuditingMenuOption(text.auditingOptions.currentlyPreferred);
     await closeAuditingOptionsMenu();
-    await expectAuditingOptionChip('preferred', true);
+    await expectAuditingOptionChipShown('preferred');
     await expectAttributionSaveButtonIsEnabled(true);
 
     await openAuditingOptionsMenu();
-    await expectAuditingMenuOption(
+    await expectAuditingMenuOptionNotShown(
       text.auditingOptions.currentlyPreferred,
-      false,
     );
 
     await closeAuditingOptionsMenu();
     await removeAuditingOption('preferred');
-    await expectAuditingOptionChip('preferred', false);
+    await expectAuditingOptionChipNotShown('preferred');
     await expectAttributionSaveButtonIsEnabled(false);
   });
 });

@@ -8,6 +8,10 @@ import userEvent from '@testing-library/user-event';
 import type { PackageInfo } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import {
+  clickPopupButton,
+  CONFIRMATION_DIALOG_LABEL,
+} from '../../../../testing/ui';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { useConfirmAttributionEdit } from '../use-confirm-attribution-edit';
@@ -74,9 +78,7 @@ describe('useConfirmAttributionEdit', () => {
     expect(onEdit).not.toHaveBeenCalled();
     expect(screen.getByText('true')).toBeInTheDocument();
 
-    await userEvent.click(
-      screen.getByRole('button', { name: text.buttons.cancel }),
-    );
+    await clickPopupButton(CONFIRMATION_DIALOG_LABEL, text.buttons.cancel);
 
     expect(onEdit).not.toHaveBeenCalled();
     await waitFor(() =>
@@ -87,9 +89,7 @@ describe('useConfirmAttributionEdit', () => {
     expect(screen.getByText('false')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-    await userEvent.click(
-      screen.getByRole('button', { name: text.buttons.ok }),
-    );
+    await clickPopupButton(CONFIRMATION_DIALOG_LABEL, text.buttons.ok);
 
     expect(onEdit).toHaveBeenCalledOnce();
     await waitFor(() =>

@@ -13,6 +13,10 @@ import {
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import {
+  expectAiStatusBadges,
+  expectAiStatusIcons,
+} from '../../../../testing/ui';
 import { OpossumColors } from '../../../shared-styles';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
@@ -570,15 +574,13 @@ describe('AttributionForm', () => {
           data: getParsedInputFileEnrichedWithTestData({}),
         });
 
-        const badges = screen.queryAllByTestId(
-          /^auditing-option-(ai-generated|human-modified|deferred)$/,
+        await expectAiStatusBadges(
+          expected,
+          screen.getByTestId('attribution-form-wrapper'),
         );
-        expect(badges.map((badge) => badge.textContent)).toEqual(expected);
-        const icons = screen.queryAllByLabelText(
-          /^(AI generated|Human-modified AI|Deferred AI) icon$/,
-        );
-        expect(icons.map((icon) => icon.getAttribute('aria-label'))).toEqual(
+        await expectAiStatusIcons(
           expectedIcons,
+          screen.getByTestId('attribution-form-wrapper'),
         );
       },
     );

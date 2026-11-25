@@ -175,7 +175,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
           <TabPanel tabIndex={0} selectedTab={selectedTab}>
             <ChartGrid>
               <ChartGridItem testId={'attributionBarChart'}>
-                <MuiTypography variant="subtitle1">
+                <MuiTypography variant="subtitle1" component={'h3'}>
                   {
                     text.projectStatisticsPopup.charts.attributionProperties
                       .title
@@ -220,7 +220,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 )}
                 testId={'mostFrequentLicenseCountPieChart'}
               >
-                <MuiTypography variant="subtitle1">
+                <MuiTypography variant="subtitle1" component={'h3'}>
                   {
                     text.projectStatisticsPopup.charts
                       .mostFrequentLicenseCountPieChart
@@ -257,7 +257,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 }
                 testId={'criticalSignalsCountPieChart'}
               >
-                <MuiTypography variant="subtitle1">
+                <MuiTypography variant="subtitle1" component={'h3'}>
                   {
                     text.projectStatisticsPopup.charts
                       .criticalSignalsCountPieChart.title
@@ -304,7 +304,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 }
                 testId={'signalCountByClassificationPieChart'}
               >
-                <MuiTypography variant="subtitle1">
+                <MuiTypography variant="subtitle1" component={'h3'}>
                   {
                     text.projectStatisticsPopup.charts
                       .signalCountByClassificationPieChart.title
@@ -350,7 +350,7 @@ export const ProjectStatisticsPopup: React.FC = () => {
                 )}
                 testId={'incompleteAttributionsPieChart'}
               >
-                <MuiTypography variant="subtitle1">
+                <MuiTypography variant="subtitle1" component={'h3'}>
                   {
                     text.projectStatisticsPopup.charts
                       .incompleteAttributionsPieChart.title

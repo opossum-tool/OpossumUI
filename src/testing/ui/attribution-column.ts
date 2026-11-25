@@ -8,6 +8,7 @@ import { expect } from 'vitest';
 
 import type { RawPackageInfo } from '../../shared/shared-types';
 import { text } from '../../shared/text';
+import { AI_STATUS_BADGE_TEST_ID, AI_STATUS_ICON_LABEL } from './ai-status';
 import { isNodeEnabled, SETTLED_TIMEOUT } from './common';
 
 export type AttributionColumnField =
@@ -71,6 +72,9 @@ export async function clickFormField(
 export async function expectFormFieldValues(
   values: Partial<Record<AttributionColumnField, string | null>>,
 ): Promise<void> {
+  // A null value asserts that the field is not shown, i.e. the form keeps
+  // collapsed fields rendered but hidden; absence of the input is also
+  // accepted for fields that are removed from the DOM entirely.
   for (const [field, value] of Object.entries(values) as Array<
     [AttributionColumnField, string | null]
   >) {
@@ -175,10 +179,10 @@ export async function expectAttributionFormIsEmpty(): Promise<void> {
 export async function expectAttributionSaveButtonIsEnabled(
   enabled: boolean = true,
 ): Promise<void> {
-  const button = within(getAttributionColumn()).getByRole('button', {
-    name: BUTTON_LABELS.save,
-  });
   await waitFor(() => {
+    const button = within(getAttributionColumn()).getByRole('button', {
+      name: BUTTON_LABELS.save,
+    });
     if (enabled) {
       expect(button).toBeEnabled();
     } else {
@@ -307,18 +311,19 @@ export async function clickAttributionColumnButton(
   await userEvent.click(buttonNode);
 }
 
-export async function expectAttributionColumnButtonVisibility(
+export async function expectAttributionColumnButtonShown(
   button: AttributionColumnButton,
-  visible: boolean,
 ): Promise<void> {
   await waitFor(() => {
-    const node = queryAttributionColumnButton(button);
-    if (visible) {
-      expect(node).not.toBeNull();
-      expect(node).toBeVisible();
-    } else if (node !== null) {
-      expect(node).not.toBeVisible();
-    }
+    expect(queryAttributionColumnButton(button)).toBeVisible();
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectAttributionColumnButtonNotShown(
+  button: AttributionColumnButton,
+): Promise<void> {
+  await waitFor(() => {
+    expect(queryAttributionColumnButton(button)).not.toBeInTheDocument();
   }, SETTLED_TIMEOUT);
 }
 
@@ -403,19 +408,21 @@ export async function closeAuditingOptionsMenu(): Promise<void> {
   }, SETTLED_TIMEOUT);
 }
 
-export async function expectAuditingMenuOption(
+export async function expectAuditingMenuOptionShown(
   label: string,
-  visible: boolean,
 ): Promise<void> {
   await waitFor(() => {
-    const menu = screen.getByRole('menu');
-    const option = within(menu).queryByText(label);
-    if (visible) {
-      expect(option).not.toBeNull();
-      expect(option).toBeVisible();
-    } else {
-      expect(option).toBeNull();
-    }
+    expect(within(screen.getByRole('menu')).getByText(label)).toBeVisible();
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectAuditingMenuOptionNotShown(
+  label: string,
+): Promise<void> {
+  await waitFor(() => {
+    expect(
+      within(screen.getByRole('menu')).queryByText(label),
+    ).not.toBeInTheDocument();
   }, SETTLED_TIMEOUT);
 }
 
@@ -424,18 +431,19 @@ export async function clickAuditingMenuOption(label: string): Promise<void> {
   await userEvent.click(within(menu).getByText(label));
 }
 
-export async function expectAuditingOptionChip(
+export async function expectAuditingOptionChipShown(
   optionId: string,
-  visible: boolean,
 ): Promise<void> {
   await waitFor(() => {
-    const chip = queryAuditingOptionChip(optionId);
-    if (visible) {
-      expect(chip).not.toBeNull();
-      expect(chip).toBeVisible();
-    } else {
-      expect(chip).toBeNull();
-    }
+    expect(queryAuditingOptionChip(optionId)).toBeVisible();
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectAuditingOptionChipNotShown(
+  optionId: string,
+): Promise<void> {
+  await waitFor(() => {
+    expect(queryAuditingOptionChip(optionId)).not.toBeInTheDocument();
   }, SETTLED_TIMEOUT);
 }
 
@@ -451,25 +459,47 @@ function queryAuditingOptionChip(optionId: string): HTMLElement | null {
   );
 }
 
+export async function expectAiStatusBadges(
+  badges: Array<string>,
+  container: HTMLElement = getAttributionColumn(),
+): Promise<void> {
+  await waitFor(() => {
+    expect(
+      within(container)
+        .queryAllByTestId(AI_STATUS_BADGE_TEST_ID)
+        .map((badge) => badge.textContent),
+    ).toEqual(badges);
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectAiStatusIcons(
+  icons: Array<string>,
+  container: HTMLElement = getAttributionColumn(),
+): Promise<void> {
+  await waitFor(() => {
+    expect(
+      within(container)
+        .queryAllByLabelText(AI_STATUS_ICON_LABEL)
+        .map((icon) => icon.getAttribute('aria-label')),
+    ).toEqual(icons);
+  }, SETTLED_TIMEOUT);
+}
+
 function getAuditingOptionChip(optionId: string): HTMLElement {
   const chip = queryAuditingOptionChip(optionId);
   expect(chip).not.toBeNull();
   return chip as HTMLElement;
 }
 
-export async function expectAttributionLicenseTextVisibility(
-  visible: boolean,
-): Promise<void> {
+export async function expectAttributionLicenseTextNotShown(): Promise<void> {
+  // The license text field unmounts instead of being hidden (LicenseSubPanel
+  // renders it conditionally on showLicenseText).
   await waitFor(() => {
-    const licenseTextField = within(getAttributionColumn()).queryByLabelText(
-      text.attributionColumn.licenseText,
-    );
-    if (visible) {
-      expect(licenseTextField).not.toBeNull();
-      expect(licenseTextField).toBeVisible();
-    } else if (licenseTextField !== null) {
-      expect(licenseTextField).not.toBeVisible();
-    }
+    expect(
+      within(getAttributionColumn()).queryByLabelText(
+        text.attributionColumn.licenseText,
+      ),
+    ).not.toBeInTheDocument();
   }, SETTLED_TIMEOUT);
 }
 export async function clickAttributionLicenseTextToggle(): Promise<void> {

@@ -17,15 +17,17 @@ function getDiffPopup(): HTMLElement {
   return screen.getByLabelText(text.diffPopup.ariaLabel);
 }
 
-export async function expectDiffPopupVisibility(
-  visible: boolean,
-): Promise<void> {
+export async function expectDiffPopupOpen(): Promise<void> {
   await waitFor(() => {
-    if (visible) {
-      expect(getDiffPopup()).toBeVisible();
-    } else {
-      expect(screen.queryByLabelText(text.diffPopup.ariaLabel)).toBeNull();
-    }
+    expect(getDiffPopup()).toBeVisible();
+  }, SETTLED_TIMEOUT);
+}
+
+export async function expectDiffPopupClosed(): Promise<void> {
+  await waitFor(() => {
+    expect(
+      screen.queryByLabelText(text.diffPopup.ariaLabel),
+    ).not.toBeInTheDocument();
   }, SETTLED_TIMEOUT);
 }
 

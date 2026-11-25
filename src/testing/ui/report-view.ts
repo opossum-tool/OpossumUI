@@ -29,18 +29,24 @@ export async function openReportAttributionInAuditView(
   await expectViewIsActive('audit');
 }
 
-export async function expectReportAttributionVisibility(
+export async function expectReportAttributionsShown(
   visible: Array<string>,
-  hidden: Array<string> = [],
 ): Promise<void> {
   for (const attributionId of visible) {
     await waitFor(() => {
       expect(within(getReportView()).getByTestId(attributionId)).toBeVisible();
     }, SETTLED_TIMEOUT);
   }
+}
+
+export async function expectReportAttributionsNotShown(
+  hidden: Array<string>,
+): Promise<void> {
   for (const attributionId of hidden) {
     await waitFor(() => {
-      expect(within(getReportView()).queryByTestId(attributionId)).toBeNull();
+      expect(
+        within(getReportView()).queryByTestId(attributionId),
+      ).not.toBeInTheDocument();
     }, SETTLED_TIMEOUT);
   }
 }

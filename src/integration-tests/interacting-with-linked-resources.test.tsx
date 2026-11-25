@@ -12,13 +12,15 @@ import {
   clearTreeSearch,
   clickPackageCard,
   expectAttributionFormMatchesPackageInfo,
-  expectLinkedResourcesTreeVisibility,
+  expectLinkedResourcesTreeRemoved,
+  expectLinkedResourcesTreeShown,
   expectPackageCards,
   expectPathBarCrumbs,
-  expectResourceVisibility,
+  expectResourceItemsNotShown,
+  expectResourceItemsShown,
+  expectSearchFocused,
   expectSelectedTabIs,
   expectTreeItemHighlight,
-  expectTreeSearchFocused,
   fillPanelSearch,
   gotoResource,
   gotoResourceInOtherTree,
@@ -69,11 +71,11 @@ describe('interacting with linked resources', () => {
     await gotoResourceTreeRoot();
     await expectSelectedTabIs('signals-panel', 'children');
     await expectPackageCards('signals-panel', [externalPackageInfo], []);
-    await expectLinkedResourcesTreeVisibility(false);
+    await expectLinkedResourcesTreeRemoved();
 
     await clickPackageCard('signals-panel', externalPackageInfo);
-    await expectLinkedResourcesTreeVisibility(true);
-    await expectResourceVisibility([resourceName1], [], LINKED_TREE);
+    await expectLinkedResourcesTreeShown();
+    await expectResourceItemsShown([resourceName1], LINKED_TREE);
 
     await gotoResourceInOtherTree(LINKED_TREE, resourceName1);
     await expectPathBarCrumbs([resourceName1]);
@@ -88,33 +90,25 @@ describe('interacting with linked resources', () => {
   it('shows only linked resources matching search', async () => {
     await renderApp({ data });
     await gotoResource(resourceName1);
-    await expectLinkedResourcesTreeVisibility(true);
-    await expectResourceVisibility(
-      [resourceName1, resourceName4],
-      [],
-      LINKED_TREE,
-    );
+    await expectLinkedResourcesTreeShown();
+    await expectResourceItemsShown([resourceName1, resourceName4], LINKED_TREE);
 
     await searchTree(resourceName4, 'linked-resources-tree-header');
-    await expectResourceVisibility([], [resourceName1], LINKED_TREE);
-    await expectResourceVisibility([resourceName4], [], LINKED_TREE);
+    await expectResourceItemsNotShown([resourceName1], LINKED_TREE);
+    await expectResourceItemsShown([resourceName4], LINKED_TREE);
     await expectTreeItemHighlight(LINKED_TREE, resourceName4, true);
 
     await clearTreeSearch('linked-resources-tree-header');
-    await expectResourceVisibility(
-      [resourceName1, resourceName4],
-      [],
-      LINKED_TREE,
-    );
+    await expectResourceItemsShown([resourceName1, resourceName4], LINKED_TREE);
     await expectTreeItemHighlight(LINKED_TREE, resourceName1, false);
     await expectTreeItemHighlight(LINKED_TREE, resourceName4, false);
 
     await gotoResourceInOtherTree(LINKED_TREE, resourceName1);
     await pressSearchShortcut();
-    await expectTreeSearchFocused('linked-resources-tree-header');
+    await expectSearchFocused('linked-resources-tree-header');
     await fillPanelSearch('linked-resources-tree-header', resourceName4);
-    await expectResourceVisibility([], [resourceName1], LINKED_TREE);
-    await expectResourceVisibility([resourceName4], [], LINKED_TREE);
+    await expectResourceItemsNotShown([resourceName1], LINKED_TREE);
+    await expectResourceItemsShown([resourceName4], LINKED_TREE);
     await expectTreeItemHighlight(LINKED_TREE, resourceName4, true);
   });
 });

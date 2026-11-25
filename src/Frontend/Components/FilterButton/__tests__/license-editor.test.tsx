@@ -7,6 +7,10 @@ import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
+import {
+  clickLicenseEditorTab,
+  removeLicenseFilterOption,
+} from '../../../../testing/ui';
 import { renderComponent } from '../../../test-helpers/render';
 import { FilterButton } from '../FilterButton';
 import {
@@ -74,14 +78,14 @@ test('keeps non-ASCII case variants distinct and searchable in Selected', async 
     licenseSearches: ['Ä'],
   });
   await user.type(search, 'ä{Enter}');
-  await user.click(screen.getByRole('tab', { name: 'Selected (2)' }));
+  await clickLicenseEditorTab('Selected (2)');
   const upper = screen.getByRole('option', { name: 'Name contains “Ä”' });
   const lower = screen.getByRole('option', { name: 'Name contains “ä”' });
   expect(upper.id).not.toBe(lower.id);
   await user.type(search, 'ä');
   expect(
     screen.queryByRole('option', { name: 'Name contains “Ä”' }),
-  ).toBeNull();
+  ).not.toBeInTheDocument();
   expect(
     screen.getByRole('option', { name: 'Name contains “ä”' }),
   ).toBeVisible();
@@ -150,7 +154,7 @@ test('applies selections immediately, preserves search, and separates clearing a
   expect(screen.getByRole('tab', { name: 'Selected (2)' })).toBeVisible();
   await userEvent.click(screen.getByRole('button', { name: 'Clear search' }));
   expect(search).toHaveValue('');
-  await userEvent.click(screen.getByRole('tab', { name: 'Selected (2)' }));
+  await clickLicenseEditorTab('Selected (2)');
   expect(
     screen.queryByRole('option', { name: 'Apache-2.0' }),
   ).not.toBeInTheDocument();
@@ -202,20 +206,27 @@ test('keeps keyboard position when a selected row disappears', async () => {
     licenses: [{ id: 'MIT', label: 'MIT' }],
     licenseSearches: ['MIT'],
   });
-  await user.click(screen.getByRole('tab', { name: 'Selected (2)' }));
+  await clickLicenseEditorTab('Selected (2)');
   const list = screen.getByRole('listbox');
   list.focus();
   const exact = screen.getByRole('option', { name: 'MIT' });
   const searchRow = screen.getByRole('option', { name: 'Name contains “MIT”' });
   expect(exact.id).not.toBe(searchRow.id);
-  expect(exact).toHaveAttribute('aria-selected', 'true');
-  expect(searchRow).toHaveAttribute('aria-selected', 'true');
+  expect(screen.getByRole('option', { name: 'MIT' })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+  expect(
+    screen.getByRole('option', { name: 'Name contains “MIT”' }),
+  ).toHaveAttribute('aria-selected', 'true');
   await user.keyboard('{Home}{Enter}');
   expect(screen.queryByRole('option', { name: 'MIT' })).not.toBeInTheDocument();
   const remaining = screen.getByRole('option', {
     name: 'Name contains “MIT”',
   });
-  expect(remaining).toHaveAttribute('aria-selected', 'true');
+  expect(
+    screen.getByRole('option', { name: 'Name contains “MIT”' }),
+  ).toHaveAttribute('aria-selected', 'true');
   expect(list).toHaveAttribute('aria-activedescendant', remaining.id);
   expect(list).toHaveFocus();
   await user.keyboard('{Enter}');
@@ -239,7 +250,7 @@ test('replaces Selected checkmarks with removal buttons and a short tooltip', as
   expect(
     screen.queryByRole('button', { name: 'Remove MIT' }),
   ).not.toBeInTheDocument();
-  await user.click(screen.getByRole('tab', { name: 'Selected (2)' }));
+  await clickLicenseEditorTab('Selected (2)');
   const list = screen.getByRole('listbox');
   expect(within(list).queryByTestId('CheckIcon')).not.toBeInTheDocument();
   const remove = screen.getByRole('button', {
@@ -280,7 +291,7 @@ test('shares search between tabs and clears search in Selected', async () => {
       name: 'Add filter: name contains “no matching name”',
     }),
   ).toBeVisible();
-  await userEvent.click(screen.getByRole('tab', { name: 'Selected (1)' }));
+  await clickLicenseEditorTab('Selected (1)');
   expect(search).toBeVisible();
   expect(search).toHaveValue('no matching name');
   expect(screen.getByRole('tab', { name: 'Selected (1)' })).toHaveFocus();
@@ -290,7 +301,7 @@ test('shares search between tabs and clears search in Selected', async () => {
   expect(screen.getByRole('option', { name: 'Zlib' })).toBeVisible();
   await userEvent.type(search, 'ZLIB');
   expect(screen.getByRole('option', { name: 'Zlib' })).toBeVisible();
-  await userEvent.click(screen.getByRole('tab', { name: 'All' }));
+  await clickLicenseEditorTab('All');
   expect(search).toHaveValue('ZLIB');
   expect(screen.queryByRole('option', { name: 'MIT' })).not.toBeInTheDocument();
 });
@@ -300,7 +311,7 @@ test('removes a filtered selected license from the keyboard', async () => {
   await userEvent.click(screen.getByRole('button', { name: 'filter button' }));
   await userEvent.click(screen.getByRole('menuitem', { name: 'Zlib' }));
   await userEvent.click(screen.getByRole('option', { name: 'MIT' }));
-  await userEvent.click(screen.getByRole('tab', { name: 'Selected (2)' }));
+  await clickLicenseEditorTab('Selected (2)');
   const search = screen.getByRole('textbox', { name: 'Search licenses' });
   await userEvent.type(search, 'mit');
   expect(screen.getAllByRole('option')).toHaveLength(1);
@@ -324,8 +335,8 @@ test('clears licenses beside the tabs while keeping the current search and tab',
     screen.getByRole('menuitem', { name: '3 license filters' }),
   ).toBeVisible();
   await user.type(search, 'zlib');
-  await user.click(screen.getByRole('tab', { name: 'Selected (3)' }));
-  await user.click(screen.getByRole('button', { name: 'Clear licenses' }));
+  await clickLicenseEditorTab('Selected (3)');
+  await userEvent.click(screen.getByRole('button', { name: 'Clear licenses' }));
   expect(search).toBeVisible();
   expect(search).toHaveValue('zlib');
   expect(screen.getByRole('tab', { name: 'Selected (0)' })).toHaveAttribute(
@@ -335,7 +346,7 @@ test('clears licenses beside the tabs while keeping the current search and tab',
   expect(screen.getByRole('dialog', { name: 'Licenses' })).toBeVisible();
   expect(screen.getByRole('button', { name: 'Clear licenses' })).toBeDisabled();
   expect(screen.getByText('No licenses selected.')).toBeVisible();
-  await user.click(screen.getByRole('tab', { name: 'All' }));
+  await clickLicenseEditorTab('All');
   expect(screen.getByRole('textbox', { name: 'Search licenses' })).toHaveValue(
     'zlib',
   );
@@ -350,7 +361,7 @@ test('clears licenses beside the tabs while keeping the current search and tab',
   );
   await user.type(search, 'zlib');
   await user.keyboard('{Enter}');
-  await user.click(screen.getByRole('tab', { name: 'Selected (1)' }));
+  await clickLicenseEditorTab('Selected (1)');
   expect(
     screen.getByRole('option', { name: 'Name contains “zlib”' }),
   ).toBeVisible();
@@ -410,15 +421,17 @@ test('uses the current label in the caption and both tabs, and toggles by ID', a
   expect(screen.getAllByRole('option')).toHaveLength(1);
   const search = screen.getByRole('textbox', { name: 'Search licenses' });
   await userEvent.type(search, 'M I T');
-  const row = screen.getByRole('option', { name: 'M I T' });
-  expect(row).toHaveAttribute('aria-selected', 'true');
-  await userEvent.click(screen.getByRole('tab', { name: 'Selected (1)' }));
+  expect(screen.getByRole('option', { name: 'M I T' })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+  await clickLicenseEditorTab('Selected (1)');
   expect(screen.getAllByRole('option')).toHaveLength(1);
   expect(screen.getByRole('option', { name: 'M I T' })).toHaveAttribute(
     'aria-selected',
     'true',
   );
-  await userEvent.click(screen.getByRole('tab', { name: 'All' }));
+  await clickLicenseEditorTab('All');
   await userEvent.click(screen.getByRole('option', { name: 'M I T' }));
   expect(screen.getByRole('option', { name: 'M I T' })).toHaveAttribute(
     'aria-selected',
@@ -456,7 +469,7 @@ test('supports a generic panel with live content and focus re-entry', async () =
   }
   const user = userEvent.setup();
   await renderComponent(<GenericFixture />);
-  await user.click(screen.getByLabelText('filter button'));
+  await user.click(screen.getByRole('button', { name: 'filter button' }));
   const trigger = screen.getByRole('menuitem', { name: 'Custom panel' });
   await user.click(trigger);
   expect(screen.getByLabelText('Custom input')).toHaveFocus();
@@ -482,7 +495,7 @@ test('adds a trimmed query by clicking its suggestion when no exact option match
   });
   expect(screen.getAllByRole('option')).toEqual([suggestion]);
   await user.click(suggestion);
-  await user.click(screen.getByRole('tab', { name: 'Selected (2)' }));
+  await clickLicenseEditorTab('Selected (2)');
   expect(
     screen.getByRole('option', { name: 'Name contains “unknown%_!”' }),
   ).toHaveAttribute('aria-selected', 'true');
@@ -497,7 +510,7 @@ test('adds with Enter, clears the input, and restores focus', async () => {
     'aria-selected',
     'false',
   );
-  await user.click(screen.getByRole('tab', { name: 'Selected (2)' }));
+  await clickLicenseEditorTab('Selected (2)');
   expect(
     screen.getByRole('option', { name: 'Name contains “MIT”' }),
   ).toBeVisible();
@@ -520,11 +533,13 @@ test('shows committed searches in Selected with a search icon and explanatory to
     'Apache-2.0',
     'MIT',
   ]);
-  await user.click(screen.getByRole('tab', { name: 'Selected (1)' }));
+  await clickLicenseEditorTab('Selected (1)');
   const row = screen.getByRole('option', {
     name: 'Name contains “unknown%_!”',
   });
-  expect(row).toHaveAttribute('aria-selected', 'true');
+  expect(
+    screen.getByRole('option', { name: 'Name contains “unknown%_!”' }),
+  ).toHaveAttribute('aria-selected', 'true');
   expect(within(row).getByTestId('SearchIcon')).toBeVisible();
   await user.hover(row);
   expect(
@@ -594,7 +609,10 @@ test('navigates suggestion → exact option → suggestion, including Home and E
   await user.keyboard('{ArrowDown}');
   expect(list).toHaveAttribute('aria-activedescendant', exact.id);
   await user.keyboard('{Enter}');
-  expect(exact).toHaveAttribute('aria-selected', 'true');
+  expect(screen.getByRole('option', { name: 'MIT' })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
   expect(search).toHaveValue('mit');
   expect(list).toHaveFocus();
   await user.keyboard('{ArrowUp}');
@@ -612,7 +630,7 @@ test.each(['{Enter}', ' '])('activates a suggestion with %s', async (key) => {
   await user.keyboard(key);
   expect(search).toHaveValue('');
   expect(search).toHaveFocus();
-  await user.click(screen.getByRole('tab', { name: 'Selected (2)' }));
+  await clickLicenseEditorTab('Selected (2)');
   expect(
     screen.getByRole('option', { name: 'Name contains “mit”' }),
   ).toHaveAttribute('aria-selected', 'true');
@@ -640,7 +658,7 @@ test('keeps padded-input results consistent with the trimmed query', async () =>
   await user.click(
     screen.getByRole('option', { name: 'Add filter: name contains “MIT”' }),
   );
-  await user.click(screen.getByRole('tab', { name: 'Selected (2)' }));
+  await clickLicenseEditorTab('Selected (2)');
   await user.type(search, '  MIT  ');
   expect(
     screen.getAllByRole('option').map((row) => row.getAttribute('aria-label')),
@@ -659,7 +677,7 @@ test('preserves internal whitespace in the suggestion and committed accessible l
     'Add filter: name contains “Custom  License (x)”',
   );
   await user.keyboard('{Enter}');
-  await user.click(screen.getByRole('tab', { name: 'Selected (2)' }));
+  await clickLicenseEditorTab('Selected (2)');
   expect(
     screen.getByRole('option', { name: 'Name contains “Custom License (x)”' }),
   ).toHaveAttribute('aria-label', 'Name contains “Custom  License (x)”');
@@ -682,16 +700,14 @@ test('adds two distinct searches through the UI and removes one while retaining 
   const { user, search } = await renderLicenseEditor();
   await user.type(search, 'first{Enter}');
   await user.type(search, 'second{Enter}');
-  await user.click(screen.getByRole('tab', { name: 'Selected (3)' }));
+  await clickLicenseEditorTab('Selected (3)');
   expect(
     screen.getByRole('option', { name: 'Name contains “first”' }),
   ).toBeVisible();
   expect(
     screen.getByRole('option', { name: 'Name contains “second”' }),
   ).toBeVisible();
-  await user.click(
-    screen.getByRole('button', { name: 'Remove Name contains “first”' }),
-  );
+  await removeLicenseFilterOption('Name contains “first”');
   expect(
     screen.queryByRole('option', { name: 'Name contains “first”' }),
   ).not.toBeInTheDocument();
@@ -703,7 +719,7 @@ test('adds two distinct searches through the UI and removes one while retaining 
 
 test('keeps Enter in Selected from adding a new search', async () => {
   const { user, search } = await renderLicenseEditor();
-  await user.click(screen.getByRole('tab', { name: 'Selected (1)' }));
+  await clickLicenseEditorTab('Selected (1)');
   await user.click(search);
   await user.type(search, 'MIT{Enter}');
   expect(search).toHaveValue('MIT');

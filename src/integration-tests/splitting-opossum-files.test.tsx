@@ -10,9 +10,10 @@ import { faker } from '../testing/Faker';
 import { renderApp } from '../testing/render-app';
 import {
   cancelSplitDialog,
+  expectSplitDialogClosed,
   expectSplitDialogCreateButtonEnabled,
-  expectSplitDialogVisibility,
-  expectUnsavedChangesPopupVisibility,
+  expectSplitDialogOpen,
+  expectUnsavedChangesPopupOpen,
   fillFormField,
   gotoResource,
   openSplitDialogFromMenu,
@@ -52,18 +53,18 @@ describe('splitting opossum files (dialog UX)', () => {
   it('opens and cancels the create split dialog', async () => {
     await renderApp({ data });
     await openSplitDialogViaTreeContextMenu(firstDirectoryName);
-    await expectSplitDialogVisibility(true);
+    await expectSplitDialogOpen();
 
     await cancelSplitDialog();
 
-    await expectSplitDialogVisibility(false);
+    await expectSplitDialogClosed();
   });
 
   it('opens the create split dialog from the File menu', async () => {
     const { sendToChannel } = await renderApp({ data });
     openSplitDialogFromMenu(sendToChannel);
 
-    await expectSplitDialogVisibility(true);
+    await expectSplitDialogOpen();
     await expectSplitDialogCreateButtonEnabled(false);
   });
 
@@ -76,7 +77,7 @@ describe('splitting opossum files (dialog UX)', () => {
 
     await openSplitDialogViaTreeContextMenu(firstDirectoryName);
 
-    await expectUnsavedChangesPopupVisibility(true);
-    await expectSplitDialogVisibility(false);
+    await expectUnsavedChangesPopupOpen();
+    await expectSplitDialogClosed();
   });
 });

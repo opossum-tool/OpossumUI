@@ -17,13 +17,15 @@ import {
   clickPackageCardCheckbox,
   clickPanelButton,
   clickPopupButton,
-  expectAttributionColumnButtonVisibility,
+  expectAttributionColumnButtonNotShown,
+  expectAttributionColumnButtonShown,
   expectAttributionFormMatchesPackageInfo,
   expectPackageCardPickerSource,
   expectPackageCards,
   expectPanelReplacementDimmed,
   expectPopupHasText,
-  expectResourceVisibility,
+  expectResourceItemsNotShown,
+  expectResourceItemsShown,
   LINKED_RESOURCES_TREE,
   SIGNALS_PANEL,
 } from '../testing/ui';
@@ -80,24 +82,18 @@ describe('replacing attributions', () => {
     await renderApp({ data });
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
     await expectAttributionFormMatchesPackageInfo(packageInfo1);
-    await expectResourceVisibility(
-      [resourceName3],
-      [resourceName4],
-      LINKED_RESOURCES_TREE,
-    );
+    await expectResourceItemsShown([resourceName3], LINKED_RESOURCES_TREE);
+    await expectResourceItemsNotShown([resourceName4], LINKED_RESOURCES_TREE);
 
     await clickPanelButton(ATTRIBUTIONS_PANEL, text.packageLists.replace);
-    await expectAttributionColumnButtonVisibility('save', false);
-    await expectAttributionColumnButtonVisibility('replace', false);
+    await expectAttributionColumnButtonNotShown('save');
+    await expectAttributionColumnButtonNotShown('replace');
     await expectPackageCardPickerSource(ATTRIBUTIONS_PANEL, packageInfo1, true);
 
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo2);
-    await expectResourceVisibility(
-      [resourceName4],
-      [resourceName3],
-      LINKED_RESOURCES_TREE,
-    );
-    await expectAttributionColumnButtonVisibility('replace', true);
+    await expectResourceItemsShown([resourceName4], LINKED_RESOURCES_TREE);
+    await expectResourceItemsNotShown([resourceName3], LINKED_RESOURCES_TREE);
+    await expectAttributionColumnButtonShown('replace');
 
     await clickAttributionColumnButton('replace');
     await clickPopupButton(
@@ -112,9 +108,8 @@ describe('replacing attributions', () => {
 
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo2);
     await expectAttributionFormMatchesPackageInfo(packageInfo2);
-    await expectResourceVisibility(
+    await expectResourceItemsShown(
       [resourceName3, resourceName4],
-      [],
       LINKED_RESOURCES_TREE,
     );
   });
@@ -128,7 +123,7 @@ describe('replacing attributions', () => {
     await expectPackageCardPickerSource(ATTRIBUTIONS_PANEL, packageInfo2, true);
     await expectPackageCardPickerSource(ATTRIBUTIONS_PANEL, packageInfo3, true);
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
-    await expectAttributionColumnButtonVisibility('replace', true);
+    await expectAttributionColumnButtonShown('replace');
 
     await clickAttributionColumnButton('replace');
     await expectPopupHasText(
@@ -147,9 +142,8 @@ describe('replacing attributions', () => {
     );
 
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo1);
-    await expectResourceVisibility(
+    await expectResourceItemsShown(
       [resourceName3, resourceName4],
-      [],
       LINKED_RESOURCES_TREE,
     );
   });
@@ -161,11 +155,11 @@ describe('replacing attributions', () => {
 
     // The cancel button is available right away, without first having to
     // select a replacement target.
-    await expectAttributionColumnButtonVisibility('cancel', true);
+    await expectAttributionColumnButtonShown('cancel');
 
     await clickAttributionColumnButton('cancel');
 
-    await expectAttributionColumnButtonVisibility('save', true);
+    await expectAttributionColumnButtonShown('save');
   });
 
   it('cancels replacement mode via the cancel button', async () => {
@@ -174,12 +168,12 @@ describe('replacing attributions', () => {
     await clickPanelButton(ATTRIBUTIONS_PANEL, text.packageLists.replace);
 
     await clickPackageCard(ATTRIBUTIONS_PANEL, packageInfo2);
-    await expectAttributionColumnButtonVisibility('replace', true);
+    await expectAttributionColumnButtonShown('replace');
 
     await clickAttributionColumnButton('cancel');
 
-    await expectAttributionColumnButtonVisibility('replace', false);
-    await expectAttributionColumnButtonVisibility('save', true);
+    await expectAttributionColumnButtonNotShown('replace');
+    await expectAttributionColumnButtonShown('save');
   });
 
   it('disables the signals panel while in replacement mode, since signals are not valid replacement targets', async () => {
@@ -188,13 +182,13 @@ describe('replacing attributions', () => {
     await expectPanelReplacementDimmed(SIGNALS_PANEL, false);
 
     await clickPanelButton(ATTRIBUTIONS_PANEL, text.packageLists.replace);
-    await expectAttributionColumnButtonVisibility('save', false);
-    await expectAttributionColumnButtonVisibility('replace', false);
+    await expectAttributionColumnButtonNotShown('save');
+    await expectAttributionColumnButtonNotShown('replace');
     await expectPanelReplacementDimmed(SIGNALS_PANEL, true);
 
     await clickPackageCard(SIGNALS_PANEL, packageInfo4);
-    await expectAttributionColumnButtonVisibility('replace', false);
-    await expectAttributionColumnButtonVisibility('link', false);
+    await expectAttributionColumnButtonNotShown('replace');
+    await expectAttributionColumnButtonNotShown('link');
 
     await clickAttributionColumnButton('cancel');
     await expectPanelReplacementDimmed(SIGNALS_PANEL, false);

@@ -7,6 +7,10 @@ import userEvent from '@testing-library/user-event';
 
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
+import {
+  clickPopupButton,
+  CONFIRMATION_DIALOG_LABEL,
+} from '../../../../testing/ui';
 import { renderComponent } from '../../../test-helpers/render';
 import {
   ConfirmationDialog,
@@ -74,9 +78,7 @@ describe('ConfirmationDialog', () => {
     );
 
     await userEvent.click(screen.getByRole('button'));
-    await userEvent.click(
-      screen.getByRole('button', { name: text.buttons.ok }),
-    );
+    await clickPopupButton(CONFIRMATION_DIALOG_LABEL, text.buttons.ok);
 
     expect(onConfirm).toHaveBeenCalledTimes(1);
     await waitFor(() =>
@@ -95,9 +97,7 @@ describe('ConfirmationDialog', () => {
     );
 
     await userEvent.click(screen.getByRole('button'));
-    await userEvent.click(
-      screen.getByRole('button', { name: text.buttons.cancel }),
-    );
+    await clickPopupButton(CONFIRMATION_DIALOG_LABEL, text.buttons.cancel);
 
     expect(onCancel).toHaveBeenCalledTimes(1);
     await waitFor(() =>

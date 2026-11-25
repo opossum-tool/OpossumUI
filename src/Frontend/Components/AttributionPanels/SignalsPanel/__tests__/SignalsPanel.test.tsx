@@ -11,10 +11,7 @@ import { pathsToResources } from '../../../../../testing/global-test-helpers';
 import {
   clickPackageCard,
   clickPackageCardCheckbox,
-  expectButtonDisabled,
-  expectEventuallyButtonDisabled,
-  expectEventuallyButtonEnabled,
-  getButton,
+  SETTLED_TIMEOUT,
   SIGNALS_PANEL,
 } from '../../../../../testing/ui';
 import { ROOT_PATH } from '../../../../shared-constants';
@@ -128,7 +125,9 @@ describe('SignalsPanel', () => {
     });
 
     await clickPackageCard(SIGNALS_PANEL, packageInfo);
-    await userEvent.click(getButton(text.packageLists.delete));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.delete }),
+    );
 
     await expectResolvedExternalAttributions(new Set([packageInfo.id]));
   });
@@ -151,7 +150,9 @@ describe('SignalsPanel', () => {
     );
     await clickPackageCard(SIGNALS_PANEL, packageInfo);
 
-    expectButtonDisabled(text.packageLists.delete);
+    expect(
+      screen.getByRole('button', { name: text.packageLists.delete }),
+    ).toBeDisabled();
   });
 
   it('restores selected signal', async () => {
@@ -171,7 +172,9 @@ describe('SignalsPanel', () => {
       screen.getByRole('button', { name: text.packageLists.showDeleted }),
     );
     await clickPackageCard(SIGNALS_PANEL, packageInfo);
-    await userEvent.click(getButton(text.packageLists.restore));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.restore }),
+    );
 
     await expectResolvedExternalAttributions(new Set());
   });
@@ -193,7 +196,9 @@ describe('SignalsPanel', () => {
     );
     await clickPackageCard(SIGNALS_PANEL, packageInfo);
 
-    expectButtonDisabled(text.packageLists.restore);
+    expect(
+      screen.getByRole('button', { name: text.packageLists.restore }),
+    ).toBeDisabled();
   });
 
   it('links selected attribution', async () => {
@@ -216,7 +221,9 @@ describe('SignalsPanel', () => {
     await expectResourcesToManualAttributions({});
 
     await clickPackageCard(SIGNALS_PANEL, packageInfo);
-    await userEvent.click(getButton(text.packageLists.linkAsAttribution));
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
+    );
 
     await expectResourcesToManualAttributions({
       [ROOT_PATH]: [expect.any(String)],
@@ -243,8 +250,18 @@ describe('SignalsPanel', () => {
     const selectAll = screen.getByRole('checkbox', { name: 'select all' });
     await waitFor(() => expect(selectAll).toBeEnabled());
     await userEvent.click(selectAll);
-    await expectEventuallyButtonEnabled(text.packageLists.linkAsAttribution);
-    await userEvent.click(getButton(text.packageLists.linkAsAttribution));
+    await waitFor(
+      () =>
+        expect(
+          screen.getByRole('button', {
+            name: text.packageLists.linkAsAttribution,
+          }),
+        ).toBeEnabled(),
+      SETTLED_TIMEOUT,
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
+    );
 
     await waitFor(() =>
       expect(getSelectedAttributionId(store.getState())).not.toBe(
@@ -274,7 +291,9 @@ describe('SignalsPanel', () => {
 
     await clickPackageCard(SIGNALS_PANEL, packageInfo);
 
-    expectButtonDisabled(text.packageLists.linkAsAttribution);
+    expect(
+      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
+    ).toBeDisabled();
   });
 
   it('disables link button on a readonly structural ancestor', async () => {
@@ -294,7 +313,9 @@ describe('SignalsPanel', () => {
 
     await clickPackageCard(SIGNALS_PANEL, packageInfo);
 
-    expectButtonDisabled(text.packageLists.linkAsAttribution);
+    expect(
+      screen.getByRole('button', { name: text.packageLists.linkAsAttribution }),
+    ).toBeDisabled();
   });
 
   it('disables link button when the single selected signal already has a matching manual attribution', async () => {
@@ -318,7 +339,15 @@ describe('SignalsPanel', () => {
 
     await clickPackageCard(SIGNALS_PANEL, signal);
 
-    await expectEventuallyButtonDisabled(text.packageLists.linkAsAttribution);
+    await waitFor(
+      () =>
+        expect(
+          screen.getByRole('button', {
+            name: text.packageLists.linkAsAttribution,
+          }),
+        ).toBeDisabled(),
+      SETTLED_TIMEOUT,
+    );
   });
 
   it('disables link button when the single selected signal matches a manual attribution inherited from an ancestor', async () => {
@@ -346,7 +375,15 @@ describe('SignalsPanel', () => {
 
     await clickPackageCard(SIGNALS_PANEL, signal);
 
-    await expectEventuallyButtonDisabled(text.packageLists.linkAsAttribution);
+    await waitFor(
+      () =>
+        expect(
+          screen.getByRole('button', {
+            name: text.packageLists.linkAsAttribution,
+          }),
+        ).toBeDisabled(),
+      SETTLED_TIMEOUT,
+    );
   });
 
   it('keeps link button enabled when the matching ancestor has additional manual attributions', async () => {
@@ -378,7 +415,15 @@ describe('SignalsPanel', () => {
 
     await clickPackageCard(SIGNALS_PANEL, signal);
 
-    await expectEventuallyButtonEnabled(text.packageLists.linkAsAttribution);
+    await waitFor(
+      () =>
+        expect(
+          screen.getByRole('button', {
+            name: text.packageLists.linkAsAttribution,
+          }),
+        ).toBeEnabled(),
+      SETTLED_TIMEOUT,
+    );
   });
 
   it('keeps link button enabled for a multi-selection with an already matched signal', async () => {
@@ -409,7 +454,15 @@ describe('SignalsPanel', () => {
     await clickPackageCardCheckbox(SIGNALS_PANEL, matchedSignal);
     await clickPackageCardCheckbox(SIGNALS_PANEL, unmatchedSignal);
 
-    await expectEventuallyButtonEnabled(text.packageLists.linkAsAttribution);
+    await waitFor(
+      () =>
+        expect(
+          screen.getByRole('button', {
+            name: text.packageLists.linkAsAttribution,
+          }),
+        ).toBeEnabled(),
+      SETTLED_TIMEOUT,
+    );
   });
 
   it('disables link button when the selected signal is already matched on the resource', async () => {
@@ -441,7 +494,15 @@ describe('SignalsPanel', () => {
 
     await clickPackageCardCheckbox(SIGNALS_PANEL, signal);
 
-    await expectEventuallyButtonDisabled(text.packageLists.linkAsAttribution);
+    await waitFor(
+      () =>
+        expect(
+          screen.getByRole('button', {
+            name: text.packageLists.linkAsAttribution,
+          }),
+        ).toBeDisabled(),
+      SETTLED_TIMEOUT,
+    );
   });
 
   it('disables link button when linking the selected signal would be redundant', async () => {
@@ -473,6 +534,14 @@ describe('SignalsPanel', () => {
 
     await clickPackageCardCheckbox(SIGNALS_PANEL, signal);
 
-    await expectEventuallyButtonDisabled(text.packageLists.linkAsAttribution);
+    await waitFor(
+      () =>
+        expect(
+          screen.getByRole('button', {
+            name: text.packageLists.linkAsAttribution,
+          }),
+        ).toBeDisabled(),
+      SETTLED_TIMEOUT,
+    );
   });
 });

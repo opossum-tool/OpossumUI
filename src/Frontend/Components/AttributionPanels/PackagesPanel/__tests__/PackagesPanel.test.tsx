@@ -16,6 +16,14 @@ import type {
 import { text } from '../../../../../shared/text';
 import { faker } from '../../../../../testing/Faker';
 import { pathsToResources } from '../../../../../testing/global-test-helpers';
+import {
+  clickSelectAllCheckbox,
+  expectSelectedTabIs,
+  expectTabsNotShown,
+  expectTabsShown,
+  PACKAGES_PANEL,
+  selectTab,
+} from '../../../../../testing/ui';
 import { PopupType } from '../../../../enums/enums';
 import {
   closePopupAndUnsetTargets,
@@ -164,6 +172,7 @@ function renderPackagesPanel({
       external={external}
       filterOptions={[]}
       renderActions={() => null}
+      testId={'packages-panel'}
       useAttributionFilters={useAttributionFilters}
     >
       {children ?? (() => null)}
@@ -192,6 +201,7 @@ function rerenderPackagesPanel(
       external={external}
       filterOptions={[]}
       renderActions={() => null}
+      testId={'packages-panel'}
       useAttributionFilters={() => [initialAttributionFilters, vi.fn()]}
     >
       {() => null}
@@ -480,7 +490,7 @@ describe('PackagesPanel', () => {
       useAttributionFilters: useManualAttributionFilters,
     });
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
+    await clickSelectAllCheckbox(PACKAGES_PANEL);
     expect(screen.getByRole('checkbox', { name: 'select all' })).toBeChecked();
 
     await act(() =>
@@ -713,7 +723,7 @@ describe('PackagesPanel', () => {
       );
     });
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
+    await clickSelectAllCheckbox(PACKAGES_PANEL);
     expect(screen.getByRole('checkbox', { name: 'select all' })).toBeChecked();
 
     await act(() =>
@@ -799,6 +809,7 @@ describe('PackagesPanel', () => {
         external={false}
         filterOptions={[]}
         renderActions={() => null}
+        testId={'packages-panel'}
         useAttributionFilters={() => [initialAttributionFilters, vi.fn()]}
       >
         {captureRelation}
@@ -841,16 +852,8 @@ describe('PackagesPanel', () => {
       external: true,
       actions: [setSelectedAttributionId(selectedSignal.id)],
     });
-    await waitFor(() =>
-      expect(
-        screen.getByRole('tab', {
-          name: new RegExp(text.relations['children']),
-        }),
-      ).toHaveAttribute('aria-selected', 'true'),
-    );
-    await userEvent.click(
-      screen.getByRole('tab', { name: new RegExp(text.relations.resource) }),
-    );
+    await expectSelectedTabIs(PACKAGES_PANEL, 'children');
+    await selectTab(PACKAGES_PANEL, 'resource');
 
     const refreshedAttributions = faker.opossum.attributions({
       [selectedSignal.id]: selectedSignal,
@@ -862,13 +865,7 @@ describe('PackagesPanel', () => {
       visibleAttributions: {},
       navigationRelation: 'children',
     });
-    await waitFor(() =>
-      expect(
-        screen.getByRole('tab', {
-          name: new RegExp(text.relations.resource),
-        }),
-      ).toHaveAttribute('aria-selected', 'true'),
-    );
+    await expectSelectedTabIs(PACKAGES_PANEL, 'resource');
 
     await act(() =>
       store.dispatch(setSelectedResourceId('/next-resource', 'auto')),
@@ -878,13 +875,7 @@ describe('PackagesPanel', () => {
       visibleAttributions: {},
       navigationRelation: 'children',
     });
-    await waitFor(() =>
-      expect(
-        screen.getByRole('tab', {
-          name: new RegExp(text.relations['children']),
-        }),
-      ).toHaveAttribute('aria-selected', 'true'),
-    );
+    await expectSelectedTabIs(PACKAGES_PANEL, 'children');
 
     rerenderPackagesPanel(rerender, refreshedAttributions, {
       external: true,
@@ -892,13 +883,7 @@ describe('PackagesPanel', () => {
       navigationRelation: 'parents',
     });
     await act(() => store.dispatch(setSelectedAttributionId(nextSignal.id)));
-    await waitFor(() =>
-      expect(
-        screen.getByRole('tab', {
-          name: new RegExp(text.relations.parents),
-        }),
-      ).toHaveAttribute('aria-selected', 'true'),
-    );
+    await expectSelectedTabIs(PACKAGES_PANEL, 'parents');
   });
 
   it('reveals after delayed destination data and again after an unavailable destination', async () => {
@@ -967,6 +952,7 @@ describe('PackagesPanel', () => {
         external
         filterOptions={[]}
         renderActions={() => null}
+        testId={'packages-panel'}
         useAttributionFilters={() => [initialAttributionFilters, vi.fn()]}
       >
         {() => null}
@@ -982,45 +968,21 @@ describe('PackagesPanel', () => {
     await act(() =>
       store.dispatch(setSelectedResourceId('/destination', 'preserve')),
     );
-    await waitFor(() =>
-      expect(
-        screen.getByRole('tab', {
-          name: new RegExp(text.relations.resource),
-        }),
-      ).toHaveAttribute('aria-selected', 'true'),
-    );
+    await expectSelectedTabIs(PACKAGES_PANEL, 'resource');
 
     destinationDataAvailable = true;
     rerender(renderExternalPanel());
-    await waitFor(() =>
-      expect(
-        screen.getByRole('tab', {
-          name: new RegExp(text.relations['children']),
-        }),
-      ).toHaveAttribute('aria-selected', 'true'),
-    );
+    await expectSelectedTabIs(PACKAGES_PANEL, 'children');
 
     await act(() =>
       store.dispatch(setSelectedResourceId('/unavailable', 'preserve')),
     );
-    await waitFor(() =>
-      expect(
-        screen.getByRole('tab', {
-          name: new RegExp(text.relations.resource),
-        }),
-      ).toHaveAttribute('aria-selected', 'true'),
-    );
+    await expectSelectedTabIs(PACKAGES_PANEL, 'resource');
 
     await act(() =>
       store.dispatch(setSelectedResourceId('/destination', 'preserve')),
     );
-    await waitFor(() =>
-      expect(
-        screen.getByRole('tab', {
-          name: new RegExp(text.relations['children']),
-        }),
-      ).toHaveAttribute('aria-selected', 'true'),
-    );
+    await expectSelectedTabIs(PACKAGES_PANEL, 'children');
   });
 
   it('does not auto-select when a resource navigation is cancelled', async () => {
@@ -1298,7 +1260,7 @@ describe('PackagesPanel', () => {
       }),
     });
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
+    await clickSelectAllCheckbox(PACKAGES_PANEL);
 
     expect(screen.getByRole('checkbox', { name: 'select all' })).toBeChecked();
   });
@@ -1334,7 +1296,7 @@ describe('PackagesPanel', () => {
       },
     });
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
+    await clickSelectAllCheckbox(PACKAGES_PANEL);
     expect(latestProps?.selection).toMatchObject({
       mode: 'allMatching',
       excludedAttributionUuids: [],
@@ -1351,7 +1313,7 @@ describe('PackagesPanel', () => {
       screen.getByRole('checkbox', { name: 'select all' }),
     ).toHaveAttribute('data-indeterminate', 'true');
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
+    await clickSelectAllCheckbox(PACKAGES_PANEL);
     expect(latestProps?.selection).toMatchObject({
       mode: 'allMatching',
       excludedAttributionUuids: [],
@@ -1379,7 +1341,7 @@ describe('PackagesPanel', () => {
       },
     });
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
+    await clickSelectAllCheckbox(PACKAGES_PANEL);
 
     expect(selectedIds).toEqual([editableAttribution.id]);
   });
@@ -1415,10 +1377,8 @@ describe('PackagesPanel', () => {
       }),
     });
 
-    await userEvent.click(screen.getByRole('checkbox', { name: 'select all' }));
-    await userEvent.click(
-      screen.getByRole('tab', { name: new RegExp(text.relations.unrelated) }),
-    );
+    await clickSelectAllCheckbox(PACKAGES_PANEL);
+    await selectTab(PACKAGES_PANEL, 'unrelated');
 
     expect(
       screen.getByRole('checkbox', { name: 'select all' }),
@@ -1453,9 +1413,7 @@ describe('PackagesPanel', () => {
     });
 
     await userEvent.click(screen.getByRole('button', { name: 'click me' }));
-    await userEvent.click(
-      screen.getByRole('tab', { name: new RegExp(text.relations.unrelated) }),
-    );
+    await selectTab(PACKAGES_PANEL, 'unrelated');
 
     expect(
       screen.getByRole('checkbox', { name: 'select all' }),
@@ -1523,23 +1481,9 @@ describe('PackagesPanel', () => {
       }),
     });
 
-    expect(
-      screen.getByRole('tab', { name: new RegExp(text.relations.resource) }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('tab', { name: new RegExp(text.relations.unrelated) }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('tab', {
-        name: new RegExp(text.relations['children']),
-      }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole('tab', { name: new RegExp(text.relations.resource) }),
-    ).toHaveAttribute('aria-selected', 'true');
-    expect(
-      screen.getByRole('tab', { name: new RegExp(text.relations.unrelated) }),
-    ).toHaveAttribute('aria-selected', 'false');
+    await expectTabsShown(PACKAGES_PANEL, ['resource', 'unrelated']);
+    await expectTabsNotShown(PACKAGES_PANEL, ['children']);
+    await expectSelectedTabIs(PACKAGES_PANEL, 'resource');
   });
 
   it('switches tabs', async () => {
@@ -1554,16 +1498,9 @@ describe('PackagesPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      screen.getByRole('tab', { name: new RegExp(text.relations.unrelated) }),
-    );
+    await selectTab(PACKAGES_PANEL, 'unrelated');
 
-    expect(
-      screen.getByRole('tab', { name: new RegExp(text.relations.resource) }),
-    ).toHaveAttribute('aria-selected', 'false');
-    expect(
-      screen.getByRole('tab', { name: new RegExp(text.relations.unrelated) }),
-    ).toHaveAttribute('aria-selected', 'true');
+    await expectSelectedTabIs(PACKAGES_PANEL, 'unrelated');
   });
 
   it('selects the first available tab after a resource change', async () => {
@@ -1576,16 +1513,12 @@ describe('PackagesPanel', () => {
       }),
     });
 
-    await userEvent.click(
-      screen.getByRole('tab', { name: new RegExp(text.relations.unrelated) }),
-    );
+    await selectTab(PACKAGES_PANEL, 'unrelated');
     await act(() =>
       store.dispatch(setSelectedResourceId('/next-resource', 'auto')),
     );
 
-    expect(
-      screen.getByRole('tab', { name: new RegExp(text.relations.resource) }),
-    ).toHaveAttribute('aria-selected', 'true');
+    await expectSelectedTabIs(PACKAGES_PANEL, 'resource');
   });
 
   it('sets active tab to the one containing the selected attribution', async () => {
@@ -1602,12 +1535,7 @@ describe('PackagesPanel', () => {
       actions: [setSelectedAttributionId(packageInfo3.id)],
     });
 
-    expect(
-      screen.getByRole('tab', { name: new RegExp(text.relations.resource) }),
-    ).toHaveAttribute('aria-selected', 'false');
-    expect(
-      screen.getByRole('tab', { name: new RegExp(text.relations.unrelated) }),
-    ).toHaveAttribute('aria-selected', 'true');
+    await expectSelectedTabIs(PACKAGES_PANEL, 'unrelated');
   });
 
   it('resets active tab when active relation no longer available', async () => {
@@ -1636,9 +1564,7 @@ describe('PackagesPanel', () => {
       }),
     );
 
-    expect(
-      screen.getByRole('tab', { name: new RegExp(text.relations.resource) }),
-    ).toHaveAttribute('aria-selected', 'true');
+    await expectSelectedTabIs(PACKAGES_PANEL, 'resource');
   });
 
   it('renders no tabs when there are no attributions', async () => {
