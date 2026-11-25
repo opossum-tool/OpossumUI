@@ -39,10 +39,7 @@ function SaveQuickfilterPanel({
   id,
   initialFocusRef,
 }: {
-  /**
-   * The panel hands the (non-empty, trimmed) name to the parent, which owns
-   * the actual saving and activation against the current filters.
-   */
+  /** Called with the non-empty, trimmed name. */
   onSave: (name: string) => void;
   onCancel?: () => void;
   onClose: () => void;
@@ -120,7 +117,7 @@ export function QuickfiltersPanel<T extends SavedQuickfilter>({
   conflictingIds?: Array<string>;
   activeQuickfilterIds: Array<string>;
   hasActiveFilters: boolean;
-  /** Called with a non-empty, trimmed name; the parent saves and activates. */
+  /** Called with the non-empty, trimmed name. */
   onSave: (name: string) => void;
   onApply: (quickfilter: T) => void;
   onDelete: (id: string) => void;
@@ -148,8 +145,7 @@ export function QuickfiltersPanel<T extends SavedQuickfilter>({
     handleReorderKeyDown,
   } = useQuickfilterReorder({ quickfilters, onReorder });
   const showSaveRow = hasActiveFilters && !activeQuickfilterIds.length;
-  // Snapshot at panel open: focus the save row only when the panel was opened
-  // with manual filters; later appearing rows must not steal focus mid-flow.
+  // Snapshot: only the panel opened with manual filters focuses the save row.
   const [focusSaveRowOnOpen] = useState(showSaveRow);
   const setFocusTarget = useCallback(
     (element: HTMLDivElement | null) => {
@@ -163,8 +159,7 @@ export function QuickfiltersPanel<T extends SavedQuickfilter>({
       <SaveQuickfilterPanel
         onSave={(name) => {
           onSave(name);
-          // Return to the list so the newly saved quickfilter is visible and
-          // immediately active; the panel closes only on dismiss.
+          // Return to the list; the panel closes only on dismiss.
           setIsSaving(false);
         }}
         onCancel={() => setIsSaving(false)}
@@ -299,9 +294,8 @@ export function QuickfiltersPanel<T extends SavedQuickfilter>({
                   }}
                   sx={[
                     styles.editRow,
-                    // Only rows gliding aside animate; the dragged row itself
-                    // must track the pointer exactly, and drops commit without
-                    // any transition so nothing flickers.
+                    // The dragged row tracks the pointer exactly; only the
+                    // other rows animate.
                     effectiveDrag && !isDragged ? styles.smoothRow : false,
                     shiftY !== 0 && styles.shiftedRow,
                     isDragged && styles.draggingRow,
@@ -392,10 +386,9 @@ export function QuickfiltersPanel<T extends SavedQuickfilter>({
             })
           : quickfilters.map((quickfilter) => {
               const active = activeQuickfilterIds.includes(quickfilter.id);
-              // Quickfilters that the project or settings cannot express
-              // cannot be applied at all. Conflicting quickfilters apply and
-              // overwrite the clashing scalar filters; they warn about that
-              // in the tooltip.
+              // Inapplicable quickfilters cannot be applied at all;
+              // conflicting ones apply and overwrite the clashing scalars,
+              // warned about in the tooltip.
               const inapplicableReason = incompatibleProjectIds.includes(
                 quickfilter.id,
               )

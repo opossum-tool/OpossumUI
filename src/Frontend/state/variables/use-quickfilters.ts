@@ -56,19 +56,15 @@ const SCALAR_VALUE_FILTER_KEYS = [
 type ScalarFilterSources = Pick<AttributionFilters, 'search' | 'valueFilters'>;
 
 /**
- * Whether the two filter sets specify different values for the same
- * single-valued field (search text, classification, criticality, incomplete
- * coordinates/legal); an empty search counts as unset. Single source of
- * truth for {@link isQuickfilterCompatible} and {@link quickfiltersConflict}:
- * filter keys and license conditions always combine by union and never
- * conflict here.
+ * Single source of truth for {@link isQuickfilterCompatible} and
+ * {@link quickfiltersConflict}: filter keys and license conditions combine by
+ * union and never conflict; an empty search counts as unset.
  */
 function scalarQuickfilterValuesConflict(
   first: ScalarFilterSources,
   second: ScalarFilterSources,
 ): boolean {
   return (
-    // An empty search counts as unset.
     !scalarValuesCompatible(
       first.search || undefined,
       second.search || undefined,
@@ -83,12 +79,7 @@ function scalarQuickfilterValuesConflict(
   );
 }
 
-/**
- * Whether a quickfilter can be merged into the given filters. Scalar fields
- * (search text, classification, criticality, incomplete coordinates/legal)
- * can hold only one value, so two different values conflict. Filter keys and
- * license conditions always combine by union.
- */
+/** Whether a quickfilter can be merged into the given filters. */
 export function isQuickfilterCompatible(
   current: AttributionFilters,
   quickfilter: SavedAttributionQuickfilter,
@@ -97,10 +88,9 @@ export function isQuickfilterCompatible(
 }
 
 /**
- * Whether every condition the quickfilter contributes is still present in the
- * given filters. Quickfilters stay selected while this holds: adding further
- * filters on top keeps them selected, but removing or changing one of their
- * conditions deselects them.
+ * Whether every condition the quickfilter contributed is still present in the
+ * given filters: adding filters on top keeps it selected, removing or
+ * changing one of its conditions deselects it.
  */
 export function areQuickfilterConditionsMet(
   current: AttributionFilters,
@@ -147,18 +137,12 @@ function mergeUnique<T>(current: Array<T>, incoming: Array<T>): Array<T> {
   return [...new Set([...current, ...incoming])];
 }
 
-/**
- * Whether the two quickfilters cannot be applied together because both
- * define a scalar filter (search text, classification, criticality,
- * incomplete coordinates/legal) with different values. Filter keys and
- * license conditions always combine by union and never conflict.
- */
+/** Whether the two quickfilters cannot be applied together. */
 export function quickfiltersConflict(
   first: SavedQuickfilter,
   second: SavedQuickfilter,
 ): boolean {
-  // Resource quickfilters combine by OR-ing booleans and unioning licenses;
-  // they never conflict.
+  // Resource quickfilters only OR/union conditions and never conflict.
   if (first.scope === 'resource' || second.scope === 'resource') {
     return false;
   }
@@ -167,13 +151,9 @@ export function quickfiltersConflict(
 
 /**
  * Whether a quickfilter fits the current project and settings. Classification
- * ids are project-local: a quickfilter saved with a classification id the
- * current project does not define cannot be expressed here, and an id the
- * project does define may refer to a different classification than in the
- * project the quickfilter was saved in (accepted, since ids are all a
- * quickfilter stores). Classification and criticality filters additionally
- * depend on their visibility settings. Such quickfilters are disabled in the
- * menus.
+ * ids are project-local: an id the project does not define cannot be
+ * expressed here, and one it does may refer to a different classification
+ * than in the project the quickfilter was saved in (accepted).
  */
 export function isQuickfilterUsableInProject(
   quickfilter: SavedAttributionQuickfilter,
@@ -214,16 +194,9 @@ function mergeLicenseOptions(
 }
 
 /**
- * Merges a quickfilter's contribution into the given filters: filter keys,
- * licenses, and license searches combine by union; scalar value filters and
- * the search text keep the current value unless it is unset. Compatibility
- * is assumed and must be checked with {@link isQuickfilterCompatible}.
- *
- * With `replaceConflictingScalars`, scalar fields defined by the quickfilter
- * win over the current values instead. This resolves conflicts detected by
- * {@link isQuickfilterCompatible}: applying a quickfilter that clashes with
- * the current search text or scalar value filter overwrites exactly those
- * values and keeps everything else.
+ * Merges a quickfilter into the given filters: filter keys, licenses, and
+ * license searches union; scalars keep the current value unless unset. With
+ * `replaceConflictingScalars`, the quickfilter's scalars win instead.
  */
 export function mergeQuickfilterIntoFilters(
   current: AttributionFilters,
@@ -276,10 +249,6 @@ export function mergeQuickfilterIntoFilters(
   };
 }
 
-/**
- * Rebuilds the combined filters from the given quickfilter ids, keeping the
- * passed sorting. Used when a quickfilter is removed from the combination.
- */
 export function combineQuickfilters({
   ids,
   quickfilters,
@@ -299,12 +268,10 @@ export function combineQuickfilters({
 }
 
 /**
- * Removes a quickfilter's contribution from the given filters while keeping
- * everything else: filters added on top of the combination and the
- * conditions the remaining quickfilters contribute (they are merged back in
- * case they share a condition with the removed quickfilter). Conditions the
- * quickfilter shares with a manually set filter cannot be distinguished and
- * are removed with it.
+ * Removes a quickfilter's contribution from the given filters, merging the
+ * remaining quickfilters back in so conditions they share with the removed
+ * one survive. Conditions shared with a manually set filter cannot be
+ * distinguished and are removed with it.
  */
 export function removeQuickfilterConditions(
   current: AttributionFilters,
@@ -381,9 +348,9 @@ export function useQuickfilters(scope: Exclude<QuickfilterScope, 'resource'>): {
 } {
   const [userSettings, updateUserSettings] = useUserSettings();
 
-  // savedQuickfilters is the display order, which the user can change by
-  // reordering: the list shows the panel's own-scope quickfilters plus the
-  // license-only quickfilters shared with the other panels.
+  // savedQuickfilters is the display order: the list shows the panel's
+  // own-scope quickfilters plus the license-only ones shared with the other
+  // panels.
   const quickfilters = useMemo(
     () =>
       userSettings.savedQuickfilters.filter(
@@ -398,9 +365,8 @@ export function useQuickfilters(scope: Exclude<QuickfilterScope, 'resource'>): {
     filters: AttributionFilters,
   ): string => {
     const id = uuid4();
-    // Optimistic: the saved quickfilter must show up in the lists right away
-    // (e.g. when the user opens the edit view immediately), without waiting
-    // for the persistence round-trip.
+    // Optimistic so the saved quickfilter shows up without the persistence
+    // round-trip.
     updateUserSettings(
       (settings) => ({
         savedQuickfilters: [
@@ -424,8 +390,6 @@ export function useQuickfilters(scope: Exclude<QuickfilterScope, 'resource'>): {
   const renameQuickfilter = (id: string, name: string): void =>
     renameSavedQuickfilter(updateUserSettings, id, name);
 
-  // Reorders within the panel's visible subset (own-scope quickfilters plus
-  // license-only quickfilters shared with the other panels).
   const reorderQuickfilter = (id: string, targetIndex: number): void =>
     reorderSavedQuickfilter(
       updateUserSettings,

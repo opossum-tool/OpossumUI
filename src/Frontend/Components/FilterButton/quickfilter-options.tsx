@@ -86,11 +86,8 @@ export function useQuickfilterOptions({
         removeQuickfilter(quickfilter.id);
         return;
       }
-      // Conflicting quickfilters apply as well: the clashing scalar filters
-      // (search text, classification, …) are overwritten with the
-      // quickfilter's values and everything else is kept. Quickfilters whose
-      // conditions are no longer met are deselected automatically (see the
-      // pruning of active quickfilter ids when filters change).
+      // Conflicting quickfilters apply too; their clashing scalars overwrite
+      // the current ones.
       setFilters(
         mergeQuickfilterIntoFilters(filters, quickfilter, {
           replaceConflictingScalars: !isQuickfilterCompatible(
@@ -102,7 +99,6 @@ export function useQuickfilterOptions({
     };
 
     const removeQuickfilter = (id: string): void => {
-      // The sorting is intentionally kept from the current filters.
       const removed = visibleQuickfilters.find(({ id: qfId }) => qfId === id);
       const remaining = visibleQuickfilters.filter(
         (quickfilter) =>
@@ -119,8 +115,7 @@ export function useQuickfilterOptions({
       );
     };
 
-    // Deleting a selected quickfilter also deselects it, so the menu label
-    // no longer counts the deleted quickfilter.
+    // Deleting a selected quickfilter also deselects it.
     const deleteSelectedQuickfilter = (id: string): void => {
       if (activeIds.includes(id)) {
         removeQuickfilter(id);
@@ -128,8 +123,6 @@ export function useQuickfilterOptions({
       deleteQuickfilter(id);
     };
 
-    // Drops everything the quickfilters contributed along with the manual
-    // filters on top; the sorting is kept.
     const clearAllQuickfilters = (): void => {
       setFilters(
         combineQuickfilters({
@@ -151,13 +144,11 @@ export function useQuickfilterOptions({
       return [];
     }
 
-    // Nudge users to persist manual filter selections. A selection produced
-    // by an applied quickfilter is already saved, so no hint is needed.
+    // A selection produced by an applied quickfilter is already saved, so no
+    // hint is needed.
     const showSaveHint =
       hasActiveFilters && !(filters.activeQuickfilterIds ?? []).length;
 
-    // A single menu entry keeps the filter menu clean; everything happens
-    // inside the side panel (save, apply, manage).
     return [
       {
         kind: 'panel' as const,
@@ -166,8 +157,7 @@ export function useQuickfilterOptions({
         label: activeIds.length
           ? text.quickfilters.titleSelected
           : text.quickfilters.title,
-        // The visible label reflects the selection; the accessible name
-        // stays stable so tests and assistive tech can rely on it.
+        // The accessible name stays stable so tests can rely on it.
         ariaLabel: text.quickfilters.title,
         tinted: true,
         tooltip: showSaveHint ? text.quickfilters.saveHint : undefined,

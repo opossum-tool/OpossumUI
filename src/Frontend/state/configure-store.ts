@@ -39,11 +39,8 @@ const FILTER_VARIABLES_WITH_QUICKFILTERS = new Set<string>([
 ]);
 
 /**
- * Quickfilters stay selected only while the current filters still contain
- * everything they contributed. Edits that remove or change one of a
- * quickfilter's conditions deselect it; filters added on top keep it active.
- * Deleting a saved quickfilter deselects it on every panel, since it can no
- * longer be checked against anywhere.
+ * Quickfilters stay selected only while the filters still contain everything
+ * they contributed; deleting a quickfilter deselects it on every panel.
  */
 const pruneDeselectedQuickfilters: Middleware<unknown, State> =
   (store) => (next) => (action) => {
@@ -56,8 +53,8 @@ const pruneDeselectedQuickfilters: Middleware<unknown, State> =
     if (variableAction.type === ACTION_SET_USER_SETTING) {
       const incomingQuickfilters = variableAction.payload?.savedQuickfilters;
       if (incomingQuickfilters) {
-        // Deletions are detected by diffing against the current settings:
-        // other updates (rename, reorder, settings loaded) keep all ids.
+        // Deletions are detected by diffing: renames and reorders keep all
+        // ids.
         const removedIds = store
           .getState()
           .userSettingsState.savedQuickfilters.filter(
@@ -102,15 +99,13 @@ const pruneDeselectedQuickfilters: Middleware<unknown, State> =
           const quickfilter = savedQuickfilters.find(
             ({ id: quickfilterId }) => quickfilterId === id,
           );
-          // Unresolvable ids (e.g. just saved, persistence still pending) are
-          // kept; only conditions we can check may deselect a quickfilter.
+          // Unresolvable ids (e.g. just saved, persistence still pending)
+          // are kept.
           if (quickfilter === undefined) {
             return true;
           }
-          // Attribution and resource quickfilters live in different filter
-          // variables. A quickfilter applied on another panel was converted
-          // to that panel's filter shape, so the deselection check has to
-          // apply the same conversion before comparing conditions.
+          // A quickfilter applied on another panel was converted to this
+          // panel's filter shape; the check must apply the same conversion.
           if (variableAction.name === RESOURCE_TREE_FILTERS) {
             const resourceModel = isResourceQuickfilter(quickfilter)
               ? quickfilter

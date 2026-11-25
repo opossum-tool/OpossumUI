@@ -25,12 +25,7 @@ export interface AttributionFilters {
     license?: Array<LicenseOption>;
   };
   sorting: SortOption;
-  /**
-   * Ids of the quickfilters currently combined into these filters. Selection
-   * is membership-based: entries stay checked while they are part of the
-   * active combination, and unchecking recomputes the filters from the
-   * remaining ids.
-   */
+  /** Ids of the quickfilters currently combined into these filters. */
   activeQuickfilterIds?: Array<string>;
 }
 
@@ -39,10 +34,7 @@ export interface ResourceTreeFilters {
   onlyWithAiDeferredAttributions: boolean;
   selectedLicenses: Array<LicenseOption>;
   licenseSearches?: Array<string>;
-  /**
-   * Ids of the resource quickfilters currently combined into these filters.
-   * Selection is membership-based, mirroring {@link AttributionFilters}.
-   */
+  /** Ids of the resource quickfilters currently combined into these filters. */
   activeQuickfilterIds?: Array<string>;
 }
 
@@ -109,9 +101,8 @@ export function hasActiveAttributionFilters({
   search,
   valueFilters,
 }: AttributionFilters): boolean {
-  // The search box of the packages/signal panels filters the list just like
-  // the menu filters, so it counts as an active filter (e.g. when deciding
-  // whether a quickfilter can be saved).
+  // The search box filters the list like the menu filters, so it counts as
+  // an active filter.
   return (
     !!filters.length ||
     !!search ||

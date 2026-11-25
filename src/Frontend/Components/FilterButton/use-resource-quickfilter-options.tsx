@@ -30,9 +30,9 @@ type SetResourceTreeFilters = (
 ) => void;
 
 /**
- * The quickfilters menu entry for the resource tree. Resource filters only
- * combine (booleans OR, licenses union) and never conflict, so the panel
- * handles everything without conflict or incompatibility rows.
+ * The quickfilters menu entry for the resource tree. Resource quickfilters
+ * only combine and never conflict, so there are no conflict or
+ * incompatibility rows here.
  */
 export function useResourceQuickfilterOption({
   filters,
@@ -66,8 +66,6 @@ export function useResourceQuickfilterOption({
     };
 
     const removeResourceQuickfilter = (id: string): void => {
-      // Only the unchecked quickfilter's contribution is removed; filters
-      // set separately and the remaining quickfilters' conditions are kept.
       setFilters((prev) => {
         const activeIds = prev.activeQuickfilterIds ?? [];
         const removed = visibleQuickfilters.find(
@@ -86,8 +84,7 @@ export function useResourceQuickfilterOption({
       });
     };
 
-    // Deleting a selected quickfilter also deselects it, so the menu label
-    // no longer counts the deleted quickfilter.
+    // Deleting a selected quickfilter also deselects it.
     const deleteSelectedResourceQuickfilter = (id: string): void => {
       if (activeIds.includes(id)) {
         removeResourceQuickfilter(id);
@@ -95,8 +92,6 @@ export function useResourceQuickfilterOption({
       deleteQuickfilter(id);
     };
 
-    // Drops everything the quickfilters contributed along with the manual
-    // filters on top.
     const clearAllResourceQuickfilters = (): void => {
       setFilters(
         combineResourceQuickfilters({
@@ -113,13 +108,8 @@ export function useResourceQuickfilterOption({
       }));
     };
 
-    // Unlike the attribution menus, the entry is always offered: with active
-    // filters it nudges towards saving them, otherwise it lists the saved
-    // quickfilters (possibly empty).
     const showSaveHint = hasActiveFilters && !activeIds.length;
 
-    // A single menu entry keeps the filter menu clean; everything happens
-    // inside the side panel (save, apply, manage).
     return [
       {
         kind: 'panel' as const,
@@ -128,8 +118,7 @@ export function useResourceQuickfilterOption({
         label: activeIds.length
           ? text.quickfilters.titleSelected
           : text.quickfilters.title,
-        // The visible label reflects the selection; the accessible name
-        // stays stable so tests and assistive tech can rely on it.
+        // The accessible name stays stable so tests can rely on it.
         ariaLabel: text.quickfilters.title,
         tinted: true,
         tooltip: showSaveHint ? text.quickfilters.saveHint : undefined,

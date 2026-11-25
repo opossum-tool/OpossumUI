@@ -16,7 +16,6 @@ import type { SavedQuickfilter } from '../../../shared/shared-types';
 // Safety net for the frozen drop state in case the settings round-trip
 // (which carries the reordered list) never completes.
 const DRAG_COMMIT_TIMEOUT_MS = 1000;
-
 type DragState = {
   id: string;
   pointerDeltaY: number;
@@ -38,15 +37,10 @@ type ActiveDrag = {
 };
 
 /**
- * Owns the pointer-driven reorder interaction of the quickfilters panel:
- * dragging a row via its drag handle, computing the target slot while the
- * pointer moves, and committing the reorder on drop.
- *
- * During a drag the row order stays untouched; the dragged row follows the
- * pointer visually and the reorder is committed on drop. After the drop,
- * the transforms stay in their final configuration until the reordered
- * list has actually rendered (the optimistic settings update supplies the
- * new order), so the rows never flash back to their old positions.
+ * Owns the pointer-driven reorder of the quickfilters panel. During a drag
+ * the row order stays untouched; after the drop the transforms stay frozen
+ * until the reordered list has actually rendered, so rows never flash back
+ * to their old positions.
  */
 export function useQuickfilterReorder<T extends SavedQuickfilter>({
   quickfilters,
@@ -67,7 +61,6 @@ export function useQuickfilterReorder<T extends SavedQuickfilter>({
   const [drag, setDrag] = useState<DragState | null>(null);
   const activeDragRef = useRef<ActiveDrag | null>(null);
 
-  // After a drop the transforms stay frozen until the reordered list renders.
   const effectiveDrag = (() => {
     if (!drag) {
       return null;
@@ -81,7 +74,6 @@ export function useQuickfilterReorder<T extends SavedQuickfilter>({
     return drag;
   })();
 
-  // Clears the frozen drop state as soon as the reordered list has rendered.
   useEffect(() => {
     if (!drag?.dropped) {
       return;
@@ -92,7 +84,7 @@ export function useQuickfilterReorder<T extends SavedQuickfilter>({
     }
   }, [drag, quickfilters]);
 
-  // Safety net: never stay frozen if the reorder does not arrive.
+  // Never stay frozen if the reorder does not arrive.
   useEffect(() => {
     if (!drag?.dropped) {
       return;
@@ -105,9 +97,8 @@ export function useQuickfilterReorder<T extends SavedQuickfilter>({
     };
   }, [drag]);
 
-  // Rows between the dragged row and its target slot glide aside to make
-  // room for it, by exactly one slot pitch so that they already rest on the
-  // positions they will occupy after the drop.
+  // Rows between the dragged row and its target slot glide aside by exactly
+  // one slot pitch.
   const getRowShiftY = (index: number): number => {
     if (!effectiveDrag) {
       return 0;
@@ -133,8 +124,7 @@ export function useQuickfilterReorder<T extends SavedQuickfilter>({
     if (fromIndex === -1 || !rect) {
       return;
     }
-    // Distance between neighbouring row tops, measured before any transforms
-    // exist.
+    // Measured before any transforms exist.
     const [firstRow, secondRow] = quickfilters;
     const firstRect = firstRow
       ? rowElementsRef.current.get(firstRow.id)?.getBoundingClientRect()
@@ -170,8 +160,7 @@ export function useQuickfilterReorder<T extends SavedQuickfilter>({
     if (activeDrag?.pointerId !== event.pointerId) {
       return;
     }
-    // The target slot is the number of neighbouring row midpoints the
-    // pointer has passed.
+    // The target slot is the number of row midpoints the pointer passed.
     let targetIndex = 0;
     quickfilters.forEach((quickfilter) => {
       if (quickfilter.id === activeDrag.id) {
@@ -202,9 +191,7 @@ export function useQuickfilterReorder<T extends SavedQuickfilter>({
       return;
     }
     activeDragRef.current = null;
-    // Freeze every row at the exact position it will occupy after the
-    // reorder: the dragged row jumps to its target slot and the others to
-    // theirs.
+    // Freeze every row at the position it will occupy after the reorder.
     const dropDelta =
       (activeDrag.targetIndex - activeDrag.fromIndex) * activeDrag.rowPitch;
     setDrag({

@@ -18,12 +18,7 @@ import {
 import type { ResourceTreeFilters } from './use-filters';
 import { useUserSettings } from './use-user-setting';
 
-/**
- * Quickfilters for the resource tree, mirroring the attribution quickfilter
- * hook. The filter shape differs (booleans and license selections instead of
- * attribution filter keys), so applying combines by OR-ing the booleans and
- * unioning the license conditions.
- */
+/** Merges a resource quickfilter into the given filters. */
 export function mergeResourceQuickfilterIntoFilters(
   current: ResourceTreeFilters,
   quickfilter: SavedResourceQuickfilter,
@@ -59,10 +54,8 @@ export function mergeResourceQuickfilterIntoFilters(
 }
 
 /**
- * Whether every condition the resource quickfilter contributes is still
- * present in the given filters. Mirrors the attribution quickfilter rule:
- * adding further filters on top keeps the quickfilter selected, removing or
- * turning off one of its conditions deselects it.
+ * Whether every condition the resource quickfilter contributed is still
+ * present in the given filters (mirrors {@link areQuickfilterConditionsMet}).
  */
 export function areResourceQuickfilterConditionsMet(
   current: ResourceTreeFilters,
@@ -95,10 +88,6 @@ export function areResourceQuickfilterConditionsMet(
   return true;
 }
 
-/**
- * Rebuilds the combined resource filters from the given quickfilter ids.
- * Used when a quickfilter is removed from the combination or all are cleared.
- */
 export function combineResourceQuickfilters({
   ids,
   quickfilters,
@@ -116,12 +105,9 @@ export function combineResourceQuickfilters({
 }
 
 /**
- * Removes a quickfilter's contribution from the given resource filters while
- * keeping everything else: filters set separately and the conditions the
- * remaining quickfilters contribute (they are merged back in case they share
- * a condition with the removed quickfilter). Conditions the quickfilter
- * shares with a manually set filter cannot be distinguished and are removed
- * with it.
+ * Removes a quickfilter's contribution from the given resource filters,
+ * merging the remaining quickfilters back in so conditions they share with
+ * the removed one survive.
  */
 export function removeResourceQuickfilterConditions(
   current: ResourceTreeFilters,
@@ -172,8 +158,6 @@ export function useResourceQuickfilters(): {
 } {
   const [userSettings, updateUserSettings] = useUserSettings();
 
-  // savedQuickfilters is the display order, which the user can change by
-  // reordering.
   const quickfilters = useMemo(
     () => userSettings.savedQuickfilters.filter(isResourceQuickfilter),
     [userSettings.savedQuickfilters],
@@ -184,9 +168,8 @@ export function useResourceQuickfilters(): {
     filters: ResourceTreeFilters,
   ): string => {
     const id = uuid4();
-    // Optimistic: the saved quickfilter must show up in the lists right away
-    // (e.g. when the user opens the edit view immediately), without waiting
-    // for the persistence round-trip.
+    // Optimistic so the saved quickfilter shows up without the persistence
+    // round-trip.
     updateUserSettings(
       (settings) => ({
         savedQuickfilters: [
@@ -218,8 +201,6 @@ export function useResourceQuickfilters(): {
   const renameQuickfilter = (id: string, name: string): void =>
     renameSavedQuickfilter(updateUserSettings, id, name);
 
-  // Reorders within the panel's visible subset (resource quickfilters plus
-  // shared license-only attribution/signal quickfilters).
   const reorderQuickfilter = (id: string, targetIndex: number): void =>
     reorderSavedQuickfilter(
       updateUserSettings,

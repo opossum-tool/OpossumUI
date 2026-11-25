@@ -56,8 +56,6 @@ export const styles = {
     flexDirection: 'column',
     overflowY: 'auto',
     minHeight: 0,
-    // Rows sit directly on top of each other like the filter menu items; a
-    // thin divider separates them so selected rows form a continuous block.
     '& > :not(:last-child)': {
       borderBottom: `${borderThin} solid`,
       borderColor: 'divider',
@@ -74,7 +72,6 @@ export const styles = {
     '&:hover': { bgcolor: OpossumColors.lightestBlueOnHover },
     outlineOffset: '-1px',
   } satisfies SxProps<Theme>,
-  // Matches the selected state of the normal filter menu items.
   selectedRow: {
     bgcolor: OpossumColors.lightestBlue,
     '&:hover': { bgcolor: OpossumColors.lightestBlue },
@@ -84,9 +81,6 @@ export const styles = {
     cursor: 'default',
     '&:hover': { bgcolor: 'transparent' },
   } satisfies SxProps<Theme>,
-  // Conflicting quickfilters stay clickable and look like normal rows; the
-  // mid-red warning sign (see conflictIcon) announces that applying them
-  // overwrites the clashing scalar filters.
   conflictIcon: {
     width: checkIconSize,
     height: checkIconSize,
@@ -122,14 +116,12 @@ export const styles = {
     userSelect: 'none',
     '&:hover': { bgcolor: OpossumColors.lightestBlue },
   } satisfies SxProps<Theme>,
-  // Other rows glide aside while the dragged row follows the pointer.
   smoothRow: {
     transition: TRANSITION,
   } satisfies SxProps<Theme>,
   shiftedRow: {
     '&:hover': { bgcolor: 'transparent' },
   } satisfies SxProps<Theme>,
-  // Lifted look while the row is being held.
   draggingRow: {
     bgcolor: OpossumColors.white,
     boxShadow: `0 4px 12px ${OpossumColors.disabledGrey}`,
@@ -151,12 +143,11 @@ export const styles = {
     cursor: 'grabbing',
   } satisfies SxProps<Theme>,
   dragHandleIcon: {
-    // Same slot size as the bookmark icon in the apply view so the rows keep
-    // their height and the label keeps its width when toggling the edit view.
+    // Same icon slot as the apply view so toggling edit view keeps row
+    // heights and label widths stable.
     fontSize: checkIconSize,
   } satisfies SxProps<Theme>,
   editButton: {
-    // Sized to the icon slot so rows stay as compact as in the apply view.
     p: 0,
     width: checkIconSize,
     height: checkIconSize,

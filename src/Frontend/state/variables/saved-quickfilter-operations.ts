@@ -5,11 +5,7 @@
 import type { SavedQuickfilter } from '../../../shared/shared-types';
 import type { UpdateUserSettings } from './use-user-setting';
 
-/**
- * Removes a saved quickfilter from the persisted list. Shared by every
- * quickfilter panel: deletions always affect the actual entry, not a panel's
- * derived model of it.
- */
+/** Removes a saved quickfilter from the persisted list. */
 export function deleteSavedQuickfilter(
   updateUserSettings: UpdateUserSettings,
   id: string,
@@ -24,11 +20,7 @@ export function deleteSavedQuickfilter(
   );
 }
 
-/**
- * Renames a saved quickfilter in the persisted list. Shared by every
- * quickfilter panel: renames always affect the actual entry, not a panel's
- * derived model of it.
- */
+/** Renames a saved quickfilter in the persisted list. */
 export function renameSavedQuickfilter(
   updateUserSettings: UpdateUserSettings,
   id: string,
@@ -45,10 +37,9 @@ export function renameSavedQuickfilter(
 }
 
 /**
- * Reorders within the given panel's visible subset while keeping the array
- * positions of everything else untouched: savedQuickfilters is the display
- * order. Optimistic so the reordered list renders immediately. Shared by
- * every quickfilter panel; only the visibility rule differs.
+ * Reorders within the panel's visible subset; positions of quickfilters
+ * invisible to the panel are untouched since savedQuickfilters is the
+ * display order shared by all panels.
  */
 export function reorderSavedQuickfilter(
   updateUserSettings: UpdateUserSettings,

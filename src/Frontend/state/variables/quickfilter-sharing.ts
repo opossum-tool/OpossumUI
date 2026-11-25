@@ -18,10 +18,8 @@ export type AttributionQuickfilterScope = Exclude<QuickfilterScope, 'resource'>;
 
 /**
  * Converts an attribution/signal quickfilter into a resource quickfilter
- * model when it is fully expressible there: only the license dimensions are
- * shared between the panels, so every other condition (filter keys, search
- * text, classification, criticality, incomplete coordinates/legal) makes it
- * resource-inapplicable. `null` models are never persisted; they only exist
+ * model when it is fully expressible there (only the license dimensions are
+ * shared between the panels). Models are never persisted; they only exist
  * for display and application on the target panel.
  */
 export function toResourceQuickfilterModel(
@@ -54,11 +52,8 @@ export function toResourceQuickfilterModel(
 }
 
 /**
- * Inverse conversion: resource quickfilter into an attribution/signal
- * quickfilter model when it is fully expressible there (i.e. it does not
- * rely on the resource-only booleans). License-only conditions are carried
- * over; `scope` decides which attribution-panel flavor the model renders
- * for and is never persisted.
+ * Inverse conversion: resource quickfilter into an attribution/signal model
+ * when it does not rely on the resource-only booleans.
  */
 export function toAttributionQuickfilterModel(
   quickfilter: SavedResourceQuickfilter,
@@ -90,22 +85,13 @@ export function toAttributionQuickfilterModel(
   };
 }
 
-/**
- * Whether the attribution/signal quickfilter relies only on the license
- * dimensions, i.e. it is fully expressible on every panel that can filter
- * by license (resource tree, attributions, signals, report view) and
- * therefore offered there.
- */
+/** Whether the attribution/signal quickfilter is license-only. */
 function isLicenseOnlyAttributionQuickfilter(
   quickfilter: SavedAttributionQuickfilter,
 ): boolean {
   return toResourceQuickfilterModel(quickfilter) !== null;
 }
 
-/**
- * Whether the resource quickfilter is also usable on the given
- * attribution-flavored panel.
- */
 function isShareableWithAttributionPanel(
   quickfilter: SavedResourceQuickfilter,
   scope: AttributionQuickfilterScope,
@@ -134,10 +120,9 @@ export function isVisibleForResourcePanel(
 }
 
 /**
- * Quickfilters visibly offered on the given attribution-flavored panel:
- * its own-scope quickfilters plus license-only quickfilters from the other
- * attribution scope (signals/attributions) and license-only resource
- * quickfilters converted to models, in the order the user arranged.
+ * The quickfilters offered on the given panel: its own-scope quickfilters
+ * plus license-only quickfilters from other scopes, converted to the panel's
+ * model where needed, in the saved order.
  */
 export function useVisibleQuickfilters(
   scope: AttributionQuickfilterScope,
@@ -159,11 +144,7 @@ export function useVisibleQuickfilters(
   );
 }
 
-/**
- * Quickfilters visibly offered on the resources panel: resource
- * quickfilters plus license-only attribution/signal quickfilters converted
- * to models, in the order the user arranged.
- */
+/** The quickfilters offered on the resources panel, in the saved order. */
 export function useVisibleQuickfiltersForResources(): Array<SavedResourceQuickfilter> {
   const [userSettings] = useUserSettings();
   return useMemo(
