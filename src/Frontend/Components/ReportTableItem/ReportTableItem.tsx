@@ -6,7 +6,7 @@ import EditorIcon from '@mui/icons-material/Edit';
 import { type SxProps, TableCell } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiLink from '@mui/material/Link';
-import type { Theme } from '@mui/material/styles';
+import { type Theme, useTheme } from '@mui/material/styles';
 import MuiTypography from '@mui/material/Typography';
 import { skipToken } from '@tanstack/react-query';
 import { Fragment } from 'react';
@@ -16,11 +16,12 @@ import { text } from '../../../shared/text';
 import { View } from '../../enums/enums';
 import { ROOT_PATH } from '../../shared-constants';
 import {
+  baseIconPadding,
   baseIconSize,
   borderMedium,
   borderThin,
-  clickableIcon,
   OpossumColors,
+  Sizing,
 } from '../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { setPendingAttributionNavigation } from '../../state/actions/resource-actions/audit-view-simple-actions';
@@ -49,112 +50,115 @@ import { type TableConfig, tableConfigs } from '../ReportView/TableConfig';
 import { getFormattedCellData } from './ReportTableItem.util';
 
 export const REPORT_VIEW_ROW_HEIGHT = 150;
-const PADDING = 2.5;
-// 4px theme spacing lattice base × PADDING units
-// eslint-disable-next-line @typescript-eslint/no-magic-numbers
-const PADDING_PX = 4 * PADDING;
+const PADDING = Sizing.SmallGap;
 
-// 1 MUI theme spacing unit = 4px (createTheme({ spacing: 4 }) in App.style.ts)
-const THEME_SPACING_UNIT_PX = 4;
-const ICON_SIZE_PX = Number.parseInt(baseIconSize, 10);
-// every icon sits in an equally sized square cell: the icon svg plus its
-// `mx: 0.5` margins, so all grid tracks share identical outer dimensions
-const ICON_CELL_SIZE_PX = ICON_SIZE_PX + THEME_SPACING_UNIT_PX;
-const ICON_BOX_HEIGHT_PX = REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX;
-// icons stack vertically in the fixed height row before wrapping to a new column
-const ICONS_PER_COLUMN = Math.floor(
-  (ICON_BOX_HEIGHT_PX + THEME_SPACING_UNIT_PX) /
-    (ICON_CELL_SIZE_PX + THEME_SPACING_UNIT_PX),
-);
-// the most icons any row can show: edit button, seven signal flags, and one
-// AI status icon. The icons grid always reserves tracks for this worst case so
-// the first table column is static across virtualization and rows that show
-// fewer icons just leave left-aligned trailing space.
-const MAX_SIGNAL_ICONS = 9;
-const WORST_CASE_COLUMN_COUNT = Math.ceil(MAX_SIGNAL_ICONS / ICONS_PER_COLUMN);
+function getStyles(theme: Theme) {
+  const glyphSize = baseIconSize;
+  const iconPadding = theme.spacing(baseIconPadding);
+  const iconBorderWidth = borderMedium;
+  const iconOuterSize = `calc(${glyphSize} + 2 * ${iconPadding} + 2 * ${iconBorderWidth})`;
 
-const classes = {
-  tableData: {
-    overflow: 'auto',
-    whiteSpace: 'pre-line',
-    padding: PADDING,
-    height: REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX,
-  },
-  bold: {
-    fontWeight: 'bold',
-  },
-  iconTableData: {
-    py: PADDING,
-    px: 1.75,
-    height: REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX,
-    display: 'grid',
-    gridAutoFlow: 'column',
-    gridTemplateRows: `repeat(${ICONS_PER_COLUMN}, ${ICON_CELL_SIZE_PX}px)`,
-    gridTemplateColumns: `repeat(${WORST_CASE_COLUMN_COUNT}, ${ICON_CELL_SIZE_PX}px)`,
-    gridAutoColumns: `${ICON_CELL_SIZE_PX}px`,
-    alignContent: 'start',
-    justifyContent: 'start',
-    gap: 1,
-  },
-  iconCell: {
-    width: ICON_CELL_SIZE_PX,
-    height: ICON_CELL_SIZE_PX,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  tableCell: { wordBreak: 'break-all' },
-  iconsCell: {
-    position: 'sticky',
-    left: 0,
-    background: '#e3e3e3',
-  },
-  borders: {
-    borderRight: `${borderThin} solid ${OpossumColors.mediumGrey}`,
-    borderBottom: `${borderThin} solid ${OpossumColors.mediumGrey}`,
-  },
-  icon: {
-    width: baseIconSize,
-    height: baseIconSize,
-  },
-  editIcon: {
-    backgroundColor: OpossumColors.white,
-    border: `${borderMedium} ${OpossumColors.brown} solid`,
-    color: OpossumColors.brown,
-  },
-  firstPartyIcon: {
-    border: `${borderMedium} ${OpossumColors.darkBlue} solid`,
-  },
-  commentIcon: {
-    border: `${borderMedium} ${OpossumColors.black} solid`,
-    color: OpossumColors.black,
-  },
-  followUpIcon: {
-    border: `${borderMedium} ${OpossumColors.red} solid`,
-  },
-  needsReviewIcon: {
-    border: `${borderMedium} ${OpossumColors.orange} solid`,
-  },
-  excludeFromNoticeIcon: {
-    border: `${borderMedium} ${OpossumColors.grey} solid`,
-  },
-  preSelectedIcon: {
-    border: `${borderMedium} ${OpossumColors.darkBlue} solid`,
-  },
-  preferredIcon: {
-    border: `${borderMedium} ${OpossumColors.mediumOrange} solid`,
-  },
-  markedTableCell: {
-    backgroundColor: OpossumColors.lightOrange,
-  },
-  clickableIcon,
-} as const satisfies SxProps<Theme>;
+  return {
+    tableData: {
+      overflow: 'auto',
+      whiteSpace: 'pre-line',
+      padding: PADDING,
+      boxSizing: 'border-box',
+      height: '100%',
+    },
+    bold: {
+      fontWeight: 'bold',
+    },
+    iconTableData: {
+      py: PADDING,
+      px: PADDING,
+      boxSizing: 'border-box',
+      height: '100%',
+      display: 'grid',
+      gridAutoFlow: 'column',
+      gridTemplateRows: `repeat(auto-fill, ${iconOuterSize})`,
+      gridAutoColumns: iconOuterSize,
+      width: 'max-content',
+      alignContent: 'start',
+      justifyContent: 'start',
+      gap: Sizing.Tiny,
+    },
+    iconSlot: {
+      width: iconOuterSize,
+      height: iconOuterSize,
+      display: 'flex',
+    },
+    emptyIconSlot: {
+      // Pack visible icons first, keeping unused capacity as trailing space.
+      order: 1,
+      visibility: 'hidden',
+    },
+    editButton: {
+      '&:hover svg, &.Mui-focusVisible svg': {
+        background: OpossumColors.middleBlue,
+      },
+    },
+    tableCell: {
+      wordBreak: 'break-all',
+      boxSizing: 'border-box',
+      height: REPORT_VIEW_ROW_HEIGHT,
+    },
+    iconsCell: {
+      position: 'sticky',
+      left: 0,
+      background: '#e3e3e3',
+    },
+    borders: {
+      borderRight: `${borderThin} solid ${OpossumColors.mediumGrey}`,
+      borderBottom: `${borderThin} solid ${OpossumColors.mediumGrey}`,
+    },
+    icon: {
+      boxSizing: 'content-box',
+      width: glyphSize,
+      height: glyphSize,
+      padding: iconPadding,
+      border: `${iconBorderWidth} solid transparent`,
+      m: 0,
+    },
+    editIcon: {
+      backgroundColor: OpossumColors.white,
+      borderColor: OpossumColors.brown,
+      color: OpossumColors.brown,
+    },
+    firstPartyIcon: {
+      borderColor: OpossumColors.darkBlue,
+    },
+    commentIcon: {
+      borderColor: OpossumColors.black,
+      color: OpossumColors.black,
+    },
+    followUpIcon: {
+      borderColor: OpossumColors.red,
+    },
+    needsReviewIcon: {
+      borderColor: OpossumColors.orange,
+    },
+    excludeFromNoticeIcon: {
+      borderColor: OpossumColors.grey,
+    },
+    preSelectedIcon: {
+      borderColor: OpossumColors.darkBlue,
+    },
+    preferredIcon: {
+      borderColor: OpossumColors.mediumOrange,
+    },
+    markedTableCell: {
+      backgroundColor: OpossumColors.lightOrange,
+    },
+  } as const satisfies SxProps<Theme>;
+}
 
 interface ReportTableItemProps {
   packageInfo: PackageInfo;
 }
 
 export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
+  const classes = getStyles(useTheme());
   const dispatch = useAppDispatch();
   const frequentLicenseTextResult = backend.getFrequentLicenseText.useQuery(
     packageInfo.licenseName
@@ -242,10 +246,18 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
 
   function getIcons(packageInfo: PackageInfo) {
     const aiStatus = packageInfo.aiStatus;
-    return (
-      <MuiBox sx={classes.iconTableData}>
-        <MuiBox sx={classes.iconCell}>
+    // Each entry is one potentially visible slot. Mutually exclusive AI states
+    // share an entry so reserving the full list doesn't overcount them.
+    const icons = [
+      {
+        key: 'edit',
+        content: (
           <IconButton
+            wrapperSx={classes.iconSlot}
+            sx={{
+              ...classes.iconSlot,
+              ...classes.editButton,
+            }}
             tooltipTitle={text.reportView.openInAuditView}
             tooltipPlacement={'right'}
             onClick={() => {
@@ -261,97 +273,94 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
               );
               dispatch(navigateToView(View.Audit));
             }}
-            icon={
-              <EditorIcon
-                sx={{
-                  ...classes.icon,
-                  ...classes.clickableIcon,
-                  ...classes.editIcon,
-                }}
-              />
-            }
+            icon={<EditorIcon sx={{ ...classes.icon, ...classes.editIcon }} />}
           />
-        </MuiBox>
-        {packageInfo.needsReview && (
-          <MuiBox sx={classes.iconCell}>
-            <NeedsReviewIcon
-              tooltipPlacement={'right'}
-              sx={{
-                ...classes.icon,
-                ...classes.needsReviewIcon,
-              }}
+        ),
+      },
+      {
+        key: 'needs-review',
+        content: packageInfo.needsReview && (
+          <NeedsReviewIcon
+            tooltipPlacement="right"
+            sx={{ ...classes.icon, ...classes.needsReviewIcon }}
+          />
+        ),
+      },
+      {
+        key: 'follow-up',
+        content: packageInfo.followUp && (
+          <FollowUpIcon
+            tooltipPlacement="right"
+            sx={{ ...classes.icon, ...classes.followUpIcon }}
+          />
+        ),
+      },
+      {
+        key: 'first-party',
+        content: packageInfo.firstParty && (
+          <FirstPartyIcon
+            tooltipPlacement="right"
+            sx={{ ...classes.icon, ...classes.firstPartyIcon }}
+          />
+        ),
+      },
+      {
+        key: 'exclude-from-notice',
+        content: packageInfo.excludeFromNotice && (
+          <ExcludeFromNoticeIcon
+            tooltipPlacement="right"
+            sx={{ ...classes.icon, ...classes.excludeFromNoticeIcon }}
+          />
+        ),
+      },
+      {
+        key: 'pre-selected',
+        content: packageInfo.preSelected && (
+          <PreSelectedIcon
+            tooltipPlacement="right"
+            sx={{ ...classes.icon, ...classes.preSelectedIcon }}
+          />
+        ),
+      },
+      {
+        key: 'preferred',
+        content: packageInfo.preferred && (
+          <PreferredIcon
+            tooltipPlacement="right"
+            sx={{ ...classes.icon, ...classes.preferredIcon }}
+          />
+        ),
+      },
+      {
+        key: 'ai-status',
+        content:
+          aiStatus &&
+          (aiStatus.deferred ? (
+            <DeferredIcon tooltipPlacement="right" sx={classes.icon} />
+          ) : (
+            <AiGeneratedIcon tooltipPlacement="right" sx={classes.icon} />
+          )),
+      },
+      {
+        key: 'human-modified',
+        content: aiStatus?.humanModified && (
+          <HumanModifiedIcon tooltipPlacement="right" sx={classes.icon} />
+        ),
+      },
+    ];
+
+    return (
+      <MuiBox sx={classes.iconTableData}>
+        {icons.map(({ key, content }) =>
+          content ? (
+            <Fragment key={key}>{content}</Fragment>
+          ) : (
+            <MuiBox
+              key={key}
+              aria-hidden
+              sx={{ ...classes.iconSlot, ...classes.emptyIconSlot }}
             />
-          </MuiBox>
-        )}
-        {packageInfo.followUp && (
-          <MuiBox sx={classes.iconCell}>
-            <FollowUpIcon
-              tooltipPlacement={'right'}
-              sx={{
-                ...classes.icon,
-                ...classes.followUpIcon,
-              }}
-            />
-          </MuiBox>
-        )}
-        {packageInfo.firstParty && (
-          <MuiBox sx={classes.iconCell}>
-            <FirstPartyIcon
-              tooltipPlacement={'right'}
-              sx={{
-                ...classes.icon,
-                ...classes.firstPartyIcon,
-              }}
-            />
-          </MuiBox>
-        )}
-        {packageInfo.excludeFromNotice && (
-          <MuiBox sx={classes.iconCell}>
-            <ExcludeFromNoticeIcon
-              tooltipPlacement={'right'}
-              sx={{
-                ...classes.icon,
-                ...classes.excludeFromNoticeIcon,
-              }}
-            />
-          </MuiBox>
-        )}
-        {packageInfo.preSelected && (
-          <MuiBox sx={classes.iconCell}>
-            <PreSelectedIcon
-              tooltipPlacement={'right'}
-              sx={{
-                ...classes.icon,
-                ...classes.preSelectedIcon,
-              }}
-            />
-          </MuiBox>
-        )}
-        {packageInfo.preferred && (
-          <MuiBox sx={classes.iconCell}>
-            <PreferredIcon
-              tooltipPlacement={'right'}
-              sx={{
-                ...classes.icon,
-                ...classes.preferredIcon,
-              }}
-            />
-          </MuiBox>
-        )}
-        {aiStatus?.deferred && (
-          <MuiBox sx={classes.iconCell}>
-            <DeferredIcon tooltipPlacement={'right'} sx={classes.icon} />
-          </MuiBox>
-        )}
-        {!aiStatus?.deferred && aiStatus && (
-          <MuiBox sx={classes.iconCell}>
-            <AiGeneratedIcon tooltipPlacement={'right'} sx={classes.icon} />
-          </MuiBox>
-        )}
-        {aiStatus?.humanModified && (
-          <MuiBox sx={classes.iconCell}>
-            <HumanModifiedIcon tooltipPlacement={'right'} sx={classes.icon} />
-          </MuiBox>
+          ),
         )}
       </MuiBox>
     );

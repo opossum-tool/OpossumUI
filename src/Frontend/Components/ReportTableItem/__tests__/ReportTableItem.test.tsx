@@ -206,6 +206,46 @@ describe('The ReportTableItem', () => {
       await screen.findByText(text.auditingOptions.deferredTooltip),
     ).toBeInTheDocument();
   });
+
+  it.each([
+    {
+      name: 'needs-review',
+      iconLabel: 'Needs-review icon',
+      flags: { needsReview: true },
+      tooltip: text.auditingOptions.needsReview,
+    },
+    {
+      name: 'deferred AI',
+      iconLabel: 'Deferred AI icon',
+      flags: { aiStatus: { deferred: true } },
+      tooltip: text.auditingOptions.deferredTooltip,
+    },
+  ])(
+    'shows the $name tooltip when hovering the framed icon',
+    async ({ flags, tooltip, iconLabel }) => {
+      await renderComponent(
+        <table>
+          <tbody>
+            <tr>
+              <ReportTableItem
+                packageInfo={{
+                  id: 'uuid1',
+                  criticality: Criticality.None,
+                  ...flags,
+                }}
+              />
+            </tr>
+          </tbody>
+        </table>,
+      );
+
+      // Padding and border belong to the SVG, so its tooltip covers the frame too.
+      fireEvent.mouseOver(screen.getByLabelText(iconLabel));
+
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(tooltip);
+      expect(screen.getAllByRole('tooltip')).toHaveLength(1);
+    },
+  );
 });
 
 async function renderReportTableItemWithAiStatus(

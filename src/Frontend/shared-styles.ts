@@ -93,13 +93,16 @@ export const occurrenceChipMinWidth = '24px';
 export const spinnerDefaultSize = 12;
 export const buttonSpinnerSize = 16;
 
+// Icon padding in theme spacing units.
+export const baseIconPadding = 0.5;
+
 export const attributionPopupMaxWidth = '580px';
 export const fileDialogMaxWidth = '700px';
 
 export const baseIcon = {
   width: baseIconSize,
   height: baseIconSize,
-  p: 0.5,
+  p: baseIconPadding,
   my: 0,
   mx: 0.5,
 } satisfies SxProps<Theme>;
