@@ -52,6 +52,17 @@ const RESOURCE_LICENSE_QUICKFILTER: SavedResourceQuickfilter = {
   },
 };
 
+const SECOND_SIGNAL_LICENSE_QUICKFILTER: SavedAttributionQuickfilter = {
+  id: 'second-signal-license-quickfilter',
+  name: 'Apache licenses',
+  scope: 'signal',
+  filters: {
+    filters: [],
+    search: '',
+    valueFilters: { license: [{ id: 'Apache-2.0', label: 'Apache-2.0' }] },
+  },
+};
+
 function readActiveIds(
   store: { getState(): { variablesState: Record<string, unknown> } },
   name: string,
@@ -186,5 +197,85 @@ describe('pruning of deselected quickfilters', () => {
     );
 
     expect(readActiveIds(store, EXTERNAL_ATTRIBUTION_FILTERS)).toBeUndefined();
+  });
+
+  it('deselects a deleted quickfilter on every panel it was applied on', () => {
+    const store = createAppStore();
+    store.dispatch(
+      setUserSetting({ savedQuickfilters: [SIGNAL_LICENSE_QUICKFILTER] }),
+    );
+    store.dispatch(
+      setVariable(RESOURCE_TREE_FILTERS, {
+        ...initialResourceTreeFilters,
+        selectedLicenses: [LICENSE_OPTION],
+        activeQuickfilterIds: [SIGNAL_LICENSE_QUICKFILTER.id],
+      }),
+    );
+    store.dispatch(
+      setVariable(EXTERNAL_ATTRIBUTION_FILTERS, {
+        ...initialAttributionFilters,
+        valueFilters: { license: [LICENSE_OPTION] },
+        activeQuickfilterIds: [SIGNAL_LICENSE_QUICKFILTER.id],
+      }),
+    );
+
+    // Deleting the quickfilter from the signals panel must also deselect it
+    // on the resources panel.
+    store.dispatch(setUserSetting({ savedQuickfilters: [] }));
+
+    expect(readActiveIds(store, RESOURCE_TREE_FILTERS)).toBeUndefined();
+    expect(readActiveIds(store, EXTERNAL_ATTRIBUTION_FILTERS)).toBeUndefined();
+  });
+
+  it('keeps the remaining quickfilters selected when one of several is deleted', () => {
+    const store = createAppStore();
+    store.dispatch(
+      setUserSetting({
+        savedQuickfilters: [
+          SIGNAL_LICENSE_QUICKFILTER,
+          SECOND_SIGNAL_LICENSE_QUICKFILTER,
+        ],
+      }),
+    );
+    store.dispatch(
+      setVariable(RESOURCE_TREE_FILTERS, {
+        ...initialResourceTreeFilters,
+        selectedLicenses: [LICENSE_OPTION],
+        activeQuickfilterIds: [
+          SIGNAL_LICENSE_QUICKFILTER.id,
+          SECOND_SIGNAL_LICENSE_QUICKFILTER.id,
+        ],
+      }),
+    );
+
+    store.dispatch(
+      setUserSetting({
+        savedQuickfilters: [SIGNAL_LICENSE_QUICKFILTER],
+      }),
+    );
+
+    expect(readActiveIds(store, RESOURCE_TREE_FILTERS)).toEqual([
+      SIGNAL_LICENSE_QUICKFILTER.id,
+    ]);
+  });
+
+  it('keeps quickfilters selected when user settings change without deleting any', () => {
+    const store = createAppStore();
+    store.dispatch(setUserSetting({ savedQuickfilters: [QUICKFILTER] }));
+    store.dispatch(
+      setVariable(EXTERNAL_ATTRIBUTION_FILTERS, {
+        ...initialAttributionFilters,
+        filters: ['firstParty'],
+        activeQuickfilterIds: [QUICKFILTER.id],
+      }),
+    );
+
+    store.dispatch(
+      setUserSetting({ savedQuickfilters: [{ ...QUICKFILTER, name: 'New' }] }),
+    );
+
+    expect(readActiveIds(store, EXTERNAL_ATTRIBUTION_FILTERS)).toEqual([
+      QUICKFILTER.id,
+    ]);
   });
 });

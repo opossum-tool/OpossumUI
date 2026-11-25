@@ -7,9 +7,11 @@ import { configureStore, type Middleware } from '@reduxjs/toolkit';
 import {
   isAttributionQuickfilter,
   isResourceQuickfilter,
+  type UserSettings,
 } from '../../shared/shared-types';
 import type { State } from '../types/types';
 import { isProductionBuild } from '../util/environment';
+import { ACTION_SET_USER_SETTING } from './actions/user-settings-actions/types';
 import { SET_VARIABLE } from './actions/variables-actions/types';
 import { setVariable } from './actions/variables-actions/variables-actions';
 import { reducer } from './reducer';
@@ -40,6 +42,8 @@ const FILTER_VARIABLES_WITH_QUICKFILTERS = new Set<string>([
  * Quickfilters stay selected only while the current filters still contain
  * everything they contributed. Edits that remove or change one of a
  * quickfilter's conditions deselect it; filters added on top keep it active.
+ * Deleting a saved quickfilter deselects it on every panel, since it can no
+ * longer be checked against anywhere.
  */
 const pruneDeselectedQuickfilters: Middleware<unknown, State> =
   (store) => (next) => (action) => {
@@ -47,7 +51,43 @@ const pruneDeselectedQuickfilters: Middleware<unknown, State> =
       type?: string;
       name?: string;
       value?: unknown;
+      payload?: Partial<UserSettings>;
     };
+    if (variableAction.type === ACTION_SET_USER_SETTING) {
+      const incomingQuickfilters = variableAction.payload?.savedQuickfilters;
+      if (incomingQuickfilters) {
+        // Deletions are detected by diffing against the current settings:
+        // other updates (rename, reorder, settings loaded) keep all ids.
+        const removedIds = store
+          .getState()
+          .userSettingsState.savedQuickfilters.filter(
+            ({ id }) =>
+              !incomingQuickfilters.some(
+                ({ id: incomingId }) => incomingId === id,
+              ),
+          )
+          .map(({ id }) => id);
+        const result = next(action);
+        for (const name of FILTER_VARIABLES_WITH_QUICKFILTERS) {
+          const filters = store.getState().variablesState[name] as
+            (AttributionFilters & ResourceTreeFilters) | undefined;
+          const activeIds = filters?.activeQuickfilterIds;
+          if (!activeIds?.length) {
+            continue;
+          }
+          const keptIds = activeIds.filter((id) => !removedIds.includes(id));
+          if (keptIds.length !== activeIds.length) {
+            store.dispatch(
+              setVariable(name, {
+                ...filters,
+                activeQuickfilterIds: keptIds.length ? keptIds : undefined,
+              }) as unknown as Parameters<typeof store.dispatch>[0],
+            );
+          }
+        }
+        return result;
+      }
+    }
     if (
       variableAction.type === SET_VARIABLE &&
       variableAction.name !== undefined &&
