@@ -6,6 +6,7 @@ import { keepPreviousData } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
+import { LINKED_RESOURCES_EXPANSION_LIMIT } from '../../../shared/shared-constants';
 import { text } from '../../../shared/text';
 import { useAppSelector } from '../../state/hooks';
 import {
@@ -252,12 +253,17 @@ export function ResourceBrowser() {
           headerTestId: 'resources-tree-header',
         }}
         lowerPanel={{
-          title: linkedResourcesPanelState.treeState
-            ? text.resourceBrowser.linkedResources(
-                linkedResourcesPanelState.treeState.belowSelectedResource ?? 0,
-                linkedResourcesPanelState.treeState.count,
+          title: linkedResourcesPanelState.treeState?.exceedsLimit
+            ? text.resourceBrowser.linkedResourcesOverLimitTitle(
+                LINKED_RESOURCES_EXPANSION_LIMIT,
               )
-            : text.resourceBrowser.linkedResourcesTitle,
+            : linkedResourcesPanelState.treeState
+              ? text.resourceBrowser.linkedResources(
+                  linkedResourcesPanelState.treeState.belowSelectedResource ??
+                    0,
+                  linkedResourcesPanelState.treeState.count,
+                )
+              : text.resourceBrowser.linkedResourcesTitle,
           search: {
             value: searchLinked,
             setValue: setSearchLinked,

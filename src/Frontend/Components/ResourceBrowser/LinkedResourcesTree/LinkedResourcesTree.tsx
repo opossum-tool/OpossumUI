@@ -2,10 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiTypography from '@mui/material/Typography';
 import type { SxProps } from '@mui/system';
 import { remove } from 'lodash-es';
 import { useCallback } from 'react';
 
+import { LINKED_RESOURCES_EXPANSION_LIMIT } from '../../../../shared/shared-constants';
+import { text } from '../../../../shared/text';
 import { borderThin, OpossumColors } from '../../../shared-styles';
 import { navigateToSelectedPathOrOpenUnsavedPopup } from '../../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../../state/hooks';
@@ -60,6 +63,20 @@ export function LinkedResourcesTree({
 
   if (!state) {
     return null;
+  }
+
+  if (state.exceedsLimit) {
+    return (
+      <MuiTypography
+        color={'text.secondary'}
+        sx={{ padding: 2, ...sx }}
+        variant={'body2'}
+      >
+        {text.resourceBrowser.linkedResourcesOverLimitMessage(
+          LINKED_RESOURCES_EXPANSION_LIMIT,
+        )}
+      </MuiTypography>
+    );
   }
 
   return (

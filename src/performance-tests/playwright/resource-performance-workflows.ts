@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect } from '@playwright/test';
 
+import { LINKED_RESOURCES_EXPANSION_LIMIT } from '../../shared/shared-constants';
 import { getSyntheticAttributionLinkCounts } from '../synthetic-file/fixture';
 import {
   applyUnreviewedResourceFilter,
@@ -45,9 +46,22 @@ async function prepareHighFanoutLinkedResources(
       highFanout.manual.packageInfo,
     ),
     attributionDetails.assert.loadingIndicatorIsHidden(),
-    linkedResourcesTree.assert.isVisible(),
+    isOverLinkedResourcesLimit(model)
+      ? linkedResourcesTree.assert.overLimitMessageIsVisible()
+      : linkedResourcesTree.assert.isVisible(),
     linkedResourcesTree.waitForLoadingToFinish(),
   ]);
+}
+
+/**
+ * The linked resources tree is not loaded when the ancestor paths of the
+ * linked resources exceed LINKED_RESOURCES_EXPANSION_LIMIT. The synthetic
+ * profiles cross that bound exactly when the high-fanout link count does.
+ */
+function isOverLinkedResourcesLimit(
+  model: PerformanceWorkflowContext['model'],
+): boolean {
+  return model.profile.highFanoutLinkCount > LINKED_RESOURCES_EXPANSION_LIMIT;
 }
 
 export async function runResourceWorkflows(
@@ -97,6 +111,22 @@ export async function runResourceWorkflows(
     open: getLinkCount(linkedResourceTargets.open.signal.id),
     search: getLinkCount(linkedResourceTargets.search.signal.id),
     expansion: getLinkCount(linkedResourceTargets.expansion.signal.id),
+  };
+  const isOverLimit = isOverLinkedResourcesLimit(model);
+  const assertHighFanoutTreeState = async (count: number): Promise<void> => {
+    if (isOverLimit) {
+      await Promise.all([
+        linkedResourcesTree.assert.overLimitHeaderIsVisible(),
+        linkedResourcesTree.assert.overLimitMessageIsVisible(),
+        linkedResourcesTree.waitForLoadingToFinish(),
+      ]);
+    } else {
+      await Promise.all([
+        linkedResourcesTree.assert.isVisible(),
+        linkedResourcesTree.assert.totalCountIs(count),
+        linkedResourcesTree.waitForLoadingToFinish(),
+      ]);
+    }
   };
 
   await runScenario({
@@ -210,9 +240,7 @@ export async function runResourceWorkflows(
           linkedResourceTargets.open.signal.packageInfo,
         ),
         attributionDetails.assert.loadingIndicatorIsHidden(),
-        linkedResourcesTree.assert.isVisible(),
-        linkedResourcesTree.assert.totalCountIs(targetCounts.open),
-        linkedResourcesTree.waitForLoadingToFinish(),
+        assertHighFanoutTreeState(targetCounts.open),
       ]);
     },
   });
@@ -233,9 +261,7 @@ export async function runResourceWorkflows(
           linkedResourceTargets.search.signal.packageInfo,
         ),
         attributionDetails.assert.loadingIndicatorIsHidden(),
-        linkedResourcesTree.assert.isVisible(),
-        linkedResourcesTree.assert.totalCountIs(targetCounts.search),
-        linkedResourcesTree.waitForLoadingToFinish(),
+        assertHighFanoutTreeState(targetCounts.search),
       ]);
     },
     execute: async () => {
@@ -253,10 +279,14 @@ export async function runResourceWorkflows(
     teardown: async () => {
       await linkedResourcesTree.clearSearch();
       await linkedResourcesTree.waitForLoadingToFinish();
-      await linkedResourcesTree.assert.totalCountIs(targetCounts.search);
-      await linkedResourcesTree.assert.resourceIsVisible(
-        linkedResourceTargets.search.resource.resourceName,
-      );
+      if (isOverLimit) {
+        await linkedResourcesTree.assert.overLimitMessageIsVisible();
+      } else {
+        await linkedResourcesTree.assert.totalCountIs(targetCounts.search);
+        await linkedResourcesTree.assert.resourceIsVisible(
+          linkedResourceTargets.search.resource.resourceName,
+        );
+      }
     },
   });
 
@@ -276,9 +306,11 @@ export async function runResourceWorkflows(
           linkedResourceTargets.expansion.signal.packageInfo,
         ),
         attributionDetails.assert.loadingIndicatorIsHidden(),
-        linkedResourcesTree.assert.totalCountIs(targetCounts.expansion),
-        linkedResourcesTree.waitForLoadingToFinish(),
+        assertHighFanoutTreeState(targetCounts.expansion),
       ]);
+      if (isOverLimit) {
+        return;
+      }
       await linkedResourcesTree.scrollToTop();
       await linkedResourcesTree.assert.resourceAtPathIsVisible(
         expansionBranchPath,
@@ -290,6 +322,13 @@ export async function runResourceWorkflows(
       );
     },
     execute: async () => {
+      if (isOverLimit) {
+        await Promise.all([
+          linkedResourcesTree.assert.overLimitMessageIsVisible(),
+          linkedResourcesTree.waitForLoadingToFinish(),
+        ]);
+        return;
+      }
       await linkedResourcesTree.expandResourceAtPath(expansionBranchPath);
       await Promise.all([
         linkedResourcesTree.assert.resourceAtPathIsVisible(expansionChildPath),

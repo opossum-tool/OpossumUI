@@ -43,6 +43,7 @@ vi.mock('../LinkedResourcesTree/useLinkedResourcesTreeState', () => ({
 const treeState = {
   belowSelectedResource: undefined,
   count: 0,
+  exceedsLimit: false,
   expandedIds: [],
   setExpandedIds: () => undefined,
   treeNodes: [],

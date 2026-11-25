@@ -39,10 +39,14 @@ export function useLinkedAttributionActionData({
     onlyWritable: true,
   });
   // The tree count is authoritative once shown; the summary count only
-  // serves as a fallback while the tree is hidden or failed to load.
-  const linkedResourceCount = canShowLinkedResourcesTree
-    ? linkedResourcesTreeState?.count
-    : selectionMetadata.writableLinkedResourceCount;
+  // serves as a fallback while the tree is hidden, failed to load, or
+  // was skipped because the linked resources exceed the loading limit.
+  const linkedResourceCount =
+    canShowLinkedResourcesTree &&
+    linkedResourcesTreeState &&
+    !linkedResourcesTreeState.exceedsLimit
+      ? linkedResourcesTreeState.count
+      : selectionMetadata.writableLinkedResourceCount;
   const actionSummary = {
     selectedAttributionCount: selectionMetadata.selectedAttributionCount,
     mixedAttributionCount: selectionMetadata.mixedAttributionCount,

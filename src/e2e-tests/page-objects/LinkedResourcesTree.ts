@@ -4,6 +4,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { expect, type Page } from '@playwright/test';
 
+import { LINKED_RESOURCES_EXPANSION_LIMIT } from '../../shared/shared-constants';
+import { text } from '../../shared/text';
 import { Tree } from './tree';
 
 export class LinkedResourcesTree extends Tree {
@@ -16,6 +18,20 @@ export class LinkedResourcesTree extends Tree {
     totalCountIs: async (count: number): Promise<void> =>
       expect(this.header).toContainText(
         ` / ${new Intl.NumberFormat().format(count)})`,
+      ),
+    overLimitMessageIsVisible: async (): Promise<void> =>
+      expect(
+        this.window.getByText(
+          text.resourceBrowser.linkedResourcesOverLimitMessage(
+            LINKED_RESOURCES_EXPANSION_LIMIT,
+          ),
+        ),
+      ).toBeVisible(),
+    overLimitHeaderIsVisible: async (): Promise<void> =>
+      expect(this.header).toContainText(
+        text.resourceBrowser.linkedResourcesOverLimitTitle(
+          LINKED_RESOURCES_EXPANSION_LIMIT,
+        ),
       ),
   };
 

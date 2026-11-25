@@ -4,7 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 
+import { executeCommand } from '../../../../../ElectronBackend/api/commands';
+import { LINKED_RESOURCES_EXPANSION_LIMIT } from '../../../../../shared/shared-constants';
 import { Criticality } from '../../../../../shared/shared-types';
+import { text } from '../../../../../shared/text';
 import {
   expectResourceItemsNotShown,
   expectResourceItemsShown,
@@ -175,5 +178,59 @@ describe('LinkedResourcesTree', () => {
     await expectTreeItemHighlight('linked-resources-tree', 'folder2', true);
     await expectTreeItemHighlight('linked-resources-tree', 'resource_1', false);
     await expectResourceItemsNotShown(['resource_2'], 'linked-resources-tree');
+  });
+
+  it('does not load linked resources beyond the attribution count gate', async () => {
+    const api = vi.mocked(window.electronAPI.api);
+    api.mockClear();
+    await renderComponent(
+      <TestLinkedResourcesTree
+        onAttributionUuids={Array.from(
+          { length: 101 },
+          (_, index) => `uuid-${index}`,
+        )}
+      />,
+      { data: testData },
+    );
+
+    expect(
+      api.mock.calls.filter(
+        ([command]) =>
+          command === 'getResourcePathsAndParentsForAttributions' ||
+          command === 'getLinkedResourceTree',
+      ),
+    ).toHaveLength(0);
+  });
+
+  it('shows an over-limit message instead of loading the tree', async () => {
+    const api = vi.mocked(window.electronAPI.api);
+    api.mockClear();
+    api.mockImplementation(async (command, params) => {
+      if (command === 'getResourcePathsAndParentsForAttributions') {
+        return {
+          result: {
+            paths: ['/', '/folder1/', '/folder1/folder2/'],
+            limitReached: true,
+          },
+        };
+      }
+      return executeCommand(command, params);
+    });
+
+    await renderComponent(
+      <TestLinkedResourcesTree onAttributionUuids={[testUuid]} />,
+      { data: testData },
+    );
+
+    expect(
+      await screen.findByText(
+        text.resourceBrowser.linkedResourcesOverLimitMessage(
+          LINKED_RESOURCES_EXPANSION_LIMIT,
+        ),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      api.mock.calls.some(([command]) => command === 'getLinkedResourceTree'),
+    ).toBe(false);
   });
 });

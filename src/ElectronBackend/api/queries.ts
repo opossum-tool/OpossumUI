@@ -461,7 +461,12 @@ export const queries = {
       }
     }
 
-    return { result: Array.from(deduplicatedLimitedResults) };
+    return {
+      result: {
+        paths: Array.from(deduplicatedLimitedResults),
+        limitReached: !!limit && deduplicatedLimitedResults.size === limit,
+      },
+    };
   },
 
   async getFrequentLicenseNames() {

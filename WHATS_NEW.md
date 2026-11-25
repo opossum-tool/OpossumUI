@@ -10,12 +10,20 @@ Users who have seen a lower revision are shown these notes on their next start.
 When adding notes for the first new feature after a release, increment the revision
 and delete the previous notes and screenshots.
 -->
-<!-- whats-new-revision: 1 -->
+<!-- whats-new-revision: 2 -->
 
 ## Discover what’s new
 
 Release highlights now introduce new features directly in OpossumUI.
 You can revisit this overview at any time via **Help → What’s New**.
+
+## Linked resources load faster
+
+Very large linked resources lists are no longer loaded automatically.
+Instead, a message tells you that the list exceeds the size limit, and you
+can use the search to narrow it down. Lists for multiple attributions at
+once that are too large now show a resource count instead of loading every
+single entry.
 
 ## Install updates directly from OpossumUI
 

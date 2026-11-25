@@ -307,6 +307,10 @@ export const text = {
     linkedResources: (selectedResources: number, totalCount: number) =>
       `Linked Resources (${new Intl.NumberFormat().format(selectedResources)} / ${new Intl.NumberFormat().format(totalCount)})`,
     linkedResourcesTitle: 'Linked Resources',
+    linkedResourcesOverLimitTitle: (limit: number) =>
+      `Linked Resources (>${new Intl.NumberFormat().format(limit)})`,
+    linkedResourcesOverLimitMessage: (limit: number) =>
+      `This attribution is linked to more than ${new Intl.NumberFormat().format(limit)} resources. Use the search to narrow down the linked resources.`,
     hasHighlyCriticalSignals: 'Has highly critical signals',
     hasMediumCriticalSignals: 'Has medium critical signals',
     hasSignals: 'Has signals',

@@ -988,10 +988,11 @@ describe('getResourcePathsAndParentsForAttributions', () => {
       attributionUuids: ['uuid1'],
     });
 
-    expect(result).toContain('/');
-    expect(result).toContain('/src/');
-    expect(result).toContain('/src/linked/');
-    expect(result).not.toContain('/src/unlinked/');
+    const { paths } = result;
+    expect(paths).toContain('/');
+    expect(paths).toContain('/src/');
+    expect(paths).toContain('/src/linked/');
+    expect(paths).not.toContain('/src/unlinked/');
   });
 
   it('respects limit', async () => {
@@ -1000,7 +1001,18 @@ describe('getResourcePathsAndParentsForAttributions', () => {
       limit: 2,
     });
 
-    expect(result).toHaveLength(2);
+    expect(result.paths).toHaveLength(2);
+    expect(result.limitReached).toBe(true);
+  });
+
+  it('reports limitReached false when the limit is not reached', async () => {
+    const { result } = await queries.getResourcePathsAndParentsForAttributions({
+      attributionUuids: ['uuid1'],
+      limit: 10,
+    });
+
+    expect(result.paths.length).toBeLessThan(10);
+    expect(result.limitReached).toBe(false);
   });
 
   it('prioritizes the given resource and its parents', async () => {
@@ -1024,7 +1036,7 @@ describe('getResourcePathsAndParentsForAttributions', () => {
       prioritizedResourcePath: '/beta/file.ts',
     });
 
-    expect(result).toContain('/beta/');
+    expect(result.paths).toContain('/beta/');
   });
 
   it('accepts a large attribution selection', async () => {
@@ -1037,7 +1049,7 @@ describe('getResourcePathsAndParentsForAttributions', () => {
       attributionUuids,
     });
 
-    expect(result).toContain('/src/linked/');
+    expect(result.paths).toContain('/src/linked/');
   });
 });
 
