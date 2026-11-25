@@ -103,7 +103,7 @@ describe('quickfilters in the filter menu', () => {
     ).toBeInTheDocument();
   });
 
-  it('hides the save hint when the selection comes from an applied quickfilter', async () => {
+  it('offers saving after a quickfilter is applied, since manual filters may be added on top', async () => {
     const quickfilter = makeQuickfilter({ name: 'My quickfilter' });
     await renderQuickfilterButton([
       setUserSetting({ savedQuickfilters: [quickfilter] }),
@@ -126,12 +126,15 @@ describe('quickfilters in the filter menu', () => {
     const updatedEntry = screen.getByRole('menuitem', {
       name: text.quickfilters.title,
     });
+    // Manual filters added on top of the applied quickfilter are not saved
+    // and cannot be told apart from its contributions, so saving stays
+    // available.
     expect(
-      within(updatedEntry).queryByTestId('BookmarkAddIcon'),
-    ).not.toBeInTheDocument();
+      within(updatedEntry).getByTestId('BookmarkAddIcon'),
+    ).toBeInTheDocument();
   });
 
-  it('hides the save row while the selection comes from an applied quickfilter', async () => {
+  it('offers the save row while the selection comes from an applied quickfilter', async () => {
     const quickfilter = makeQuickfilter({ name: 'My quickfilter' });
     await renderQuickfilterButton([
       setUserSetting({ savedQuickfilters: [quickfilter] }),
@@ -141,8 +144,8 @@ describe('quickfilters in the filter menu', () => {
     await userEvent.click(row(panel, quickfilter.name));
 
     expect(
-      within(panel).queryByRole('button', { name: text.quickfilters.save }),
-    ).not.toBeInTheDocument();
+      within(panel).getByRole('button', { name: text.quickfilters.save }),
+    ).toBeInTheDocument();
   });
 
   it('focuses the save action when opening the panel with active filters', async () => {
@@ -228,7 +231,7 @@ describe('quickfilters in the filter menu', () => {
     );
   });
 
-  it('keeps the quickfilters menu row mounted when the save hint disappears after saving', async () => {
+  it('keeps the quickfilters menu row mounted while the save hint is shown after saving', async () => {
     await renderQuickfilterButton();
 
     const panel = await openQuickfiltersPanelWithActiveFilters();
@@ -251,7 +254,7 @@ describe('quickfilters in the filter menu', () => {
 
     await screen.findByRole('dialog', { name: text.quickfilters.title });
     // The menu row anchors the open side panel; remounting it (e.g. because
-    // its tooltip is removed) detaches the anchor and makes the panel jump.
+    // its tooltip changed) detaches the anchor and makes the panel jump.
     expect(
       screen.getByRole('menuitem', { name: text.quickfilters.title }),
     ).toBe(menuRow);

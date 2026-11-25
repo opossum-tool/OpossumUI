@@ -108,7 +108,9 @@ export function useResourceQuickfilterOption({
       }));
     };
 
-    const showSaveHint = hasActiveFilters && !activeIds.length;
+    // Manual filters may be added on top of an applied quickfilter, so
+    // saving is always offered while filters are active.
+    const showSaveHint = hasActiveFilters;
 
     return [
       {

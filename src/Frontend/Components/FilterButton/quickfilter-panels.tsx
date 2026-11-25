@@ -144,8 +144,8 @@ export function QuickfiltersPanel<T extends SavedQuickfilter>({
     endDrag,
     handleReorderKeyDown,
   } = useQuickfilterReorder({ quickfilters, onReorder });
-  const showSaveRow = hasActiveFilters && !activeQuickfilterIds.length;
-  // Snapshot: only the panel opened with manual filters focuses the save row.
+  const showSaveRow = hasActiveFilters;
+  // Snapshot: only the panel opened with active filters focuses the save row.
   const [focusSaveRowOnOpen] = useState(showSaveRow);
   const setFocusTarget = useCallback(
     (element: HTMLDivElement | null) => {

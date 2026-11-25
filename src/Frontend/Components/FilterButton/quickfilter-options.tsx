@@ -144,10 +144,10 @@ export function useQuickfilterOptions({
       return [];
     }
 
-    // A selection produced by an applied quickfilter is already saved, so no
-    // hint is needed.
-    const showSaveHint =
-      hasActiveFilters && !(filters.activeQuickfilterIds ?? []).length;
+    // Manual filters may be added on top of an applied quickfilter, and they
+    // cannot be told apart from its contributions, so saving is always
+    // offered while filters are active.
+    const showSaveHint = hasActiveFilters;
 
     return [
       {
