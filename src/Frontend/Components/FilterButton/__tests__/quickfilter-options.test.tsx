@@ -757,6 +757,38 @@ describe('quickfilters in the filter menu', () => {
     expect(row(panel, 'Second')).toHaveAttribute('aria-pressed', 'false');
   });
 
+  it('keeps manually selected filters when clearing all quickfilters', async () => {
+    const quickfilter = makeQuickfilter({ name: 'My quickfilter' });
+    const { store } = await renderQuickfilterButton([
+      setUserSetting({ savedQuickfilters: [quickfilter] }),
+    ]);
+
+    let panel = await openQuickfiltersPanel();
+    await userEvent.click(row(panel, 'My quickfilter'));
+
+    // Add a manual filter on top of the quickfilter's conditions; the side
+    // panel closes when another menu item is clicked.
+    await userEvent.click(
+      screen.getByRole('menuitem', { name: text.filters.thirdParty }),
+    );
+    panel = await openQuickfiltersPanelFromMenu();
+
+    await userEvent.click(
+      within(panel).getByRole('button', {
+        name: text.quickfilters.clearAllLabel,
+      }),
+    );
+
+    expect(
+      store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],
+    ).toEqual({
+      filters: ['thirdParty'],
+      search: '',
+      valueFilters: {},
+      sorting: 'alphabetically',
+    });
+  });
+
   it('applies a conflicting quickfilter and replaces the conflicting quickfilter', async () => {
     const first = makeQuickfilter({
       name: 'React search',

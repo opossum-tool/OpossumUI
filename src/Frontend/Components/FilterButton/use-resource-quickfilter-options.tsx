@@ -93,12 +93,19 @@ export function useResourceQuickfilterOption({
     };
 
     const clearAllResourceQuickfilters = (): void => {
-      setFilters(
-        combineResourceQuickfilters({
-          ids: [],
-          quickfilters: visibleQuickfilters,
-        }),
-      );
+      setFilters((prev) => {
+        const activeIds = prev.activeQuickfilterIds ?? [];
+        // Strips only the applied quickfilters' contributions; manually
+        // selected filters are kept.
+        return activeIds.reduce((current, id) => {
+          const removed = visibleQuickfilters.find(
+            ({ id: quickfilterId }) => quickfilterId === id,
+          );
+          return removed
+            ? removeResourceQuickfilterConditions(current, removed, [])
+            : current;
+        }, prev);
+      });
     };
 
     const activateSavedResourceQuickfilter = (id: string): void => {

@@ -229,6 +229,36 @@ describe('quickfilters in the resource tree filter menu', () => {
     expect(row(panel, 'MIT license')).toHaveAttribute('aria-pressed', 'false');
   });
 
+  it('keeps manually selected filters when clearing all quickfilters', async () => {
+    const unreviewed = makeQuickfilter({ name: 'Unreviewed only' });
+    const { store } = await renderResourceFilterButton([
+      setUserSetting({ savedQuickfilters: [unreviewed] }),
+    ]);
+
+    const panel = await openQuickfiltersPanel();
+    await userEvent.click(row(panel, 'Unreviewed only'));
+
+    // Add a manual filter on top of the quickfilter's conditions.
+    store.dispatch(
+      setVariable(RESOURCE_TREE_FILTERS, {
+        ...resourceFilters(store),
+        onlyWithAiDeferredAttributions: true,
+      }),
+    );
+
+    await userEvent.click(
+      within(panel).getByRole('button', {
+        name: text.quickfilters.clearAllLabel,
+      }),
+    );
+
+    expect(resourceFilters(store)).toEqual({
+      onlyUnreviewedFiles: false,
+      onlyWithAiDeferredAttributions: true,
+      selectedLicenses: [],
+    });
+  });
+
   it('applies a shared license-only attribution quickfilter without touching the attributions panel', async () => {
     const attributionQuickfilter: SavedAttributionQuickfilter = {
       id: 'shared-license',

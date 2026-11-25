@@ -124,12 +124,17 @@ export function useQuickfilterOptions({
     };
 
     const clearAllQuickfilters = (): void => {
+      // Strips only the applied quickfilters' contributions; manually
+      // selected filters are kept.
       setFilters(
-        combineQuickfilters({
-          ids: [],
-          quickfilters: visibleQuickfilters,
-          sorting: filters.sorting,
-        }),
+        activeIds.reduce((current, id) => {
+          const removed = visibleQuickfilters.find(
+            ({ id: quickfilterId }) => quickfilterId === id,
+          );
+          return removed
+            ? removeQuickfilterConditions(current, removed, [])
+            : current;
+        }, filters),
       );
     };
 
