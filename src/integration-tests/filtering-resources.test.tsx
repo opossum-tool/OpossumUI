@@ -170,10 +170,11 @@ describe('filtering resources', () => {
       ).toHaveAttribute('aria-pressed', 'true');
     });
     await closeFilterMenu();
-    await expectResourceVisibility(
-      [deferredResourceName],
-      [aiNotDeferredResourceName, plainResourceName],
-    );
+    await expectResourceItemsShown([deferredResourceName]);
+    await expectResourceItemsNotShown([
+      aiNotDeferredResourceName,
+      plainResourceName,
+    ]);
   });
 
   it('applies a license-only attribution quickfilter from the tree filter menu', async () => {
@@ -213,14 +214,12 @@ describe('filtering resources', () => {
       ).toHaveAttribute('aria-pressed', 'true');
     });
     await closeFilterMenu();
-    await expectResourceVisibility(
-      [externalResourceName],
-      [
-        preselectedResourceName,
-        reviewedMitResourceName,
-        reviewedApacheResourceName,
-      ],
-    );
+    await expectResourceItemsShown([externalResourceName]);
+    await expectResourceItemsNotShown([
+      preselectedResourceName,
+      reviewedMitResourceName,
+      reviewedApacheResourceName,
+    ]);
   });
 
   it('filters the resource tree to unreviewed files', async () => {
@@ -383,11 +382,24 @@ describe('filtering resources', () => {
     await selectFilterLicenseName('MIT');
     await closeFilterMenu();
 
-    await expectResourceItemsShown([externalResourceName]);
-    await expectResourceItemsNotShown([
+    await expectPackageCards(
+      'attributions-panel',
+      [preselectedPackageInfo, reviewedMitPackageInfo],
+      [
+        reviewedApachePackageInfo,
+        deferredPackageInfo,
+        aiNotDeferredPackageInfo,
+        plainPackageInfo,
+      ],
+    );
+    await expectResourceItemsShown([
+      externalResourceName,
       preselectedResourceName,
       reviewedMitResourceName,
       reviewedApacheResourceName,
+      deferredResourceName,
+      aiNotDeferredResourceName,
+      plainResourceName,
     ]);
   });
 

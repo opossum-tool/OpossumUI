@@ -21,7 +21,8 @@ import {
   clickFilterMenuItem,
   clickTreeFilterMenuButton,
   closeFilterMenu,
-  expectResourceVisibility,
+  expectResourceItemsNotShown,
+  expectResourceItemsShown,
   selectFilterLicenseName,
   SIGNALS_PANEL,
 } from '../testing/ui';
@@ -114,7 +115,8 @@ describe('deleting quickfilters across panels', () => {
     await applyQuickfilterInResourceTree();
     expectResourceTreeMenuEntrySelected(true);
     await closeFilterMenu();
-    await expectResourceVisibility([mitResourceName], [apacheResourceName]);
+    await expectResourceItemsShown([mitResourceName]);
+    await expectResourceItemsNotShown([apacheResourceName]);
 
     // Remove the license the quickfilter contributed via the regular tree
     // filter control; the quickfilter must deselect itself.
@@ -126,7 +128,7 @@ describe('deleting quickfilters across panels', () => {
     await clickTreeFilterMenuButton();
     expectResourceTreeMenuEntrySelected(false);
     await closeFilterMenu();
-    await expectResourceVisibility([mitResourceName, apacheResourceName], []);
+    await expectResourceItemsShown([mitResourceName, apacheResourceName]);
   });
 
   it('deselects a quickfilter in the resource tree when it is deleted from the signals panel', async () => {
@@ -162,6 +164,7 @@ describe('deleting quickfilters across panels', () => {
     await clickTreeFilterMenuButton();
     expectResourceTreeMenuEntrySelected(false);
     await closeFilterMenu();
-    await expectResourceVisibility([mitResourceName], [apacheResourceName]);
+    await expectResourceItemsShown([mitResourceName]);
+    await expectResourceItemsNotShown([apacheResourceName]);
   });
 });
