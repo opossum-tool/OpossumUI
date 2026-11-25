@@ -34,14 +34,9 @@ const MARGIN_RIGHT = 10;
 const MARGIN_BOTTOM = 4;
 const X_AXIS_LABEL_OFFSET = 3;
 
-// Splits a label into at most two lines. Pure CSS wrapping alone would not
-// work here: it is unbounded, so labels wrapping to 3+ lines overflow the
-// fixed row height, and it breaks inside hyphenated words. Explicitly
-// splitting at whitespace keeps hyphenated words intact, and the split is
-// balanced by character count so both lines are roughly equal width; the
-// reserved tick width then only needs to fit the widest line instead of the
-// whole label. Labels that already fit on one line ("First Party") are left
-// alone, so they render exactly like before.
+// Labels must fit on at most two lines to avoid overflowing the chart.
+// CSS wrapping cannot guarantee this, so we wrap manually.
+// Split only at whitespace to keep hyphenated words intact.
 function wrapChartTickLabel(label: string): Array<string> {
   const words = label.trim().split(/\s+/);
   if (words.length < 2) {
