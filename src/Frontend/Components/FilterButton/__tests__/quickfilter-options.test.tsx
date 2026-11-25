@@ -124,7 +124,7 @@ describe('quickfilters in the filter menu', () => {
     // Close the side panel; the filter menu stays open.
     await userEvent.keyboard('{Escape}');
     const updatedEntry = screen.getByRole('menuitem', {
-      name: text.quickfilters.title,
+      name: text.quickfilters.titleSelected,
     });
     // Manual filters added on top of the applied quickfilter are not saved
     // and cannot be told apart from its contributions, so saving stays
@@ -254,9 +254,10 @@ describe('quickfilters in the filter menu', () => {
 
     await screen.findByRole('dialog', { name: text.quickfilters.title });
     // The menu row anchors the open side panel; remounting it (e.g. because
-    // its tooltip changed) detaches the anchor and makes the panel jump.
+    // its accessible name changed with the selection) detaches the anchor
+    // and makes the panel jump.
     expect(
-      screen.getByRole('menuitem', { name: text.quickfilters.title }),
+      screen.getByRole('menuitem', { name: text.quickfilters.titleSelected }),
     ).toBe(menuRow);
   });
 
@@ -1321,10 +1322,18 @@ async function openQuickfiltersPanel(): Promise<HTMLElement> {
   return openQuickfiltersPanelFromMenu();
 }
 
+function quickfiltersMenuEntry(): HTMLElement {
+  // The accessible name follows the visible label, which reflects the
+  // selection state.
+  return screen.getByRole('menuitem', {
+    name: new RegExp(
+      `^(${text.quickfilters.title}|${text.quickfilters.titleSelected})$`,
+    ),
+  });
+}
+
 async function openQuickfiltersPanelFromMenu(): Promise<HTMLElement> {
-  await userEvent.click(
-    screen.getByRole('menuitem', { name: text.quickfilters.title }),
-  );
+  await userEvent.click(quickfiltersMenuEntry());
   return screen.findByRole('dialog', {
     name: text.quickfilters.title,
   });

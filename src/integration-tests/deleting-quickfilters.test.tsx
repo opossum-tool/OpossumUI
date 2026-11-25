@@ -90,9 +90,13 @@ async function applyQuickfilterInResourceTree(): Promise<void> {
 }
 
 function expectResourceTreeMenuEntrySelected(selected: boolean): void {
-  // The accessible name of the menu entry stays stable; only the visible
-  // label reflects the selection.
-  const entry = screen.getByRole('menuitem', { name: text.quickfilters.title });
+  // The accessible name follows the visible label, which reflects the
+  // selection.
+  const entry = screen.getByRole('menuitem', {
+    name: new RegExp(
+      `^(${text.quickfilters.title}|${text.quickfilters.titleSelected})$`,
+    ),
+  });
   if (selected) {
     expect(
       within(entry).getByText(text.quickfilters.titleSelected),

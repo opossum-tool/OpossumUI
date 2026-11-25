@@ -157,8 +157,6 @@ export function useQuickfilterOptions({
         label: activeIds.length
           ? text.quickfilters.titleSelected
           : text.quickfilters.title,
-        // The accessible name stays stable so tests can rely on it.
-        ariaLabel: text.quickfilters.title,
         tinted: true,
         tooltip: showSaveHint ? text.quickfilters.saveHint : undefined,
         icon: showSaveHint ? (
