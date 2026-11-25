@@ -158,7 +158,7 @@ describe('loadFile', () => {
     beforeEach(async () => {
       path = await writeFileWithManualAttribution({
         packageName: 'before',
-        aiAttributions: metadata,
+        aiAttributes: metadata,
       });
     });
 
@@ -202,7 +202,7 @@ describe('loadFile', () => {
       ) as OpossumOutputFile;
       const attribution = saved.manualAttributions[manualAttributionUuid];
       expect(attribution.packageName).toBe('after');
-      expect(attribution.aiAttributions).toEqual(expectedSavedMetadata);
+      expect(attribution.aiAttributes).toEqual(expectedSavedMetadata);
       expect(attribution).not.toHaveProperty('aiStatus');
     });
 
@@ -222,7 +222,7 @@ describe('loadFile', () => {
       });
       const { result: saveArgs } = await getSaveFileArgs();
       expect(
-        saveArgs.manualAttributions[manualAttributionUuid].aiAttributions,
+        saveArgs.manualAttributions[manualAttributionUuid].aiAttributes,
       ).toEqual(expectedSavedMetadata);
     });
   });
@@ -515,7 +515,7 @@ describe('loadFile', () => {
       packageName: 'unselected package',
       preSelected: false,
     };
-    Object.defineProperty(unselectedAttribution, 'aiAttributions', {
+    Object.defineProperty(unselectedAttribution, 'aiAttributes', {
       enumerable: true,
       get: getUnselectedMetadata,
     });
@@ -528,7 +528,7 @@ describe('loadFile', () => {
         preferred: true,
         preferredOverOriginIds: ['origin'],
         source: { name: 'source' },
-        aiAttributions: nestedMetadata,
+        aiAttributes: nestedMetadata,
       },
       unselected: unselectedAttribution,
     };
@@ -548,7 +548,7 @@ describe('loadFile', () => {
         packageName: 'selected package',
         preSelected: true,
         criticality: undefined,
-        aiAttributions: nestedMetadata,
+        aiAttributes: nestedMetadata,
       },
     });
     expect(output.resourcesToAttributions).toEqual({
@@ -562,7 +562,7 @@ describe('loadFile', () => {
     expect(getUnselectedMetadata).not.toHaveBeenCalled();
 
     const clonedMetadata = output.manualAttributions[manualAttributionUuid]
-      .aiAttributions as typeof nestedMetadata;
+      .aiAttributes as typeof nestedMetadata;
     clonedMetadata.nested.value = 'changed';
     expect(nestedMetadata.nested.value).toBe('unchanged');
   });

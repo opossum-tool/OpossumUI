@@ -5,10 +5,7 @@
 import AdmZip from 'adm-zip';
 import fs from 'fs';
 
-import type {
-  AiAttributions,
-  ReadonlyRule,
-} from '../../../shared/shared-types';
+import type { AiAttributes, ReadonlyRule } from '../../../shared/shared-types';
 import { writeOpossumFile } from '../../../shared/write-file';
 import {
   INPUT_FILE_NAME,
@@ -101,7 +98,7 @@ describe('mergeOpossumArchives', () => {
       const docsPath = await createArchive({
         output: output({
           attributions: { docs: 'shared', frontend: 'other' },
-          aiAttributions: { shared: metadata },
+          aiAttributes: { shared: metadata },
         }),
         readonlyRules: [
           { path: '/', readonly: true },
@@ -111,7 +108,7 @@ describe('mergeOpossumArchives', () => {
       const frontendPath = await createArchive({
         output: output({
           attributions: { docs: 'stale', frontend: 'other' },
-          aiAttributions: { shared: { source: 'readonly' } },
+          aiAttributes: { shared: { source: 'readonly' } },
         }),
         readonlyRules: [
           { path: '/', readonly: true },
@@ -601,11 +598,11 @@ async function copyArchiveWithOutput(
 
 function output({
   attributions,
-  aiAttributions,
+  aiAttributes,
   resolved = [],
 }: {
   attributions: Record<string, string>;
-  aiAttributions?: Record<string, AiAttributions | undefined>;
+  aiAttributes?: Record<string, AiAttributes | undefined>;
   resolved?: Array<string>;
 }): ParsedOpossumOutputFile {
   return {
@@ -615,12 +612,12 @@ function output({
     },
     manualAttributions: Object.fromEntries(
       Object.values(attributions).map((attributionUuid) => {
-        const aiMetadata = aiAttributions?.[attributionUuid];
+        const aiMetadata = aiAttributes?.[attributionUuid];
         return [
           attributionUuid,
           {
             packageName: attributionUuid,
-            ...(aiMetadata === undefined ? {} : { aiAttributions: aiMetadata }),
+            ...(aiMetadata === undefined ? {} : { aiAttributes: aiMetadata }),
           },
         ];
       }),
@@ -651,22 +648,22 @@ function getReadonlyRules(filePath: string): Array<ReadonlyRule> {
 function readOutputAttribution(
   filePath: string,
   attributionId: string,
-): { aiAttributions?: unknown } {
+): { aiAttributes?: unknown } {
   const output = JSON.parse(
     new AdmZip(filePath).readAsText(OUTPUT_FILE_NAME),
   ) as {
-    manualAttributions: Record<string, { aiAttributions?: unknown }>;
+    manualAttributions: Record<string, { aiAttributes?: unknown }>;
   };
   return output.manualAttributions[attributionId];
 }
 
 function expectAiMetadata(
-  attribution: { aiAttributions?: unknown },
+  attribution: { aiAttributes?: unknown },
   metadata: object | undefined,
 ): void {
   if (metadata === undefined) {
-    expect(attribution).not.toHaveProperty('aiAttributions');
+    expect(attribution).not.toHaveProperty('aiAttributes');
   } else {
-    expect(attribution.aiAttributions).toEqual(metadata);
+    expect(attribution.aiAttributes).toEqual(metadata);
   }
 }

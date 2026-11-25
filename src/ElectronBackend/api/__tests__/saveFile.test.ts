@@ -33,24 +33,24 @@ describe('saveFile', () => {
             id: 'withAi',
             packageName: 'before',
             criticality: Criticality.None,
-            ...{ aiAttributions: { model: 'test' } },
+            ...{ aiAttributes: { model: 'test' } },
           },
           emptyAi: {
             id: 'emptyAi',
             packageName: 'empty',
             criticality: Criticality.None,
-            ...{ aiAttributions: {} },
+            ...{ aiAttributes: {} },
           },
           missingFlagAi: {
             id: 'missingFlagAi',
             criticality: Criticality.None,
-            ...{ aiAttributions: { model: 'missing flag' } },
+            ...{ aiAttributes: { model: 'missing flag' } },
           },
           falseAi: {
             id: 'falseAi',
             packageName: 'false',
             criticality: Criticality.None,
-            ...{ aiAttributions: { model: 'kept', humanModified: false } },
+            ...{ aiAttributes: { model: 'kept', humanModified: false } },
           },
           extraField: {
             id: 'extraField',
@@ -96,25 +96,25 @@ describe('saveFile', () => {
         output: expect.objectContaining({
           manualAttributions: expect.objectContaining({
             withAi: expect.objectContaining({
-              aiAttributions: {
+              aiAttributes: {
                 databaseValue: { preserved: true },
                 humanModified: true,
               },
             }),
             emptyAi: expect.objectContaining({
-              aiAttributions: {},
+              aiAttributes: {},
             }),
             missingFlagAi: expect.objectContaining({
-              aiAttributions: { model: 'missing flag' },
+              aiAttributes: { model: 'missing flag' },
             }),
             falseAi: expect.objectContaining({
-              aiAttributions: { model: 'kept', humanModified: false },
+              aiAttributes: { model: 'kept', humanModified: false },
             }),
             extraField: expect.objectContaining({
               ai_attributions: { legacy: true },
             }),
             absent: expect.not.objectContaining({
-              aiAttributions: expect.anything(),
+              aiAttributes: expect.anything(),
             }),
           }),
         }),

@@ -22,24 +22,24 @@ async function initializeAiData() {
     readonlyRules: [{ path: '/readonly.ts', readonly: true }],
     manualAttributions: {
       attributions: {
-        a: { id: 'a', criticality: 0, aiAttributions: { deferredFields: {} } },
+        a: { id: 'a', criticality: 0, aiAttributes: { deferredFields: {} } },
         b: {
           id: 'b',
           criticality: 0,
-          aiAttributions: { deferredFields: {}, humanModified: false },
+          aiAttributes: { deferredFields: {}, humanModified: false },
         },
         c: {
           id: 'c',
           criticality: 0,
-          aiAttributions: { deferredFields: {}, humanModified: true },
+          aiAttributes: { deferredFields: {}, humanModified: true },
         },
-        d: { id: 'd', criticality: 0, aiAttributions: {} },
-        e: { id: 'e', criticality: 0, aiAttributions: { humanModified: true } },
-        f: { id: 'f', criticality: 0, aiAttributions: { deferredFields: {} } },
+        d: { id: 'd', criticality: 0, aiAttributes: {} },
+        e: { id: 'e', criticality: 0, aiAttributes: { humanModified: true } },
+        f: { id: 'f', criticality: 0, aiAttributes: { deferredFields: {} } },
         readonly: {
           id: 'readonly',
           criticality: 0,
-          aiAttributions: { deferredFields: {} },
+          aiAttributes: { deferredFields: {} },
         },
         ordinary: { id: 'ordinary', criticality: 0 },
       },
@@ -64,7 +64,7 @@ async function initializeAiData() {
         signal: {
           id: 'signal',
           criticality: 0,
-          aiAttributions: { deferredFields: {} },
+          aiAttributes: { deferredFields: {} },
         },
       },
       resourcesToAttributions: { '/other.ts': ['signal'] },
@@ -124,7 +124,7 @@ test('keeps AI availability without pending or writable manual AI attributions',
     resources: pathsToResources(['/file.ts']),
     readonlyRules: [{ path: '/', readonly: true }],
     manualAttributions: {
-      attributions: { ai: { id: 'ai', criticality: 0, aiAttributions: {} } },
+      attributions: { ai: { id: 'ai', criticality: 0, aiAttributes: {} } },
       resourcesToAttributions: { '/file.ts': ['ai'] },
       attributionsToResources: { ai: ['/file.ts'] },
     },
@@ -166,24 +166,24 @@ test('finds the first writable link of a widely linked pending attribution and s
         unlinked: {
           id: 'unlinked',
           criticality: 0,
-          aiAttributions: { deferredFields: {} },
+          aiAttributes: { deferredFields: {} },
         },
         readonly: {
           id: 'readonly',
           criticality: 0,
-          aiAttributions: { deferredFields: {} },
+          aiAttributes: { deferredFields: {} },
         },
         pending: {
           id: 'pending',
           criticality: 0,
-          aiAttributions: { deferredFields: {} },
+          aiAttributes: { deferredFields: {} },
         },
         modified: {
           id: 'modified',
           criticality: 0,
-          aiAttributions: { deferredFields: {}, humanModified: true },
+          aiAttributes: { deferredFields: {}, humanModified: true },
         },
-        nonDeferred: { id: 'nonDeferred', criticality: 0, aiAttributions: {} },
+        nonDeferred: { id: 'nonDeferred', criticality: 0, aiAttributes: {} },
       },
       resourcesToAttributions: {
         ...Object.fromEntries(

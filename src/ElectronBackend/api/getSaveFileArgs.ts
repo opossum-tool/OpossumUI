@@ -144,17 +144,17 @@ export async function getSaveFileArgs(): Promise<{ result: SaveFileArgs }> {
       if (row.ai_additional_data === null) {
         return [row.uuid, packageInfo];
       }
-      const aiAttributions = JSON.parse(row.ai_additional_data) as Record<
+      const aiAttributes = JSON.parse(row.ai_additional_data) as Record<
         string,
         unknown
       >;
       if (row.ai_human_modified !== null) {
-        aiAttributions.humanModified = Boolean(row.ai_human_modified);
+        aiAttributes.humanModified = Boolean(row.ai_human_modified);
       }
       if (row.deferred_fields !== null) {
-        aiAttributions.deferredFields = JSON.parse(row.deferred_fields);
+        aiAttributes.deferredFields = JSON.parse(row.deferred_fields);
       }
-      return [row.uuid, { ...packageInfo, aiAttributions }];
+      return [row.uuid, { ...packageInfo, aiAttributes }];
     }),
   );
 

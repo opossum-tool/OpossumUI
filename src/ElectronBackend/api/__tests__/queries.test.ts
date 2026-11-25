@@ -585,7 +585,7 @@ describe('filterProperties', () => {
           deferred: {
             id: 'deferred',
             criticality: Criticality.None,
-            aiAttributions: { deferredFields: { copyright: true } },
+            aiAttributes: { deferredFields: { copyright: true } },
           },
           ordinary: { id: 'ordinary', criticality: Criticality.None },
         },

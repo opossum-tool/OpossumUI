@@ -136,7 +136,7 @@ describe('AI attribution modifications', () => {
     await initializeAiAttributionFixture({
       resourcePaths: ['/a'],
       attributions: {
-        ai: attributionFixture('ai', { ...before, aiAttributions: {} }),
+        ai: attributionFixture('ai', { ...before, aiAttributes: {} }),
       },
       resourceLinks: { '/a': ['ai'] },
     });
@@ -185,7 +185,7 @@ describe('AI attribution modifications', () => {
         attributions: {
           ai: attributionFixture('ai', {
             packageName: 'unchanged',
-            aiAttributions: { model: 'kept', humanModified: false },
+            aiAttributes: { model: 'kept', humanModified: false },
           }),
         },
         resourceLinks: { '/a': ['ai'] },
@@ -213,10 +213,10 @@ describe('AI attribution modifications', () => {
       resourcePaths: ['/a'],
       attributions: {
         first: attributionFixture('first', {
-          aiAttributions: { model: 'a', humanModified: false },
+          aiAttributes: { model: 'a', humanModified: false },
         }),
         second: attributionFixture('second', {
-          aiAttributions: { model: 'b', humanModified: false },
+          aiAttributes: { model: 'b', humanModified: false },
         }),
       },
       resourceLinks: { '/a': ['first', 'second'] },
@@ -246,12 +246,12 @@ describe('AI attribution modifications', () => {
       attributions: {
         bulkOnly: attributionFixture('bulkOnly', {
           packageName: 'same',
-          aiAttributions: { model: 'bulk', humanModified: false },
+          aiAttributes: { model: 'bulk', humanModified: false },
         }),
         focused: attributionFixture('focused', {
           packageName: 'before',
           packagePURLAppendix: '?classifier=sources#/src',
-          aiAttributions: { model: 'focused', humanModified: false },
+          aiAttributes: { model: 'focused', humanModified: false },
         }),
         ordinary: attributionFixture('ordinary', { packageName: 'ordinary' }),
       },
@@ -294,7 +294,7 @@ describe('AI attribution modifications', () => {
         attributions: {
           ai: attributionFixture('ai', {
             ...before,
-            aiAttributions: { model: 'kept', humanModified: false },
+            aiAttributes: { model: 'kept', humanModified: false },
           }),
         },
         resourceLinks: { '/a': ['ai'] },
@@ -311,7 +311,7 @@ describe('AI attribution modifications', () => {
       const { result } = await getSaveFileArgs();
       expect(result.manualAttributions.ai).toMatchObject({
         ...after,
-        aiAttributions: { model: 'kept', humanModified: true },
+        aiAttributes: { model: 'kept', humanModified: true },
       });
     },
   );
@@ -337,7 +337,7 @@ describe('AI attribution modifications', () => {
         attributions: {
           ai: attributionFixture('ai', {
             ...content,
-            aiAttributions: { model: 'kept', humanModified },
+            aiAttributes: { model: 'kept', humanModified },
           }),
         },
         resourceLinks: { '/a': ['ai'] },
@@ -380,7 +380,7 @@ describe('AI attribution modifications', () => {
     );
     const { result } = await getSaveFileArgs();
     expect(result.manualAttributions.ordinary).not.toHaveProperty(
-      'aiAttributions',
+      'aiAttributes',
     );
   });
 
@@ -391,7 +391,7 @@ describe('AI attribution modifications', () => {
         shared: attributionFixture('shared', {
           packageName: 'before',
           packagePURLAppendix: '?classifier=sources#/src',
-          aiAttributions: { origin: 'test' },
+          aiAttributes: { origin: 'test' },
         }),
       },
       resourceLinks: {
@@ -443,7 +443,7 @@ describe('AI attribution modifications', () => {
         attributions: {
           ai: attributionFixture('ai', {
             packageName: 'original',
-            aiAttributions: { humanModified },
+            aiAttributes: { humanModified },
           }),
           ordinary: attributionFixture('ordinary', { packageName: 'original' }),
         },
@@ -481,7 +481,7 @@ describe('AI attribution modifications', () => {
       attributions: {
         ai: attributionFixture('ai', {
           packageName: 'before',
-          aiAttributions: { humanModified: false },
+          aiAttributes: { humanModified: false },
         }),
       },
       resourceLinks: { '/a': ['ai'] },
@@ -564,7 +564,7 @@ describe('AI attribution modifications', () => {
         attributions: {
           source: attributionFixture('source', {
             packageName: 'original',
-            aiAttributions: {
+            aiAttributes: {
               opaque: { nested: [1, true] },
               humanModified,
             },
@@ -611,7 +611,7 @@ describe('AI attribution modifications', () => {
         attributions: {
           shared: attributionFixture('shared', {
             packageName: 'original',
-            aiAttributions: {
+            aiAttributes: {
               opaque: { nested: [1, true] },
               humanModified,
             },
@@ -656,11 +656,11 @@ describe('AI attribution modifications', () => {
       attributions: {
         source: attributionFixture('source', {
           packageName: 'source',
-          aiAttributions: { origin: 'source', humanModified: true },
+          aiAttributes: { origin: 'source', humanModified: true },
         }),
         target: attributionFixture('target', {
           packageName: 'target',
-          aiAttributions: { origin: 'target', humanModified: false },
+          aiAttributes: { origin: 'target', humanModified: false },
         }),
       },
       resourceLinks: {
@@ -682,11 +682,11 @@ describe('AI attribution modifications', () => {
     const { result: saved } = await getSaveFileArgs();
     expect(saved.manualAttributions[copyUuid]).toMatchObject({
       packageName: 'target',
-      aiAttributions: { origin: 'source', humanModified: true },
+      aiAttributes: { origin: 'source', humanModified: true },
     });
     expect(saved.manualAttributions.source).toMatchObject({
       packageName: 'source',
-      aiAttributions: { origin: 'source', humanModified: true },
+      aiAttributes: { origin: 'source', humanModified: true },
     });
     expect(saved.resourcesToAttributions['/source']).toEqual(['source']);
     expect(saved.resourcesToAttributions['/target']).toEqual(['target']);
@@ -703,7 +703,7 @@ describe('AI attribution modifications', () => {
       attributions: {
         source: attributionFixture('source', {
           packageName: 'source',
-          aiAttributions: { opaque: true },
+          aiAttributes: { opaque: true },
         }),
       },
       resourceLinks: { '/source': ['source'] },

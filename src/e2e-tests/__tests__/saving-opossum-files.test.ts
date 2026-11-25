@@ -137,7 +137,7 @@ test.describe('saving an archive opened with the file dialog', () => {
           [auditDeletedAttributionId]: auditDeletedPackageInfo,
           [auditPreservedAttributionId]: {
             ...auditPreservedPackageInfo,
-            ...{ aiAttributions: auditPreservedAiMetadata },
+            ...{ aiAttributes: auditPreservedAiMetadata },
           },
         }),
         resourcesToAttributions: faker.opossum.resourcesToAttributions({
@@ -234,8 +234,8 @@ async function archiveContainsSavedAttribution(
     (metadata === undefined ||
       attributions.some(
         (attribution) =>
-          'aiAttributions' in attribution &&
-          isEqual(attribution.aiAttributions, metadata),
+          'aiAttributes' in attribution &&
+          isEqual(attribution.aiAttributes, metadata),
       ))
   );
 }

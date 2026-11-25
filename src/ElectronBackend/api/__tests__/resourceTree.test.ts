@@ -328,13 +328,13 @@ describe('resource tree AI-deferred filter', () => {
         criticality: Criticality.None,
         packageName: 'ai-deferred-package',
         licenseName: 'MIT',
-        aiAttributions: { deferredFields: { copyright: true } },
+        aiAttributes: { deferredFields: { copyright: true } },
       },
       [AI_NOT_DEFERRED_UUID]: {
         id: AI_NOT_DEFERRED_UUID,
         criticality: Criticality.None,
         packageName: 'ai-not-deferred-package',
-        aiAttributions: { humanModified: false },
+        aiAttributes: { humanModified: false },
       },
       [PLAIN_UUID]: {
         id: PLAIN_UUID,
