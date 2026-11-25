@@ -50,6 +50,8 @@ const STATISTICS_CHART_TITLES: Record<StatisticsChartTestId, string> = {
       .title,
   incompleteAttributionsPieChart:
     text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
+  aiAttributionStatesBarChart:
+    text.projectStatisticsPopup.charts.aiAttributionStates.title,
 };
 
 export async function expectStatisticsCharts(
