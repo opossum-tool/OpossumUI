@@ -24,7 +24,8 @@ import {
   clickPackageCard,
   expectAttributionFormMatchesPackageInfo,
   expectPackageCards,
-  expectResourceVisibility,
+  expectResourceItemsNotShown,
+  expectResourceItemsShown,
   fillFormField,
   fillPanelSearch,
   LINKED_RESOURCES_TREE,
@@ -41,7 +42,7 @@ const [manualId, manualPackage] = faker.opossum.rawAttribution({
 const data = getParsedInputFileEnrichedWithTestData({
   resources: { [resourceName]: 1 },
   manualAttributions: deserializeAttributions({
-    [aiId]: { ...aiPackage, aiAttributions: {} },
+    [aiId]: { ...aiPackage, aiAttributes: {} },
     [manualId]: manualPackage,
   }),
   resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
@@ -57,7 +58,7 @@ const linkedResourcesData = getParsedInputFileEnrichedWithTestData({
     [linkedResourceName2]: 1,
   },
   manualAttributions: deserializeAttributions({
-    [aiId]: { ...aiPackage, aiAttributions: {} },
+    [aiId]: { ...aiPackage, aiAttributes: {} },
   }),
   resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
     [faker.opossum.filePath(linkedResourceName1)]: [aiId],
@@ -144,23 +145,24 @@ describe('AI Review view', () => {
     });
 
     await expectAttributionFormMatchesPackageInfo(aiPackage);
-    await expectResourceVisibility(
+    await expectResourceItemsShown(
       [linkedResourceName1, linkedResourceName2],
-      [],
       LINKED_RESOURCES_TREE,
     );
 
     await searchTree(linkedResourceName1, 'linked-resources-tree-header');
-    await expectResourceVisibility(
+    await expectResourceItemsShown(
       [linkedResourceName1],
+      LINKED_RESOURCES_TREE,
+    );
+    await expectResourceItemsNotShown(
       [linkedResourceName2],
       LINKED_RESOURCES_TREE,
     );
 
     await clearTreeSearch('linked-resources-tree-header');
-    await expectResourceVisibility(
+    await expectResourceItemsShown(
       [linkedResourceName1, linkedResourceName2],
-      [],
       LINKED_RESOURCES_TREE,
     );
   });
