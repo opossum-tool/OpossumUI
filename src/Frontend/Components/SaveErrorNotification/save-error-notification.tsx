@@ -16,6 +16,7 @@ import type { SaveFailure } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { buttonSpinnerSize } from '../../shared-styles';
 import {
+  dismissSaveWarning,
   shouldHideSaveWarning,
   subscribeToSaveRecovery,
 } from '../../util/save-recovery';
@@ -148,7 +149,7 @@ function SaveErrorToastContent({ failure }: { failure: SaveFailure }) {
         <MuiIconButton
           aria-label={text.saveError.dismiss}
           size="small"
-          onClick={() => toast.dismiss(SAVE_ERROR_TOAST_ID)}
+          onClick={() => dismissSaveWarning(failure.id)}
         >
           <CloseIcon fontSize="small" />
         </MuiIconButton>

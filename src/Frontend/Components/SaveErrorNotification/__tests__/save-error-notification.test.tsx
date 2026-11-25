@@ -237,9 +237,10 @@ test('successful retry clears the persistent warning', async () => {
   );
 });
 
-test('dismisses the toast without trying to save', async () => {
+test('dismissal survives repeated events and leave attempts, but a new failure appears', async () => {
+  const dismissedFailure = { ...failed, id: 'dismissed-toast' };
   await renderNotification();
-  emit(failed);
+  emit(dismissedFailure);
   expect(await screen.findByText(text.saveError.heading)).toBeInTheDocument();
 
   fireEvent.click(screen.getByRole('button', { name: text.saveError.dismiss }));
@@ -252,6 +253,19 @@ test('dismisses the toast without trying to save', async () => {
     { timeout: 2000 },
   );
   expect(window.electronAPI.saveFile).not.toHaveBeenCalled();
+
+  emit({ ...dismissedFailure });
+  expect(screen.queryByText(text.saveError.heading)).not.toBeInTheDocument();
+
+  await act(() =>
+    attemptToLeave('open', () => Promise.resolve({ status: 'failed' })),
+  );
+  act(closeSaveRecovery);
+  emit({ ...dismissedFailure });
+  expect(screen.queryByText(text.saveError.heading)).not.toBeInTheDocument();
+
+  emit({ ...failed, id: 'failure-after-dismissal' });
+  expect(await screen.findByText(text.saveError.heading)).toBeInTheDocument();
 });
 
 test('does not repeat the quit failure after staying, but shows a new failure', async () => {

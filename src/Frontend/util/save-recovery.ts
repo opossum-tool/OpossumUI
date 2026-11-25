@@ -38,8 +38,15 @@ export function shouldHideSaveWarning(failureId?: string): boolean {
   );
 }
 
+export function dismissSaveWarning(failureId: string): void {
+  dismissedFailureId = failureId;
+  notifySubscribers();
+}
+
 export function closeSaveRecovery(): void {
-  dismissedFailureId = recovery?.failure.id;
+  if (recovery) {
+    dismissedFailureId = recovery.failure.id;
+  }
   recovery = undefined;
   leavePhase = 'idle';
   notifySubscribers();
