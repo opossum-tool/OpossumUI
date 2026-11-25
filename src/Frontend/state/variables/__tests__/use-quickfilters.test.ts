@@ -23,7 +23,6 @@ import {
   mergeQuickfilterIntoFilters,
   quickfiltersConflict,
   removeQuickfilterConditions,
-  resolveQuickfilterClassification,
   useQuickfilters,
 } from '../use-quickfilters';
 
@@ -83,19 +82,19 @@ describe('mergeQuickfilterIntoFilters', () => {
     ).toEqual({ classification: 1, criticality: 2 });
   });
 
-  it('carries the classification id and its label as a pair', () => {
+  it('carries the classification id', () => {
     const quickfilter = makeQuickfilter({
       filters: {
         filters: [],
         search: '',
-        valueFilters: { classification: 7, classificationLabel: 'Low' },
+        valueFilters: { classification: 7 },
       },
     });
 
     expect(
       mergeQuickfilterIntoFilters(initialAttributionFilters, quickfilter)
         .valueFilters,
-    ).toEqual({ classification: 7, classificationLabel: 'Low' });
+    ).toEqual({ classification: 7 });
   });
 });
 
@@ -219,31 +218,9 @@ describe('areQuickfilterConditionsMet', () => {
     expect(areQuickfilterConditionsMet(current, quickfilter)).toBe(false);
   });
 
-  it('holds for the same classification label even when the ids differ across projects', () => {
+  it('breaks when the classification is removed', () => {
     const quickfilter = makeQuickfilter({
-      filters: {
-        filters: [],
-        search: '',
-        valueFilters: { classification: 7, classificationLabel: 'Low' },
-      },
-    });
-    const current: AttributionFilters = {
-      ...initialAttributionFilters,
-      // This project defines 'Low' under id 1.
-      valueFilters: { classification: 1, classificationLabel: 'Low' },
-      activeQuickfilterIds: [quickfilter.id],
-    };
-
-    expect(areQuickfilterConditionsMet(current, quickfilter)).toBe(true);
-  });
-
-  it('breaks when the classification is removed even though the label is stored', () => {
-    const quickfilter = makeQuickfilter({
-      filters: {
-        filters: [],
-        search: '',
-        valueFilters: { classification: 7, classificationLabel: 'Low' },
-      },
+      filters: { filters: [], search: '', valueFilters: { classification: 1 } },
     });
     const current: AttributionFilters = {
       ...initialAttributionFilters,
@@ -295,25 +272,25 @@ describe('quickfiltersConflict', () => {
     expect(quickfiltersConflict(first, second)).toBe(true);
   });
 
-  it('does not conflict when the classification labels match even if the ids differ', () => {
-    // Both quickfilters mean the 'Low' classification but were saved in
-    // projects that assign different ids to it.
+  it('detects different classification ids', () => {
+    // Classification ids are project-local; the quickfilter stores only the
+    // id, so different ids are treated as different classifications.
     const first = makeQuickfilter({
       filters: {
         filters: [],
         search: '',
-        valueFilters: { classification: 1, classificationLabel: 'Low' },
+        valueFilters: { classification: 1 },
       },
     });
     const second = makeQuickfilter({
       filters: {
         filters: [],
         search: '',
-        valueFilters: { classification: 7, classificationLabel: 'Low' },
+        valueFilters: { classification: 7 },
       },
     });
 
-    expect(quickfiltersConflict(first, second)).toBe(false);
+    expect(quickfiltersConflict(first, second)).toBe(true);
   });
 
   it('allows scalars that only one of the quickfilters defines', () => {
@@ -522,105 +499,6 @@ describe('isQuickfilterUsableInProject', () => {
         showCriticality: false,
       }),
     ).toBe(false);
-  });
-
-  it('accepts a classification by description even when its id differs', () => {
-    const quickfilter = makeQuickfilter({
-      filters: {
-        filters: [],
-        search: '',
-        valueFilters: { classification: 7, classificationLabel: 'Low' },
-      },
-    });
-
-    expect(isQuickfilterUsableInProject(quickfilter, context)).toBe(true);
-  });
-
-  it('rejects a classification whose description the project does not define', () => {
-    const quickfilter = makeQuickfilter({
-      filters: {
-        filters: [],
-        search: '',
-        valueFilters: { classification: 7, classificationLabel: 'Unknown' },
-      },
-    });
-
-    expect(isQuickfilterUsableInProject(quickfilter, context)).toBe(false);
-  });
-});
-
-describe('resolveQuickfilterClassification', () => {
-  const classifications = { 1: 'Low', 2: 'High', 7: 'Other' };
-
-  it('leaves quickfilters without a classification untouched', () => {
-    const quickfilter = makeQuickfilter();
-
-    expect(resolveQuickfilterClassification(quickfilter, classifications)).toBe(
-      quickfilter,
-    );
-  });
-
-  it('re-resolves the id of the classification with the stored description', () => {
-    // Saved in a project that defined 'Low' under id 7; here 'Low' is id 1.
-    const quickfilter = makeQuickfilter({
-      filters: {
-        filters: [],
-        search: '',
-        valueFilters: { classification: 7, classificationLabel: 'Low' },
-      },
-    });
-
-    expect(
-      resolveQuickfilterClassification(quickfilter, classifications),
-    ).toEqual({
-      ...quickfilter,
-      filters: {
-        ...quickfilter.filters,
-        valueFilters: { classification: 1, classificationLabel: 'Low' },
-      },
-    });
-  });
-
-  it('returns null when no classification carries the stored description', () => {
-    const quickfilter = makeQuickfilter({
-      filters: {
-        filters: [],
-        search: '',
-        valueFilters: { classification: 7, classificationLabel: 'Unknown' },
-      },
-    });
-
-    expect(
-      resolveQuickfilterClassification(quickfilter, classifications),
-    ).toBeNull();
-  });
-
-  it('keeps legacy quickfilters whose id the project defines', () => {
-    const quickfilter = makeQuickfilter({
-      filters: {
-        filters: [],
-        search: '',
-        valueFilters: { classification: 2 },
-      },
-    });
-
-    expect(resolveQuickfilterClassification(quickfilter, classifications)).toBe(
-      quickfilter,
-    );
-  });
-
-  it('rejects legacy quickfilters whose id the project does not define', () => {
-    const quickfilter = makeQuickfilter({
-      filters: {
-        filters: [],
-        search: '',
-        valueFilters: { classification: 3 },
-      },
-    });
-
-    expect(
-      resolveQuickfilterClassification(quickfilter, classifications),
-    ).toBeNull();
   });
 });
 

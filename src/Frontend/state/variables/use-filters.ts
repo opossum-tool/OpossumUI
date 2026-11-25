@@ -23,12 +23,6 @@ export interface AttributionFilters {
   search: string;
   valueFilters: Omit<AttributionValueFilters, 'licenseIds'> & {
     license?: Array<LicenseOption>;
-    /**
-     * Stable identity of the classification filter, mirroring
-     * {@link SavedAttributionQuickfilter}: kept in the runtime filters so the
-     * deselection check can compare classifications across projects.
-     */
-    classificationLabel?: string;
   };
   sorting: SortOption;
   /**
@@ -98,17 +92,14 @@ export function useResourceTreeFilters() {
 export function toAttributionValueFilters(
   filters: AttributionFilters['valueFilters'],
 ): AttributionValueFilters {
-  // classificationLabel is a frontend-only companion of `classification` and
-  // never part of the backend query.
-  const { license } = filters;
   return {
     classification: filters.classification,
     criticality: filters.criticality,
     incompleteCoordinates: filters.incompleteCoordinates,
     incompleteLegal: filters.incompleteLegal,
     licenseSearches: filters.licenseSearches,
-    licenseIds: license?.length
-      ? license.map((option) => option.id)
+    licenseIds: filters.license?.length
+      ? filters.license.map((option) => option.id)
       : undefined,
   };
 }

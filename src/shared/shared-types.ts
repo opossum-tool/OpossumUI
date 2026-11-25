@@ -441,13 +441,6 @@ export type SavedAttributionQuickfilter = SavedQuickfilterBase & {
     search: string;
     valueFilters: Omit<AttributionValueFilters, 'licenseIds'> & {
       license?: Array<LicenseOption>;
-      /**
-       * Description of the classification the quickfilter filters by, stored
-       * alongside the (project-local) id: classification ids are only unique
-       * within a project, the description is the stable identity used to
-       * re-resolve the id when the quickfilter is applied in another project.
-       */
-      classificationLabel?: string;
     };
   };
 };
