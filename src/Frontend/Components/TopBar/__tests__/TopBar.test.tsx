@@ -16,6 +16,10 @@ import { renderComponent } from '../../../test-helpers/render';
 import { TopBar } from '../TopBar';
 
 describe('TopBar', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   it('displays the version provided by the main process', async () => {
     vi.mocked(window.electronAPI.getAppVersion).mockResolvedValueOnce(
       'OpossumUI-2026-10-20.2',
@@ -51,15 +55,28 @@ describe('TopBar', () => {
     expect(isReportViewSelected(store.getState())).toBe(true);
   });
 
-  it('shows the AI Review tab only in development builds', async () => {
-    vi.stubEnv('PROD', false);
-    const { unmount } = await renderComponent(<TopBar />);
-    expect(screen.getByText('AI Review')).toBeVisible();
-    unmount();
+  it.each([
+    { production: false, automated: false },
+    { production: false, automated: true },
+    { production: true, automated: true },
+  ])(
+    'shows the AI Review tab when production=$production and automated=$automated',
+    async ({ production, automated }) => {
+      using webdriver = vi.spyOn(navigator, 'webdriver', 'get');
+      webdriver.mockReturnValue(automated);
+      vi.stubEnv('PROD', production);
+      await renderComponent(<TopBar />);
+      expect(screen.getByText('AI Review')).toBeVisible();
+    },
+  );
 
+  it('hides the AI Review tab in non-automated production runs', async () => {
+    using webdriver = vi.spyOn(navigator, 'webdriver', 'get');
+    webdriver.mockReturnValue(false);
     vi.stubEnv('PROD', true);
+
     await renderComponent(<TopBar />);
+
     expect(screen.queryByText('AI Review')).not.toBeInTheDocument();
-    vi.unstubAllEnvs();
   });
 });

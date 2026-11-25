@@ -8,7 +8,7 @@ export function isProductionBuild(): boolean {
 }
 
 export function isAiReviewEnabled(): boolean {
-  return !isProductionBuild();
+  return !isProductionBuild() || navigator.webdriver;
 }
 
 export function isProductionOrAutomatedRun(): boolean {
