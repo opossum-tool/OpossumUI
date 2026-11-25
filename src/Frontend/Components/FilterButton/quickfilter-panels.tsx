@@ -39,7 +39,6 @@ function SaveQuickfilterPanel({
   id,
   initialFocusRef,
 }: {
-  /** Called with the non-empty, trimmed name. */
   onSave: (name: string) => void;
   onCancel?: () => void;
   onClose: () => void;
@@ -117,7 +116,6 @@ export function QuickfiltersPanel<T extends SavedQuickfilter>({
   conflictingIds?: Array<string>;
   activeQuickfilterIds: Array<string>;
   hasActiveFilters: boolean;
-  /** Called with the non-empty, trimmed name. */
   onSave: (name: string) => void;
   onApply: (quickfilter: T) => void;
   onDelete: (id: string) => void;
