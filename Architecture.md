@@ -17,6 +17,8 @@ The application data is kept in an SQLite database in the backend and exposed to
 
 When loading a file, we insert the data into a temporary [SQLite](https://sqlite.org/index.html) database. The database is recreated on every file load, so we don't need to worry about migrations.
 
+Edits by the user are applied to the database. A [save worker](src/ElectronBackend/dbProcess/save-worker.ts) saves changes to the `.opossum` file every 60 seconds, before quitting, or on demand by the user.
+
 See the generated database diagram:
 ![database diagram](src/ElectronBackend/db/generated/databaseDiagram.svg)
 
