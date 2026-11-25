@@ -8,12 +8,13 @@ import type {
   ExportType,
   FileFormatInfo,
 } from '../../../../shared/shared-types';
-import { PopupType, type View } from '../../../enums/enums';
+import { PopupType, View } from '../../../enums/enums';
 import type {
   PopupInfo,
   PopupWithoutPayload,
   State,
 } from '../../../types/types';
+import { isAiReviewEnabled } from '../../../util/environment';
 import { getSelectedView } from '../../selectors/view-selector';
 import type { AppThunkAction, AppThunkDispatch } from '../../types';
 import {
@@ -53,6 +54,10 @@ export function resetViewState(): ResetViewStateAction {
 
 export function navigateToView(view: View): AppThunkAction {
   return (dispatch: AppThunkDispatch, getState: () => State): void => {
+    if (view === View.AiReview && !isAiReviewEnabled()) {
+      return;
+    }
+
     if (getSelectedView(getState()) === view) {
       return;
     }

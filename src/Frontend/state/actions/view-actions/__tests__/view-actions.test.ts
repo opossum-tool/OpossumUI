@@ -22,6 +22,38 @@ import {
 } from '../view-actions';
 
 describe('view actions', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('blocks AI Review navigation in non-automated production runs', () => {
+    using webdriver = vi.spyOn(navigator, 'webdriver', 'get');
+    webdriver.mockReturnValue(false);
+    vi.stubEnv('PROD', true);
+    const testStore = createAppStore();
+
+    testStore.dispatch(navigateToView(View.AiReview));
+
+    expect(getSelectedView(testStore.getState())).toBe(View.Audit);
+  });
+
+  it.each([
+    { production: false, automated: false },
+    { production: true, automated: true },
+  ])(
+    'allows AI Review navigation when production=$production and automated=$automated',
+    ({ production, automated }) => {
+      using webdriver = vi.spyOn(navigator, 'webdriver', 'get');
+      webdriver.mockReturnValue(automated);
+      vi.stubEnv('PROD', production);
+      const testStore = createAppStore();
+
+      testStore.dispatch(navigateToView(View.AiReview));
+
+      expect(getSelectedView(testStore.getState())).toBe(View.AiReview);
+    },
+  );
+
   it('sets view to audit view', () => {
     const testStore = createAppStore();
     testStore.dispatch(navigateToView(View.Audit));
