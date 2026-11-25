@@ -18,34 +18,34 @@ import {
 
 test('shows consistent AI status in attribution cards and details', async () => {
   const cases = [
-    { id: 'ordinary', aiAttributions: undefined, icons: [], badges: [] },
+    { id: 'ordinary', aiAttributes: undefined, icons: [], badges: [] },
     {
       id: 'ai-generated',
-      aiAttributions: {},
+      aiAttributes: {},
       icons: ['AI generated icon'],
       badges: ['AI generated'],
     },
     {
       id: 'explicitly-unmodified-ai-generated',
-      aiAttributions: { humanModified: false, deferred: false },
+      aiAttributes: { humanModified: false, deferred: false },
       icons: ['AI generated icon'],
       badges: ['AI generated'],
     },
     {
       id: 'human-modified',
-      aiAttributions: { humanModified: true },
+      aiAttributes: { humanModified: true },
       icons: ['AI generated icon', 'Human-modified AI icon'],
       badges: ['AI generated', 'Human-modified'],
     },
     {
       id: 'deferred',
-      aiAttributions: { deferredFields: {} },
+      aiAttributes: { deferredFields: {} },
       icons: ['Deferred AI icon'],
       badges: ['Deferred'],
     },
     {
       id: 'explicitly-unmodified-deferred',
-      aiAttributions: {
+      aiAttributes: {
         humanModified: false,
         deferredFields: { license: 'Needs review' },
       },
@@ -54,7 +54,7 @@ test('shows consistent AI status in attribution cards and details', async () => 
     },
     {
       id: 'both',
-      aiAttributions: {
+      aiAttributes: {
         humanModified: true,
         deferredFields: { license: 'Needs review' },
       },
@@ -66,13 +66,13 @@ test('shows consistent AI status in attribution cards and details', async () => 
     data: getParsedInputFileEnrichedWithTestData({
       resources: { 'file.ts': 1 },
       manualAttributions: Object.fromEntries(
-        cases.map(({ id, aiAttributions }) => [
+        cases.map(({ id, aiAttributes }) => [
           id,
           {
             id,
             comment: id,
             criticality: Criticality.None,
-            aiAttributions,
+            aiAttributes,
           },
         ]),
       ),
@@ -91,13 +91,13 @@ test('shows consistent AI status in attribution cards and details', async () => 
 test.each([
   {
     name: 'unmodified AI attribution',
-    aiAttributions: { humanModified: false },
+    aiAttributes: { humanModified: false },
     icons: ['AI generated icon'],
     badges: ['AI generated'],
   },
   {
     name: 'deferred AI attribution',
-    aiAttributions: {
+    aiAttributes: {
       humanModified: false,
       deferredFields: { license: 'Needs review' },
     },
@@ -106,13 +106,13 @@ test.each([
   },
   {
     name: 'ordinary attribution',
-    aiAttributions: undefined,
+    aiAttributes: undefined,
     icons: [],
     badges: [],
   },
 ])(
   'updates card and details after editing an $name',
-  async ({ aiAttributions, icons, badges }) => {
+  async ({ aiAttributes, icons, badges }) => {
     const initialComment = 'Original comment';
     const savedComment = 'Edited comment';
     await renderApp({
@@ -123,7 +123,7 @@ test.each([
             id: 'attribution',
             comment: initialComment,
             criticality: Criticality.None,
-            aiAttributions,
+            aiAttributes,
           },
         },
         resourcesToManualAttributions: { '/file.ts': ['attribution'] },
@@ -150,10 +150,10 @@ test.each([
     fillFormField('comment', savedComment);
     await saveChangesInAttributionColumn();
 
-    const savedIcons = aiAttributions
+    const savedIcons = aiAttributes
       ? [...icons, 'Human-modified AI icon']
       : icons;
-    const savedBadges = aiAttributions ? [...badges, 'Human-modified'] : badges;
+    const savedBadges = aiAttributes ? [...badges, 'Human-modified'] : badges;
     await expectStatus(savedComment, savedIcons, savedBadges);
 
     await gotoResource('other.ts');

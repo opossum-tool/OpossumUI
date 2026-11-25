@@ -28,7 +28,7 @@
       "additionalProperties": {
         "type": "object",
         "properties": {
-          "aiAttributions": {
+          "aiAttributes": {
             "type": "object",
             "description": "Opaque AI attribution metadata preserved when the file is loaded and saved.",
             "properties": {

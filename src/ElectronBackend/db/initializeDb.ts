@@ -883,10 +883,9 @@ async function initializeAttributionAiTable(
   for (const [uuid, attribution] of Object.entries(
     manualAttributions.attributions,
   )) {
-    if (attribution.aiAttributions !== undefined) {
-      const aiAttributions = attribution.aiAttributions;
-      const { humanModified, deferredFields, ...additionalData } =
-        aiAttributions;
+    if (attribution.aiAttributes !== undefined) {
+      const aiAttributes = attribution.aiAttributes;
+      const { humanModified, deferredFields, ...additionalData } = aiAttributes;
       insertAi({
         attribution_uuid: uuid,
         additional_data: JSON.stringify(additionalData),

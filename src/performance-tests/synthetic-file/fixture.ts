@@ -441,7 +441,7 @@ function getSyntheticPackageInfo(
       : undefined,
     ...(isAi
       ? {
-          aiAttributions: {
+          aiAttributes: {
             humanModified: false,
             ...(isHighFanout || index % 2 === 0
               ? {

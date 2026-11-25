@@ -494,19 +494,19 @@ describe('listAttributionsPage', () => {
           id: 'selected',
           criticality: Criticality.None,
           packageName: 'a-deferred',
-          aiAttributions: { deferredFields: { copyright: true } },
+          aiAttributes: { deferredFields: { copyright: true } },
         },
         emptyDeferredFields: {
           id: 'emptyDeferredFields',
           criticality: Criticality.None,
           packageName: 'b-empty-deferred',
-          aiAttributions: { deferredFields: {} },
+          aiAttributes: { deferredFields: {} },
         },
         otherAi: {
           id: 'otherAi',
           criticality: Criticality.None,
           packageName: 'c-ai-not-deferred',
-          aiAttributions: { humanModified: false },
+          aiAttributes: { humanModified: false },
         },
         other: {
           id: 'other',

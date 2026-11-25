@@ -57,7 +57,7 @@ describe('AI attribution matching', () => {
         attributions: {
           existing: attributionFixture('existing', {
             packageName: 'matching',
-            aiAttributions: { origin: 'target', humanModified },
+            aiAttributes: { origin: 'target', humanModified },
           }),
         },
         resourceLinks: { '/existing': ['existing'] },
@@ -81,7 +81,7 @@ describe('AI attribution matching', () => {
         'matching',
       );
       expect(saved.manualAttributions[destinationUuid]).not.toHaveProperty(
-        'aiAttributions',
+        'aiAttributes',
       );
       expect(saved.resourcesToAttributions['/existing']).toEqual(['existing']);
       expect(Object.keys(saved.manualAttributions)).toHaveLength(2);
@@ -107,7 +107,7 @@ describe('AI attribution matching', () => {
         attributions: {
           source: attributionFixture('source', {
             packageName: 'same content',
-            aiAttributions: {
+            aiAttributes: {
               opaque: { value: 1 },
               humanModified: sourceFlag,
             },
@@ -115,7 +115,7 @@ describe('AI attribution matching', () => {
           target: {
             ...attributionFixture('target', {
               packageName: 'same content',
-              aiAttributions: {
+              aiAttributes: {
                 opaque: { value: 1 },
                 humanModified: targetFlag,
               },
@@ -147,7 +147,7 @@ describe('AI attribution matching', () => {
         destinationUuid,
       ]);
       expect(saved.manualAttributions[destinationUuid]).toHaveProperty(
-        'aiAttributions',
+        'aiAttributes',
         {
           opaque: { value: 1 },
           ...(resultingFlag === undefined
@@ -169,21 +169,21 @@ describe('AI attribution matching', () => {
       attributions: {
         source: attributionFixture('source', {
           packageName: 'before',
-          aiAttributions: {
+          aiAttributes: {
             opaque: { shared: true },
             humanModified: true,
           },
         }),
         targetTrue: attributionFixture('targetTrue', {
           packageName: 'after',
-          aiAttributions: {
+          aiAttributes: {
             opaque: { shared: true },
             humanModified: true,
           },
         }),
         targetFalse: attributionFixture('targetFalse', {
           packageName: 'after',
-          aiAttributions: {
+          aiAttributes: {
             opaque: { shared: true },
             humanModified: false,
           },
@@ -207,13 +207,13 @@ describe('AI attribution matching', () => {
     const { result: saved } = await getSaveFileArgs();
     expect(Object.keys(saved.manualAttributions)).toHaveLength(3);
     expect(saved.manualAttributions.targetFalse).toHaveProperty(
-      'aiAttributions',
+      'aiAttributes',
       { opaque: { shared: true }, humanModified: false },
     );
-    expect(saved.manualAttributions.targetTrue).toHaveProperty(
-      'aiAttributions',
-      { opaque: { shared: true }, humanModified: true },
-    );
+    expect(saved.manualAttributions.targetTrue).toHaveProperty('aiAttributes', {
+      opaque: { shared: true },
+      humanModified: true,
+    });
   });
 
   it.each(
@@ -238,7 +238,7 @@ describe('AI attribution matching', () => {
         attributions: {
           source: attributionFixture('source', {
             packageName: 'same content',
-            aiAttributions: {
+            aiAttributes: {
               opaque: true,
               humanModified: sourceFlag,
             },
@@ -246,7 +246,7 @@ describe('AI attribution matching', () => {
           target: {
             ...attributionFixture('target', {
               packageName: 'same content',
-              aiAttributions: {
+              aiAttributes: {
                 opaque: true,
                 humanModified: targetFlag,
               },
@@ -293,14 +293,14 @@ describe('AI attribution matching', () => {
         attributions: {
           source: attributionFixture('source', {
             packageName: 'before',
-            aiAttributions: {
+            aiAttributes: {
               opaque: true,
               humanModified: false,
             },
           }),
           target: attributionFixture('target', {
             packageName: 'after',
-            aiAttributions: {
+            aiAttributes: {
               opaque: true,
               humanModified: targetFlag,
             },
@@ -335,7 +335,7 @@ describe('AI attribution matching', () => {
         attributions: {
           source: attributionFixture('source', {
             packageName: 'same content',
-            aiAttributions: {
+            aiAttributes: {
               opaque: true,
               humanModified: sourceFlag,
             },
@@ -343,7 +343,7 @@ describe('AI attribution matching', () => {
           target: {
             ...attributionFixture('target', {
               packageName: 'same content',
-              aiAttributions: {
+              aiAttributes: {
                 opaque: true,
                 humanModified: true,
               },
@@ -410,7 +410,7 @@ describe('AI attribution matching', () => {
       });
       expect(afterRetry.resourcesToAttributions['/source']).toEqual(['source']);
       expect(afterRetry.manualAttributions.target).toHaveProperty(
-        'aiAttributions',
+        'aiAttributes',
         {
           opaque: true,
           ...(sourceFlag === undefined ? {} : { humanModified: sourceFlag }),
@@ -427,13 +427,13 @@ describe('AI attribution matching', () => {
         attributions: {
           source: attributionFixture('source', {
             packageName: 'before',
-            aiAttributions: {
+            aiAttributes: {
               opaque: { nested: [1, true] },
             },
           }),
           target: attributionFixture('target', {
             packageName: 'after',
-            aiAttributions: {
+            aiAttributes: {
               opaque: { nested: [1, true] },
               humanModified: targetFlag,
             },
@@ -457,7 +457,7 @@ describe('AI attribution matching', () => {
       expect(await linkedAttributionIds('/source-also')).toEqual(['source']);
       const { result: saved } = await getSaveFileArgs();
       expect(Object.keys(saved.manualAttributions)).toHaveLength(2);
-      expect(saved.manualAttributions.target).toHaveProperty('aiAttributions', {
+      expect(saved.manualAttributions.target).toHaveProperty('aiAttributes', {
         opaque: { nested: [1, true] },
         ...(targetFlag === undefined ? {} : { humanModified: targetFlag }),
       });

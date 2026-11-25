@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import {
-  type AiAttributions,
+  type AiAttributes,
   type Attributions,
   Criticality,
   type PersistedPackageInfo,
@@ -27,13 +27,13 @@ import { initializeAiAttributionFixture } from './ai-attribution-test-helpers';
 function packageInfo(
   id: string,
   packageName: string,
-  aiAttributions?: AiAttributions,
+  aiAttributes?: AiAttributes,
 ): PersistedPackageInfo {
   return {
     id,
     packageName,
     criticality: Criticality.None,
-    ...(aiAttributions === undefined ? {} : { aiAttributions }),
+    ...(aiAttributes === undefined ? {} : { aiAttributes }),
   };
 }
 
@@ -364,7 +364,7 @@ describe('attribution resource access', () => {
             id: 'ai',
             criticality: Criticality.None,
             packageName: 'with metadata',
-            ...{ aiAttributions: { opaque: true } },
+            ...{ aiAttributes: { opaque: true } },
           },
         },
         resourcesToAttributions: { '/a': ['ai'] },
@@ -393,51 +393,51 @@ describe('attribution resource access', () => {
   it.each([
     {
       name: 'human-modified AI attribution',
-      aiAttributions: { humanModified: true },
+      aiAttributes: { humanModified: true },
       expected: { humanModified: true, deferred: false },
     },
     {
       name: 'unmodified AI attribution',
-      aiAttributions: { humanModified: false },
+      aiAttributes: { humanModified: false },
       expected: { humanModified: false, deferred: false },
     },
     {
       name: 'AI attribution without flags',
-      aiAttributions: {},
+      aiAttributes: {},
       expected: { deferred: false },
     },
     {
       name: 'deferred fields',
-      aiAttributions: { deferredFields: { copyright: 'Needs review' } },
+      aiAttributes: { deferredFields: { copyright: 'Needs review' } },
       expected: { deferred: true },
     },
     {
       name: 'unknown deferred fields',
-      aiAttributions: {
+      aiAttributes: {
         deferredFields: { futureField: { arbitrary: [true] } },
       },
       expected: { deferred: true },
     },
     {
       name: 'empty deferred fields',
-      aiAttributions: { deferredFields: {} },
+      aiAttributes: { deferredFields: {} },
       expected: { deferred: true },
     },
     {
       name: 'human-modified attribution with deferred fields',
-      aiAttributions: { humanModified: true, deferredFields: {} },
+      aiAttributes: { humanModified: true, deferredFields: {} },
       expected: { humanModified: true, deferred: true },
     },
     {
       name: 'ordinary attribution',
-      aiAttributions: undefined,
+      aiAttributes: undefined,
       expected: undefined,
     },
-  ])('returns AI status for $name', async ({ aiAttributions, expected }) => {
+  ])('returns AI status for $name', async ({ aiAttributes, expected }) => {
     await initializeAiAttributionFixture({
       resourcePaths: ['/a'],
       attributions: {
-        attribution: packageInfo('attribution', 'package', aiAttributions),
+        attribution: packageInfo('attribution', 'package', aiAttributes),
       },
       resourceLinks: { '/a': ['attribution'] },
     });
@@ -472,7 +472,7 @@ describe('attribution resource access', () => {
       relatedBatch.result.attribution,
     ]) {
       expect(result.aiStatus).toEqual(expected);
-      expect(result).not.toHaveProperty('aiAttributions');
+      expect(result).not.toHaveProperty('aiAttributes');
       expect(Object.hasOwn(result, 'aiStatus')).toBe(expected !== undefined);
     }
   });
@@ -486,7 +486,7 @@ describe('attribution resource access', () => {
             id: 'ai',
             criticality: Criticality.None,
             packageName: 'before',
-            ...{ aiAttributions: { opaque: { nested: true } } },
+            ...{ aiAttributes: { opaque: { nested: true } } },
           },
         },
         resourcesToAttributions: { '/a': ['ai'] },
@@ -646,7 +646,7 @@ describe('attribution resource access', () => {
             id: 'existing',
             criticality: Criticality.None,
             packageName: 'matching target',
-            ...{ aiAttributions: { origin: 'target' } },
+            ...{ aiAttributes: { origin: 'target' } },
           },
         },
         resourcesToAttributions: { '/existing': ['existing'] },
@@ -734,14 +734,14 @@ describe('attribution resource access', () => {
     expect(await attributionUuidsOn('/destination')).toEqual(['candidateB']);
     const { result: saveFileArgs } = await getSaveFileArgs();
     expect(saveFileArgs.manualAttributions.candidateA).toHaveProperty(
-      'aiAttributions',
+      'aiAttributes',
       {
         nested: { first: 2, second: [true, 'value'] },
         humanModified: true,
       },
     );
     expect(saveFileArgs.manualAttributions.candidateB).toHaveProperty(
-      'aiAttributions',
+      'aiAttributes',
       {
         nested: { second: [true, 'value'], first: 1 },
         humanModified: true,
@@ -812,13 +812,10 @@ describe('attribution resource access', () => {
       const savedAttribution = saveFileArgs.manualAttributions[
         destinationUuid
       ] as unknown as Record<string, unknown>;
-      const savedHasMetadata = Object.hasOwn(
-        savedAttribution,
-        'aiAttributions',
-      );
+      const savedHasMetadata = Object.hasOwn(savedAttribution, 'aiAttributes');
       expect({
         hasMetadata: savedHasMetadata,
-        metadata: savedAttribution.aiAttributions,
+        metadata: savedAttribution.aiAttributes,
       }).toEqual({
         hasMetadata: sourceMetadata !== undefined,
         metadata: sourceMetadata,
@@ -827,8 +824,8 @@ describe('attribution resource access', () => {
         'source'
       ] as unknown as Record<string, unknown>;
       expect({
-        hasMetadata: Object.hasOwn(savedSource, 'aiAttributions'),
-        metadata: savedSource.aiAttributions,
+        hasMetadata: Object.hasOwn(savedSource, 'aiAttributes'),
+        metadata: savedSource.aiAttributes,
       }).toEqual({
         hasMetadata: sourceMetadata !== undefined,
         metadata: sourceMetadata,
@@ -922,11 +919,11 @@ describe('attribution resource access', () => {
           .sort(),
       );
       expect(saveFileArgs.manualAttributions.targetA).toHaveProperty(
-        'aiAttributions',
+        'aiAttributes',
         { origin: 'A', humanModified: true },
       );
       expect(saveFileArgs.manualAttributions.targetB).toHaveProperty(
-        'aiAttributions',
+        'aiAttributes',
         { origin: 'B', humanModified: true },
       );
     },
@@ -962,7 +959,7 @@ describe('attribution resource access', () => {
     expect(saveFileArgs.manualAttributions.source.packageName).toBe('after');
     expect(saveFileArgs.manualAttributions.target.packageName).toBe('after');
     expect(saveFileArgs.manualAttributions.source).toHaveProperty(
-      'aiAttributions',
+      'aiAttributes',
       { origin: 'source', humanModified: true },
     );
     expect(saveFileArgs.resourcesToAttributions['/source']).toEqual(['source']);
@@ -1011,11 +1008,11 @@ describe('attribution resource access', () => {
     );
     expect(saveFileArgs.manualAttributions.target.packageName).toBe('after');
     expect(saveFileArgs.manualAttributions[editedUuid]).toHaveProperty(
-      'aiAttributions',
+      'aiAttributes',
       { origin: { nested: ['source'] }, humanModified: true },
     );
     expect(saveFileArgs.manualAttributions.target).toHaveProperty(
-      'aiAttributions',
+      'aiAttributes',
       { origin: { nested: ['target'] } },
     );
     expect(saveFileArgs.resourcesToAttributions['/source']).toEqual([
@@ -1062,7 +1059,7 @@ describe('attribution resource access', () => {
     expect(saveFileArgs.resourcesToAttributions['/target']).toEqual(['target']);
     expect(saveFileArgs.manualAttributions.source).toBeUndefined();
     expect(saveFileArgs.manualAttributions.target).toHaveProperty(
-      'aiAttributions',
+      'aiAttributes',
       { nested: { second: true, first: 1 }, humanModified: true },
     );
   });
@@ -1582,11 +1579,11 @@ describe('mixed attribution mutations', () => {
       'replacement',
     );
     expect(saveFileArgs.manualAttributions[writableUuid]).toHaveProperty(
-      'aiAttributions',
+      'aiAttributes',
       { origin: { value: 'source' }, humanModified: true },
     );
     expect(saveFileArgs.manualAttributions.replacement).toHaveProperty(
-      'aiAttributions',
+      'aiAttributes',
       { origin: { value: 'target' } },
     );
   });

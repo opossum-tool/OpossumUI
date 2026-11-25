@@ -387,7 +387,7 @@ describe('filtering attributions', () => {
 
   it('filters AI-deferred attributions in audit view', async () => {
     const [deferredId, deferredAttribution] = faker.opossum.rawAttribution({
-      aiAttributions: { deferredFields: { copyright: true } },
+      aiAttributes: { deferredFields: { copyright: true } },
     });
     const [otherId, otherAttribution] = faker.opossum.rawAttribution();
     const resourceName = faker.opossum.resourceNames({ count: 1 })[0];
@@ -431,11 +431,11 @@ describe('filtering attributions', () => {
 
   it('scopes filter counts to the attributions displayed for the selected resource', async () => {
     const [deferredId, deferredAttribution] = faker.opossum.rawAttribution({
-      aiAttributions: { deferredFields: { copyright: true } },
+      aiAttributes: { deferredFields: { copyright: true } },
     });
     const [plainId, plainAttribution] = faker.opossum.rawAttribution();
     const [aiId, aiAttribution] = faker.opossum.rawAttribution({
-      aiAttributions: { humanModified: false },
+      aiAttributes: { humanModified: false },
     });
     const [deferredFileName, plainFileName] = faker.opossum.resourceNames({
       count: 2,

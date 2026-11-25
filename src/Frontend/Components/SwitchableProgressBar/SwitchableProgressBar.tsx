@@ -45,7 +45,7 @@ interface ProgressBarSwitchConfiguration {
 
 export const SwitchableProgressBar: React.FC = () => {
   const databaseInitialized = useDatabaseInitialized();
-  const aiAttributions = backend.hasAiAttributions.useQuery();
+  const hasAiAttributions = backend.hasAiAttributions.useQuery();
   const [userSettings] = useUserSettings();
   const showClassifications = userSettings.showClassifications;
   const showCriticality = userSettings.showCriticality;
@@ -60,7 +60,7 @@ export const SwitchableProgressBar: React.FC = () => {
     },
     ai: {
       label: text.aiBar.selectLabel,
-      active: !!aiAttributions.data,
+      active: !!hasAiAttributions.data,
     },
     criticality: {
       label: text.criticalityBar.selectLabel,

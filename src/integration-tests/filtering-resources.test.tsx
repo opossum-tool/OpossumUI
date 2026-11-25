@@ -50,10 +50,10 @@ const [reviewedApacheAttributionId, reviewedApachePackageInfo] =
   faker.opossum.rawAttribution({ licenseName: 'Apache-2.0' });
 const [deferredAttributionId, deferredPackageInfo] =
   faker.opossum.rawAttribution({
-    aiAttributions: { deferredFields: { copyright: true } },
+    aiAttributes: { deferredFields: { copyright: true } },
   });
 const [aiNotDeferredAttributionId, aiNotDeferredPackageInfo] =
-  faker.opossum.rawAttribution({ aiAttributions: { humanModified: false } });
+  faker.opossum.rawAttribution({ aiAttributes: { humanModified: false } });
 const [plainAttributionId, plainPackageInfo] = faker.opossum.rawAttribution();
 
 const data = getParsedInputFileEnrichedWithTestData({

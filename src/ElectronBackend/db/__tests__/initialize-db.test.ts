@@ -26,7 +26,7 @@ describe('database initialization', () => {
             ai: {
               id: 'ai',
               criticality: Criticality.None,
-              aiAttributions: {
+              aiAttributes: {
                 deferredFields,
                 opaque: { kept: true },
               },
@@ -59,7 +59,7 @@ describe('database initialization', () => {
             id: 'ai',
             criticality: Criticality.None,
             ...{
-              aiAttributions: {
+              aiAttributes: {
                 humanModified: true,
                 arbitrary: { nested: [1, true] },
               },
@@ -68,17 +68,17 @@ describe('database initialization', () => {
           falseFlag: {
             id: 'falseFlag',
             criticality: Criticality.None,
-            ...{ aiAttributions: { humanModified: false, kept: true } },
+            ...{ aiAttributes: { humanModified: false, kept: true } },
           },
           missingFlag: {
             id: 'missingFlag',
             criticality: Criticality.None,
-            ...{ aiAttributions: { kept: 'default' } },
+            ...{ aiAttributes: { kept: 'default' } },
           },
           empty: {
             id: 'empty',
             criticality: Criticality.None,
-            ...{ aiAttributions: {} },
+            ...{ aiAttributes: {} },
           },
           invalidJson: { id: 'invalidJson', criticality: Criticality.None },
         },

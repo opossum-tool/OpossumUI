@@ -299,8 +299,8 @@ describe('deserializeAttributions', () => {
 
 describe('serializeAttributions', () => {
   it('excludes derived status while preserving opaque AI metadata', () => {
-    const aiAttributions = { deferred: { opaque: true }, model: 'kept' };
-    const attribution = faker.opossum.persistedPackageInfo({ aiAttributions });
+    const aiAttributes = { deferred: { opaque: true }, model: 'kept' };
+    const attribution = faker.opossum.persistedPackageInfo({ aiAttributes });
     const serialized = serializeAttributions({
       [attribution.id]: {
         ...attribution,
@@ -309,7 +309,7 @@ describe('serializeAttributions', () => {
       },
     })[attribution.id];
 
-    expect(serialized.aiAttributions).toEqual(aiAttributions);
+    expect(serialized.aiAttributes).toEqual(aiAttributes);
     expect(serialized).not.toHaveProperty('aiStatus');
     expect(serialized).not.toHaveProperty('writableLinkedResourceCount');
   });

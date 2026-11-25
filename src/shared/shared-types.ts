@@ -58,7 +58,7 @@ export interface Source {
 export type Relation = 'resource' | 'children' | 'parents' | 'unrelated';
 type AttributionResourceAccess = 'readonly' | 'writable' | 'mixed';
 
-export interface AiAttributions {
+export interface AiAttributes {
   humanModified?: boolean;
   deferredFields?: Record<string, unknown>;
   [key: string]: unknown;
@@ -118,7 +118,7 @@ export interface AiAttributionStatus {
 }
 
 export interface PersistedPackageInfo extends CommonPackageInfo {
-  aiAttributions?: AiAttributions;
+  aiAttributes?: AiAttributes;
 }
 
 export interface PackageInfo extends CommonPackageInfo {

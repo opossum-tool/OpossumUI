@@ -118,7 +118,7 @@ const correctOutput: OpossumOutputFile = {
       needsReview: true,
       preferred: true,
       preferredOverOriginIds: ['test-id'],
-      ...{ aiAttributions: { arbitrary: [1, { nested: true }] } },
+      ...{ aiAttributes: { arbitrary: [1, { nested: true }] } },
     },
   },
   resourcesToAttributions: {
@@ -167,7 +167,7 @@ describe('parseOpossumFile', () => {
       output.manualAttributions[testUuid] = {
         ...output.manualAttributions[testUuid],
         ...{
-          aiAttributions:
+          aiAttributes:
             humanModified === undefined
               ? { model: 'kept' }
               : { model: 'kept', humanModified },
@@ -181,8 +181,8 @@ describe('parseOpossumFile', () => {
       const result = await parseOpossumFile(path);
       const parsed = result as ParsedOpossumInputAndOutput;
       const manualAttribution = parsed.output?.manualAttributions[testUuid] as
-        { aiAttributions?: unknown } | undefined;
-      expect(manualAttribution?.aiAttributions).toStrictEqual(
+        { aiAttributes?: unknown } | undefined;
+      expect(manualAttribution?.aiAttributes).toStrictEqual(
         humanModified === undefined
           ? { model: 'kept' }
           : { model: 'kept', humanModified },
@@ -197,14 +197,14 @@ describe('parseOpossumFile', () => {
     { future: { nested: [1, true] } },
   ])('preserves opaque deferredFields metadata: %j', async (deferredFields) => {
     const output = structuredClone(correctOutput);
-    output.manualAttributions[testUuid].aiAttributions = { deferredFields };
+    output.manualAttributions[testUuid].aiAttributes = { deferredFields };
     const path = faker.outputPath(`${faker.string.uuid()}.opossum`);
     await writeOpossumFile({ input: correctInput, output, path });
 
     const parsed = (await parseOpossumFile(
       path,
     )) as ParsedOpossumInputAndOutput;
-    expect(parsed.output?.manualAttributions[testUuid].aiAttributions).toEqual(
+    expect(parsed.output?.manualAttributions[testUuid].aiAttributes).toEqual(
       deferredFields === undefined ? {} : { deferredFields },
     );
   });
@@ -215,7 +215,7 @@ describe('parseOpossumFile', () => {
       const output = {
         ...structuredClone(correctOutput),
         manualAttributions: {
-          [testUuid]: { aiAttributions: { deferredFields } },
+          [testUuid]: { aiAttributes: { deferredFields } },
         },
       };
       const path = faker.outputPath(`${faker.string.uuid()}.opossum`);
@@ -250,7 +250,7 @@ describe('parseOpossumFile', () => {
           ...structuredClone(correctOutput.manualAttributions),
           [testUuid]: {
             ...structuredClone(correctOutput.manualAttributions[testUuid]),
-            aiAttributions: value,
+            aiAttributes: value,
           },
         },
       };
@@ -275,7 +275,7 @@ describe('parseOpossumFile', () => {
           ...structuredClone(correctOutput.manualAttributions),
           [testUuid]: {
             ...structuredClone(correctOutput.manualAttributions[testUuid]),
-            aiAttributions: { humanModified },
+            aiAttributes: { humanModified },
           },
         },
       };

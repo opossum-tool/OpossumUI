@@ -49,7 +49,7 @@ export function attributionContentFromRow(
 
 const knownKeys = new Set<string>([
   'id',
-  'aiAttributions',
+  'aiAttributes',
   'aiStatus',
   'source',
   'originalAttributionSource',

@@ -46,7 +46,7 @@ describe('deferred fields', () => {
         attributions: {
           shared: attributionFixture('shared', {
             packageName: 'before',
-            aiAttributions: metadata,
+            aiAttributes: metadata,
           }),
         },
         resourceLinks: { '/source': ['shared'], '/other': ['shared'] },
@@ -62,8 +62,8 @@ describe('deferred fields', () => {
       expect(copyUuid).not.toBe('shared');
       expect(await linkedAttributionIds('/other')).toEqual(['shared']);
       const { result } = await getSaveFileArgs();
-      expect(result.manualAttributions.shared.aiAttributions).toEqual(metadata);
-      expect(result.manualAttributions[copyUuid].aiAttributions).toEqual({
+      expect(result.manualAttributions.shared.aiAttributes).toEqual(metadata);
+      expect(result.manualAttributions[copyUuid].aiAttributes).toEqual({
         ...metadata,
         humanModified: true,
       });
@@ -122,7 +122,7 @@ describe('deferred fields', () => {
         attributions: {
           source: attributionFixture('source', {
             packageName: 'before',
-            aiAttributions: {
+            aiAttributes: {
               humanModified: true,
               deferredFields: source,
               opaque: { kept: true },
@@ -131,7 +131,7 @@ describe('deferred fields', () => {
           }),
           target: attributionFixture('target', {
             packageName: 'after',
-            aiAttributions: {
+            aiAttributes: {
               humanModified: true,
               deferredFields: target,
               opaque: { kept: true },

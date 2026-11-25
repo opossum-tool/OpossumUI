@@ -80,12 +80,12 @@ describe('splitOpossumArchive', () => {
           nested: {
             id: 'nested',
             packageName: 'nested',
-            ...{ aiAttributions: { nested: { value: true } } },
+            ...{ aiAttributes: { nested: { value: true } } },
           },
           empty: {
             id: 'empty',
             packageName: 'empty',
-            ...{ aiAttributions: {} },
+            ...{ aiAttributes: {} },
           },
           absent: { id: 'absent', packageName: 'absent' },
         },
@@ -98,12 +98,12 @@ describe('splitOpossumArchive', () => {
       const output = JSON.parse(
         new AdmZip(archivePath).readAsText(OUTPUT_FILE_NAME),
       );
-      expect(output.manualAttributions.nested.aiAttributions).toEqual({
+      expect(output.manualAttributions.nested.aiAttributes).toEqual({
         nested: { value: true },
       });
-      expect(output.manualAttributions.empty.aiAttributions).toEqual({});
+      expect(output.manualAttributions.empty.aiAttributes).toEqual({});
       expect(output.manualAttributions.absent).not.toHaveProperty(
-        'aiAttributions',
+        'aiAttributes',
       );
     }
   });
