@@ -28,7 +28,6 @@ import {
   getMergeOpossumFilesRequest,
   getOpenFileRequest,
   getQuitAppRequested,
-  getSelectedView,
   getSplitFileRequest,
   getTargetView,
 } from '../../selectors/view-selector';
@@ -315,14 +314,8 @@ export function changeAttributionFiltersOrOpenUnsavedPopup({
 export function setViewOrOpenUnsavedPopup(selectedView: View): AppThunkAction {
   return withUnsavedCheck({
     executeImmediately: (dispatch) => dispatch(navigateToView(selectedView)),
-    requestContinuation: (dispatch, getState) => {
+    requestContinuation: (dispatch) => {
       dispatch(setTargetView(selectedView));
-      const currentView = getSelectedView(getState());
-      if (currentView !== View.AiReview && selectedView !== View.AiReview) {
-        dispatch(
-          setTargetSelectedResourceId(getSelectedResourceId(getState())),
-        );
-      }
     },
   });
 }

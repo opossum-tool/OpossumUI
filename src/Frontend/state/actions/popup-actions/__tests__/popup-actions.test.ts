@@ -493,9 +493,7 @@ describe('The actions checking for unsaved changes', () => {
       testStore.dispatch(setViewOrOpenUnsavedPopup(View.Audit));
       expect(getSelectedView(testStore.getState())).toBe(View.Report);
       expect(getTargetView(testStore.getState())).toBe(View.Audit);
-      expect(getTargetSelectedResourceId(testStore.getState())).toBe(
-        '/testId/',
-      );
+      expect(getSelectedResourceId(testStore.getState())).toBe('/testId/');
       expect(getOpenPopup(testStore.getState())?.popup).toBe(
         PopupType.NotSavedPopup,
       );
