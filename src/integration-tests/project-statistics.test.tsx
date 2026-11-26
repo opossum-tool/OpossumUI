@@ -92,24 +92,24 @@ describe('project statistics', () => {
   const [deferredId, deferredPackageInfo] = faker.opossum.rawAttribution({
     criticality: RawCriticality[Criticality.Medium],
     packageName: 'AI deferred',
-    aiAttributions: { deferredFields: {} },
+    aiAttributes: { deferredFields: {} },
   });
   const [deferredModifiedId, deferredModifiedPackageInfo] =
     faker.opossum.rawAttribution({
       criticality: RawCriticality[Criticality.Medium],
       packageName: 'AI deferred modified',
-      aiAttributions: { deferredFields: {}, humanModified: true },
+      aiAttributes: { deferredFields: {}, humanModified: true },
     });
   const [aiOutputId, aiOutputPackageInfo] = faker.opossum.rawAttribution({
     criticality: RawCriticality[Criticality.Medium],
     packageName: 'AI output',
-    aiAttributions: {},
+    aiAttributes: {},
   });
   const [aiOutputModifiedId, aiOutputModifiedPackageInfo] =
     faker.opossum.rawAttribution({
       criticality: RawCriticality[Criticality.Medium],
       packageName: 'AI output modified',
-      aiAttributions: { humanModified: true },
+      aiAttributes: { humanModified: true },
     });
   const [ordinaryId, ordinaryPackageInfo] = faker.opossum.rawAttribution({
     criticality: RawCriticality[Criticality.Medium],

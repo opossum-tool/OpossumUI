@@ -1004,27 +1004,27 @@ describe('aiAttributionStatistics', () => {
           pendingNonDeferred: {
             id: 'pendingNonDeferred',
             criticality: Criticality.None,
-            aiAttributions: {},
+            aiAttributes: {},
           },
           nonDeferredModified: {
             id: 'nonDeferredModified',
             criticality: Criticality.None,
-            aiAttributions: { humanModified: true },
+            aiAttributes: { humanModified: true },
           },
           deferredModified: {
             id: 'deferredModified',
             criticality: Criticality.None,
-            aiAttributions: { deferredFields: {}, humanModified: true },
+            aiAttributes: { deferredFields: {}, humanModified: true },
           },
           deferredUnmodified: {
             id: 'deferredUnmodified',
             criticality: Criticality.None,
-            aiAttributions: { deferredFields: {} },
+            aiAttributes: { deferredFields: {} },
           },
           unlinkedNonDeferred: {
             id: 'unlinkedNonDeferred',
             criticality: Criticality.None,
-            aiAttributions: {},
+            aiAttributes: {},
           },
           nonAi: {
             id: 'nonAi',
@@ -1078,7 +1078,7 @@ describe('aiAttributionStatistics', () => {
           deferred: {
             id: 'deferred',
             criticality: Criticality.None,
-            aiAttributions: { deferredFields: {} },
+            aiAttributes: { deferredFields: {} },
           },
           nonAi: { id: 'nonAi', criticality: Criticality.None },
         },
@@ -1109,7 +1109,7 @@ describe('aiAttributionStatistics', () => {
           aiUnmodified: {
             id: 'aiUnmodified',
             criticality: Criticality.None,
-            aiAttributions: {},
+            aiAttributes: {},
           },
         },
         resourcesToAttributions: { '/file.ts': ['aiUnmodified'] },

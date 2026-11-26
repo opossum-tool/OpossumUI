@@ -349,7 +349,7 @@ describe('The ProjectStatisticsPopup', () => {
         },
         criticality: Criticality.None,
         id: 'uuid_1',
-        aiAttributions: { deferredFields: {} },
+        aiAttributes: { deferredFields: {} },
       },
       uuid_2: {
         source: {
@@ -358,7 +358,7 @@ describe('The ProjectStatisticsPopup', () => {
         },
         criticality: Criticality.None,
         id: 'uuid_2',
-        aiAttributions: { humanModified: true },
+        aiAttributes: { humanModified: true },
       },
       uuid_3: {
         source: {
