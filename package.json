@@ -88,7 +88,7 @@
     "eslint-plugin-check-file": "3.3.2",
     "eslint-plugin-jest-dom": "5.11.0",
     "eslint-plugin-playwright": "2.12.2",
-    "eslint-plugin-testing-library": "7.16.2",
+    "eslint-plugin-testing-library": "7.16.3",
     "globals": "17.14.0",
     "happy-dom": "21.0.4",
     "husky": "9.1.7",

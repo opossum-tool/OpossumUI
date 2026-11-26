@@ -5155,15 +5155,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-testing-library@npm:7.16.2":
-  version: 7.16.2
-  resolution: "eslint-plugin-testing-library@npm:7.16.2"
+"eslint-plugin-testing-library@npm:7.16.3":
+  version: 7.16.3
+  resolution: "eslint-plugin-testing-library@npm:7.16.3"
   dependencies:
     "@typescript-eslint/scope-manager": "npm:^8.56.0"
     "@typescript-eslint/utils": "npm:^8.56.0"
   peerDependencies:
     eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
-  checksum: 10/6aa06995f147986ce9b923479caca9b8a5f703c52ef3bf57d9757953ded448f940b2dbb12d85217a348fc5b754a20ecdb70b9ee39856b202e89f43e648f788a7
+  checksum: 10/21bebca2243ff97f814328fb29caa61d2b02c27ab260485fe2cbfade25be1bf970d92fe95ff5c2ee9ff348e5f9801a9dc5c47f0441fef8212746c54191e8b113
   languageName: node
   linkType: hard
 
@@ -7570,7 +7570,7 @@ __metadata:
     eslint-plugin-check-file: "npm:3.3.2"
     eslint-plugin-jest-dom: "npm:5.11.0"
     eslint-plugin-playwright: "npm:2.12.2"
-    eslint-plugin-testing-library: "npm:7.16.2"
+    eslint-plugin-testing-library: "npm:7.16.3"
     fast-csv: "npm:5.0.8"
     globals: "npm:17.14.0"
     happy-dom: "npm:21.0.4"
