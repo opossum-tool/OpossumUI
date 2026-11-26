@@ -7,6 +7,10 @@ export function isProductionBuild(): boolean {
   return import.meta.env.PROD;
 }
 
+export function isAiReviewEnabled(): boolean {
+  return !isProductionBuild() || navigator.webdriver;
+}
+
 export function isProductionOrAutomatedRun(): boolean {
   return isProductionBuild() || navigator.webdriver;
 }

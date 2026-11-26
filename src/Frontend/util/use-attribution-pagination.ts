@@ -110,8 +110,9 @@ export function useAttributionPagination<
 
   return {
     error: query.error,
-    hasNextPage: query.hasNextPage,
     isError: query.isError,
+    hasNextPage: query.hasNextPage,
+    isSuccess: query.isSuccess,
     isFetching: query.isFetching,
     isFetchingNextPage: query.isFetchingNextPage,
     isLoading: query.isLoading,

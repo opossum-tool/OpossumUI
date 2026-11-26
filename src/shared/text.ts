@@ -195,6 +195,10 @@ export const text = {
     signalsPanelTitle: 'Signals',
     moreActions: 'More actions',
   },
+  aiReviewView: {
+    noMatchingAttributions: 'No matching attributions',
+    noAttributionsToReview: 'No attributions to review',
+  },
   buttons: {
     cancel: 'Cancel',
     close: 'Close',
@@ -315,6 +319,8 @@ export const text = {
     splitHere: 'Split here',
     linkedResources: (selectedResources: number, totalCount: number) =>
       `Linked Resources (${new Intl.NumberFormat().format(selectedResources)} / ${new Intl.NumberFormat().format(totalCount)})`,
+    linkedResourcesTotal: (totalCount: number) =>
+      `Linked Resources (${new Intl.NumberFormat().format(totalCount)})`,
     linkedResourcesTitle: 'Linked Resources',
     hasHighlyCriticalSignals: 'Has highly critical signals',
     hasMediumCriticalSignals: 'Has medium critical signals',
@@ -613,6 +619,7 @@ export const text = {
     },
     audit: 'Audit',
     report: 'Report',
+    aiReview: 'AI Review',
     switchableProgressBar: {
       selectAriaLabel: 'ProgressBar Switcher',
       aiBar: {

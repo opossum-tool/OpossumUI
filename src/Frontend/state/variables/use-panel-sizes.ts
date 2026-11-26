@@ -21,13 +21,15 @@ function setPanelSizesThunk(
   };
 }
 
-export const usePanelSizes = (): {
+export function usePanelSizes(): {
   panelSizes: PanelSizes;
-  setPanelSizes: (panelsSizes: Partial<PanelSizes>) => void;
-} => {
+  setPanelSizes: (panelSizesPatch: Partial<PanelSizes>) => void;
+} {
   const panelSizes = useAppSelector(getUserSettings).panelSizes;
   const dispatch = useAppDispatch();
-  const setPanelSizes = (panelSizes: Partial<PanelSizes>) =>
-    void dispatch(setPanelSizesThunk(panelSizes));
-  return { panelSizes, setPanelSizes };
-};
+  return {
+    panelSizes,
+    setPanelSizes: (panelSizesPatch: Partial<PanelSizes>) =>
+      void dispatch(setPanelSizesThunk(panelSizesPatch)),
+  };
+}

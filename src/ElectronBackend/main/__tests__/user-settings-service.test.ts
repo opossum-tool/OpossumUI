@@ -72,6 +72,39 @@ describe('UserSettingsService', () => {
       expect(result).toEqual({ ...DEFAULT_USER_SETTINGS, qaMode: true });
     });
 
+    it('adds AI Review widths without replacing saved Audit widths', async () => {
+      const savedPanelSizes = {
+        resourceBrowserWidth: DEFAULT_PANEL_SIZES.resourceBrowserWidth,
+        packageListsWidth: 480,
+        linkedResourcesPanelHeight:
+          DEFAULT_PANEL_SIZES.linkedResourcesPanelHeight,
+        signalsPanelHeight: DEFAULT_PANEL_SIZES.signalsPanelHeight,
+      };
+      await settings.set({ panelSizes: savedPanelSizes } as never);
+
+      await UserSettingsService.init();
+
+      const result = await settings.get();
+      expect(result.panelSizes).toEqual({
+        ...DEFAULT_PANEL_SIZES,
+        ...savedPanelSizes,
+      });
+    });
+
+    it('restores both views’ saved widths after initialization', async () => {
+      const savedPanelSizes = {
+        ...DEFAULT_PANEL_SIZES,
+        packageListsWidth: 470,
+        aiReviewResourceBrowserWidth: 510,
+      };
+      await UserSettingsService.update({ panelSizes: savedPanelSizes });
+
+      await UserSettingsService.init();
+
+      const result = await settings.get();
+      expect(result.panelSizes).toEqual(savedPanelSizes);
+    });
+
     it('resets everything if reset is requested', async () => {
       const oldEnvironment = process.env;
       process.env = { ...oldEnvironment, RESET: 'TRUE' };

@@ -30,6 +30,7 @@ export function useLinkedAttributionActionData({
     isError: hasLinkedResourcesTreeError,
     isLoading: isLinkedResourcesTreeLoading,
   } = useLinkedResourcesTree({
+    selectedResourcePath: selectedResourceId,
     onAttributionUuids: attributionIds,
     enabled:
       open &&

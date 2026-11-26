@@ -5,11 +5,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { useAppSelector } from '../../state/hooks';
-import {
-  getAttributionSelectionPendingResourceId,
-  getSelectedAttributionId,
-  getSelectedResourceId,
-} from '../../state/selectors/resource-selectors';
+import { getSelectedAttributionId } from '../../state/selectors/resource-selectors';
 import { useSelectedAttribution } from '../../util/use-selected-attribution';
 import {
   type LinkedResourcesTreeState,
@@ -58,14 +54,14 @@ export function getLinkedResourcesPanelState({
 
 export function useLinkedResourcesPanelState({
   search,
+  resourcePath,
+  attributionSelectionPending = false,
 }: {
   search?: string;
+  resourcePath?: string;
+  attributionSelectionPending?: boolean;
 } = {}): LinkedResourcesPanelState {
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
-  const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const attributionSelectionPendingResourceId = useAppSelector(
-    getAttributionSelectionPendingResourceId,
-  );
   const {
     isError: isAttributionError,
     isPending: isAttributionPending,
@@ -77,13 +73,14 @@ export function useLinkedResourcesPanelState({
   );
   const attributionDetailsReady =
     !selectedAttributionId ||
-    (attributionSelectionPendingResourceId !== selectedResourceId &&
+    (!attributionSelectionPending &&
       !isAttributionPending &&
       !isAttributionError &&
       selectedAttribution?.id === selectedAttributionId);
   const linkedResourcesTreeQuery = useLinkedResourcesTree({
     enabled: attributionDetailsReady,
     onAttributionUuids,
+    selectedResourcePath: resourcePath,
     search,
   });
   const [completed, setCompleted] = useState<{

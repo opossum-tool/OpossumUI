@@ -26,6 +26,7 @@ import {
 } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import { getSelectedView } from '../../state/selectors/view-selector';
+import { isAiReviewEnabled } from '../../util/environment';
 import { BackendCommunication } from '../BackendCommunication/BackendCommunication';
 import { IconButton } from '../IconButton/IconButton';
 import { SwitchableProgressBar } from '../SwitchableProgressBar/SwitchableProgressBar';
@@ -143,6 +144,15 @@ export const TopBar: React.FC = () => {
         >
           {text.topBar.report}
         </MuiToggleButton>
+        {isAiReviewEnabled() && (
+          <MuiToggleButton
+            value={View.AiReview}
+            sx={classes.viewButtons}
+            disabled={selectedView === View.AiReview}
+          >
+            {text.topBar.aiReview}
+          </MuiToggleButton>
+        )}
       </MuiToggleButtonGroup>
       <MuiBox sx={classes.versionInfo}>
         <MuiTypography variant={'subtitle2'} sx={classes.commitDisplay}>

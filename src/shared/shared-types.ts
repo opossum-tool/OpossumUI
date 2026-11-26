@@ -497,6 +497,8 @@ export type UserSettings = {
   panelSizes: {
     resourceBrowserWidth: number;
     packageListsWidth: number;
+    aiReviewResourceBrowserWidth: number;
+    aiReviewPackageListsWidth: number;
     linkedResourcesPanelHeight: number | null;
     signalsPanelHeight: number | null;
   };

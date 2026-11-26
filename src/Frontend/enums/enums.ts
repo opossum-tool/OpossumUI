@@ -7,6 +7,7 @@
 export enum View {
   Audit = 'Audit',
   Report = 'Report',
+  AiReview = 'AiReview',
 }
 
 export enum PopupType {

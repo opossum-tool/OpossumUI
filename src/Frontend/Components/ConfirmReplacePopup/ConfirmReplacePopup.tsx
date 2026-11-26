@@ -62,6 +62,7 @@ export const ConfirmReplacePopup = ({
     : null;
 
   const {
+    selectedResourceId,
     attributions: attributionsForReplacement,
     attributionIds,
     isQueryWideSelection,
@@ -80,6 +81,7 @@ export const ConfirmReplacePopup = ({
     isLoading: isTreeLoading,
     isError: hasTreeError,
   } = useLinkedResourcesTree({
+    selectedResourcePath: selectedResourceId,
     onAttributionUuids: [
       ...new Set([
         ...attributionIds,

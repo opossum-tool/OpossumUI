@@ -314,9 +314,8 @@ export function changeAttributionFiltersOrOpenUnsavedPopup({
 export function setViewOrOpenUnsavedPopup(selectedView: View): AppThunkAction {
   return withUnsavedCheck({
     executeImmediately: (dispatch) => dispatch(navigateToView(selectedView)),
-    requestContinuation: (dispatch, getState) => {
+    requestContinuation: (dispatch) => {
       dispatch(setTargetView(selectedView));
-      dispatch(setTargetSelectedResourceId(getSelectedResourceId(getState())));
     },
   });
 }
