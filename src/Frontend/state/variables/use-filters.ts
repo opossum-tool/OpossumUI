@@ -25,6 +25,8 @@ export interface AttributionFilters {
     license?: Array<LicenseOption>;
   };
   sorting: SortOption;
+  /** Ids of the quickfilters currently combined into these filters. */
+  activeQuickfilterIds?: Array<string>;
 }
 
 export interface ResourceTreeFilters {
@@ -32,6 +34,8 @@ export interface ResourceTreeFilters {
   onlyWithAiDeferredAttributions: boolean;
   selectedLicenses: Array<LicenseOption>;
   licenseSearches?: Array<string>;
+  /** Ids of the resource quickfilters currently combined into these filters. */
+  activeQuickfilterIds?: Array<string>;
 }
 
 export const initialAttributionFilters: AttributionFilters = {
@@ -80,23 +84,44 @@ export function useResourceTreeFilters() {
 export function toAttributionValueFilters(
   filters: AttributionFilters['valueFilters'],
 ): AttributionValueFilters {
-  const { license, ...rest } = filters;
   return {
-    ...rest,
-    licenseIds: license?.length
-      ? license.map((option) => option.id)
+    classification: filters.classification,
+    criticality: filters.criticality,
+    incompleteCoordinates: filters.incompleteCoordinates,
+    incompleteLegal: filters.incompleteLegal,
+    licenseSearches: filters.licenseSearches,
+    licenseIds: filters.license?.length
+      ? filters.license.map((option) => option.id)
       : undefined,
   };
 }
 
 export function hasActiveAttributionFilters({
   filters,
+  search,
   valueFilters,
 }: AttributionFilters): boolean {
+  // The search box filters the list like the menu filters, so it counts as
+  // an active filter.
   return (
     !!filters.length ||
+    !!search ||
     Object.values(valueFilters).some((value) =>
       Array.isArray(value) ? value.length > 0 : value !== undefined,
     )
+  );
+}
+
+export function hasActiveResourceTreeFilters({
+  onlyUnreviewedFiles,
+  onlyWithAiDeferredAttributions,
+  selectedLicenses,
+  licenseSearches = [],
+}: ResourceTreeFilters): boolean {
+  return (
+    onlyUnreviewedFiles ||
+    onlyWithAiDeferredAttributions ||
+    !!selectedLicenses.length ||
+    !!licenseSearches.length
   );
 }

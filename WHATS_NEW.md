@@ -10,44 +10,42 @@ Users who have seen a lower revision are shown these notes on their next start.
 When adding notes for the first new feature after a release, increment the revision
 and delete the previous notes and screenshots.
 -->
-<!-- whats-new-revision: 1 -->
+<!-- whats-new-revision: 2 -->
 
-## Discover what’s new
+## Quickfilters: save and reuse your filters
 
-Release highlights now introduce new features directly in OpossumUI.
-You can revisit this overview at any time via **Help → What’s New**.
+The filter menus for attributions, signals, and the resources tree now include
+a **Quickfilters** section. Any combination of filters — including the search
+field — can be saved under a name and reapplied with one click, so you do not
+have to set up the same filters each time you start a review.
 
-## Install updates directly from OpossumUI
+Set up the filters you want, open the filter menu, and choose **Save current
+filters…**. Give your quickfilter a name, and it appears in the menu for future re-use. Quickfilters are part of your personal user settings,
+so they stay available across sessions and projects, and they are offered on
+all filter menus wherever they make sense.
 
-On Windows and Linux AppImage installations, you can now download and install
-updates directly from OpossumUI. Click **Download update** in the update
-notification. Once the download is complete, click **Restart and update** to
-install the new version.
+![Filter menu with the Quickfilters submenu open and Save current filters… highlighted](docs/whats_new_screenshots/safe-flow.png 'Save the selected filters as a quickfilter.')
 
-![Update ready to install with the Restart and update button](docs/whats_new_screenshots/update-and-restart.png 'Restart OpossumUI to install a downloaded update.')
+## Apply, combine, and override
 
-## More flexible filters
+Click a quickfilter to apply it and click it again to remove it. You can apply
+several quickfilters at once, and they combine where they fit together.
+Applying a quickfilter that clashes with an active one still works: a warning
+icon explains which filters it will replace, and applying overwrites those
+conflicting filters.
 
-You can now select several licenses at once, rather than filtering by just one.
+Filters remain fully editable while quickfilters are active. Add filters
+manually on top of an applied quickfilter — and **Clear all** in the
+quickfilters menu removes only the quickfilters' own conditions while keeping
+the filters you set by hand.
 
-![License filter with multiple licenses selected](docs/whats_new_screenshots/multiselect-filter.png 'Select several licenses in the same filter.')
+![Quickfilters panel with two quickfilters applied](docs/whats_new_screenshots/active-combined-state.png 'Apply several quickfilters together.')
 
-Use a **Name contains** filter to find licenses by part of their name. For
-example, searching for **BSD** lets you include matching license names without
-selecting each one individually. License filters are available for
-attributions, signals, the resources tree, and the Report view.
+![Conflicting quickfilter with a warning icon and a tooltip explaining that applying it replaces the filters of another quickfilter](docs/whats_new_screenshots/conflict-warning.png 'Applying a conflicting quickfilter replaces the clashing filters.')
 
-![Adding a Name contains filter to match BSD licenses](docs/whats_new_screenshots/search-filter.png 'Match license names with a text search.')
+## Manage your quickfilters
 
-New criticality and classification filters help you focus on the attributions
-and signals relevant to your review.
+Click on the pencil icon in the quickfilters menu to rename, delete, and reorder
+quickfilters by dragging them into the order that suits your workflow.
 
-## Navigate directly from project statistics
-
-You can now jump directly from Project Statistics to a filtered view of the
-corresponding attributions, signals, or resources. For example, click a criticality
-category to inspect those signals in the Audit view, or **Needs Review** to
-focus on attributions awaiting review. License names in the Licenses tab also
-link to the matching resources and signals.
-
-![Project Statistics with a license chart tooltip linking to matching signals in the Audit view](docs/whats_new_screenshots/quickfilter-link.png 'Click a chart category to inspect the matching attributions, signals, or resources.')
+![Quickfilters edit mode with drag handles, rename, and delete controls](docs/whats_new_screenshots/edit-mode.png 'Rename, delete, and reorder quickfilters.')

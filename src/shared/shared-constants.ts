@@ -26,6 +26,7 @@ export const DEFAULT_USER_SETTINGS: UserSettings = {
     orderDirection: 'asc',
     orderedColumn: 'NAME',
   },
+  savedQuickfilters: [],
   automaticallyCheckForUpdates: true,
   lastSeenWhatsNewRevision: 0,
 };

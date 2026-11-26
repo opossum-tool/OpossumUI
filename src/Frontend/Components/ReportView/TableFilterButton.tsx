@@ -30,6 +30,7 @@ export const TableFilterButton: React.FC<{
     licenseOptionsLoading,
     filters,
     setFilters: setFilteredAttributions,
+    quickfilterScope: 'attribution',
   });
   const isFilterActive = hasActiveAttributionFilters(filters);
 
@@ -42,7 +43,9 @@ export const TableFilterButton: React.FC<{
         setFilteredAttributions({
           ...filters,
           filters: [],
+          search: '',
           valueFilters: {},
+          activeQuickfilterIds: undefined,
         })
       }
       anchorPosition={'left'}

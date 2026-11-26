@@ -86,7 +86,7 @@ export class ReportView {
 
   async filterByLicense(licenseName: string) {
     await this.filterButton.click();
-    await this.filterMenu.locator('[aria-haspopup="dialog"]').click();
+    await this.filterMenu.locator('[data-option-id="license"]').click();
     const editor = this.window.getByRole('dialog', {
       name: text.licenseEditor.title,
     });

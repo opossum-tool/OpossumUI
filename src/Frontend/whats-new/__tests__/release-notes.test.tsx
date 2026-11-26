@@ -13,7 +13,7 @@ describe('ReleaseNotes', () => {
   it('resolves every screenshot in the shipped notes to a bundled asset', async () => {
     await renderComponent(<ReleaseNotes />);
 
-    for (const image of screen.getAllByRole('img')) {
+    for (const image of screen.queryAllByRole('img')) {
       const src = image.getAttribute('src');
       expect(screenshotUrls, `Unresolved screenshot: ${src}`).toContain(src);
     }

@@ -31,7 +31,7 @@ export class UserSettingsService {
     return withSettingsLock(async () => {
       if (process.argv.includes('--reset') || process.env.RESET) {
         log.info('Resetting user settings');
-        await settings.set(DEFAULT_USER_SETTINGS as unknown as never);
+        await settings.set(DEFAULT_USER_SETTINGS);
       } else {
         const currentSettings = await settings.get();
         await settings.set({
@@ -57,16 +57,18 @@ export class UserSettingsService {
   }
 
   public static async update(
-    userSettings: Partial<IUserSettings>,
+    userSettings: Partial<UserSettings>,
     { skipNotification }: { skipNotification: boolean } = {
       skipNotification: false,
     },
   ): Promise<void> {
     return withSettingsLock(async () => {
-      for (const key of Object.keys(userSettings)) {
-        const properKey = key as keyof UserSettings;
-        if (userSettings[properKey] !== undefined) {
-          await settings.set(properKey, userSettings[properKey]);
+      for (const key of Object.keys(userSettings) as Array<
+        keyof UserSettings
+      >) {
+        const value = userSettings[key];
+        if (value !== undefined) {
+          await settings.set(key, value);
         }
       }
       if (!skipNotification) {

@@ -11,6 +11,10 @@ import type {
   CommandParams,
   CommandReturn,
 } from '../ElectronBackend/api/commands';
+import type {
+  AttributionFilterKey,
+  AttributionValueFilters,
+} from './attribution-filters';
 import type { AllowedFrontendChannels } from './ipc-channels';
 
 export interface Resources {
@@ -418,7 +422,55 @@ export type TableOrdering = {
   orderedColumn: string;
 };
 
-export interface UserSettings {
+export type QuickfilterScope = 'attribution' | 'signal' | 'resource';
+
+// Persisted quickfilters are stored via electron-settings in the user
+// settings; its typings only accept object type aliases (interfaces lack the
+// implicit index signature needed to satisfy their SettingsValue type), so
+// these are aliases rather than interfaces.
+type SavedQuickfilterBase = {
+  id: string;
+  name: string;
+  scope: QuickfilterScope;
+};
+
+export type SavedAttributionQuickfilter = SavedQuickfilterBase & {
+  scope: 'attribution' | 'signal';
+  filters: {
+    filters: Array<AttributionFilterKey>;
+    search: string;
+    valueFilters: Omit<AttributionValueFilters, 'licenseIds'> & {
+      license?: Array<LicenseOption>;
+    };
+  };
+};
+
+export type SavedResourceQuickfilter = SavedQuickfilterBase & {
+  scope: 'resource';
+  filters: {
+    onlyUnreviewedFiles: boolean;
+    onlyWithAiDeferredAttributions: boolean;
+    selectedLicenses: Array<LicenseOption>;
+    licenseSearches?: Array<string>;
+  };
+};
+
+export type SavedQuickfilter =
+  SavedAttributionQuickfilter | SavedResourceQuickfilter;
+
+export function isAttributionQuickfilter(
+  quickfilter: SavedQuickfilter,
+): quickfilter is SavedAttributionQuickfilter {
+  return quickfilter.scope !== 'resource';
+}
+
+export function isResourceQuickfilter(
+  quickfilter: SavedQuickfilter,
+): quickfilter is SavedResourceQuickfilter {
+  return quickfilter.scope === 'resource';
+}
+
+export type UserSettings = {
   qaMode: boolean;
   showProjectStatistics: boolean;
   areHiddenSignalsVisible: boolean;
@@ -432,9 +484,10 @@ export interface UserSettings {
   };
   recentlyOpenedPaths: Array<string>;
   attributionTableOrdering: TableOrdering;
+  savedQuickfilters: Array<SavedQuickfilter>;
   automaticallyCheckForUpdates: boolean;
   lastSeenWhatsNewRevision: number;
-}
+};
 
 export type PanelSizes = UserSettings['panelSizes'];
 
