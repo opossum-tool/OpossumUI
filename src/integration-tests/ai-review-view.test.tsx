@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { deserializeAttributions } from '../ElectronBackend/input/parseInputData';
 import { View } from '../Frontend/enums/enums';
@@ -29,6 +30,7 @@ import {
   fillFormField,
   fillPanelSearch,
   LINKED_RESOURCES_TREE,
+  saveChangesInAttributionColumn,
   searchTree,
 } from '../testing/ui';
 
@@ -72,6 +74,132 @@ const linkedResourcesData = getParsedInputFileEnrichedWithTestData({
 });
 
 describe('AI Review view', () => {
+  it('selects one status at a time while keeping overlapping counts independent', async () => {
+    await renderApp({ data, actions: [navigateToView(View.AiReview)] });
+    const pills = within(
+      screen.getByRole('group', { name: text.aiReviewView.statusFilters }),
+    );
+    const all = await pills.findByRole('button', { name: 'All 2' });
+    expect(all).toHaveAttribute('aria-pressed', 'true');
+
+    await userEvent.click(pills.getByRole('button', { name: 'Deferred 1' }));
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [secondAiPackage],
+      [aiPackage, manualPackage],
+    );
+    await expectAttributionFormMatchesPackageInfo(secondAiPackage);
+    expect(all).toHaveAttribute('aria-pressed', 'false');
+    expect(pills.getByRole('button', { name: 'Deferred 1' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(
+      pills.getByRole('button', { name: 'Fully resolved 1' }),
+    ).toBeVisible();
+
+    await userEvent.click(
+      pills.getByRole('button', { name: 'Human modified 1' }),
+    );
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [secondAiPackage],
+      [aiPackage],
+    );
+    expect(pills.getByRole('button', { name: 'Deferred 1' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+
+    await userEvent.click(
+      pills.getByRole('button', { name: 'Fully resolved 1' }),
+    );
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [aiPackage],
+      [secondAiPackage],
+    );
+    await expectAttributionFormMatchesPackageInfo(aiPackage);
+
+    await userEvent.click(
+      pills.getByRole('button', { name: 'Needs follow-up 0' }),
+    );
+    expect(
+      await screen.findByText(text.aiReviewView.noMatchingAttributions),
+    ).toBeVisible();
+    await userEvent.click(all);
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [aiPackage, secondAiPackage],
+      [manualPackage],
+    );
+  });
+
+  it('updates status counts with search and restores matching results when cleared', async () => {
+    await renderApp({ data, actions: [navigateToView(View.AiReview)] });
+    const pills = within(
+      screen.getByRole('group', { name: text.aiReviewView.statusFilters }),
+    );
+    await userEvent.click(
+      await pills.findByRole('button', { name: 'Deferred 1' }),
+    );
+    await fillPanelSearch('ai-review-attributions-header', 'AI package');
+    expect(await pills.findByRole('button', { name: 'All 1' })).toBeVisible();
+    expect(pills.getByRole('button', { name: 'Deferred 0' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(
+      await screen.findByText(text.aiReviewView.noMatchingAttributions),
+    ).toBeVisible();
+    await clearPanelSearch('ai-review-attributions-header');
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [secondAiPackage],
+      [aiPackage],
+    );
+  });
+
+  it('refreshes status counts after saving a human edit without resolving deferrals', async () => {
+    await renderApp({ data, actions: [navigateToView(View.AiReview)] });
+    await expectAttributionFormMatchesPackageInfo(aiPackage);
+    fillFormField('comment', 'Human review');
+    await saveChangesInAttributionColumn();
+    const pills = within(
+      screen.getByRole('group', { name: text.aiReviewView.statusFilters }),
+    );
+    expect(
+      await pills.findByRole('button', { name: 'Human modified 2' }),
+    ).toBeVisible();
+    expect(pills.getByRole('button', { name: 'Deferred 1' })).toBeVisible();
+    expect(
+      pills.getByRole('button', { name: 'Fully resolved 1' }),
+    ).toBeVisible();
+  });
+
+  it('preserves a dirty draft when changing pills and confirms explicit navigation', async () => {
+    await renderApp({ data, actions: [navigateToView(View.AiReview)] });
+    await expectAttributionFormMatchesPackageInfo(aiPackage);
+    fillFormField('comment', 'Unsaved review');
+    const pills = within(
+      screen.getByRole('group', { name: text.aiReviewView.statusFilters }),
+    );
+    await userEvent.click(
+      await pills.findByRole('button', { name: 'Deferred 1' }),
+    );
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [secondAiPackage],
+      [aiPackage],
+    );
+    expect(screen.getByDisplayValue('Unsaved review')).toBeVisible();
+    expect(
+      screen.queryByLabelText('unsaved changes popup'),
+    ).not.toBeInTheDocument();
+    await clickPackageCard(ATTRIBUTIONS_PANEL, secondAiPackage);
+    expect(await screen.findByLabelText('unsaved changes popup')).toBeVisible();
+  });
+
   it('shows only AI attributions, follows selection, and confirms navigation with a dirty draft', async () => {
     const { store } = await renderApp({
       data,

@@ -17,7 +17,10 @@ import type {
   AttributionResultSetCriteria,
 } from '../../../shared/attribution-result-set';
 import type { Relation } from '../../../shared/shared-types';
-import { isAiGenerated } from '../../db/attribution-ai';
+import {
+  getAiReviewFilterExpression,
+  isAiGenerated,
+} from '../../db/attribution-ai';
 import type { DB } from '../../db/generated/databaseTypes';
 import { jsonArraySelection } from '../../db/json-array-selection';
 import { EDITABLE_ATTRIBUTION_RESOURCE_ACCESS } from '../../types/types';
@@ -150,6 +153,10 @@ function getAttributionWhereExpressions(
 
   if (props.aiOnly) {
     expressions.push(isAiGenerated(eb));
+  }
+
+  if (props.aiReviewFilter) {
+    expressions.push(getAiReviewFilterExpression(eb, props.aiReviewFilter));
   }
 
   if (props.excludeUnrelated) {

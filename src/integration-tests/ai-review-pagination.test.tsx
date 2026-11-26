@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import { act, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { type Ref, useImperativeHandle } from 'react';
 import type { VirtuosoHandle, VirtuosoProps } from 'react-virtuoso';
 
@@ -40,14 +41,15 @@ vi.mock('react-virtuoso', async (importOriginal) => {
         scrollTo: vi.fn(),
         scrollToIndex: vi.fn(),
       }));
-      const isAttributionsList = totalCount !== undefined;
-      if (isAttributionsList) {
-        virtualList.rangeChanged = rangeChanged;
-        virtualList.endReached = endReached;
+      // Other lists in the view do not reserve unloaded attribution rows.
+      if (totalCount === undefined) {
+        return <div />;
       }
+      virtualList.rangeChanged = rangeChanged;
+      virtualList.endReached = endReached;
       return (
         <div
-          data-testid={isAttributionsList ? 'virtual-list' : undefined}
+          data-testid="virtual-list"
           data-total-count={totalCount}
           data-loaded-count={data?.filter(Boolean).length}
         />
@@ -57,13 +59,24 @@ vi.mock('react-virtuoso', async (importOriginal) => {
 });
 
 test('reserves AI-only rows, loads visible placeholders, and updates totals on search', async () => {
-  const totalCount = ATTRIBUTION_PAGE_SIZE * 2 + 1;
-  const attributions = Array.from({ length: totalCount }, (_, index) =>
-    faker.opossum.rawAttribution({
-      packageName: `AI package ${String(index).padStart(3, '0')}`,
-      aiAttributes: {},
-    }),
+  const resolvedAttributions = Array.from(
+    { length: ATTRIBUTION_PAGE_SIZE },
+    (_, index) =>
+      faker.opossum.rawAttribution({
+        packageName: `AI package ${String(index).padStart(3, '0')}`,
+        aiAttributes: {},
+      }),
   );
+  const deferredAttributions = Array.from(
+    { length: ATTRIBUTION_PAGE_SIZE + 1 },
+    (_, index) =>
+      faker.opossum.rawAttribution({
+        packageName: `AI package ${String(index + ATTRIBUTION_PAGE_SIZE).padStart(3, '0')}`,
+        aiAttributes: { deferredFields: {} },
+      }),
+  );
+  const attributions = [...resolvedAttributions, ...deferredAttributions];
+  const totalCount = attributions.length;
   const [manualId, manualPackage] = faker.opossum.rawAttribution({
     packageName: 'Manual package',
   });
@@ -102,6 +115,38 @@ test('reserves AI-only rows, loads visible placeholders, and updates totals on s
   );
   await waitFor(() =>
     expect(list).toHaveAttribute('data-loaded-count', String(totalCount)),
+  );
+
+  const deferredCount = deferredAttributions.length;
+  await userEvent.click(
+    await screen.findByRole('button', { name: `Deferred ${deferredCount}` }),
+  );
+  await waitFor(() =>
+    expect(screen.getByTestId('virtual-list')).toHaveAttribute(
+      'data-total-count',
+      String(deferredCount),
+    ),
+  );
+  await waitFor(() =>
+    expect(screen.getByTestId('virtual-list')).toHaveAttribute(
+      'data-loaded-count',
+      String(ATTRIBUTION_PAGE_SIZE),
+    ),
+  );
+  act(() =>
+    virtualList.rangeChanged?.({
+      startIndex: deferredCount - 1,
+      endIndex: deferredCount - 1,
+    }),
+  );
+  await waitFor(() =>
+    expect(screen.getByTestId('virtual-list')).toHaveAttribute(
+      'data-loaded-count',
+      String(deferredCount),
+    ),
+  );
+  await userEvent.click(
+    screen.getByRole('button', { name: `All ${totalCount}` }),
   );
 
   await fillPanelSearch('ai-review-attributions-header', 'AI package 000');

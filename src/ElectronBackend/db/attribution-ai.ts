@@ -11,6 +11,7 @@ import type {
   Transaction,
 } from 'kysely';
 
+import type { AiReviewFilter } from '../../shared/ai-review';
 import {
   type AttributionContent,
   getEffectiveHumanModified,
@@ -36,11 +37,32 @@ function getAttributionAiQuery(eb: ExpressionBuilder<DB, 'attribution'>) {
     .whereRef('attribution_ai.attribution_uuid', '=', 'attribution.uuid');
 }
 
+// Effective deferral state currently follows metadata presence, including {}.
+// Keep this shared by joined and correlated queries so a future resolution
+// mechanism can preserve metadata without leaving consumers out of sync.
+export function getAiDeferredExpression(
+  eb: ExpressionBuilder<DB, 'attribution_ai'>,
+) {
+  return eb('attribution_ai.deferred_fields', 'is not', null);
+}
+
+export function getAiHumanModifiedExpression(
+  eb: ExpressionBuilder<DB, 'attribution_ai'>,
+) {
+  return eb(eb.fn.coalesce('attribution_ai.human_modified', eb.val(0)), '=', 1);
+}
+
 export function isAiDeferred(
   eb: ExpressionBuilder<DB, 'attribution'>,
 ): AliasableExpression<SqlBool> {
+  return eb.exists(getAttributionAiQuery(eb).where(getAiDeferredExpression));
+}
+
+export function isAiHumanModified(
+  eb: ExpressionBuilder<DB, 'attribution'>,
+): AliasableExpression<SqlBool> {
   return eb.exists(
-    getAttributionAiQuery(eb).where('deferred_fields', 'is not', null),
+    getAttributionAiQuery(eb).where(getAiHumanModifiedExpression),
   );
 }
 
@@ -50,12 +72,25 @@ export function isAiGenerated(
   return eb.exists(getAttributionAiQuery(eb));
 }
 
-export function isAiHumanModified(
+export function getAiReviewFilterExpression(
   eb: ExpressionBuilder<DB, 'attribution'>,
+  filter: AiReviewFilter,
 ): AliasableExpression<SqlBool> {
-  return eb.exists(
-    getAttributionAiQuery(eb).where('human_modified', '=', 1),
-  );
+  switch (filter) {
+    case 'all':
+      return eb.and([]);
+    case 'deferred':
+      return isAiDeferred(eb);
+    case 'needsFollowUp':
+      return eb('attribution.follow_up', '=', 1);
+    case 'humanModified':
+      return isAiHumanModified(eb);
+    case 'fullyResolved':
+      return eb.and([
+        eb.not(isAiDeferred(eb)),
+        eb('attribution.follow_up', '=', 0),
+      ]);
+  }
 }
 
 export function selectAttributionsWithAiStatus(db: Kysely<DB>) {
@@ -71,9 +106,7 @@ export function selectAttributionsWithAiStatus(db: Kysely<DB>) {
       'attribution_ai.attribution_uuid as ai_attribution_uuid',
       'attribution_ai.human_modified as ai_human_modified',
     ])
-    .select((eb) =>
-      eb('attribution_ai.deferred_fields', 'is not', null).as('ai_deferred'),
-    );
+    .select((eb) => getAiDeferredExpression(eb).as('ai_deferred'));
 }
 
 export function packageInfoWithAiStatusFromRow(

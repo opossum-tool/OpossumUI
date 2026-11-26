@@ -2,8 +2,13 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiChip from '@mui/material/Chip';
 import { useEffect, useMemo, useState } from 'react';
 
+import {
+  AI_REVIEW_FILTERS,
+  type AiReviewFilter,
+} from '../../../shared/ai-review';
 import type { AttributionResultSetCriteria } from '../../../shared/attribution-result-set';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
@@ -27,6 +32,7 @@ import {
   ColumnsContainer,
   DetailsColumn,
   EmptyState,
+  FilterPills,
 } from './AiReviewView.style';
 
 export const AiReviewView: React.FC = () => {
@@ -35,6 +41,7 @@ export const AiReviewView: React.FC = () => {
   const isPackageInfoDirty = useAppSelector(getIsPackageInfoDirty);
   const { panelSizes, setPanelSizes } = usePanelSizes();
   const [search, setSearch] = useState('');
+  const [reviewFilter, setReviewFilter] = useState<AiReviewFilter>('all');
   const [linkedResourcesSearchValue, setLinkedResourcesSearchValue] =
     useState('');
   const linkedResourcesPanel = useLinkedResourcesPanel(
@@ -42,7 +49,7 @@ export const AiReviewView: React.FC = () => {
     setLinkedResourcesSearchValue,
   );
   const debouncedSearch = useDebouncedInput(search);
-  const criteria = useMemo<AttributionResultSetCriteria>(
+  const baseCriteria = useMemo<AttributionResultSetCriteria>(
     () => ({
       external: false,
       aiOnly: true,
@@ -55,14 +62,15 @@ export const AiReviewView: React.FC = () => {
     }),
     [debouncedSearch],
   );
-  const attributionCounts =
-    backend.listAttributionRelationCounts.useQuery(criteria);
-  const totalAttributionCount = attributionCounts.data
-    ? Object.values(attributionCounts.data).reduce(
-        (total, count) => total + count.visibleCount,
-        0,
-      )
-    : undefined;
+  const criteria = useMemo(
+    () => ({ ...baseCriteria, aiReviewFilter: reviewFilter }),
+    [baseCriteria, reviewFilter],
+  );
+  const attributionCounts = backend.getAiReviewCounts.useQuery({
+    ...baseCriteria,
+    includeReadonly: true,
+  });
+  const totalAttributionCount = attributionCounts.data?.[reviewFilter];
   const attributionPages = useAttributionPages({
     criteria,
     scope: { mode: 'all' },
@@ -77,7 +85,7 @@ export const AiReviewView: React.FC = () => {
   const selectedAttributionIsLoaded =
     selectedAttributionId !== '' &&
     Object.hasOwn(attributionPages.attributions ?? {}, selectedAttributionId);
-  const selectedAttributionMatchesSearch =
+  const selectedAttributionMatchesCriteria =
     selectedAttributionIsLoaded ||
     (attributionPages.navigationIsSuccess &&
       !attributionPages.navigationFetching &&
@@ -95,7 +103,7 @@ export const AiReviewView: React.FC = () => {
     }
 
     if (selectedAttributionId) {
-      if (selectedAttributionMatchesSearch) {
+      if (selectedAttributionMatchesCriteria) {
         return;
       }
       if (
@@ -131,7 +139,7 @@ export const AiReviewView: React.FC = () => {
     dispatch,
     isPackageInfoDirty,
     selectedAttributionId,
-    selectedAttributionMatchesSearch,
+    selectedAttributionMatchesCriteria,
   ]);
 
   const resultsAreSettled =
@@ -176,6 +184,29 @@ export const AiReviewView: React.FC = () => {
               inputLabel: text.menu.editSubmenu.searchAttributions,
             }}
           >
+            <FilterPills
+              role="group"
+              aria-label={text.aiReviewView.statusFilters}
+            >
+              {AI_REVIEW_FILTERS.map((filter) => (
+                <MuiChip
+                  key={filter}
+                  component="button"
+                  type="button"
+                  size="small"
+                  clickable
+                  aria-pressed={reviewFilter === filter}
+                  color={reviewFilter === filter ? 'primary' : 'default'}
+                  variant={reviewFilter === filter ? 'filled' : 'outlined'}
+                  label={`${text.aiReviewView.filters[filter]}${
+                    attributionCounts.data
+                      ? ` ${attributionCounts.data[filter]}`
+                      : ''
+                  }`}
+                  onClick={() => setReviewFilter(filter)}
+                />
+              ))}
+            </FilterPills>
             <div style={{ flex: 1, minHeight: 0, width: '100%' }}>
               <AttributionsList
                 activeAttributionIds={attributionIds}
@@ -201,7 +232,7 @@ export const AiReviewView: React.FC = () => {
       {showEmptyState ? (
         <DetailsColumn>
           <EmptyState>
-            {debouncedSearch
+            {debouncedSearch || reviewFilter !== 'all'
               ? text.aiReviewView.noMatchingAttributions
               : text.aiReviewView.noAttributionsToReview}
           </EmptyState>

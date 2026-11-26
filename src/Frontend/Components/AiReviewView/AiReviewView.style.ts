@@ -28,3 +28,11 @@ export const EmptyState = styled(MuiBox)({
   height: '100%',
   textAlign: 'center',
 });
+
+export const FilterPills = styled(MuiBox)(({ theme }) => ({
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: theme.spacing(1),
+  padding: theme.spacing(1),
+  flexShrink: 0,
+}));

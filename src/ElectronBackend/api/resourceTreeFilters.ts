@@ -14,6 +14,7 @@ import {
   hasLicenseConditions,
   type LicenseConditions,
 } from '../../shared/attribution-filters';
+import { getAiDeferredExpression } from '../db/attribution-ai';
 import type { DB } from '../db/generated/databaseTypes';
 import { jsonArraySelection } from '../db/json-array-selection';
 import { getLicenseFilterExpression } from './filters';
@@ -214,7 +215,7 @@ export function getFilteredResourcesQuery(
           )
           .select('deferred_fields')
           .whereRef('resource_to_attribution.resource_id', '=', 'r.id')
-          .where('deferred_fields', 'is not', null),
+          .where(getAiDeferredExpression),
       ),
     );
   }
