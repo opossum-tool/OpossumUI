@@ -6,8 +6,9 @@
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import InfoIcon from '@mui/icons-material/Info';
-import { styled, Typography } from '@mui/material';
+import { styled } from '@mui/material';
 import {
+  resolveValue,
   Toaster as RHTToaster,
   ToastBar,
   type ToastType,
@@ -25,8 +26,22 @@ const ToastContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: theme.spacing(2),
-  // eslint-disable-next-line @typescript-eslint/no-magic-numbers -- 85 theme spacing units (= 340px)
-  width: theme.spacing(85),
+  width: '100%',
+  minWidth: 0,
+}));
+
+const ToastIconContainer = styled('div')({
+  display: 'flex',
+  alignSelf: 'flex-start',
+  flex: '0 0 auto',
+});
+
+const ToastMessageContainer = styled('div')(({ theme }) => ({
+  ...theme.typography.body1,
+  flex: '1 1 auto',
+  minWidth: 0,
+  whiteSpace: 'pre-line',
+  overflowWrap: 'anywhere',
 }));
 
 export function Toaster() {
@@ -42,12 +57,12 @@ export function Toaster() {
         <ToastBar toast={toast}>
           {() => (
             <ToastContainer>
-              {icons[toast.type]}
-              {typeof toast.message === 'function' ? (
-                toast.message(toast)
-              ) : (
-                <Typography>{toast.message}</Typography>
+              {icons[toast.type] && (
+                <ToastIconContainer>{icons[toast.type]}</ToastIconContainer>
               )}
+              <ToastMessageContainer {...toast.ariaProps}>
+                {resolveValue(toast.message, toast)}
+              </ToastMessageContainer>
             </ToastContainer>
           )}
         </ToastBar>

@@ -27,19 +27,37 @@ describe('DbProcessClient.flushSaves', () => {
       id: 0,
       type: 'flushSaves',
     });
-    respond(port, { id: 0, type: 'success', result: 'failed' });
+    respond(port, {
+      id: 0,
+      type: 'success',
+      result: {
+        status: 'failed',
+        failure: {
+          id: 'failure',
+          fileName: 'project.opossum',
+          message: 'Disk full',
+        },
+      },
+    });
 
-    await expect(idlePromise).resolves.toBe('failed');
+    await expect(idlePromise).resolves.toEqual({
+      status: 'failed',
+      failure: {
+        id: 'failure',
+        fileName: 'project.opossum',
+        message: 'Disk full',
+      },
+    });
   });
 
-  it('resolves to undefined when no write happened since the file was loaded', async () => {
+  it('reports saved when no save failure is outstanding', async () => {
     const port = createFakePort();
     const client = new DbProcessClient(port);
 
     const idlePromise = client.flushSaves();
-    respond(port, { id: 0, type: 'success', result: undefined });
+    respond(port, { id: 0, type: 'success', result: { status: 'saved' } });
 
-    await expect(idlePromise).resolves.toBeUndefined();
+    await expect(idlePromise).resolves.toEqual({ status: 'saved' });
   });
 
   it('rejects when the DB process has exited', async () => {

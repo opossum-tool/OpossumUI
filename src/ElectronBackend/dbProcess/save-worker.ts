@@ -2,6 +2,9 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import { randomUUID } from 'node:crypto';
+
+import type { SaveFailure, SaveResult } from '../../shared/shared-types';
 
 const DEFAULT_AUTOSAVE_INTERVAL_MS = 60_000;
 const AUTOSAVE_INTERVAL_MS = readAutosaveInterval();
@@ -24,18 +27,9 @@ function readAutosaveInterval(): number {
 }
 
 /**
- * Outcome of the last ordinary save of the currently loaded project's file.
- * Split, merge, and force unlock deliberately do not record their writes
- * here, so this neither describes every write nor proves that the file on
- * disk matches the database. `undefined` means no ordinary save happened
- * since the file was loaded.
- */
-export type SaveResult = 'success' | 'failed';
-
-/**
  * Owns the lifecycle of tracked operations and project-file saves: what
- * work is pending, in which order saves are written, and what the outcome
- * of the latest ordinary save was. Successful edits are tracked separately
+ * work is pending, in which order saves are written, and whether a save
+ * failure is outstanding. Successful edits are tracked separately
  * from pending work until a save writes them.
  */
 export class SaveWorker {
@@ -50,13 +44,23 @@ export class SaveWorker {
    * Records only ordinary saves; split, merge, and force unlock write the
    * project file as one of several steps and do not record here.
    */
-  private lastSaveResult: SaveResult | undefined;
+  private currentFailure: SaveFailure | undefined;
   private saveTail: Promise<void> = Promise.resolve();
   private dirty = false;
   private autosaveInterval: ReturnType<typeof setInterval> | undefined;
+  private readonly getFileName: () => string;
+  private readonly onFailureChanged?: (
+    failure: SaveFailure | undefined,
+  ) => void;
 
-  constructor(options: { writeCurrentProject: () => Promise<void> }) {
+  constructor(options: {
+    writeCurrentProject: () => Promise<void>;
+    getFileName: () => string;
+    onFailureChanged?: (failure: SaveFailure | undefined) => void;
+  }) {
     this.writeCurrentProject = options.writeCurrentProject;
+    this.getFileName = options.getFileName;
+    this.onFailureChanged = options.onFailureChanged;
   }
 
   /**
@@ -76,11 +80,7 @@ export class SaveWorker {
     });
   }
 
-  /**
-   * Schedules a save of the current project state and resolves when the
-   * write has concluded, rejecting with the write's error.
-   */
-  save(): Promise<void> {
+  save(): Promise<SaveResult> {
     return this.track(() => this.enqueueWrite());
   }
 
@@ -99,27 +99,35 @@ export class SaveWorker {
   private autosave(): void {
     if (this.dirty && this.pending.size === 0) {
       void this.save().catch((error) => {
-        console.error('Automatic save of the .opossum file failed.', error);
+        console.error('Unexpected error during automatic save.', error);
       });
     }
   }
 
-  /** Waits for tracked work and persists edits without waiting for a tick. */
-  async flush(): Promise<SaveResult | undefined> {
-    let writeFailed = false;
+  /** Waits for tracked work, then writes dirty edits unless a save failure is outstanding. */
+  async flush(): Promise<SaveResult> {
     while (true) {
       if (this.pending.size > 0) {
         await Promise.all([...this.pending]);
-      } else if (writeFailed || !this.dirty) {
-        return writeFailed ? 'failed' : this.lastSaveResult;
+      } else if (this.currentFailure) {
+        // Leave the failure available for recovery instead of retrying here.
+        return { status: 'failed', failure: this.currentFailure };
+      } else if (!this.dirty) {
+        return { status: 'saved' };
       } else {
-        try {
-          await this.save();
-        } catch (error) {
-          console.error('Automatic save of the .opossum file failed.', error);
-          writeFailed = true;
-        }
+        await this.save();
       }
+    }
+  }
+
+  resetSaveFailure(): void {
+    this.setFailure(undefined);
+  }
+
+  private setFailure(failure: SaveFailure | undefined): void {
+    if (this.currentFailure !== failure) {
+      this.currentFailure = failure;
+      this.onFailureChanged?.(failure);
     }
   }
 
@@ -144,17 +152,23 @@ export class SaveWorker {
    * records its outcome. The snapshot is read when the write starts, so
    * edits completed during a write stay dirty for the next write.
    */
-  private enqueueWrite(): Promise<void> {
-    const write = this.saveTail.then(async () => {
+  private enqueueWrite(): Promise<SaveResult> {
+    const write = this.saveTail.then(async (): Promise<SaveResult> => {
       this.dirty = false;
+      const fileName = this.getFileName();
+      let failure: SaveFailure | undefined;
       try {
         await this.writeCurrentProject();
-        this.lastSaveResult = 'success';
       } catch (error) {
         this.dirty = true;
-        this.lastSaveResult = 'failed';
-        throw error;
+        failure = {
+          id: randomUUID(),
+          fileName,
+          message: error instanceof Error ? error.message : String(error),
+        };
       }
+      this.setFailure(failure);
+      return failure ? { status: 'failed', failure } : { status: 'saved' };
     });
     // A failed save must not prevent later saves from starting.
     this.saveTail = write.then(

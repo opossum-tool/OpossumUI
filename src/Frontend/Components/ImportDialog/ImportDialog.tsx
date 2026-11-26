@@ -11,6 +11,7 @@ import type { FileFormatInfo } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import { getDotOpossumFilePath } from '../../../shared/write-file-utils';
 import { fileDialogMaxWidth } from '../../shared-styles';
+import { attemptToLeave } from '../../util/save-recovery';
 import { useProcessingStatusUpdated } from '../../util/use-processing-status-updated';
 import { DialogLogDisplay } from '../DialogLogDisplay/DialogLogDisplay.style';
 import { FilePathInput } from '../FilePathInput/FilePathInput';
@@ -20,6 +21,7 @@ import {
   popupColumnContentSx,
   popupFixedSectionSx,
 } from '../NotificationPopup/NotificationPopup.style';
+import { toast } from '../Toaster';
 
 interface ImportDialogProps {
   canImportIntoCurrentProject: boolean;
@@ -90,22 +92,31 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
   }
 
   async function onConfirm(): Promise<void> {
-    setImportInProgress(true);
-    const success = importIntoCurrentProject
-      ? await window.electronAPI.mergeFileAndLoad(
-          inputFilePath,
-          fileFormat.fileType,
-        )
-      : await window.electronAPI.importFileConvertAndLoad(
-          inputFilePath,
-          fileFormat.fileType,
-          opossumFilePath,
-        );
-
-    if (success) {
-      closePopup();
+    try {
+      await attemptToLeave('import', async () => {
+        setImportInProgress(true);
+        try {
+          const result = importIntoCurrentProject
+            ? await window.electronAPI.mergeFileAndLoad(
+                inputFilePath,
+                fileFormat.fileType,
+              )
+            : await window.electronAPI.importFileConvertAndLoad(
+                inputFilePath,
+                fileFormat.fileType,
+                opossumFilePath,
+              );
+          if (result.status === 'completed') {
+            closePopup();
+          }
+          return result;
+        } finally {
+          setImportInProgress(false);
+        }
+      });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : String(error));
     }
-    setImportInProgress(false);
   }
 
   return (
@@ -133,13 +144,13 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
       leftButtonConfig={{
         onClick: onConfirm,
         buttonText: text.buttons.import,
-        disabled: processing,
+        disabled: processing || importInProgress,
       }}
       rightButtonConfig={{
         onClick: onCancel,
         buttonText: text.buttons.cancel,
         color: 'secondary',
-        disabled: processing,
+        disabled: processing || importInProgress,
       }}
       aria-label={'import dialog'}
     >
@@ -154,6 +165,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({
           control={
             <MuiSwitch
               checked={importIntoCurrentProject}
+              disabled={importInProgress}
               onChange={(_, checked) => setImportIntoCurrentProject(checked)}
             />
           }

@@ -5,15 +5,16 @@
 import { app, type BrowserWindow, type Event } from 'electron';
 
 import { AllowedFrontendChannels } from '../../shared/ipc-channels';
+import type { LeaveResult, QuitOptions } from '../../shared/shared-types';
 import { getMainDbClient } from '../dbProcess/dbProcessClient';
 import logger from './logger';
 
 const QUIT_REQUEST_UNRESPONSIVE_TIMEOUT_MS = 10000;
 
-let quitApproved = false;
 let quitFinalized = false;
 let quitRequestSentAt: number | null = null;
 let quitRequestHandled = false;
+let pendingQuit: Promise<LeaveResult> | undefined;
 
 function canRendererHandleQuitRequest(window: BrowserWindow): boolean {
   const webContents = window.webContents;
@@ -31,11 +32,10 @@ function canRendererHandleQuitRequest(window: BrowserWindow): boolean {
  * window open (e.g. the user cancelled in the unsaved-changes popup).
  *
  * If the renderer never acknowledges the request, it is treated as
- * unresponsive and the app force-quits so that closing the window cannot
- * get stuck.
+ * unresponsive and main attempts to quit, unless a save failure blocks it.
  */
 export function handleWindowClose(window: BrowserWindow, event: Event): void {
-  if (quitApproved) {
+  if (pendingQuit || quitFinalized) {
     if (!quitFinalized) {
       event.preventDefault();
       logger.info('Quit is already in progress; ignoring close attempt.');
@@ -44,7 +44,7 @@ export function handleWindowClose(window: BrowserWindow, event: Event): void {
   }
   if (!canRendererHandleQuitRequest(window)) {
     event.preventDefault();
-    void confirmQuit();
+    void confirmQuit().catch((error: unknown) => logger.error(String(error)));
     return;
   }
 
@@ -57,9 +57,20 @@ export function handleWindowClose(window: BrowserWindow, event: Event): void {
   event.preventDefault();
   if (requestTimedOut) {
     logger.info(
-      'The renderer did not respond to the quit request; force-quitting.',
+      'The renderer did not respond to the quit request; checking pending saves.',
     );
-    void confirmQuit();
+    void confirmQuit()
+      .then((result) => {
+        if (
+          result.status === 'blocked' &&
+          !window.isDestroyed() &&
+          canRendererHandleQuitRequest(window)
+        ) {
+          quitRequestSentAt = Date.now();
+          window.webContents.send(AllowedFrontendChannels.RequestQuitApproval);
+        }
+      })
+      .catch((error: unknown) => logger.error(String(error)));
     return;
   }
 
@@ -79,23 +90,45 @@ export function acknowledgeQuitRequest(): void {
 }
 
 /**
- * Called once it is safe to quit. Waits for tracked operations and flushes
- * submitted edits before exiting.
+ * Flushes submitted edits before quitting. Only an explicit quit without
+ * saving can proceed if the flush reports a save failure.
  */
-export async function confirmQuit(): Promise<void> {
-  quitApproved = true;
-  const client = getMainDbClient();
-  if (!client.isDead()) {
-    await client.flushSaves();
-  }
-
-  quitFinalized = true;
-  app.quit();
+export function confirmQuit(options?: QuitOptions): Promise<LeaveResult> {
+  pendingQuit ??= flushSavesAndQuit(options).finally(() => {
+    pendingQuit = undefined;
+  });
+  return pendingQuit;
 }
 
-export function resetQuitStateForTesting(): void {
-  quitApproved = false;
+async function flushSavesAndQuit(options?: QuitOptions): Promise<LeaveResult> {
+  if (quitFinalized) {
+    return { status: 'completed' };
+  }
+  try {
+    const client = getMainDbClient();
+    if (!client.isDead()) {
+      const result = await client.flushSaves();
+      if (
+        result.status === 'failed' &&
+        options?.discardUnsavedChanges !== true
+      ) {
+        resetQuitState();
+        return { status: 'blocked', failure: result.failure };
+      }
+    }
+    quitFinalized = true;
+    app.quit();
+    return { status: 'completed' };
+  } catch (error) {
+    resetQuitState();
+    throw error;
+  }
+}
+
+function resetQuitState(): void {
   quitFinalized = false;
   quitRequestSentAt = null;
   quitRequestHandled = false;
 }
+
+export const resetQuitStateForTesting = resetQuitState;

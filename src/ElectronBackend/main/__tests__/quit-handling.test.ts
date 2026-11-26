@@ -5,6 +5,7 @@
 import type { BrowserWindow } from 'electron';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
+import type { SaveResult } from '../../../shared/shared-types';
 import {
   acknowledgeQuitRequest,
   confirmQuit,
@@ -15,6 +16,11 @@ import {
 const flushSavesMock = vi.hoisted(() => vi.fn());
 const isDeadMock = vi.hoisted(() => vi.fn());
 const quitMock = vi.hoisted(() => vi.fn());
+const failure = {
+  message: 'Disk full',
+  id: 'first',
+  fileName: 'project.opossum',
+};
 
 vi.mock('electron', () => ({
   app: { quit: quitMock },
@@ -43,7 +49,11 @@ function createWindowMock(
   const send = vi.fn();
   const preventDefault = vi.fn();
   const window = {
+    isDestroyed: vi.fn(() => false),
     webContents: {
+      id: 7,
+      once: vi.fn(),
+      removeListener: vi.fn(),
       send,
       isDestroyed: vi.fn(() => webContentsOverrides.isDestroyed ?? false),
       isCrashed: vi.fn(() => webContentsOverrides.isCrashed ?? false),
@@ -72,7 +82,7 @@ describe('handleWindowClose', () => {
   beforeEach(() => {
     resetQuitStateForTesting();
     currentTimestamp = 0;
-    flushSavesMock.mockReset().mockResolvedValue(undefined);
+    flushSavesMock.mockReset().mockResolvedValue({ status: 'saved' });
     isDeadMock.mockReset().mockReturnValue(false);
     quitMock.mockReset();
   });
@@ -132,21 +142,97 @@ describe('handleWindowClose', () => {
     await Promise.resolve();
     expect(quitMock).not.toHaveBeenCalled();
   });
+
+  it('keeps the window open after a timeout if a save failed', async () => {
+    flushSavesMock.mockResolvedValue({ status: 'failed', failure });
+    const { window, send, preventDefault } = createWindowMock();
+    closeWindow(window, preventDefault);
+    currentTimestamp += UNRESPONSIVE_TIMEOUT_MS;
+    closeWindow(window, preventDefault);
+    await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(2));
+    expect(quitMock).not.toHaveBeenCalled();
+    await expect(confirmQuit()).resolves.toEqual({
+      status: 'blocked',
+      failure,
+    });
+  });
 });
 
 describe('confirmQuit', () => {
   beforeEach(() => {
     resetQuitStateForTesting();
-    flushSavesMock.mockReset().mockResolvedValue(undefined);
+    flushSavesMock.mockReset().mockResolvedValue({ status: 'saved' });
     isDeadMock.mockReset().mockReturnValue(false);
     quitMock.mockReset();
+  });
+
+  it('shares a pending blocked result with concurrent callers and allows a later retry', async () => {
+    const pendingSave = Promise.withResolvers<SaveResult>();
+    flushSavesMock.mockReturnValueOnce(pendingSave.promise);
+    const firstQuit = confirmQuit();
+    const secondCompleted = vi.fn();
+    const secondQuit = confirmQuit().then(secondCompleted);
+
+    await Promise.resolve();
+    expect(secondCompleted).not.toHaveBeenCalled();
+    expect(flushSavesMock).toHaveBeenCalledOnce();
+
+    pendingSave.resolve({ status: 'failed', failure });
+    await expect(firstQuit).resolves.toEqual({ status: 'blocked', failure });
+    await secondQuit;
+    expect(secondCompleted).toHaveBeenCalledExactlyOnceWith({
+      status: 'blocked',
+      failure,
+    });
+    expect(quitMock).not.toHaveBeenCalled();
+
+    await expect(confirmQuit()).resolves.toEqual({ status: 'completed' });
+    expect(flushSavesMock).toHaveBeenCalledTimes(2);
+    expect(quitMock).toHaveBeenCalledOnce();
+  });
+
+  it('shares a rejected quit attempt and allows a later retry', async () => {
+    const pendingSave = Promise.withResolvers<SaveResult>();
+    flushSavesMock.mockReturnValueOnce(pendingSave.promise);
+    const firstQuit = confirmQuit();
+    const secondQuit = confirmQuit();
+    pendingSave.reject(new Error('Connection lost'));
+    await Promise.all([
+      expect(firstQuit).rejects.toThrow('Connection lost'),
+      expect(secondQuit).rejects.toThrow('Connection lost'),
+    ]);
+    expect(flushSavesMock).toHaveBeenCalledOnce();
+    expect(quitMock).not.toHaveBeenCalled();
+
+    await expect(confirmQuit()).resolves.toEqual({ status: 'completed' });
+    expect(flushSavesMock).toHaveBeenCalledTimes(2);
+    expect(quitMock).toHaveBeenCalledOnce();
+  });
+
+  it('waits for a pending save and quits even if it fails again after explicit discard', async () => {
+    flushSavesMock.mockResolvedValue({ status: 'failed', failure });
+    await expect(confirmQuit()).resolves.toEqual({
+      status: 'blocked',
+      failure,
+    });
+    const pendingSave = Promise.withResolvers<SaveResult>();
+    flushSavesMock.mockReturnValueOnce(pendingSave.promise);
+    const quitPromise = confirmQuit({ discardUnsavedChanges: true });
+    expect(quitMock).not.toHaveBeenCalled();
+
+    pendingSave.resolve({
+      status: 'failed',
+      failure: { ...failure, id: 'second' },
+    });
+    await expect(quitPromise).resolves.toEqual({ status: 'completed' });
+    expect(quitMock).toHaveBeenCalledTimes(1);
   });
 
   it('waits for the DB process operations to settle, then quits', async () => {
     let resolveWhenPendingSaves!: () => void;
     flushSavesMock.mockReturnValue(
-      new Promise<void>((resolve) => {
-        resolveWhenPendingSaves = resolve;
+      new Promise<SaveResult>((resolve) => {
+        resolveWhenPendingSaves = () => resolve({ status: 'saved' });
       }),
     );
 
@@ -172,8 +258,8 @@ describe('confirmQuit', () => {
   it('ignores close attempts while the quit is in progress', async () => {
     let resolveWhenPendingSaves!: () => void;
     flushSavesMock.mockReturnValue(
-      new Promise<void>((resolve) => {
-        resolveWhenPendingSaves = resolve;
+      new Promise<SaveResult>((resolve) => {
+        resolveWhenPendingSaves = () => resolve({ status: 'saved' });
       }),
     );
 

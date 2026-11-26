@@ -14,7 +14,10 @@ describe('SaveWorker', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     writeCurrentProject.mockReset().mockResolvedValue(undefined);
-    worker = new SaveWorker({ writeCurrentProject });
+    worker = new SaveWorker({
+      writeCurrentProject,
+      getFileName: () => 'project.opossum',
+    });
     revision = 0;
     worker.startAutosave();
   });
@@ -72,7 +75,7 @@ describe('SaveWorker', () => {
     firstWrite.resolve();
     await vi.advanceTimersByTimeAsync(0);
     expect(snapshots).toEqual([1]);
-    await expect(worker.flush()).resolves.toBe('success');
+    await expect(worker.flush()).resolves.toEqual({ status: 'saved' });
     expect(snapshots).toEqual([1, 2]);
   });
 
@@ -105,35 +108,96 @@ describe('SaveWorker', () => {
 
     laterWrite.resolve();
     await flush;
-    expect(completed).toHaveBeenCalledExactlyOnceWith('success');
+    expect(completed).toHaveBeenCalledExactlyOnceWith({ status: 'saved' });
   });
 
-  it('returns a failed flush without spinning and retries at the next tick', async () => {
-    writeCurrentProject.mockRejectedValueOnce(new Error('write failed'));
+  it('reports repeated autosave failures and recovers without a manual retry', async () => {
+    worker.stopAutosave();
+    const onFailureChanged = vi.fn();
+    worker = new SaveWorker({
+      writeCurrentProject,
+      getFileName: () => 'project.opossum',
+      onFailureChanged,
+    });
+    worker.startAutosave();
+    writeCurrentProject
+      .mockRejectedValueOnce(new Error('write failed'))
+      .mockRejectedValueOnce(new Error('write failed'));
     await edit(1);
 
-    await expect(worker.flush()).resolves.toBe('failed');
+    const result = await worker.flush();
+    expect(result).toMatchObject({
+      status: 'failed',
+      failure: { message: 'write failed' },
+    });
+    await expect(worker.flush()).resolves.toEqual(result);
     expect(writeCurrentProject).toHaveBeenCalledOnce();
     await vi.advanceTimersByTimeAsync(INTERVAL_MS);
     expect(writeCurrentProject).toHaveBeenCalledTimes(2);
-    await expect(worker.flush()).resolves.toBe('success');
-    expect(writeCurrentProject).toHaveBeenCalledTimes(2);
+    const repeatedResult = await worker.flush();
+    expect(repeatedResult).toMatchObject({
+      status: 'failed',
+      failure: { message: 'write failed' },
+    });
+    expect(repeatedResult).not.toEqual(result);
+    expect(onFailureChanged).toHaveBeenCalledTimes(2);
+    expect(result).toEqual({
+      status: 'failed',
+      failure: onFailureChanged.mock.calls[0][0],
+    });
+    expect(repeatedResult).toEqual({
+      status: 'failed',
+      failure: onFailureChanged.mock.calls[1][0],
+    });
+
+    await vi.advanceTimersByTimeAsync(INTERVAL_MS);
+    expect(writeCurrentProject).toHaveBeenCalledTimes(3);
+    await expect(worker.flush()).resolves.toEqual({ status: 'saved' });
+    expect(onFailureChanged).toHaveBeenLastCalledWith(undefined);
   });
 
   it('starts a queued manual save only after the previous write fails', async () => {
     const firstWrite = Promise.withResolvers<void>();
     const error = new Error('write failed');
     writeCurrentProject.mockReturnValueOnce(firstWrite.promise);
-    const failed = worker.save().catch((reason: unknown) => reason);
+    const failed = worker.save();
     const queued = worker.save();
 
     await vi.advanceTimersByTimeAsync(0);
     expect(writeCurrentProject).toHaveBeenCalledOnce();
     firstWrite.reject(error);
-    await expect(failed).resolves.toBe(error);
-    await queued;
+    await expect(failed).resolves.toMatchObject({
+      status: 'failed',
+      failure: { message: error.message },
+    });
+    await expect(queued).resolves.toEqual({ status: 'saved' });
     expect(writeCurrentProject).toHaveBeenCalledTimes(2);
-    await expect(worker.flush()).resolves.toBe('success');
+    await expect(worker.flush()).resolves.toEqual({ status: 'saved' });
     expect(writeCurrentProject).toHaveBeenCalledTimes(2);
   });
+});
+
+test('publishes a failure and a clear when an explicit retry succeeds', async () => {
+  const writeCurrentProject = vi.fn().mockResolvedValue(undefined);
+  const onFailureChanged = vi.fn();
+  const worker = new SaveWorker({
+    writeCurrentProject,
+    getFileName: () => 'project.opossum',
+    onFailureChanged,
+  });
+  writeCurrentProject.mockRejectedValueOnce(new Error('Disk full'));
+  const failure = {
+    id: expect.any(String),
+    fileName: 'project.opossum',
+    message: 'Disk full',
+  };
+  await expect(worker.save()).resolves.toEqual({
+    status: 'failed',
+    failure,
+  });
+  expect(onFailureChanged).toHaveBeenCalledExactlyOnceWith(failure);
+
+  await expect(worker.save()).resolves.toEqual({ status: 'saved' });
+  await expect(worker.flush()).resolves.toEqual({ status: 'saved' });
+  expect(onFailureChanged.mock.calls).toEqual([[failure], [undefined]]);
 });

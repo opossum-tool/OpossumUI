@@ -49,9 +49,9 @@ class ResizeObserver {
 }
 
 global.window.electronAPI = {
-  confirmQuit: vi.fn().mockReturnValue(Promise.resolve()),
+  confirmQuit: vi.fn().mockResolvedValue({ status: 'completed' }),
   quitRequestHandled: vi.fn(),
-  whenBackendIdle: vi.fn().mockResolvedValue(undefined),
+  flushPendingSaves: vi.fn().mockResolvedValue({ status: 'saved' }),
   relaunch: vi.fn(),
   openLink: vi.fn().mockReturnValue(Promise.resolve()),
   openFile: vi.fn(),
@@ -64,7 +64,7 @@ global.window.electronAPI = {
   splitFile: vi.fn(),
   mergeOpossumFiles: vi.fn(),
   mergeOpossumFilesFromPaths: vi.fn(),
-  saveFile: vi.fn().mockResolvedValue(undefined),
+  saveFile: vi.fn().mockResolvedValue({ status: 'saved' }),
   forceUnlock: vi.fn(),
   exportFile: vi.fn(),
   stopLoading: vi.fn(),
@@ -77,7 +77,7 @@ global.window.electronAPI = {
   getUpdateState: vi.fn().mockResolvedValue({ status: 'checking' }),
   checkForUpdates: vi.fn().mockResolvedValue({ status: 'checking' }),
   downloadUpdate: vi.fn().mockResolvedValue({ status: 'checking' }),
-  restartAndUpdate: vi.fn().mockResolvedValue(undefined),
+  restartAndUpdate: vi.fn().mockResolvedValue({ status: 'completed' }),
   api: vi.fn().mockImplementation(unexpectedBackendCall),
 } satisfies ElectronAPI;
 

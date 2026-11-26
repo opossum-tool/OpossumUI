@@ -7,6 +7,7 @@ import { app, type BrowserWindow, ipcMain } from 'electron';
 import { IpcChannel } from '../../shared/ipc-channels';
 import type {
   FrontendDialogState,
+  QuitOptions,
   UserSettings,
 } from '../../shared/shared-types';
 import { getAppVersion } from './app-version';
@@ -46,7 +47,9 @@ export function setupIpcHandling(
   window: BrowserWindow,
   updateMenu: () => Promise<void>,
 ) {
-  ipcMain.handle(IpcChannel.ConfirmQuit, () => confirmQuit());
+  ipcMain.handle(IpcChannel.ConfirmQuit, (_, options?: QuitOptions) =>
+    confirmQuit(options),
+  );
   ipcMain.handle(IpcChannel.QuitRequestHandled, () => acknowledgeQuitRequest());
   window.on('close', (event) => handleWindowClose(window, event));
   ipcMain.handle(IpcChannel.Relaunch, () => {

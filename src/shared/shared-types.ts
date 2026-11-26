@@ -305,11 +305,29 @@ export interface SelectSaveFileOptions {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Listener = (event: IpcRendererEvent, ...args: Array<any>) => void;
 
+export interface SaveFailure {
+  message: string;
+  fileName: string;
+  id: string;
+}
+
+export type SaveResult =
+  { status: 'saved' } | { status: 'failed'; failure: SaveFailure };
+
+export type LeaveResult =
+  { status: 'completed' } | { status: 'blocked'; failure: SaveFailure };
+
+export type ImportResult = LeaveResult | { status: 'failed' };
+
+export interface QuitOptions {
+  discardUnsavedChanges: boolean;
+}
+
 export interface ElectronAPI {
-  confirmQuit: () => Promise<void>;
+  confirmQuit: (options?: QuitOptions) => Promise<LeaveResult>;
   quitRequestHandled: () => void;
   /** Resolves once pending renderer-submitted mutations and saves have settled. */
-  whenBackendIdle: () => Promise<void>;
+  flushPendingSaves: () => Promise<SaveResult>;
   relaunch: () => void;
   openLink: (link: string) => Promise<unknown>;
   openFile: (filePath?: string) => Promise<unknown>;
@@ -320,11 +338,11 @@ export interface ElectronAPI {
     inputFilePath: string,
     fileType: FileType,
     opossumFilePath: string,
-  ) => Promise<boolean>;
+  ) => Promise<ImportResult>;
   mergeFileAndLoad: (
     inputFilePath: string,
     fileType: FileType,
-  ) => Promise<boolean>;
+  ) => Promise<ImportResult>;
   selectSplitDestination: (splitPaths: Array<string>) => Promise<string>;
   splitFile: (
     splitPaths: Array<string>,
@@ -341,7 +359,7 @@ export interface ElectronAPI {
     ignoreReadonlyResourceOutputConflicts: boolean;
     deleteSplitFilesAfterMerge: boolean;
   }) => Promise<MergeOpossumFilesResult>;
-  saveFile: () => Promise<void>;
+  saveFile: () => Promise<SaveResult>;
   forceUnlock: () => Promise<void>;
   exportFile: (exportType: ExportType) => Promise<void>;
   /**
@@ -357,7 +375,7 @@ export interface ElectronAPI {
   getUpdateState: () => Promise<UpdateState>;
   checkForUpdates: () => Promise<UpdateState>;
   downloadUpdate: (tag: string) => Promise<UpdateState>;
-  restartAndUpdate: () => Promise<void>;
+  restartAndUpdate: () => Promise<LeaveResult>;
   api: <C extends CommandName>(
     command: C,
     params: CommandParams<C>,

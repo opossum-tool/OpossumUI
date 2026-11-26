@@ -5,10 +5,12 @@
 import { MessageChannelMain, utilityProcess } from 'electron';
 import path from 'path';
 
+import { AllowedFrontendChannels } from '../../shared/ipc-channels';
 import type {
   ExportType,
   MergeOpossumFilesResult,
   ProgressCallback,
+  SaveResult,
 } from '../../shared/shared-types';
 import type {
   CommandName,
@@ -22,12 +24,13 @@ import type {
 import type { SaveFileParams } from '../api/saveFile';
 import type { SplitOpossumFileParams } from '../api/splitOpossumFile';
 import type { LoadFileIpcResult } from '../input/loadFile';
+import { sendToRenderers } from '../main/send-to-renderers';
 import type {
   DbProcessPayload,
   DbProcessRequest,
   DbProcessResponse,
+  SaveFailureNotification,
 } from './dbProcess';
-import type { SaveResult } from './save-worker';
 
 interface PendingRequest {
   resolve: (value: unknown) => void;
@@ -110,13 +113,11 @@ export class DbProcessClient {
   }
 
   /**
-   * Waits for tracked work and writes any remaining dirty edits. Returns the
-   * save outcome, or `undefined` if no ordinary save has run for this project.
+   * Waits for tracked work and writes any remaining dirty edits unless a
+   * save failure is outstanding. Returns the save outcome.
    */
-  flushSaves(): Promise<SaveResult | undefined> {
-    return this.request({ type: 'flushSaves' }) as Promise<
-      SaveResult | undefined
-    >;
+  flushSaves(): Promise<SaveResult> {
+    return this.request({ type: 'flushSaves' }) as Promise<SaveResult>;
   }
 
   /**
@@ -162,8 +163,8 @@ export class DbProcessClient {
     ) as Promise<LoadFileIpcResult>;
   }
 
-  saveFile(params: SaveFileParams): Promise<void> {
-    return this.request({ type: 'saveFile', ...params }) as Promise<void>;
+  saveFile(params: SaveFileParams): Promise<SaveResult> {
+    return this.request({ type: 'saveFile', ...params }) as Promise<SaveResult>;
   }
 
   forceUnlock(params: SaveFileParams): Promise<void> {
@@ -225,6 +226,14 @@ let child: Electron.UtilityProcess | null = null;
 function ensureUtilityProcess(): Electron.UtilityProcess {
   if (!child) {
     child = utilityProcess.fork(path.join(__dirname, 'dbProcess.js'));
+    child.on('message', (message: SaveFailureNotification) => {
+      if (message.type === 'saveFailureChanged') {
+        sendToRenderers(
+          AllowedFrontendChannels.SaveFailureChanged,
+          message.failure,
+        );
+      }
+    });
     child.on('exit', (code) => {
       console.error(`DB utility process exited with code ${code}`);
       child = null;

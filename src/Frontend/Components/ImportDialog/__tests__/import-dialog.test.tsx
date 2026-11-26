@@ -6,6 +6,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 
 import { importFileFormats } from '../../../../ElectronBackend/main/menu/fileMenu';
 import { DEFAULT_USER_SETTINGS } from '../../../../shared/shared-constants';
+import type { ImportResult } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { PopupType } from '../../../enums/enums';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
@@ -28,7 +29,7 @@ describe('ImportDialog statistics behavior', () => {
     vi.mocked(window.electronAPI.selectSaveFile).mockResolvedValue(
       '/output.opossum',
     );
-    let resolveImport: ((success: boolean) => void) | undefined;
+    let resolveImport: ((result: ImportResult) => void) | undefined;
     vi.mocked(window.electronAPI.importFileConvertAndLoad).mockReturnValue(
       new Promise((resolve) => {
         resolveImport = resolve;
@@ -54,7 +55,7 @@ describe('ImportDialog statistics behavior', () => {
     fireEvent.click(screen.getByRole('button', { name: text.buttons.import }));
     expect(getOpenPopup(store.getState())?.popup).toBe(PopupType.ImportDialog);
 
-    resolveImport?.(true);
+    resolveImport?.({ status: 'completed' });
     await waitFor(() => expect(getOpenPopup(store.getState())).toBeNull());
     expect(store.getState().viewState.popupInfo).toEqual([]);
   });
@@ -65,7 +66,7 @@ describe('ImportDialog statistics behavior', () => {
       showProjectStatistics: true,
     });
     vi.mocked(window.electronAPI.selectFile).mockResolvedValue('/input.json');
-    let resolveImport: ((success: boolean) => void) | undefined;
+    let resolveImport: ((result: ImportResult) => void) | undefined;
     vi.mocked(window.electronAPI.mergeFileAndLoad).mockReturnValue(
       new Promise((resolve) => {
         resolveImport = resolve;
@@ -85,7 +86,7 @@ describe('ImportDialog statistics behavior', () => {
     );
     fireEvent.click(screen.getByRole('button', { name: text.buttons.import }));
     expect(getOpenPopup(store.getState())?.popup).toBe(PopupType.ImportDialog);
-    resolveImport?.(true);
+    resolveImport?.({ status: 'completed' });
     await waitFor(() => expect(getOpenPopup(store.getState())).toBeNull());
     expect(store.getState().viewState.popupInfo).toEqual([]);
   });

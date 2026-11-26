@@ -10,6 +10,7 @@ import type { Mock } from 'vitest';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
+import * as dbProcessClient from '../../dbProcess/dbProcessClient';
 import { setGlobalBackendState } from '../globalBackendState';
 import { createMenu } from '../menu';
 import { getEditMenu } from '../menu/editMenu';
@@ -21,7 +22,11 @@ import { UserSettingsService } from '../user-settings-service';
 
 vi.mock('electron', async () => {
   const mockElectron = {
-    BrowserWindow: class BrowserWindowMock {},
+    BrowserWindow: class BrowserWindowMock {
+      isDestroyed() {
+        return false;
+      }
+    },
     app: {
       isPackaged: true,
       getVersion: vi.fn(),
@@ -57,6 +62,37 @@ const getUsedIcons = (
 describe('create menu', () => {
   afterEach(() => {
     setGlobalBackendState({});
+  });
+
+  it('stops refreshing when the window closes during the split-project query', async () => {
+    setGlobalBackendState({ opossumFilePath: '/project.opossum' });
+    const query = Promise.withResolvers<{ result: boolean }>();
+    const api = vi.fn().mockReturnValue(query.promise);
+    const getClient = vi
+      .spyOn(dbProcessClient, 'getMainDbClient')
+      .mockReturnValue({ api } as unknown as dbProcessClient.DbProcessClient);
+    const mainWindow = new BrowserWindow();
+    const isDestroyed = vi.spyOn(mainWindow, 'isDestroyed');
+    Object.defineProperty(mainWindow, 'webContents', {
+      get() {
+        if (isDestroyed()) {
+          throw new Error('Object has been destroyed');
+        }
+        return undefined;
+      },
+    });
+    vi.mocked(electron.Menu.setApplicationMenu).mockClear();
+
+    try {
+      const refreshing = createMenu(mainWindow);
+      expect(api).toHaveBeenCalledWith('isProjectSplit', undefined);
+      isDestroyed.mockReturnValue(true);
+      query.resolve({ result: false });
+      await refreshing;
+      expect(electron.Menu.setApplicationMenu).not.toHaveBeenCalled();
+    } finally {
+      getClient.mockRestore();
+    }
   });
 
   const testCases = [

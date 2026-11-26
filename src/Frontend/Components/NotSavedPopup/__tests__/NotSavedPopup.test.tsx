@@ -5,6 +5,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import type { SaveResult } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import { faker } from '../../../../testing/Faker';
 import {
@@ -163,10 +164,10 @@ describe('NotSavedPopup', () => {
       ],
     });
 
-    let resolveWhenBackendIdle!: () => void;
-    vi.mocked(global.window.electronAPI.whenBackendIdle).mockReturnValueOnce(
-      new Promise<void>((resolve) => {
-        resolveWhenBackendIdle = resolve;
+    let resolveSaveFlush!: () => void;
+    vi.mocked(global.window.electronAPI.flushPendingSaves).mockReturnValueOnce(
+      new Promise<SaveResult>((resolve) => {
+        resolveSaveFlush = () => resolve({ status: 'saved' });
       }),
     );
 
@@ -184,7 +185,7 @@ describe('NotSavedPopup', () => {
       screen.getByRole('button', { name: text.buttons.cancel }),
     ).toBeDisabled();
 
-    resolveWhenBackendIdle();
+    resolveSaveFlush();
     await vi.waitFor(() =>
       expect(global.window.electronAPI.confirmQuit).toHaveBeenCalledTimes(1),
     );
