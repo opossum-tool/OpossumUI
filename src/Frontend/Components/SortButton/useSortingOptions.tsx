@@ -12,9 +12,13 @@ import { text } from '../../../shared/text';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { ClassificationCIcon } from '../Icons/Icons';
 
+interface SortIconProps {
+  color?: 'action' | 'disabled' | 'inherit';
+}
+
 interface SortOptionConfiguration {
   label: string;
-  icon: React.FC<{ color?: 'action' | 'disabled' }>;
+  icon: React.FC<SortIconProps>;
   active: boolean;
 }
 
@@ -29,28 +33,28 @@ export function useSortConfiguration(): SortConfiguration {
     return {
       alphabetically: {
         label: text.sortings.name,
-        icon: ({ color }: { color?: 'action' | 'disabled' }) => (
+        icon: ({ color }: SortIconProps) => (
           <SortByAlphaIcon color={color || 'action'} fontSize={'inherit'} />
         ),
         active: true,
       },
       criticality: {
         label: text.sortings.criticality,
-        icon: ({ color }: { color?: 'action' | 'disabled' }) => (
+        icon: ({ color }: SortIconProps) => (
           <WhatshotIcon color={color || 'warning'} fontSize={'inherit'} />
         ),
         active: showCriticality,
       },
       occurrence: {
         label: text.sortings.occurrence,
-        icon: ({ color }: { color?: 'action' | 'disabled' }) => (
+        icon: ({ color }: SortIconProps) => (
           <BarChartIcon color={color || 'info'} fontSize={'inherit'} />
         ),
         active: true,
       },
       classification: {
         label: text.sortings.classification,
-        icon: ({ color }: { color?: 'action' | 'disabled' }) => (
+        icon: ({ color }: SortIconProps) => (
           <ClassificationCIcon
             color={color || 'warning'}
             fontSize={'inherit'}

@@ -8,10 +8,14 @@ import {
   AI_REVIEW_FILTERS,
   type AiReviewFilter,
 } from '../../../shared/ai-review';
-import type { AttributionResultSetCriteria } from '../../../shared/attribution-result-set';
+import type {
+  AttributionResultSetCriteria,
+  SortOption,
+} from '../../../shared/attribution-result-set';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
 import { ROOT_PATH } from '../../shared-constants';
+import { Sizing } from '../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -27,7 +31,9 @@ import { AttributionsList } from '../AttributionPanels/AttributionsPanel/Attribu
 import { ResizableBox } from '../ResizableBox/ResizableBox';
 import { SearchablePanel } from '../ResizePanels/searchable-panel';
 import { useLinkedResourcesPanel } from '../ResourceBrowser/use-linked-resources-panel';
+import { SortButton } from '../SortButton/SortButton';
 import {
+  aiReviewSortButtonStyle,
   AttributionsColumn,
   ColumnsContainer,
   DetailsColumn,
@@ -44,6 +50,7 @@ export const AiReviewView: React.FC = () => {
   const { panelSizes, setPanelSizes } = usePanelSizes();
   const [search, setSearch] = useState('');
   const [reviewFilter, setReviewFilter] = useState<AiReviewFilter>('all');
+  const [sorting, setSorting] = useState<SortOption>('alphabetically');
   const [linkedResourcesSearchValue, setLinkedResourcesSearchValue] =
     useState('');
   const linkedResourcesPanel = useLinkedResourcesPanel(
@@ -76,7 +83,7 @@ export const AiReviewView: React.FC = () => {
   const attributionPages = useAttributionPages({
     criteria,
     scope: { mode: 'all' },
-    sort: 'alphabetically',
+    sort: sorting,
     includeReadonly: true,
     totalCount: totalAttributionCount,
     targetAttributionUuid: selectedAttributionId || undefined,
@@ -169,6 +176,16 @@ export const AiReviewView: React.FC = () => {
           <SearchablePanel
             title={text.packageLists.attributionsPanelTitle}
             headerTestId={'ai-review-attributions-header'}
+            headerActions={
+              <SortButton
+                color="inherit"
+                sorting={sorting}
+                onSortingChange={setSorting}
+                badgeInset={Sizing.Tiny}
+                buttonSx={aiReviewSortButtonStyle}
+                anchorPosition="right"
+              />
+            }
             search={{
               value: search,
               setValue: setSearch,

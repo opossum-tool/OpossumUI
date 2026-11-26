@@ -851,14 +851,9 @@ export const PackagesPanel = ({
           <ButtonGroup>{renderActions(childrenProps)}</ButtonGroup>
           <ButtonGroup>
             <SortButton
-              disabled={
-                loading ||
-                !attributionIds ||
-                attributionIds.length === 0 ||
-                isDisabledDuringReplacement
-              }
+              disabled={isDisabledDuringReplacement}
               anchorPosition={'right'}
-              useFilteredData={useFilteredData}
+              sorting={filters.sorting}
               onSortingChange={setSortingWithUnsavedCheck}
             />
             <FilterButton

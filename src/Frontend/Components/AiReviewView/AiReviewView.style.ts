@@ -2,12 +2,23 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { styled } from '@mui/material';
+import { alpha, styled } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiChip from '@mui/material/Chip';
+import type { SxProps, Theme } from '@mui/material/styles';
 
 import { borderThin, OpossumColors, Sizing } from '../../shared-styles';
 import { PanelControlBar } from '../PanelControlBar/panel-control-bar';
+
+export const aiReviewSortButtonStyle: SxProps<Theme> = {
+  padding: 0.5,
+  color: OpossumColors.white,
+  '&:hover': {
+    // Match the Resource Tree filter button's translucent white hover.
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    backgroundColor: alpha(OpossumColors.white, 0.15),
+  },
+};
 
 export const ColumnsContainer = styled(MuiBox)({
   width: '100%',
