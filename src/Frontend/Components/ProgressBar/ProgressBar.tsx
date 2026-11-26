@@ -15,7 +15,7 @@ import { text } from '../../../shared/text';
 import { borderMedium, OpossumColors, Sizing } from '../../shared-styles';
 import {
   navigateToAiReviewOrOpenUnsavedPopup,
-  navigateToSelectedPathOrOpenUnsavedPopup,
+  navigateToSelectedPathInAuditOrOpenUnsavedPopup,
 } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -77,7 +77,9 @@ export const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const nextResourceRequestInFlightRef = useRef(false);
 
   function goToResource(resourcePath: string) {
-    dispatch(navigateToSelectedPathOrOpenUnsavedPopup(resourcePath, 'auto'));
+    dispatch(
+      navigateToSelectedPathInAuditOrOpenUnsavedPopup(resourcePath, 'auto'),
+    );
   }
 
   async function goToNextItem<T>(

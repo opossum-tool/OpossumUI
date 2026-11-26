@@ -89,6 +89,7 @@ import {
   exportFileOrOpenUnsavedPopup,
   mergeOpossumFilesIntoCurrentFile,
   navigateFromStatistics,
+  navigateToSelectedPathInAuditOrOpenUnsavedPopup,
   navigateToSelectedPathOrOpenUnsavedPopup,
   openFileOrOpenUnsavedPopup,
   proceedFromUnsavedPopup,
@@ -339,6 +340,63 @@ describe('The actions checking for unsaved changes', () => {
         '/folder1/folder2/',
         '/folder1/folder2/test_file',
       ]);
+    });
+  });
+
+  describe('navigateToSelectedPathInAuditOrOpenUnsavedPopup', () => {
+    it('switches to the audit view and sets selectedResourceId and expandedResources', () => {
+      const testStore = createAppStore();
+      testStore.dispatch(navigateToView(View.Report));
+      testStore.dispatch(
+        navigateToSelectedPathInAuditOrOpenUnsavedPopup(
+          '/folder1/folder2/test_file',
+          'auto',
+        ),
+      );
+
+      expect(getSelectedView(testStore.getState())).toBe(View.Audit);
+      expect(getSelectedResourceId(testStore.getState())).toBe(
+        '/folder1/folder2/test_file',
+      );
+      expect(getExpandedIds(testStore.getState())).toMatchObject([
+        '/',
+        '/folder1/',
+        '/folder1/folder2/',
+        '/folder1/folder2/test_file',
+      ]);
+    });
+
+    it('sets target view and target selected resource if packageInfo were modified', async () => {
+      const testStore = await createTestStore(
+        getParsedInputFileEnrichedWithTestData({
+          resources: { selectedResource: 1 },
+        }),
+      );
+      testStore.dispatch(navigateToView(View.Report));
+      testStore.dispatch(setSelectedResourceId('selectedResource', 'auto'));
+      testStore.dispatch(
+        setTemporaryDisplayPackageInfo({
+          packageName: 'Test 2',
+          criticality: Criticality.None,
+          id: faker.string.uuid(),
+        }),
+      );
+
+      testStore.dispatch(
+        navigateToSelectedPathInAuditOrOpenUnsavedPopup(
+          'newSelectedResource',
+          'auto',
+        ),
+      );
+
+      expect(getTargetView(testStore.getState())).toBe(View.Audit);
+      expect(getTargetSelectedResourceId(testStore.getState())).toBe(
+        'newSelectedResource',
+      );
+      expect(getSelectedView(testStore.getState())).toBe(View.Report);
+      expect(getOpenPopup(testStore.getState())?.popup).toBe(
+        PopupType.NotSavedPopup,
+      );
     });
   });
 

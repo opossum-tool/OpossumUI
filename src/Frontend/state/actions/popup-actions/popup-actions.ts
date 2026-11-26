@@ -272,6 +272,26 @@ export function navigateToSelectedPathOrOpenUnsavedPopup(
   });
 }
 
+export function navigateToSelectedPathInAuditOrOpenUnsavedPopup(
+  resourcePath: string,
+  attributionSelectionPolicy: AttributionSelectionPolicy,
+): AppThunkAction {
+  return withUnsavedCheck({
+    executeImmediately: (dispatch) => {
+      dispatch(navigateToView(View.Audit));
+      dispatch(
+        openResourceInResourceBrowser(resourcePath, attributionSelectionPolicy),
+      );
+    },
+    requestContinuation: (dispatch) => {
+      dispatch(setTargetView(View.Audit));
+      dispatch(
+        setTargetSelectedResourceId(resourcePath, attributionSelectionPolicy),
+      );
+    },
+  });
+}
+
 export function changeSelectedAttributionOrOpenUnsavedPopup(
   packageInfo: PackageInfo | null,
 ): AppThunkAction {

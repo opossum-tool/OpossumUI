@@ -17,11 +17,13 @@ import {
   expectProgressBarTooltipShowsValues,
   hoverProgressBar,
 } from '../../../../testing/ui';
+import { View } from '../../../enums/enums';
 import {
   getAttributionSelectionPendingResourceId,
   getAttributionSelectionPolicy,
   getSelectedResourceId,
 } from '../../../state/selectors/resource-selectors';
+import { getSelectedView } from '../../../state/selectors/view-selector';
 import { createTestStore, renderComponent } from '../../../test-helpers/render';
 import type { SelectedProgressBar } from '../../../types/types';
 import { setDatabaseInitialized } from '../../../util/backendClient';
@@ -133,6 +135,7 @@ describe('ProgressBar', () => {
     expect(getSelectedResourceId(store.getState())).toBe('/');
     await clickOnAttributionProgressBar();
     expect(getSelectedResourceId(store.getState())).toBe('/a');
+    expect(getSelectedView(store.getState())).toBe(View.Audit);
     expect(getAttributionSelectionPolicy(store.getState())).toBe('auto');
     expect(getAttributionSelectionPendingResourceId(store.getState())).toBe(
       '/a',
