@@ -41,6 +41,7 @@ import {
   FilterCount,
   FilterPill,
   FilterPills,
+  LinkedResourcesColumn,
 } from './AiReviewView.style';
 
 export const AiReviewView: React.FC = () => {
@@ -282,14 +283,16 @@ export const AiReviewView: React.FC = () => {
               overflow: 'visible',
             }}
           >
-            <SearchablePanel
-              title={linkedResourcesPanel.title}
-              headerTestId={linkedResourcesPanel.headerTestId}
-              headerDataAttributes={linkedResourcesPanel.headerDataAttributes}
-              search={linkedResourcesPanel.search}
-            >
-              {linkedResourcesPanel.component}
-            </SearchablePanel>
+            <LinkedResourcesColumn>
+              <SearchablePanel
+                title={linkedResourcesPanel.title}
+                headerTestId={linkedResourcesPanel.headerTestId}
+                headerDataAttributes={linkedResourcesPanel.headerDataAttributes}
+                search={linkedResourcesPanel.search}
+              >
+                {linkedResourcesPanel.component}
+              </SearchablePanel>
+            </LinkedResourcesColumn>
           </ResizableBox>
         </>
       )}

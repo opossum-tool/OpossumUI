@@ -51,6 +51,16 @@ export const AttributionsColumn = styled(MuiBox)({
   },
 });
 
+export const LinkedResourcesColumn = styled(MuiBox)({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  minWidth: 0,
+  minHeight: 0,
+  overflow: 'hidden',
+  backgroundColor: OpossumColors.white,
+});
+
 export const EmptyState = styled(MuiBox)({
   display: 'flex',
   alignItems: 'center',
