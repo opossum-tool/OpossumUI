@@ -8,6 +8,7 @@ import userEvent from '@testing-library/user-event';
 import {
   type Attributions,
   Criticality,
+  type PersistedAttributions,
 } from '../../../../shared/shared-types';
 import { text } from '../../../../shared/text';
 import {
@@ -334,6 +335,68 @@ describe('The ProjectStatisticsPopup', () => {
       text.projectStatisticsPopup.charts.attributionProperties.title,
     );
     await expectStatisticsCharts([], ['criticalSignalsCountPieChart']);
+  });
+
+  const aiAttributionStatesText =
+    text.projectStatisticsPopup.charts.aiAttributionStates;
+
+  it('renders the AI attribution states chart when AI attributions exist', async () => {
+    const testManualAttributions: PersistedAttributions = {
+      uuid_1: {
+        source: {
+          name: 'reuser',
+          documentConfidence: 90,
+        },
+        criticality: Criticality.None,
+        id: 'uuid_1',
+        aiAttributes: { deferredFields: {} },
+      },
+      uuid_2: {
+        source: {
+          name: 'reuser',
+          documentConfidence: 90,
+        },
+        criticality: Criticality.None,
+        id: 'uuid_2',
+        aiAttributes: { humanModified: true },
+      },
+      uuid_3: {
+        source: {
+          name: 'reuser',
+          documentConfidence: 90,
+        },
+        criticality: Criticality.None,
+        id: 'uuid_3',
+      },
+    };
+
+    await renderStatisticsPopup({
+      data: getParsedInputFileEnrichedWithTestData({
+        config: { classifications: { 0: 'GOOD', 1: 'BAD' } },
+        manualAttributions: testManualAttributions,
+      }),
+    });
+
+    expect(
+      await screen.findByText(aiAttributionStatesText.title),
+    ).toBeVisible();
+    expect(screen.getByTestId('aiAttributionStatesBarChart')).toBeVisible();
+  });
+
+  it('does not render the AI attribution states chart without AI attributions', async () => {
+    await renderStatisticsPopup({
+      data: getParsedInputFileEnrichedWithTestData(fileSetup),
+    });
+
+    await screen.findByText(
+      text.projectStatisticsPopup.charts.attributionProperties.title,
+    );
+    expect(
+      screen.queryByText(aiAttributionStatesText.title),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(aiAttributionStatesText.deferredUnmodified),
+    ).not.toBeInTheDocument();
   });
 
   it('allows toggling of show-on-startup checkbox', async () => {

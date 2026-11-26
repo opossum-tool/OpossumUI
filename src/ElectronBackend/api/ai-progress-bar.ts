@@ -62,33 +62,81 @@ export async function hasAiAttributions() {
   return { result };
 }
 
-export async function getAiProgressBarData() {
-  // Count attribution rows, not links. The correlated EXISTS probes the
+async function getAiAttributionCounts() {
+  // Counts attribution rows, not links: the correlated EXISTS probes the
   // attribution_uuid/resource_id index and stops at the first writable link.
-  // In particular, do not reuse the navigation query: finding the first
-  // resource for every attribution unnecessarily expands all resource links.
-  const result = await getReviewableAiAttributions()
+  // Shared by progress bar and statistics: one scan classifies AI states and
+  // counts non-AI attributions together.
+  const result = await getDb()
+    .selectFrom('attribution')
+    .leftJoin(
+      'attribution_ai',
+      'attribution.uuid',
+      'attribution_ai.attribution_uuid',
+    )
+    .where('attribution.is_external', '=', 0)
+    .where('attribution.is_resolved', '=', 0)
     .where((eb) => eb.exists(getWritableResourceLinks(eb)))
     .select((eb) => {
-      const { deferred, modified, pending } = getAiReviewStatus(eb);
+      const { deferred, modified } = getAiReviewStatus(eb);
+      const aiRow = eb('attribution_ai.attribution_uuid', 'is not', null);
       return [
         eb.fn
           .countAll<number>()
-          .filterWhere(eb.and([eb.not(deferred), eb.not(modified)]))
+          .filterWhere(eb.and([aiRow, eb.not(deferred), eb.not(modified)]))
           .as('nonDeferredUnmodified'),
         eb.fn
           .countAll<number>()
-          .filterWhere(eb.and([eb.not(deferred), modified]))
+          .filterWhere(eb.and([aiRow, eb.not(deferred), modified]))
           .as('nonDeferredModified'),
         eb.fn
           .countAll<number>()
-          .filterWhere(eb.and([deferred, modified]))
+          .filterWhere(eb.and([aiRow, deferred, modified]))
           .as('deferredModified'),
-        eb.fn.countAll<number>().filterWhere(pending).as('deferredUnmodified'),
+        eb.fn
+          .countAll<number>()
+          .filterWhere(eb.and([aiRow, deferred, eb.not(modified)]))
+          .as('deferredUnmodified'),
+        eb.fn.countAll<number>().filterWhere(eb.not(aiRow)).as('nonAi'),
       ];
     })
     .executeTakeFirstOrThrow();
   return { result };
+}
+
+export async function getAiProgressBarData() {
+  const { result } = await getAiAttributionCounts();
+  return {
+    result: {
+      nonDeferredUnmodified: result.nonDeferredUnmodified,
+      nonDeferredModified: result.nonDeferredModified,
+      deferredModified: result.deferredModified,
+      deferredUnmodified: result.deferredUnmodified,
+    },
+  };
+}
+
+export async function aiAttributionStatistics() {
+  const { result } = await getAiAttributionCounts();
+
+  return {
+    result: [
+      {
+        name: 'nonDeferredUnmodified' as const,
+        count: result.nonDeferredUnmodified,
+      },
+      {
+        name: 'nonDeferredModified' as const,
+        count: result.nonDeferredModified,
+      },
+      {
+        name: 'deferredUnmodified' as const,
+        count: result.deferredUnmodified,
+      },
+      { name: 'deferredModified' as const, count: result.deferredModified },
+      { name: 'nonAi' as const, count: result.nonAi },
+    ],
+  };
 }
 
 export async function getNextAttributionToReviewForAi({

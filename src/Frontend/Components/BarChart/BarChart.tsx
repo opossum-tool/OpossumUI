@@ -34,6 +34,39 @@ const MARGIN_RIGHT = 10;
 const MARGIN_BOTTOM = 4;
 const X_AXIS_LABEL_OFFSET = 3;
 
+// Labels must fit on at most two lines to avoid overflowing the chart.
+// CSS wrapping cannot guarantee this, so we wrap manually.
+// Split only at whitespace to keep hyphenated words intact.
+function wrapChartTickLabel(label: string): Array<string> {
+  const words = label.trim().split(/\s+/);
+  if (words.length < 2) {
+    return [label];
+  }
+  let bestSplitIndex = 1;
+  let bestCost = Number.POSITIVE_INFINITY;
+  for (let splitIndex = 1; splitIndex < words.length; splitIndex++) {
+    const firstLine = words.slice(0, splitIndex).join(' ');
+    const secondLine = words.slice(splitIndex).join(' ');
+    const cost = Math.max(firstLine.length, secondLine.length);
+    if (cost < bestCost) {
+      bestCost = cost;
+      bestSplitIndex = splitIndex;
+    }
+  }
+  return [
+    words.slice(0, bestSplitIndex).join(' '),
+    words.slice(bestSplitIndex).join(' '),
+  ];
+}
+
+function ChartTickLabelLines({ label }: { label: string }) {
+  return (
+    <div style={{ whiteSpace: 'pre-line' }}>
+      {wrapChartTickLabel(label).join('\n')}
+    </div>
+  );
+}
+
 function BarChartLabel({
   tick,
   item,
@@ -67,7 +100,7 @@ function BarChartLabel({
       >
         <div
           className={tick.className}
-          style={{ width: 'min-content', flexShrink: 0 }}
+          style={{ width: 'max-content', flexShrink: 0 }}
         >
           {item?.onActivate ? (
             <ChartActionTooltip
@@ -80,6 +113,10 @@ function BarChartLabel({
                 variant={'caption'}
                 underline={'hover'}
                 onClick={item.onActivate}
+                // The visual label wraps to two lines; keep the accessible
+                // name as the plain label so screen readers and tests
+                // query it without the line break.
+                aria-label={item.name}
                 style={{
                   ...style,
                   lineHeight: 'inherit',
@@ -87,11 +124,11 @@ function BarChartLabel({
                   maxWidth: '100%',
                 }}
               >
-                {item.name}
+                <ChartTickLabelLines label={item.name} />
               </MuiLink>
             </ChartActionTooltip>
           ) : (
-            <span>{item?.name}</span>
+            <ChartTickLabelLines label={item?.name ?? ''} />
           )}
         </div>
       </div>
@@ -101,11 +138,13 @@ function BarChartLabel({
 
 interface BarChartProps {
   data: Array<ChartDataItem>;
+  axisLabel?: string;
 }
 
 export const BarChart: React.FC<BarChartProps> = (props) => {
   const theme = useTheme();
   const [actionTooltipOpen, setActionTooltipOpen] = useState(false);
+  const axisLabel = props.axisLabel ?? text.projectStatisticsPopup.charts.count;
 
   const tickStyle = {
     fontFamily: 'sans-serif',
@@ -136,7 +175,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
       >
         <RcXAxis type={'number'} tick={tickStyle}>
           <RcLabel
-            value={text.projectStatisticsPopup.charts.count}
+            value={axisLabel}
             offset={-X_AXIS_LABEL_OFFSET}
             position={'insideBottom'}
             style={tickStyle}
@@ -170,7 +209,7 @@ export const BarChart: React.FC<BarChartProps> = (props) => {
           )}
         />
         <RcBar
-          name={text.projectStatisticsPopup.charts.count}
+          name={axisLabel}
           dataKey={'count'}
           fill={OpossumColors.darkBlue}
           isAnimationActive={false}

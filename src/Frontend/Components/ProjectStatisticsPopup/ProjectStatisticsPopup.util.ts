@@ -25,3 +25,29 @@ export function transformName<
 ): Array<{ name: ResultType; count: number }> {
   return entries.map((e) => ({ name: transformation(e.name), count: e.count }));
 }
+
+// Chart order for the AI attribution states, most interesting first. Any
+// non-AI attributions are unexpected: for AI-reviewed projects there should
+// be none, and an existing one was added manually, so it comes first. Next
+// the states that still need review attention (deferred). The bulk
+// categories (non-deferred and unmodified) are usually the largest share by
+// far and the least interesting, so they go last.
+const AI_STATE_INTEREST_ORDER = [
+  'nonAi',
+  'deferredModified',
+  'deferredUnmodified',
+  'nonDeferredModified',
+  'nonDeferredUnmodified',
+] as const;
+
+type AiAttributionStateName = (typeof AI_STATE_INTEREST_ORDER)[number];
+
+export function orderAiAttributionStates(
+  states: Array<{ name: AiAttributionStateName; count: number }>,
+): Array<{ name: AiAttributionStateName; count: number }> {
+  return [...states].sort(
+    (first, second) =>
+      AI_STATE_INTEREST_ORDER.indexOf(first.name) -
+      AI_STATE_INTEREST_ORDER.indexOf(second.name),
+  );
+}

@@ -2,7 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { describe, it } from 'vitest';
+/* eslint-disable testing-library/no-node-access -- recharts renders bars and
+   tooltips with classes that are only reachable via DOM queries */
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import type { ComponentProps } from 'react';
+import type * as Recharts from 'recharts';
+import { describe, expect, it, vi } from 'vitest';
 
 import { deserializeAttributions } from '../ElectronBackend/input/parseInputData';
 import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers/general-test-helpers';
@@ -11,6 +16,7 @@ import { text } from '../shared/text';
 import { faker } from '../testing/Faker';
 import { renderApp } from '../testing/render-app';
 import {
+  ATTRIBUTIONS_PANEL,
   clickAttributionColumnButton,
   clickLicenseTableCell,
   clickLicenseTableColumnHeader,
@@ -25,11 +31,25 @@ import {
   expectProjectStatisticsTitleIsVisible,
   expectStatisticsChartContainsText,
   expectStatisticsCharts,
+  fillFormField,
   gotoResource,
   openProjectStatisticsPopup,
   PROJECT_STATISTICS_POPUP_LABEL,
+  saveChangesInAttributionColumn,
   SIGNALS_PANEL,
 } from '../testing/ui';
+
+// Happy DOM cannot lay out responsive charts. Fix only their container size;
+// render the real chart, labels, legends, and activation handlers.
+vi.mock('recharts', async (importOriginal) => {
+  const recharts = await importOriginal<typeof Recharts>();
+  return {
+    ...recharts,
+    ResponsiveContainer: (
+      props: ComponentProps<typeof recharts.ResponsiveContainer>,
+    ) => <recharts.ResponsiveContainer {...props} width={800} height={600} />,
+  };
+});
 
 const [resourceName1] = faker.opossum.resourceNames({ count: 1 });
 const [attributionId1, packageInfo1] = faker.opossum.rawAttribution({
@@ -65,6 +85,142 @@ describe('project statistics', () => {
     await openProjectStatisticsPopup(sendToChannel);
     await expectProjectStatisticsTitleIsVisible();
     await closeProjectStatisticsPopup();
+  });
+
+  const aiStatesText = text.projectStatisticsPopup.charts.aiAttributionStates;
+  const [aiResourceName] = faker.opossum.resourceNames({ count: 1 });
+  const [deferredId, deferredPackageInfo] = faker.opossum.rawAttribution({
+    criticality: RawCriticality[Criticality.Medium],
+    packageName: 'AI deferred',
+    aiAttributes: { deferredFields: {} },
+  });
+  const [deferredModifiedId, deferredModifiedPackageInfo] =
+    faker.opossum.rawAttribution({
+      criticality: RawCriticality[Criticality.Medium],
+      packageName: 'AI deferred modified',
+      aiAttributes: { deferredFields: {}, humanModified: true },
+    });
+  const [aiOutputId, aiOutputPackageInfo] = faker.opossum.rawAttribution({
+    criticality: RawCriticality[Criticality.Medium],
+    packageName: 'AI output',
+    aiAttributes: {},
+  });
+  const [aiOutputModifiedId, aiOutputModifiedPackageInfo] =
+    faker.opossum.rawAttribution({
+      criticality: RawCriticality[Criticality.Medium],
+      packageName: 'AI output modified',
+      aiAttributes: { humanModified: true },
+    });
+  const [ordinaryId, ordinaryPackageInfo] = faker.opossum.rawAttribution({
+    criticality: RawCriticality[Criticality.Medium],
+    packageName: 'Ordinary',
+  });
+
+  const aiStatisticsData = getParsedInputFileEnrichedWithTestData({
+    config: faker.opossum.inputData().config,
+    resources: faker.opossum.resources({ [aiResourceName]: 1 }),
+    manualAttributions: deserializeAttributions({
+      [deferredId]: deferredPackageInfo,
+      [deferredModifiedId]: deferredModifiedPackageInfo,
+      [aiOutputId]: aiOutputPackageInfo,
+      [aiOutputModifiedId]: aiOutputModifiedPackageInfo,
+      [ordinaryId]: ordinaryPackageInfo,
+    }),
+    resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+      [faker.opossum.filePath(aiResourceName)]: [
+        deferredId,
+        deferredModifiedId,
+        aiOutputId,
+        aiOutputModifiedId,
+        ordinaryId,
+      ],
+    }),
+  });
+
+  it('displays AI attribution states and updates after an edit', async () => {
+    const { sendToChannel } = await renderApp({ data: aiStatisticsData });
+    await openProjectStatisticsPopup(sendToChannel);
+    await expectProjectStatisticsTitleIsVisible();
+
+    const chartTestId = 'aiAttributionStatesBarChart';
+    for (const label of [
+      aiStatesText.title,
+      aiStatesText.count,
+      aiStatesText.nonDeferredUnmodified,
+      aiStatesText.nonDeferredModified,
+      aiStatesText.deferredUnmodified,
+      aiStatesText.deferredModified,
+      aiStatesText.nonAi,
+    ]) {
+      await expectStatisticsChartContainsText(chartTestId, label);
+    }
+
+    // Hovering a bar row opens the tooltip, which is how users read the
+    // exact per-state counts. Collect the tooltip text of every row; the
+    // expected set is independent of the chart's display order.
+    const readAllTooltipTexts = async (): Promise<Array<string>> => {
+      const chart = screen.getByTestId(chartTestId);
+      const chartSurface = within(chart).getByRole('application');
+      const barRows = Array.from(
+        chart.querySelectorAll('.recharts-bar-background-rectangle'),
+      );
+      const tooltipTexts: Array<string> = [];
+      for (const barRow of barRows) {
+        const clientX =
+          Number(barRow.getAttribute('x')) +
+          Number(barRow.getAttribute('width')) / 2;
+        const clientY =
+          Number(barRow.getAttribute('y')) +
+          Number(barRow.getAttribute('height')) / 2;
+        fireEvent.mouseMove(chartSurface, { clientX, clientY });
+        const tooltip = await waitFor(() => {
+          const tooltip = chart.querySelector('.recharts-tooltip-wrapper');
+          expect(tooltip).not.toBeNull();
+          expect(tooltip).toBeVisible();
+          return tooltip!;
+        });
+        tooltipTexts.push(tooltip.textContent ?? '');
+      }
+      return tooltipTexts;
+    };
+
+    const expectedTooltips = (
+      stateCounts: Partial<Record<keyof typeof aiStatesText, number>>,
+    ): Array<string> =>
+      Object.entries(stateCounts)
+        .map(
+          ([state, count]) =>
+            `${aiStatesText[state as keyof typeof aiStatesText]}: ${count}`,
+        )
+        .sort();
+
+    expect((await readAllTooltipTexts()).sort()).toEqual(
+      expectedTooltips({
+        nonAi: 1,
+        deferredModified: 1,
+        deferredUnmodified: 1,
+        nonDeferredModified: 1,
+        nonDeferredUnmodified: 1,
+      }),
+    );
+
+    await closeProjectStatisticsPopup();
+
+    await gotoResource(aiResourceName);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, deferredPackageInfo);
+    fillFormField('comment', 'Human input');
+    await saveChangesInAttributionColumn();
+
+    await openProjectStatisticsPopup(sendToChannel);
+    const tooltipsAfterEdit = await readAllTooltipTexts();
+    expect(tooltipsAfterEdit).toContain(
+      `${aiStatesText.deferredUnmodified}: 0`,
+    );
+    expect(tooltipsAfterEdit).toContain(`${aiStatesText.deferredModified}: 2`);
+    await expectStatisticsChartContainsText(
+      chartTestId,
+      aiStatesText.deferredModified,
+    );
   });
 
   it('displays bar and pie charts in the overview tab', async () => {

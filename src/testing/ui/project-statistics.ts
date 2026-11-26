@@ -30,7 +30,8 @@ export type StatisticsChartTestId =
   | 'mostFrequentLicenseCountPieChart'
   | 'criticalSignalsCountPieChart'
   | 'signalCountByClassificationPieChart'
-  | 'incompleteAttributionsPieChart';
+  | 'incompleteAttributionsPieChart'
+  | 'aiAttributionStatesBarChart';
 
 // Each chart renders its title as a heading inside the container with the
 // chart test id. Querying the heading by role and name asserts the title
@@ -49,6 +50,8 @@ const STATISTICS_CHART_TITLES: Record<StatisticsChartTestId, string> = {
       .title,
   incompleteAttributionsPieChart:
     text.projectStatisticsPopup.charts.incompleteAttributionsPieChart.title,
+  aiAttributionStatesBarChart:
+    text.projectStatisticsPopup.charts.aiAttributionStates.title,
 };
 
 export async function expectStatisticsCharts(

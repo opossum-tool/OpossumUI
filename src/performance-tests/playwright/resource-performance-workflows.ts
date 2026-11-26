@@ -722,6 +722,7 @@ export async function runResourceWorkflows(
       await Promise.all([
         projectStatisticsPopup.assert.titleIsVisible(),
         projectStatisticsPopup.assert.overviewChartsAreVisible(),
+        projectStatisticsPopup.assert.aiAttributionStatesIsVisible(),
         projectStatisticsPopup.assert.signalsByCriticalityIsVisible(
           model.scenarios.projectStatistics.criticality,
         ),
