@@ -7,6 +7,7 @@ import MuiBox from '@mui/material/Box';
 import MuiChip from '@mui/material/Chip';
 
 import { borderThin, OpossumColors, Sizing } from '../../shared-styles';
+import { PanelControlBar } from '../PanelControlBar/panel-control-bar';
 
 export const ColumnsContainer = styled(MuiBox)({
   width: '100%',
@@ -47,13 +48,12 @@ export const EmptyState = styled(MuiBox)({
   textAlign: 'center',
 });
 
-export const FilterPills = styled(MuiBox)(({ theme }) => ({
+export const FilterPills = styled(PanelControlBar)(({ theme }) => ({
   display: 'flex',
   flexWrap: 'wrap',
   gap: theme.spacing(Sizing.Tiny),
   padding: theme.spacing(Sizing.SmallGap),
   flexShrink: 0,
-  borderBottom: `${borderThin} solid ${OpossumColors.lightBlue}`,
 }));
 
 export const FilterPill = styled(MuiChip)(({ theme }) => ({

@@ -9,6 +9,7 @@ import MuiBox from '@mui/system/Box';
 import type { CSSProperties } from 'react';
 
 import { borderThin, OpossumColors, TRANSITION } from '../../../shared-styles';
+import { PanelControlBar } from '../../PanelControlBar/panel-control-bar';
 
 export const ALERT_CONTAINER_HEIGHT = 24;
 export const TABS_CONTAINER_HEIGHT = 30;
@@ -34,13 +35,9 @@ export const Panel = styled(MuiBox)({
   overflowY: 'hidden',
 });
 
-export const ActionBarContainer = styled(MuiBox)(({ theme }) => ({
+export const ActionBarContainer = styled(PanelControlBar)({
   overflow: 'auto',
-  background: OpossumColors.lightBlue,
-  position: 'relative',
-  zIndex: 2,
-  boxShadow: theme.shadows[1],
-}));
+});
 
 export const ActionBar = styled(MuiBox)(({ theme }) => ({
   display: 'grid',
