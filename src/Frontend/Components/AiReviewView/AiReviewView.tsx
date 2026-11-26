@@ -22,21 +22,22 @@ import {
   getIsPackageInfoDirty,
   getSelectedAttributionId,
 } from '../../state/selectors/resource-selectors';
-import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { backend } from '../../util/backendClient';
 import { useAttributionPages } from '../../util/use-attribution-pages';
 import { useDebouncedInput } from '../../util/use-debounced-input';
 import { AttributionDetails } from '../AttributionDetails/AttributionDetails';
 import { AttributionsList } from '../AttributionPanels/AttributionsPanel/AttributionsList/AttributionsList';
-import { ResizableBox } from '../ResizableBox/ResizableBox';
 import { SearchablePanel } from '../ResizePanels/searchable-panel';
 import { useLinkedResourcesPanel } from '../ResourceBrowser/use-linked-resources-panel';
 import { SortButton } from '../SortButton/SortButton';
 import {
+  DetailsColumn,
+  PanelColumns,
+} from '../workspace-layout/workspace-layout';
+import { WorkspaceSidePanel } from '../workspace-layout/workspace-side-panel';
+import {
   aiReviewSortButtonStyle,
   AttributionsColumn,
-  ColumnsContainer,
-  DetailsColumn,
   EmptyState,
   FilterCount,
   FilterPill,
@@ -47,7 +48,6 @@ export const AiReviewView: React.FC = () => {
   const dispatch = useAppDispatch();
   const selectedAttributionId = useAppSelector(getSelectedAttributionId);
   const isPackageInfoDirty = useAppSelector(getIsPackageInfoDirty);
-  const { panelSizes, setPanelSizes } = usePanelSizes();
   const [search, setSearch] = useState('');
   const [reviewFilter, setReviewFilter] = useState<AiReviewFilter>('all');
   const [sorting, setSorting] = useState<SortOption>('alphabetically');
@@ -161,16 +161,11 @@ export const AiReviewView: React.FC = () => {
     resultsAreSettled &&
     attributionIds?.length === 0;
   return (
-    <ColumnsContainer>
-      <ResizableBox
-        enable={{ right: true }}
-        size={{ height: '100%', width: panelSizes.aiReviewPackageListsWidth }}
-        minWidth={120}
-        maxWidth="40%"
-        onResizeStop={(_event, _direction, ref) =>
-          setPanelSizes({ aiReviewPackageListsWidth: ref.offsetWidth })
-        }
-        sx={{ flexShrink: 0, overflow: 'visible', zIndex: 1 }}
+    <PanelColumns>
+      <WorkspaceSidePanel
+        resizeFrom="right"
+        widthSetting="aiReviewPackageListsWidth"
+        style={{ zIndex: 1 }}
       >
         <AttributionsColumn data-testid={'attributions-panel'}>
           <SearchablePanel
@@ -247,7 +242,7 @@ export const AiReviewView: React.FC = () => {
             </div>
           </SearchablePanel>
         </AttributionsColumn>
-      </ResizableBox>
+      </WorkspaceSidePanel>
       {showEmptyState ? (
         <DetailsColumn>
           <EmptyState>
@@ -261,26 +256,9 @@ export const AiReviewView: React.FC = () => {
           <DetailsColumn>
             {selectedAttributionId && <AttributionDetails />}
           </DetailsColumn>
-          <ResizableBox
-            enable={{ left: true }}
-            size={{
-              height: '100%',
-              width: panelSizes.aiReviewResourceBrowserWidth,
-            }}
-            minWidth={120}
-            maxWidth="40%"
-            onResizeStop={(_event, _direction, ref) =>
-              setPanelSizes({
-                aiReviewResourceBrowserWidth: ref.offsetWidth,
-              })
-            }
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              flexShrink: 0,
-              minHeight: 0,
-              overflow: 'visible',
-            }}
+          <WorkspaceSidePanel
+            resizeFrom="left"
+            widthSetting="aiReviewResourceBrowserWidth"
           >
             <SearchablePanel
               title={linkedResourcesPanel.title}
@@ -290,9 +268,9 @@ export const AiReviewView: React.FC = () => {
             >
               {linkedResourcesPanel.component}
             </SearchablePanel>
-          </ResizableBox>
+          </WorkspaceSidePanel>
         </>
       )}
-    </ColumnsContainer>
+    </PanelColumns>
   );
 };

@@ -2,30 +2,33 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { SxProps } from '@mui/system';
 import { Resizable, type ResizableProps } from 're-resizable';
 
 // Resize-handle geometry in px, consumed as plain CSS by re-resizable's
-// handleStyles (not sx) — fixed widths/offsets, not spacing-scaled.
+// handleStyles — fixed widths/offsets, not spacing-scaled.
 const HANDLE_SIZE = '6px';
 const HANDLE_OFFSET = '3px';
 
-interface Props extends Omit<ResizableProps, 'sx' | 'style'> {
+interface Props extends ResizableProps {
   children: React.ReactNode;
   ref?: React.RefObject<Resizable | null>;
-  sx?: SxProps;
 }
 
 export const ResizableBox: React.FC<Props> = ({
   children,
   enable,
   ref,
-  sx,
+  style,
   ...props
 }) => {
   return (
     <Resizable
-      style={{ ...(sx as React.CSSProperties) }}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0,
+        ...style,
+      }}
       handleWrapperStyle={{ zIndex: 4 }}
       handleStyles={{
         right: {

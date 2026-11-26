@@ -28,6 +28,7 @@ import { createLicenseFilterOption } from '../FilterButton/license-editor';
 import { useResourceQuickfilterOption } from '../FilterButton/use-resource-quickfilter-options';
 import { DeferredIcon, UnreviewedIcon } from '../Icons/Icons';
 import { ResizePanels } from '../ResizePanels/ResizePanels';
+import { WorkspaceSidePanel } from '../workspace-layout/workspace-side-panel';
 import { resourceBrowserFilterButtonStyle } from './ResourceBrowser.style';
 import { ResourcesTree } from './ResourcesTree/ResourcesTree';
 import { useLinkedResourcesPanel } from './use-linked-resources-panel';
@@ -37,11 +38,6 @@ const IS_LICENSE_FILTER_BASED_ON_EXTERNAL_ATTRIBUTIONS = true;
 
 export function ResourceBrowser() {
   const { panelSizes, setPanelSizes } = usePanelSizes();
-
-  const setWidth = useCallback(
-    (width: number) => setPanelSizes({ resourceBrowserWidth: width }),
-    [setPanelSizes],
-  );
 
   const setHeight = useCallback(
     (height: number) => {
@@ -154,115 +150,118 @@ export function ResourceBrowser() {
 
   return (
     <>
-      <ResizePanels
-        main={'upper'}
-        width={panelSizes.resourceBrowserWidth}
-        height={panelSizes.linkedResourcesPanelHeight}
-        setWidth={setWidth}
-        setHeight={setHeight}
-        upperPanel={{
-          title: resourceTreeAll.data
-            ? text.resourceBrowser.allResources(
-                resourceTreeAll.data.belowSelectedResource ?? 0,
-                resourceTreeAll.data.count,
-              )
-            : '',
-          search: {
-            value: searchAll,
-            setValue: setSearchAll,
-            channel: AllowedFrontendChannels.SearchResources,
-          },
-          headerActions: (
-            <FilterButton
-              options={[
-                ...quickfilterOption,
-                {
-                  kind: 'toggle',
-                  id: 'unreviewed',
-                  selected: onlyUnreviewedFiles,
-                  faded: !unreviewedFileCountQuery.data,
-                  label:
-                    unreviewedFileCountQuery.data === undefined
-                      ? text.filters.unreviewed
-                      : `${text.filters.unreviewed} (${new Intl.NumberFormat().format(unreviewedFileCountQuery.data)})`,
-                  icon: <UnreviewedIcon noTooltip />,
-                  onAdd: () =>
-                    setResourceTreeFilters((prev) => ({
-                      ...prev,
-                      onlyUnreviewedFiles: true,
-                    })),
-                  onDelete: () =>
-                    setResourceTreeFilters((prev) => ({
-                      ...prev,
-                      onlyUnreviewedFiles: false,
-                    })),
-                },
-                {
-                  kind: 'toggle',
-                  id: 'aiDeferred',
-                  selected: onlyWithAiDeferredAttributions,
-                  faded: !aiDeferredResourceCountQuery.data,
-                  label:
-                    aiDeferredResourceCountQuery.data === undefined
-                      ? text.filters.hasAiDeferredAttribution
-                      : `${text.filters.hasAiDeferredAttribution} (${new Intl.NumberFormat().format(aiDeferredResourceCountQuery.data)})`,
-                  icon: <DeferredIcon noTooltip />,
-                  onAdd: () =>
-                    setResourceTreeFilters((prev) => ({
-                      ...prev,
-                      onlyWithAiDeferredAttributions: true,
-                    })),
-                  onDelete: () =>
-                    setResourceTreeFilters((prev) => ({
-                      ...prev,
-                      onlyWithAiDeferredAttributions: false,
-                    })),
-                },
-                createLicenseFilterOption({
-                  licenses,
-                  licensesLoading: licenseOptionsLoading,
-                  selection: {
-                    licenses: resourceTreeSelectedLicenses,
-                    licenseSearches,
+      <WorkspaceSidePanel
+        widthSetting="resourceBrowserWidth"
+        resizeFrom="right"
+      >
+        <ResizePanels
+          main={'upper'}
+          height={panelSizes.linkedResourcesPanelHeight}
+          setHeight={setHeight}
+          upperPanel={{
+            title: resourceTreeAll.data
+              ? text.resourceBrowser.allResources(
+                  resourceTreeAll.data.belowSelectedResource ?? 0,
+                  resourceTreeAll.data.count,
+                )
+              : '',
+            search: {
+              value: searchAll,
+              setValue: setSearchAll,
+              channel: AllowedFrontendChannels.SearchResources,
+            },
+            headerActions: (
+              <FilterButton
+                options={[
+                  ...quickfilterOption,
+                  {
+                    kind: 'toggle',
+                    id: 'unreviewed',
+                    selected: onlyUnreviewedFiles,
+                    faded: !unreviewedFileCountQuery.data,
+                    label:
+                      unreviewedFileCountQuery.data === undefined
+                        ? text.filters.unreviewed
+                        : `${text.filters.unreviewed} (${new Intl.NumberFormat().format(unreviewedFileCountQuery.data)})`,
+                    icon: <UnreviewedIcon noTooltip />,
+                    onAdd: () =>
+                      setResourceTreeFilters((prev) => ({
+                        ...prev,
+                        onlyUnreviewedFiles: true,
+                      })),
+                    onDelete: () =>
+                      setResourceTreeFilters((prev) => ({
+                        ...prev,
+                        onlyUnreviewedFiles: false,
+                      })),
                   },
-                  onSelectionChange: (selection) =>
-                    setResourceTreeFilters((prev) => ({
-                      ...prev,
-                      selectedLicenses: selection.licenses,
-                      licenseSearches: selection.licenseSearches,
-                    })),
-                }),
-              ]}
-              isActive={isResourceTreeFilterActive}
-              onOpenChange={setIsResourceTreeFilterOpen}
-              onClear={() =>
-                setResourceTreeFilters((prev) => ({
-                  ...prev,
-                  onlyUnreviewedFiles: false,
-                  onlyWithAiDeferredAttributions: false,
-                  selectedLicenses: [],
-                  licenseSearches: [],
-                  activeQuickfilterIds: undefined,
-                }))
-              }
-              anchorPosition={'right'}
-              badgeColor={'secondary'}
-              triggerStyle={resourceBrowserFilterButtonStyle}
-            />
-          ),
-          component: (
-            <ResourcesTree
-              resources={resourceTreeAll.data?.treeNodes ?? []}
-              expansionFilters={allResourceTreeFilters}
-            />
-          ),
-          headerDataAttributes: {
-            'data-applied-search': appliedSearch,
-          },
-          headerTestId: 'resources-tree-header',
-        }}
-        lowerPanel={linkedResourcesPanel}
-      />
+                  {
+                    kind: 'toggle',
+                    id: 'aiDeferred',
+                    selected: onlyWithAiDeferredAttributions,
+                    faded: !aiDeferredResourceCountQuery.data,
+                    label:
+                      aiDeferredResourceCountQuery.data === undefined
+                        ? text.filters.hasAiDeferredAttribution
+                        : `${text.filters.hasAiDeferredAttribution} (${new Intl.NumberFormat().format(aiDeferredResourceCountQuery.data)})`,
+                    icon: <DeferredIcon noTooltip />,
+                    onAdd: () =>
+                      setResourceTreeFilters((prev) => ({
+                        ...prev,
+                        onlyWithAiDeferredAttributions: true,
+                      })),
+                    onDelete: () =>
+                      setResourceTreeFilters((prev) => ({
+                        ...prev,
+                        onlyWithAiDeferredAttributions: false,
+                      })),
+                  },
+                  createLicenseFilterOption({
+                    licenses,
+                    licensesLoading: licenseOptionsLoading,
+                    selection: {
+                      licenses: resourceTreeSelectedLicenses,
+                      licenseSearches,
+                    },
+                    onSelectionChange: (selection) =>
+                      setResourceTreeFilters((prev) => ({
+                        ...prev,
+                        selectedLicenses: selection.licenses,
+                        licenseSearches: selection.licenseSearches,
+                      })),
+                  }),
+                ]}
+                isActive={isResourceTreeFilterActive}
+                onOpenChange={setIsResourceTreeFilterOpen}
+                onClear={() =>
+                  setResourceTreeFilters((prev) => ({
+                    ...prev,
+                    onlyUnreviewedFiles: false,
+                    onlyWithAiDeferredAttributions: false,
+                    selectedLicenses: [],
+                    licenseSearches: [],
+                    activeQuickfilterIds: undefined,
+                  }))
+                }
+                anchorPosition={'right'}
+                badgeColor={'secondary'}
+                triggerStyle={resourceBrowserFilterButtonStyle}
+              />
+            ),
+            component: (
+              <ResourcesTree
+                resources={resourceTreeAll.data?.treeNodes ?? []}
+                expansionFilters={allResourceTreeFilters}
+              />
+            ),
+            headerDataAttributes: {
+              'data-applied-search': appliedSearch,
+            },
+            headerTestId: 'resources-tree-header',
+          }}
+          lowerPanel={linkedResourcesPanel}
+        />
+      </WorkspaceSidePanel>
     </>
   );
 }

@@ -6,17 +6,22 @@ import { AttributionDetails } from '../AttributionDetails/AttributionDetails';
 import { AttributionPanels } from '../AttributionPanels/AttributionPanels';
 import { PathBar } from '../PathBar/PathBar';
 import { ResourceBrowser } from '../ResourceBrowser/ResourceBrowser';
-import { ColumnsContainer } from './AuditView.style';
+import {
+  DetailsColumn,
+  PanelColumns,
+} from '../workspace-layout/workspace-layout';
 
 export const AuditView: React.FC = () => {
   return (
     <>
       <PathBar />
-      <ColumnsContainer>
+      <PanelColumns>
         <ResourceBrowser />
         <AttributionPanels />
-        <AttributionDetails />
-      </ColumnsContainer>
+        <DetailsColumn>
+          <AttributionDetails />
+        </DetailsColumn>
+      </PanelColumns>
     </>
   );
 };

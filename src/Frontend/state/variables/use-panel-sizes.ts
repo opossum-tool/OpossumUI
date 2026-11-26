@@ -8,6 +8,12 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { getUserSettings } from '../selectors/user-settings-selector';
 import type { AppThunkAction } from '../types';
 
+export type PanelWidthSetting =
+  | 'resourceBrowserWidth'
+  | 'packageListsWidth'
+  | 'aiReviewResourceBrowserWidth'
+  | 'aiReviewPackageListsWidth';
+
 function setPanelSizesThunk(
   panelSizesPatch: Partial<PanelSizes>,
 ): AppThunkAction<Promise<void>> {

@@ -2,10 +2,10 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import MuiPaper from '@mui/material/Paper';
 import { useCallback } from 'react';
 
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
-import { DEFAULT_PANEL_SIZES } from '../../../shared/shared-constants';
 import { text } from '../../../shared/text';
 import {
   useExternalAttributionFilters,
@@ -13,7 +13,8 @@ import {
 } from '../../state/variables/use-filters';
 import { usePanelSizes } from '../../state/variables/use-panel-sizes';
 import { ResizePanels } from '../ResizePanels/ResizePanels';
-import { Container } from './AttributionPanels.style';
+import { WorkspaceSidePanel } from '../workspace-layout/workspace-side-panel';
+import { attributionPanelsStyle } from './AttributionPanels.style';
 import { AttributionsPanel } from './AttributionsPanel/AttributionsPanel';
 import { SignalsPanel } from './SignalsPanel/SignalsPanel';
 
@@ -24,11 +25,6 @@ export function AttributionPanels() {
     useExternalAttributionFilters();
   const { panelSizes, setPanelSizes } = usePanelSizes();
 
-  const setWidth = useCallback(
-    (width: number) => setPanelSizes({ packageListsWidth: width }),
-    [setPanelSizes],
-  );
-
   const setHeight = useCallback(
     (height: number) => {
       setPanelSizes({ signalsPanelHeight: height });
@@ -37,19 +33,23 @@ export function AttributionPanels() {
   );
 
   return (
-    <Container square elevation={5}>
+    <MuiPaper
+      component={WorkspaceSidePanel}
+      square
+      elevation={5}
+      sx={attributionPanelsStyle}
+      widthSetting="packageListsWidth"
+      resizeFrom="right"
+    >
       <ResizePanels
-        minWidth={DEFAULT_PANEL_SIZES.packageListsWidth}
         main={'lower'}
-        width={panelSizes.packageListsWidth}
         height={panelSizes.signalsPanelHeight}
-        setWidth={setWidth}
         setHeight={setHeight}
         upperPanel={{
           component: <AttributionsPanel />,
           search: {
             value: attributionSearch,
-            setValue: (search) =>
+            setValue: (search: string) =>
               setFilteredAttributions((prev) => ({ ...prev, search })),
             channel: AllowedFrontendChannels.SearchAttributions,
           },
@@ -60,7 +60,7 @@ export function AttributionPanels() {
           component: <SignalsPanel />,
           search: {
             value: signalSearch,
-            setValue: (search) =>
+            setValue: (search: string) =>
               setFilteredSignals((prev) => ({ ...prev, search })),
             channel: AllowedFrontendChannels.SearchSignals,
           },
@@ -68,6 +68,6 @@ export function AttributionPanels() {
           headerTestId: 'signals-panel-header',
         }}
       />
-    </Container>
+    </MuiPaper>
   );
 }
