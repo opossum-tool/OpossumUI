@@ -611,6 +611,7 @@ describe('filtering attributions', () => {
     const [plainAiId, plainAiAttribution] = faker.opossum.rawAttribution({
       aiAttributes: { model: 'some-model' },
     });
+    const [otherId, otherAttribution] = faker.opossum.rawAttribution();
     const resourceName = faker.opossum.resourceNames({ count: 1 })[0];
     const filePath = faker.opossum.filePath(resourceName);
 
@@ -621,9 +622,10 @@ describe('filtering attributions', () => {
           [deferredId]: deferredAttribution,
           [humanModifiedId]: humanModifiedAttribution,
           [plainAiId]: plainAiAttribution,
+          [otherId]: otherAttribution,
         }),
         resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
-          [filePath]: [deferredId, humanModifiedId, plainAiId],
+          [filePath]: [deferredId, humanModifiedId, plainAiId, otherId],
         }),
       }),
     });
@@ -633,6 +635,7 @@ describe('filtering attributions', () => {
       deferredId,
       humanModifiedId,
       plainAiId,
+      otherId,
     ]);
 
     await clickFilterMenuButton(getReportView());
@@ -644,6 +647,7 @@ describe('filtering attributions', () => {
       humanModifiedId,
       plainAiId,
     ]);
+    await expectReportAttributionsNotShown([otherId]);
 
     await clickFilterMenuButton(getReportView());
     await clickFilterMenuItem(text.filters.aiGenerated);
@@ -652,13 +656,14 @@ describe('filtering attributions', () => {
       deferredId,
       humanModifiedId,
       plainAiId,
+      otherId,
     ]);
 
     await clickFilterMenuButton(getReportView());
     await clickFilterMenuItem(text.filters.aiHumanModified);
     await closeFilterMenu();
     await expectReportAttributionsShown([humanModifiedId]);
-    await expectReportAttributionsNotShown([deferredId, plainAiId]);
+    await expectReportAttributionsNotShown([deferredId, plainAiId, otherId]);
   });
 
   it('updates AI filter counts after an AI attribution is human-modified', async () => {

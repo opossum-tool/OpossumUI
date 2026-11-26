@@ -29,14 +29,6 @@ export type AttributionWithAiStatus = Selectable<Attribution> & {
   ai_deferred: SqlBool;
 };
 
-/**
- * An attribution is AI-deferred if it has AI metadata with deferred fields
- * (`deferred_fields IS NOT NULL`, so an empty object counts as deferred).
- * Use this in query contexts that do not already join `attribution_ai`;
- * when the join exists, check `deferred_fields` directly (see
- * selectAttributionsWithAiStatus) to avoid the redundant exists subquery.
- * Both places must stay semantically identical.
- */
 export function isAiDeferred(
   eb: ExpressionBuilder<DB, 'attribution'>,
 ): AliasableExpression<SqlBool> {
@@ -49,22 +41,17 @@ export function isAiDeferred(
   );
 }
 
-/**
- * An attribution is AI-generated if its content was produced by the AI,
- * i.e. it has AI metadata regardless of deferral or human-modification
- * status (deferred and human-modified attributions are included).
- * Use in query contexts that do not already join `attribution_ai`.
- */
 export function isAiGenerated(
   eb: ExpressionBuilder<DB, 'attribution'>,
 ): AliasableExpression<SqlBool> {
-  return hasAiMetadata(eb);
+  return eb.exists(
+    eb
+      .selectFrom('attribution_ai')
+      .select('attribution_uuid')
+      .whereRef('attribution_ai.attribution_uuid', '=', 'attribution.uuid'),
+  );
 }
 
-/**
- * An attribution is AI human-modified if it has AI metadata with
- * `human_modified = 1` (same semantics as the AI Review progress bar).
- */
 export function isAiHumanModified(
   eb: ExpressionBuilder<DB, 'attribution'>,
 ): AliasableExpression<SqlBool> {
@@ -74,20 +61,6 @@ export function isAiHumanModified(
       .select('attribution_uuid')
       .whereRef('attribution_ai.attribution_uuid', '=', 'attribution.uuid')
       .where('human_modified', '=', 1),
-  );
-}
-
-/**
- * An attribution has AI metadata if there is an `attribution_ai` row for it.
- */
-function hasAiMetadata(
-  eb: ExpressionBuilder<DB, 'attribution'>,
-): AliasableExpression<SqlBool> {
-  return eb.exists(
-    eb
-      .selectFrom('attribution_ai')
-      .select('attribution_uuid')
-      .whereRef('attribution_ai.attribution_uuid', '=', 'attribution.uuid'),
   );
 }
 
