@@ -29,38 +29,32 @@ export type AttributionWithAiStatus = Selectable<Attribution> & {
   ai_deferred: SqlBool;
 };
 
+function getAttributionAiQuery(eb: ExpressionBuilder<DB, 'attribution'>) {
+  return eb
+    .selectFrom('attribution_ai')
+    .select('attribution_uuid')
+    .whereRef('attribution_ai.attribution_uuid', '=', 'attribution.uuid');
+}
+
 export function isAiDeferred(
   eb: ExpressionBuilder<DB, 'attribution'>,
 ): AliasableExpression<SqlBool> {
   return eb.exists(
-    eb
-      .selectFrom('attribution_ai')
-      .select('attribution_uuid')
-      .whereRef('attribution_ai.attribution_uuid', '=', 'attribution.uuid')
-      .where('deferred_fields', 'is not', null),
+    getAttributionAiQuery(eb).where('deferred_fields', 'is not', null),
   );
 }
 
 export function isAiGenerated(
   eb: ExpressionBuilder<DB, 'attribution'>,
 ): AliasableExpression<SqlBool> {
-  return eb.exists(
-    eb
-      .selectFrom('attribution_ai')
-      .select('attribution_uuid')
-      .whereRef('attribution_ai.attribution_uuid', '=', 'attribution.uuid'),
-  );
+  return eb.exists(getAttributionAiQuery(eb));
 }
 
 export function isAiHumanModified(
   eb: ExpressionBuilder<DB, 'attribution'>,
 ): AliasableExpression<SqlBool> {
   return eb.exists(
-    eb
-      .selectFrom('attribution_ai')
-      .select('attribution_uuid')
-      .whereRef('attribution_ai.attribution_uuid', '=', 'attribution.uuid')
-      .where('human_modified', '=', 1),
+    getAttributionAiQuery(eb).where('human_modified', '=', 1),
   );
 }
 

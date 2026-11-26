@@ -39,14 +39,19 @@ const [aiId, aiPackage] = faker.opossum.rawAttribution({
 const [manualId, manualPackage] = faker.opossum.rawAttribution({
   packageName: 'Manual package',
 });
+const [secondAiId, secondAiPackage] = faker.opossum.rawAttribution({
+  packageName: 'Other AI attribution',
+  aiAttributes: { humanModified: true, deferredFields: {} },
+});
 const data = getParsedInputFileEnrichedWithTestData({
   resources: { [resourceName]: 1 },
   manualAttributions: deserializeAttributions({
     [aiId]: { ...aiPackage, aiAttributes: {} },
     [manualId]: manualPackage,
+    [secondAiId]: secondAiPackage,
   }),
   resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
-    [faker.opossum.filePath(resourceName)]: [aiId, manualId],
+    [faker.opossum.filePath(resourceName)]: [aiId, manualId, secondAiId],
   }),
 });
 const [linkedResourceName1, linkedResourceName2] = faker.opossum.resourceNames({
@@ -67,7 +72,7 @@ const linkedResourcesData = getParsedInputFileEnrichedWithTestData({
 });
 
 describe('AI Review view', () => {
-  it('shows all attributions, follows selection, and confirms navigation with a dirty draft', async () => {
+  it('shows only AI attributions, follows selection, and confirms navigation with a dirty draft', async () => {
     const { store } = await renderApp({
       data,
       actions: [navigateToView(View.AiReview)],
@@ -78,43 +83,85 @@ describe('AI Review view', () => {
         text.packageLists.attributionsPanelTitle,
       ),
     ).toBeVisible();
-    await expectPackageCards(ATTRIBUTIONS_PANEL, [aiPackage, manualPackage]);
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [aiPackage, secondAiPackage],
+      [manualPackage],
+    );
     await expectAttributionFormMatchesPackageInfo(aiPackage);
 
     await fillPanelSearch('ai-review-attributions-header', 'AI package');
-    await expectPackageCards(ATTRIBUTIONS_PANEL, [aiPackage], [manualPackage]);
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [aiPackage],
+      [secondAiPackage, manualPackage],
+    );
     expect(getSelectedAttributionId(store.getState())).toBe(aiId);
     expect(getIsPackageInfoDirty(store.getState())).toBe(false);
     await expectAttributionFormMatchesPackageInfo(aiPackage);
     await clearPanelSearch('ai-review-attributions-header');
-    await expectPackageCards(ATTRIBUTIONS_PANEL, [aiPackage, manualPackage]);
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [aiPackage, secondAiPackage],
+      [manualPackage],
+    );
 
-    await clickPackageCard(ATTRIBUTIONS_PANEL, manualPackage);
-    await expectAttributionFormMatchesPackageInfo(manualPackage);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, secondAiPackage);
+    await expectAttributionFormMatchesPackageInfo(secondAiPackage);
     await fillPanelSearch('ai-review-attributions-header', 'AI package');
-    await expectPackageCards(ATTRIBUTIONS_PANEL, [aiPackage], [manualPackage]);
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [aiPackage],
+      [secondAiPackage, manualPackage],
+    );
     await waitFor(() =>
       expect(getSelectedAttributionId(store.getState())).toBe(aiId),
     );
     await expectAttributionFormMatchesPackageInfo(aiPackage);
 
     await clearPanelSearch('ai-review-attributions-header');
-    await clickPackageCard(ATTRIBUTIONS_PANEL, manualPackage);
-    await expectAttributionFormMatchesPackageInfo(manualPackage);
+    await clickPackageCard(ATTRIBUTIONS_PANEL, secondAiPackage);
+    await expectAttributionFormMatchesPackageInfo(secondAiPackage);
 
     fillFormField('comment', 'AI review draft');
     await fillPanelSearch('ai-review-attributions-header', 'AI package');
-    await expectPackageCards(ATTRIBUTIONS_PANEL, [aiPackage], [manualPackage]);
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [aiPackage],
+      [secondAiPackage, manualPackage],
+    );
     expect(screen.getByDisplayValue('AI review draft')).toBeVisible();
     expect(
       screen.queryByLabelText('unsaved changes popup'),
     ).not.toBeInTheDocument();
 
     await clearPanelSearch('ai-review-attributions-header');
-    await expectPackageCards(ATTRIBUTIONS_PANEL, [aiPackage, manualPackage]);
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [aiPackage, secondAiPackage],
+      [manualPackage],
+    );
     await clickPackageCard(ATTRIBUTIONS_PANEL, aiPackage);
     expect(await screen.findByLabelText('unsaved changes popup')).toBeVisible();
     expect(screen.getByText(text.unsavedChangesPopup.discard)).toBeVisible();
+  });
+
+  it('replaces a manual attribution selected before entering AI review', async () => {
+    const { store } = await renderApp({
+      data,
+      actions: [
+        setSelectedAttributionId(manualId),
+        navigateToView(View.AiReview),
+      ],
+    });
+
+    await expectAttributionFormMatchesPackageInfo(aiPackage);
+    expect(getSelectedAttributionId(store.getState())).toBe(aiId);
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [aiPackage, secondAiPackage],
+      [manualPackage],
+    );
   });
 
   it('shows a no-matches empty state without mounting the details form', async () => {
@@ -124,10 +171,7 @@ describe('AI Review view', () => {
     });
 
     await expectAttributionFormMatchesPackageInfo(aiPackage);
-    await fillPanelSearch(
-      'ai-review-attributions-header',
-      'no matching package',
-    );
+    await fillPanelSearch('ai-review-attributions-header', 'Manual package');
     expect(getIsPackageInfoDirty(store.getState())).toBe(false);
 
     expect(
@@ -186,12 +230,41 @@ describe('AI Review view', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('shows the project empty state when only manual attributions exist', async () => {
+    const manualOnlyData = getParsedInputFileEnrichedWithTestData({
+      resources: { [resourceName]: 1 },
+      manualAttributions: deserializeAttributions({
+        [manualId]: manualPackage,
+      }),
+      resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+        [faker.opossum.filePath(resourceName)]: [manualId],
+      }),
+    });
+    const { store } = await renderApp({
+      data: manualOnlyData,
+      actions: [
+        setSelectedAttributionId(manualId),
+        navigateToView(View.AiReview),
+      ],
+    });
+
+    expect(
+      await screen.findByText(text.aiReviewView.noAttributionsToReview),
+    ).toBeVisible();
+    expect(getSelectedAttributionId(store.getState())).toBe('');
+    expect(
+      screen.queryByLabelText('attribution column'),
+    ).not.toBeInTheDocument();
+    await expectPackageCards(ATTRIBUTIONS_PANEL, [], [manualPackage]);
+  });
+
   it('keeps a selection that is beyond the first page', async () => {
     const attributions = Array.from(
       { length: ATTRIBUTION_PAGE_SIZE + 1 },
       (_, index) =>
         faker.opossum.rawAttribution({
           packageName: `AI package ${String(index).padStart(3, '0')}`,
+          aiAttributes: {},
         }),
     );
     const [targetAttributionId, targetPackage] =

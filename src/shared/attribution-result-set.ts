@@ -14,6 +14,7 @@ export type SortOption =
 /** The criteria shared by every attribution result-set consumer. */
 export interface AttributionResultSetCriteria {
   external: boolean;
+  aiOnly?: boolean;
   filters: Array<AttributionFilterKey>;
   search: string;
   valueFilters: AttributionValueFilters;

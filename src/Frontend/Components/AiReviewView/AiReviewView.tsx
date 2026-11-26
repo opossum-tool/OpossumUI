@@ -44,6 +44,7 @@ export const AiReviewView: React.FC = () => {
   const criteria = useMemo<AttributionResultSetCriteria>(
     () => ({
       external: false,
+      aiOnly: true,
       filters: [],
       search: debouncedSearch,
       valueFilters: {},
