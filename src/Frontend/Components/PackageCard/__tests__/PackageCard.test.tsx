@@ -10,9 +10,51 @@ import { AI_STATUS_ICON_LABEL } from '../../../../testing/ui';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
-import { PackageCard } from '../PackageCard';
+import { getPackageCardListItemHeight, PackageCard } from '../PackageCard';
 
 describe('The PackageCard', () => {
+  it('uses a taller row for comfortable density', async () => {
+    const packageInfo = faker.opossum.packageInfo({
+      packageName: 'Example',
+      packageVersion: '1.0',
+    });
+    const { rerender } = await renderComponent(
+      <PackageCard packageInfo={packageInfo} />,
+    );
+    const card = screen.getByLabelText('package card Example, 1.0');
+    expect(card).toHaveStyle({ height: '40px' });
+    expect(getPackageCardListItemHeight()).toBe(41);
+
+    rerender(<PackageCard packageInfo={packageInfo} density="comfortable" />);
+
+    expect(card).toHaveStyle({ height: '56px', boxSizing: 'border-box' });
+    expect(getPackageCardListItemHeight('comfortable')).toBe(57);
+  });
+
+  it.each(['compact', 'comfortable'] as const)(
+    'can hide the occurrence count at %s density',
+    async (density) => {
+      const packageInfo = faker.opossum.packageInfo({
+        packageName: 'Example',
+        packageVersion: '1.0',
+        count: 13,
+      });
+      const { rerender } = await renderComponent(
+        <PackageCard packageInfo={packageInfo} density={density} />,
+      );
+      expect(screen.getByText('13')).toBeVisible();
+
+      rerender(
+        <PackageCard
+          packageInfo={packageInfo}
+          showCount={false}
+          density={density}
+        />,
+      );
+      expect(screen.queryByText('13')).not.toBeInTheDocument();
+    },
+  );
+
   it.each([
     { name: 'ordinary attribution', aiStatus: undefined, expected: [] },
     {

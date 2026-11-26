@@ -209,6 +209,8 @@ export const AiReviewView: React.FC = () => {
             </FilterPills>
             <div style={{ flex: 1, minHeight: 0, width: '100%' }}>
               <AttributionsList
+                density="comfortable"
+                showCount={false}
                 activeAttributionIds={attributionIds}
                 attributions={attributionPages.attributions}
                 contentHeight={'100%'}
