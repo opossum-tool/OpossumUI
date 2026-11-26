@@ -6,7 +6,7 @@ import EditorIcon from '@mui/icons-material/Edit';
 import { type SxProps, TableCell } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiLink from '@mui/material/Link';
-import type { Theme } from '@mui/material/styles';
+import { type Theme, useTheme } from '@mui/material/styles';
 import MuiTypography from '@mui/material/Typography';
 import { skipToken } from '@tanstack/react-query';
 import { Fragment } from 'react';
@@ -16,11 +16,12 @@ import { text } from '../../../shared/text';
 import { View } from '../../enums/enums';
 import { ROOT_PATH } from '../../shared-constants';
 import {
+  baseIconPadding,
   baseIconSize,
   borderMedium,
   borderThin,
-  clickableIcon,
   OpossumColors,
+  Sizing,
 } from '../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { setPendingAttributionNavigation } from '../../state/actions/resource-actions/audit-view-simple-actions';
@@ -35,9 +36,12 @@ import {
 import { openUrl } from '../../util/open-url';
 import { IconButton } from '../IconButton/IconButton';
 import {
+  AiGeneratedIcon,
+  DeferredIcon,
   ExcludeFromNoticeIcon,
   FirstPartyIcon,
   FollowUpIcon,
+  HumanModifiedIcon,
   NeedsReviewIcon,
   PreferredIcon,
   PreSelectedIcon,
@@ -46,82 +50,115 @@ import { type TableConfig, tableConfigs } from '../ReportView/TableConfig';
 import { getFormattedCellData } from './ReportTableItem.util';
 
 export const REPORT_VIEW_ROW_HEIGHT = 150;
-const PADDING = 2.5;
-// 4px theme spacing lattice base × PADDING units
-// eslint-disable-next-line @typescript-eslint/no-magic-numbers
-const PADDING_PX = 4 * PADDING;
+const PADDING = Sizing.SmallGap;
 
-const classes = {
-  tableData: {
-    overflow: 'auto',
-    whiteSpace: 'pre-line',
-    padding: PADDING,
-    height: REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX,
-  },
-  bold: {
-    fontWeight: 'bold',
-  },
-  iconTableData: {
-    py: PADDING,
-    px: 1.75,
-    height: REPORT_VIEW_ROW_HEIGHT - 2 * PADDING_PX,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 1,
-    alignItems: 'center',
-  },
-  tableCell: { wordBreak: 'break-all' },
-  iconsCell: {
-    position: 'sticky',
-    left: 0,
-    background: '#e3e3e3',
-  },
-  borders: {
-    borderRight: `${borderThin} solid ${OpossumColors.mediumGrey}`,
-    borderBottom: `${borderThin} solid ${OpossumColors.mediumGrey}`,
-  },
-  icon: {
-    width: baseIconSize,
-    height: baseIconSize,
-  },
-  editIcon: {
-    backgroundColor: OpossumColors.white,
-    border: `${borderMedium} ${OpossumColors.brown} solid`,
-    color: OpossumColors.brown,
-  },
-  firstPartyIcon: {
-    border: `${borderMedium} ${OpossumColors.darkBlue} solid`,
-  },
-  commentIcon: {
-    border: `${borderMedium} ${OpossumColors.black} solid`,
-    color: OpossumColors.black,
-  },
-  followUpIcon: {
-    border: `${borderMedium} ${OpossumColors.red} solid`,
-  },
-  needsReviewIcon: {
-    border: `${borderMedium} ${OpossumColors.orange} solid`,
-  },
-  excludeFromNoticeIcon: {
-    border: `${borderMedium} ${OpossumColors.grey} solid`,
-  },
-  preSelectedIcon: {
-    border: `${borderMedium} ${OpossumColors.darkBlue} solid`,
-  },
-  preferredIcon: {
-    border: `${borderMedium} ${OpossumColors.mediumOrange} solid`,
-  },
-  markedTableCell: {
-    backgroundColor: OpossumColors.lightOrange,
-  },
-  clickableIcon,
-} as const satisfies SxProps<Theme>;
+function getStyles(theme: Theme) {
+  const glyphSize = baseIconSize;
+  const iconPadding = theme.spacing(baseIconPadding);
+  const iconBorderWidth = borderMedium;
+  const iconOuterSize = `calc(${glyphSize} + 2 * ${iconPadding} + 2 * ${iconBorderWidth})`;
+
+  return {
+    tableData: {
+      overflow: 'auto',
+      whiteSpace: 'pre-line',
+      padding: PADDING,
+      boxSizing: 'border-box',
+      height: '100%',
+    },
+    bold: {
+      fontWeight: 'bold',
+    },
+    iconTableData: {
+      py: PADDING,
+      px: PADDING,
+      boxSizing: 'border-box',
+      height: '100%',
+      display: 'grid',
+      gridAutoFlow: 'column',
+      gridTemplateRows: `repeat(auto-fill, ${iconOuterSize})`,
+      gridAutoColumns: iconOuterSize,
+      width: 'max-content',
+      alignContent: 'start',
+      justifyContent: 'start',
+      gap: Sizing.Tiny,
+    },
+    iconSlot: {
+      width: iconOuterSize,
+      height: iconOuterSize,
+      display: 'flex',
+    },
+    emptyIconSlot: {
+      // Pack visible icons first, keeping unused capacity as trailing space.
+      order: 1,
+      visibility: 'hidden',
+    },
+    editButton: {
+      '&:hover svg, &.Mui-focusVisible svg': {
+        background: OpossumColors.middleBlue,
+      },
+    },
+    tableCell: {
+      wordBreak: 'break-all',
+      boxSizing: 'border-box',
+      height: REPORT_VIEW_ROW_HEIGHT,
+    },
+    iconsCell: {
+      position: 'sticky',
+      left: 0,
+      background: '#e3e3e3',
+    },
+    borders: {
+      borderRight: `${borderThin} solid ${OpossumColors.mediumGrey}`,
+      borderBottom: `${borderThin} solid ${OpossumColors.mediumGrey}`,
+    },
+    icon: {
+      boxSizing: 'content-box',
+      width: glyphSize,
+      height: glyphSize,
+      padding: iconPadding,
+      border: `${iconBorderWidth} solid transparent`,
+      m: 0,
+    },
+    editIcon: {
+      backgroundColor: OpossumColors.white,
+      borderColor: OpossumColors.brown,
+      color: OpossumColors.brown,
+    },
+    firstPartyIcon: {
+      borderColor: OpossumColors.darkBlue,
+    },
+    commentIcon: {
+      borderColor: OpossumColors.black,
+      color: OpossumColors.black,
+    },
+    followUpIcon: {
+      borderColor: OpossumColors.red,
+    },
+    needsReviewIcon: {
+      borderColor: OpossumColors.orange,
+    },
+    excludeFromNoticeIcon: {
+      borderColor: OpossumColors.grey,
+    },
+    preSelectedIcon: {
+      borderColor: OpossumColors.darkBlue,
+    },
+    preferredIcon: {
+      borderColor: OpossumColors.mediumOrange,
+    },
+    markedTableCell: {
+      backgroundColor: OpossumColors.lightOrange,
+    },
+  } as const satisfies SxProps<Theme>;
+}
 
 interface ReportTableItemProps {
   packageInfo: PackageInfo;
 }
 
 export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
+  const classes = getStyles(useTheme());
   const dispatch = useAppDispatch();
   const frequentLicenseTextResult = backend.getFrequentLicenseText.useQuery(
     packageInfo.licenseName
@@ -164,7 +201,6 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
         }
         sx={{
           minWidth: ({ spacing }) => spacing(config.width),
-          maxWidth: ({ spacing }) => spacing(config.width),
           ...classes.borders,
           ...classes.tableCell,
           ...(config.attributionProperty === 'id'
@@ -174,6 +210,7 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
                   classes.markedTableCell),
               }
             : {
+                maxWidth: ({ spacing }) => spacing(config.width),
                 ...(isPackageAttributeIncomplete(
                   config.attributionProperty,
                   packageInfo,
@@ -208,85 +245,122 @@ export function ReportTableItem({ packageInfo }: ReportTableItemProps) {
   }
 
   function getIcons(packageInfo: PackageInfo) {
+    const aiStatus = packageInfo.aiStatus;
+    // Each entry is one potentially visible slot. Mutually exclusive AI states
+    // share an entry so reserving the full list doesn't overcount them.
+    const icons = [
+      {
+        key: 'edit',
+        content: (
+          <IconButton
+            wrapperSx={classes.iconSlot}
+            sx={{
+              ...classes.iconSlot,
+              ...classes.editButton,
+            }}
+            tooltipTitle={text.reportView.openInAuditView}
+            tooltipPlacement={'right'}
+            onClick={() => {
+              dispatch(
+                setPendingAttributionNavigation({
+                  attributionUuid: packageInfo.id,
+                  fallbackResourcePath: ROOT_PATH,
+                }),
+              );
+              dispatch(resetManualAuditFiltersPreservingSort());
+              dispatch(
+                changeSelectedAttributionOrOpenUnsavedPopup(packageInfo),
+              );
+              dispatch(navigateToView(View.Audit));
+            }}
+            icon={<EditorIcon sx={{ ...classes.icon, ...classes.editIcon }} />}
+          />
+        ),
+      },
+      {
+        key: 'needs-review',
+        content: packageInfo.needsReview && (
+          <NeedsReviewIcon
+            tooltipPlacement="right"
+            sx={{ ...classes.icon, ...classes.needsReviewIcon }}
+          />
+        ),
+      },
+      {
+        key: 'follow-up',
+        content: packageInfo.followUp && (
+          <FollowUpIcon
+            tooltipPlacement="right"
+            sx={{ ...classes.icon, ...classes.followUpIcon }}
+          />
+        ),
+      },
+      {
+        key: 'first-party',
+        content: packageInfo.firstParty && (
+          <FirstPartyIcon
+            tooltipPlacement="right"
+            sx={{ ...classes.icon, ...classes.firstPartyIcon }}
+          />
+        ),
+      },
+      {
+        key: 'exclude-from-notice',
+        content: packageInfo.excludeFromNotice && (
+          <ExcludeFromNoticeIcon
+            tooltipPlacement="right"
+            sx={{ ...classes.icon, ...classes.excludeFromNoticeIcon }}
+          />
+        ),
+      },
+      {
+        key: 'pre-selected',
+        content: packageInfo.preSelected && (
+          <PreSelectedIcon
+            tooltipPlacement="right"
+            sx={{ ...classes.icon, ...classes.preSelectedIcon }}
+          />
+        ),
+      },
+      {
+        key: 'preferred',
+        content: packageInfo.preferred && (
+          <PreferredIcon
+            tooltipPlacement="right"
+            sx={{ ...classes.icon, ...classes.preferredIcon }}
+          />
+        ),
+      },
+      {
+        key: 'ai-status',
+        content:
+          aiStatus &&
+          (aiStatus.deferred ? (
+            <DeferredIcon tooltipPlacement="right" sx={classes.icon} />
+          ) : (
+            <AiGeneratedIcon tooltipPlacement="right" sx={classes.icon} />
+          )),
+      },
+      {
+        key: 'human-modified',
+        content: aiStatus?.humanModified && (
+          <HumanModifiedIcon tooltipPlacement="right" sx={classes.icon} />
+        ),
+      },
+    ];
+
     return (
       <MuiBox sx={classes.iconTableData}>
-        <IconButton
-          tooltipTitle={text.reportView.openInAuditView}
-          tooltipPlacement={'right'}
-          onClick={() => {
-            dispatch(
-              setPendingAttributionNavigation({
-                attributionUuid: packageInfo.id,
-                fallbackResourcePath: ROOT_PATH,
-              }),
-            );
-            dispatch(resetManualAuditFiltersPreservingSort());
-            dispatch(changeSelectedAttributionOrOpenUnsavedPopup(packageInfo));
-            dispatch(navigateToView(View.Audit));
-          }}
-          icon={
-            <EditorIcon
-              sx={{
-                ...classes.icon,
-                ...classes.clickableIcon,
-                ...classes.editIcon,
-              }}
+        {icons.map(({ key, content }) =>
+          content ? (
+            <Fragment key={key}>{content}</Fragment>
+          ) : (
+            <MuiBox
+              key={key}
+              aria-hidden
+              sx={{ ...classes.iconSlot, ...classes.emptyIconSlot }}
             />
-          }
-        />
-        {packageInfo.needsReview && (
-          <NeedsReviewIcon
-            tooltipPlacement={'right'}
-            sx={{
-              ...classes.icon,
-              ...classes.needsReviewIcon,
-            }}
-          />
-        )}
-        {packageInfo.followUp && (
-          <FollowUpIcon
-            tooltipPlacement={'right'}
-            sx={{
-              ...classes.icon,
-              ...classes.followUpIcon,
-            }}
-          />
-        )}
-        {packageInfo.firstParty && (
-          <FirstPartyIcon
-            tooltipPlacement={'right'}
-            sx={{
-              ...classes.icon,
-              ...classes.firstPartyIcon,
-            }}
-          />
-        )}
-        {packageInfo.excludeFromNotice && (
-          <ExcludeFromNoticeIcon
-            tooltipPlacement={'right'}
-            sx={{
-              ...classes.icon,
-              ...classes.excludeFromNoticeIcon,
-            }}
-          />
-        )}
-        {packageInfo.preSelected && (
-          <PreSelectedIcon
-            tooltipPlacement={'right'}
-            sx={{
-              ...classes.icon,
-              ...classes.preSelectedIcon,
-            }}
-          />
-        )}
-        {packageInfo.preferred && (
-          <PreferredIcon
-            tooltipPlacement={'right'}
-            sx={{
-              ...classes.icon,
-              ...classes.preferredIcon,
-            }}
-          />
+          ),
         )}
       </MuiBox>
     );

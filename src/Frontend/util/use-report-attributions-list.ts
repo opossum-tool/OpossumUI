@@ -34,6 +34,7 @@ export function useReportAttributionsList() {
         0,
       )
     : undefined;
+
   const pages = useAttributionPages({
     criteria,
     scope: { mode: 'all' },
