@@ -6,6 +6,8 @@ import { normalizeLicenseSearch } from './text-search';
 
 export const ATTRIBUTION_FILTER_KEYS = [
   'aiDeferred',
+  'aiGenerated',
+  'aiHumanModified',
   'currentlyPreferred',
   'excludedFromNotice',
   'firstParty',

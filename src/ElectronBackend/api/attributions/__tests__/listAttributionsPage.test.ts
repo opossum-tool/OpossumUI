@@ -517,6 +517,70 @@ describe('listAttributionsPage', () => {
       expected: ['selected', 'emptyDeferredFields'],
     },
     {
+      name: 'AI-generated',
+      filters: ['aiGenerated'],
+      valueFilters: {},
+      attributions: {
+        selected: {
+          id: 'selected',
+          criticality: Criticality.None,
+          packageName: 'a-ai-generated-human-modified',
+          aiAttributes: { humanModified: true },
+        },
+        notModified: {
+          id: 'notModified',
+          criticality: Criticality.None,
+          packageName: 'b-ai-generated',
+          aiAttributes: { model: 'some-model' },
+        },
+        deferred: {
+          id: 'deferred',
+          criticality: Criticality.None,
+          packageName: 'c-deferred',
+          aiAttributes: { deferredFields: {} },
+        },
+        plain: {
+          id: 'plain',
+          criticality: Criticality.None,
+          packageName: 'd-plain',
+        },
+      },
+      // AI-generated covers every attribution with AI metadata, including
+      // deferred ones.
+      expected: ['selected', 'notModified', 'deferred'],
+    },
+    {
+      name: 'AI human-modified',
+      filters: ['aiHumanModified'],
+      valueFilters: {},
+      attributions: {
+        modifiedDeferred: {
+          id: 'modifiedDeferred',
+          criticality: Criticality.None,
+          packageName: 'a-modified-deferred',
+          aiAttributes: { deferredFields: {}, humanModified: true },
+        },
+        modified: {
+          id: 'modified',
+          criticality: Criticality.None,
+          packageName: 'b-modified',
+          aiAttributes: { humanModified: true },
+        },
+        unmodified: {
+          id: 'unmodified',
+          criticality: Criticality.None,
+          packageName: 'c-unmodified',
+          aiAttributes: { humanModified: false },
+        },
+        plain: {
+          id: 'plain',
+          criticality: Criticality.None,
+          packageName: 'd-plain',
+        },
+      },
+      expected: ['modifiedDeferred', 'modified'],
+    },
+    {
       name: 'currently preferred',
       filters: ['currentlyPreferred'],
       valueFilters: {},

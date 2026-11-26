@@ -19,7 +19,11 @@ import {
   type MissingAttribute,
 } from '../../shared/attribution-filters';
 import { normalizeLicenseSearch } from '../../shared/text-search';
-import { isAiDeferred } from '../db/attribution-ai';
+import {
+  isAiDeferred,
+  isAiGenerated,
+  isAiHumanModified,
+} from '../db/attribution-ai';
 import type { DB } from '../db/generated/databaseTypes';
 
 const LOW_CONFIDENCE_THRESHOLD = 60;
@@ -44,6 +48,8 @@ function getFilters(): Record<
   const eb = expressionBuilder<DB, 'attribution'>();
   const filters = {
     aiDeferred: isAiDeferred(eb),
+    aiGenerated: isAiGenerated(eb),
+    aiHumanModified: isAiHumanModified(eb),
     currentlyPreferred: eb('preferred', '=', 1),
     excludedFromNotice: eb('exclude_from_notice', '=', 1),
     firstParty: eb('first_party', '=', 1),

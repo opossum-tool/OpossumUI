@@ -605,6 +605,61 @@ describe('filterProperties', () => {
     expect(manual.result.all.aiDeferred).toBe(1);
   });
 
+  it('counts AI-generated and human-modified filters correctly', async () => {
+    await setupDb();
+
+    await initializeDbWithTestData({
+      resources: pathsToResources(['/parent/target']),
+      manualAttributions: {
+        attributions: {
+          generated: {
+            id: 'generated',
+            criticality: Criticality.None,
+            aiAttributes: { model: 'm' },
+          },
+          generatedHumanModified: {
+            id: 'generatedHumanModified',
+            criticality: Criticality.None,
+            aiAttributes: { humanModified: true },
+          },
+          deferredModified: {
+            id: 'deferredModified',
+            criticality: Criticality.None,
+            aiAttributes: { deferredFields: {}, humanModified: true },
+          },
+          deferredUnmodified: {
+            id: 'deferredUnmodified',
+            criticality: Criticality.None,
+            aiAttributes: { deferredFields: { copyright: true } },
+          },
+          ordinary: { id: 'ordinary', criticality: Criticality.None },
+        },
+        resourcesToAttributions: {
+          '/parent': [
+            'generated',
+            'generatedHumanModified',
+            'deferredModified',
+            'deferredUnmodified',
+            'ordinary',
+          ],
+        },
+        attributionsToResources: {},
+      },
+    });
+
+    const manual = await queries.filterProperties({
+      external: false,
+      filters: [],
+      resourcePathForRelationships: '/parent/target',
+    });
+    expect(manual.result.all.total).toBe(5);
+    expect(manual.result.all.aiDeferred).toBe(2);
+    // AI-generated covers every attribution with AI metadata, including
+    // deferred and human-modified ones.
+    expect(manual.result.all.aiGenerated).toBe(4);
+    expect(manual.result.all.aiHumanModified).toBe(2);
+  });
+
   it('applies active filters to narrow results', async () => {
     await setupDb();
 

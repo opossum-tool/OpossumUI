@@ -427,6 +427,8 @@ export const text = {
   },
   filters: {
     aiDeferred: 'AI-deferred attributions',
+    aiGenerated: 'AI-generated attributions',
+    aiHumanModified: 'AI human-modified',
     any: 'Any',
     classification: 'Classification',
     criticality: 'Criticality',

@@ -59,12 +59,12 @@ Contains four main fields:
 - `resolvedExternalAttributions`: used to store which signal attributions have been resolved, as they are hidden in the
   UI.
 
-Entries in `manualAttributions` can contain an optional `aiAttributions` object with metadata about AI-generated attributions:
+Entries in `manualAttributions` can contain an optional `aiAttributes` object with metadata about AI-generated attributions:
 
 - `humanModified`: an optional boolean indicating whether a human has modified the attribution.
 - `deferredFields`: an optional object containing metadata about fields requiring human review. Its presence, even as an empty object, marks the attribution as deferred.
 
-Additional properties in `aiAttributions` are preserved when loading and saving the file.
+Additional properties in `aiAttributes` are preserved when loading and saving the file.
 
 ### Split metadata
 

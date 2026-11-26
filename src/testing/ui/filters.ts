@@ -14,6 +14,8 @@ const FILTER_MENU_LABELS = {
   firstParty: text.filters.firstParty,
   thirdParty: text.filters.thirdParty,
   aiDeferred: text.filters.aiDeferred,
+  aiGenerated: text.filters.aiGenerated,
+  aiHumanModified: text.filters.aiHumanModified,
   unreviewed: text.filters.unreviewed,
   previouslyPreferred: text.filters.previouslyPreferred,
 } as const;

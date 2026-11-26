@@ -44,6 +44,7 @@ import {
   gotoReportView,
   gotoResource,
   pressSearchShortcut,
+  saveChangesInAttributionColumn,
   selectFilterLicenseName,
   selectFilterMenuDropdown,
 } from '../testing/ui';
@@ -470,6 +471,241 @@ describe('filtering attributions', () => {
 
     await gotoResource(plainFileName);
     await expectAiDeferredMenuCount('0');
+  });
+
+  it('filters AI-generated attributions in audit view', async () => {
+    const [deferredId, deferredAttribution] = faker.opossum.rawAttribution({
+      aiAttributes: { deferredFields: { copyright: true } },
+    });
+    const [humanModifiedId, humanModifiedAttribution] =
+      faker.opossum.rawAttribution({
+        aiAttributes: { humanModified: true },
+      });
+    const [plainAiId, plainAiAttribution] = faker.opossum.rawAttribution({
+      aiAttributes: { model: 'some-model' },
+    });
+    const [otherId, otherAttribution] = faker.opossum.rawAttribution();
+    const resourceName = faker.opossum.resourceNames({ count: 1 })[0];
+    const filePath = faker.opossum.filePath(resourceName);
+
+    await renderApp({
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: faker.opossum.resources({ [resourceName]: 1 }),
+        manualAttributions: deserializeAttributions({
+          [deferredId]: deferredAttribution,
+          [humanModifiedId]: humanModifiedAttribution,
+          [plainAiId]: plainAiAttribution,
+          [otherId]: otherAttribution,
+        }),
+        resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+          [filePath]: [deferredId, humanModifiedId, plainAiId, otherId],
+        }),
+      }),
+    });
+
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [
+        deferredAttribution,
+        humanModifiedAttribution,
+        plainAiAttribution,
+        otherAttribution,
+      ],
+      [],
+    );
+
+    await applyPanelFilter(ATTRIBUTIONS_PANEL, 'aiGenerated');
+    // AI-generated includes deferred attributions.
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [deferredAttribution, humanModifiedAttribution, plainAiAttribution],
+      [otherAttribution],
+    );
+
+    await clickPanelFilterMenuButton(ATTRIBUTIONS_PANEL);
+    await clickClearFiltersMenuItem();
+    await closeFilterMenu();
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [
+        deferredAttribution,
+        humanModifiedAttribution,
+        plainAiAttribution,
+        otherAttribution,
+      ],
+      [],
+    );
+  });
+
+  it('filters AI human-modified attributions in audit view', async () => {
+    const [modifiedDeferredId, modifiedDeferredAttribution] =
+      faker.opossum.rawAttribution({
+        aiAttributes: { deferredFields: {}, humanModified: true },
+      });
+    const [modifiedId, modifiedAttribution] = faker.opossum.rawAttribution({
+      aiAttributes: { humanModified: true },
+    });
+    const [unmodifiedId, unmodifiedAttribution] = faker.opossum.rawAttribution({
+      aiAttributes: { humanModified: false },
+    });
+    const [otherId, otherAttribution] = faker.opossum.rawAttribution();
+    const resourceName = faker.opossum.resourceNames({ count: 1 })[0];
+    const filePath = faker.opossum.filePath(resourceName);
+
+    await renderApp({
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: faker.opossum.resources({ [resourceName]: 1 }),
+        manualAttributions: deserializeAttributions({
+          [modifiedDeferredId]: modifiedDeferredAttribution,
+          [modifiedId]: modifiedAttribution,
+          [unmodifiedId]: unmodifiedAttribution,
+          [otherId]: otherAttribution,
+        }),
+        resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+          [filePath]: [modifiedDeferredId, modifiedId, unmodifiedId, otherId],
+        }),
+      }),
+    });
+
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [
+        modifiedDeferredAttribution,
+        modifiedAttribution,
+        unmodifiedAttribution,
+        otherAttribution,
+      ],
+      [],
+    );
+
+    await applyPanelFilter(ATTRIBUTIONS_PANEL, 'aiHumanModified');
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [modifiedDeferredAttribution, modifiedAttribution],
+      [unmodifiedAttribution, otherAttribution],
+    );
+
+    await clickPanelFilterMenuButton(ATTRIBUTIONS_PANEL);
+    await clickClearFiltersMenuItem();
+    await closeFilterMenu();
+    await expectPackageCards(
+      ATTRIBUTIONS_PANEL,
+      [
+        modifiedDeferredAttribution,
+        modifiedAttribution,
+        unmodifiedAttribution,
+        otherAttribution,
+      ],
+      [],
+    );
+  });
+
+  it('filters AI attributions in report view', async () => {
+    const [deferredId, deferredAttribution] = faker.opossum.rawAttribution({
+      aiAttributes: { deferredFields: { copyright: true } },
+    });
+    const [humanModifiedId, humanModifiedAttribution] =
+      faker.opossum.rawAttribution({
+        aiAttributes: { humanModified: true },
+      });
+    const [plainAiId, plainAiAttribution] = faker.opossum.rawAttribution({
+      aiAttributes: { model: 'some-model' },
+    });
+    const [otherId, otherAttribution] = faker.opossum.rawAttribution();
+    const resourceName = faker.opossum.resourceNames({ count: 1 })[0];
+    const filePath = faker.opossum.filePath(resourceName);
+
+    await renderApp({
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: faker.opossum.resources({ [resourceName]: 1 }),
+        manualAttributions: deserializeAttributions({
+          [deferredId]: deferredAttribution,
+          [humanModifiedId]: humanModifiedAttribution,
+          [plainAiId]: plainAiAttribution,
+          [otherId]: otherAttribution,
+        }),
+        resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+          [filePath]: [deferredId, humanModifiedId, plainAiId, otherId],
+        }),
+      }),
+    });
+
+    await gotoReportView();
+    await expectReportAttributionsShown([
+      deferredId,
+      humanModifiedId,
+      plainAiId,
+      otherId,
+    ]);
+
+    await clickFilterMenuButton(getReportView());
+    await clickFilterMenuItem(text.filters.aiGenerated);
+    await closeFilterMenu();
+    // AI-generated includes deferred attributions.
+    await expectReportAttributionsShown([
+      deferredId,
+      humanModifiedId,
+      plainAiId,
+    ]);
+    await expectReportAttributionsNotShown([otherId]);
+
+    await clickFilterMenuButton(getReportView());
+    await clickFilterMenuItem(text.filters.aiGenerated);
+    await closeFilterMenu();
+    await expectReportAttributionsShown([
+      deferredId,
+      humanModifiedId,
+      plainAiId,
+      otherId,
+    ]);
+
+    await clickFilterMenuButton(getReportView());
+    await clickFilterMenuItem(text.filters.aiHumanModified);
+    await closeFilterMenu();
+    await expectReportAttributionsShown([humanModifiedId]);
+    await expectReportAttributionsNotShown([deferredId, plainAiId, otherId]);
+  });
+
+  it('updates AI filter counts after an AI attribution is human-modified', async () => {
+    const [deferredId, deferredAttribution] = faker.opossum.rawAttribution({
+      aiAttributes: { deferredFields: { copyright: true } },
+    });
+    const [plainId, plainAttribution] = faker.opossum.rawAttribution();
+
+    await renderApp({
+      data: getParsedInputFileEnrichedWithTestData({
+        resources: { 'file.ts': 1 },
+        manualAttributions: deserializeAttributions({
+          [deferredId]: deferredAttribution,
+          [plainId]: plainAttribution,
+        }),
+        resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+          '/file.ts': [deferredId, plainId],
+        }),
+      }),
+    });
+    await gotoResource('file.ts');
+
+    async function expectAiFilterMenuCounts(aiHumanModified: string) {
+      await clickPanelFilterMenuButton(ATTRIBUTIONS_PANEL);
+      // Assert the filter whose count must change first: its retry loop only
+      // settles once the refetched counts have arrived.
+      await expectFilterMenuItemCount(
+        text.filters.aiHumanModified,
+        aiHumanModified,
+      );
+      await expectFilterMenuItemCount(text.filters.aiDeferred, '1');
+      await expectFilterMenuItemCount(text.filters.aiGenerated, '1');
+      await closeFilterMenu();
+    }
+
+    await expectAiFilterMenuCounts('0');
+
+    await clickPackageCard(ATTRIBUTIONS_PANEL, deferredAttribution);
+    fillFormField('comment', 'Human-edited comment');
+    await saveChangesInAttributionColumn();
+
+    await expectAiFilterMenuCounts('1');
   });
 
   it('only displays attributions matching search term', async () => {

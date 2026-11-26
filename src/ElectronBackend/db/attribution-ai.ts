@@ -29,14 +29,6 @@ export type AttributionWithAiStatus = Selectable<Attribution> & {
   ai_deferred: SqlBool;
 };
 
-/**
- * An attribution is AI-deferred if it has AI metadata with deferred fields
- * (`deferred_fields IS NOT NULL`, so an empty object counts as deferred).
- * Use this in query contexts that do not already join `attribution_ai`;
- * when the join exists, check `deferred_fields` directly (see
- * selectAttributionsWithAiStatus) to avoid the redundant exists subquery.
- * Both places must stay semantically identical.
- */
 export function isAiDeferred(
   eb: ExpressionBuilder<DB, 'attribution'>,
 ): AliasableExpression<SqlBool> {
@@ -46,6 +38,29 @@ export function isAiDeferred(
       .select('attribution_uuid')
       .whereRef('attribution_ai.attribution_uuid', '=', 'attribution.uuid')
       .where('deferred_fields', 'is not', null),
+  );
+}
+
+export function isAiGenerated(
+  eb: ExpressionBuilder<DB, 'attribution'>,
+): AliasableExpression<SqlBool> {
+  return eb.exists(
+    eb
+      .selectFrom('attribution_ai')
+      .select('attribution_uuid')
+      .whereRef('attribution_ai.attribution_uuid', '=', 'attribution.uuid'),
+  );
+}
+
+export function isAiHumanModified(
+  eb: ExpressionBuilder<DB, 'attribution'>,
+): AliasableExpression<SqlBool> {
+  return eb.exists(
+    eb
+      .selectFrom('attribution_ai')
+      .select('attribution_uuid')
+      .whereRef('attribution_ai.attribution_uuid', '=', 'attribution.uuid')
+      .where('human_modified', '=', 1),
   );
 }
 
