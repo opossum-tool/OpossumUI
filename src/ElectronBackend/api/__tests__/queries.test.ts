@@ -605,7 +605,7 @@ describe('filterProperties', () => {
     expect(manual.result.all.aiDeferred).toBe(1);
   });
 
-  it('counts AI-generated, human-modified, and needing-manual-input filters correctly', async () => {
+  it('counts AI-generated and human-modified filters correctly', async () => {
     await setupDb();
 
     await initializeDbWithTestData({
@@ -615,22 +615,22 @@ describe('filterProperties', () => {
           generated: {
             id: 'generated',
             criticality: Criticality.None,
-            aiAttributions: { model: 'm' },
+            aiAttributes: { model: 'm' },
           },
           generatedHumanModified: {
             id: 'generatedHumanModified',
             criticality: Criticality.None,
-            aiAttributions: { humanModified: true },
+            aiAttributes: { humanModified: true },
           },
           deferredModified: {
             id: 'deferredModified',
             criticality: Criticality.None,
-            aiAttributions: { deferredFields: {}, humanModified: true },
+            aiAttributes: { deferredFields: {}, humanModified: true },
           },
           deferredUnmodified: {
             id: 'deferredUnmodified',
             criticality: Criticality.None,
-            aiAttributions: { deferredFields: { copyright: true } },
+            aiAttributes: { deferredFields: { copyright: true } },
           },
           ordinary: { id: 'ordinary', criticality: Criticality.None },
         },
@@ -654,9 +654,10 @@ describe('filterProperties', () => {
     });
     expect(manual.result.all.total).toBe(5);
     expect(manual.result.all.aiDeferred).toBe(2);
-    expect(manual.result.all.aiGenerated).toBe(2);
+    // AI-generated covers every attribution with AI metadata, including
+    // deferred and human-modified ones.
+    expect(manual.result.all.aiGenerated).toBe(4);
     expect(manual.result.all.aiHumanModified).toBe(2);
-    expect(manual.result.all.aiNeedsManualInput).toBe(1);
   });
 
   it('applies active filters to narrow results', async () => {

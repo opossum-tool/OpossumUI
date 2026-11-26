@@ -23,7 +23,6 @@ import {
   isAiDeferred,
   isAiGenerated,
   isAiHumanModified,
-  isAiNeedsManualInput,
 } from '../db/attribution-ai';
 import type { DB } from '../db/generated/databaseTypes';
 
@@ -51,7 +50,6 @@ function getFilters(): Record<
     aiDeferred: isAiDeferred(eb),
     aiGenerated: isAiGenerated(eb),
     aiHumanModified: isAiHumanModified(eb),
-    aiNeedsManualInput: isAiNeedsManualInput(eb),
     currentlyPreferred: eb('preferred', '=', 1),
     excludedFromNotice: eb('exclude_from_notice', '=', 1),
     firstParty: eb('first_party', '=', 1),

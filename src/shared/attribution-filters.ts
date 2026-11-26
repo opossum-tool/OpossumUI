@@ -8,7 +8,6 @@ export const ATTRIBUTION_FILTER_KEYS = [
   'aiDeferred',
   'aiGenerated',
   'aiHumanModified',
-  'aiNeedsManualInput',
   'currentlyPreferred',
   'excludedFromNotice',
   'firstParty',

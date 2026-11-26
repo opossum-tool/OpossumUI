@@ -50,14 +50,15 @@ export function isAiDeferred(
 }
 
 /**
- * An attribution is AI-generated if it has AI metadata and is not deferred
- * (matches the AI-generated chip in AuditingOptions). Use in query contexts
- * that do not already join `attribution_ai`.
+ * An attribution is AI-generated if its content was produced by the AI,
+ * i.e. it has AI metadata regardless of deferral or human-modification
+ * status (deferred and human-modified attributions are included).
+ * Use in query contexts that do not already join `attribution_ai`.
  */
 export function isAiGenerated(
   eb: ExpressionBuilder<DB, 'attribution'>,
 ): AliasableExpression<SqlBool> {
-  return eb.and([hasAiMetadata(eb), eb.not(isAiDeferred(eb))]);
+  return hasAiMetadata(eb);
 }
 
 /**
@@ -77,16 +78,8 @@ export function isAiHumanModified(
 }
 
 /**
- * An AI-deferred attribution needs manual input if it has not been
- * human-modified yet (same semantics as the AI Review progress bar's
- * pending state: deferred AND NOT human-modified).
+ * An attribution has AI metadata if there is an `attribution_ai` row for it.
  */
-export function isAiNeedsManualInput(
-  eb: ExpressionBuilder<DB, 'attribution'>,
-): AliasableExpression<SqlBool> {
-  return eb.and([isAiDeferred(eb), eb.not(isAiHumanModified(eb))]);
-}
-
 function hasAiMetadata(
   eb: ExpressionBuilder<DB, 'attribution'>,
 ): AliasableExpression<SqlBool> {

@@ -525,19 +525,19 @@ describe('listAttributionsPage', () => {
           id: 'selected',
           criticality: Criticality.None,
           packageName: 'a-ai-generated-human-modified',
-          aiAttributions: { humanModified: true },
+          aiAttributes: { humanModified: true },
         },
         notModified: {
           id: 'notModified',
           criticality: Criticality.None,
           packageName: 'b-ai-generated',
-          aiAttributions: { model: 'some-model' },
+          aiAttributes: { model: 'some-model' },
         },
         deferred: {
           id: 'deferred',
           criticality: Criticality.None,
           packageName: 'c-deferred',
-          aiAttributions: { deferredFields: {} },
+          aiAttributes: { deferredFields: {} },
         },
         plain: {
           id: 'plain',
@@ -545,7 +545,9 @@ describe('listAttributionsPage', () => {
           packageName: 'd-plain',
         },
       },
-      expected: ['selected', 'notModified'],
+      // AI-generated covers every attribution with AI metadata, including
+      // deferred ones.
+      expected: ['selected', 'notModified', 'deferred'],
     },
     {
       name: 'AI human-modified',
@@ -556,19 +558,19 @@ describe('listAttributionsPage', () => {
           id: 'modifiedDeferred',
           criticality: Criticality.None,
           packageName: 'a-modified-deferred',
-          aiAttributions: { deferredFields: {}, humanModified: true },
+          aiAttributes: { deferredFields: {}, humanModified: true },
         },
         modified: {
           id: 'modified',
           criticality: Criticality.None,
           packageName: 'b-modified',
-          aiAttributions: { humanModified: true },
+          aiAttributes: { humanModified: true },
         },
         unmodified: {
           id: 'unmodified',
           criticality: Criticality.None,
           packageName: 'c-unmodified',
-          aiAttributions: { humanModified: false },
+          aiAttributes: { humanModified: false },
         },
         plain: {
           id: 'plain',
@@ -577,32 +579,6 @@ describe('listAttributionsPage', () => {
         },
       },
       expected: ['modifiedDeferred', 'modified'],
-    },
-    {
-      name: 'AI needing manual input',
-      filters: ['aiNeedsManualInput'],
-      valueFilters: {},
-      attributions: {
-        deferredUnmodified: {
-          id: 'deferredUnmodified',
-          criticality: Criticality.None,
-          packageName: 'a-deferred-unmodified',
-          aiAttributions: { deferredFields: {} },
-        },
-        deferredModified: {
-          id: 'deferredModified',
-          criticality: Criticality.None,
-          packageName: 'b-deferred-modified',
-          aiAttributions: { deferredFields: {}, humanModified: true },
-        },
-        notDeferred: {
-          id: 'notDeferred',
-          criticality: Criticality.None,
-          packageName: 'c-not-deferred',
-          aiAttributions: {},
-        },
-      },
-      expected: ['deferredUnmodified'],
     },
     {
       name: 'currently preferred',

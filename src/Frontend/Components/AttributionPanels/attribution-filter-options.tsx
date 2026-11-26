@@ -84,11 +84,6 @@ export const attributionFilterOptions: Array<AttributionFilterOption> = [
     icon: <HumanModifiedIcon noTooltip />,
   },
   {
-    key: 'aiNeedsManualInput',
-    label: text.filters.aiNeedsManualInput,
-    icon: <DeferredIcon noTooltip />,
-  },
-  {
     key: 'preSelected',
     label: text.filters.preSelected,
     icon: <PreSelectedIcon noTooltip />,
