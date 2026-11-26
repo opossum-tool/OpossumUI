@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { styled } from '@mui/material';
 import MuiBox from '@mui/material/Box';
+import MuiChip from '@mui/material/Chip';
 
 import { borderThin, OpossumColors, Sizing } from '../../shared-styles';
 
@@ -49,8 +50,17 @@ export const EmptyState = styled(MuiBox)({
 export const FilterPills = styled(MuiBox)(({ theme }) => ({
   display: 'flex',
   flexWrap: 'wrap',
-  gap: theme.spacing(1),
+  gap: theme.spacing(Sizing.Tiny),
   padding: theme.spacing(Sizing.SmallGap),
   flexShrink: 0,
   borderBottom: `${borderThin} solid ${OpossumColors.lightBlue}`,
+}));
+
+export const FilterPill = styled(MuiChip)(({ theme }) => ({
+  fontSize: theme.typography.caption.fontSize,
+})) as typeof MuiChip;
+
+export const FilterCount = styled('b')(({ theme }) => ({
+  marginInlineStart: theme.spacing(Sizing.Tiny),
+  fontVariantNumeric: 'tabular-nums',
 }));

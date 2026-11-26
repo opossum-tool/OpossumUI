@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import MuiChip from '@mui/material/Chip';
 import { useEffect, useMemo, useState } from 'react';
 
 import {
@@ -33,6 +32,8 @@ import {
   ColumnsContainer,
   DetailsColumn,
   EmptyState,
+  FilterCount,
+  FilterPill,
   FilterPills,
 } from './AiReviewView.style';
 
@@ -180,7 +181,7 @@ export const AiReviewView: React.FC = () => {
               aria-label={text.aiReviewView.statusFilters}
             >
               {AI_REVIEW_FILTERS.map((filter) => (
-                <MuiChip
+                <FilterPill
                   key={filter}
                   component="button"
                   type="button"
@@ -189,11 +190,19 @@ export const AiReviewView: React.FC = () => {
                   aria-pressed={reviewFilter === filter}
                   color={reviewFilter === filter ? 'primary' : 'default'}
                   variant={reviewFilter === filter ? 'filled' : 'outlined'}
-                  label={`${text.aiReviewView.filters[filter]}${
-                    attributionCounts.data
-                      ? ` ${attributionCounts.data[filter]}`
-                      : ''
-                  }`}
+                  label={
+                    <>
+                      {text.aiReviewView.filters[filter]}
+                      {attributionCounts.data && (
+                        <>
+                          {' '}
+                          <FilterCount>
+                            {attributionCounts.data[filter]}
+                          </FilterCount>
+                        </>
+                      )}
+                    </>
+                  }
                   onClick={() => setReviewFilter(filter)}
                 />
               ))}
