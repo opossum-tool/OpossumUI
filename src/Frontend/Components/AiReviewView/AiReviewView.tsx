@@ -29,6 +29,7 @@ import { ResizableBox } from '../ResizableBox/ResizableBox';
 import { SearchablePanel } from '../ResizePanels/searchable-panel';
 import { useLinkedResourcesPanel } from '../ResourceBrowser/use-linked-resources-panel';
 import {
+  AttributionsColumn,
   ColumnsContainer,
   DetailsColumn,
   EmptyState,
@@ -163,17 +164,7 @@ export const AiReviewView: React.FC = () => {
         }
         sx={{ flexShrink: 0, overflow: 'visible', zIndex: 1 }}
       >
-        <div
-          data-testid={'attributions-panel'}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%',
-            minHeight: 0,
-            overflow: 'hidden',
-            width: '100%',
-          }}
-        >
+        <AttributionsColumn data-testid={'attributions-panel'}>
           <SearchablePanel
             title={text.packageLists.attributionsPanelTitle}
             headerTestId={'ai-review-attributions-header'}
@@ -227,7 +218,7 @@ export const AiReviewView: React.FC = () => {
               />
             </div>
           </SearchablePanel>
-        </div>
+        </AttributionsColumn>
       </ResizableBox>
       {showEmptyState ? (
         <DetailsColumn>
