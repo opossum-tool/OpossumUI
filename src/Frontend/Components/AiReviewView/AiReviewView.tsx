@@ -15,6 +15,7 @@ import {
   getSelectedAttributionId,
 } from '../../state/selectors/resource-selectors';
 import { usePanelSizes } from '../../state/variables/use-panel-sizes';
+import { backend } from '../../util/backendClient';
 import { useAttributionPages } from '../../util/use-attribution-pages';
 import { useDebouncedInput } from '../../util/use-debounced-input';
 import { AttributionDetails } from '../AttributionDetails/AttributionDetails';
@@ -54,11 +55,20 @@ export const AiReviewView: React.FC = () => {
     }),
     [debouncedSearch],
   );
+  const attributionCounts =
+    backend.listAttributionRelationCounts.useQuery(criteria);
+  const totalAttributionCount = attributionCounts.data
+    ? Object.values(attributionCounts.data).reduce(
+        (total, count) => total + count.visibleCount,
+        0,
+      )
+    : undefined;
   const attributionPages = useAttributionPages({
     criteria,
     scope: { mode: 'all' },
     sort: 'alphabetically',
     includeReadonly: true,
+    totalCount: totalAttributionCount,
     targetAttributionUuid: selectedAttributionId || undefined,
   });
   const attributionIds = attributionPages.attributions
@@ -176,6 +186,7 @@ export const AiReviewView: React.FC = () => {
                 loadMoreError={attributionPages.nextPageError}
                 fetchNextPage={attributionPages.fetchNextPage}
                 selectedAttributionId={selectedAttributionId}
+                totalAttributionCount={totalAttributionCount}
                 resultSetKey={attributionPages.resultSetKey}
                 onSelect={(attribution) =>
                   dispatch(
