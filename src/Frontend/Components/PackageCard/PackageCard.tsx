@@ -117,6 +117,13 @@ const classes = {
     overflow: 'hidden',
     whiteSpace: 'nowrap',
   },
+  title: {
+    fontSize: (theme: Theme) => theme.typography.body2.fontSize,
+  },
+  caption: {
+    fontSize: (theme: Theme) => theme.typography.body3.fontSize,
+    color: OpossumColors.darkGrey,
+  },
 } satisfies SxProps<Theme>;
 
 export interface PackageCardConfig {
@@ -268,11 +275,11 @@ export const PackageCard = memo(
             </MuiTooltip>
           )}
           <MuiBox sx={classes.textLines}>
-            <MuiTypography sx={classes.textLine}>
+            <MuiTypography sx={[classes.textLine, classes.title]}>
               {packageLabels[0]}
             </MuiTypography>
             {!!packageLabels[1] && (
-              <MuiTypography sx={classes.textLine}>
+              <MuiTypography sx={[classes.textLine, classes.caption]}>
                 {packageLabels[1]}
               </MuiTypography>
             )}
