@@ -6,7 +6,7 @@ import { screen } from '@testing-library/react';
 
 import { Criticality, RawCriticality } from '../../../../shared/shared-types';
 import { faker } from '../../../../testing/Faker';
-import { AI_STATUS_ICON_LABEL } from '../../../../testing/ui';
+import { expectAiStatusIcons } from '../../../../testing/ui';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
@@ -88,14 +88,11 @@ describe('The PackageCard', () => {
       expected: ['Deferred AI icon', 'Human-modified AI icon'],
     },
   ])('renders AI status symbols for $name', async ({ aiStatus, expected }) => {
-    await renderComponent(
+    const { container } = await renderComponent(
       <PackageCard packageInfo={faker.opossum.packageInfo({ aiStatus })} />,
     );
 
-    const icons = screen.queryAllByLabelText(AI_STATUS_ICON_LABEL);
-    expect(icons.map((icon) => icon.getAttribute('aria-label'))).toEqual(
-      expected,
-    );
+    await expectAiStatusIcons(expected, container);
   });
 
   it('renders with preferred icon', async () => {

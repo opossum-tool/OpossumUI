@@ -10,7 +10,7 @@ import {
   getCardLabels,
   type PackageInfoForLabels,
 } from '../../Frontend/util/get-card-labels';
-import { AI_STATUS_ICON_LABEL } from './ai-status';
+import { expectAiStatusIcons } from './attribution-column';
 import {
   expectNoReadonlyIndicator,
   expectReadonlyIndicatorShown,
@@ -75,6 +75,21 @@ export async function expectPackageCards(
       expectCardAbsentOrHidden(panelTestId, packageInfo);
     }, SETTLED_TIMEOUT);
   }
+}
+
+/** Asserts the order of rendered cards, not unloaded or virtualized-away rows. */
+export async function expectPackageCardOrder(
+  panelTestId: PanelTestId,
+  expected: ReadonlyArray<PackageInfoForLabels>,
+): Promise<void> {
+  await waitFor(() => {
+    const cards = within(getPanel(panelTestId)).queryAllByLabelText(
+      /^package card /,
+    );
+    expect(cards.map((card) => card.getAttribute('aria-label'))).toEqual(
+      expected.map(cardLabelText),
+    );
+  }, SETTLED_TIMEOUT);
 }
 
 function expectCardAbsentOrHidden(
@@ -151,16 +166,11 @@ export async function expectPackageCardAiIcons(
   label: string,
   icons: Array<string>,
 ): Promise<void> {
-  await waitFor(() => {
-    const card = within(getPanel(panelTestId)).getByLabelText(
-      `package card ${label}`,
-    );
-    expect(
-      within(card)
-        .queryAllByLabelText(AI_STATUS_ICON_LABEL)
-        .map((icon) => icon.getAttribute('aria-label')),
-    ).toEqual(icons);
-  }, SETTLED_TIMEOUT);
+  const card = await waitFor(
+    () => within(getPanel(panelTestId)).getByLabelText(`package card ${label}`),
+    SETTLED_TIMEOUT,
+  );
+  await expectAiStatusIcons(icons, card);
 }
 
 export async function clickPackageCardCheckbox(

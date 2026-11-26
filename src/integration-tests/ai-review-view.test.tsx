@@ -24,9 +24,13 @@ import {
   clearTreeSearch,
   clickPackageCard,
   expectAttributionFormMatchesPackageInfo,
+  expectFormFieldValues,
   expectPackageCards,
   expectResourceItemsNotShown,
   expectResourceItemsShown,
+  expectTextVisible,
+  expectUnsavedChangesPopupClosed,
+  expectUnsavedChangesPopupOpen,
   fillFormField,
   fillPanelSearch,
   LINKED_RESOURCES_TREE,
@@ -124,9 +128,7 @@ describe('AI Review view', () => {
     await userEvent.click(
       pills.getByRole('button', { name: 'Needs follow-up 0' }),
     );
-    expect(
-      await screen.findByText(text.aiReviewView.noMatchingAttributions),
-    ).toBeVisible();
+    await expectTextVisible(text.aiReviewView.noMatchingAttributions);
     await userEvent.click(all);
     await expectPackageCards(
       ATTRIBUTIONS_PANEL,
@@ -149,9 +151,7 @@ describe('AI Review view', () => {
       'aria-pressed',
       'true',
     );
-    expect(
-      await screen.findByText(text.aiReviewView.noMatchingAttributions),
-    ).toBeVisible();
+    await expectTextVisible(text.aiReviewView.noMatchingAttributions);
     await clearPanelSearch('ai-review-attributions-header');
     await expectPackageCards(
       ATTRIBUTIONS_PANEL,
@@ -192,12 +192,10 @@ describe('AI Review view', () => {
       [secondAiPackage],
       [aiPackage],
     );
-    expect(screen.getByDisplayValue('Unsaved review')).toBeVisible();
-    expect(
-      screen.queryByLabelText('unsaved changes popup'),
-    ).not.toBeInTheDocument();
+    await expectFormFieldValues({ comment: 'Unsaved review' });
+    await expectUnsavedChangesPopupClosed();
     await clickPackageCard(ATTRIBUTIONS_PANEL, secondAiPackage);
-    expect(await screen.findByLabelText('unsaved changes popup')).toBeVisible();
+    await expectUnsavedChangesPopupOpen();
   });
 
   it('shows only AI attributions, follows selection, and confirms navigation with a dirty draft', async () => {
@@ -258,10 +256,8 @@ describe('AI Review view', () => {
       [aiPackage],
       [secondAiPackage, manualPackage],
     );
-    expect(screen.getByDisplayValue('AI review draft')).toBeVisible();
-    expect(
-      screen.queryByLabelText('unsaved changes popup'),
-    ).not.toBeInTheDocument();
+    await expectFormFieldValues({ comment: 'AI review draft' });
+    await expectUnsavedChangesPopupClosed();
 
     await clearPanelSearch('ai-review-attributions-header');
     await expectPackageCards(
@@ -270,7 +266,7 @@ describe('AI Review view', () => {
       [manualPackage],
     );
     await clickPackageCard(ATTRIBUTIONS_PANEL, aiPackage);
-    expect(await screen.findByLabelText('unsaved changes popup')).toBeVisible();
+    await expectUnsavedChangesPopupOpen();
     expect(screen.getByText(text.unsavedChangesPopup.discard)).toBeVisible();
   });
 
@@ -302,9 +298,7 @@ describe('AI Review view', () => {
     await fillPanelSearch('ai-review-attributions-header', 'Manual package');
     expect(getIsPackageInfoDirty(store.getState())).toBe(false);
 
-    expect(
-      await screen.findByText(text.aiReviewView.noMatchingAttributions),
-    ).toBeVisible();
+    await expectTextVisible(text.aiReviewView.noMatchingAttributions);
     expect(
       screen.queryByLabelText('attribution column'),
     ).not.toBeInTheDocument();
@@ -350,9 +344,7 @@ describe('AI Review view', () => {
       actions: [navigateToView(View.AiReview)],
     });
 
-    expect(
-      await screen.findByText(text.aiReviewView.noAttributionsToReview),
-    ).toBeVisible();
+    await expectTextVisible(text.aiReviewView.noAttributionsToReview);
     expect(
       screen.queryByLabelText('attribution column'),
     ).not.toBeInTheDocument();
@@ -376,9 +368,7 @@ describe('AI Review view', () => {
       ],
     });
 
-    expect(
-      await screen.findByText(text.aiReviewView.noAttributionsToReview),
-    ).toBeVisible();
+    await expectTextVisible(text.aiReviewView.noAttributionsToReview);
     expect(getSelectedAttributionId(store.getState())).toBe('');
     expect(
       screen.queryByLabelText('attribution column'),
