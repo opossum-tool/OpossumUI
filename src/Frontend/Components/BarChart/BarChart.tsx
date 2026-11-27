@@ -113,10 +113,6 @@ function BarChartLabel({
                 variant={'caption'}
                 underline={'hover'}
                 onClick={item.onActivate}
-                // The visual label wraps to two lines; keep the accessible
-                // name as the plain label so screen readers and tests
-                // query it without the line break.
-                aria-label={item.name}
                 style={{
                   ...style,
                   lineHeight: 'inherit',

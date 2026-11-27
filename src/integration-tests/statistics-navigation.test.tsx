@@ -128,9 +128,9 @@ async function openStatistics(): Promise<void> {
 }
 
 describe('statistics navigation', () => {
-  it.each<[StatisticsChartTestId, string]>([
+  it.each<[StatisticsChartTestId, string | RegExp]>([
     ['mostFrequentLicenseCountPieChart', 'MIT'],
-    ['attributionBarChart', 'Needs Review'],
+    ['attributionBarChart', /^Needs\s+Review$/],
   ])(
     'shows only one tooltip for %s on hover and keyboard focus',
     async (chartId, label) => {

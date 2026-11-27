@@ -145,7 +145,7 @@ export async function clickStatisticsChartLegend(
 ): Promise<void> {
   await userEvent.click(
     within(getStatisticsChart(chartTestId)).getByRole('button', {
-      name: label,
+      name: (name) => name.replace(/\s+/g, ' ') === label,
     }),
   );
 }
