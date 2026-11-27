@@ -10,6 +10,7 @@ import { borderThin, Sizing } from '../../../shared-styles';
 
 export const Container = styled(MuiBox)(({ theme }) => ({
   display: 'flex',
+  flexShrink: 0,
   gap: theme.spacing(Sizing.Large),
   justifyContent: 'flex-end',
   flexWrap: 'wrap',

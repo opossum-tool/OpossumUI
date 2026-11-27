@@ -28,6 +28,7 @@ const classes = {
     display: 'flex',
     flexDirection: 'column',
     flex: 1,
+    minHeight: 0,
     gap: 3,
     p: 5,
     pb: 0,

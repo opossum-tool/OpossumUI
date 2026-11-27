@@ -33,6 +33,8 @@ const classes = {
   root: {
     display: 'flex',
     flexDirection: 'column',
+    flex: 1,
+    minHeight: 0,
     width: '100%',
     position: 'relative',
   },

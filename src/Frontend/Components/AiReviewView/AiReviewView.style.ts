@@ -20,22 +20,6 @@ export const aiReviewSortButtonStyle: SxProps<Theme> = {
   },
 };
 
-export const ColumnsContainer = styled(MuiBox)({
-  width: '100%',
-  flex: 1,
-  minHeight: 0,
-  display: 'flex',
-  overflow: 'hidden',
-  '& > *': { minWidth: 0, minHeight: 0, overflow: 'auto' },
-});
-
-export const DetailsColumn = styled(MuiBox)({
-  flex: '1 1 0',
-  minWidth: '20%',
-  minHeight: 0,
-  overflow: 'auto',
-});
-
 export const AttributionsColumn = styled(MuiBox)({
   display: 'flex',
   flexDirection: 'column',

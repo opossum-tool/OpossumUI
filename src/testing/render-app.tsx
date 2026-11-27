@@ -28,9 +28,8 @@ type IpcListener = (event: IpcRendererEvent, ...args: Array<unknown>) => void;
 // - ResizeObserver: ResizePanels only expands the lower panel (and shows
 //   its header search field) once the observer reports the panel container
 //   height, which the no-op frontend-setup stub never does. The simulated
-//   observer resolves the height for re-resizable panel containers (their
-//   identifiable inline style is set by the library) and stays a no-op for
-//   every other consumer.
+//   observer resolves the height for ResizePanels containers, identified by
+//   their test ID, and stays a no-op for every other consumer.
 // - re-resizable: fed the same fixed size via its internal size getter so
 //   the upper/lower split panels do not collapse.
 // Match the Playwright default viewport, the environment the e2e suite
@@ -47,11 +46,8 @@ class SimulatedResizeObserver {
   observe(node: Element): void {
     // Keep the frontend-setup no-op behavior for every other consumer
     // (AttributionForm headers, charts, react-virtuoso). ResizePanels is
-    // the only component that resolves panel geometry from the observer:
-    // its container is a re-resizable node, whose characteristic inline
-    // style is set by the library itself.
-    const styled = node instanceof HTMLElement ? node.style : undefined;
-    if (styled?.boxSizing !== 'border-box' || styled?.flexShrink !== '0') {
+    // the only component that resolves panel geometry from the observer.
+    if (node.getAttribute('data-testid') !== 'resize-panels') {
       return;
     }
 

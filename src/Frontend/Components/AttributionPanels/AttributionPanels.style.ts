@@ -2,13 +2,12 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { styled } from '@mui/material';
-import Paper from '@mui/material/Paper';
+import type { SxProps, Theme } from '@mui/material/styles';
 
 import { OpossumColors } from '../../shared-styles';
 
-export const Container = styled(Paper)({
+export const attributionPanelsStyle = {
   display: 'flex',
   background: OpossumColors.lightestBlue,
   zIndex: 3,
-});
+} satisfies SxProps<Theme>;

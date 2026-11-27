@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import type { Resizable } from 're-resizable';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import type { AllowedFrontendChannels } from '../../../shared/ipc-channels';
@@ -42,24 +41,16 @@ interface ResizePanelsProps {
   height: number | null;
   lowerPanel: ResizePanel;
   main: 'upper' | 'lower';
-  maxWidth?: number;
-  minWidth?: number;
   setHeight: (height: number) => void;
-  setWidth: (width: number) => void;
   upperPanel: ResizePanel;
-  width: number;
 }
 
 export const ResizePanels: React.FC<ResizePanelsProps> = ({
   height,
   lowerPanel,
   main,
-  maxWidth,
-  minWidth,
   setHeight,
-  setWidth,
   upperPanel,
-  width,
 }) => {
   const heightIsNull = height === null;
   const effectiveHeight = height ?? 0;
@@ -68,7 +59,7 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
   const [containerHeight, setContainerHeight] = useState<number | undefined>(
     undefined,
   );
-  const containerRef = useRef<Resizable>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const isLowerCollapsed = effectiveHeight <= HEADER_HEIGHT;
   const isUpperCollapsed =
@@ -80,7 +71,7 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
   // setting state per render fights CSS transitions and the drag
   // mechanics of re-resizable, causing a resize feedback loop.
   useLayoutEffect(() => {
-    const node = containerRef.current?.resizable;
+    const node = containerRef.current;
     if (!node) {
       return;
     }
@@ -109,27 +100,21 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
   }, [fraction, heightIsNull, setHeight, containerHeight]);
 
   return (
-    <ResizableBox
+    <div
       ref={containerRef}
-      enable={{ right: true }}
-      size={{ height: 'auto', width }}
-      minWidth={minWidth}
-      maxWidth={maxWidth}
-      onResizeStart={() => setIsResizing(true)}
-      onResizeStop={(_event, _direction, _ref, delta) => {
-        setWidth(width + delta.width);
-        setIsResizing(false);
-      }}
-      sx={{
+      data-testid="resize-panels"
+      style={{
         display: 'flex',
         flexDirection: 'column',
+        flex: 1,
         minHeight: 0,
+        overflow: 'hidden',
         transition: isResizing ? undefined : TRANSITION,
       }}
     >
       {renderUpperPanel()}
       {renderLowerPanel()}
-    </ResizableBox>
+    </div>
   );
 
   function renderUpperPanel() {
@@ -169,9 +154,7 @@ export const ResizePanels: React.FC<ResizePanelsProps> = ({
           setHeight(effectiveHeight + delta.height);
           setIsResizing(false);
         }}
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
+        style={{
           transition: isResizing ? undefined : TRANSITION,
         }}
       >
