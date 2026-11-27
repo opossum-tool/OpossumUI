@@ -7599,7 +7599,7 @@ __metadata:
     react-markdown: "npm:10.1.0"
     react-redux: "npm:9.3.1"
     react-virtuoso: "npm:4.18.24"
-    recharts: "npm:3.11.0"
+    recharts: "npm:3.11.1"
     rolldown: "npm:1.3.3"
     spdx-license-ids: "npm:3.0.24"
     stream-json: "npm:3.9.0"
@@ -8420,9 +8420,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"recharts@npm:3.11.0":
-  version: 3.11.0
-  resolution: "recharts@npm:3.11.0"
+"recharts@npm:3.11.1":
+  version: 3.11.1
+  resolution: "recharts@npm:3.11.1"
   dependencies:
     "@reduxjs/toolkit": "npm:^1.9.0 || 2.x.x"
     clsx: "npm:^2.1.1"
@@ -8443,7 +8443,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10/29e7cfb86550470d52061284f04b45e99290133f29b5e7ebd09259187b0dde502c21edbb6371161f64a6f50191b4bafe9f3bfe8a983428f4b5473eed61ef04d5
+  checksum: 10/75ac8d4ec628119d0eb91947f133533ebf1bb5e092f392ebc246ba2dfe39911eed6efc953947bdc8b40a843e4cbebe624834578a5e8d59d2868af31351d85247
   languageName: node
   linkType: hard
 
