@@ -2,13 +2,17 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { View } from '../Frontend/enums/enums';
+import { setTemporaryDisplayPackageInfo } from '../Frontend/state/actions/resource-actions/all-views-simple-actions';
 import { setVariable } from '../Frontend/state/actions/variables-actions/variables-actions';
 import { navigateToView } from '../Frontend/state/actions/view-actions/view-actions';
-import { getSelectedAttributionId } from '../Frontend/state/selectors/resource-selectors';
+import {
+  getSelectedAttributionId,
+  getTemporaryDisplayPackageInfo,
+} from '../Frontend/state/selectors/resource-selectors';
 import {
   initialAttributionFilters,
   MANUAL_ATTRIBUTION_FILTERS_AUDIT,
@@ -19,10 +23,8 @@ import { text } from '../shared/text';
 import { renderApp } from '../testing/render-app';
 import {
   ATTRIBUTIONS_PANEL,
-  expectFormFieldValues,
   expectPackageCardOrder,
   expectUnsavedChangesPopupClosed,
-  fillFormField,
   fillPanelSearch,
 } from '../testing/ui';
 
@@ -101,8 +103,21 @@ test('sorts AI attributions by each available mode', async () => {
 
 test('keeps AI sorting independent of Audit and retains filters, selection, and drafts', async () => {
   const { store } = await renderSortingView();
-  await expectFormFieldValues({ name: 'Alpha' });
-  fillFormField('comment', 'Unsaved AI review');
+  const packageTable = await screen.findByRole('table', {
+    name: 'package fields',
+  });
+  await waitFor(() =>
+    expect(within(packageTable).getByText('Alpha')).toBeVisible(),
+  );
+  expect(
+    screen.queryByRole('textbox', { name: 'Comment' }),
+  ).not.toBeInTheDocument();
+  store.dispatch(
+    setTemporaryDisplayPackageInfo({
+      ...getTemporaryDisplayPackageInfo(store.getState()),
+      comment: 'Unsaved AI review',
+    }),
+  );
 
   await userEvent.click(screen.getByRole('button', { name: 'Deferred 2' }));
   await selectSort(text.sortings.criticality);
@@ -111,7 +126,9 @@ test('keeps AI sorting independent of Audit and retains filters, selection, and 
   await expectPackageCardOrder(ATTRIBUTIONS_PANEL, [alpha]);
 
   expect(getSelectedAttributionId(store.getState())).toBe('alpha');
-  await expectFormFieldValues({ comment: 'Unsaved AI review' });
+  expect(getTemporaryDisplayPackageInfo(store.getState()).comment).toBe(
+    'Unsaved AI review',
+  );
   await expectUnsavedChangesPopupClosed();
   expect(
     store.getState().variablesState[MANUAL_ATTRIBUTION_FILTERS_AUDIT],

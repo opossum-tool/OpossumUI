@@ -8,6 +8,7 @@ import {
   getSelectedResourceId,
 } from '../../state/selectors/resource-selectors';
 import { AttributionDetails } from '../AttributionDetails/AttributionDetails';
+import { AiReviewAttributionFormBody } from './ai-review-attribution-form-body';
 
 export function AiReviewAttributionDetails() {
   const attributionId = useAppSelector(getSelectedAttributionId);
@@ -16,6 +17,7 @@ export function AiReviewAttributionDetails() {
   return (
     <AttributionDetails
       selection={{ attributionId, resourceId, isPending: false }}
+      FormBody={AiReviewAttributionFormBody}
     />
   );
 }
