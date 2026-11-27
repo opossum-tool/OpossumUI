@@ -35,9 +35,9 @@ export const Checkbox: React.FC<CheckboxProps> = ({
   return (
     <FormControlLabel
       sx={{
-        ...sx,
         marginLeft: 'unset',
         marginRight: !label ? 'unset' : undefined,
+        ...sx,
       }}
       label={label}
       disabled={disabled}

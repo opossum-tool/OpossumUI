@@ -974,6 +974,11 @@ export const PackagesPanel = ({
         }}
       >
         <Checkbox
+          sx={{
+            // align with the checkboxes of the package cards, which are
+            // centered in their 40px selection box
+            ml: 0.75,
+          }}
           disabled={!activeRelationCount?.editableCount || pickerMode.isActive}
           checked={areAllAttributionsSelected}
           indeterminate={
