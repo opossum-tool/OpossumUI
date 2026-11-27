@@ -19,6 +19,11 @@ import { SpdxValidationDisplay } from './SpdxValidationDisplay';
 export type LicensePatch = Pick<PackageInfo, 'licenseName' | 'licenseText'>;
 
 interface LicenseAutocompleteProps {
+  id?: string;
+  inputRef?: React.Ref<HTMLInputElement>;
+  autoFocus?: boolean;
+  compact?: boolean;
+  onCommit?: (patch: LicensePatch) => void;
   licenseName: PackageInfo['licenseName'];
   licenseText: PackageInfo['licenseText'];
   onUpdate: (patch: LicensePatch) => void;
@@ -33,6 +38,11 @@ interface LicenseAutocompleteProps {
 }
 
 export function LicenseSubPanelAutocomplete({
+  id,
+  inputRef,
+  autoFocus,
+  compact = false,
+  onCommit,
   licenseName,
   licenseText,
   onUpdate,
@@ -175,9 +185,16 @@ export function LicenseSubPanelAutocomplete({
       data-testid="license-sub-panel"
     >
       <Autocomplete<LicenseOption, false, true, true>
+        id={id}
+        inputRef={inputRef}
+        autoFocus={autoFocus}
+        inlineSuggestions={compact}
         value={''}
         options={licenseOptions}
-        title={text.attributionColumn.licenseExpression}
+        title={compact ? undefined : text.attributionColumn.licenseExpression}
+        aria-label={
+          compact ? text.attributionColumn.licenseExpression : undefined
+        }
         disabled={disabled}
         readOnly={readOnly}
         highlighting={
@@ -211,16 +228,19 @@ export function LicenseSubPanelAutocomplete({
           secondary: (option) =>
             typeof option === 'string' ? null : option.fullName,
         }}
-        onChange={(_, value) =>
-          typeof value !== 'string' &&
-          isEditable &&
-          onUpdate({
+        onChange={(_, value) => {
+          if (typeof value === 'string' || !isEditable) {
+            return;
+          }
+          const patch = {
             licenseName: value.replaceEntireSearch
               ? value.shortName
               : `${splitAtLastExpression(licenseName)[0]}${value.shortName}`,
             licenseText: '',
-          })
-        }
+          };
+          onUpdate(patch);
+          onCommit?.(patch);
+        }}
         onInputChange={(event, value, reason) =>
           event &&
           reason === 'input' &&

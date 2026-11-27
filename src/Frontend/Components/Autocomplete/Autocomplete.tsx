@@ -77,6 +77,9 @@ type AutocompleteProps<
     disableCloseOnSelect?: boolean;
     forceTop?: boolean;
     hideTags?: boolean;
+    autoFocus?: boolean;
+    /** Embedded suggestions stay open for the lifetime of the host editor. */
+    inlineSuggestions?: boolean;
   };
 
 export function Autocomplete<
@@ -98,6 +101,8 @@ export function Autocomplete<
   groupProps,
   hidePopupIndicator,
   hideTags,
+  autoFocus,
+  inlineSuggestions = false,
   inputRef,
   inputDataTestId,
   inputProps: customInputProps,
@@ -122,6 +127,11 @@ export function Autocomplete<
 
   const groupedOptionsRef = useRef<Array<Value> | null>(null);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
+  useEffect(() => {
+    if (inlineSuggestions) {
+      virtuosoRef.current?.scrollToIndex({ index: 0 });
+    }
+  }, [inlineSuggestions, props.inputValue]);
   const onHighlightChange = useCallback(
     (
       event: React.SyntheticEvent,
@@ -175,7 +185,7 @@ export function Autocomplete<
     onOpen: () => {
       setOpen(true);
     },
-    open,
+    open: inlineSuggestions || open,
     readOnly,
     ...props,
   });
@@ -258,6 +268,7 @@ export function Autocomplete<
               event.key === 'Backspace' && event.stopPropagation();
             }}
             fullWidth
+            autoFocus={autoFocus}
           />
         </MuiTooltip>
       </Container>
@@ -333,6 +344,9 @@ export function Autocomplete<
   }
 
   function renderPopper() {
+    if (inlineSuggestions) {
+      return isPopupOpen ? renderListbox() : null;
+    }
     const availableTopHeight =
       isPopupOpen && props.forceTop && anchorEl
         ? anchorEl.getBoundingClientRect().top - FORCE_TOP_PADDING
@@ -346,23 +360,30 @@ export function Autocomplete<
       >
         {({ TransitionProps }) => (
           <MuiFade {...TransitionProps} timeout={300}>
-            <Listbox
-              {...getListboxProps()}
-              virtuosoRef={virtuosoRef}
-              closePopper={closePopper}
-              maxHeight={props.forceTop ? availableTopHeight : undefined}
-              optionText={optionText}
-              options={groupedOptions}
-              groupBy={groupBy}
-              groupProps={groupProps}
-              getOptionKey={getOptionKey}
-              getOptionProps={getOptionProps}
-              renderOptionStartIcon={renderOptionStartIcon}
-              renderOptionEndIcon={renderOptionEndIcon}
-            />
+            {renderListbox(props.forceTop ? availableTopHeight : undefined)}
           </MuiFade>
         )}
       </StyledPopper>
+    );
+  }
+
+  function renderListbox(maxHeight?: number) {
+    return (
+      <Listbox
+        {...getListboxProps()}
+        elevation={inlineSuggestions ? 0 : undefined}
+        virtuosoRef={virtuosoRef}
+        closePopper={closePopper}
+        maxHeight={maxHeight}
+        optionText={optionText}
+        options={groupedOptions}
+        groupBy={groupBy}
+        groupProps={groupProps}
+        getOptionKey={getOptionKey}
+        getOptionProps={getOptionProps}
+        renderOptionStartIcon={renderOptionStartIcon}
+        renderOptionEndIcon={renderOptionEndIcon}
+      />
     );
   }
 }

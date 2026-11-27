@@ -19,6 +19,7 @@ import { GroupContainer, styles } from './Listbox.style';
 
 // How far beyond the visible area react-virtuoso pre-renders list rows
 const LIST_OVERSCAN = 20;
+const DEFAULT_ELEVATION = 4;
 
 const EmptyGroupIcon: React.FC<{ name: string }> = () => null;
 
@@ -29,6 +30,7 @@ export type ListboxProps<
   ref?: React.RefObject<HTMLDivElement>;
   virtuosoRef: React.RefObject<VirtuosoHandle | null>;
   maxHeight?: number;
+  elevation?: number;
   options: Array<Value>;
   groupProps?: {
     icon?: React.FC<{ name: string }>;
@@ -76,6 +78,7 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
   groupBy,
   groupProps,
   maxHeight,
+  elevation = DEFAULT_ELEVATION,
   optionText,
   options,
   renderOptionEndIcon,
@@ -109,7 +112,7 @@ export const Listbox = <Value, FreeSolo extends boolean | undefined>({
       ref={ref}
       role={'presentation'}
       style={style}
-      elevation={4}
+      elevation={elevation}
       square
       onMouseDown={(event) => event.preventDefault()}
     >

@@ -54,6 +54,8 @@ export const PACKAGE_FIELD_KEYS = [
   'url',
 ] as const satisfies ReadonlyArray<PackageAutocompleteAttribute>;
 
+export type PackageFieldAttribute = (typeof PACKAGE_FIELD_KEYS)[number];
+
 export const PACKAGE_FIELD_METADATA: Record<
   PackageAutocompleteAttribute,
   { label: string }
@@ -66,15 +68,12 @@ export const PACKAGE_FIELD_METADATA: Record<
   licenseName: { label: text.attributionColumn.licenseExpression },
 };
 
-export function isPackageFieldKey(
-  key: string,
-): key is (typeof PACKAGE_FIELD_KEYS)[number] {
-  return PACKAGE_FIELD_KEYS.includes(
-    key as (typeof PACKAGE_FIELD_KEYS)[number],
-  );
+export function isPackageFieldKey(key: string): key is PackageFieldAttribute {
+  return PACKAGE_FIELD_KEYS.some((field) => field === key);
 }
 
 interface Props {
+  id?: string;
   title: string;
   attribute: PackageAutocompleteAttribute;
   packageInfo: PackageInfo;
@@ -87,6 +86,11 @@ interface Props {
   onEdit?: Confirm;
   color?: TextFieldProps['color'];
   focused?: boolean;
+  openOnFocus?: boolean;
+  onCommit?: (patch: PackagePatch) => void;
+  inputRef?: React.Ref<HTMLInputElement>;
+  autoFocus?: boolean;
+  compact?: boolean;
   disableCloseOnSelect?: boolean;
   inputDataTestId?: string;
   sx?: SxProps;
@@ -100,6 +104,7 @@ const AddIconButton = styled(MuiIconButton)({
 });
 
 export function PackageAutocomplete({
+  id,
   attribute,
   title,
   packageInfo,
@@ -112,6 +117,11 @@ export function PackageAutocomplete({
   onEdit,
   color,
   focused,
+  openOnFocus,
+  onCommit,
+  inputRef,
+  autoFocus,
+  compact: compactEditor = false,
   disableCloseOnSelect,
   inputDataTestId,
   sx,
@@ -164,15 +174,18 @@ export function PackageAutocomplete({
       readOnly ||
       disabled ||
       typeof value === 'string' ||
-      value[attribute] === packageInfo[attribute]
+      (value[attribute] === packageInfo[attribute] && !onCommit)
     ) {
       return;
     }
-    const update = () =>
-      onUpdate({
+    const update = () => {
+      const patch = {
         [attribute]: value[attribute],
         ...(attribute === 'licenseName' ? { licenseText: '' } : null),
-      });
+      };
+      onUpdate(patch);
+      onCommit?.(patch);
+    };
     if (onEdit) {
       await onEdit(update);
     } else {
@@ -197,7 +210,9 @@ export function PackageAutocomplete({
       const enrich = async () => {
         const enriched = (await enrichPackageInfo(merged)) || merged;
         if (packageInfoRef.current.id === originId) {
-          onUpdate(toPackagePatch(enriched));
+          const patch = toPackagePatch(enriched);
+          onUpdate(patch);
+          onCommit?.(patch);
         }
         closePopper();
       };
@@ -221,10 +236,14 @@ export function PackageAutocomplete({
       }}
     >
       <PackageAutocompleteInput
+        id={id}
         title={title}
         disabled={disabled}
         readOnly={readOnly}
         inputProps={inputProps}
+        inputRef={inputRef}
+        autoFocus={autoFocus}
+        compact={compactEditor}
         inputDataTestId={inputDataTestId}
         highlighting={highlighting}
         options={options}
@@ -234,6 +253,7 @@ export function PackageAutocomplete({
         onSelection={onSelection}
         onInput={onInput}
         onSuggestionEnrich={onSuggestionEnrich}
+        openOnFocus={openOnFocus}
         endAdornment={endAdornment}
         disableCloseOnSelect={disableCloseOnSelect}
       />
@@ -247,6 +267,7 @@ export function PackageAutocomplete({
 
 const PackageAutocompleteInput = memo(
   ({
+    id,
     attribute,
     title,
     disabled,
@@ -256,18 +277,23 @@ const PackageAutocompleteInput = memo(
     forceTop,
     value,
     inputProps,
+    inputRef,
+    autoFocus,
+    compact: compactEditor,
     inputDataTestId,
     endAdornment,
     disableCloseOnSelect,
     onSelection,
     onInput,
     onSuggestionEnrich,
+    openOnFocus,
   }: Omit<
     Props,
     | 'packageInfo'
     | 'defaults'
     | 'showHighlight'
     | 'onUpdate'
+    | 'onCommit'
     | 'onEdit'
     | 'color'
     | 'focused'
@@ -290,10 +316,16 @@ const PackageAutocompleteInput = memo(
   }) => {
     return (
       <Autocomplete<PackageInfo, false, true, true>
-        title={title}
+        id={id}
+        title={compactEditor ? undefined : title}
+        aria-label={compactEditor ? title : undefined}
+        inlineSuggestions={compactEditor}
+        inputRef={inputRef}
+        autoFocus={autoFocus}
         disabled={disabled}
         readOnly={readOnly}
         autoHighlight
+        openOnFocus={openOnFocus}
         disableClearable
         freeSolo
         inputValue={value}

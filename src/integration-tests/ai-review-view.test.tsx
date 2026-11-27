@@ -13,7 +13,6 @@ import {
 } from '../ElectronBackend/api/commands';
 import { deserializeAttributions } from '../ElectronBackend/input/parseInputData';
 import { View } from '../Frontend/enums/enums';
-import { setTemporaryDisplayPackageInfo } from '../Frontend/state/actions/resource-actions/all-views-simple-actions';
 import { setSelectedAttributionId } from '../Frontend/state/actions/resource-actions/audit-view-simple-actions';
 import { navigateToView } from '../Frontend/state/actions/view-actions/view-actions';
 import {
@@ -25,6 +24,7 @@ import {
 import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers/general-test-helpers';
 import type { State } from '../Frontend/types/types';
 import { ATTRIBUTION_PAGE_SIZE } from '../Frontend/util/attribution-page-query';
+import type { PackageInfo } from '../shared/shared-types';
 import { text } from '../shared/text';
 import { unexpectedBackendCall } from '../testing/backend-integration';
 import { faker } from '../testing/Faker';
@@ -53,15 +53,18 @@ import {
 } from '../testing/ui';
 
 async function expectAiReviewDetailsMatchesPackageInfo(
-  packageInfo: typeof aiPackage,
+  packageInfo: Pick<
+    PackageInfo,
+    | 'packageName'
+    | 'packageNamespace'
+    | 'packageVersion'
+    | 'packageType'
+    | 'url'
+    | 'comment'
+  >,
 ): Promise<void> {
   await screen.findByRole('table', { name: 'package fields' });
   const column = screen.getByLabelText('attribution column');
-  const packageRows = within(
-    within(column).getByRole('table', { name: 'package fields' }),
-  )
-    .getAllByRole('row')
-    .slice(1);
   const expected = [
     [text.attributionColumn.packageName, packageInfo.packageName || '—'],
     [
@@ -73,6 +76,11 @@ async function expectAiReviewDetailsMatchesPackageInfo(
     ['Repository URL', packageInfo.url || '—'],
   ];
   await waitFor(() => {
+    const packageRows = within(
+      within(column).getByRole('table', { name: 'package fields' }),
+    )
+      .getAllByRole('row')
+      .slice(1);
     expect(
       packageRows.map((row) => within(row).getAllByRole('cell')[2].textContent),
     ).toEqual(expected.map(([label]) => label));
@@ -88,6 +96,19 @@ async function expectAiReviewDetailsMatchesPackageInfo(
   );
   expect(commentSection.getByText(packageInfo.comment || '—')).toBeVisible();
   expect(commentSection.queryByRole('textbox')).not.toBeInTheDocument();
+}
+
+async function editAiReviewComment(comment: string): Promise<void> {
+  await userEvent.click(screen.getByRole('button', { name: 'Edit Comment' }));
+  const input = screen.getByRole('textbox', { name: 'Comment' });
+  await userEvent.clear(input);
+  await userEvent.type(input, comment);
+  await userEvent.keyboard('{Control>}{Enter}{/Control}');
+  await waitFor(() =>
+    expect(
+      screen.queryByRole('textbox', { name: 'Comment' }),
+    ).not.toBeInTheDocument(),
+  );
 }
 
 async function expectAttributionFormMatchesPackageInfo(
@@ -265,9 +286,10 @@ describe('AI Review view', () => {
     await clickTopBarViewButton('aiReview');
     await expectAttributionDetailsReady();
     await expectAiReviewDetailsMatchesPackageInfo(editableAiPackage);
-    expect(
-      screen.queryByRole('textbox', { name: 'Comment' }),
-    ).not.toBeInTheDocument();
+    const reviewedComment = 'Reviewed while Audit loads';
+    await editAiReviewComment(reviewedComment);
+    await saveChangesInAttributionColumn();
+    expect(getIsPackageInfoDirty(store.getState())).toBe(false);
     expectAuditSelectionPending(store, targetResourcePath);
 
     await clickTopBarViewButton('audit');
@@ -278,6 +300,12 @@ describe('AI Review view', () => {
     expect(getSelectedAttributionId(store.getState())).toBe(targetAuditId);
     await expectAttributionDetailsReady();
     await expectAttributionFormMatchesPackageInfo(targetAuditPackage);
+    await clickTopBarViewButton('aiReview');
+    await expectAttributionDetailsReady();
+    await expectAiReviewDetailsMatchesPackageInfo({
+      ...editableAiPackage,
+      comment: reviewedComment,
+    });
   });
 
   it('selects one status at a time while keeping overlapping counts independent', async () => {
@@ -363,17 +391,12 @@ describe('AI Review view', () => {
   });
 
   it('refreshes status counts after saving a human edit without resolving deferrals', async () => {
-    const { store } = await renderApp({
+    await renderApp({
       data,
       actions: [navigateToView(View.AiReview)],
     });
     await expectAiReviewDetailsMatchesPackageInfo(aiPackage);
-    store.dispatch(
-      setTemporaryDisplayPackageInfo({
-        ...getTemporaryDisplayPackageInfo(store.getState()),
-        comment: 'Human review',
-      }),
-    );
+    await editAiReviewComment('Human review');
     await saveChangesInAttributionColumn();
     const pills = within(
       screen.getByRole('group', { name: text.aiReviewView.statusFilters }),
@@ -393,12 +416,7 @@ describe('AI Review view', () => {
       actions: [navigateToView(View.AiReview)],
     });
     await expectAiReviewDetailsMatchesPackageInfo(aiPackage);
-    store.dispatch(
-      setTemporaryDisplayPackageInfo({
-        ...getTemporaryDisplayPackageInfo(store.getState()),
-        comment: 'Unsaved review',
-      }),
-    );
+    await editAiReviewComment('Unsaved review');
     const pills = within(
       screen.getByRole('group', { name: text.aiReviewView.statusFilters }),
     );
@@ -416,6 +434,84 @@ describe('AI Review view', () => {
     await expectUnsavedChangesPopupClosed();
     await clickPackageCard(ATTRIBUTIONS_PANEL, secondAiPackage);
     await expectUnsavedChangesPopupOpen();
+  });
+
+  it('saves legal edits and reloads the license text reset after changing selection', async () => {
+    const packageInfo = {
+      ...data.manualAttributions.attributions[aiId],
+      firstParty: false,
+      copyright: 'Original copyright',
+      licenseName: 'MIT',
+      licenseText: 'Custom license text',
+    };
+    const { store } = await renderApp({
+      data: {
+        ...data,
+        manualAttributions: {
+          ...data.manualAttributions,
+          attributions: {
+            ...data.manualAttributions.attributions,
+            [aiId]: packageInfo,
+          },
+        },
+        frequentLicenses: {
+          nameOrder: [
+            { shortName: 'Apache-2.0', fullName: 'Apache License 2.0' },
+          ],
+          texts: {},
+        },
+      },
+      actions: [navigateToView(View.AiReview)],
+    });
+    await expectAiReviewDetailsMatchesPackageInfo(packageInfo);
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Edit Copyright' }),
+    );
+    const copyrightInput = screen.getByRole('textbox', { name: 'Copyright' });
+    await userEvent.clear(copyrightInput);
+    await userEvent.type(
+      copyrightInput,
+      'Reviewed copyright{Enter}Second line',
+    );
+    await userEvent.keyboard('{Control>}{Enter}{/Control}');
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: `Edit ${text.attributionColumn.licenseExpression}`,
+      }),
+    );
+    const licenseInput = screen.getByRole('combobox', {
+      name: text.attributionColumn.licenseExpression,
+    });
+    await userEvent.clear(licenseInput);
+    await userEvent.type(licenseInput, 'Apache');
+    await userEvent.click(
+      await screen.findByRole('option', { name: /Apache-2.0/ }),
+    );
+    await saveChangesInAttributionColumn();
+    expect(getIsPackageInfoDirty(store.getState())).toBe(false);
+
+    await clickPackageCard(ATTRIBUTIONS_PANEL, secondAiPackage);
+    await expectAiReviewDetailsMatchesPackageInfo(secondAiPackage);
+    const savedPackage = {
+      ...packageInfo,
+      copyright: 'Reviewed copyright\nSecond line',
+      licenseName: 'Apache-2.0',
+      licenseText: '',
+    };
+    await clickPackageCard(ATTRIBUTIONS_PANEL, savedPackage);
+    await expectAiReviewDetailsMatchesPackageInfo(savedPackage);
+    expect(
+      screen.getByRole('button', { name: 'Edit Copyright' }),
+    ).toHaveTextContent('Reviewed copyright Second line');
+    expect(
+      screen.getByRole('button', {
+        name: `Edit ${text.attributionColumn.licenseExpression}`,
+      }),
+    ).toHaveTextContent('Apache-2.0');
+    expect(
+      getTemporaryDisplayPackageInfo(store.getState()).licenseText,
+    ).toBeFalsy();
   });
 
   it('shows only AI attributions, follows selection, and confirms navigation with a dirty draft', async () => {
@@ -469,12 +565,7 @@ describe('AI Review view', () => {
     await clickPackageCard(ATTRIBUTIONS_PANEL, secondAiPackage);
     await expectAttributionFormMatchesPackageInfo(secondAiPackage);
 
-    store.dispatch(
-      setTemporaryDisplayPackageInfo({
-        ...getTemporaryDisplayPackageInfo(store.getState()),
-        comment: 'AI review draft',
-      }),
-    );
+    await editAiReviewComment('AI review draft');
     await fillPanelSearch('ai-review-attributions-header', 'AI package');
     await expectPackageCards(
       ATTRIBUTIONS_PANEL,

@@ -11,12 +11,14 @@ import { AttributionType } from '../../enums/enums';
 interface AttributionTypeFieldProps {
   value: boolean | undefined;
   disabled?: boolean;
+  compact?: boolean;
   onChange: (value: boolean) => void;
 }
 
 export function AttributionTypeField({
   value,
   disabled = false,
+  compact = false,
   onChange,
 }: AttributionTypeFieldProps) {
   return (
@@ -29,7 +31,21 @@ export function AttributionTypeField({
         }
       }}
       size={'small'}
-      fullWidth
+      fullWidth={!compact}
+      sx={
+        compact
+          ? {
+              '& .MuiToggleButton-root': {
+                typography: 'caption',
+                lineHeight: 'normal',
+                py: 0,
+                px: 2,
+                textTransform: 'none',
+                whiteSpace: 'nowrap',
+              },
+            }
+          : undefined
+      }
       disabled={disabled}
       aria-label={text.diffPopup.attributionType}
     >
