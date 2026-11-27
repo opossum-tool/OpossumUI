@@ -8,13 +8,14 @@ import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { PackageInfo } from '../../../shared/shared-types';
 import { EMPTY_DISPLAY_PACKAGE_INFO } from '../../shared-constants';
 import { initializePackageInfoEditing } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { useAppDispatch, useAppSelector } from '../../state/hooks';
-import {
-  getAttributionSelectionPendingResourceId,
-  getSelectedAttributionId,
-  getSelectedResourceId,
-} from '../../state/selectors/resource-selectors';
+import { useAppDispatch } from '../../state/hooks';
 import { backend, useDatabaseInitialized } from '../../util/backendClient';
+
+export interface AttributionDetailsSelection {
+  attributionId: string;
+  resourceId: string;
+  isPending: boolean;
+}
 
 export interface AttributionDetailsPresentation {
   attributionId?: string;
@@ -38,19 +39,15 @@ function isSettled(query: { isSuccess: boolean; isError: boolean }): boolean {
   return query.isSuccess || query.isError;
 }
 
-export function useAttributionDetailsPresentation() {
+export function useAttributionDetailsPresentation(
+  selection: AttributionDetailsSelection,
+) {
   const dispatch = useAppDispatch();
   const databaseInitialized = useDatabaseInitialized();
-  const selectedAttributionId = useAppSelector(getSelectedAttributionId);
-  const selectedResourceId = useAppSelector(getSelectedResourceId);
-  const pendingResourceId = useAppSelector(
-    getAttributionSelectionPendingResourceId,
-  );
+  const { attributionId, resourceId } = selection;
 
   const selectedAttributionQuery = backend.getAttributionData.useQuery(
-    selectedAttributionId
-      ? { attributionUuid: selectedAttributionId }
-      : skipToken,
+    attributionId ? { attributionUuid: attributionId } : skipToken,
   );
   const selectedPackageInfo = selectedAttributionQuery.data?.packageInfo;
   const originalAttributionQuery = backend.getAttributionData.useQuery(
@@ -66,7 +63,7 @@ export function useAttributionDetailsPresentation() {
   const linkageQuery = backend.getAttributionLinkStatus.useQuery(
     selectedPackageInfo?.id
       ? {
-          resourcePath: selectedResourceId,
+          resourcePath: resourceId,
           attributionUuid: selectedPackageInfo.id,
         }
       : skipToken,
@@ -76,12 +73,12 @@ export function useAttributionDetailsPresentation() {
   const breakpointsQuery = backend.getAttributionBreakpoints.useQuery();
 
   const selectionIsPending =
-    pendingResourceId === selectedResourceId ||
-    (!!selectedAttributionId &&
+    selection.isPending ||
+    (!!attributionId &&
       !selectedPackageInfo &&
       selectedAttributionQuery.isPending);
   const applicableQueriesSettled =
-    (!selectedAttributionId || isSettled(selectedAttributionQuery)) &&
+    (!attributionId || isSettled(selectedAttributionQuery)) &&
     (!selectedPackageInfo?.originalAttributionId ||
       isSettled(originalAttributionQuery)) &&
     (!selectedPackageInfo?.id || isSettled(resourceInfoQuery)) &&
@@ -94,16 +91,16 @@ export function useAttributionDetailsPresentation() {
   const currentPresentation = useMemo<
     AttributionDetailsPresentation | undefined
   >(() => {
-    if (selectedAttributionId && !selectedPackageInfo) {
+    if (attributionId && !selectedPackageInfo) {
       return undefined;
     }
-    const resourceKey = selectedResourceId.replace(/\/$/, '');
+    const resourceKey = resourceId.replace(/\/$/, '');
     const resourceInfo = selectedPackageInfo?.id
       ? resourceInfoQuery.data?.[selectedPackageInfo.id]
       : undefined;
     return {
-      attributionId: selectedAttributionId || undefined,
-      resourceId: selectedResourceId,
+      attributionId: attributionId || undefined,
+      resourceId,
       packageInfo: selectedPackageInfo ?? EMPTY_DISPLAY_PACKAGE_INFO,
       isExternal: selectedAttributionQuery.data?.isExternal === true,
       isAttributionReadonly: selectedPackageInfo?.resourceAccess === 'readonly',
@@ -131,9 +128,9 @@ export function useAttributionDetailsPresentation() {
           selectedPackageInfo?.resourceAccess === 'mixed'),
     };
   }, [
-    selectedAttributionId,
+    attributionId,
     selectedPackageInfo,
-    selectedResourceId,
+    resourceId,
     selectedAttributionQuery.data,
     originalAttributionQuery.data,
     resourceInfoQuery.data,
@@ -161,8 +158,8 @@ export function useAttributionDetailsPresentation() {
     if (databaseInitialized && !isLoading && currentPresentation) {
       setPresentation(currentPresentation);
       const nextContext = {
-        attributionId: selectedAttributionId,
-        resourceId: selectedResourceId,
+        attributionId,
+        resourceId,
         packageInfo: currentPresentation.packageInfo,
       };
       const previousContext = initializedContextRef.current;
@@ -181,8 +178,8 @@ export function useAttributionDetailsPresentation() {
     databaseInitialized,
     isLoading,
     currentPresentation,
-    selectedAttributionId,
-    selectedResourceId,
+    attributionId,
+    resourceId,
   ]);
 
   useLayoutEffect(() => {
@@ -192,7 +189,7 @@ export function useAttributionDetailsPresentation() {
       return;
     }
     if (
-      selectedAttributionId &&
+      attributionId &&
       !selectedPackageInfo &&
       !selectedAttributionQuery.isPending &&
       !selectionIsPending
@@ -202,7 +199,7 @@ export function useAttributionDetailsPresentation() {
     }
   }, [
     databaseInitialized,
-    selectedAttributionId,
+    attributionId,
     selectedPackageInfo,
     selectedAttributionQuery.isPending,
     selectionIsPending,
@@ -210,8 +207,8 @@ export function useAttributionDetailsPresentation() {
 
   const initialPresentation = useMemo<AttributionDetailsPresentation>(
     () => ({
-      attributionId: selectedAttributionId || undefined,
-      resourceId: selectedResourceId,
+      attributionId: attributionId || undefined,
+      resourceId,
       packageInfo: EMPTY_DISPLAY_PACKAGE_INFO,
       isExternal: true,
       isAttributionReadonly: true,
@@ -223,7 +220,7 @@ export function useAttributionDetailsPresentation() {
       hasMultipleResources: false,
       linkRelationshipEligible: false,
     }),
-    [selectedAttributionId, selectedResourceId],
+    [attributionId, resourceId],
   );
 
   return {
@@ -232,6 +229,6 @@ export function useAttributionDetailsPresentation() {
       : (currentPresentation ?? presentation ?? initialPresentation),
     isLoading,
     selectionIsPending,
-    hasMainAttribution: !selectedAttributionId || !!selectedPackageInfo,
+    hasMainAttribution: !attributionId || !!selectedPackageInfo,
   };
 }

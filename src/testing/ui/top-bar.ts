@@ -11,6 +11,12 @@ import { text } from '../../shared/text';
 import { escapeRegExp, SETTLED_TIMEOUT } from './common';
 
 const TOP_BAR_LABEL = 'top bar';
+type TopBarView = 'audit' | 'report' | 'aiReview';
+const TOP_BAR_VIEW_LABELS: Record<TopBarView, string> = {
+  audit: text.topBar.audit,
+  report: text.topBar.report,
+  aiReview: text.topBar.aiReview,
+};
 
 function getTopBar(): HTMLElement {
   return screen.getByLabelText(TOP_BAR_LABEL);
@@ -22,14 +28,12 @@ export async function clickTopBarOpenFileButton(): Promise<void> {
   );
 }
 
-export async function clickTopBarViewButton(
-  view: 'audit' | 'report',
-): Promise<void> {
+export async function clickTopBarViewButton(view: TopBarView): Promise<void> {
   // Like clickTopBarOpenFileButton, but without asserting the resulting view:
   // used when the view switch is gated by an unsaved-changes popup.
   await userEvent.click(
     within(getTopBar()).getByRole('button', {
-      name: view === 'audit' ? text.topBar.audit : text.topBar.report,
+      name: TOP_BAR_VIEW_LABELS[view],
     }),
   );
 }

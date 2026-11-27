@@ -4,18 +4,27 @@
 // SPDX-License-Identifier: Apache-2.0
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { afterEach, vi } from 'vitest';
 
+import {
+  type CommandName,
+  type CommandParams,
+  executeCommand,
+} from '../ElectronBackend/api/commands';
 import { deserializeAttributions } from '../ElectronBackend/input/parseInputData';
 import { View } from '../Frontend/enums/enums';
 import { setSelectedAttributionId } from '../Frontend/state/actions/resource-actions/audit-view-simple-actions';
 import { navigateToView } from '../Frontend/state/actions/view-actions/view-actions';
 import {
+  getAttributionSelectionPendingResourceId,
   getIsPackageInfoDirty,
   getSelectedAttributionId,
 } from '../Frontend/state/selectors/resource-selectors';
 import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers/general-test-helpers';
+import type { State } from '../Frontend/types/types';
 import { ATTRIBUTION_PAGE_SIZE } from '../Frontend/util/attribution-page-query';
 import { text } from '../shared/text';
+import { unexpectedBackendCall } from '../testing/backend-integration';
 import { faker } from '../testing/Faker';
 import { renderApp } from '../testing/render-app';
 import {
@@ -23,6 +32,9 @@ import {
   clearPanelSearch,
   clearTreeSearch,
   clickPackageCard,
+  clickTopBarViewButton,
+  expectAttributionDetailsLoading,
+  expectAttributionDetailsReady,
   expectAttributionFormMatchesPackageInfo,
   expectFormFieldValues,
   expectPackageCards,
@@ -33,7 +45,9 @@ import {
   expectUnsavedChangesPopupOpen,
   fillFormField,
   fillPanelSearch,
+  gotoResource,
   LINKED_RESOURCES_TREE,
+  resourceTreeItem,
   saveChangesInAttributionColumn,
   searchTree,
 } from '../testing/ui';
@@ -77,7 +91,157 @@ const linkedResourcesData = getParsedInputFileEnrichedWithTestData({
   }),
 });
 
+const firstResource = 'first-resource.ts';
+const targetResource = 'target-resource.ts';
+const firstResourcePath = faker.opossum.filePath(firstResource);
+const targetResourcePath = faker.opossum.filePath(targetResource);
+const [firstAuditId, firstAuditPackage] = faker.opossum.rawAttribution({
+  packageName: 'A first audit attribution',
+});
+const [targetAuditId, targetAuditPackage] = faker.opossum.rawAttribution({
+  packageName: 'Target audit attribution',
+});
+const [editableAiId, editableAiPackage] = faker.opossum.rawAttribution({
+  packageName: 'Z editable AI attribution',
+  aiAttributes: { deferredFields: {} },
+});
+const selectionPendingData = getParsedInputFileEnrichedWithTestData({
+  resources: { [firstResource]: 1, [targetResource]: 1 },
+  manualAttributions: deserializeAttributions({
+    [firstAuditId]: firstAuditPackage,
+    [targetAuditId]: targetAuditPackage,
+    [editableAiId]: editableAiPackage,
+  }),
+  resourcesToManualAttributions: faker.opossum.resourcesToAttributions({
+    [firstResourcePath]: [firstAuditId, editableAiId],
+    [targetResourcePath]: [targetAuditId],
+  }),
+});
+
+function pauseApiRequest<C extends CommandName>(
+  commandToPause: C,
+  matches: (params: CommandParams<C>) => boolean,
+) {
+  let released = false;
+  const { promise: requested, resolve: resolveRequested } =
+    Promise.withResolvers<void>();
+  const { promise: gate, resolve: resolveGate } = Promise.withResolvers<void>();
+  const api = vi.mocked(window.electronAPI.api);
+  const originalImplementation = api.getMockImplementation();
+  const implementationToRestore =
+    originalImplementation === unexpectedBackendCall
+      ? executeCommand
+      : (originalImplementation ?? executeCommand);
+
+  const release = () => {
+    if (released) {
+      return;
+    }
+    released = true;
+    resolveGate();
+    api.mockImplementation(implementationToRestore);
+    activePauses.delete(release);
+  };
+
+  api.mockImplementation(async (command, params) => {
+    if (command === commandToPause && matches(params as CommandParams<C>)) {
+      resolveRequested();
+      await gate;
+    }
+    return executeCommand(command, params as never);
+  });
+  activePauses.add(release);
+
+  return { requested, release };
+}
+
+const activePauses = new Set<() => void>();
+
+afterEach(() => {
+  activePauses.forEach((release) => release());
+});
+
+function expectAuditSelectionPending(
+  store: { getState: () => State },
+  resourcePath: string,
+): void {
+  expect(getAttributionSelectionPendingResourceId(store.getState())).toBe(
+    resourcePath,
+  );
+}
+
+async function expectAuditSelectionComplete(store: {
+  getState: () => State;
+}): Promise<void> {
+  await waitFor(() =>
+    expect(
+      getAttributionSelectionPendingResourceId(store.getState()),
+    ).toBeNull(),
+  );
+}
+
+async function expectSavedComment(
+  attributionId: string,
+  comment: string,
+): Promise<void> {
+  await waitFor(async () => {
+    const result = await executeCommand('getAttributionData', {
+      attributionUuid: attributionId,
+    });
+    expect(result.result.packageInfo.comment).toBe(comment);
+  });
+}
+
 describe('AI Review view', () => {
+  it('waits for its selected attribution data before enabling interaction', async () => {
+    const pausedAttribution = pauseApiRequest(
+      'getAttributionData',
+      (params) => params.attributionUuid === aiId,
+    );
+    await renderApp({
+      data,
+      actions: [setSelectedAttributionId(aiId), navigateToView(View.AiReview)],
+    });
+    await pausedAttribution.requested;
+    await expectAttributionDetailsLoading();
+
+    pausedAttribution.release();
+    await expectAttributionDetailsReady();
+  });
+
+  it('keeps AI Review editable while Audit selection is pending', async () => {
+    const { store } = await renderApp({ data: selectionPendingData });
+    await gotoResource(firstResource);
+    await expectAttributionFormMatchesPackageInfo(firstAuditPackage);
+
+    const pausedPage = pauseApiRequest(
+      'listAttributionsPage',
+      (params) => params.resourcePathForRelationships === targetResourcePath,
+    );
+    await userEvent.click(resourceTreeItem(targetResource));
+    await pausedPage.requested;
+    expect(getSelectedAttributionId(store.getState())).toBe('');
+    expectAuditSelectionPending(store, targetResourcePath);
+
+    await clickTopBarViewButton('aiReview');
+    await expectAttributionDetailsReady();
+    await expectAttributionFormMatchesPackageInfo(editableAiPackage);
+    const reviewedComment = 'Reviewed while Audit loads';
+    fillFormField('comment', reviewedComment);
+    await saveChangesInAttributionColumn();
+    await expectSavedComment(editableAiId, reviewedComment);
+    expectAuditSelectionPending(store, targetResourcePath);
+
+    await clickTopBarViewButton('audit');
+    await expectAttributionDetailsLoading();
+    expectAuditSelectionPending(store, targetResourcePath);
+    pausedPage.release();
+    await expectAuditSelectionComplete(store);
+    expect(getSelectedAttributionId(store.getState())).toBe(targetAuditId);
+    await expectAttributionDetailsReady();
+    await expectAttributionFormMatchesPackageInfo(targetAuditPackage);
+  });
+
   it('selects one status at a time while keeping overlapping counts independent', async () => {
     await renderApp({ data, actions: [navigateToView(View.AiReview)] });
     const pills = within(

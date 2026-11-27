@@ -31,7 +31,10 @@ import { AttributionForm } from '../AttributionForm/AttributionForm';
 import { AuditAttributionFormBody } from '../AttributionForm/audit-attribution-form-body';
 import { AttributionFormConfirmSavePopup } from '../ConfirmSavePopup/AttributionFormConfirmSavePopup';
 import { ButtonRow } from './ButtonRow/ButtonRow';
-import { useAttributionDetailsPresentation } from './use-attribution-details-presentation';
+import {
+  type AttributionDetailsSelection,
+  useAttributionDetailsPresentation,
+} from './use-attribution-details-presentation';
 import { useConfirmAttributionEdit } from './use-confirm-attribution-edit';
 
 const PROGRESS_INDICATOR_DELAY_MS = 150;
@@ -56,14 +59,16 @@ const classes = {
 } satisfies SxProps<Theme>;
 
 export function AttributionDetails({
+  selection,
   FormBody = AuditAttributionFormBody,
 }: {
+  selection: AttributionDetailsSelection;
   FormBody?: ComponentType<AttributionFormBodyProps>;
 }) {
   const dispatch = useAppDispatch();
   const { publishSaveCompletion } = useAttributionSaveReveal();
   const { presentation, isLoading, selectionIsPending, hasMainAttribution } =
-    useAttributionDetailsPresentation();
+    useAttributionDetailsPresentation(selection);
   const temporaryDisplayPackageInfo = useAppSelector(
     getTemporaryDisplayPackageInfo,
   );

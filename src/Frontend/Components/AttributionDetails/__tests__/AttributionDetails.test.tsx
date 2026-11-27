@@ -57,8 +57,9 @@ import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/ge
 import { renderComponent } from '../../../test-helpers/render';
 import { backend } from '../../../util/backendClient';
 import type { AttributionFormBodyProps } from '../../AttributionForm/attribution-form.types';
+import { AuditAttributionDetails as AttributionDetails } from '../../AuditView/audit-attribution-details';
 import { toast } from '../../Toaster';
-import { AttributionDetails } from '../AttributionDetails';
+import { AttributionDetails as SharedAttributionDetails } from '../AttributionDetails';
 
 function makeComparisonPackage(
   overrides: Partial<PackageInfo> = {},
@@ -108,7 +109,14 @@ describe('AttributionDetails', () => {
       );
     }
     const { store } = await renderComponent(
-      <AttributionDetails FormBody={AlternateBody} />,
+      <SharedAttributionDetails
+        selection={{
+          attributionId: packageInfo.id,
+          resourceId: '/resource',
+          isPending: false,
+        }}
+        FormBody={AlternateBody}
+      />,
       {
         data: getParsedInputFileEnrichedWithTestData({
           manualAttributions: { [packageInfo.id]: packageInfo },

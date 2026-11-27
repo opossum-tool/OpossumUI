@@ -38,6 +38,24 @@ function getAttributionColumn(): HTMLElement {
   return screen.getByLabelText('attribution column');
 }
 
+export async function expectAttributionDetailsLoading(): Promise<void> {
+  await waitFor(() =>
+    expect(getAttributionColumn()).toHaveAttribute('aria-busy', 'true'),
+  );
+  expect(screen.getByTestId('attribution-form-wrapper')).toHaveAttribute(
+    'inert',
+  );
+}
+
+export async function expectAttributionDetailsReady(): Promise<void> {
+  await waitFor(() =>
+    expect(getAttributionColumn()).toHaveAttribute('aria-busy', 'false'),
+  );
+  expect(screen.getByTestId('attribution-form-wrapper')).not.toHaveAttribute(
+    'inert',
+  );
+}
+
 function queryFormField(
   field: AttributionColumnField,
 ): HTMLInputElement | null {

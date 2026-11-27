@@ -25,7 +25,6 @@ import {
 import { backend } from '../../util/backendClient';
 import { useAttributionPages } from '../../util/use-attribution-pages';
 import { useDebouncedInput } from '../../util/use-debounced-input';
-import { AttributionDetails } from '../AttributionDetails/AttributionDetails';
 import { AttributionsList } from '../AttributionPanels/AttributionsPanel/AttributionsList/AttributionsList';
 import { SearchablePanel } from '../ResizePanels/searchable-panel';
 import { useLinkedResourcesPanel } from '../ResourceBrowser/use-linked-resources-panel';
@@ -35,6 +34,7 @@ import {
   PanelColumns,
 } from '../workspace-layout/workspace-layout';
 import { WorkspaceSidePanel } from '../workspace-layout/workspace-side-panel';
+import { AiReviewAttributionDetails } from './ai-review-attribution-details';
 import {
   aiReviewSortButtonStyle,
   AttributionsColumn,
@@ -254,7 +254,7 @@ export const AiReviewView: React.FC = () => {
       ) : (
         <>
           <DetailsColumn>
-            {selectedAttributionId && <AttributionDetails />}
+            {selectedAttributionId && <AiReviewAttributionDetails />}
           </DetailsColumn>
           <WorkspaceSidePanel
             resizeFrom="left"
