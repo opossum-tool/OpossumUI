@@ -7,9 +7,11 @@ import type { SxProps } from '@mui/material';
 import MuiBox from '@mui/material/Box';
 import MuiLinearProgress from '@mui/material/LinearProgress';
 import type { Theme } from '@mui/material/styles';
-import { useLayoutEffect, useState } from 'react';
+import useEventCallback from '@mui/utils/useEventCallback';
+import { type ComponentType, useLayoutEffect, useState } from 'react';
 
 import { borderMedium } from '../../shared-styles';
+import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
 import { acceptSavedPackageInfoEditing } from '../../state/actions/resource-actions/editing-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -21,7 +23,12 @@ import { backend } from '../../util/backendClient';
 import { useAttributionSaveReveal } from '../../util/use-attribution-save-reveal';
 import { useFocusedAttributionOutcomeBeforeInvalidation } from '../../util/use-focused-attribution-outcome';
 import { useProjectSaveDraft } from '../../util/use-project-save';
+import type {
+  AttributionFormBodyProps,
+  PackagePatch,
+} from '../AttributionForm/attribution-form.types';
 import { AttributionForm } from '../AttributionForm/AttributionForm';
+import { AuditAttributionFormBody } from '../AttributionForm/audit-attribution-form-body';
 import { AttributionFormConfirmSavePopup } from '../ConfirmSavePopup/AttributionFormConfirmSavePopup';
 import { ButtonRow } from './ButtonRow/ButtonRow';
 import { useAttributionDetailsPresentation } from './use-attribution-details-presentation';
@@ -48,7 +55,11 @@ const classes = {
   },
 } satisfies SxProps<Theme>;
 
-export function AttributionDetails() {
+export function AttributionDetails({
+  FormBody = AuditAttributionFormBody,
+}: {
+  FormBody?: ComponentType<AttributionFormBodyProps>;
+}) {
   const dispatch = useAppDispatch();
   const { publishSaveCompletion } = useAttributionSaveReveal();
   const { presentation, isLoading, selectionIsPending, hasMainAttribution } =
@@ -142,6 +153,17 @@ export function AttributionDetails() {
   const confirmAttributionEdit = useConfirmAttributionEdit(
     temporaryDisplayPackageInfo,
   );
+  const updateDraft = useEventCallback((patch: PackagePatch) => {
+    if (isLoading) {
+      return;
+    }
+    dispatch(
+      setTemporaryDisplayPackageInfo({
+        ...temporaryDisplayPackageInfo,
+        ...patch,
+      }),
+    );
+  });
 
   if (!hasMainAttribution && !isLoading) {
     return null;
@@ -169,10 +191,17 @@ export function AttributionDetails() {
       )}
       <AttributionForm
         packageInfo={temporaryDisplayPackageInfo}
+        onUpdate={updateDraft}
         onEdit={isEditable ? confirmAttributionEdit.confirm : undefined}
         dimmed={pickerMode.isActive}
         interactionBlocked={isLoading}
-      />
+      >
+        <FormBody
+          packageInfo={temporaryDisplayPackageInfo}
+          onUpdate={updateDraft}
+          onEdit={isEditable ? confirmAttributionEdit.confirm : undefined}
+        />
+      </AttributionForm>
       <ButtonRow
         key={selectionIsPending ? 'pending' : 'ready'}
         presentation={presentation}

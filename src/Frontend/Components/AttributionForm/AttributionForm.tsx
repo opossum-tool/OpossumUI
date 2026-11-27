@@ -3,25 +3,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 import MuiBox from '@mui/material/Box';
-import MuiDivider from '@mui/material/Divider';
-import MuiTypography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import useEventCallback from '@mui/utils/useEventCallback';
-import { useLayoutEffect, useRef, useState } from 'react';
+import { type ReactNode, useLayoutEffect, useRef, useState } from 'react';
 
 import type { PackageInfo } from '../../../shared/shared-types';
-import { text } from '../../../shared/text';
 import { PICKER_MODE_DISABLED_OPACITY } from '../../shared-styles';
-import { setTemporaryDisplayPackageInfo } from '../../state/actions/resource-actions/all-views-simple-actions';
-import { useAppDispatch } from '../../state/hooks';
 import type { Confirm } from '../ConfirmationDialog/ConfirmationDialog';
 import type { PackagePatch } from './attribution-form.types';
-import { AttributionTypeField } from './attribution-type-field';
 import { AuditingOptions } from './AuditingOptions/AuditingOptions';
-import { Comment } from './Comment/Comment';
-import { CopyrightSubPanel } from './CopyrightSubPanel/CopyrightSubPanel';
-import { LicenseSubPanel } from './LicenseSubPanel/LicenseSubPanel';
-import { PackageSubPanel } from './PackageSubPanel/PackageSubPanel';
 
 const classes = {
   formContainer: {
@@ -35,13 +24,12 @@ const classes = {
     overflow: 'hidden auto',
     transition: 'opacity 150ms ease',
   },
-  attributionTypeContainer: {
-    position: 'relative',
-  },
 };
 
 interface AttributionFormProps {
   packageInfo: PackageInfo;
+  onUpdate: (patch: PackagePatch) => void;
+  children: ReactNode;
   onEdit?: Confirm;
   label?: string;
   dimmed?: boolean;
@@ -50,6 +38,8 @@ interface AttributionFormProps {
 
 export function AttributionForm({
   packageInfo,
+  onUpdate,
+  children,
   label,
   onEdit,
   dimmed,
@@ -58,22 +48,6 @@ export function AttributionForm({
   const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
   const headerContentRef = useRef<HTMLDivElement>(null);
   const [headerHeight, setHeaderHeight] = useState<number>();
-  const dispatch = useAppDispatch();
-  const showHighlight = !!onEdit;
-  const updatePackageInfo = useEventCallback((patch: PackagePatch) => {
-    if (interactionBlocked) {
-      return;
-    }
-    dispatch(
-      setTemporaryDisplayPackageInfo({
-        ...packageInfo,
-        ...patch,
-      }),
-    );
-  });
-  const onAttributionTypeChange = useEventCallback((firstParty: boolean) => {
-    void onEdit?.(() => updatePackageInfo({ firstParty }));
-  });
 
   useLayoutEffect(() => {
     const content = headerContentRef.current;
@@ -114,57 +88,12 @@ export function AttributionForm({
           <AuditingOptions
             packageInfo={packageInfo}
             isEditable={!!onEdit}
-            onUpdate={updatePackageInfo}
+            onUpdate={onUpdate}
             interactionBlocked={interactionBlocked}
           />
         </MuiBox>
       </MuiBox>
-      <MuiDivider variant={'middle'}>
-        <MuiTypography>
-          {text.attributionColumn.packageCoordinates}
-        </MuiTypography>
-      </MuiDivider>
-      <PackageSubPanel
-        packageInfo={packageInfo}
-        showHighlight={showHighlight}
-        onEdit={onEdit}
-        onUpdate={updatePackageInfo}
-      />
-      <MuiDivider variant={'middle'}>
-        <MuiTypography>{text.attributionColumn.legalInformation}</MuiTypography>
-      </MuiDivider>
-      {renderAttributionType()}
-      <CopyrightSubPanel
-        packageInfo={packageInfo}
-        showHighlight={showHighlight}
-        onEdit={onEdit}
-        hidden={packageInfo.firstParty}
-        onUpdate={updatePackageInfo}
-      />
-      <LicenseSubPanel
-        packageInfo={packageInfo}
-        showHighlight={showHighlight}
-        onEdit={onEdit}
-        hidden={packageInfo.firstParty}
-        onUpdate={updatePackageInfo}
-      />
-      <Comment
-        packageInfo={packageInfo}
-        onEdit={onEdit}
-        onUpdate={updatePackageInfo}
-      />
+      {children}
     </MuiBox>
   );
-
-  function renderAttributionType() {
-    return (
-      <MuiBox sx={classes.attributionTypeContainer}>
-        <AttributionTypeField
-          value={packageInfo.firstParty}
-          disabled={!onEdit}
-          onChange={onAttributionTypeChange}
-        />
-      </MuiBox>
-    );
-  }
 }

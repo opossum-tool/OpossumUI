@@ -56,6 +56,7 @@ import {
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { backend } from '../../../util/backendClient';
+import type { AttributionFormBodyProps } from '../../AttributionForm/attribution-form.types';
 import { toast } from '../../Toaster';
 import { AttributionDetails } from '../AttributionDetails';
 
@@ -95,6 +96,47 @@ async function waitForAttributionDetailsReady() {
 describe('AttributionDetails', () => {
   afterEach(() => {
     vi.mocked(window.electronAPI.api).mockImplementation(executeCommand);
+  });
+
+  it('allows replacing the form body while retaining the auditing header', async () => {
+    const packageInfo = faker.opossum.packageInfo({ comment: 'original' });
+    function AlternateBody({ onUpdate }: AttributionFormBodyProps) {
+      return (
+        <button onClick={() => onUpdate({ comment: 'updated' })}>
+          Update alternate body
+        </button>
+      );
+    }
+    const { store } = await renderComponent(
+      <AttributionDetails FormBody={AlternateBody} />,
+      {
+        data: getParsedInputFileEnrichedWithTestData({
+          manualAttributions: { [packageInfo.id]: packageInfo },
+        }),
+        actions: [
+          setSelectedResourceId('/resource', 'preserve'),
+          setSelectedAttributionId(packageInfo.id),
+        ],
+      },
+    );
+
+    await waitForAttributionDetailsReady();
+    expect(
+      screen.getByRole('button', { name: 'Update alternate body' }),
+    ).toBeVisible();
+    expect(
+      screen.queryByLabelText(text.attributionColumn.packageName),
+    ).not.toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Update alternate body' }),
+    );
+    expect(getTemporaryDisplayPackageInfo(store.getState())).toMatchObject({
+      comment: 'updated',
+      packageName: packageInfo.packageName,
+    });
+    expect(
+      screen.getByRole('button', { name: text.auditingOptions.add }),
+    ).toBeInTheDocument();
   });
 
   it('renders nothing for a readonly structural ancestor without a selected attribution', async () => {

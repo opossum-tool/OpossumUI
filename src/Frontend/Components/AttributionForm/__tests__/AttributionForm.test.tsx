@@ -18,12 +18,42 @@ import {
   expectAiStatusIcons,
 } from '../../../../testing/ui';
 import { OpossumColors } from '../../../shared-styles';
+import { setTemporaryDisplayPackageInfo } from '../../../state/actions/resource-actions/all-views-simple-actions';
 import { setUserSetting } from '../../../state/actions/user-settings-actions/user-settings-actions';
+import { useAppDispatch } from '../../../state/hooks';
 import { getTemporaryDisplayPackageInfo } from '../../../state/selectors/resource-selectors';
 import { getParsedInputFileEnrichedWithTestData } from '../../../test-helpers/general-test-helpers';
 import { renderComponent } from '../../../test-helpers/render';
 import { generatePurl } from '../../../util/handle-purl';
-import { AttributionForm } from '../AttributionForm';
+import type { Confirm } from '../../ConfirmationDialog/ConfirmationDialog';
+import type { PackagePatch } from '../attribution-form.types';
+import { AttributionForm as FormContainer } from '../AttributionForm';
+import { AuditAttributionFormBody } from '../audit-attribution-form-body';
+
+function AttributionForm(props: {
+  packageInfo: PackageInfo;
+  onUpdate?: (patch: PackagePatch) => void;
+  onEdit?: Confirm;
+  dimmed?: boolean;
+  interactionBlocked?: boolean;
+}) {
+  const dispatch = useAppDispatch();
+  const onUpdate =
+    props.onUpdate ??
+    ((patch: PackagePatch) =>
+      dispatch(
+        setTemporaryDisplayPackageInfo({ ...props.packageInfo, ...patch }),
+      ));
+  return (
+    <FormContainer {...props} onUpdate={onUpdate}>
+      <AuditAttributionFormBody
+        packageInfo={props.packageInfo}
+        onUpdate={onUpdate}
+        onEdit={props.onEdit}
+      />
+    </FormContainer>
+  );
+}
 
 describe('AttributionForm', () => {
   describe('attribution type', () => {
@@ -33,8 +63,13 @@ describe('AttributionForm', () => {
         void onConfirm();
         return Promise.resolve(true);
       });
-      const { store } = await renderComponent(
-        <AttributionForm packageInfo={packageInfo} onEdit={onEdit} />,
+      const onUpdate = vi.fn();
+      await renderComponent(
+        <AttributionForm
+          packageInfo={packageInfo}
+          onEdit={onEdit}
+          onUpdate={onUpdate}
+        />,
       );
 
       await userEvent.click(
@@ -42,9 +77,7 @@ describe('AttributionForm', () => {
       );
 
       expect(onEdit).toHaveBeenCalledOnce();
-      expect(getTemporaryDisplayPackageInfo(store.getState()).firstParty).toBe(
-        true,
-      );
+      expect(onUpdate).toHaveBeenCalledWith({ firstParty: true });
     });
 
     it('ignores clicks on the selected attribution type', async () => {
