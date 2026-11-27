@@ -17,9 +17,11 @@ import type {
 } from '../../../shared/shared-types';
 import { text } from '../../../shared/text';
 import {
+  baseIconSize,
   occurrenceChipMinWidth,
   OpossumColors,
   readonlyStyle,
+  Sizing,
 } from '../../shared-styles';
 import { useUserSettings } from '../../state/variables/use-user-setting';
 import { getCardLabels } from '../../util/get-card-labels';
@@ -29,8 +31,27 @@ import { ReadonlyIcon } from '../Icons/Icons';
 import { getRightIcons } from './PackageCard.util';
 
 const PACKAGE_CARD_HEIGHT = 40;
+const COMFORTABLE_PACKAGE_CARD_HEIGHT = 56;
+
+const densityStyles = {
+  compact: { height: PACKAGE_CARD_HEIGHT, px: Sizing.Tiny, py: 0 },
+  comfortable: {
+    height: COMFORTABLE_PACKAGE_CARD_HEIGHT,
+    px: Sizing.MediumPad,
+    py: Sizing.SmallGap,
+  },
+};
+
+export type PackageCardDensity = keyof typeof densityStyles;
+
+export function getPackageCardListItemHeight(
+  density: PackageCardDensity = 'compact',
+) {
+  return densityStyles[density].height + 1;
+}
+
 // package card + divider
-export const PACKAGE_CARD_LIST_ITEM_HEIGHT = PACKAGE_CARD_HEIGHT + 1;
+export const PACKAGE_CARD_LIST_ITEM_HEIGHT = getPackageCardListItemHeight();
 
 const hoveredSelectedBackgroundColor = OpossumColors.middleBlue;
 const hoveredBackgroundColor = OpossumColors.lightestBlueOnHover;
@@ -42,8 +63,7 @@ const classes = {
     flex: 1,
     display: 'flex',
     alignItems: 'center',
-    height: PACKAGE_CARD_HEIGHT,
-    px: 1,
+    boxSizing: 'border-box',
     gap: 1,
     '&:focus': {
       background: hoveredBackgroundColor,
@@ -103,6 +123,18 @@ const classes = {
     gridAutoFlow: 'column',
     direction: 'rtl',
   },
+  comfortableIconColumn: {
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    justifyItems: 'center',
+    gridAutoColumns: baseIconSize,
+    columnGap: Sizing.Tiny,
+    flexShrink: 0,
+    '& > .MuiSvgIcon-root': {
+      padding: 0,
+      margin: 0,
+    },
+  },
   occurrenceChip: {
     minWidth: occurrenceChipMinWidth,
     userSelect: 'none',
@@ -116,6 +148,13 @@ const classes = {
     textOverflow: 'ellipsis',
     overflow: 'hidden',
     whiteSpace: 'nowrap',
+  },
+  title: {
+    fontSize: (theme: Theme) => theme.typography.body2.fontSize,
+  },
+  caption: {
+    fontSize: (theme: Theme) => theme.typography.body3.fontSize,
+    color: OpossumColors.darkGrey,
   },
 } satisfies SxProps<Theme>;
 
@@ -139,6 +178,8 @@ export interface PackageCardConfig {
 }
 
 interface PackageCardProps {
+  density?: PackageCardDensity;
+  showCount?: boolean;
   countTooltip?: string;
   packageInfo: PackageInfo;
   cardConfig?: Partial<PackageCardConfig>;
@@ -154,6 +195,8 @@ interface PackageCardProps {
 
 export const PackageCard = memo(
   ({
+    density = 'compact',
+    showCount = true,
     packageInfo,
     countTooltip,
     cardConfig,
@@ -220,6 +263,7 @@ export const PackageCard = memo(
         }
         sx={{
           ...classes.root,
+          ...densityStyles[density],
           ...(onClick && classes.hover),
           ...(cardConfig?.pickerSource && classes.pickerSource),
           ...(cardConfig?.resolved && classes.resolved),
@@ -244,7 +288,7 @@ export const PackageCard = memo(
           </MuiBox>
         )}
         <MuiBox sx={classes.innerRoot} onClick={onClick}>
-          {packageInfo.count !== undefined && (
+          {showCount && packageInfo.count !== undefined && (
             <MuiTooltip
               title={
                 countTooltip ??
@@ -268,16 +312,23 @@ export const PackageCard = memo(
             </MuiTooltip>
           )}
           <MuiBox sx={classes.textLines}>
-            <MuiTypography sx={classes.textLine}>
+            <MuiTypography sx={[classes.textLine, classes.title]}>
               {packageLabels[0]}
             </MuiTypography>
             {!!packageLabels[1] && (
-              <MuiTypography sx={classes.textLine}>
+              <MuiTypography sx={[classes.textLine, classes.caption]}>
                 {packageLabels[1]}
               </MuiTypography>
             )}
           </MuiBox>
-          <MuiBox sx={classes.iconColumn}>{rightIcons}</MuiBox>
+          <MuiBox
+            sx={[
+              classes.iconColumn,
+              density === 'comfortable' && classes.comfortableIconColumn,
+            ]}
+          >
+            {rightIcons}
+          </MuiBox>
           {packageInfo.resourceAccess === 'readonly' && !checkbox && (
             <ReadonlyIcon
               label={readonlyIconLabel}

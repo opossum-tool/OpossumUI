@@ -151,6 +151,7 @@ const ATTRIBUTION_AGGREGATE_INVALIDATIONS: Array<MutationInvalidation> = [
   { queryName: 'getAttributionData', awaitRefetch: true },
   { queryName: 'getAttributionPreview' },
   { queryName: 'listAttributionRelationCounts' },
+  { queryName: 'getAiReviewCounts' },
   { queryName: 'filterProperties' },
   { queryName: 'licenseOptions' },
   { queryName: 'licenseTable' },

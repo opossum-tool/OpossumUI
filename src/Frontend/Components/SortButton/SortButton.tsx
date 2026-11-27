@@ -5,14 +5,13 @@
 import SortIcon from '@mui/icons-material/Sort';
 import MuiBadge from '@mui/material/Badge';
 import MuiIconButton from '@mui/material/IconButton';
-import { useTheme } from '@mui/material/styles';
+import { type SxProps, type Theme, useTheme } from '@mui/material/styles';
 import MuiTooltip from '@mui/material/Tooltip';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import type { SortOption } from '../../../shared/attribution-result-set';
 import { text } from '../../../shared/text';
 import { Sizing } from '../../shared-styles';
-import type { UseAttributionFilters } from '../../state/variables/use-filters';
 import {
   SelectMenu,
   type SelectMenuOption,
@@ -20,17 +19,30 @@ import {
 } from '../SelectMenu/SelectMenu';
 import { useSortConfiguration } from './useSortingOptions';
 
+const badgeStyle = {
+  padding: 0,
+  minWidth: 'unset',
+  width: 'fit-content',
+  height: 'fit-content',
+};
+
 interface Props extends Pick<
   SelectMenuProps,
   'anchorArrow' | 'anchorPosition'
 > {
-  useFilteredData: UseAttributionFilters;
+  sorting: SortOption;
+  color?: 'default' | 'inherit';
+  badgeInset?: Sizing;
+  buttonSx?: SxProps<Theme>;
   disabled?: boolean;
-  onSortingChange?: (sorting: SortOption) => void;
+  onSortingChange: (sorting: SortOption) => void;
 }
 
 export const SortButton: React.FC<Props> = ({
-  useFilteredData,
+  sorting,
+  color = 'default',
+  badgeInset,
+  buttonSx,
   anchorArrow,
   anchorPosition,
   disabled,
@@ -38,31 +50,16 @@ export const SortButton: React.FC<Props> = ({
 }) => {
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<HTMLElement>();
-  const [{ sorting }, setFilteredAttributions] = useFilteredData();
 
   const sortConfiguration = useSortConfiguration();
-
-  const setSorting = useCallback(
-    (sortOption: SortOption) => {
-      if (onSortingChange) {
-        onSortingChange(sortOption);
-        return;
-      }
-      setFilteredAttributions((prev) => ({
-        ...prev,
-        sorting: sortOption,
-      }));
-    },
-    [onSortingChange, setFilteredAttributions],
-  );
 
   const isCurrentSortingActive = sortConfiguration[sorting].active;
 
   useEffect(() => {
     if (!isCurrentSortingActive) {
-      setSorting('alphabetically');
+      onSortingChange('alphabetically');
     }
-  }, [isCurrentSortingActive, setSorting]);
+  }, [isCurrentSortingActive, onSortingChange]);
 
   const sortingOptions = useMemo(
     () =>
@@ -77,10 +74,10 @@ export const SortButton: React.FC<Props> = ({
             label: entry.label,
             selected: sortOption === sorting,
             icon: <Icon />,
-            onAdd: () => setSorting(sortOption),
+            onAdd: () => onSortingChange(sortOption),
           };
         }),
-    [sorting, sortConfiguration, setSorting],
+    [sorting, sortConfiguration, onSortingChange],
   );
 
   const BadgeContent = sortConfiguration[sorting].icon;
@@ -89,9 +86,13 @@ export const SortButton: React.FC<Props> = ({
     <>
       <MuiIconButton
         aria-label={'sort button'}
+        aria-haspopup="menu"
+        aria-expanded={Boolean(anchorEl)}
         onClick={(event) => setAnchorEl(event.currentTarget)}
         disabled={disabled}
         size={'small'}
+        color={color}
+        sx={buttonSx}
       >
         <MuiBadge
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
@@ -99,14 +100,17 @@ export const SortButton: React.FC<Props> = ({
           slotProps={{
             badge: {
               style: {
-                padding: 0,
-                minWidth: 'unset',
-                width: 'fit-content',
-                height: 'fit-content',
+                ...badgeStyle,
+                ...(badgeInset !== undefined && {
+                  right: theme.spacing(badgeInset),
+                  bottom: theme.spacing(badgeInset),
+                }),
               },
             },
           }}
-          badgeContent={<BadgeContent color={'action'} />}
+          badgeContent={
+            <BadgeContent color={color === 'inherit' ? 'inherit' : 'action'} />
+          }
         >
           <MuiTooltip
             title={text.buttons.sort}

@@ -17,12 +17,15 @@ import {
   type ListItemContentProps,
 } from '../../../List/List';
 import {
-  PACKAGE_CARD_LIST_ITEM_HEIGHT,
+  getPackageCardListItemHeight,
   PackageCard,
+  type PackageCardDensity,
 } from '../../../PackageCard/PackageCard';
 import { SearchList } from '../../../SearchList/SearchList';
 
 interface Props {
+  density?: PackageCardDensity;
+  showCount?: boolean;
   activeAttributionIds: Array<string> | null;
   attributions: Attributions | null;
   contentHeight: string;
@@ -44,6 +47,8 @@ interface Props {
 }
 
 export const AttributionsList: React.FC<Props> = ({
+  density = 'compact',
+  showCount,
   attributions,
   activeAttributionIds,
   selectedAttributionId,
@@ -69,7 +74,7 @@ export const AttributionsList: React.FC<Props> = ({
       renderItemContent={renderAttributionCard}
       data={activeAttributionIds?.map((id) => ({ id })) ?? null}
       totalCount={totalAttributionCount}
-      unloadedItemHeight={PACKAGE_CARD_LIST_ITEM_HEIGHT}
+      unloadedItemHeight={getPackageCardListItemHeight(density)}
       resultSetKey={resultSetKey}
       components={{ List: SearchList }}
       selectedId={selectedAttributionId}
@@ -107,6 +112,8 @@ export const AttributionsList: React.FC<Props> = ({
     return (
       <>
         <PackageCard
+          density={density}
+          showCount={showCount}
           onClick={() => {
             selectedAttributionId !== attributionId && onSelect(attribution);
           }}

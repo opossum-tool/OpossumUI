@@ -196,6 +196,14 @@ export const text = {
     moreActions: 'More actions',
   },
   aiReviewView: {
+    statusFilters: 'AI review status filters',
+    filters: {
+      all: 'All',
+      deferred: 'Deferred',
+      needsFollowUp: 'Needs follow-up',
+      humanModified: 'Human modified',
+      fullyResolved: 'Fully resolved',
+    },
     noMatchingAttributions: 'No matching attributions',
     noAttributionsToReview: 'No attributions to review',
   },

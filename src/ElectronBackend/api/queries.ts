@@ -35,6 +35,7 @@ import {
   getNextAttributionToReviewForAi,
   hasAiAttributions,
 } from './ai-progress-bar';
+import { getAiReviewCounts } from './attributions/ai-review-counts';
 import { listAttributionRelationCounts } from './attributions/attribution-relation-counts';
 import { getAttributionSelectionSummary } from './attributions/attribution-selection-queries';
 import { getAttributionPreview } from './attributions/get-attribution-preview';
@@ -248,6 +249,7 @@ export const queries = {
     return { result: await isProjectSplit() };
   },
   getAttributionPreview,
+  getAiReviewCounts,
   listAttributionRelationCounts,
   listAttributionsPage,
   listAttributionPreview,

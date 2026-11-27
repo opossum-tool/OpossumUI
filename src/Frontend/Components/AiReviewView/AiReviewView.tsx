@@ -4,10 +4,18 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useEffect, useMemo, useState } from 'react';
 
-import type { AttributionResultSetCriteria } from '../../../shared/attribution-result-set';
+import {
+  AI_REVIEW_FILTERS,
+  type AiReviewFilter,
+} from '../../../shared/ai-review';
+import type {
+  AttributionResultSetCriteria,
+  SortOption,
+} from '../../../shared/attribution-result-set';
 import { AllowedFrontendChannels } from '../../../shared/ipc-channels';
 import { text } from '../../../shared/text';
 import { ROOT_PATH } from '../../shared-constants';
+import { Sizing } from '../../shared-styles';
 import { changeSelectedAttributionOrOpenUnsavedPopup } from '../../state/actions/popup-actions/popup-actions';
 import { useAppDispatch, useAppSelector } from '../../state/hooks';
 import {
@@ -15,6 +23,7 @@ import {
   getSelectedAttributionId,
 } from '../../state/selectors/resource-selectors';
 import { usePanelSizes } from '../../state/variables/use-panel-sizes';
+import { backend } from '../../util/backendClient';
 import { useAttributionPages } from '../../util/use-attribution-pages';
 import { useDebouncedInput } from '../../util/use-debounced-input';
 import { AttributionDetails } from '../AttributionDetails/AttributionDetails';
@@ -22,10 +31,16 @@ import { AttributionsList } from '../AttributionPanels/AttributionsPanel/Attribu
 import { ResizableBox } from '../ResizableBox/ResizableBox';
 import { SearchablePanel } from '../ResizePanels/searchable-panel';
 import { useLinkedResourcesPanel } from '../ResourceBrowser/use-linked-resources-panel';
+import { SortButton } from '../SortButton/SortButton';
 import {
+  aiReviewSortButtonStyle,
+  AttributionsColumn,
   ColumnsContainer,
   DetailsColumn,
   EmptyState,
+  FilterCount,
+  FilterPill,
+  FilterPills,
 } from './AiReviewView.style';
 
 export const AiReviewView: React.FC = () => {
@@ -34,6 +49,8 @@ export const AiReviewView: React.FC = () => {
   const isPackageInfoDirty = useAppSelector(getIsPackageInfoDirty);
   const { panelSizes, setPanelSizes } = usePanelSizes();
   const [search, setSearch] = useState('');
+  const [reviewFilter, setReviewFilter] = useState<AiReviewFilter>('all');
+  const [sorting, setSorting] = useState<SortOption>('alphabetically');
   const [linkedResourcesSearchValue, setLinkedResourcesSearchValue] =
     useState('');
   const linkedResourcesPanel = useLinkedResourcesPanel(
@@ -41,9 +58,10 @@ export const AiReviewView: React.FC = () => {
     setLinkedResourcesSearchValue,
   );
   const debouncedSearch = useDebouncedInput(search);
-  const criteria = useMemo<AttributionResultSetCriteria>(
+  const baseCriteria = useMemo<AttributionResultSetCriteria>(
     () => ({
       external: false,
+      aiOnly: true,
       filters: [],
       search: debouncedSearch,
       valueFilters: {},
@@ -53,11 +71,21 @@ export const AiReviewView: React.FC = () => {
     }),
     [debouncedSearch],
   );
+  const criteria = useMemo(
+    () => ({ ...baseCriteria, aiReviewFilter: reviewFilter }),
+    [baseCriteria, reviewFilter],
+  );
+  const attributionCounts = backend.getAiReviewCounts.useQuery({
+    ...baseCriteria,
+    includeReadonly: true,
+  });
+  const totalAttributionCount = attributionCounts.data?.[reviewFilter];
   const attributionPages = useAttributionPages({
     criteria,
     scope: { mode: 'all' },
-    sort: 'alphabetically',
+    sort: sorting,
     includeReadonly: true,
+    totalCount: totalAttributionCount,
     targetAttributionUuid: selectedAttributionId || undefined,
   });
   const attributionIds = attributionPages.attributions
@@ -66,7 +94,7 @@ export const AiReviewView: React.FC = () => {
   const selectedAttributionIsLoaded =
     selectedAttributionId !== '' &&
     Object.hasOwn(attributionPages.attributions ?? {}, selectedAttributionId);
-  const selectedAttributionMatchesSearch =
+  const selectedAttributionMatchesCriteria =
     selectedAttributionIsLoaded ||
     (attributionPages.navigationIsSuccess &&
       !attributionPages.navigationFetching &&
@@ -84,7 +112,7 @@ export const AiReviewView: React.FC = () => {
     }
 
     if (selectedAttributionId) {
-      if (selectedAttributionMatchesSearch) {
+      if (selectedAttributionMatchesCriteria) {
         return;
       }
       if (
@@ -120,7 +148,7 @@ export const AiReviewView: React.FC = () => {
     dispatch,
     isPackageInfoDirty,
     selectedAttributionId,
-    selectedAttributionMatchesSearch,
+    selectedAttributionMatchesCriteria,
   ]);
 
   const resultsAreSettled =
@@ -144,20 +172,20 @@ export const AiReviewView: React.FC = () => {
         }
         sx={{ flexShrink: 0, overflow: 'visible', zIndex: 1 }}
       >
-        <div
-          data-testid={'attributions-panel'}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%',
-            minHeight: 0,
-            overflow: 'hidden',
-            width: '100%',
-          }}
-        >
+        <AttributionsColumn data-testid={'attributions-panel'}>
           <SearchablePanel
             title={text.packageLists.attributionsPanelTitle}
             headerTestId={'ai-review-attributions-header'}
+            headerActions={
+              <SortButton
+                color="inherit"
+                sorting={sorting}
+                onSortingChange={setSorting}
+                badgeInset={Sizing.Tiny}
+                buttonSx={aiReviewSortButtonStyle}
+                anchorPosition="right"
+              />
+            }
             search={{
               value: search,
               setValue: setSearch,
@@ -165,8 +193,41 @@ export const AiReviewView: React.FC = () => {
               inputLabel: text.menu.editSubmenu.searchAttributions,
             }}
           >
+            <FilterPills
+              role="group"
+              aria-label={text.aiReviewView.statusFilters}
+            >
+              {AI_REVIEW_FILTERS.map((filter) => (
+                <FilterPill
+                  key={filter}
+                  component="button"
+                  type="button"
+                  size="small"
+                  clickable
+                  aria-pressed={reviewFilter === filter}
+                  color={reviewFilter === filter ? 'primary' : 'default'}
+                  variant={reviewFilter === filter ? 'filled' : 'outlined'}
+                  label={
+                    <>
+                      {text.aiReviewView.filters[filter]}
+                      {attributionCounts.data && (
+                        <>
+                          {' '}
+                          <FilterCount>
+                            {attributionCounts.data[filter]}
+                          </FilterCount>
+                        </>
+                      )}
+                    </>
+                  }
+                  onClick={() => setReviewFilter(filter)}
+                />
+              ))}
+            </FilterPills>
             <div style={{ flex: 1, minHeight: 0, width: '100%' }}>
               <AttributionsList
+                density="comfortable"
+                showCount={false}
                 activeAttributionIds={attributionIds}
                 attributions={attributionPages.attributions}
                 contentHeight={'100%'}
@@ -175,6 +236,7 @@ export const AiReviewView: React.FC = () => {
                 loadMoreError={attributionPages.nextPageError}
                 fetchNextPage={attributionPages.fetchNextPage}
                 selectedAttributionId={selectedAttributionId}
+                totalAttributionCount={totalAttributionCount}
                 resultSetKey={attributionPages.resultSetKey}
                 onSelect={(attribution) =>
                   dispatch(
@@ -184,12 +246,12 @@ export const AiReviewView: React.FC = () => {
               />
             </div>
           </SearchablePanel>
-        </div>
+        </AttributionsColumn>
       </ResizableBox>
       {showEmptyState ? (
         <DetailsColumn>
           <EmptyState>
-            {debouncedSearch
+            {debouncedSearch || reviewFilter !== 'all'
               ? text.aiReviewView.noMatchingAttributions
               : text.aiReviewView.noAttributionsToReview}
           </EmptyState>

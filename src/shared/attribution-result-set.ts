@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
+import type { AiReviewFilter } from './ai-review';
 import type {
   AttributionFilterKey,
   AttributionValueFilters,
@@ -14,6 +15,8 @@ export type SortOption =
 /** The criteria shared by every attribution result-set consumer. */
 export interface AttributionResultSetCriteria {
   external: boolean;
+  aiOnly?: boolean;
+  aiReviewFilter?: AiReviewFilter;
   filters: Array<AttributionFilterKey>;
   search: string;
   valueFilters: AttributionValueFilters;

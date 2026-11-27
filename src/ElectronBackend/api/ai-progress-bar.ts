@@ -4,6 +4,10 @@
 // SPDX-License-Identifier: Apache-2.0
 import { type ExpressionBuilder, sql } from 'kysely';
 
+import {
+  getAiDeferredExpression,
+  getAiHumanModifiedExpression,
+} from '../db/attribution-ai';
 import { getDb } from '../db/db';
 import type { DB } from '../db/generated/databaseTypes';
 import { GET_LEGACY_RESOURCE_PATH, getResourceOrThrow } from './utils';
@@ -38,12 +42,8 @@ function getWritableResourceLinks(
 function getAiReviewStatus(
   eb: ExpressionBuilder<DB, 'attribution' | 'attribution_ai'>,
 ) {
-  const deferred = eb('attribution_ai.deferred_fields', 'is not', null);
-  const modified = eb(
-    eb.fn.coalesce('attribution_ai.human_modified', eb.val(0)),
-    '=',
-    1,
-  );
+  const deferred = getAiDeferredExpression(eb);
+  const modified = getAiHumanModifiedExpression(eb);
   return {
     deferred,
     modified,

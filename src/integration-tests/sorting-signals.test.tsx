@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { screen, waitFor, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { deserializeAttributions } from '../ElectronBackend/input/parseInputData';
@@ -10,6 +10,7 @@ import { getParsedInputFileEnrichedWithTestData } from '../Frontend/test-helpers
 import { text } from '../shared/text';
 import { faker } from '../testing/Faker';
 import { renderApp } from '../testing/render-app';
+import { expectPackageCardOrder, SIGNALS_PANEL } from '../testing/ui';
 
 const [resourceName1, resourceName2, resourceName3, resourceName4] =
   faker.opossum.resourceNames({ count: 4 });
@@ -26,12 +27,6 @@ const [attributionId2, packageInfo2] = faker.opossum.rawAttribution({
   classification: 1,
   source,
 });
-
-function cardOrder(): Array<string | null> {
-  return screen
-    .getAllByLabelText(/^package card /)
-    .map((element) => element.getAttribute('aria-label'));
-}
 
 describe('sorting signals', () => {
   it('sorts signals by classification', async () => {
@@ -56,9 +51,7 @@ describe('sorting signals', () => {
     });
 
     // The app selects the root resource '/' initially, so both signals are shown.
-    await waitFor(() => {
-      expect(cardOrder()).toEqual(['package card a', 'package card b']);
-    });
+    await expectPackageCardOrder(SIGNALS_PANEL, [packageInfo1, packageInfo2]);
 
     const signalsPanel = screen.getByTestId('signals-panel');
     await userEvent.click(
@@ -69,8 +62,6 @@ describe('sorting signals', () => {
     );
     await userEvent.keyboard('{Escape}');
 
-    await waitFor(() => {
-      expect(cardOrder()).toEqual(['package card b', 'package card a']);
-    });
+    await expectPackageCardOrder(SIGNALS_PANEL, [packageInfo2, packageInfo1]);
   });
 });

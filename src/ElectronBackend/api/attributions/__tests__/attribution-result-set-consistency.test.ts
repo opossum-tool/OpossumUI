@@ -2,12 +2,19 @@
 // SPDX-FileCopyrightText: TNG Technology Consulting GmbH <https://www.tngtech.com>
 //
 // SPDX-License-Identifier: Apache-2.0
-import { Criticality } from '../../../../shared/shared-types';
+import {
+  type AiAttributes,
+  Criticality,
+} from '../../../../shared/shared-types';
 import {
   initializeDbWithTestData,
   pathsToResources,
 } from '../../../../testing/global-test-helpers';
 import { getDb } from '../../../db/db';
+import {
+  attributionFixture,
+  initializeAiAttributionFixture,
+} from '../../__tests__/ai-attribution-test-helpers';
 import {
   getAttributionSelectionSummary,
   resolveAttributionSelection,
@@ -25,6 +32,86 @@ import {
 describe('attribution result-set consistency', () => {
   beforeEach(async () => {
     await initializeDefaultAttributionQueryTestData();
+  });
+
+  it('restricts AI-only pages, search, counts, and navigation before pagination', async () => {
+    const aiMetadata: Array<AiAttributes> = [
+      {},
+      { humanModified: false },
+      { humanModified: true },
+      { deferredFields: {}, humanModified: false },
+      { deferredFields: {}, humanModified: true },
+    ];
+    const aiIds = aiMetadata.map((_, index) => `ai-${index}`);
+    await initializeAiAttributionFixture({
+      resourcePaths: ['/file'],
+      attributions: {
+        manual: attributionFixture('manual', {
+          packageName: 'A manual package',
+        }),
+        ...Object.fromEntries(
+          aiMetadata.map((aiAttributes, index) => [
+            aiIds[index],
+            attributionFixture(aiIds[index], {
+              packageName: `B AI package ${index}`,
+              aiAttributes,
+            }),
+          ]),
+        ),
+      },
+      resourceLinks: { '/file': ['manual', ...aiIds] },
+    });
+    const criteria = {
+      ...defaultCriteria,
+      aiOnly: true,
+      resourcePathForRelationships: '/file',
+    };
+    const firstPage = await allPage({ ...criteria, limit: 2 });
+    const secondPage = await allPage({ ...criteria, offset: 2, limit: 2 });
+    const thirdPage = await allPage({ ...criteria, offset: 4, limit: 2 });
+    expect(Object.keys(firstPage.result.attributions)).toEqual(
+      aiIds.slice(0, 2),
+    );
+    expect(firstPage.result.hasNextPage).toBe(true);
+    expect(Object.keys(secondPage.result.attributions)).toEqual(
+      aiIds.slice(2, 4),
+    );
+    expect(secondPage.result.hasNextPage).toBe(true);
+    expect(Object.keys(thirdPage.result.attributions)).toEqual(aiIds.slice(4));
+    expect(thirdPage.result.hasNextPage).toBe(false);
+
+    const counts = await relationCounts(criteria);
+    expect(counts.result.resource).toMatchObject({
+      visibleCount: aiIds.length,
+    });
+    const search = await allPage({ ...criteria, search: 'manual' });
+    expect(search.result.attributions).toEqual({});
+    const manualNavigation = await locate({
+      ...criteria,
+      targetAttributionUuid: 'manual',
+      navigationScope: 'all',
+    });
+    expect(manualNavigation.result).toEqual({ found: false });
+    const aiNavigation = await locate({
+      ...criteria,
+      targetAttributionUuid: aiIds[4],
+      navigationScope: 'all',
+      limit: 2,
+    });
+    expect(aiNavigation.result).toMatchObject({ found: true });
+    expect(aiNavigation.result).toHaveProperty('prefix.attributions', {
+      ...firstPage.result.attributions,
+      ...secondPage.result.attributions,
+      ...thirdPage.result.attributions,
+    });
+
+    for (const aiOnly of [undefined, false]) {
+      const unrestrictedPage = await allPage({ ...criteria, aiOnly });
+      expect(Object.keys(unrestrictedPage.result.attributions)).toEqual([
+        'manual',
+        ...aiIds,
+      ]);
+    }
   });
 
   it('summarizes a query-wide selection with exclusions', async () => {
