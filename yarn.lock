@@ -2697,17 +2697,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@trivago/prettier-plugin-sort-imports@npm:6.0.2":
-  version: 6.0.2
-  resolution: "@trivago/prettier-plugin-sort-imports@npm:6.0.2"
+"@trivago/prettier-plugin-sort-imports@npm:6.0.3":
+  version: 6.0.3
+  resolution: "@trivago/prettier-plugin-sort-imports@npm:6.0.3"
   dependencies:
     "@babel/generator": "npm:^7.28.0"
     "@babel/parser": "npm:^7.28.0"
     "@babel/traverse": "npm:^7.28.0"
     "@babel/types": "npm:^7.28.0"
     javascript-natural-sort: "npm:^0.7.1"
-    lodash-es: "npm:^4.17.21"
-    minimatch: "npm:^9.0.0"
+    lodash-es: "npm:^4.18.1"
+    minimatch: "npm:^11.0.8"
     parse-imports-exports: "npm:^0.2.4"
   peerDependencies:
     "@vue/compiler-sfc": 3.x
@@ -2724,7 +2724,7 @@ __metadata:
       optional: true
     svelte:
       optional: true
-  checksum: 10/979138364aa6a6fe5f98ab699cce120bcfa33e6e54059580a96ff28f4c5b056d4e0d8df59e857987c0aea3b5b6159e8613002aabb6035356a8e3da62060fe5dc
+  checksum: 10/d88ee460dd870ea56a722fa30efce820ee197d9eea60375a01ffa2729678815ac002664be4b86872466fb5b78807ed46e6c36ae0c4415fc2f63a6f3efb7f6eed
   languageName: node
   linkType: hard
 
@@ -6633,7 +6633,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash-es@npm:4.18.1, lodash-es@npm:^4.17.21":
+"lodash-es@npm:4.18.1, lodash-es@npm:^4.18.1":
   version: 4.18.1
   resolution: "lodash-es@npm:4.18.1"
   checksum: 10/8bfad225ef09ef42b04283cdaf7830efcc2ba29ae41b56501c74422155ee1ccaa1f0f6e8319def3451a1fe54dec501c8e4bee622bae2b2d98ac993731e0a5cce
@@ -7206,7 +7206,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^11.0.1, minimatch@npm:^11.0.5":
+"minimatch@npm:^11.0.1, minimatch@npm:^11.0.5, minimatch@npm:^11.0.8":
   version: 11.0.9
   resolution: "minimatch@npm:11.0.9"
   dependencies:
@@ -7234,7 +7234,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^9.0.0, minimatch@npm:^9.0.3":
+"minimatch@npm:^9.0.3":
   version: 9.0.9
   resolution: "minimatch@npm:9.0.9"
   dependencies:
@@ -7538,7 +7538,7 @@ __metadata:
     "@testing-library/jest-dom": "npm:8.0.0"
     "@testing-library/react": "npm:16.3.3"
     "@testing-library/user-event": "npm:14.6.13"
-    "@trivago/prettier-plugin-sort-imports": "npm:6.0.2"
+    "@trivago/prettier-plugin-sort-imports": "npm:6.0.3"
     "@types/babel__core": "npm:7.20.5"
     "@types/better-sqlite3": "npm:9.6.0"
     "@types/chroma-js": "npm:3.1.3"
